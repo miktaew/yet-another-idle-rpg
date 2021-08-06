@@ -36,7 +36,7 @@ function update() {
 	//main stuff i guess
 
 	//console.log(character_name);
-	// count+=1;
+	//count+=1;
 }
 
 async function run() {
@@ -45,5 +45,4 @@ async function run() {
 		update();
 	}
 }
-
 run();
