@@ -1,0 +1,61 @@
+.box_div {
+	background-color: gray;
+	border: 3px solid darkblue;
+	position: absolute;
+}
+
+.message { 
+	text-align: center;
+	width: inherit;
+	height: 20;
+	border-bottom: 1px dashed blue;
+}
+
+#test_button {
+	position: absolute;
+	width: 60px;
+	height: 60px;
+	background-color: silver;
+	top: 750;
+}
+
+#character_div {
+	width: 400px;
+	height: 300px;
+}
+#inventory_div {
+	width: 350px;
+	height: 400px;
+	top: 320;
+}
+#location_div {
+	width: 400px;
+	height: 300px;
+	margin-bottom: 5px;
+	left: 420;
+}
+
+#action_div {
+	width: 450px;
+	height: 400px;
+	left: 370px;
+	top: 320px;
+}
+
+#message_log_div {
+	width: 400px;
+	height: 712px;
+	left: 832px;
+}
+
+#character_name_div {
+	width: inherit;
+}
+
+#character_name_field {
+	width: inherit;
+	text-align: center;
+	background-color: inherit;
+	border: 2px solid silver;
+	background-color: silver;
+}
