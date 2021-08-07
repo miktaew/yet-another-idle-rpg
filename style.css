@@ -1,14 +1,27 @@
+body {
+	background-color: rgb(30,30,50);
+}
+
 .box_div {
 	background-color: gray;
 	border: 3px solid darkblue;
 	position: absolute;
 }
 
+.text_div {
+	background-color: inherit;
+	position: absolute;
+	text-align: right;
+	width: 100%;
+}
+
 .message { 
 	text-align: center;
 	width: inherit;
-	height: 20;
+	height: auto;
 	border-bottom: 1px dashed blue;
+	display: inline-block;
+	word-wrap: break-word;
 }
 
 #test_button {
@@ -46,6 +59,10 @@
 	width: 400px;
 	height: 712px;
 	left: 832px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 15px;
+	margin-bottom: 20px;
 }
 
 #character_name_div {
@@ -59,3 +76,23 @@
 	border: 2px solid silver;
 	background-color: silver;
 }
+
+
+
+
+/* scrollbar */
+::-webkit-scrollbar {
+	width: 10px;
+  }
+
+::-webkit-scrollbar-track {
+	background: white; 
+  }
+   
+::-webkit-scrollbar-thumb {
+	background: rgb(87, 87, 255); 
+  }
+  
+::-webkit-scrollbar-thumb:hover {
+	background: rgb(30, 30, 255); 
+  }

@@ -6,7 +6,7 @@
 		<link rel = "stylesheet" href = "static/bootstrap/css/bootstrap-grid.min.css">
 	</head>
 
-	<body style="background-color: rgb(30,30,50);">
+	<body>
 
 				<!-- character info + stats/equipment-->
 				<div id = "character_div" class = "box_div"> 
@@ -16,7 +16,9 @@
 				</div>
 					
 				<!-- location info (name, type[safe/combat], weather, time, etc?)-->
-				<div id = "location_div" class = "box_div"> </div>
+				<div id = "location_div" class = "box_div"> 
+					<div id = "time_div" class="text_div"> </div>
+				</div>
 
 				<!-- inventory list -->
 				<div id = "inventory_div" class = "box_div"> </div>
@@ -32,6 +34,6 @@
 		<button id = "test_button">click me</button>
 	</body>
 
-	<script src = "main.js"> </script>
+	<script type="module" src = "scripts/main.js"> </script>
 	<script src = "static/bootstrap/js/bootstrap.min.js"> </script>
 </HTML>
