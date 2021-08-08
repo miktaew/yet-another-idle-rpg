@@ -1,27 +1,38 @@
 body {
-	background-color: rgb(30,30,50);
+	background-color: #05040f;
 }
 
 .box_div {
-	background-color: gray;
-	border: 3px solid darkblue;
+	background-image: linear-gradient(to bottom right, #232f47, #15152d);
+	border: 3px solid #797691;
 	position: absolute;
 }
 
 .text_div {
 	background-color: inherit;
 	position: absolute;
-	text-align: right;
 	width: 100%;
 }
 
-.message { 
+.message_default { 
 	text-align: center;
+	color: white;
 	width: inherit;
+	max-width: 395px;
 	height: auto;
-	border-bottom: 1px dashed blue;
 	display: inline-block;
 	word-wrap: break-word;
+	padding: 5px;
+	padding-right:20px;
+}
+
+.message_border { 
+	border-bottom: 1px solid #47465f;
+	position: relative;
+	bottom: 0px;
+	padding-top: 10px;
+	max-width: 350px;
+	margin: auto;
 }
 
 #test_button {
@@ -73,11 +84,16 @@ body {
 	width: inherit;
 	text-align: center;
 	background-color: inherit;
-	border: 2px solid silver;
-	background-color: silver;
+	border: 2px solid white;
+	background-color: white;
 }
 
-
+#time_div {
+	font-size: 20;
+	color: white;
+	padding-right:5px;
+	text-align: right;
+}
 
 
 /* scrollbar */
@@ -86,13 +102,13 @@ body {
   }
 
 ::-webkit-scrollbar-track {
-	background: white; 
+	background: #191928; 
   }
    
 ::-webkit-scrollbar-thumb {
-	background: rgb(87, 87, 255); 
+	background: silver; 
   }
   
 ::-webkit-scrollbar-thumb:hover {
-	background: rgb(30, 30, 255); 
+	background: white; 
   }

@@ -76,10 +76,10 @@ function Game_time(year, month, day, hour, minute) {
 
 Game_time.prototype.toString = function() {
 	var date_string = this.get_day_of_the_week() + " ";
-	date_string += this.day>9?this.day:`0${this.day}` + "/";
-	date_string += this.month>9?this.month:`0${this.month}` + "/";
-	date_string += this.year + " ";
-	date_string += this.hour>9?this.hour:`0${this.hour}` + ":";
+	date_string += ((this.day>9?this.day:`0${this.day}`) + "/");
+	date_string += ((this.month>9?this.month:`0${this.month}`) + "/");
+	date_string += (this.year + " ");
+	date_string += ((this.hour>9?this.hour:`0${this.hour}`) + ":");
 	date_string += this.minute>9?this.minute:`0${this.minute}`;
 	return date_string;
 }
