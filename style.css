@@ -14,23 +14,50 @@ body {
 	width: 100%;
 }
 
-.message_default { 
+.message_common { 
 	text-align: center;
-	color: white;
 	width: inherit;
 	max-width: 395px;
 	height: auto;
 	display: inline-block;
 	word-wrap: break-word;
-	padding: 5px;
+	padding: 2px;
 	padding-right:20px;
+	font-size: 12;
 }
+
+.message_default {
+	color: white;
+ }
+
+ .message_items_obtained {
+	 color: gold;
+	 font-weight: bold;
+ }
+
+ .message_victory {
+	 color: green;
+	 font-weight: bold;
+ }
+
+ .message_hero_defeated {
+	 color:crimson;
+	 font-weight: bold;
+ }
+
+ .message_enemy_attacked {
+	 color: lightblue;
+ }
+
+ .message_hero_attacked {
+	 color: crimson;
+ }
 
 .message_border { 
 	border-bottom: 1px solid #47465f;
 	position: relative;
 	bottom: 0px;
-	padding-top: 10px;
+	padding-top: 5px;
 	max-width: 350px;
 	margin: auto;
 }
