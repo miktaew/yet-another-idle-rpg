@@ -43,6 +43,7 @@ function Combat_zone(location_data) {
 			strength: Math.round(enemy.strength * (1.1 - Math.random() * 0.2)), agility: Math.round(enemy.agility * (1.1 - Math.random() * 0.2)),
 			magic: Math.round(enemy.magic * (1.1 - Math.random() * 0.2)), attack_speed: enemy.attack_speed * (1.1 - Math.random() * 0.2),
 			defense: Math.round(enemy.defense * (1.1 - Math.random() * 0.2)), loot_list: enemy.loot_list
+			//attack speed is the only one allowed to not be integer
 		});;
 		//creates and returns a new enemy based on template
 		//maybe add some location-related loot?
@@ -52,14 +53,16 @@ function Combat_zone(location_data) {
 
 locations["Village"] = new Location({ 
 	name: "Village", description: "Medium-sized village without anything interesting around", 
-	connected_locations: [locations["Infested field"]],
-})
+	connected_locations: [],
+});
 
 locations["Infested field"] = new Combat_zone({
 	name: "Infested field", description: "Field infested with rats", is_unlocked: true, 
 	enemies_list: [enemy_templates["Starving wolf rat"], enemy_templates["Wolf rat"]],
 	enemy_count: 20, reset_kills_on_leaving: false, parent_location: locations["Village"]
-})
+});
+locations["Village"].connected_locations.push(locations["Infested field"]);
+//remember to always add it like that, otherwise travel will be possibly only in one direction and location might not even be reachable
 
 
 export {locations};

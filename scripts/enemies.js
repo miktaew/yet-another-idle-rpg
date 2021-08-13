@@ -40,7 +40,7 @@ function Enemy(enemy_data) {
 
 enemy_templates["Starving wolf rat"] = new Enemy({
 	name: "Starving wolf rat", description: "Rat with size of a dog, starved and weakened", 
-	xp_value: 1, health: 10, strength: 1, agility: 4, magic: 0, attack_speed: 1, defense: 0, loot_list: []
+	xp_value: 1, health: 10, strength: 2, agility: 5, magic: 0, attack_speed: 1, defense: 0, loot_list: []
 });
 enemy_templates["Wolf rat"] = new Enemy({
 	name: "Wolf rat", description: "Rat with size of a dog",
@@ -48,7 +48,7 @@ enemy_templates["Wolf rat"] = new Enemy({
 });
 enemy_templates["Wolf"] = new Enemy({
 	name: "Wolf", description: "A large, wild canine", 
-	xp_value: 3, health: 25, strength: 10, agility: 10, magic: 0, attack_speed: 1.5, defense: 1, loot_list: [
+	xp_value: 3, health: 25, strength: 10, agility: 7, magic: 0, attack_speed: 1.5, defense: 1, loot_list: [
 	{"item": "wolf tooth", "chance": 1, "count": {"min": 1, "max": 4}},
 	{"item": "wolf pelt", "chance": 0.5}]
 });

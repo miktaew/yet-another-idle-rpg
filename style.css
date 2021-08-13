@@ -52,6 +52,19 @@ body {
  .message_hero_attacked {
 	 color: crimson;
  }
+ .message_hero_attacked_critically {
+	 color: crimson;
+	 font-weight: bold;
+ }
+
+ .action_travel {
+	 text-align: center;
+	 font-size: 20;
+	 color: white;
+	 border-bottom: 1px solid white;
+	 cursor: pointer;
+	 padding: 5px;
+ }
 
 .message_border { 
 	border-bottom: 1px solid #47465f;
@@ -104,15 +117,42 @@ body {
 }
 
 #character_name_div {
-	width: inherit;
+	width: 50%;
+	margin: auto;
 }
 
 #character_name_field {
-	width: inherit;
 	text-align: center;
+	width: 100%;
+	margin: auto;
 	background-color: inherit;
 	border: 2px solid white;
 	background-color: white;
+}
+
+#character_healthbar_max {
+	border: 2px solid red;
+	margin: auto;
+	margin-top:10px;
+	width: 60%;
+}
+#character_healthbar_current {
+	background-color: rgb(255, 46, 46);
+	height: 15px;
+}
+
+#character_health_value {
+	color: white;
+	width: 100%;
+	text-align: center;
+}
+
+#character_title_div {
+	margin-top:5px;
+	color: white;
+	width: 100%;
+	text-align: center;
+	font-style: italic;
 }
 
 #time_div {
@@ -120,6 +160,32 @@ body {
 	color: white;
 	padding-right:5px;
 	text-align: right;
+}
+
+#enemy_info_div {
+	opacity: 0;
+}
+
+#enemy_healthbar_max {
+	border: 2px solid red;
+	margin: auto;
+	margin-top: 10px;
+	width: 60%;
+}
+
+#enemy_healthbar_current {
+	background-color: rgb(255, 46, 46);
+	height: 15px;
+}
+
+#enemy_health_value, #enemy_stats_div, #enemy_name_div {
+	color: white;
+	width: 100%;
+	text-align: center;
+}
+
+#location_info_div {
+	height: 60%;
 }
 
 

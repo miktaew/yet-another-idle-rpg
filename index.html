@@ -1,7 +1,8 @@
 <HTML>
 	<head>
 		<link rel = "stylesheet" href = "style.css">
-
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+		<script type="module" src = "scripts/main.js"> </script>
 		<Title>Prototype</Title>
 	</head>
 
@@ -12,11 +13,38 @@
 					<div id = "character_name_div"> 
 						<input type = "text" id = "character_name_field"> 
 					</div>
+					<div id = "character_title_div">
+						Unknown adventurer
+					</div>
+					<div id = "character_health_div"> 
+						<div id = "character_healthbar_max"> 
+							<div id = "character_healthbar_current">
+							</div>
+						</div>
+						<div id = "character_health_value">
+						</div>
+					</div>
 				</div>
 					
 				<!-- location info (name, type[safe/combat], weather, time, etc?)-->
 				<div id = "location_div" class = "box_div"> 
 					<div id = "time_div"> </div>
+					<div id = "location_info_div" > </div> <!-- or something like that-->
+
+					<div id = "enemy_info_div">
+						<div id = "enemy_name_div">
+						</div>
+						<div id = "enemy_health_div"> 
+							<div id = "enemy_healthbar_max"> 
+								<div id = "enemy_healthbar_current">
+								</div>
+							</div>
+							<div id = "enemy_health_value">
+							</div>
+							<div id = "enemy_stats_div">
+							</div>
+						</div>
+					</div>
 				</div>
 
 				<!-- inventory list -->
@@ -31,7 +59,6 @@
 		</div>
 
 		<button id = "test_button">click me</button>
-	</body>
 
-	<script type="module" src = "scripts/main.js"> </script>
+	</body>
 </HTML>

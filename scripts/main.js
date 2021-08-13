@@ -1,22 +1,36 @@
-import {Game_time} from "./game_time.js";
+import { Game_time } from "./game_time.js";
 import { locations } from "./locations.js";
 
 
 //current idea for starting stats, probably a bit too low, but might give some items before first fight
-//var character = {name: "You", titles: {}, stats: {health: 10, strength: 2, agility: 2, magic: 0, attack_speed: 1}};
+//var character = {name: "You", titles: {}, stats: {max_health: 10, health: 10, strength: 2, agility: 2, magic: 0, attack_speed: 1}};
 
-var character = {name: "Hero", titles: {}, stats: {health: 100, strength: 2, agility: 10, magic: 0, attack_speed: 2}};
+var character = {name: "Hero", titles: {}, stats: {max_health: 100, health: 100, strength: 7, agility: 5, magic: 0, attack_speed: 1}};
 
 var current_enemy = null;
 var additional_hero_attacks = 0;
 var additional_enemy_attacks = 0;
-var current_location = locations["Infested field"];
+var current_location;
+var is_resting = true;
+var enemy_crit_chance = 0.5;
+var enemy_crit_damage = 2; //multiplier, not a flat bonus
+
+var current_health_value_div = document.getElementById("character_health_value");
+var current_health_bar = document.getElementById("character_healthbar_current");
+
+var current_enemy_health_value_div = document.getElementById("enemy_health_value");
+var current_enemy_health_bar = document.getElementById("enemy_healthbar_current");
+var enemy_info_div = document.getElementById("enemy_info_div");
+var enemy_stats_div = document.getElementById("enemy_stats_div");
+var enemy_name_div = document.getElementById("enemy_name_div");
+
 
 var name_field = document.getElementById("character_name_field");
 name_field.value = character.name;
 
 var message_log = document.getElementById("message_log_div");
 var time_field = document.getElementById("time_div");
+var action_div = document.getElementById("action_div");
 
 const current_game_time = new Game_time(954, 4, 1, 8, 5);
 
@@ -31,12 +45,79 @@ function test_button() {
 
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Nameless Hero");
 
+function change_location(location_name) {
+	action_div.innerHTML = '';
+	var location = locations[location_name];
+	var action;
+	if(typeof current_location !== "undefined") { //so it's not called when initializing the location on page load
+		log_message(`[ Entering ${location.name} ]`);
+	}
+	
+	if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
+		for(var i = 0; i < location.connected_locations.length; i++) {
+			action = document.createElement("div");
+			
+			enemy_info_div.style.opacity = 0;
+
+			if("connected_locations" in location.connected_locations[i]) {// check again if connected location is normal or combat
+				action.classList.add("travel_normal");
+				action.innerHTML = "Go to " + location.connected_locations[i].name;
+			} else {
+				action.classList.add("travel_combat");
+				action.innerHTML = "Enter the " + location.connected_locations[i].name;
+			}
+			action.classList.add("action_travel");
+			action.setAttribute("data-travel", location.connected_locations[i].name);
+			action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
+
+			action_div.appendChild(action);
+
+			if(typeof current_location !== "undefined" && "parent_location" in current_location) {
+				clear_enemy_and_enemy_info();
+			}
+		}
+	} else {
+		enemy_info_div.style.opacity = 1;
+
+		action = document.createElement("div");
+		action.classList.add("travel_normal", "action_travel");
+		action.innerHTML = "Go back to " + location.parent_location.name;
+		action.setAttribute("data-travel", location.parent_location.name);
+		action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
+
+		action_div.appendChild(action);
+	}
+
+	current_location = location;
+
+	/*  okay, so use this to change location
+		call it when proper action field is clicked (even listener)
+		with location argument being taken from that field, can store it in html attribute data-* (yes, * is a wildcard)
+		so can just do something like > data-location = "location name" < and it should work nicely (location name same as the key value)
+	
+	*/
+}
+
+window.change_location = change_location; //attaching to window, as otherwise it won't be visible from index file
+
+function get_new_enemy() {
+	current_enemy = current_location.get_next_enemy();
+	enemy_stats_div.innerHTML = `Str: ${current_enemy.strength} | Agl: ${current_enemy.agility}
+	| Def: ${current_enemy.defense} | Atk speed: ${current_enemy.attack_speed.toFixed(1)}`
+
+	enemy_name_div.innerHTML = current_enemy.name;
+
+	update_displayed_enemy_health();
+
+	//also show magic if not 0?
+}
+
 //single tick of fight
 function do_combat() {
 	if(current_enemy === null) {
-		current_enemy = current_location.get_next_enemy();
+		get_new_enemy();
+		return;
 	}
-
 
 	//todo: separate formulas for physical and magical weapons
 	//and also need weapons before that...
@@ -82,13 +163,21 @@ function do_combat() {
 			current_enemy.health -= damage_dealt;
 			log_message(current_enemy.name + " was hit for " + damage_dealt + " dmg", "enemy_attacked");
 
+			
+
 			if(current_enemy.health <= 0) {
+				current_enemy.health = 0; 
+				update_displayed_enemy_health();
+				//just to not go negative on displayed health
+
 				log_message(character.name + " has defeated " + current_enemy.name, "enemy_defeated");
 				log_loot(current_enemy.get_loot());
 				current_enemy = null;
 				additional_enemy_attacks = 0;
 				return;
 			}
+
+			update_displayed_enemy_health();
 		} else {
 			log_message(character.name + " has missed");
 		}
@@ -100,21 +189,35 @@ function do_combat() {
 			additional_enemy_attacks -= 1;
 		}
 		if(hero_evasion_chance < Math.random()) {
-			//hero gets hit (unless also has shield, then )
+			//hero gets hit (unless also has shield, then calculate shield blocking)
 			damage_dealt = Math.round(enemy_base_damage * (1.2 - Math.random() * 0.4));
 			//so it would then get multiplied by crit (if it happens)
 
-			damage_dealt = Math.max(damage_dealt - hero_defense, 1);
-
-			character.stats.health -= damage_dealt;
-			log_message(character.name + " was hit for " + damage_dealt + " dmg", "hero_attacked");
+			if(enemy_crit_chance > Math.random())
+			{
+				damage_dealt *= enemy_crit_damage;
+				damage_dealt = Math.max(damage_dealt - hero_defense, 1);
+				character.stats.health -= damage_dealt;
+				log_message(character.name + " was critically hit for " + damage_dealt + " dmg", "hero_attacked_critically");
+			} else {
+				damage_dealt = Math.max(damage_dealt - hero_defense, 1);
+				character.stats.health -= damage_dealt;
+				log_message(character.name + " was hit for " + damage_dealt + " dmg", "hero_attacked");
+			}
 
 			if(character.stats.health <= 0) {
 				log_message(character.name + " has lost consciousness", "hero_defeat");
+
+				if(character.stats.health < 0) {
+					character.stats.health = 1;
+				}
+
 				additional_hero_attacks = 0;
 				current_enemy = null;
-				// leave combat zone, zeroing additional attacks can be maybe as part of changing the zone?
+				change_location(current_location.parent_location.name);
+				// todo: force to rest
 			}
+			update_displayed_health();
 		} else {
 			log_message(current_enemy.name + " has missed");
 			// evasion skill goes up
@@ -141,6 +244,16 @@ function do_combat() {
 	 also shield require some strength to use
 	 */
 
+}
+
+//single tick of resting
+function do_resting() {
+	if(character.stats.health < character.stats.max_health)
+	{
+		var resting_heal_ammount = 1; //replace this with some formula based on max hp and resting skill level
+		character.stats.health += (resting_heal_ammount);
+		update_displayed_health();
+	}
 }
 
 
@@ -171,6 +284,9 @@ function log_message(message_to_add, message_type) {
 			break;
 		case "hero_attacked":
 			class_to_add = "message_hero_attacked";
+			break;
+		case "hero_attacked_critically":
+			class_to_add = "message_hero_attacked_critically";
 			break;
 		case "combat_loot":
 			class_to_add = "message_items_obtained";
@@ -207,6 +323,23 @@ function log_loot(loot_list) {
 	
 }
 
+function update_displayed_health() { //call it when eating, resting or getting hit
+	current_health_value_div.innerHTML = character.stats.health + "/" + character.stats.max_health;
+	current_health_bar.style.width = (character.stats.health*100/character.stats.max_health).toString() +"%";
+}
+
+function update_displayed_enemy_health() { //call it when getting new enemy and when enemy gets hit
+	current_enemy_health_value_div.innerHTML = current_enemy.health + "/" + current_enemy.max_health;
+	current_enemy_health_bar.style.width =  (current_enemy.health*100/current_enemy.max_health).toString() +"%";
+}
+
+function clear_enemy_and_enemy_info() {
+	current_enemy = null;
+	current_enemy_health_value_div.innerHTML = "0";
+	current_enemy_health_bar.style.width = "100%";
+	enemy_stats_div.innerHTML = `Str: 0 | Agl: 0 | Def: 0 | Magic: 0 | Atk speed: 0;`
+	enemy_name_div.innerHTML = "None";
+}
 
 function update_timer() {
 	time_field.innerHTML = current_game_time.toString();
@@ -224,7 +357,14 @@ function update() {
 	//active skills, like eating, probably can be safely calculated outside of this?
 	
 	update_timer();
-	do_combat(); //but only if in combat zone
+
+	if("parent_location" in current_location){ //if it's a combat_zone
+		do_combat();
+	} else { //everything other than combat
+		if(is_resting) { //make a change so it only switches to true on clicking the resting action and is false on default
+			do_resting();
+		}
+	}
 }
 
 async function run() {
@@ -239,6 +379,13 @@ async function run() {
 
 	var start_date;
 	var end_date;
+
+	if(typeof current_location === "undefined") {
+		change_location("Village");
+	} //to initialize the starting location
+	//later on call it also in the save loading method
+
+	update_displayed_health();
 
 	while(true){
 		start_date = new Date();
