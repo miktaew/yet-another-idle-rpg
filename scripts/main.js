@@ -3,16 +3,19 @@ import { locations } from "./locations.js";
 
 
 //current idea for starting stats, probably a bit too low, but might give some items before first fight
-//var character = {name: "You", titles: {}, stats: {max_health: 10, health: 10, strength: 2, agility: 2, magic: 0, attack_speed: 1}};
+//var character = {name: "Hero", titles: {}, stats: {max_health: 10, health: 10, strength: 2, agility: 2, magic: 0, attack_speed: 1}};
 
-var character = {name: "Hero", titles: {}, stats: {max_health: 100, health: 100, strength: 7, agility: 5, magic: 0, attack_speed: 1}};
+var character = {name: "Hero", titles: {}, 
+				stats: {max_health: 100, health: 100, strength: 20, agility: 20, magic: 0, attack_speed: 1},
+				inventory: {},
+				equipment: {head: null, torso: null, amulet: null, weapon: null, offhand: null, arms: null, ring: null, legs: null}};
 
 var current_enemy = null;
 var additional_hero_attacks = 0;
 var additional_enemy_attacks = 0;
 var current_location;
 var is_resting = true;
-var enemy_crit_chance = 0.5;
+var enemy_crit_chance = 0.1;
 var enemy_crit_damage = 2; //multiplier, not a flat bonus
 
 var current_health_value_div = document.getElementById("character_health_value");
@@ -23,6 +26,8 @@ var current_enemy_health_bar = document.getElementById("enemy_healthbar_current"
 var enemy_info_div = document.getElementById("enemy_info_div");
 var enemy_stats_div = document.getElementById("enemy_stats_div");
 var enemy_name_div = document.getElementById("enemy_name_div");
+
+var inventory_div = document.getElementById("inventory_div");
 
 
 var name_field = document.getElementById("character_name_field");
@@ -89,16 +94,9 @@ function change_location(location_name) {
 	}
 
 	current_location = location;
-
-	/*  okay, so use this to change location
-		call it when proper action field is clicked (even listener)
-		with location argument being taken from that field, can store it in html attribute data-* (yes, * is a wildcard)
-		so can just do something like > data-location = "location name" < and it should work nicely (location name same as the key value)
-	
-	*/
 }
 
-window.change_location = change_location; //attaching to window, as otherwise it won't be visible from index file
+window.change_location = change_location; //attaching to window, as otherwise it won't be visible from the index file
 
 function get_new_enemy() {
 	current_enemy = current_location.get_next_enemy();
@@ -124,8 +122,8 @@ function do_combat() {
 
 	var hero_hit_chance = Math.max(0.2, (character.stats.agility/current_enemy.agility)*0.5);
 	//so 100% if at least twice more agility, 50% if same, and never less than 20%
-	var hero_evasion_chance = Math.min(0.95, (character.stats.agility/current_enemy.agility)*0.5);
-	//so up to 95% if at least twice more agility, 50% if same, can go down to 0%
+	var hero_evasion_chance = Math.min(0.95, (character.stats.agility/current_enemy.agility)*0.33);
+	//so up to 95% if at least thrice more agility, 33% if same, can go down to 0%
 	//todo: make it 0% when using shield, only blocking will be possible with it
 
 	var hero_base_damage = character.stats.strength; // + weapon and then multiplied by bonus from weapon skill and bonus from magic enchantment if learned
@@ -135,9 +133,6 @@ function do_combat() {
 	var damage_dealt;
 
 	var hero_defense = 0; //will be a sum of armor from worn equipment + maybe a bonus from some magic stuff
-
-	// and also crit attacks?
-	// maybe flat 10% chance with 200% dmg for enemies, that can then be reduced with hero skills? (both chance and dmg) 
 
 	if(character.stats.attack_speed > current_enemy.attack_speed) {
 		additional_hero_attacks += (character.stats.attack_speed/current_enemy.attack_speed - 1);
@@ -171,7 +166,11 @@ function do_combat() {
 				//just to not go negative on displayed health
 
 				log_message(character.name + " has defeated " + current_enemy.name, "enemy_defeated");
-				log_loot(current_enemy.get_loot());
+				var loot = current_enemy.get_loot();
+				if(loot.length > 0) {
+					log_loot(loot);
+					add_to_inventory(loot);
+				}
 				current_enemy = null;
 				additional_enemy_attacks = 0;
 				return;
@@ -209,7 +208,7 @@ function do_combat() {
 				log_message(character.name + " has lost consciousness", "hero_defeat");
 
 				if(character.stats.health < 0) {
-					character.stats.health = 1;
+					character.stats.health = 0;
 				}
 
 				additional_hero_attacks = 0;
@@ -227,7 +226,6 @@ function do_combat() {
 	 enemy is in a global variable
 	 if killed, uses method of Location object to assign a random new enemy (of ones in Location) to that variable;
 	 
-
 	 todo: give xp
 	 and also on each move, if character manages to hit/evade/block or gets hit (so basically however enemy's move goes,
 	 except for when it dies and doesn't do anything), add xp to proper skills;
@@ -250,7 +248,7 @@ function do_combat() {
 function do_resting() {
 	if(character.stats.health < character.stats.max_health)
 	{
-		var resting_heal_ammount = 1; //replace this with some formula based on max hp and resting skill level
+		var resting_heal_ammount = 1; //leave this flat and let it serve as passive regeneration, but also add sleeping that will heal faster and scale with level
 		character.stats.health += (resting_heal_ammount);
 		update_displayed_health();
 	}
@@ -292,6 +290,7 @@ function log_message(message_to_add, message_type) {
 			class_to_add = "message_items_obtained";
 			break;
 	}
+
 	message.classList.add(class_to_add);
 
 	message.innerHTML = message_to_add + "<div class='message_border'> </>";
@@ -312,10 +311,10 @@ function log_loot(loot_list) {
 		return;
 	}
 
-	var message = "Looted " + loot_list[0]["item"] + " x" + loot_list[0]["count"];
+	var message = "Looted " + loot_list[0]["item"]["name"] + " x" + loot_list[0]["count"];
 	if(loot_list.length > 1) {
 		for (var i = 1; i < loot_list.length; i++) {
-			message += (", " + loot_list[i]["item"] + " x" + loot_list[i]["count"]);
+			message += (", " + loot_list[i]["item"]["name"] + " x" + loot_list[i]["count"]);
 		}
 	} //this looks terrible
 
@@ -339,6 +338,128 @@ function clear_enemy_and_enemy_info() {
 	current_enemy_health_bar.style.width = "100%";
 	enemy_stats_div.innerHTML = `Str: 0 | Agl: 0 | Def: 0 | Magic: 0 | Atk speed: 0;`
 	enemy_name_div.innerHTML = "None";
+}
+
+function add_to_inventory(items) {
+	
+	var item;
+
+	for(var i = 0; i < items.length; i++){
+		if(!character.inventory.hasOwnProperty(items[i].item.name)) //not in inventory
+		{
+
+			//
+			// TODO: add proper click listeners to items that can be used in any way (equipped/consumed/dismantled?)
+			//
+
+			if(items[i].item.stackable)
+			{
+				character.inventory[items[i].item.name] = items[i];
+			}
+			else 
+			{
+				character.inventory[items[i].item.name] = [items[i].item];
+			}
+		}
+		else //in inventory 
+		{
+			if(items[i].item.stackable)
+			{
+				character.inventory[items[i].item.name].count += items[i].count;
+				console.log(items[i].count);
+			}
+			else 
+			{
+				character.inventory[items[i].item.name].push(items[i].item);
+			}
+		}
+
+	}
+	console.log(character.inventory);
+	update_displayed_inventory();
+}
+
+function remove_from_inventory() {
+	//todo: this thing
+}
+
+function dismantle_item() {
+	//todo: this thing
+}
+
+function update_displayed_inventory() {
+	//inventory only, equipped items separately
+	//todo: do it only for changed items?
+	/*
+	todo: separate tabs for different item categories (usable / basic loot / equippable ?)
+	could just assign some classes and then switching tab would simply switch display of some items (none to hide, initial to show?)
+	*/
+	inventory_div.innerHTML = "";
+
+	Object.keys(character.inventory).forEach(function(key) {
+		if(character.inventory[key] instanceof Array) //unstackables
+		{ 
+			for(var i = 0; i < character.inventory[key].length; i++) {
+				var item_control_div = document.createElement("div");
+				var item_div = document.createElement("div");
+				//item_control_div will also contain delet/dismantle buttons
+				//item_div is just name + item count (if stackable)
+				
+				item_div.innerHTML = `${character.inventory[key][i].name}`;
+				item_div.classList.add("inventory_item");
+
+				item_control_div.setAttribute("data-inventory-item", `${character.inventory[key][i].name}---${i}`)
+				//shouldnt create any problems, as any change to inventory will also call this method, 
+				//so removing/equipping any item wont cause mismatch
+				
+				if(character.inventory[key][i].is_equippable) {
+					item_div.classList.add("equippable_item");
+				}
+
+				item_control_div.appendChild(item_div);
+
+		   		inventory_div.appendChild(item_control_div);
+			}
+		} else //stackables
+		{
+			var item_control_div = document.createElement("div");
+			var item_div = document.createElement("div");
+
+			if(character.inventory[key].count > 1)
+			{
+				item_div.innerHTML = `${character.inventory[key].item.name} x${character.inventory[key].count}`;
+			} else 
+			{
+				item_div.innerHTML = `${character.inventory[key].item.name}`;
+			}
+			item_div.classList.add("inventory_item");
+
+			if(character.inventory[key].item.is_equippable) {
+				item_div.classList.add("equippable_item");
+			}
+
+			item_control_div.setAttribute("data-inventory-item", `${character.inventory[key].item.name}`)
+			item_control_div.appendChild(item_div);
+
+		   	inventory_div.appendChild(item_control_div);
+		}
+	});
+
+
+	
+}
+
+function equip_item() {
+	//todo: this thing
+}
+
+function unequip_item() {
+	//todo: this thing
+}
+
+function update_displayed_equipment() {
+	//todo: this thing
+	//equipped items only
 }
 
 function update_timer() {

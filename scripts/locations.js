@@ -12,7 +12,8 @@ function Location(location_data) {
 		this.connected_locations = location_data.connected_locations; //this will be a list
 
 		// Activities, maybe make a special object type for actions (passive_activities ?), like sleeping/training/learning 
-		// => or make it only one action per "action_location", similarly to combat_zone (except no child zones)?,
+		// => or make it only one action per "location_action", similarly to combat_zone (except no child zones)?,
+		// or "location_actions" (a list/dict)
 		// either way, leaving the location should automatically stop it
 
 		// is_unlocked; //quests and combat_zones and stuff can have something like "unlocks: Location"
@@ -43,12 +44,12 @@ function Combat_zone(location_data) {
 			strength: Math.round(enemy.strength * (1.1 - Math.random() * 0.2)), agility: Math.round(enemy.agility * (1.1 - Math.random() * 0.2)),
 			magic: Math.round(enemy.magic * (1.1 - Math.random() * 0.2)), attack_speed: enemy.attack_speed * (1.1 - Math.random() * 0.2),
 			defense: Math.round(enemy.defense * (1.1 - Math.random() * 0.2)), loot_list: enemy.loot_list
+			//up to 10% deviation for each stat
 			//attack speed is the only one allowed to not be integer
 		});;
 		//creates and returns a new enemy based on template
 		//maybe add some location-related loot?
 	}
-
 }
 
 locations["Village"] = new Location({ 
@@ -62,7 +63,7 @@ locations["Infested field"] = new Combat_zone({
 	enemy_count: 20, reset_kills_on_leaving: false, parent_location: locations["Village"]
 });
 locations["Village"].connected_locations.push(locations["Infested field"]);
-//remember to always add it like that, otherwise travel will be possibly only in one direction and location might not even be reachable
+//remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
 
 
 export {locations};
