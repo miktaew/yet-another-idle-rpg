@@ -24,6 +24,32 @@
 						<div id = "character_health_value">
 						</div>
 					</div>
+
+					<div id = "character_stats_div"> </div>
+					<div id = "character_equipment_div"> 
+						<div class = "grid_container">
+							<div class = "equipment_slot_div"> head </div>
+							<div class = "equipment_slot_div"> torso </div>
+						</div>
+						<div class = "grid_container">
+							<div class = "equipment_slot_div" style = "float: left;"> arms </div>
+							<div class = "equipment_slot_div"> ring </div>
+						</div>
+						<div class = "grid_container">
+							<div class = "equipment_slot_div" style = "float: left;"> weapon </div>
+							<div class = "equipment_slot_div"> offhand </div>
+						</div>
+						<div class = "grid_container">
+							<div class = "equipment_slot_div" style = "float: left;"> legs </div>
+							<div class = "equipment_slot_div"> feet </div>
+						</div>
+						<div class = "equipment_slot_div amulet_slot_div"> amulet </div>
+					</div>
+
+					<div id = "character_control_div">
+						<div id = "character_show_stats" class = "character_control_button" onclick = "showCharacterStats()"> Stats </div>
+						<div id = "character_show_equipment" class = "character_control_button" onclick = "showCharacterEquipment()"> Equipment </div>
+					</div>
 				</div>
 					
 				<!-- location info (name, type[safe/combat], weather, time, etc?)-->
@@ -48,7 +74,17 @@
 				</div>
 
 				<!-- inventory list -->
-				<div id = "inventory_div" class = "box_div"> </div>
+				<div id = "inventory_div" class = "box_div"> 
+					<div id = "inventory_content_div"> </div>
+					<div id = "inventory_control_div">
+						<div id = "inventory_show_equipment" class = "inventory_control_button" onclick = "showAllItems()"> All </div>
+						<div id = "inventory_show_equipment" class = "inventory_control_button" onclick = "showOnlyEquipment()"> Equipment </div>
+						<div id = "inventory_show_consumable" class = "inventory_control_button" onclick = "showOnlyConsumables()"> Consumable </div>
+						<div id = "inventory_show_other" class = "inventory_control_button" onclick = "showOnlyOther()"> Other </div> 
+					</div>
+				</div>
+
+
 					
 				<!-- actions and stuff-->
 				<div id = "action_div" class = "box_div"> </div>
@@ -60,5 +96,38 @@
 
 		<button id = "test_button">click me</button>
 
+		<script>
+			function showAllItems() {
+				document.documentElement.style.setProperty('--equipment_display', 'initial');
+				document.documentElement.style.setProperty('--consumables_display', 'initial');
+				document.documentElement.style.setProperty('--other_display', 'initial');
+			}
+			function showOnlyEquipment() {
+				document.documentElement.style.setProperty('--equipment_display', 'initial');
+				document.documentElement.style.setProperty('--consumables_display', 'none');
+				document.documentElement.style.setProperty('--other_display', 'none');
+			}
+			function showOnlyConsumables() {
+				document.documentElement.style.setProperty('--equipment_display', 'none');
+				document.documentElement.style.setProperty('--consumables_display', 'initial');
+				document.documentElement.style.setProperty('--other_display', 'none');
+			}
+			function showOnlyOther() {
+				document.documentElement.style.setProperty('--equipment_display', 'none');
+				document.documentElement.style.setProperty('--consumables_display', 'none');
+				document.documentElement.style.setProperty('--other_display', 'initial');
+			}
+
+			function showCharacterStats() {
+				document.documentElement.style.setProperty('--equipped_display', 'none');
+				document.documentElement.style.setProperty('--stats_display', 'grid');
+
+			}
+			function showCharacterEquipment() {
+				document.documentElement.style.setProperty('--equipped_display', 'grid');
+				document.documentElement.style.setProperty('--stats_display', 'none');
+			}
+
+		</script> 
 	</body>
 </HTML>

@@ -1,3 +1,11 @@
+:root {
+	--equipment_display: initial;
+	--consumables_display: initial;
+	--other_display: initial;
+	--stats_display: grid;
+	--equipped_display: none;
+}
+
 body {
 	background-color: #05040f;
 }
@@ -71,6 +79,37 @@ body {
 	 font-size:15;
  }
 
+ .inventory_control_button {
+	float:left;
+	padding: 3px;
+	min-width: 65px;
+	text-align: center;
+	border: 1px solid white;
+	cursor: pointer;
+ }
+
+ .character_control_button {
+	float:left;
+	padding: 6px;
+	min-width: 186px;
+	font-size: 14;
+	text-align: center;
+	border: 1px solid white;
+	cursor: pointer;
+ }
+
+ .item_equippable {
+	display: var(--equipment_display)
+ }
+
+ .item_usable {
+	display: var(--consumables_display)
+ }
+
+ .item_other {
+	display: var(--other_display)
+ }
+
 .message_border { 
 	border-bottom: 1px solid #47465f;
 	position: relative;
@@ -80,28 +119,25 @@ body {
 	margin: auto;
 }
 
-#test_button {
-	position: absolute;
-	width: 60px;
-	height: 60px;
-	background-color: silver;
-	top: 750;
+.equipment_slot_div {
+	text-align: center;
+	font-size: 14;
+	width: 100%;
+	height: 32px;
+	margin-bottom: 3px;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	color: white;
+	border: 1px solid white;
 }
 
-#character_div {
-	width: 400px;
-	height: 300px;
+.amulet_slot_div {
+	height: 16px;
 }
-#inventory_div {
-	width: 350px;
-	height: 400px;
-	top: 320;
-}
-#location_div {
-	width: 400px;
-	height: 300px;
-	margin-bottom: 5px;
-	left: 420;
+
+.grid_container {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
 }
 
 #action_div {
@@ -111,14 +147,9 @@ body {
 	top: 320px;
 }
 
-#message_log_div {
+#character_div {
 	width: 400px;
-	height: 712px;
-	left: 832px;
-	overflow-y: scroll;
-	overflow-x: hidden;
-	padding-right: 15px;
-	margin-bottom: 20px;
+	height: 300px;
 }
 
 #character_name_div {
@@ -160,11 +191,21 @@ body {
 	font-style: italic;
 }
 
-#time_div {
-	font-size: 20;
+#character_equipment_div { 
+	margin: auto;
+	width: 300px;
+	display: var(--equipped_display);
+}
+
+#character_stats_div {
+	height: 400px;
+	display: var(--stats_display);
+}
+
+#character_control_div {
 	color: white;
-	padding-right:5px;
-	text-align: right;
+	position: absolute;
+	bottom: 0;
 }
 
 #enemy_info_div {
@@ -189,9 +230,58 @@ body {
 	text-align: center;
 }
 
+#inventory_content_div {
+	height: 370px;
+	overflow-y: scroll;
+}
+
+#inventory_control_div {
+	color: white;
+	font-size: 20;
+}
+
+#inventory_div {
+	width: 350px;
+	height: 400px;
+	top: 320;
+}
+
+#location_div {
+	width: 400px;
+	height: 300px;
+	margin-bottom: 5px;
+	left: 420;
+}
+
 #location_info_div {
 	height: 60%;
 }
+
+#message_log_div {
+	width: 400px;
+	height: 712px;
+	left: 832px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 15px;
+	margin-bottom: 20px;
+}
+
+#time_div {
+	font-size: 20;
+	color: white;
+	padding-right:5px;
+	text-align: right;
+}
+
+#test_button {
+	position: absolute;
+	width: 60px;
+	height: 60px;
+	background-color: silver;
+	top: 750;
+}
+
 
 
 /* scrollbar */

@@ -3,39 +3,44 @@ import { locations } from "./locations.js";
 
 
 //current idea for starting stats, probably a bit too low, but might give some items before first fight
-//var character = {name: "Hero", titles: {}, stats: {max_health: 10, health: 10, strength: 2, agility: 2, magic: 0, attack_speed: 1}};
+//const character = {name: "Hero", titles: {}, stats: {max_health: 10, health: 10, strength: 2, agility: 2, magic: 0, attack_speed: 1}};
 
-var character = {name: "Hero", titles: {}, 
+const character = {name: "Hero", titles: {}, 
 				stats: {max_health: 100, health: 100, strength: 20, agility: 20, magic: 0, attack_speed: 1},
 				inventory: {},
-				equipment: {head: null, torso: null, amulet: null, weapon: null, offhand: null, arms: null, ring: null, legs: null}};
+				equipment: {head: null, torso: null, 
+							arms: null, ring: null, 
+							weapon: null, offhand: null,
+							legs: null, feet: null, 
+							amulet: null}};
 
 var current_enemy = null;
 var additional_hero_attacks = 0;
 var additional_enemy_attacks = 0;
 var current_location;
 var is_resting = true;
-var enemy_crit_chance = 0.1;
-var enemy_crit_damage = 2; //multiplier, not a flat bonus
 
-var current_health_value_div = document.getElementById("character_health_value");
-var current_health_bar = document.getElementById("character_healthbar_current");
+const enemy_crit_chance = 0.1;
+const enemy_crit_damage = 2; //multiplier, not a flat bonus
 
-var current_enemy_health_value_div = document.getElementById("enemy_health_value");
-var current_enemy_health_bar = document.getElementById("enemy_healthbar_current");
-var enemy_info_div = document.getElementById("enemy_info_div");
-var enemy_stats_div = document.getElementById("enemy_stats_div");
-var enemy_name_div = document.getElementById("enemy_name_div");
+const current_health_value_div = document.getElementById("character_health_value");
+const current_health_bar = document.getElementById("character_healthbar_current");
 
-var inventory_div = document.getElementById("inventory_div");
+const current_enemy_health_value_div = document.getElementById("enemy_health_value");
+const current_enemy_health_bar = document.getElementById("enemy_healthbar_current");
+const enemy_info_div = document.getElementById("enemy_info_div");
+const enemy_stats_div = document.getElementById("enemy_stats_div");
+const enemy_name_div = document.getElementById("enemy_name_div");
+
+const inventory_div = document.getElementById("inventory_content_div");
 
 
-var name_field = document.getElementById("character_name_field");
+const name_field = document.getElementById("character_name_field");
 name_field.value = character.name;
 
-var message_log = document.getElementById("message_log_div");
-var time_field = document.getElementById("time_div");
-var action_div = document.getElementById("action_div");
+const message_log = document.getElementById("message_log_div");
+const time_field = document.getElementById("time_div");
+const action_div = document.getElementById("action_div");
 
 const current_game_time = new Game_time(954, 4, 1, 8, 5);
 
@@ -341,9 +346,6 @@ function clear_enemy_and_enemy_info() {
 }
 
 function add_to_inventory(items) {
-	
-	var item;
-
 	for(var i = 0; i < items.length; i++){
 		if(!character.inventory.hasOwnProperty(items[i].item.name)) //not in inventory
 		{
@@ -375,7 +377,6 @@ function add_to_inventory(items) {
 		}
 
 	}
-	console.log(character.inventory);
 	update_displayed_inventory();
 }
 
@@ -390,10 +391,7 @@ function dismantle_item() {
 function update_displayed_inventory() {
 	//inventory only, equipped items separately
 	//todo: do it only for changed items?
-	/*
-	todo: separate tabs for different item categories (usable / basic loot / equippable ?)
-	could just assign some classes and then switching tab would simply switch display of some items (none to hide, initial to show?)
-	*/
+	
 	inventory_div.innerHTML = "";
 
 	Object.keys(character.inventory).forEach(function(key) {
@@ -411,11 +409,7 @@ function update_displayed_inventory() {
 				item_control_div.setAttribute("data-inventory-item", `${character.inventory[key][i].name}---${i}`)
 				//shouldnt create any problems, as any change to inventory will also call this method, 
 				//so removing/equipping any item wont cause mismatch
-				
-				if(character.inventory[key][i].is_equippable) {
-					item_div.classList.add("equippable_item");
-				}
-
+				item_control_div.classList.add(`item_${character.inventory[key][i].item_type.toLowerCase()}`);
 				item_control_div.appendChild(item_div);
 
 		   		inventory_div.appendChild(item_control_div);
@@ -434,27 +428,29 @@ function update_displayed_inventory() {
 			}
 			item_div.classList.add("inventory_item");
 
-			if(character.inventory[key].item.is_equippable) {
-				item_div.classList.add("equippable_item");
-			}
-
+			item_control_div.classList.add(`item_${character.inventory[key].item.item_type.toLowerCase()}`);
 			item_control_div.setAttribute("data-inventory-item", `${character.inventory[key].item.name}`)
 			item_control_div.appendChild(item_div);
 
 		   	inventory_div.appendChild(item_control_div);
 		}
 	});
-
-
-	
 }
 
-function equip_item() {
+function equip_item(chosen_item) {
+	//chosen_item -> small object with item name and item index (for unstackables)
 	//todo: this thing
+	//remove from inventory
+	//add to equipment
+	//update displayed equipment and inventory
 }
 
-function unequip_item() {
+function unequip_item(item_slot) {
+	//item_slot -> string with name of equipment slot it was on
 	//todo: this thing
+	//add to inventory
+	//remove from equipment
+	//update displayed equipment and inventory
 }
 
 function update_displayed_equipment() {
@@ -489,7 +485,7 @@ function update() {
 }
 
 async function run() {
-	var tickrate = 1;
+	const tickrate = 1;
 	//how many ticks per second
 	//best leave it at 1, as less is rather slow, and more makes ticks noticably unstable
 
