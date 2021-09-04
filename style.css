@@ -131,6 +131,11 @@ body {
 	border: 1px solid white;
 }
 
+.equipment_slot_empty {
+	color: silver;
+	font-style: italic;
+}
+
 .amulet_slot_div {
 	height: 16px;
 }
@@ -138,6 +143,29 @@ body {
 .grid_container {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
+}
+
+.stat_slot_div {
+	font-size: 15;
+	width: 100%;
+	height: 17px;
+	margin-bottom: 3px;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	color: white;
+	border: 1px solid white;
+}
+
+.stat_value {
+	text-align: right;
+	display: inline-block;
+	width: 40px;
+}
+
+.stat_name {
+	display: inline-block;
+	width: 98px;
+	padding-left: 4px;
 }
 
 #action_div {
@@ -198,8 +226,9 @@ body {
 }
 
 #character_stats_div {
-	height: 400px;
 	display: var(--stats_display);
+	width: 300px;
+	margin: auto;
 }
 
 #character_control_div {

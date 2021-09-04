@@ -1,10 +1,12 @@
 import { Game_time } from "./game_time.js";
+import { Item, item_templates } from "./items.js";
 import { locations } from "./locations.js";
 
 
 //current idea for starting stats, probably a bit too low, but might give some items before first fight
 //const character = {name: "Hero", titles: {}, stats: {max_health: 10, health: 10, strength: 2, agility: 2, magic: 0, attack_speed: 1}};
 
+//player character
 const character = {name: "Hero", titles: {}, 
 				stats: {max_health: 100, health: 100, strength: 20, agility: 20, magic: 0, attack_speed: 1},
 				inventory: {},
@@ -14,27 +16,47 @@ const character = {name: "Hero", titles: {},
 							legs: null, feet: null, 
 							amulet: null}};
 
+//equipment slots, keep same order as in character eq slots
+const equipment_slots_divs = {head: document.getElementById("head_slot"), torso: document.getElementById("torso_slot"),
+							arms: document.getElementById("arms_slot"), ring: document.getElementById("ring_slot"),
+							weapon: document.getElementById("weapon_slot"), offhand: document.getElementById("offhand_slot"),
+							legs: document.getElementById("legs_slot"), feet: document.getElementById("feet_slot"),
+							amulet: document.getElementById("amulet_slot")
+							};		
+							
+const stats_divs = {strength: document.getElementById("strength_slot"), agility: document.getElementById("agility_slot"),
+					magic: document.getElementById("magic_slot"), attack_speed: document.getElementById("attack_speed_slot")}
+
+//current enemy
 var current_enemy = null;
+//additional attacks for combat
 var additional_hero_attacks = 0;
 var additional_enemy_attacks = 0;
+//current location
 var current_location;
+//resting, true -> health regenerates
 var is_resting = true;
 
+//enemy crit stats
 const enemy_crit_chance = 0.1;
 const enemy_crit_damage = 2; //multiplier, not a flat bonus
 
+//character healt display
 const current_health_value_div = document.getElementById("character_health_value");
 const current_health_bar = document.getElementById("character_healthbar_current");
 
+//enemy health display
 const current_enemy_health_value_div = document.getElementById("enemy_health_value");
 const current_enemy_health_bar = document.getElementById("enemy_healthbar_current");
+//enemy info
 const enemy_info_div = document.getElementById("enemy_info_div");
 const enemy_stats_div = document.getElementById("enemy_stats_div");
 const enemy_name_div = document.getElementById("enemy_name_div");
 
+//inventory display
 const inventory_div = document.getElementById("inventory_content_div");
 
-
+//character name
 const name_field = document.getElementById("character_name_field");
 name_field.value = character.name;
 
@@ -42,14 +64,16 @@ const message_log = document.getElementById("message_log_div");
 const time_field = document.getElementById("time_div");
 const action_div = document.getElementById("action_div");
 
+//game time (years, months, days, hours, minutes)
 const current_game_time = new Game_time(954, 4, 1, 8, 5);
 
 
 // button testing cuz yes
 document.getElementById("test_button").addEventListener("click", test_button);
 function test_button() {
-	//log_message(character.name);
-	//log_loot(enemies_dict["Wolf"].get_loot());
+	//remove_from_inventory({name: "Rat fang", count: 2});
+	//remove_from_inventory({name: "Ratslayer"});
+	//equip_item({name: "Long stick", id: 0});
 }
 
 
@@ -346,6 +370,7 @@ function clear_enemy_and_enemy_info() {
 }
 
 function add_to_inventory(items) {
+	//console.log(items);
 	for(var i = 0; i < items.length; i++){
 		if(!character.inventory.hasOwnProperty(items[i].item.name)) //not in inventory
 		{
@@ -369,7 +394,7 @@ function add_to_inventory(items) {
 			{
 				character.inventory[items[i].item.name].count += items[i].count;
 				console.log(items[i].count);
-			}
+			} 
 			else 
 			{
 				character.inventory[items[i].item.name].push(items[i].item);
@@ -380,12 +405,49 @@ function add_to_inventory(items) {
 	update_displayed_inventory();
 }
 
-function remove_from_inventory() {
-	//todo: this thing
+function remove_from_inventory(item_info) {
+	//item info -> {name: X, count: X, id: X}, with either count or id, depending on if item is stackable or not
+
+	if(character.inventory.hasOwnProperty(item_info.name)) { //check if its in inventory, just in case, probably not needed
+
+		if(character.inventory[item_info.name].hasOwnProperty("item")) { //stackable
+			//console.log(character.inventory[item_info.name].item.stackable);
+
+			if(typeof item_info.count === "number" && Number.isInteger(item_info.count) && item_info.count >= 1) 
+			{
+				character.inventory[item_info.name].count -= item_info.count;
+			} 
+			else 
+			{
+				character.inventory[item_info.name].count -= 1;
+			}
+
+			if(character.inventory[item_info.name].count <= 0) 
+			{
+				delete character.inventory[item_info.name];
+				//removes item frm inventory if it's county is less than 1
+			}
+		}
+		else { //unstackable
+			character.inventory[item_info.name].splice([item_info.id], 1);
+			//removes item from the array
+			//dont need to check if .id even exists, as splice by default uses 0
+
+			if(character.inventory[item_info.name].length == 0) 
+			{
+				delete character.inventory[item_info.name];
+				//removes item array from inventory if its empty
+				//might be unnecessary, lets leave it for now
+			} 
+		}
+	}
+
+	update_displayed_inventory();
 }
 
 function dismantle_item() {
 	//todo: this thing
+	//priority: extremely low
 }
 
 function update_displayed_inventory() {
@@ -437,25 +499,56 @@ function update_displayed_inventory() {
 	});
 }
 
-function equip_item(chosen_item) {
-	//chosen_item -> small object with item name and item index (for unstackables)
-	//todo: this thing
-	//remove from inventory
-	//add to equipment
-	//update displayed equipment and inventory
+function equip_item(item_info) {
+	//item info -> {name: X, count: X, id: X}, count currently not used
+	
+	if(character.inventory.hasOwnProperty(item_info.name)) { //check if its in inventory, just in case
+
+		if(character.inventory[item_info.name].hasOwnProperty("item")) { //stackable
+			console.log("not implemented");
+		}
+		else { //unstackable
+			//add specific item to equipment slot
+			// -> id and name tell which exactly item it is, then also check slot in item object and thats all whats needed
+			const item = character.inventory[item_info.name][item_info.id];
+			unequip_item(item.equip_slot);
+			character.equipment[item.equip_slot] = item;
+
+			update_displayed_equipment();
+			update_displayed_inventory();
+			remove_from_inventory(item_info); //put both outside if() when equipping gets implemented for stackables as well
+		}
+	}
 }
 
 function unequip_item(item_slot) {
-	//item_slot -> string with name of equipment slot it was on
-	//todo: this thing
-	//add to inventory
-	//remove from equipment
-	//update displayed equipment and inventory
+	if(character.equipment[item_slot] != null) {
+		add_to_inventory([{item: character.equipment[item_slot]}]);
+		character.equipment[item_slot] = null;
+		update_displayed_equipment();
+		update_displayed_inventory();
+		console.log(character.inventory);
+	}
 }
 
 function update_displayed_equipment() {
-	//todo: this thing
-	//equipped items only
+	Object.keys(equipment_slots_divs).forEach(function(key) {
+		if(character.equipment[key] == null) {
+			equipment_slots_divs[key].innerHTML = `${key} slot`;
+			equipment_slots_divs[key].classList.add("equipment_slot_empty");
+		}
+		else 
+		{
+			equipment_slots_divs[key].innerHTML = character.equipment[key].name;
+			equipment_slots_divs[key].classList.remove("equipment_slot_empty");
+		}
+	});
+}
+
+function update_displayed_stats() {
+	Object.keys(stats_divs).forEach(function(key){
+		stats_divs[key].innerHTML = `${character.stats[key]}`
+	});
 }
 
 function update_timer() {
@@ -519,4 +612,12 @@ async function run() {
 		//console.log((end_date - start_date).toString() + " : " + accumulator.toString());
 	}
 }
+
+add_to_inventory([{item: new Item(item_templates["Ratslayer"])}, {item: new Item(item_templates["Ratslayer"])}]);
+add_to_inventory([{item: new Item(item_templates["Ratslayer"])}]);
+add_to_inventory([{item: new Item(item_templates["Rat fang"]), count: 5}]);
+add_to_inventory([{item: new Item(item_templates["Long stick"])}]);
+equip_item({name: "Ratslayer", id: 1});
+equip_item({name: "Long stick", id: 0});
+update_displayed_stats();
 run();

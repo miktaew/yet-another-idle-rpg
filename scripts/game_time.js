@@ -11,28 +11,28 @@ function Game_time(year, month, day, hour, minute) {
 
 	this.go_up = function () {
 		this.minute += 1;
-		if(this.minute > 60) 
+		if(this.minute >= 60) 
 		{
-			this.minute = 0;
-			this.hour +=1;
+			this.minute = this.minute - 60;
+			this.hour += 1;
 		}
 	
-		if(this.hour > 24) 
+		if(this.hour >= 24) 
 		{
-			this.hour = 0;
-			this.day +=1; 
-			this.day_count +=1;
+			this.hour = this.hour - 24;
+			this.day += 1; 
+			this.day_count += 1;
 		}
 	
-		if(this.day > 30) 
+		if(this.day >= 30) 
 		{
-			this.day = 1;
+			this.day = this.day - 30;
 			this.month += 1;
 		}
 	
-		if(this.month > 12) 
+		if(this.month >= 12) 
 		{
-			this.month = 1;
+			this.month = this.month - 12;
 			this.year += 1;
 		}
 	}

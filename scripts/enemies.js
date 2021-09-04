@@ -49,7 +49,7 @@ enemy_templates["Starving wolf rat"] = new Enemy({
 	{item: item_templates["Rat tail"], chance: 0.5},
 	{item: item_templates["Rat fang"], chance: 0.5},
 	{item: item_templates["Rat pelt"], chance: 0.5},
-	{item: item_templates["Ratslayer"], chance: 1}]
+	{item: item_templates["Long stick"], chance: 1}]
 });
 
 enemy_templates["Wolf rat"] = new Enemy({
@@ -58,7 +58,7 @@ enemy_templates["Wolf rat"] = new Enemy({
 	{item: item_templates["Rat tail"], chance: 0.5},
 	{item: item_templates["Rat fang"], chance: 0.5},
 	{item: item_templates["Rat pelt"], chance: 0.5},
-	{item: item_templates["Ratslayer"], chance: 1}]
+	{item: item_templates["Long stick"], chance: 1}]
 });
 
 enemy_templates["Wolf"] = new Enemy({

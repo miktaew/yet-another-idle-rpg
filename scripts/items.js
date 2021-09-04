@@ -16,16 +16,20 @@ function Item(item_data) {
 	this.dismantling_materials = item_data.dismantling_materials;
 
 	this.item_type = item_data.item_type; // "EQUIPPABLE", "USABLE", "OTHER"
-
-	//instead of equippable, make item_type and use this to differentiate between equippables / usables / other?
 	//check if it has one of allowed values, otherwise throw an error message 
+
 	this.equip_stats = item_data.equip_stats;
 	// (only bonuses to main stats)
+	this.equip_slot = item_data.equip_slot;
+	// equipment slot to where item goes
+	this.equip_effect = item_data.equip_effect;
+	// stats gained by equipping, {stats: {}, stat_multipliers: {}}
+	// multipliers probably will only be used for weapon damage
+
 
 	// if usable, bonus gained on using? (so heal hp, heal hunger, permanently raise max stats, etc)
 	// assume it can't be both usable and equippable 
-	
-	//lets just do it like -> usable: {effects }, dismantable: {materials obtained, stuff required}, equippable: {stats}
+
 
 	//crafting?
 	//might need something like is_crafting_unlocked (would need to be applied to templates probably)
@@ -46,13 +50,34 @@ item_templates["Rat fang"] = new Item({
 });
 
 item_templates["Rat pelt"] = new Item({
-	name: "Rat pelt", description: "Pelt of a huge rat, terrible quality", value: 1, stackable: true,
+	name: "Rat pelt", description: "Pelt of a huge rat, terrible quality", value: 5, stackable: true,
 	item_type: "OTHER",
 });
 
+//equippables
+
 item_templates["Ratslayer"] = new Item({
-	name: "Ratslayer", description: "Test item", value: 1000, stackable: false,
-	item_type: "EQUIPPABLE",
+	name: "Ratslayer", description: "Test item", value: 1000, stackable: false, 
+	item_type: "EQUIPPABLE", equip_slot: "weapon",
+	equip_effect: {
+		stats: { 
+			attack: 1000,
+		},
+		multipliers: {
+			attack: 10,
+		},
+	}
+});
+
+item_templates["Long stick"] = new Item({
+	name: "Long stick", description: "Can be used as a basic weapon", value: 3, stackable: false,
+	item_type: "EQUIPPABLE", equip_slot: "weapon",
+	equip_effect: {
+		stats: {
+			attack: 5,
+		},
+		multipliers: {}
+	}
 });
 
 //proper items:
