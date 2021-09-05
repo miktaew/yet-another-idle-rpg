@@ -15,6 +15,7 @@
 					</div>
 					<div id = "character_title_div">
 						Unknown adventurer
+						<!-- placeholder for future -->
 					</div>
 					<div id = "character_health_div"> 
 						<div id = "character_healthbar_max"> 
@@ -44,6 +45,26 @@
 							<div class = "stat_slot_div"> 
 								<div class = "stat_name"> Atk spd: </div>
 								<div class = "stat_value" id = "attack_speed_slot"></div> 
+							</div>
+						</div>
+						<div class = "grid_container">
+							<div class = "stat_slot_div"> 
+								<div class = "stat_name"> Atk power: </div>
+								<div class = "stat_value" id = "attack_power_slot"></div> 
+							</div>
+							<div class = "stat_slot_div"> 
+								<div class = "stat_name"> Defense: </div>
+								<div class = "stat_value" id = "defense_slot"></div> 
+							</div>
+						</div>
+						<div class = "grid_container">
+							<div class = "stat_slot_div"> 
+								<div class = "stat_name"> Crit rate: </div>
+								<div class = "stat_value" id = "crit_rate_slot"></div> 
+							</div>
+							<div class = "stat_slot_div"> 
+								<div class = "stat_name"> Crit mult: </div>
+								<div class = "stat_value" id = "crit_multiplier_slot"></div> 
 							</div>
 						</div>
 					</div>
@@ -77,7 +98,10 @@
 				<!-- location info (name, type[safe/combat], weather, time, etc?)-->
 				<div id = "location_div" class = "box_div"> 
 					<div id = "time_div"> </div>
-					<div id = "location_info_div" > </div> <!-- or something like that-->
+					<div id = "location_data_div" >
+						<div id = "location_name_div"></div>
+						<div id = "location_description_div"></div>	
+					</div>
 
 					<div id = "enemy_info_div">
 						<div id = "enemy_name_div">

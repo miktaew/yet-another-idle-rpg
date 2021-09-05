@@ -58,6 +58,10 @@ body {
 	 color: lightblue;
  }
 
+ .message_enemy_attacked_critically {
+	color: rgb(90, 151, 221);
+ }
+
  .message_hero_attacked {
 	 color: crimson;
  }
@@ -96,7 +100,7 @@ body {
  .inventory_control_button {
 	float:left;
 	padding: 3px;
-	min-width: 65px;
+	min-width: 55px;
 	text-align: center;
 	border: 1px solid white;
 	cursor: pointer;
@@ -271,6 +275,7 @@ body {
 	color: white;
 	width: 100%;
 	text-align: center;
+	height: 18px;
 }
 
 #inventory_content_div {
@@ -296,8 +301,16 @@ body {
 	left: 420;
 }
 
-#location_info_div {
-	height: 60%;
+#location_data_div {
+	height: 184px;
+	color: white;
+	text-align: center;
+}
+
+#location_name_div {
+	font-size: 20;
+	border-top: 1px solid white;
+	padding-top: 5px;
 }
 
 #message_log_div {
@@ -314,6 +327,8 @@ body {
 	font-size: 20;
 	color: white;
 	padding-right:5px;
+	padding-bottom: 5px;
+	padding-top: 3px;
 	text-align: right;
 }
 

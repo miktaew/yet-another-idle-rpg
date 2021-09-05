@@ -2,13 +2,10 @@ import { Game_time } from "./game_time.js";
 import { Item, item_templates } from "./items.js";
 import { locations } from "./locations.js";
 
-
-//current idea for starting stats, probably a bit too low, but might give some items before first fight
-//const character = {name: "Hero", titles: {}, stats: {max_health: 10, health: 10, strength: 2, agility: 2, magic: 0, attack_speed: 1}};
-
 //player character
 const character = {name: "Hero", titles: {}, 
-				stats: {max_health: 100, health: 100, strength: 20, agility: 20, magic: 0, attack_speed: 1},
+				stats: {max_health: 100, health: 100, strength: 20, agility: 20, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, attack_power: 0},
+				// crit damage is a multiplier; defense should be only based on worn armor and/or magic skills;
 				inventory: {},
 				equipment: {head: null, torso: null, 
 							arms: null, ring: null, 
@@ -25,7 +22,14 @@ const equipment_slots_divs = {head: document.getElementById("head_slot"), torso:
 							};		
 							
 const stats_divs = {strength: document.getElementById("strength_slot"), agility: document.getElementById("agility_slot"),
-					magic: document.getElementById("magic_slot"), attack_speed: document.getElementById("attack_speed_slot")}
+					magic: document.getElementById("magic_slot"), attack_speed: document.getElementById("attack_speed_slot"),
+					attack_power: document.getElementById("attack_power_slot"), defense: document.getElementById("defense_slot"),
+					crit_rate: document.getElementById("crit_rate_slot"), crit_multiplier: document.getElementById("crit_multiplier_slot")
+					};
+
+const other_combat_divs = { 
+					
+};
 
 //current enemy
 var current_enemy = null;
@@ -62,11 +66,15 @@ name_field.value = character.name;
 
 const message_log = document.getElementById("message_log_div");
 const time_field = document.getElementById("time_div");
+
 const action_div = document.getElementById("action_div");
+
+const location_name_div = document.getElementById("location_name_div");
+const location_description_div = document.getElementById("location_description_div");
 
 //game time (years, months, days, hours, minutes)
 const current_game_time = new Game_time(954, 4, 1, 8, 5);
-
+time_field.innerHTML = current_game_time.toString();
 
 // button testing cuz yes
 document.getElementById("test_button").addEventListener("click", test_button);
@@ -123,6 +131,8 @@ function change_location(location_name) {
 	}
 
 	current_location = location;
+	location_name_div.innerHTML = current_location.name;
+	location_description_div.innerHTML = current_location.description;
 }
 
 window.change_location = change_location; //attaching to window, as otherwise it won't be visible from the index file
@@ -155,11 +165,13 @@ function do_combat() {
 	//so up to 95% if at least thrice more agility, 33% if same, can go down to 0%
 	//todo: make it 0% when using shield, only blocking will be possible with it
 
-	var hero_base_damage = character.stats.strength; // + weapon and then multiplied by bonus from weapon skill and bonus from magic enchantment if learned
+	var hero_base_damage = character.stats.attack_power;
 
 	var enemy_base_damage = current_enemy.strength;
 
 	var damage_dealt;
+
+	var critted;
 
 	var hero_defense = 0; //will be a sum of armor from worn equipment + maybe a bonus from some magic stuff
 
@@ -175,19 +187,32 @@ function do_combat() {
 		if(i > 0) {
 			additional_hero_attacks -= 1;
 		}
-		if(hero_hit_chance > Math.random()) {
-			//hero's attack hits
-			//proper combat skill goes up a tiny bit
+
+		if(hero_hit_chance > Math.random()) {//hero's attack hits
+
+			//todo: proper combat skill goes up a tiny bit
 
 			damage_dealt = Math.round(hero_base_damage * (1.2 - Math.random() * 0.4));
-			//so it would then get multiplied by crit (if it happens)
+			//small randomization by up to 20%
+			
+			if(character.stats.crit_rate > Math.random()) {
+				damage_dealt = Math.round(damage_dealt * character.stats.crit_multiplier);
+				critted = true;
+			}
+			else {
+				critted = false;
+			}
 			
 			damage_dealt = Math.max(damage_dealt - current_enemy.defense, 1);
 
 			current_enemy.health -= damage_dealt;
-			log_message(current_enemy.name + " was hit for " + damage_dealt + " dmg", "enemy_attacked");
+			if(critted) {
+				log_message(current_enemy.name + " was critically hit for " + damage_dealt + " dmg", "enemy_attacked_critically");
+			}
+			else {
+				log_message(current_enemy.name + " was hit for " + damage_dealt + " dmg", "enemy_attacked");
+			}
 
-			
 
 			if(current_enemy.health <= 0) {
 				current_enemy.health = 0; 
@@ -266,7 +291,7 @@ function do_combat() {
 	 also should offer a bit better scaling than strength, so worse at beginning but later on gets better?
 	 also a magic resistance skill for player
 
-	 block chance only when using shield, based on skill (40% at 0 skill, 80% at max) but only if dmg is lower than shield strength
+	 block chance only when using shield, based on skill (40% at 0 skill, 80% at max?) but only if dmg is lower than shield strength
 	 if it's higher, then block chance reduced to 10%-50% and defender take dmg equal to atk dmg - shield str?
 	 also shield require some strength to use
 	 */
@@ -308,6 +333,9 @@ function log_message(message_to_add, message_type) {
 			break;
 		case "enemy_attacked":
 			class_to_add = "message_enemy_attacked";
+			break;
+		case "enemy_attacked_critically":
+			class_to_add = "message_enemy_attacked_critically";
 			break;
 		case "hero_attacked":
 			class_to_add = "message_hero_attacked";
@@ -472,9 +500,7 @@ function update_displayed_inventory() {
 				//shouldnt create any problems, as any change to inventory will also call this method, 
 				//so removing/equipping any item wont cause mismatch
 
-
-				//item_control_div.classList.add(`item_${character.inventory[key][i].item_type.toLowerCase()}`); //instead of this, another div with big "E" to equip
-
+				item_control_div.classList.add(`item_${character.inventory[key][i].item_type.toLowerCase()}`);
 				item_control_div.appendChild(item_div);
 
 				if(character.inventory[key][i].item_type === "EQUIPPABLE") {
@@ -526,10 +552,12 @@ function equip_item(item_info) {
 
 			update_displayed_equipment();
 			update_displayed_inventory();
+			update_character_stats();
 			remove_from_inventory(item_info); //put both outside if() when equipping gets implemented for stackables as well
 		}
 	}
 }
+
 window.equip_item = equip_item;
 
 function unequip_item(item_slot) {
@@ -538,6 +566,7 @@ function unequip_item(item_slot) {
 		character.equipment[item_slot] = null;
 		update_displayed_equipment();
 		update_displayed_inventory();
+		update_character_stats();
 		console.log(character.inventory);
 	}
 }
@@ -556,15 +585,39 @@ function update_displayed_equipment() {
 	});
 }
 
-function update_displayed_stats() {
+function update_character_stats() { //updates character stats
+	if(character.equipment.weapon != null) { 
+
+		if(typeof character.equipment.weapon.equip_effect.multipliers.attack !== "undefined" && character.equipment.weapon.equip_effect.multipliers.attack != null) {
+			character.stats.attack_power = (character.stats.strength + character.equipment.weapon.equip_effect.stats.attack) * character.equipment.weapon.equip_effect.multipliers.attack;
+
+		} 
+		else {
+			character.stats.attack_power = character.stats.strength + character.equipment.weapon.equip_effect.stats.attack;
+
+		}
+	} 
+
+	else {
+		character.stats.attack_power = character.stats.strength;
+	}
+
+	character.stats.defense  = 0; //TODO: calculate it based on armor values of equipped items
+	character.stats.crit_rate = character.stats.crit_rate; //TODO: calculate it based on skills and equipment
+	character.stats.crit_multiplier = character.stats.crit_multiplier; //TODO: calculate it based on skils and equipment
+
+	update_displayed_stats();
+}
+
+function update_displayed_stats() { //updates displayed stats
 	Object.keys(stats_divs).forEach(function(key){
 		stats_divs[key].innerHTML = `${character.stats[key]}`
 	});
 }
 
 function update_timer() {
-	time_field.innerHTML = current_game_time.toString();
 	current_game_time.go_up();
+	time_field.innerHTML = current_game_time.toString();
 } //updates time div
 
 function tick(tickrate, time_variance) {
