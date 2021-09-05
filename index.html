@@ -6,7 +6,7 @@
 		<Title>Prototype</Title>
 	</head>
 
-	<body>
+	<body onload = "doThings()">
 
 				<!-- character info + stats/equipment-->
 				<div id = "character_div" class = "box_div"> 
@@ -148,6 +148,27 @@
 			function showCharacterEquipment() {
 				document.documentElement.style.setProperty('--equipped_display', 'grid');
 				document.documentElement.style.setProperty('--stats_display', 'none');
+			}
+
+			function doThings() { //called on body loaded
+
+				//equipping items:
+				const inventory_div = document.getElementById("inventory_div");
+				inventory_div.onclick = function(event) {
+					var clicked_element = event.target;
+					if(clicked_element.classList.contains("equip_item_button"))
+					{
+						var last_index = clicked_element.parentNode.dataset.inventory_item.lastIndexOf(" "); 
+						//always ends with " #number", so this will get index of that whitespace before "#"
+
+						equip_item({name: clicked_element.parentNode.dataset.inventory_item.substr(0, last_index), 
+									id: clicked_element.parentNode.dataset.inventory_item.substr(last_index+2)
+						});
+					}
+				}
+
+				
+
 			}
 
 		</script> 

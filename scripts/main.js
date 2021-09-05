@@ -462,17 +462,27 @@ function update_displayed_inventory() {
 			for(var i = 0; i < character.inventory[key].length; i++) {
 				var item_control_div = document.createElement("div");
 				var item_div = document.createElement("div");
-				//item_control_div will also contain delet/dismantle buttons
 				//item_div is just name + item count (if stackable)
+
 				
 				item_div.innerHTML = `${character.inventory[key][i].name}`;
 				item_div.classList.add("inventory_item");
 
-				item_control_div.setAttribute("data-inventory-item", `${character.inventory[key][i].name}---${i}`)
+				item_control_div.setAttribute("data-inventory_item", `${character.inventory[key][i].name} #${i}`)
 				//shouldnt create any problems, as any change to inventory will also call this method, 
 				//so removing/equipping any item wont cause mismatch
-				item_control_div.classList.add(`item_${character.inventory[key][i].item_type.toLowerCase()}`);
+
+
+				//item_control_div.classList.add(`item_${character.inventory[key][i].item_type.toLowerCase()}`); //instead of this, another div with big "E" to equip
+
 				item_control_div.appendChild(item_div);
+
+				if(character.inventory[key][i].item_type === "EQUIPPABLE") {
+					var item_equip_div = document.createElement("div");
+					item_equip_div.innerHTML = "E";
+					item_equip_div.classList.add("equip_item_button");
+					item_control_div.appendChild(item_equip_div);
+				}
 
 		   		inventory_div.appendChild(item_control_div);
 			}
@@ -491,7 +501,7 @@ function update_displayed_inventory() {
 			item_div.classList.add("inventory_item");
 
 			item_control_div.classList.add(`item_${character.inventory[key].item.item_type.toLowerCase()}`);
-			item_control_div.setAttribute("data-inventory-item", `${character.inventory[key].item.name}`)
+			item_control_div.setAttribute("data-inventory_item", `${character.inventory[key].item.name}`)
 			item_control_div.appendChild(item_div);
 
 		   	inventory_div.appendChild(item_control_div);
@@ -520,6 +530,7 @@ function equip_item(item_info) {
 		}
 	}
 }
+window.equip_item = equip_item;
 
 function unequip_item(item_slot) {
 	if(character.equipment[item_slot] != null) {

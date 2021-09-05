@@ -8,6 +8,7 @@
 
 body {
 	background-color: #05040f;
+	font-family: sans-serif;
 }
 
 .box_div {
@@ -77,7 +78,20 @@ body {
  .inventory_item {
 	 color: white;
 	 font-size:15;
+	 display: inline-block;
+	 width: 325px;
  }
+
+ .equip_item_button {
+	 color: white;
+	 font-size: 15;
+	 font-weight: bold;
+	 display: inline-block;
+	 cursor: pointer;
+ }
+/* button is currently added as single small div, but having different numbers of those will cause style problems
+   so gotta change it later a bit, this is just a temporary version
+*/
 
  .inventory_control_button {
 	float:left;
