@@ -65,12 +65,10 @@ item_templates["Ratslayer"] = new Item({
 	name: "Ratslayer", description: "Test item", value: 1000, stackable: false, 
 	item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "special",
 	equip_effect: {
-		stats: { 
-			attack: 1000,
-		},
-		multipliers: {
-			attack: 10,
-		},
+		attack: {
+			flat_bonus: 10000,
+			multiplier: 10,
+		}
 	}
 });
 
@@ -78,10 +76,10 @@ item_templates["Long stick"] = new Item({
 	name: "Long stick", description: "Can be used a simple weapon", value: 3, stackable: false,
 	item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "blunt",
 	equip_effect: {
-		stats: {
-			attack: 5,
-		},
-		multipliers: {}
+		attack: {
+			flat_bonus: 5,
+			multiplier: 1,
+		}
 	}
 });
 

@@ -608,15 +608,9 @@ function update_displayed_equipment() {
 
 function update_character_stats() { //updates character stats
 	if(character.equipment.weapon != null) { 
-
-		if(typeof character.equipment.weapon.equip_effect.multipliers.attack !== "undefined" && character.equipment.weapon.equip_effect.multipliers.attack != null) {
-			character.stats.attack_power = (character.stats.strength + character.equipment.weapon.equip_effect.stats.attack) * character.equipment.weapon.equip_effect.multipliers.attack;
-
-		} 
-		else {
-			character.stats.attack_power = character.stats.strength + character.equipment.weapon.equip_effect.stats.attack;
-
-		}
+		character.stats.attack_power = (character.stats.strength + character.equipment.weapon.equip_effect.attack.flat_bonus) 
+										* character.equipment.weapon.equip_effect.attack.multiplier;
+		console.log(character.equipment.weapon.equip_effect.attack.multiplier);
 	} 
 	else {
 		character.stats.attack_power = character.stats.strength;
@@ -636,8 +630,7 @@ function update_displayed_stats() { //updates displayed stats
 	});
 }
 
-function update_combat_stats() { //chance to hit and evade/block
-
+function update_combat_stats() { //chances to hit and evade/block
 	if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
 		character.stats.evasion_chance = null;
 		 //todo: add skill lvl bonus;

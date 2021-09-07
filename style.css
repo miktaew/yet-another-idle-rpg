@@ -177,7 +177,7 @@ body {
 .stat_value {
 	text-align: right;
 	display: inline-block;
-	width: 40px;
+	width: 65px;
 }
 
 .stat_name {
@@ -239,13 +239,13 @@ body {
 
 #character_equipment_div { 
 	margin: auto;
-	width: 300px;
+	width: 350px;
 	display: var(--equipped_display);
 }
 
 #character_stats_div {
 	display: var(--stats_display);
-	width: 300px;
+	width: 350px;
 	margin: auto;
 }
 
