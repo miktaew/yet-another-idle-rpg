@@ -17,6 +17,7 @@ function Item(item_data) {
 
 	this.item_type = item_data.item_type; // "EQUIPPABLE", "USABLE", "OTHER"
 	//check if it has one of allowed values, otherwise throw an error message 
+	//for equippables, always add equip_effect, even if empty
 
 	this.equip_stats = item_data.equip_stats;
 	// (only bonuses to main stats)
@@ -50,7 +51,7 @@ item_templates["Rat tail"] = new Item({
 });
 
 item_templates["Rat fang"] = new Item({
-	name: "Rat fang", description: "Tail of a huge rat, not very sharp", value: 1, stackable: true,
+	name: "Rat fang", description: "Fang of a huge rat, not very sharp", value: 1, stackable: true,
 	item_type: "OTHER",
 });
 
@@ -73,7 +74,7 @@ item_templates["Ratslayer"] = new Item({
 });
 
 item_templates["Long stick"] = new Item({
-	name: "Long stick", description: "Can be used a simple weapon", value: 3, stackable: false,
+	name: "Long stick", description: "Can be used as a simple weapon", value: 3, stackable: false,
 	item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "blunt",
 	equip_effect: {
 		attack: {
@@ -86,6 +87,7 @@ item_templates["Long stick"] = new Item({
 item_templates["Crude wooden shield"] = new Item({
 	name: "Crude wooden shield", description: "Crude shield made of wood, not very strong", value: 3, stackable: false,
 	item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 1,
+	equip_effect: {},
 });
 
 

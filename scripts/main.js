@@ -85,8 +85,11 @@ function test_button() {
 	//equip_item({name: "Long stick", id: 0});
 }
 
-
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Nameless Hero");
+
+function capitalize_first_letter(some_string) {
+	return some_string.charAt(0).toUpperCase() + some_string.slice(1);
+}
 
 function change_location(location_name) {
 	action_div.innerHTML = '';
@@ -514,7 +517,14 @@ function update_displayed_inventory() {
 				var item_div = document.createElement("div");
 				//item_div is just name + item count (if stackable)
 
-				
+
+				//create tooltip and it's content
+				var item_tooltip = document.createElement("span");
+				item_tooltip.classList.add("item_tooltip");
+				item_tooltip.innerHTML = 
+				`<b>${character.inventory[key][i].name}</b>
+				<br>${character.inventory[key][i].description}`;
+	
 				item_div.innerHTML = `${character.inventory[key][i].name}`;
 				item_div.classList.add("inventory_item");
 
@@ -522,6 +532,7 @@ function update_displayed_inventory() {
 				//shouldnt create any problems, as any change to inventory will also call this method, 
 				//so removing/equipping any item wont cause mismatch
 
+				item_div.appendChild(item_tooltip);
 				item_control_div.classList.add(`item_${character.inventory[key][i].item_type.toLowerCase()}`);
 				item_control_div.appendChild(item_div);
 
@@ -530,6 +541,23 @@ function update_displayed_inventory() {
 					item_equip_div.innerHTML = "E";
 					item_equip_div.classList.add("equip_item_button");
 					item_control_div.appendChild(item_equip_div);
+
+					//add stats to tooltip
+
+					if(character.inventory[key][i].equip_slot === "offhand" && character.inventory[key][i].offhand_type === "shield") {
+						item_tooltip.innerHTML += 
+						`<br><br>Can fully block attacks not stronger than: ${character.inventory[key][i].shield_strength}`;
+					}
+
+					Object.keys(character.inventory[key][i].equip_effect).forEach(function(effect_key) {
+						item_tooltip.innerHTML += 
+						`<br><br>Flat ${effect_key} bonus: ${character.inventory[key][i].equip_effect[effect_key].flat_bonus}`;
+
+						if(character.inventory[key][i].equip_effect[effect_key].multiplier != null) {
+								item_tooltip.innerHTML += 
+							`<br>${capitalize_first_letter(effect_key)} multiplier: ${character.inventory[key][i].equip_effect[effect_key].multiplier}`;
+						}
+					});
 				}
 
 		   		inventory_div.appendChild(item_control_div);
@@ -547,6 +575,18 @@ function update_displayed_inventory() {
 				item_div.innerHTML = `${character.inventory[key].item.name}`;
 			}
 			item_div.classList.add("inventory_item");
+
+			//create tooltip and it's content
+			var item_tooltip = document.createElement("span");
+			item_tooltip.classList.add("item_tooltip");
+			item_tooltip.innerHTML = 
+			`<b>${character.inventory[key].item.name}</b> 
+			<br>${character.inventory[key].item.description}`;
+			if(character.inventory[key].item.item_type === "EQUIPPABLE") {
+				//add stats to tooltip
+			}
+
+			item_div.appendChild(item_tooltip);
 
 			item_control_div.classList.add(`item_${character.inventory[key].item.item_type.toLowerCase()}`);
 			item_control_div.setAttribute("data-inventory_item", `${character.inventory[key].item.name}`)

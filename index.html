@@ -200,6 +200,16 @@
 						});
 					}
 				}
+				//item tooltips
+				inventory_div.addEventListener('mousemove', move_item_tooltip, false);
+				function move_item_tooltip(event) {
+					var hovered_element = event.target;
+					if(hovered_element.classList.contains("inventory_item"))
+					{
+						hovered_element.children[0].style.left = event.pageX + "px";
+						hovered_element.children[0].style.top = event.pageY-310 + "px";
+					}
+				}
 
 				
 
