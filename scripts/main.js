@@ -4,7 +4,8 @@ import { locations } from "./locations.js";
 
 //player character
 const character = {name: "Hero", titles: {}, 
-				stats: {max_health: 100, health: 100, strength: 20, agility: 20, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, attack_power: 0},
+				stats: {max_health: 100, health: 100, strength: 1, agility: 5, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, attack_power: 0,
+						hit_chance: 0, evasion_chance: 0, block_chance: 0},
 				// crit damage is a multiplier; defense should be only based on worn armor and/or magic skills;
 				inventory: {},
 				equipment: {head: null, torso: null, 
@@ -24,11 +25,11 @@ const equipment_slots_divs = {head: document.getElementById("head_slot"), torso:
 const stats_divs = {strength: document.getElementById("strength_slot"), agility: document.getElementById("agility_slot"),
 					magic: document.getElementById("magic_slot"), attack_speed: document.getElementById("attack_speed_slot"),
 					attack_power: document.getElementById("attack_power_slot"), defense: document.getElementById("defense_slot"),
-					crit_rate: document.getElementById("crit_rate_slot"), crit_multiplier: document.getElementById("crit_multiplier_slot")
+					crit_rate: document.getElementById("crit_rate_slot"), crit_multiplier: document.getElementById("crit_multiplier_slot"),
 					};
 
-const other_combat_divs = { 
-					
+const other_combat_divs = {hit_chance: document.getElementById("hit_chance_slot"), defensive_action: document.getElementById("defensive_action_slot"),
+defensive_action_chance: document.getElementById("defensive_action_chance_slot"),
 };
 
 //current enemy
@@ -96,6 +97,7 @@ function change_location(location_name) {
 	}
 	
 	if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
+
 		for(var i = 0; i < location.connected_locations.length; i++) {
 			action = document.createElement("div");
 			
@@ -114,8 +116,9 @@ function change_location(location_name) {
 
 			action_div.appendChild(action);
 
-			if(typeof current_location !== "undefined" && "parent_location" in current_location) {
+			if(typeof current_location !== "undefined" && "parent_location" in current_location) { // previous was combat, new is normal
 				clear_enemy_and_enemy_info();
+				update_combat_stats();
 			}
 		}
 	} else {
@@ -151,27 +154,23 @@ function get_new_enemy() {
 
 //single tick of fight
 function do_combat() {
-	if(current_enemy === null) {
+	if(current_enemy == null) {
 		get_new_enemy();
+		update_combat_stats();
 		return;
 	}
 
 	//todo: separate formulas for physical and magical weapons
 	//and also need weapons before that...
 
-	var hero_hit_chance = Math.max(0.2, (character.stats.agility/current_enemy.agility)*0.5);
-	//so 100% if at least twice more agility, 50% if same, and never less than 20%
-	var hero_evasion_chance = Math.min(0.95, (character.stats.agility/current_enemy.agility)*0.33);
-	//so up to 95% if at least thrice more agility, 33% if same, can go down to 0%
-	//todo: make it 0% when using shield, only blocking will be possible with it
-
 	var hero_base_damage = character.stats.attack_power;
-
 	var enemy_base_damage = current_enemy.strength;
 
 	var damage_dealt;
 
 	var critted;
+
+	var partially_blocked;
 
 	var hero_defense = 0; //will be a sum of armor from worn equipment + maybe a bonus from some magic stuff
 
@@ -188,7 +187,7 @@ function do_combat() {
 			additional_hero_attacks -= 1;
 		}
 
-		if(hero_hit_chance > Math.random()) {//hero's attack hits
+		if(character.stats.hit_chance > Math.random()) {//hero's attack hits
 
 			//todo: proper combat skill goes up a tiny bit
 
@@ -241,41 +240,75 @@ function do_combat() {
 		if(i > 0) {
 			additional_enemy_attacks -= 1;
 		}
-		if(hero_evasion_chance < Math.random()) {
-			//hero gets hit (unless also has shield, then calculate shield blocking)
-			damage_dealt = Math.round(enemy_base_damage * (1.2 - Math.random() * 0.4));
-			//so it would then get multiplied by crit (if it happens)
 
-			if(enemy_crit_chance > Math.random())
-			{
-				damage_dealt *= enemy_crit_damage;
-				damage_dealt = Math.max(damage_dealt - hero_defense, 1);
-				character.stats.health -= damage_dealt;
+		damage_dealt = Math.round(enemy_base_damage * (1.2 - Math.random() * 0.4));
+		partially_blocked = false;
+
+
+		if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
+			if(character.equipment.offhand.shield_strength >= damage_dealt) {
+				 if(character.stats.block_chance > Math.random()) {
+					 //BLOCKED THE ATTACK
+					 //SHIELD SKILL GOES UP
+					 log_message(character.name + " has blocked the attack");
+					 continue;
+				 }
+			}
+			else { 
+				if(character.stats.block_chance - 0.3 > Math.random()) {
+					//PARTIALLY BLOCKED THE ATTACK
+					//SHIELD SKILL GOES UP
+					damage_dealt -= character.equipment.offhand.shield_strength;
+					partially_blocked = true;
+					//FIGHT GOES LIKE NORMAL, but log that it was partially blocked
+				}
+			}
+		}
+		else { // HAS NO SHIELD
+			if(character.stats.evasion_chance > Math.random()) { //EVADED ATTACK
+				log_message(character.name + " has evaded the attack");
+				//EVASION SKILL GOES UP
+				continue;
+			}
+		}
+				
+		if(enemy_crit_chance > Math.random())
+		{
+			damage_dealt *= enemy_crit_damage;
+			damage_dealt = Math.max(damage_dealt - hero_defense, 1);
+			character.stats.health -= damage_dealt;
+			if(partially_blocked) {
+				log_message(character.name + " partially blocked the attack, but was critically hit for " + damage_dealt + " dmg", "hero_attacked_critically");
+			} 
+			else {
 				log_message(character.name + " was critically hit for " + damage_dealt + " dmg", "hero_attacked_critically");
-			} else {
-				damage_dealt = Math.max(damage_dealt - hero_defense, 1);
-				character.stats.health -= damage_dealt;
+			}
+		} else {
+			damage_dealt = Math.max(damage_dealt - hero_defense, 1);
+			character.stats.health -= damage_dealt;
+			if(partially_blocked) {
+				log_message(character.name + " partially blocked the attack and was hit for " + damage_dealt + " dmg", "hero_attacked");
+			}
+			else {
 				log_message(character.name + " was hit for " + damage_dealt + " dmg", "hero_attacked");
 			}
-
-			if(character.stats.health <= 0) {
-				log_message(character.name + " has lost consciousness", "hero_defeat");
-
-				if(character.stats.health < 0) {
-					character.stats.health = 0;
-				}
-
-				additional_hero_attacks = 0;
-				current_enemy = null;
-				change_location(current_location.parent_location.name);
-				// todo: force to rest
-			}
-			update_displayed_health();
-		} else {
-			log_message(current_enemy.name + " has missed");
-			// evasion skill goes up
 		}
+
+		if(character.stats.health <= 0) {
+			log_message(character.name + " has lost consciousness", "hero_defeat");
+
+			if(character.stats.health < 0) {
+				character.stats.health = 0;
+			}
+
+			additional_hero_attacks = 0;
+			current_enemy = null;
+			change_location(current_location.parent_location.name);
+			// todo: force to rest
+		}
+		update_displayed_health();
 	}
+
 	/* 
 	 enemy is in a global variable
 	 if killed, uses method of Location object to assign a random new enemy (of ones in Location) to that variable;
@@ -290,10 +323,6 @@ function do_combat() {
 	 single stat "magic" + multiple related skills?
 	 also should offer a bit better scaling than strength, so worse at beginning but later on gets better?
 	 also a magic resistance skill for player
-
-	 block chance only when using shield, based on skill (40% at 0 skill, 80% at max?) but only if dmg is lower than shield strength
-	 if it's higher, then block chance reduced to 10%-50% and defender take dmg equal to atk dmg - shield str?
-	 also shield require some strength to use
 	 */
 
 }
@@ -398,15 +427,9 @@ function clear_enemy_and_enemy_info() {
 }
 
 function add_to_inventory(items) {
-	//console.log(items);
 	for(var i = 0; i < items.length; i++){
 		if(!character.inventory.hasOwnProperty(items[i].item.name)) //not in inventory
 		{
-
-			//
-			// TODO: add proper click listeners to items that can be used in any way (equipped/consumed/dismantled?)
-			//
-
 			if(items[i].item.stackable)
 			{
 				character.inventory[items[i].item.name] = items[i];
@@ -421,7 +444,6 @@ function add_to_inventory(items) {
 			if(items[i].item.stackable)
 			{
 				character.inventory[items[i].item.name].count += items[i].count;
-				console.log(items[i].count);
 			} 
 			else 
 			{
@@ -567,7 +589,6 @@ function unequip_item(item_slot) {
 		update_displayed_equipment();
 		update_displayed_inventory();
 		update_character_stats();
-		console.log(character.inventory);
 	}
 }
 
@@ -597,7 +618,6 @@ function update_character_stats() { //updates character stats
 
 		}
 	} 
-
 	else {
 		character.stats.attack_power = character.stats.strength;
 	}
@@ -607,12 +627,71 @@ function update_character_stats() { //updates character stats
 	character.stats.crit_multiplier = character.stats.crit_multiplier; //TODO: calculate it based on skils and equipment
 
 	update_displayed_stats();
+	update_combat_stats();
 }
 
 function update_displayed_stats() { //updates displayed stats
 	Object.keys(stats_divs).forEach(function(key){
 		stats_divs[key].innerHTML = `${character.stats[key]}`
 	});
+}
+
+function update_combat_stats() { //chance to hit and evade/block
+
+	if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
+		character.stats.evasion_chance = null;
+		 //todo: add skill lvl bonus;
+		character.stats.block_chance = 0.4;
+	}
+
+	if(current_enemy != null) { //IN COMBAT
+		character.stats.hit_chance = Math.min(1, Math.max(0.2, (character.stats.agility/current_enemy.agility)*0.5));
+		//so 100% if at least twice more agility, 50% if same, and never less than 20%
+		if(character.equipment.offhand == null || character.equipment.offhand.offhand_type !== "shield") {
+			character.stats.evasion_chance = Math.min(0.95, (character.stats.agility/current_enemy.agility)*0.33);
+			//so up to 95% if at least thrice more agility, 33% if same, can go down almost to 0%
+		}
+	} 
+	else {
+		character.stats.hit_chance = null;
+		character.stats.evasion_chance = null;
+	}
+
+	update_displayed_combat_stats();
+}
+
+function update_displayed_combat_stats() {
+	if(current_enemy != null) {
+		other_combat_divs.hit_chance.innerHTML = `${character.stats.hit_chance*100}%`;
+	}
+	else {
+		other_combat_divs.hit_chance.innerHTML = "";
+	}
+
+	if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
+
+		other_combat_divs.defensive_action.innerHTML = "Block:";
+
+		if(current_enemy != null) { //IN COMBAT
+			if(character.equipment.offhand.shield_strength < current_enemy.strength*1.2) { //SHIELD WEAKER THAN STRONGEST POSSIBLE ATTACK
+				other_combat_divs.defensive_action_chance.innerHTML = `${character.stats.block_chance*100-30}%`;
+			} 
+		}
+		else {
+			other_combat_divs.defensive_action_chance.innerHTML = `${character.stats.block_chance*100}%`;
+		}
+	}
+	else {
+		other_combat_divs.defensive_action.innerHTML = "Evasion:";
+		if(current_enemy != null) {
+			other_combat_divs.defensive_action_chance.innerHTML = `${character.stats.evasion_chance*100}%`;
+		}
+		else {
+			other_combat_divs.defensive_action_chance.innerHTML = "";
+		}
+		
+	}
+	
 }
 
 function update_timer() {
@@ -681,7 +760,11 @@ add_to_inventory([{item: new Item(item_templates["Ratslayer"])}, {item: new Item
 add_to_inventory([{item: new Item(item_templates["Ratslayer"])}]);
 add_to_inventory([{item: new Item(item_templates["Rat fang"]), count: 5}]);
 add_to_inventory([{item: new Item(item_templates["Long stick"])}]);
+add_to_inventory([{item: new Item(item_templates["Crude wooden shield"])}]);
 equip_item({name: "Ratslayer", id: 1});
 equip_item({name: "Long stick", id: 0});
 update_displayed_stats();
+
+
+
 run();

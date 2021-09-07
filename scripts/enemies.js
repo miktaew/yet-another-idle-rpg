@@ -10,10 +10,11 @@ function Enemy(enemy_data) {
 	this.health = enemy_data.health;
 	this.max_health = enemy_data.health;
 	this.strength = enemy_data.strength;
-	this.agility = enemy_data.agility;
+	this.agility = enemy_data.agility; 
 	this.magic = enemy_data.magic;
 	this.attack_speed = enemy_data.attack_speed;
 	this.defense = enemy_data.defense;
+	//only magic & defense can be 0
 	this.loot_list = enemy_data.loot_list;
 
 	this.get_loot = function() {

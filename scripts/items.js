@@ -25,6 +25,11 @@ function Item(item_data) {
 	this.equip_effect = item_data.equip_effect;
 	// stats gained by equipping, {stats: {}, stat_multipliers: {}}
 	// multipliers probably will only be used for weapon damage
+	this.weapon_type = item_data.weapon_type; // "sword", "spear", "blunt", "special", "wand", "staff"
+
+	this.offhand_type = item_data.offhand_type; // "shield", something else?
+
+	this.shield_strength = item_data.shield_strength;
 
 
 	// if usable, bonus gained on using? (so heal hp, heal hunger, permanently raise max stats, etc)
@@ -54,11 +59,11 @@ item_templates["Rat pelt"] = new Item({
 	item_type: "OTHER",
 });
 
-//equippables
+//equippables:
 
 item_templates["Ratslayer"] = new Item({
 	name: "Ratslayer", description: "Test item", value: 1000, stackable: false, 
-	item_type: "EQUIPPABLE", equip_slot: "weapon",
+	item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "special",
 	equip_effect: {
 		stats: { 
 			attack: 1000,
@@ -70,8 +75,8 @@ item_templates["Ratslayer"] = new Item({
 });
 
 item_templates["Long stick"] = new Item({
-	name: "Long stick", description: "Can be used as a basic weapon", value: 3, stackable: false,
-	item_type: "EQUIPPABLE", equip_slot: "weapon",
+	name: "Long stick", description: "Can be used a simple weapon", value: 3, stackable: false,
+	item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "blunt",
 	equip_effect: {
 		stats: {
 			attack: 5,
@@ -80,11 +85,10 @@ item_templates["Long stick"] = new Item({
 	}
 });
 
-//proper items:
-
-
-
-
+item_templates["Crude wooden shield"] = new Item({
+	name: "Crude wooden shield", description: "Crude shield made of wood, not very strong", value: 3, stackable: false,
+	item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 1,
+});
 
 
 export {item_templates, Item};

@@ -53,12 +53,12 @@ function Combat_zone(location_data) {
 }
 
 locations["Village"] = new Location({ 
-	name: "Village", description: "Medium-sized village without anything interesting around", 
+	name: "Village", description: "Medium-sized village surrounded by many fields, some of them infested by rats. Other than that, there's nothing interesting around.", 
 	connected_locations: [],
 });
 
 locations["Infested field"] = new Combat_zone({
-	name: "Infested field", description: "Field infested with rats", is_unlocked: true, 
+	name: "Infested field", description: "Field infested with rats.", is_unlocked: true, 
 	enemies_list: [enemy_templates["Starving wolf rat"], enemy_templates["Wolf rat"]],
 	enemy_count: 20, reset_kills_on_leaving: false, parent_location: locations["Village"]
 });

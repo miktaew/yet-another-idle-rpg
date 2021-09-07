@@ -313,6 +313,10 @@ body {
 	padding-top: 5px;
 }
 
+#location_description_div {
+	font-style: italic;
+}
+
 #message_log_div {
 	width: 400px;
 	height: 712px;
