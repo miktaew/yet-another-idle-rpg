@@ -31,50 +31,60 @@
 							<div class = "stat_slot_div"> 
 								<div class = "stat_name"> Strength: </div>
 								<div class = "stat_value" id = "strength_slot"></div> 
+								<span class = "stat_tooltip"> Your strength. It affects power of physical attacks </span>
 							</div>
 							<div class = "stat_slot_div"> 
 								<div class = "stat_name"> Agility: </div>
 								<div class = "stat_value" id = "agility_slot"></div> 
+								<span class = "stat_tooltip"> Your agility. It affects chance to hit and evade </span>
 							</div>
 						</div>
 						<div class = "grid_container">
 							<div class = "stat_slot_div"> 
 								<div class = "stat_name"> Magic: </div>
 								<div class = "stat_value" id = "magic_slot"></div> 
+								<span class = "stat_tooltip"> Your magic power. It affects damage of magic attacks </span>
 							</div>
 							<div class = "stat_slot_div"> 
 								<div class = "stat_name"> Atk spd: </div>
 								<div class = "stat_value" id = "attack_speed_slot"></div> 
+								<span class = "stat_tooltip"> Your attack speed. It affects </span>
 							</div>
 						</div>
 						<div class = "grid_container">
 							<div class = "stat_slot_div"> 
 								<div class = "stat_name"> Atk power: </div>
 								<div class = "stat_value" id = "attack_power_slot"></div> 
+								<span class = "stat_tooltip"> Attack power. Based on weapon statistics, strength and/or magic </span>
 							</div>
 							<div class = "stat_slot_div"> 
 								<div class = "stat_name"> Defense: </div>
 								<div class = "stat_value" id = "defense_slot"></div> 
+								<span class = "stat_tooltip"> Your defense. Based on worn equipment, lowers damage taken </span>
 							</div>
 						</div>
 						<div class = "grid_container">
 							<div class = "stat_slot_div"> 
 								<div class = "stat_name"> Crit rate: </div>
 								<div class = "stat_value" id = "crit_rate_slot"></div> 
+								<span class = "stat_tooltip"> Your chance for critical attack </span>
 							</div>
 							<div class = "stat_slot_div"> 
 								<div class = "stat_name"> Crit mult: </div>
 								<div class = "stat_value" id = "crit_multiplier_slot"></div> 
+								<span class = "stat_tooltip"> Damage of your critical attacks </span>
 							</div>
 						</div>
 						<div class = "grid_container">
 							<div class = "stat_slot_div"> 
 								<div class = "stat_name"> Hit chance: </div>
 								<div class = "stat_value" id = "hit_chance_slot"></div> 
+								<span class = "stat_tooltip"> Your chance to hit opponent. Based on yours and opponent's agility </span>
 							</div>
 							<div class = "stat_slot_div" id = "defensive_action_chance"> 
 								<div class = "stat_name" id = "defensive_action_slot"> </div>
 								<div class = "stat_value" id = "defensive_action_chance_slot"></div> 
+								<span class = "stat_tooltip"> Your chance for defensive action </span>
 							</div>
 						</div>
 					</div>
@@ -190,8 +200,7 @@
 				const inventory_div = document.getElementById("inventory_div");
 				inventory_div.onclick = function(event) {
 					var clicked_element = event.target;
-					if(clicked_element.classList.contains("equip_item_button"))
-					{
+					if(clicked_element.classList.contains("equip_item_button")) {
 						var last_index = clicked_element.parentNode.dataset.inventory_item.lastIndexOf(" "); 
 						//always ends with " #number", so this will get index of that whitespace before "#"
 
@@ -200,19 +209,45 @@
 						});
 					}
 				}
+
 				//item tooltips
 				inventory_div.addEventListener('mousemove', move_item_tooltip, false);
 				function move_item_tooltip(event) {
 					var hovered_element = event.target;
-					if(hovered_element.classList.contains("inventory_item"))
-					{
+					if(hovered_element.classList.contains("inventory_item")) {
 						hovered_element.children[0].style.left = event.pageX + "px";
 						hovered_element.children[0].style.top = event.pageY-310 + "px";
 					}
 				}
 
-				
+				//item slots / worn equipment tooltips
+				var equipment_div = document.getElementById("character_equipment_div");
+				equipment_div.addEventListener('mousemove', move_equipment_tooltip, false);
+				function move_equipment_tooltip(event) {
+					var hovered_element = event.target;
+					if(hovered_element.classList.contains("equipment_slot_div")){
+						hovered_element.children[0].style.left = event.pageX + "px";
+						hovered_element.children[0].style.top = event.pageY + "px";
+					}
+				}
 
+				//stats tooltips
+				var stats_div = document.getElementById("character_stats_div");
+				stats_div.addEventListener('mousemove', move_stat_tooltip, false);
+				function move_stat_tooltip(event) {
+					var hovered_element = event.target;
+					if(hovered_element.classList.contains("stat_slot_div")) {
+						hovered_element.children[2].style.left = event.pageX + "px";
+						hovered_element.children[2].style.top = event.pageY + "px";
+					}
+					else {
+						if(hovered_element.classList.contains("stat_name") || hovered_element.classList.contains("stat_value")) {
+							hovered_element.parentNode.children[2].style.left = event.pageX + "px";
+							hovered_element.parentNode.children[2].style.top = event.pageY + "px";
+						}
+					}
+				}
+				
 			}
 
 		</script> 

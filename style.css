@@ -87,10 +87,6 @@ body {
 	 width: 325px;
  }
 
- .inventory_item:hover .item_tooltip {
-	 display: block;
- }
-
  .item_tooltip {
 	 display: none;
 	 background-color: rgba(120, 120, 120, 0.8);
@@ -99,8 +95,30 @@ body {
 	 padding: 5px;
 	 position: absolute;
 	 z-index: 1000;
-	 width: 300px;
+	 max-width: 300px;
+	 width: fit-content;
 	 height: auto;
+ }
+
+ .inventory_item:hover .item_tooltip {
+	display: block;
+}
+
+ .stat_tooltip {
+	display: none;
+	background-color: rgba(120, 120, 120, 0.8);
+	border-radius: 10px;
+	margin-left: 30px;
+	padding: 5px;
+	position: absolute;
+	z-index: 1000;
+	max-width: 300px;
+	width: fit-content;
+	height: auto;
+ }
+
+ .stat_slot_div:hover .stat_tooltip {
+	 display: block;
  }
 
  .equip_item_button {
@@ -169,6 +187,26 @@ body {
 .equipment_slot_empty {
 	color: silver;
 	font-style: italic;
+}
+
+.equipment_tooltip {
+	display: none;
+	text-align: left;
+	background-color: rgba(120, 120, 120, 0.8);
+	border-radius: 10px;
+	margin-left: 30px;
+	padding: 5px;
+	position: absolute;
+	z-index: 1000;
+	max-width: 400px;
+	width: fit-content;
+	height: auto;
+	font-style: normal;
+	color: white;
+}
+
+.equipment_slot_div:hover .equipment_tooltip {
+	display: block;
 }
 
 .amulet_slot_div {
@@ -300,6 +338,7 @@ body {
 #inventory_content_div {
 	height: 370px;
 	overflow-y: scroll;
+	overflow-x: visible;
 }
 
 #inventory_control_div {

@@ -634,15 +634,32 @@ function unequip_item(item_slot) {
 
 function update_displayed_equipment() {
 	Object.keys(equipment_slots_divs).forEach(function(key) {
+		var eq_tooltip = document.createElement("span");
+		eq_tooltip.classList.add("equipment_tooltip");
 		if(character.equipment[key] == null) {
 			equipment_slots_divs[key].innerHTML = `${key} slot`;
 			equipment_slots_divs[key].classList.add("equipment_slot_empty");
+			eq_tooltip.innerHTML = `Your ${key} slot`;
 		}
 		else 
 		{
 			equipment_slots_divs[key].innerHTML = character.equipment[key].name;
 			equipment_slots_divs[key].classList.remove("equipment_slot_empty");
+			eq_tooltip.innerHTML = 
+			`<b>${character.equipment[key].name}</b>
+			<br>${character.equipment[key].description}`;
+
+			Object.keys(character.equipment[key].equip_effect).forEach(function(effect_key) {
+				eq_tooltip.innerHTML += 
+				`<br><br>Flat ${effect_key} bonus: ${character.equipment[key].equip_effect[effect_key].flat_bonus}`;
+
+				if(character.equipment[key].equip_effect[effect_key].multiplier != null) {
+						eq_tooltip.innerHTML += 
+					`<br>${capitalize_first_letter(effect_key)} multiplier: ${character.equipment[key].equip_effect[effect_key].multiplier}`;
+				}
+			});
 		}
+		equipment_slots_divs[key].appendChild(eq_tooltip);
 	});
 }
 
@@ -666,7 +683,12 @@ function update_character_stats() { //updates character stats
 
 function update_displayed_stats() { //updates displayed stats
 	Object.keys(stats_divs).forEach(function(key){
-		stats_divs[key].innerHTML = `${character.stats[key]}`
+		if(key === "crit_rate" || key === "crit_multiplier") {
+			stats_divs[key].innerHTML = `${character.stats[key]*100}%`
+		} 
+		else {
+			stats_divs[key].innerHTML = `${character.stats[key]}`
+		}
 	});
 }
 
@@ -706,7 +728,7 @@ function update_displayed_combat_stats() {
 		other_combat_divs.defensive_action.innerHTML = "Block:";
 
 		if(current_enemy != null) { //IN COMBAT
-			if(character.equipment.offhand.shield_strength < current_enemy.strength*1.2) { //SHIELD WEAKER THAN STRONGEST POSSIBLE ATTACK
+			if(character.equipment.offhand.shield_strength < current_enemy.strength) { //SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
 				other_combat_divs.defensive_action_chance.innerHTML = `${character.stats.block_chance*100-30}%`;
 			} 
 		}
