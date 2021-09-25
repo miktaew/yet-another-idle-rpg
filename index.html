@@ -153,7 +153,25 @@
 
 					
 				<!-- actions and stuff-->
-				<div id = "action_div" class = "box_div"> </div>
+				<div id = "action_selection_div" class = "box_div">
+					<div id = "location_actions_div" class = "actions_div">	
+						
+					</div>
+
+					<div id = "skill_list_div" class = "actions_div">
+						Here will be skills (hopefuly soon)
+					</div>
+
+					<div id = "journal_div" class = "actions_div">
+						Here will be journal (maybe?)
+					</div>
+
+					<div id = "action_control_div">
+						<div id = "show_location_actions_div" class = "action_selection_button" onclick = "showLocationActions()"> Location </div>
+						<div id = "show_skills_div" class = "action_selection_button" onclick = "showSkills()"> Skills </div>
+						<div id = "show_journal_div" class = "action_selection_button" onclick = "showJournal()"> Journal </div>
+					</div>
+				</div>
 
 				<!-- message log -->
 				<div id = "message_log_div" class = "box_div">
@@ -192,6 +210,22 @@
 			function showCharacterEquipment() {
 				document.documentElement.style.setProperty('--equipped_display', 'grid');
 				document.documentElement.style.setProperty('--stats_display', 'none');
+			}
+
+			function showLocationActions() {
+				document.documentElement.style.setProperty('--location_actions_display', 'block');
+				document.documentElement.style.setProperty('--skill_list_display', 'none');
+				document.documentElement.style.setProperty('--journal_display', 'none');
+			}
+			function showSkills() {
+				document.documentElement.style.setProperty('--location_actions_display', 'none');
+				document.documentElement.style.setProperty('--skill_list_display', 'block');
+				document.documentElement.style.setProperty('--journal_display', 'none');
+			}
+			function showJournal() {
+				document.documentElement.style.setProperty('--location_actions_display', 'none');
+				document.documentElement.style.setProperty('--skill_list_display', 'none');
+				document.documentElement.style.setProperty('--journal_display', 'block');
 			}
 
 			function doThings() { //called on body loaded

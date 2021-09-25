@@ -1,6 +1,7 @@
 import { Game_time } from "./game_time.js";
 import { Item, item_templates } from "./items.js";
 import { locations } from "./locations.js";
+import { skills } from "./skills.js";
 
 //player character
 const character = {name: "Hero", titles: {}, 
@@ -29,7 +30,7 @@ const stats_divs = {strength: document.getElementById("strength_slot"), agility:
 					};
 
 const other_combat_divs = {hit_chance: document.getElementById("hit_chance_slot"), defensive_action: document.getElementById("defensive_action_slot"),
-defensive_action_chance: document.getElementById("defensive_action_chance_slot"),
+						   defensive_action_chance: document.getElementById("defensive_action_chance_slot"),
 };
 
 //current enemy
@@ -68,7 +69,7 @@ name_field.value = character.name;
 const message_log = document.getElementById("message_log_div");
 const time_field = document.getElementById("time_div");
 
-const action_div = document.getElementById("action_div");
+const action_div = document.getElementById("location_actions_div");
 
 const location_name_div = document.getElementById("location_name_div");
 const location_description_div = document.getElementById("location_description_div");
@@ -80,12 +81,13 @@ time_field.innerHTML = current_game_time.toString();
 // button testing cuz yes
 document.getElementById("test_button").addEventListener("click", test_button);
 function test_button() {
-	//remove_from_inventory({name: "Rat fang", count: 2});
-	//remove_from_inventory({name: "Ratslayer"});
-	//equip_item({name: "Long stick", id: 0});
+	add_xp_to_skill(skills["Combat"], parseInt(character["name"]));
+	console.log(`${skills["Combat"].current_level} : ${skills["Combat"].current_xp}/${skills["Combat"].xp_to_next_lvl}`)
+	//console.log(`${skills["Blocking"].current_level}: ${skills["Blocking"].get_coefficient("multiplicative")} | ${skills["Blocking"].get_coefficient("flat")}`);
+	//console.log(skills["Evasion"].name());
 }
 
-name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Nameless Hero");
+name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
 
 function capitalize_first_letter(some_string) {
 	return some_string.charAt(0).toUpperCase() + some_string.slice(1);
@@ -185,7 +187,8 @@ function do_combat() {
 		additional_hero_attacks = 0;
 	}
 	
-	for(var i = 0; i <= additional_hero_attacks; i++) {
+
+	for(var i = 0; i <= additional_hero_attacks; i++) { //hero attacks
 		if(i > 0) {
 			additional_hero_attacks -= 1;
 		}
@@ -193,6 +196,8 @@ function do_combat() {
 		if(character.stats.hit_chance > Math.random()) {//hero's attack hits
 
 			//todo: proper combat skill goes up a tiny bit
+
+			add_xp_to_skill(skills["Combat"], current_enemy.xp_value);
 
 			damage_dealt = Math.round(hero_base_damage * (1.2 - Math.random() * 0.4));
 			//small randomization by up to 20%
@@ -238,8 +243,7 @@ function do_combat() {
 		}
 	}
 
-	for(var i = 0; i <= additional_enemy_attacks; i++)
-	{
+	for(var i = 0; i <= additional_enemy_attacks; i++) { //enemy attacks
 		if(i > 0) {
 			additional_enemy_attacks -= 1;
 		}
@@ -250,17 +254,15 @@ function do_combat() {
 
 		if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
 			if(character.equipment.offhand.shield_strength >= damage_dealt) {
-				 if(character.stats.block_chance > Math.random()) {
-					 //BLOCKED THE ATTACK
-					 //SHIELD SKILL GOES UP
-					 log_message(character.name + " has blocked the attack");
-					 continue;
+				if(character.stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
+					add_xp_to_skill(skills["Blocking"], current_enemy.xp_value);
+					log_message(character.name + " has blocked the attack");
+					continue;
 				 }
 			}
 			else { 
-				if(character.stats.block_chance - 0.3 > Math.random()) {
-					//PARTIALLY BLOCKED THE ATTACK
-					//SHIELD SKILL GOES UP
+				if(character.stats.block_chance - 0.3 > Math.random()) { //PARTIALLY BLOCKED THE ATTACK
+					add_xp_to_skill(skills["Blocking"], current_enemy.xp_value);
 					damage_dealt -= character.equipment.offhand.shield_strength;
 					partially_blocked = true;
 					//FIGHT GOES LIKE NORMAL, but log that it was partially blocked
@@ -269,8 +271,8 @@ function do_combat() {
 		}
 		else { // HAS NO SHIELD
 			if(character.stats.evasion_chance > Math.random()) { //EVADED ATTACK
+				add_xp_to_skill(skills["Evasion"], current_enemy.xp_value);
 				log_message(character.name + " has evaded the attack");
-				//EVASION SKILL GOES UP
 				continue;
 			}
 		}
@@ -315,10 +317,7 @@ function do_combat() {
 	/* 
 	 enemy is in a global variable
 	 if killed, uses method of Location object to assign a random new enemy (of ones in Location) to that variable;
-	 
-	 todo: give xp
-	 and also on each move, if character manages to hit/evade/block or gets hit (so basically however enemy's move goes,
-	 except for when it dies and doesn't do anything), add xp to proper skills;
+	
 	 
 	 attack dmg either based on strength + weapon stat, or some magic stuff?
 	 maybe some weapons will be str based and will get some small bonus from magic if player has proper skill unlocked
@@ -328,6 +327,15 @@ function do_combat() {
 	 also a magic resistance skill for player
 	 */
 
+}
+
+
+function add_xp_to_skill(skill, xp_to_add) {
+	const level_up = skill.add_xp(xp_to_add);
+	if(typeof level_up !== "undefined")
+	{
+		log_message(level_up, "message_skill_leveled_up")
+	}
 }
 
 //single tick of resting
@@ -378,6 +386,9 @@ function log_message(message_to_add, message_type) {
 		case "combat_loot":
 			class_to_add = "message_items_obtained";
 			break;
+		case "skill_raised":
+			class_to_add = "message_skill_leveled_up";
+			break;	
 	}
 
 	message.classList.add(class_to_add);
@@ -582,9 +593,14 @@ function update_displayed_inventory() {
 			item_tooltip.innerHTML = 
 			`<b>${character.inventory[key].item.name}</b> 
 			<br>${character.inventory[key].item.description}`;
+
+
 			if(character.inventory[key].item.item_type === "EQUIPPABLE") {
 				//add stats to tooltip
+
+
 			}
+
 
 			item_div.appendChild(item_tooltip);
 
@@ -667,7 +683,6 @@ function update_character_stats() { //updates character stats
 	if(character.equipment.weapon != null) { 
 		character.stats.attack_power = (character.stats.strength + character.equipment.weapon.equip_effect.attack.flat_bonus) 
 										* character.equipment.weapon.equip_effect.attack.multiplier;
-		console.log(character.equipment.weapon.equip_effect.attack.multiplier);
 	} 
 	else {
 		character.stats.attack_power = character.stats.strength;
@@ -684,10 +699,10 @@ function update_character_stats() { //updates character stats
 function update_displayed_stats() { //updates displayed stats
 	Object.keys(stats_divs).forEach(function(key){
 		if(key === "crit_rate" || key === "crit_multiplier") {
-			stats_divs[key].innerHTML = `${character.stats[key]*100}%`
+			stats_divs[key].innerHTML = `${(character.stats[key]*100).toFixed(1)}%`
 		} 
 		else {
-			stats_divs[key].innerHTML = `${character.stats[key]}`
+			stats_divs[key].innerHTML = `${(character.stats[key]).toFixed(1)}`
 		}
 	});
 }
@@ -696,14 +711,14 @@ function update_combat_stats() { //chances to hit and evade/block
 	if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
 		character.stats.evasion_chance = null;
 		 //todo: add skill lvl bonus;
-		character.stats.block_chance = 0.4;
+		character.stats.block_chance = Math.round(0.4 * skills["Blocking"].get_coefficient("flat") * 10000)/10000;
 	}
 
 	if(current_enemy != null) { //IN COMBAT
-		character.stats.hit_chance = Math.min(1, Math.max(0.2, (character.stats.agility/current_enemy.agility)*0.5));
+		character.stats.hit_chance = Math.min(1, Math.max(0.2, (character.stats.agility/current_enemy.agility) * 0.5 * skills["Combat"].get_coefficient("multiplicative")));
 		//so 100% if at least twice more agility, 50% if same, and never less than 20%
 		if(character.equipment.offhand == null || character.equipment.offhand.offhand_type !== "shield") {
-			character.stats.evasion_chance = Math.min(0.95, (character.stats.agility/current_enemy.agility)*0.33);
+			character.stats.evasion_chance = Math.min(0.95, (character.stats.agility/current_enemy.agility) * 0.33 * skills["Evasion"].get_coefficient("multiplicative"));
 			//so up to 95% if at least thrice more agility, 33% if same, can go down almost to 0%
 		}
 	} 
@@ -717,7 +732,7 @@ function update_combat_stats() { //chances to hit and evade/block
 
 function update_displayed_combat_stats() {
 	if(current_enemy != null) {
-		other_combat_divs.hit_chance.innerHTML = `${character.stats.hit_chance*100}%`;
+		other_combat_divs.hit_chance.innerHTML = `${(character.stats.hit_chance*100).toFixed(1)}%`;
 	}
 	else {
 		other_combat_divs.hit_chance.innerHTML = "";
@@ -727,26 +742,22 @@ function update_displayed_combat_stats() {
 
 		other_combat_divs.defensive_action.innerHTML = "Block:";
 
-		if(current_enemy != null) { //IN COMBAT
-			if(character.equipment.offhand.shield_strength < current_enemy.strength) { //SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
-				other_combat_divs.defensive_action_chance.innerHTML = `${character.stats.block_chance*100-30}%`;
-			} 
-		}
+		if(current_enemy != null && character.equipment.offhand.shield_strength < current_enemy.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
+			other_combat_divs.defensive_action_chance.innerHTML = `${(character.stats.block_chance*100-30).toFixed(1)}%`;
+		} 
 		else {
-			other_combat_divs.defensive_action_chance.innerHTML = `${character.stats.block_chance*100}%`;
+			other_combat_divs.defensive_action_chance.innerHTML = `${(character.stats.block_chance*100).toFixed(1)}%`;
 		}
 	}
 	else {
 		other_combat_divs.defensive_action.innerHTML = "Evasion:";
 		if(current_enemy != null) {
-			other_combat_divs.defensive_action_chance.innerHTML = `${character.stats.evasion_chance*100}%`;
+			other_combat_divs.defensive_action_chance.innerHTML = `${(character.stats.evasion_chance*100).toFixed(1)}%`;
 		}
 		else {
 			other_combat_divs.defensive_action_chance.innerHTML = "";
 		}
-		
 	}
-	
 }
 
 function update_timer() {
@@ -816,6 +827,7 @@ add_to_inventory([{item: new Item(item_templates["Ratslayer"])}]);
 add_to_inventory([{item: new Item(item_templates["Rat fang"]), count: 5}]);
 add_to_inventory([{item: new Item(item_templates["Long stick"])}]);
 add_to_inventory([{item: new Item(item_templates["Crude wooden shield"])}]);
+add_to_inventory([{item: new Item(item_templates["Wooden shield"])}]);
 equip_item({name: "Ratslayer", id: 1});
 equip_item({name: "Long stick", id: 0});
 update_displayed_stats();

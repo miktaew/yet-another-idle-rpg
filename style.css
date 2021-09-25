@@ -4,6 +4,9 @@
 	--other_display: initial;
 	--stats_display: grid;
 	--equipped_display: none;
+	--location_actions_display: block;
+	--skill_list_display: none;
+	--journal_display: none;
 }
 
 body {
@@ -241,13 +244,33 @@ body {
 	padding-left: 4px;
 }
 
+.actions_div {
+	height: 370px;
+	width: 100%;
+	overflow-y: scroll;
+}
 
+.action_selection_button {
+	float:left;
+	padding: 3px;
+	width: 142px;
+	text-align: center;
+	border: 1px solid white;
+	cursor: pointer;
+	font-size: 20;
+	color: white;
+}
 
-#action_div {
+#action_selection_div {
 	width: 450px;
 	height: 400px;
 	left: 370px;
 	top: 320px;
+}
+
+#action_control_div {
+	position: absolute;
+	bottom: 0;
 }
 
 #character_div {
@@ -352,6 +375,14 @@ body {
 	top: 320;
 }
 
+#journal_div {
+	display: var(--journal_display);
+}
+
+#location_actions_div {
+	display: var(--location_actions_display);
+}
+
 #location_div {
 	width: 400px;
 	height: 300px;
@@ -383,6 +414,10 @@ body {
 	overflow-x: hidden;
 	padding-right: 15px;
 	margin-bottom: 20px;
+}
+
+#skill_list_div {
+	display: var(--skill_list_display);
 }
 
 #time_div {

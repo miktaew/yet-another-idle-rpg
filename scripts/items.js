@@ -15,9 +15,12 @@ function Item(item_data) {
 	this.can_be_dismantled = item_data.can_be_dismantled; //maybe remove it and simply check if dismantling_materials is not undefined?
 	this.dismantling_materials = item_data.dismantling_materials;
 
-	this.item_type = item_data.item_type; // "EQUIPPABLE", "USABLE", "OTHER"
-	//check if it has one of allowed values, otherwise throw an error message 
-	//for equippables, always add equip_effect, even if empty
+	if(item_data.item_type === "EQUIPPABLE" || item_data.item_type === "USABLE" || item_data.item_type === "OTHER") {
+		this.item_type = item_data.item_type; 
+	}
+	else {
+		throw new Error("Wrong item type!");
+	}
 
 	this.equip_stats = item_data.equip_stats;
 	// (only bonuses to main stats)
@@ -87,6 +90,12 @@ item_templates["Long stick"] = new Item({
 item_templates["Crude wooden shield"] = new Item({
 	name: "Crude wooden shield", description: "Crude shield made of wood, not very strong", value: 3, stackable: false,
 	item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 1,
+	equip_effect: {},
+});
+
+item_templates["Wooden shield"] = new Item({
+	name: "Wooden shield", description: "A proper wooden shield", value: 15, stackable: false,
+	item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 5,
 	equip_effect: {},
 });
 
