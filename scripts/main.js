@@ -33,6 +33,8 @@ const other_combat_divs = {hit_chance: document.getElementById("hit_chance_slot"
 						   defensive_action_chance: document.getElementById("defensive_action_chance_slot"),
 };
 
+const skill_bar_divs = {};
+
 //current enemy
 var current_enemy = null;
 //additional attacks for combat
@@ -81,10 +83,12 @@ time_field.innerHTML = current_game_time.toString();
 // button testing cuz yes
 document.getElementById("test_button").addEventListener("click", test_button);
 function test_button() {
-	add_xp_to_skill(skills["Combat"], parseInt(character["name"]));
-	console.log(`${skills["Combat"].current_level} : ${skills["Combat"].current_xp}/${skills["Combat"].xp_to_next_lvl}`)
+	//add_xp_to_skill(skills["Combat"], parseInt(character["name"]));
+	//console.log(`${skills["Combat"].current_level} : ${skills["Combat"].current_xp}/${skills["Combat"].xp_to_next_lvl}`)
 	//console.log(`${skills["Blocking"].current_level}: ${skills["Blocking"].get_coefficient("multiplicative")} | ${skills["Blocking"].get_coefficient("flat")}`);
 	//console.log(skills["Evasion"].name());
+
+	save();
 }
 
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
@@ -194,10 +198,10 @@ function do_combat() {
 		}
 
 		if(character.stats.hit_chance > Math.random()) {//hero's attack hits
-
-			//todo: proper combat skill goes up a tiny bit
-
 			add_xp_to_skill(skills["Combat"], current_enemy.xp_value);
+			if(character.equipment.weapon != null) {
+				add_xp_to_skill(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`], current_enemy.xp_value); 
+			}
 
 			damage_dealt = Math.round(hero_base_damage * (1.2 - Math.random() * 0.4));
 			//small randomization by up to 20%
@@ -331,11 +335,47 @@ function do_combat() {
 
 
 function add_xp_to_skill(skill, xp_to_add) {
+	if(skill.total_xp == 0) {
+		skill_bar_divs[skill.skill_id] = document.createElement("div");
+
+		const skill_bar_max = document.createElement("div");
+		const skill_bar_current = document.createElement("div");
+		const skill_bar_text = document.createElement("div");
+		const skill_bar_name = document.createElement("div");
+		const skill_bar_xp = document.createElement("div");
+		
+
+		skill_bar_max.classList.add("skill_bar_max");
+		skill_bar_current.classList.add("skill_bar_current");
+		skill_bar_text.classList.add("skill_bar_text");
+		skill_bar_name.classList.add("skill_bar_name");
+		skill_bar_xp.classList.add("skill_bar_xp");
+
+		skill_bar_text.appendChild(skill_bar_name);
+		skill_bar_text.append(skill_bar_xp);
+		skill_bar_max.appendChild(skill_bar_text);
+		skill_bar_max.appendChild(skill_bar_current);
+		skill_bar_divs[skill.skill_id].appendChild(skill_bar_max);
+		document.getElementById("skill_list_div").appendChild(skill_bar_divs[skill.skill_id]);
+	} 
+
+
 	const level_up = skill.add_xp(xp_to_add);
 	if(typeof level_up !== "undefined")
 	{
-		log_message(level_up, "message_skill_leveled_up")
+		log_message(level_up, "message_skill_leveled_up");
+		update_character_stats();
 	}
+
+	skill_bar_divs[skill.skill_id].children[0].children[0].children[0].innerHTML = `${skill.name()} : level ${skill.current_level}`;
+	//skill_bar_name
+	skill_bar_divs[skill.skill_id].children[0].children[0].children[1].innerHTML = `${100*Math.round(skill.current_xp/skill.xp_to_next_lvl*1000)/1000}%`;
+	//skill_bar_xp
+	skill_bar_divs[skill.skill_id].children[0].children[1].style.width = `${100*skill.current_xp/skill.xp_to_next_lvl}%`;
+	//skill_bar_current
+
+
+	//TODO: add tooltip on hover with full xp instead of percentage
 }
 
 //single tick of resting
@@ -648,6 +688,8 @@ function unequip_item(item_slot) {
 	}
 }
 
+window.unequip_item = unequip_item;
+
 function update_displayed_equipment() {
 	Object.keys(equipment_slots_divs).forEach(function(key) {
 		var eq_tooltip = document.createElement("span");
@@ -760,6 +802,21 @@ function update_displayed_combat_stats() {
 	}
 }
 
+
+function save(to_where) {
+	//to_where: "file", anything else -> local storage
+
+}
+
+function load() {
+
+
+}
+
+function load_from_file() {
+
+}
+
 function update_timer() {
 	current_game_time.go_up();
 	time_field.innerHTML = current_game_time.toString();
@@ -822,16 +879,12 @@ async function run() {
 	}
 }
 
-add_to_inventory([{item: new Item(item_templates["Ratslayer"])}, {item: new Item(item_templates["Ratslayer"])}]);
-add_to_inventory([{item: new Item(item_templates["Ratslayer"])}]);
 add_to_inventory([{item: new Item(item_templates["Rat fang"]), count: 5}]);
 add_to_inventory([{item: new Item(item_templates["Long stick"])}]);
 add_to_inventory([{item: new Item(item_templates["Crude wooden shield"])}]);
 add_to_inventory([{item: new Item(item_templates["Wooden shield"])}]);
-equip_item({name: "Ratslayer", id: 1});
 equip_item({name: "Long stick", id: 0});
 update_displayed_stats();
-
 
 
 run();

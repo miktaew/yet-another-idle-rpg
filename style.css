@@ -261,6 +261,39 @@ body {
 	color: white;
 }
 
+.skill_bar_max {
+	border: 2px solid rgb(3, 255, 36);
+	margin: auto;
+	margin-top: 10px;
+	width: 90%;
+}
+
+.skill_bar_current {
+	background-color: rgb(3, 255, 36);
+	height: 15px;
+}
+
+.skill_bar_text {
+	display: flex;
+	color: white;
+	width: 100%;
+}
+
+.skill_bar_name {
+	text-align: left;
+	width: 80%;
+}
+
+.skill_bar_xp {
+	text-align: right;
+	width: 20%;
+	float: right;
+}
+
+.skill_bar_text:after {
+	clear: both;
+}
+
 #action_selection_div {
 	width: 450px;
 	height: 400px;

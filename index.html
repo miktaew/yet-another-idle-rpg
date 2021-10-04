@@ -159,7 +159,7 @@
 					</div>
 
 					<div id = "skill_list_div" class = "actions_div">
-						Here will be skills (hopefuly soon)
+						
 					</div>
 
 					<div id = "journal_div" class = "actions_div">
@@ -176,7 +176,6 @@
 				<!-- message log -->
 				<div id = "message_log_div" class = "box_div">
 				</div>
-		</div>
 
 		<button id = "test_button">click me</button>
 
@@ -262,6 +261,17 @@
 					if(hovered_element.classList.contains("equipment_slot_div")){
 						hovered_element.children[0].style.left = event.pageX + "px";
 						hovered_element.children[0].style.top = event.pageY + "px";
+					}
+				}
+
+				//unequip item
+				equipment_div.onclick = function(event) {
+					var clicked_element = event.target;
+					if(clicked_element.classList.contains("equipment_slot_div") && !clicked_element.classList.contains("equipment_slot_empty"))
+					{
+						unequip_item(clicked_element.id.replace("_slot", ""));
+						clicked_element.children[0].style.left = event.pageX + "px";
+						clicked_element.children[0].style.top = event.pageY + "px";
 					}
 				}
 

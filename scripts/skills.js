@@ -104,10 +104,22 @@ function Skill(skill_data) {
 
 skills["Combat"] = new Skill({skill_id: "Combat", names: {0: "Combat"}, description: "Overall combat ability, increases chance to hit", max_level: 100, base_xp_cost: 100, xp_scaling: 2,
 							  max_level_coefficient: 4});
-skills["Evasion"] = new Skill({skill_id: "Evasion", names: {0: "Basic Evasion", 20: "Intermeddiate Evasion", 40: "Advanced Evasion", 60: "Master Evasion", 80: "Absolute Evasion"}, 
+skills["Evasion"] = new Skill({skill_id: "Evasion", names: {0: "Evasion [Basic]", 20: "Evasion [Intermediate]", 40: "Evasion [Advanced]", 60: "Evasion [Master]", 80: "Evasion [Absolute"}, 
 							   description:" Ability to evade attacks, increases evasion chance", max_level: 100, base_xp_cost: 100, xp_scaling: 2, max_level_coefficient: 2});
 skills["Blocking"] = new Skill({skill_id: "Blocking", names: {0: "Shield blocking"}, description: "Ability to block attacks with shield, increases block chance", max_level: 20, 
 								base_xp_cost: 100, xp_scaling: 2, max_level_coefficient: 4});
-
+								
+skills["Swords"] = new Skill({skill_id: "Swords", names: {0: "Sword [Basics]"}, description: "Ability to fight with use of swords, increases damage dealt", max_level: 100, 
+							  base_xp_cost: 100, xp_scaling: 2, max_level_coefficient: 10});
+skills["Axes"] = new Skill({skill_id: "Axes", names: {0: "Axe [Basics]"}, description: "Ability to fight with use of axes, increases damage dealt", max_level: 100, 
+							base_xp_cost: 100, xp_scaling: 2, max_level_coefficient: 10});
+skills["Spears"] = new Skill({skill_id: "Spears", names: {0: "Spear [Basics]"}, description: "Ability to fight with use of spears, increases damage dealt", max_level: 100, 
+							  base_xp_cost: 100, xp_scaling: 2, max_level_coefficient: 10});
+skills["Blunt weapons"] = new Skill({skill_id: "Blunt weapons", names: {0: "Blunt weapons [Basics]"}, description: "Ability to fight with use of blunt weapons, increases damage dealt", max_level: 100, 
+									 base_xp_cost: 100, xp_scaling: 2, max_level_coefficient: 10});
+skills["Wands"] = new Skill({skill_id: "Wands", names: {0: "Wand [Basics]"}, description: "Ability to cast spells with magic wands, increases damage dealt", max_level: 100, 
+							 base_xp_cost: 100, xp_scaling: 2, max_level_coefficient: 10});
+skills["Staffs"] = new Skill({skill_id: "Staffs", names: {0: "Staff [Basics]"}, description: "Ability to cast spells with magic staffs, increases damage dealt", max_level: 100, 
+							  base_xp_cost: 100, xp_scaling: 2, max_level_coefficient: 10});
 
 export {skills};

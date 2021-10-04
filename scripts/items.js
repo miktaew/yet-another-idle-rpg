@@ -29,7 +29,8 @@ function Item(item_data) {
 	this.equip_effect = item_data.equip_effect;
 	// stats gained by equipping, {stats: {}, stat_multipliers: {}}
 	// multipliers probably will only be used for weapon damage
-	this.weapon_type = item_data.weapon_type; // "sword", "spear", "blunt", "special", "wand", "staff"
+	this.weapon_type = item_data.weapon_type; // "sword", "axe", "spear", "blunt weapon", "wand", "staff"
+	//remember to add proper skills if adding new weapon types aside from those above
 
 	this.offhand_type = item_data.offhand_type; // "shield", something else?
 
@@ -59,7 +60,7 @@ item_templates["Rat fang"] = new Item({
 });
 
 item_templates["Rat pelt"] = new Item({
-	name: "Rat pelt", description: "Pelt of a huge rat, terrible quality", value: 5, stackable: true,
+	name: "Rat pelt", description: "Pelt of a huge rat, terrible quality", value: 3, stackable: true,
 	item_type: "OTHER",
 });
 
@@ -67,7 +68,7 @@ item_templates["Rat pelt"] = new Item({
 
 item_templates["Ratslayer"] = new Item({
 	name: "Ratslayer", description: "Test item", value: 1000, stackable: false, 
-	item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "special",
+	item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "sword",
 	equip_effect: {
 		attack: {
 			flat_bonus: 10000,
@@ -78,7 +79,7 @@ item_templates["Ratslayer"] = new Item({
 
 item_templates["Long stick"] = new Item({
 	name: "Long stick", description: "Can be used as a simple weapon", value: 3, stackable: false,
-	item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "blunt",
+	item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "blunt weapon",
 	equip_effect: {
 		attack: {
 			flat_bonus: 5,
