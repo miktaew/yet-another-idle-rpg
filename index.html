@@ -7,175 +7,180 @@
 	</head>
 
 	<body onload = "doThings()">
-
-				<!-- character info + stats/equipment-->
-				<div id = "character_div" class = "box_div"> 
-					<div id = "character_name_div"> 
-						<input type = "text" id = "character_name_field"> 
-					</div>
-					<div id = "character_title_div">
-						Unknown adventurer
-						<!-- placeholder for future -->
-					</div>
-					<div id = "character_health_div"> 
-						<div id = "character_healthbar_max"> 
-							<div id = "character_healthbar_current">
-							</div>
-						</div>
-						<div id = "character_health_value">
-						</div>
-					</div>
-
-					<div id = "character_stats_div"> 
-						<div class = "grid_container">
-							<div class = "stat_slot_div"> 
-								<div class = "stat_name"> Strength: </div>
-								<div class = "stat_value" id = "strength_slot"></div> 
-								<span class = "stat_tooltip"> Your strength. It affects power of physical attacks </span>
-							</div>
-							<div class = "stat_slot_div"> 
-								<div class = "stat_name"> Agility: </div>
-								<div class = "stat_value" id = "agility_slot"></div> 
-								<span class = "stat_tooltip"> Your agility. It affects chance to hit and evade </span>
-							</div>
-						</div>
-						<div class = "grid_container">
-							<div class = "stat_slot_div"> 
-								<div class = "stat_name"> Magic: </div>
-								<div class = "stat_value" id = "magic_slot"></div> 
-								<span class = "stat_tooltip"> Your magic power. It affects damage of magic attacks </span>
-							</div>
-							<div class = "stat_slot_div"> 
-								<div class = "stat_name"> Atk spd: </div>
-								<div class = "stat_value" id = "attack_speed_slot"></div> 
-								<span class = "stat_tooltip"> Your attack speed. It affects </span>
-							</div>
-						</div>
-						<div class = "grid_container">
-							<div class = "stat_slot_div"> 
-								<div class = "stat_name"> Atk power: </div>
-								<div class = "stat_value" id = "attack_power_slot"></div> 
-								<span class = "stat_tooltip"> Attack power. Based on weapon statistics, strength and/or magic </span>
-							</div>
-							<div class = "stat_slot_div"> 
-								<div class = "stat_name"> Defense: </div>
-								<div class = "stat_value" id = "defense_slot"></div> 
-								<span class = "stat_tooltip"> Your defense. Based on worn equipment, lowers damage taken </span>
-							</div>
-						</div>
-						<div class = "grid_container">
-							<div class = "stat_slot_div"> 
-								<div class = "stat_name"> Crit rate: </div>
-								<div class = "stat_value" id = "crit_rate_slot"></div> 
-								<span class = "stat_tooltip"> Your chance for critical attack </span>
-							</div>
-							<div class = "stat_slot_div"> 
-								<div class = "stat_name"> Crit mult: </div>
-								<div class = "stat_value" id = "crit_multiplier_slot"></div> 
-								<span class = "stat_tooltip"> Damage of your critical attacks </span>
-							</div>
-						</div>
-						<div class = "grid_container">
-							<div class = "stat_slot_div"> 
-								<div class = "stat_name"> Hit chance: </div>
-								<div class = "stat_value" id = "hit_chance_slot"></div> 
-								<span class = "stat_tooltip"> Your chance to hit opponent. Based on yours and opponent's agility </span>
-							</div>
-							<div class = "stat_slot_div" id = "defensive_action_chance"> 
-								<div class = "stat_name" id = "defensive_action_slot"> </div>
-								<div class = "stat_value" id = "defensive_action_chance_slot"></div> 
-								<span class = "stat_tooltip"> Your chance for defensive action </span>
-							</div>
-						</div>
-					</div>
-
-					<div id = "character_equipment_div"> 
-						<div class = "grid_container">
-							<div class = "equipment_slot_div" id = "head_slot"> head </div>
-							<div class = "equipment_slot_div" id = "torso_slot"> torso </div>
-						</div>
-						<div class = "grid_container">
-							<div class = "equipment_slot_div" id = "arms_slot"> arms </div>
-							<div class = "equipment_slot_div" id = "ring_slot"> ring </div>
-						</div>
-						<div class = "grid_container">
-							<div class = "equipment_slot_div" id = "weapon_slot"> weapon </div>
-							<div class = "equipment_slot_div" id = "offhand_slot"> offhand </div>
-						</div>
-						<div class = "grid_container">
-							<div class = "equipment_slot_div" id = "legs_slot"> legs </div>
-							<div class = "equipment_slot_div" id = "feet_slot"> feet </div>
-						</div>
-						<div class = "equipment_slot_div amulet_slot_div" id = "amulet_slot"> amulet </div>
-					</div>
-
-					<div id = "character_control_div">
-						<div id = "character_show_stats" class = "character_control_button" onclick = "showCharacterStats()"> Stats </div>
-						<div id = "character_show_equipment" class = "character_control_button" onclick = "showCharacterEquipment()"> Equipment </div>
+		<!-- character info + stats/equipment-->
+		<div id = "character_div" class = "box_div"> 
+			<div id = "character_name_div"> 
+				<input type = "text" id = "character_name_field"> 
+			</div>
+			<div id = "character_title_div">
+				Unknown adventurer
+				<!-- placeholder for future -->
+			</div>
+			<div id = "character_health_div"> 
+				<div id = "character_healthbar_max"> 
+					<div id = "character_healthbar_current">
 					</div>
 				</div>
-					
-				<!-- location info (name, type[safe/combat], weather, time, etc?)-->
-				<div id = "location_div" class = "box_div"> 
-					<div id = "time_div"> </div>
-					<div id = "location_data_div" >
-						<div id = "location_name_div"></div>
-						<div id = "location_description_div"></div>	
-					</div>
+				<div id = "character_health_value">
+				</div>
+			</div>
 
-					<div id = "enemy_info_div">
-						<div id = "enemy_name_div">
+			<div id = "character_stats_div"> 
+				<div class = "grid_container">
+					<div class = "stat_slot_div"> 
+						<div class = "stat_name"> Strength: </div>
+						<div class = "stat_value" id = "strength_slot"></div> 
+						<span class = "stat_tooltip"> Your strength. It affects power of physical attacks </span>
+					</div>
+					<div class = "stat_slot_div"> 
+						<div class = "stat_name"> Agility: </div>
+						<div class = "stat_value" id = "agility_slot"></div> 
+						<span class = "stat_tooltip"> Your agility. It affects chance to hit and evade </span>
+					</div>
+				</div>
+				<div class = "grid_container">
+					<div class = "stat_slot_div"> 
+						<div class = "stat_name"> Magic: </div>
+						<div class = "stat_value" id = "magic_slot"></div> 
+						<span class = "stat_tooltip"> Your magic power. It affects damage of magic attacks </span>
+					</div>
+					<div class = "stat_slot_div"> 
+						<div class = "stat_name"> Atk spd: </div>
+						<div class = "stat_value" id = "attack_speed_slot"></div> 
+						<span class = "stat_tooltip"> Your attack speed. It affects </span>
+					</div>
+				</div>
+				<div class = "grid_container">
+					<div class = "stat_slot_div"> 
+						<div class = "stat_name"> Atk power: </div>
+						<div class = "stat_value" id = "attack_power_slot"></div> 
+						<span class = "stat_tooltip"> Attack power. Based on weapon statistics, strength and/or magic </span>
+					</div>
+					<div class = "stat_slot_div"> 
+						<div class = "stat_name"> Defense: </div>
+						<div class = "stat_value" id = "defense_slot"></div> 
+						<span class = "stat_tooltip"> Your defense. Based on worn equipment, lowers damage taken </span>
+					</div>
+				</div>
+				<div class = "grid_container">
+					<div class = "stat_slot_div"> 
+						<div class = "stat_name"> Crit rate: </div>
+						<div class = "stat_value" id = "crit_rate_slot"></div> 
+						<span class = "stat_tooltip"> Your chance for critical attack </span>
+					</div>
+					<div class = "stat_slot_div"> 
+						<div class = "stat_name"> Crit mult: </div>
+						<div class = "stat_value" id = "crit_multiplier_slot"></div> 
+						<span class = "stat_tooltip"> Damage of your critical attacks </span>
+					</div>
+				</div>
+				<div class = "grid_container">
+					<div class = "stat_slot_div"> 
+						<div class = "stat_name"> Hit chance: </div>
+						<div class = "stat_value" id = "hit_chance_slot"></div> 
+						<span class = "stat_tooltip"> Your chance to hit opponent. Based on yours and opponent's agility </span>
+					</div>
+					<div class = "stat_slot_div" id = "defensive_action_chance"> 
+						<div class = "stat_name" id = "defensive_action_slot"> </div>
+						<div class = "stat_value" id = "defensive_action_chance_slot"></div> 
+						<span class = "stat_tooltip"> Your chance for defensive action </span>
+					</div>
+				</div>
+			</div>
+
+			<div id = "character_equipment_div"> 
+				<div class = "grid_container">
+					<div class = "equipment_slot_div" id = "head_slot"> head </div>
+					<div class = "equipment_slot_div" id = "torso_slot"> torso </div>
+				</div>
+				<div class = "grid_container">
+					<div class = "equipment_slot_div" id = "arms_slot"> arms </div>
+					<div class = "equipment_slot_div" id = "ring_slot"> ring </div>
+				</div>
+				<div class = "grid_container">
+					<div class = "equipment_slot_div" id = "weapon_slot"> weapon </div>
+					<div class = "equipment_slot_div" id = "offhand_slot"> offhand </div>
+				</div>
+				<div class = "grid_container">
+					<div class = "equipment_slot_div" id = "legs_slot"> legs </div>
+					<div class = "equipment_slot_div" id = "feet_slot"> feet </div>
+				</div>
+				<div class = "equipment_slot_div amulet_slot_div" id = "amulet_slot"> amulet </div>
+			</div>
+
+			<div id = "character_control_div">
+				<div id = "character_show_stats" class = "character_control_button" onclick = "showCharacterStats()"> Stats </div>
+				<div id = "character_show_equipment" class = "character_control_button" onclick = "showCharacterEquipment()"> Equipment </div>
+			</div>
+		</div>
+			
+		<!-- location info (name, type[safe/combat], weather, time, etc?)-->
+		<div id = "location_div" class = "box_div"> 
+			<div id = "time_div"> </div>
+			<div id = "location_data_div" >
+				<div id = "location_name_div"></div>
+				<div id = "location_description_div"></div>	
+			</div>
+
+			<div id = "enemy_info_div">
+				<div id = "enemy_name_div">
+				</div>
+				<div id = "enemy_health_div"> 
+					<div id = "enemy_healthbar_max"> 
+						<div id = "enemy_healthbar_current">
 						</div>
-						<div id = "enemy_health_div"> 
-							<div id = "enemy_healthbar_max"> 
-								<div id = "enemy_healthbar_current">
-								</div>
-							</div>
-							<div id = "enemy_health_value">
-							</div>
-							<div id = "enemy_stats_div">
-							</div>
-						</div>
+					</div>
+					<div id = "enemy_health_value">
+					</div>
+					<div id = "enemy_stats_div">
 					</div>
 				</div>
+			</div>
+		</div>
 
-				<!-- inventory list -->
-				<div id = "inventory_div" class = "box_div"> 
-					<div id = "inventory_content_div"> </div>
-					<div id = "inventory_control_div">
-						<div id = "inventory_show_equipment" class = "inventory_control_button" onclick = "showAllItems()"> All </div>
-						<div id = "inventory_show_equipment" class = "inventory_control_button" onclick = "showOnlyEquipment()"> Equipment </div>
-						<div id = "inventory_show_consumable" class = "inventory_control_button" onclick = "showOnlyConsumables()"> Consumable </div>
-						<div id = "inventory_show_other" class = "inventory_control_button" onclick = "showOnlyOther()"> Other </div> 
-					</div>
-				</div>
+		<!-- inventory list -->
+		<div id = "inventory_div" class = "box_div"> 
+			<div id = "inventory_content_div"> </div>
+			<div id = "inventory_control_div">
+				<div id = "inventory_show_equipment" class = "inventory_control_button" onclick = "showAllItems()"> All </div>
+				<div id = "inventory_show_equipment" class = "inventory_control_button" onclick = "showOnlyEquipment()"> Equipment </div>
+				<div id = "inventory_show_consumable" class = "inventory_control_button" onclick = "showOnlyConsumables()"> Usable </div>
+				<div id = "inventory_show_other" class = "inventory_control_button" onclick = "showOnlyOther()"> Other </div> 
+			</div>
+		</div>
 
 
-					
-				<!-- actions and stuff-->
-				<div id = "action_selection_div" class = "box_div">
-					<div id = "location_actions_div" class = "actions_div">	
-						
-					</div>
+			
+		<!-- actions and stuff-->
+		<div id = "action_selection_div" class = "box_div">
+			<div id = "location_actions_div" class = "actions_div">	
+				
+			</div>
 
-					<div id = "skill_list_div" class = "actions_div">
-						
-					</div>
+			<div id = "skill_list_div" class = "actions_div">
+				
+			</div>
 
-					<div id = "journal_div" class = "actions_div">
-						Here will be journal (maybe?)
-					</div>
+			<div id = "journal_div" class = "actions_div">
+				Here will be journal (maybe?)
+			</div>
 
-					<div id = "action_control_div">
-						<div id = "show_location_actions_div" class = "action_selection_button" onclick = "showLocationActions()"> Location </div>
-						<div id = "show_skills_div" class = "action_selection_button" onclick = "showSkills()"> Skills </div>
-						<div id = "show_journal_div" class = "action_selection_button" onclick = "showJournal()"> Journal </div>
-					</div>
-				</div>
+			<div id = "action_control_div">
+				<div id = "show_location_actions_div" class = "action_selection_button" onclick = "showLocationActions()"> Location </div>
+				<div id = "show_skills_div" class = "action_selection_button" onclick = "showSkills()"> Skills </div>
+				<div id = "show_journal_div" class = "action_selection_button" onclick = "showJournal()"> Journal </div>
+			</div>
+		</div>
 
-				<!-- message log -->
-				<div id = "message_log_div" class = "box_div">
-				</div>
+		<!-- message log -->
+		<div id = "message_log_div" class = "box_div">
+		</div>
+
+		<div id = "bottom_panel_div">
+			<div id = "save_button" class = "sl_button" onclick = "save_progress()"> save </div>
+			<div id = "save_to_file_button" class = "sl_button" onclick = "save_progress(`file`)"> save to file </div>
+			<div id = "load_button" class = "sl_button" onclick = "load_progress()"> load from file </div>
+		</div>
 
 		<button id = "test_button">click me</button>
 

@@ -1,10 +1,10 @@
-function Game_time(year, month, day, hour, minute) {
-	this.year = year;
-	this.month = month;
-	this.day = day;
-	this.hour = hour;
-	this.minute = minute;
-	this.day_count = 1;
+function Game_time(new_time) {
+	this.year = new_time.year;
+	this.month = new_time.month;
+	this.day = new_time.day;
+	this.hour = new_time.hour;
+	this.minute = new_time.minute;
+	this.day_count = new_time.day_count;
 	//only hours and minutes should be allowed to be 0
 	//day_count is purely for calculating day of the week, by default it always start at monday
 	//might be a wrong approach
@@ -35,6 +35,15 @@ function Game_time(year, month, day, hour, minute) {
 			this.month = this.month - 12;
 			this.year += 1;
 		}
+	}
+
+	this.load_time = function(new_time) {
+		this.year = new_time.year;
+		this.month = new_time.month;
+		this.day = new_time.day;
+		this.hour = new_time.hour;
+		this.minute = new_time.minute;
+		this.day_count = new_time.day_count;
 	}
 
 	this.get_season = function() {

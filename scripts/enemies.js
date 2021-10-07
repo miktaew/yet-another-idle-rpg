@@ -7,14 +7,10 @@ function Enemy(enemy_data) {
 	this.name = enemy_data.name;
 	this.description = enemy_data.description; //try to keep it short
 	this.xp_value = enemy_data.xp_value;
-	this.health = enemy_data.health;
-	this.max_health = enemy_data.health;
-	this.strength = enemy_data.strength;
-	this.agility = enemy_data.agility; 
-	this.magic = enemy_data.magic;
-	this.attack_speed = enemy_data.attack_speed;
-	this.defense = enemy_data.defense;
-	//only magic & defense can be 0
+	this.stats = enemy_data.stats;
+	//only magic & defense can be 0 in stats
+	this.stats.max_health = enemy_data.stats.health;
+
 	this.loot_list = enemy_data.loot_list;
 
 	this.get_loot = function() {
@@ -46,7 +42,7 @@ function Enemy(enemy_data) {
 
 enemy_templates["Starving wolf rat"] = new Enemy({
 	name: "Starving wolf rat", description: "Rat with size of a dog, starved and weakened", 
-	xp_value: 1, health: 10, strength: 2, agility: 5, magic: 0, attack_speed: 1, defense: 0, loot_list: [
+	xp_value: 1, stats: {health: 10, strength: 2, agility: 5, magic: 0, attack_speed: 1, defense: 0}, loot_list: [
 	{item: item_templates["Rat tail"], chance: 0.5},
 	{item: item_templates["Rat fang"], chance: 0.5},
 	{item: item_templates["Rat pelt"], chance: 0.5},
@@ -55,7 +51,7 @@ enemy_templates["Starving wolf rat"] = new Enemy({
 
 enemy_templates["Wolf rat"] = new Enemy({
 	name: "Wolf rat", description: "Rat with size of a dog",
-	 xp_value: 1, health: 12, strength: 5, agility: 5, magic: 0, attack_speed: 1.1, defense: 0, loot_list: [
+	 xp_value: 1, stats: {health: 12, strength: 5, agility: 5, magic: 0, attack_speed: 1.1, defense: 0}, loot_list: [
 	{item: item_templates["Rat tail"], chance: 0.5},
 	{item: item_templates["Rat fang"], chance: 0.5},
 	{item: item_templates["Rat pelt"], chance: 0.5},
@@ -64,7 +60,7 @@ enemy_templates["Wolf rat"] = new Enemy({
 
 enemy_templates["Wolf"] = new Enemy({
 	name: "Wolf", description: "A large, wild canine", 
-	xp_value: 3, health: 25, strength: 10, agility: 7, magic: 0, attack_speed: 1.5, defense: 1, loot_list: [
+	xp_value: 3, stats: {health: 25, strength: 10, agility: 7, magic: 0, attack_speed: 1.5, defense: 1}, loot_list: [
 	{item: "Wolf tooth", chance: 0.1, count: {min: 1, max: 4}},
 	{item: "Wolf pelt", chance: 0.02}]
 });

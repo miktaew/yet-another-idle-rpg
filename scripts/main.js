@@ -6,7 +6,7 @@ import { skills } from "./skills.js";
 //player character
 const character = {name: "Hero", titles: {}, 
 				stats: {max_health: 100, health: 100, strength: 1, agility: 5, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, attack_power: 0,
-						hit_chance: 0, evasion_chance: 0, block_chance: 0},
+						hit_chance: 0, evasion_chance: 0, block_chance: 0, defense: 0},
 				// crit damage is a multiplier; defense should be only based on worn armor and/or magic skills;
 				inventory: {},
 				equipment: {head: null, torso: null, 
@@ -45,6 +45,9 @@ var current_location;
 //resting, true -> health regenerates
 var is_resting = true;
 
+var save_period = 60;
+//ticks between saves, 60 = ~1 minute
+
 //enemy crit stats
 const enemy_crit_chance = 0.1;
 const enemy_crit_damage = 2; //multiplier, not a flat bonus
@@ -77,8 +80,12 @@ const location_name_div = document.getElementById("location_name_div");
 const location_description_div = document.getElementById("location_description_div");
 
 //game time (years, months, days, hours, minutes)
-const current_game_time = new Game_time(954, 4, 1, 8, 5);
+const current_game_time = new Game_time({year: 954, month: 4, day: 1, hour: 8, minute: 0, day_count: 0});
 time_field.innerHTML = current_game_time.toString();
+
+const tickrate = 1;
+//how many ticks per second
+//best leave it at 1, as less is rather slow, and more makes ticks noticably unstable
 
 // button testing cuz yes
 document.getElementById("test_button").addEventListener("click", test_button);
@@ -88,7 +95,11 @@ function test_button() {
 	//console.log(`${skills["Blocking"].current_level}: ${skills["Blocking"].get_coefficient("multiplicative")} | ${skills["Blocking"].get_coefficient("flat")}`);
 	//console.log(skills["Evasion"].name());
 
-	save();
+	//load_from_localstorage();
+	//save();
+
+	//var text = window.prompt("bruh?");
+	//console.log(text);
 }
 
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
@@ -147,12 +158,10 @@ function change_location(location_name) {
 	location_description_div.innerHTML = current_location.description;
 }
 
-window.change_location = change_location; //attaching to window, as otherwise it won't be visible from the index file
-
 function get_new_enemy() {
 	current_enemy = current_location.get_next_enemy();
-	enemy_stats_div.innerHTML = `Str: ${current_enemy.strength} | Agl: ${current_enemy.agility}
-	| Def: ${current_enemy.defense} | Atk speed: ${current_enemy.attack_speed.toFixed(1)}`
+	enemy_stats_div.innerHTML = `Str: ${current_enemy.stats.strength} | Agl: ${current_enemy.stats.agility}
+	| Def: ${current_enemy.stats.defense} | Atk speed: ${current_enemy.stats.attack_speed.toFixed(1)}`
 
 	enemy_name_div.innerHTML = current_enemy.name;
 
@@ -173,7 +182,7 @@ function do_combat() {
 	//and also need weapons before that...
 
 	var hero_base_damage = character.stats.attack_power;
-	var enemy_base_damage = current_enemy.strength;
+	var enemy_base_damage = current_enemy.stats.strength;
 
 	var damage_dealt;
 
@@ -183,11 +192,11 @@ function do_combat() {
 
 	var hero_defense = 0; //will be a sum of armor from worn equipment + maybe a bonus from some magic stuff
 
-	if(character.stats.attack_speed > current_enemy.attack_speed) {
-		additional_hero_attacks += (character.stats.attack_speed/current_enemy.attack_speed - 1);
+	if(character.stats.attack_speed > current_enemy.stats.attack_speed) {
+		additional_hero_attacks += (character.stats.attack_speed/current_enemy.stats.attack_speed - 1);
 		additional_enemy_attacks = 0;
-	} else if (character.stats.attack_speed < current_enemy.attack_speed) {
-		additional_enemy_attacks += (current_enemy.attack_speed/character.stats.attack_speed - 1);
+	} else if (character.stats.attack_speed < current_enemy.stats.attack_speed) {
+		additional_enemy_attacks += (current_enemy.stats.attack_speed/character.stats.attack_speed - 1);
 		additional_hero_attacks = 0;
 	}
 	
@@ -198,9 +207,9 @@ function do_combat() {
 		}
 
 		if(character.stats.hit_chance > Math.random()) {//hero's attack hits
-			add_xp_to_skill(skills["Combat"], current_enemy.xp_value);
+			add_xp_to_skill(skills["Combat"], current_enemy.xp_value, true);
 			if(character.equipment.weapon != null) {
-				add_xp_to_skill(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`], current_enemy.xp_value); 
+				add_xp_to_skill(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`], current_enemy.xp_value, true); 
 			}
 
 			damage_dealt = Math.round(hero_base_damage * (1.2 - Math.random() * 0.4));
@@ -214,9 +223,9 @@ function do_combat() {
 				critted = false;
 			}
 			
-			damage_dealt = Math.max(damage_dealt - current_enemy.defense, 1);
+			damage_dealt = Math.max(damage_dealt - current_enemy.stats.defense, 1);
 
-			current_enemy.health -= damage_dealt;
+			current_enemy.stats.health -= damage_dealt;
 			if(critted) {
 				log_message(current_enemy.name + " was critically hit for " + damage_dealt + " dmg", "enemy_attacked_critically");
 			}
@@ -225,8 +234,8 @@ function do_combat() {
 			}
 
 
-			if(current_enemy.health <= 0) {
-				current_enemy.health = 0; 
+			if(current_enemy.stats.health <= 0) {
+				current_enemy.stats.health = 0; 
 				update_displayed_enemy_health();
 				//just to not go negative on displayed health
 
@@ -259,14 +268,14 @@ function do_combat() {
 		if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
 			if(character.equipment.offhand.shield_strength >= damage_dealt) {
 				if(character.stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
-					add_xp_to_skill(skills["Blocking"], current_enemy.xp_value);
+					add_xp_to_skill(skills["Blocking"], current_enemy.xp_value, true);
 					log_message(character.name + " has blocked the attack");
 					continue;
 				 }
 			}
 			else { 
 				if(character.stats.block_chance - 0.3 > Math.random()) { //PARTIALLY BLOCKED THE ATTACK
-					add_xp_to_skill(skills["Blocking"], current_enemy.xp_value);
+					add_xp_to_skill(skills["Blocking"], current_enemy.xp_value, true);
 					damage_dealt -= character.equipment.offhand.shield_strength;
 					partially_blocked = true;
 					//FIGHT GOES LIKE NORMAL, but log that it was partially blocked
@@ -275,7 +284,7 @@ function do_combat() {
 		}
 		else { // HAS NO SHIELD
 			if(character.stats.evasion_chance > Math.random()) { //EVADED ATTACK
-				add_xp_to_skill(skills["Evasion"], current_enemy.xp_value);
+				add_xp_to_skill(skills["Evasion"], current_enemy.xp_value, true);
 				log_message(character.name + " has evaded the attack");
 				continue;
 			}
@@ -334,8 +343,8 @@ function do_combat() {
 }
 
 
-function add_xp_to_skill(skill, xp_to_add) {
-	if(skill.total_xp == 0) {
+function add_xp_to_skill(skill, xp_to_add, should_log) {
+	if(skill.total_xp == 0) { //creates new skill bar
 		skill_bar_divs[skill.skill_id] = document.createElement("div");
 
 		const skill_bar_max = document.createElement("div");
@@ -361,7 +370,7 @@ function add_xp_to_skill(skill, xp_to_add) {
 
 
 	const level_up = skill.add_xp(xp_to_add);
-	if(typeof level_up !== "undefined")
+	if(typeof level_up !== "undefined" && should_info)
 	{
 		log_message(level_up, "message_skill_leveled_up");
 		update_character_stats();
@@ -376,6 +385,7 @@ function add_xp_to_skill(skill, xp_to_add) {
 
 
 	//TODO: add tooltip on hover with full xp instead of percentage
+	//TODO: sort displayed skills
 }
 
 //single tick of resting
@@ -468,8 +478,8 @@ function update_displayed_health() { //call it when eating, resting or getting h
 }
 
 function update_displayed_enemy_health() { //call it when getting new enemy and when enemy gets hit
-	current_enemy_health_value_div.innerHTML = current_enemy.health + "/" + current_enemy.max_health;
-	current_enemy_health_bar.style.width =  (current_enemy.health*100/current_enemy.max_health).toString() +"%";
+	current_enemy_health_value_div.innerHTML = current_enemy.stats.health + "/" + current_enemy.stats.max_health;
+	current_enemy_health_bar.style.width =  (current_enemy.stats.health*100/current_enemy.stats.max_health).toString() +"%";
 }
 
 function clear_enemy_and_enemy_info() {
@@ -653,10 +663,12 @@ function update_displayed_inventory() {
 	});
 }
 
-function equip_item(item_info) {
+function equip_item_from_inventory(item_info) {
 	//item info -> {name: X, count: X, id: X}, count currently not used
 	
 	if(character.inventory.hasOwnProperty(item_info.name)) { //check if its in inventory, just in case
+
+		
 
 		if(character.inventory[item_info.name].hasOwnProperty("item")) { //stackable
 			console.log("not implemented");
@@ -664,19 +676,20 @@ function equip_item(item_info) {
 		else { //unstackable
 			//add specific item to equipment slot
 			// -> id and name tell which exactly item it is, then also check slot in item object and thats all whats needed
-			const item = character.inventory[item_info.name][item_info.id];
-			unequip_item(item.equip_slot);
-			character.equipment[item.equip_slot] = item;
+			equip_item(character.inventory[item_info.name][item_info.id]);
 
-			update_displayed_equipment();
-			update_displayed_inventory();
-			update_character_stats();
-			remove_from_inventory(item_info); //put both outside if() when equipping gets implemented for stackables as well
+			remove_from_inventory(item_info); //put this outside if() when equipping gets implemented for stackables as well
 		}
 	}
 }
 
-window.equip_item = equip_item;
+function equip_item(item) {
+	unequip_item(item.equip_slot);
+	character.equipment[item.equip_slot] = item;
+	update_displayed_equipment();
+	update_displayed_inventory();
+	update_character_stats();	
+}
 
 function unequip_item(item_slot) {
 	if(character.equipment[item_slot] != null) {
@@ -687,8 +700,6 @@ function unequip_item(item_slot) {
 		update_character_stats();
 	}
 }
-
-window.unequip_item = unequip_item;
 
 function update_displayed_equipment() {
 	Object.keys(equipment_slots_divs).forEach(function(key) {
@@ -757,10 +768,10 @@ function update_combat_stats() { //chances to hit and evade/block
 	}
 
 	if(current_enemy != null) { //IN COMBAT
-		character.stats.hit_chance = Math.min(1, Math.max(0.2, (character.stats.agility/current_enemy.agility) * 0.5 * skills["Combat"].get_coefficient("multiplicative")));
+		character.stats.hit_chance = Math.min(1, Math.max(0.2, (character.stats.agility/current_enemy.stats.agility) * 0.5 * skills["Combat"].get_coefficient("multiplicative")));
 		//so 100% if at least twice more agility, 50% if same, and never less than 20%
 		if(character.equipment.offhand == null || character.equipment.offhand.offhand_type !== "shield") {
-			character.stats.evasion_chance = Math.min(0.95, (character.stats.agility/current_enemy.agility) * 0.33 * skills["Evasion"].get_coefficient("multiplicative"));
+			character.stats.evasion_chance = Math.min(0.95, (character.stats.agility/current_enemy.stats.agility) * 0.33 * skills["Evasion"].get_coefficient("multiplicative"));
 			//so up to 95% if at least thrice more agility, 33% if same, can go down almost to 0%
 		}
 	} 
@@ -784,7 +795,7 @@ function update_displayed_combat_stats() {
 
 		other_combat_divs.defensive_action.innerHTML = "Block:";
 
-		if(current_enemy != null && character.equipment.offhand.shield_strength < current_enemy.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
+		if(current_enemy != null && character.equipment.offhand.shield_strength < current_enemy.stats.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
 			other_combat_divs.defensive_action_chance.innerHTML = `${(character.stats.block_chance*100-30).toFixed(1)}%`;
 		} 
 		else {
@@ -806,15 +817,85 @@ function update_displayed_combat_stats() {
 function save(to_where) {
 	//to_where: "file", anything else -> local storage
 
+	const save_data = {};
+	save_data["current time"] = current_game_time;
+	save_data["character"] = {name: character.name, titles: character.titles, inventory: character.inventory, equipment: character.equipment};
+	//no need to save stats; on loading, base stats will be taken from code and then additional stuff will be calculated again (in case anything changed)
+
+	save_data["skills"] = {};
+	Object.keys(skills).forEach(function(key) {
+		save_data["skills"][skills[key].skill_id] = {total_xp: skills[key].total_xp}; //a bit redundant, but keep it in case key in skills is different than skill_id
+	}); //only save total xp of each skill, again in case of any changes
+	
+	save_data["current location"] = current_location.name;
+
+	if(current_enemy == null) {
+		save_data["current enemy"] = null;
+	} 
+	else {
+		save_data["current enemy"] = {}; //no need to save everything, just name + stats -> get enemy from template and change stats to those saved
+		save_data["current enemy"]["name"] = current_enemy.name;
+		save_data["current enemy"]["stats"] = current_enemy.stats;
+	}
+
+	if(to_where === "file") {
+		console.log("Saving to file is not yet implemented");
+	}
+	else {
+		localStorage.setItem("save data", JSON.stringify(save_data));
+	}
 }
 
-function load() {
+function load(save_data) {
+	//single loading method
 
+	
+	//TODO: some loading screen
+	//TODO: clear/replace enemy info
+	//TODO: load location
 
+	if("current time" in save_data) {
+		current_game_time.load_time(save_data["current time"]);
+	}
+
+	name_field.value = save_data.character.name;
+	character.name = save_data.character.name;
+
+	Object.keys(save_data.character.equipment).forEach(function(key){
+		if(save_data.character.equipment[key] != null) {
+			equip_item(save_data.character.equipment[key]);
+		}
+	}); //equip proper items
+
+	const item_list = [];
+
+	Object.keys(save_data.character.inventory).forEach(function(key){
+		if(Array.isArray(save_data.character.inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
+			for(var i = 0; i < save_data.character.inventory[key].length; i++) {
+				item_list.push({item: save_data.character.inventory[key][i], count: 1});
+			}
+		}
+		else {
+			item_list.push({item: save_data.character.inventory[key].item, count: save_data.character.inventory[key].count});
+		}
+		
+	}); //add all loaded items to list
+	add_to_inventory(item_list); // and then to inventory
+
+	Object.keys(save_data.skills).forEach(function(key){ 
+		if(save_data.skills[key].total_xp > 0) {
+			add_xp_to_skill(skills[key], save_data.skills[key].total_xp, false);
+		}
+	}); //add xp to skills
 }
 
 function load_from_file() {
+	console.log("Loading from file is not yet implemented");
 
+}
+
+function load_from_localstorage() {
+	load(JSON.parse(localStorage.getItem("save data")));
 }
 
 function update_timer() {
@@ -844,9 +925,6 @@ function update() {
 }
 
 async function run() {
-	const tickrate = 1;
-	//how many ticks per second
-	//best leave it at 1, as less is rather slow, and more makes ticks noticably unstable
 
 	var time_variance = 0;
 	//how much deviated was duration of tick
@@ -855,6 +933,8 @@ async function run() {
 
 	var start_date;
 	var end_date;
+
+	var save_counter = 0;
 
 	if(typeof current_location === "undefined") {
 		change_location("Village");
@@ -870,6 +950,14 @@ async function run() {
 		//uses value from accumulator (instead of time_variance) for more precise overall stabilization
 		//(instead of only stabilizing relative to previous tick, it now stabilizes relative to sum of deviations)
 		update();
+
+		save_counter += 1;
+		if(save_counter >= save_period) {
+			save_counter = 0;
+			save();
+		} //save every X/60 minutes
+
+
 		end_date = new Date();
 
 		time_variance = (end_date - start_date) - 1000/tickrate;
@@ -879,12 +967,24 @@ async function run() {
 	}
 }
 
-add_to_inventory([{item: new Item(item_templates["Rat fang"]), count: 5}]);
-add_to_inventory([{item: new Item(item_templates["Long stick"])}]);
-add_to_inventory([{item: new Item(item_templates["Crude wooden shield"])}]);
-add_to_inventory([{item: new Item(item_templates["Wooden shield"])}]);
-equip_item({name: "Long stick", id: 0});
+window.equip_item = equip_item_from_inventory;
+window.unequip_item = unequip_item;
+window.change_location = change_location;
+window.save_progress = save;
+window.load_progress = load_from_file;
+
+
+if("save data" in localStorage) {
+	load_from_localstorage();
+}
+else {
+	add_to_inventory([{item: new Item(item_templates["Rat fang"]), count: 5}]);
+	add_to_inventory([{item: new Item(item_templates["Long stick"])}]);
+	add_to_inventory([{item: new Item(item_templates["Crude wooden shield"])}]);
+	add_to_inventory([{item: new Item(item_templates["Wooden shield"])}]);
+	equip_item({name: "Long stick", id: 0});
+}
+
 update_displayed_stats();
-
-
+update_displayed_equipment();
 run();

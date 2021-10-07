@@ -33,17 +33,19 @@ function Combat_zone(location_data) {
 	this.is_unlocked = location_data.is_unlocked;
 	this.enemies_list = location_data.enemies_list;
 	this.enemy_count = location_data.enemy_count;
-	this.enemies_killed = 0; //increase after each kill, if it reaches enemy_count then give rewards and possibly unlock a new combat zone
+	this.enemies_killed = 0; //TODO: increase after each kill, if it reaches enemy_count then give rewards and possibly unlock a new combat zone
 	this.reset_kills_on_leaving = location_data.reset_kills_on_leaving;
 	this.parent_location = location_data.parent_location;
 
 	this.get_next_enemy = function() {
 		var enemy = this.enemies_list[Math.floor(Math.random() * this.enemies_list.length)];
 		return new Enemy({
-			name: enemy.name, description: enemy.description, xp_value: enemy.xp_value, health: Math.round(enemy.health * (1.1 - Math.random() * 0.2)),
-			strength: Math.round(enemy.strength * (1.1 - Math.random() * 0.2)), agility: Math.round(enemy.agility * (1.1 - Math.random() * 0.2)),
-			magic: Math.round(enemy.magic * (1.1 - Math.random() * 0.2)), attack_speed: enemy.attack_speed * (1.1 - Math.random() * 0.2),
-			defense: Math.round(enemy.defense * (1.1 - Math.random() * 0.2)), loot_list: enemy.loot_list
+			name: enemy.name, description: enemy.description, xp_value: enemy.xp_value, 
+			stats: {health: Math.round(enemy.stats.health * (1.1 - Math.random() * 0.2)),
+					strength: Math.round(enemy.stats.strength * (1.1 - Math.random() * 0.2)), agility: Math.round(enemy.stats.agility * (1.1 - Math.random() * 0.2)),
+					magic: Math.round(enemy.stats.magic * (1.1 - Math.random() * 0.2)), attack_speed: Math.round(enemy.stats.attack_speed * (1.1 - Math.random() * 0.2)*100)/100,
+					defense: Math.round(enemy.stats.defense * (1.1 - Math.random() * 0.2))}, 
+			loot_list: enemy.loot_list
 			//up to 10% deviation for each stat
 			//attack speed is the only one allowed to not be integer
 		});;
