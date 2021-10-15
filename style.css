@@ -473,6 +473,10 @@ body {
 	margin-bottom: 20px;
 }
 
+#saved_file_input {
+	display: none;
+}
+
 #skill_list_div {
 	display: var(--skill_list_display);
 }

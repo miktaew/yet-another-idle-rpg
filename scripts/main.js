@@ -665,11 +665,7 @@ function update_displayed_inventory() {
 
 function equip_item_from_inventory(item_info) {
 	//item info -> {name: X, count: X, id: X}, count currently not used
-	
 	if(character.inventory.hasOwnProperty(item_info.name)) { //check if its in inventory, just in case
-
-		
-
 		if(character.inventory[item_info.name].hasOwnProperty("item")) { //stackable
 			console.log("not implemented");
 		}
@@ -677,7 +673,6 @@ function equip_item_from_inventory(item_info) {
 			//add specific item to equipment slot
 			// -> id and name tell which exactly item it is, then also check slot in item object and thats all whats needed
 			equip_item(character.inventory[item_info.name][item_info.id]);
-
 			remove_from_inventory(item_info); //put this outside if() when equipping gets implemented for stackables as well
 		}
 	}
@@ -814,7 +809,7 @@ function update_displayed_combat_stats() {
 }
 
 
-function save(to_where) {
+function create_save(to_where) {
 	//to_where: "file", anything else -> local storage
 
 	const save_data = {};
@@ -838,12 +833,15 @@ function save(to_where) {
 		save_data["current enemy"]["stats"] = current_enemy.stats;
 	}
 
-	if(to_where === "file") {
-		console.log("Saving to file is not yet implemented");
-	}
-	else {
-		localStorage.setItem("save data", JSON.stringify(save_data));
-	}
+	return JSON.stringify(save_data);
+}
+
+function save_to_file() {
+	return create_save();
+}
+
+function save_to_localStorage() {
+	localStorage.setItem("save data", create_save());
 }
 
 function load(save_data) {
@@ -889,9 +887,33 @@ function load(save_data) {
 	}); //add xp to skills
 }
 
-function load_from_file() {
-	console.log("Loading from file is not yet implemented");
+function load_from_file(save_string) {
+	Object.keys(character.equipment).forEach(function(key){
+		if(character.equipment[key] != null) {
+			unequip_item(key);
+		}
+	}); //remove equipment
+	character.inventory = {}; //reset inventory to not duplicate items
 
+	Object.keys(skills).forEach(function(key){
+		if(skills[key].total_xp > 0) {
+			skills[key].current_xp = 0;
+			skills[key].current_lvl = 0;
+			skills[key].total_xp = 0;
+			skills[key].xp_to_next_lvl = skills[key].base_xp_cost;
+			skills[key].total_xp_to_next_lvl = skills[key].base_xp_cost;
+		}
+	}); //clear all skill progress
+	Object.keys(skill_bar_divs).forEach(function(key) {
+		delete skill_bar_divs[key];
+	});
+
+	const skill_list_div = document.getElementById("skill_list_div");
+	while(skill_list_div.firstChild) {
+		skill_list_div.removeChild(skill_list_div.lastChild);
+	} //remove skill bars from display
+
+	load(JSON.parse(save_string));
 }
 
 function load_from_localstorage() {
@@ -954,7 +976,7 @@ async function run() {
 		save_counter += 1;
 		if(save_counter >= save_period) {
 			save_counter = 0;
-			save();
+			save_to_localStorage();
 		} //save every X/60 minutes
 
 
@@ -970,7 +992,8 @@ async function run() {
 window.equip_item = equip_item_from_inventory;
 window.unequip_item = unequip_item;
 window.change_location = change_location;
-window.save_progress = save;
+window.save_to_localStorage = save_to_localStorage;
+window.save_to_file = save_to_file;
 window.load_progress = load_from_file;
 
 
@@ -980,9 +1003,10 @@ if("save data" in localStorage) {
 else {
 	add_to_inventory([{item: new Item(item_templates["Rat fang"]), count: 5}]);
 	add_to_inventory([{item: new Item(item_templates["Long stick"])}]);
+	add_to_inventory([{item: new Item(item_templates["Long stick"])}]);
 	add_to_inventory([{item: new Item(item_templates["Crude wooden shield"])}]);
 	add_to_inventory([{item: new Item(item_templates["Wooden shield"])}]);
-	equip_item({name: "Long stick", id: 0});
+	equip_item_from_inventory({name: "Long stick", id: 0});
 }
 
 update_displayed_stats();

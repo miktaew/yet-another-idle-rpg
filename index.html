@@ -177,12 +177,16 @@
 		</div>
 
 		<div id = "bottom_panel_div">
-			<div id = "save_button" class = "sl_button" onclick = "save_progress()"> save </div>
-			<div id = "save_to_file_button" class = "sl_button" onclick = "save_progress(`file`)"> save to file </div>
-			<div id = "load_button" class = "sl_button" onclick = "load_progress()"> load from file </div>
+			<div id = "save_button" class = "sl_button" onclick = "saveProgress()"> Save </div>
+			<div id = "save_to_file_button" class = "sl_button" onclick = "saveToFile()"> Export </div>
+			<label id = "load_from_file_button" class = "sl_button" for = "saved_file_input"> Import </label> 
+			<input id = "saved_file_input" type='file' accept = 'text/plain' onchange = 'loadProgress(event)'>	
+			<div id = "hard_reset_button" class = "sl_button" onclick = "hardReset()"> Hard reset </div>
+			
 		</div>
 
 		<button id = "test_button">click me</button>
+
 
 		<script>
 			function showAllItems() {
@@ -230,6 +234,43 @@
 				document.documentElement.style.setProperty('--location_actions_display', 'none');
 				document.documentElement.style.setProperty('--skill_list_display', 'none');
 				document.documentElement.style.setProperty('--journal_display', 'block');
+			}
+
+			function saveToFile() {
+				var a = window.document.createElement('a');
+				a.href = window.URL.createObjectURL(new Blob([save_to_file()], {type: 'text/plain'}));
+				a.download = 'save.txt';
+
+				document.body.appendChild(a);
+				a.click();
+
+				document.body.removeChild(a);
+			}
+
+			function saveProgress() {
+				save_to_localStorage();
+			}
+
+			function loadProgress(event) {
+					var input = event.target;
+					var reader = new FileReader();
+
+					reader.onload = function() {
+						load_progress(reader.result);
+					};
+					reader.readAsText(input.files[0]);
+			};
+
+			function hardReset() {
+				var confirmation = prompt(`If you are sure, type "yes" below`);
+
+				if(confirmation === "yes" || confirmation === `"yes"`) {
+					localStorage.removeItem("save data");
+					window.location.reload();
+				}
+				else {
+					console.log("Hard reset was cancelled");
+				}
 			}
 
 			function doThings() { //called on body loaded
@@ -296,9 +337,7 @@
 						}
 					}
 				}
-				
 			}
-
 		</script> 
 	</body>
 </HTML>
