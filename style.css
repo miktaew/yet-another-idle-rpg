@@ -82,6 +82,9 @@ body {
 	 cursor: pointer;
 	 padding: 5px;
  }
+ .action_travel:hover {
+	background-color: #2c3953;
+}
 
  .inventory_item {
 	 color: white;
@@ -121,6 +124,23 @@ body {
  }
 
  .stat_slot_div:hover .stat_tooltip {
+	 display: block;
+ }
+
+ .skill_tooltip {
+	display: none;
+	background-color: rgba(120, 120, 120, 0.8);
+	border-radius: 10px;
+	margin-left: 30px;
+	padding: 5px;
+	position: absolute;
+	z-index: 1000;
+	max-width: 300px;
+	width: fit-content;
+	height: auto;
+ }
+
+ .skill_bar_max:hover .skill_tooltip {
 	 display: block;
  }
 

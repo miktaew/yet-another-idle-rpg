@@ -1,3 +1,5 @@
+"use strict";
+
 import { Game_time } from "./game_time.js";
 import { Item, item_templates } from "./items.js";
 import { locations } from "./locations.js";
@@ -26,12 +28,12 @@ const equipment_slots_divs = {head: document.getElementById("head_slot"), torso:
 const stats_divs = {strength: document.getElementById("strength_slot"), agility: document.getElementById("agility_slot"),
 					magic: document.getElementById("magic_slot"), attack_speed: document.getElementById("attack_speed_slot"),
 					attack_power: document.getElementById("attack_power_slot"), defense: document.getElementById("defense_slot"),
-					crit_rate: document.getElementById("crit_rate_slot"), crit_multiplier: document.getElementById("crit_multiplier_slot"),
+					crit_rate: document.getElementById("crit_rate_slot"), crit_multiplier: document.getElementById("crit_multiplier_slot")
 					};
 
 const other_combat_divs = {hit_chance: document.getElementById("hit_chance_slot"), defensive_action: document.getElementById("defensive_action_slot"),
-						   defensive_action_chance: document.getElementById("defensive_action_chance_slot"),
-};
+						   defensive_action_chance: document.getElementById("defensive_action_chance_slot")
+						  };
 
 const skill_bar_divs = {};
 
@@ -109,9 +111,9 @@ function capitalize_first_letter(some_string) {
 }
 
 function change_location(location_name) {
-	action_div.innerHTML = '';
 	var location = locations[location_name];
 	var action;
+	action_div.innerHTML = '';
 	if(typeof current_location !== "undefined") { //so it's not called when initializing the location on page load
 		log_message(`[ Entering ${location.name} ]`);
 	}
@@ -179,7 +181,7 @@ function do_combat() {
 	}
 
 	//todo: separate formulas for physical and magical weapons
-	//and also need weapons before that...
+	//and also need magic weapons before that...
 
 	var hero_base_damage = character.stats.attack_power;
 	var enemy_base_damage = current_enemy.stats.strength;
@@ -322,7 +324,6 @@ function do_combat() {
 			additional_hero_attacks = 0;
 			current_enemy = null;
 			change_location(current_location.parent_location.name);
-			// todo: force to rest
 		}
 		update_displayed_health();
 	}
@@ -343,7 +344,7 @@ function do_combat() {
 }
 
 
-function add_xp_to_skill(skill, xp_to_add, should_log) {
+function add_xp_to_skill(skill, xp_to_add, should_info) {
 	if(skill.total_xp == 0) { //creates new skill bar
 		skill_bar_divs[skill.skill_id] = document.createElement("div");
 
@@ -352,6 +353,10 @@ function add_xp_to_skill(skill, xp_to_add, should_log) {
 		const skill_bar_text = document.createElement("div");
 		const skill_bar_name = document.createElement("div");
 		const skill_bar_xp = document.createElement("div");
+
+		const skill_tooltip = document.createElement("div");
+		const tooltip_xp = document.createElement("div");
+		const tooltip_desc = document.createElement("div");
 		
 
 		skill_bar_max.classList.add("skill_bar_max");
@@ -359,22 +364,36 @@ function add_xp_to_skill(skill, xp_to_add, should_log) {
 		skill_bar_text.classList.add("skill_bar_text");
 		skill_bar_name.classList.add("skill_bar_name");
 		skill_bar_xp.classList.add("skill_bar_xp");
+		skill_tooltip.classList.add("skill_tooltip");
 
 		skill_bar_text.appendChild(skill_bar_name);
 		skill_bar_text.append(skill_bar_xp);
+
+		skill_tooltip.appendChild(tooltip_xp);
+		skill_tooltip.appendChild(tooltip_desc);
+
 		skill_bar_max.appendChild(skill_bar_text);
 		skill_bar_max.appendChild(skill_bar_current);
+		skill_bar_max.appendChild(skill_tooltip);
+
 		skill_bar_divs[skill.skill_id].appendChild(skill_bar_max);
 		document.getElementById("skill_list_div").appendChild(skill_bar_divs[skill.skill_id]);
 	} 
 
-
 	const level_up = skill.add_xp(xp_to_add);
-	if(typeof level_up !== "undefined" && should_info)
-	{
-		log_message(level_up, "message_skill_leveled_up");
-		update_character_stats();
-	}
+
+	/*
+	skill_bar divs: 
+		skill -> children (1): 
+			skill_bar_max -> children(3): 
+				skill_bar_text -> children(2):
+					skill_bar_name,
+					skill_bar_xp
+				skill_bar_current, 
+				skill_tooltip -> children(2):
+					tooltip_xp,
+					tooltip_desc
+	*/
 
 	skill_bar_divs[skill.skill_id].children[0].children[0].children[0].innerHTML = `${skill.name()} : level ${skill.current_level}`;
 	//skill_bar_name
@@ -383,8 +402,19 @@ function add_xp_to_skill(skill, xp_to_add, should_log) {
 	skill_bar_divs[skill.skill_id].children[0].children[1].style.width = `${100*skill.current_xp/skill.xp_to_next_lvl}%`;
 	//skill_bar_current
 
+	skill_bar_divs[skill.skill_id].children[0].children[2].children[0].innerHTML = `${skill.current_xp}/${skill.xp_to_next_lvl}`;
+	//tooltip_xp
+	
+	if(typeof level_up !== "undefined" && (typeof should_info === "undefined" || should_info))
+	{
+		log_message(level_up, "message_skill_leveled_up");
+		update_character_stats();
 
-	//TODO: add tooltip on hover with full xp instead of percentage
+		//skill_bar_divs[skill.skill_id].children[0].children[2].children[1].innerHTML = ``;
+		//tooltip_desc
+	}
+	
+
 	//TODO: sort displayed skills
 }
 
@@ -401,8 +431,6 @@ function do_resting() {
 
 //writes message to the message log
 function log_message(message_to_add, message_type) {
-	//todo: add classes to message div, depending on message type (mainly for coloring)
-
 	if(typeof message_to_add === 'undefined') {
 		return;
 	}
@@ -621,7 +649,7 @@ function update_displayed_inventory() {
 					});
 				}
 
-		   		inventory_div.appendChild(item_control_div);
+				   inventory_div.appendChild(item_control_div);
 			}
 		} else //stackables
 		{
@@ -658,7 +686,7 @@ function update_displayed_inventory() {
 			item_control_div.setAttribute("data-inventory_item", `${character.inventory[key].item.name}`)
 			item_control_div.appendChild(item_div);
 
-		   	inventory_div.appendChild(item_control_div);
+			   inventory_div.appendChild(item_control_div);
 		}
 	});
 }
@@ -700,7 +728,7 @@ function update_displayed_equipment() {
 	Object.keys(equipment_slots_divs).forEach(function(key) {
 		var eq_tooltip = document.createElement("span");
 		eq_tooltip.classList.add("equipment_tooltip");
-		if(character.equipment[key] == null) {
+		if(character.equipment[key] == null) { //no item in slot
 			equipment_slots_divs[key].innerHTML = `${key} slot`;
 			equipment_slots_divs[key].classList.add("equipment_slot_empty");
 			eq_tooltip.innerHTML = `Your ${key} slot`;
@@ -713,7 +741,7 @@ function update_displayed_equipment() {
 			`<b>${character.equipment[key].name}</b>
 			<br>${character.equipment[key].description}`;
 
-			Object.keys(character.equipment[key].equip_effect).forEach(function(effect_key) {
+			Object.keys(character.equipment[key].equip_effect).forEach(function(effect_key) { //add all effects to tooltip
 				eq_tooltip.innerHTML += 
 				`<br><br>Flat ${effect_key} bonus: ${character.equipment[key].equip_effect[effect_key].flat_bonus}`;
 
@@ -722,6 +750,10 @@ function update_displayed_equipment() {
 					`<br>${capitalize_first_letter(effect_key)} multiplier: ${character.equipment[key].equip_effect[effect_key].multiplier}`;
 				}
 			});
+
+			if(character.equipment[key].equip_slot === "offhand" && character.equipment[key].offhand_type === "shield") {
+				eq_tooltip.innerHTML += `<br><br>Can fully block attacks not stronger than: ${character.equipment[key].shield_strength}`;
+			}
 		}
 		equipment_slots_divs[key].appendChild(eq_tooltip);
 	});
@@ -758,7 +790,6 @@ function update_displayed_stats() { //updates displayed stats
 function update_combat_stats() { //chances to hit and evade/block
 	if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
 		character.stats.evasion_chance = null;
-		 //todo: add skill lvl bonus;
 		character.stats.block_chance = Math.round(0.4 * skills["Blocking"].get_coefficient("flat") * 10000)/10000;
 	}
 
@@ -809,9 +840,7 @@ function update_displayed_combat_stats() {
 }
 
 
-function create_save(to_where) {
-	//to_where: "file", anything else -> local storage
-
+function create_save() {
 	const save_data = {};
 	save_data["current time"] = current_game_time;
 	save_data["character"] = {name: character.name, titles: character.titles, inventory: character.inventory, equipment: character.equipment};
@@ -834,11 +863,11 @@ function create_save(to_where) {
 	}
 
 	return JSON.stringify(save_data);
-}
+} //puts important stuff into the save string and returns it
 
 function save_to_file() {
 	return create_save();
-}
+} //called from index.html
 
 function save_to_localStorage() {
 	localStorage.setItem("save data", create_save());
@@ -852,9 +881,7 @@ function load(save_data) {
 	//TODO: clear/replace enemy info
 	//TODO: load location
 
-	if("current time" in save_data) {
-		current_game_time.load_time(save_data["current time"]);
-	}
+	current_game_time.load_time(save_data["current time"]);
 
 	name_field.value = save_data.character.name;
 	character.name = save_data.character.name;
@@ -885,7 +912,7 @@ function load(save_data) {
 			add_xp_to_skill(skills[key], save_data.skills[key].total_xp, false);
 		}
 	}); //add xp to skills
-}
+} //core function for loading
 
 function load_from_file(save_string) {
 	Object.keys(character.equipment).forEach(function(key){
@@ -903,7 +930,7 @@ function load_from_file(save_string) {
 			skills[key].xp_to_next_lvl = skills[key].base_xp_cost;
 			skills[key].total_xp_to_next_lvl = skills[key].base_xp_cost;
 		}
-	}); //clear all skill progress
+	}); //clear all skill progress from display
 	Object.keys(skill_bar_divs).forEach(function(key) {
 		delete skill_bar_divs[key];
 	});
@@ -914,11 +941,11 @@ function load_from_file(save_string) {
 	} //remove skill bars from display
 
 	load(JSON.parse(save_string));
-}
+} //called on loading from file, clears everything
 
 function load_from_localstorage() {
 	load(JSON.parse(localStorage.getItem("save data")));
-}
+} //called on loading the page, doesn't clear anything
 
 function update_timer() {
 	current_game_time.go_up();
@@ -934,7 +961,6 @@ function update() {
 	//maybe just a bunch of IFs, checking what character is currently doing and acting properly?
 	//i.e. fighting, sleeping, training, mining (if it even becomes a thing)
 	//active skills, like eating, probably can be safely calculated outside of this?
-	
 	update_timer();
 
 	if("parent_location" in current_location){ //if it's a combat_zone
@@ -979,7 +1005,6 @@ async function run() {
 			save_to_localStorage();
 		} //save every X/60 minutes
 
-
 		end_date = new Date();
 
 		time_variance = (end_date - start_date) - 1000/tickrate;
@@ -989,25 +1014,26 @@ async function run() {
 	}
 }
 
+
 window.equip_item = equip_item_from_inventory;
 window.unequip_item = unequip_item;
 window.change_location = change_location;
 window.save_to_localStorage = save_to_localStorage;
 window.save_to_file = save_to_file;
 window.load_progress = load_from_file;
+//attaching all needed functions to the window so they can be called from index.html
 
 
 if("save data" in localStorage) {
 	load_from_localstorage();
 }
 else {
-	add_to_inventory([{item: new Item(item_templates["Rat fang"]), count: 5}]);
+	//add_to_inventory([{item: new Item(item_templates["Rat fang"]), count: 5}]);
 	add_to_inventory([{item: new Item(item_templates["Long stick"])}]);
-	add_to_inventory([{item: new Item(item_templates["Long stick"])}]);
-	add_to_inventory([{item: new Item(item_templates["Crude wooden shield"])}]);
-	add_to_inventory([{item: new Item(item_templates["Wooden shield"])}]);
+	//add_to_inventory([{item: new Item(item_templates["Crude wooden shield"])}]);
 	equip_item_from_inventory({name: "Long stick", id: 0});
 }
+//checks if there's an existing save file, otherwise just sets up some initial equipment
 
 update_displayed_stats();
 update_displayed_equipment();
