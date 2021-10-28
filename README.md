@@ -1,5 +1,8 @@
 # game-prototype
-Probably won't ever be playable.
+
+Due to CORS requiring http/https, some static server is necessary, as it won't work when main file is simply opened in the browser
 
 
-Requires a server to work, simply opening main file in the browser won't work for local use.
+
+
+### Currently in a very early stage of development, not exactly playable
