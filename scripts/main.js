@@ -49,6 +49,20 @@ var is_resting = true;
 
 var save_period = 60;
 //ticks between saves, 60 = ~1 minute
+var save_counter = 0;
+
+var time_variance = 0;
+//how much deviated was duration of a tick
+var time_variance_accumulator = 0;
+//accumulates deviations
+var start_date;
+var end_date;
+
+
+const tickrate = 1;
+//how many ticks per second
+//best leave it at 1, as less is rather slow, and more makes ticks noticably unstable
+
 
 //enemy crit stats
 const enemy_crit_chance = 0.1;
@@ -85,10 +99,6 @@ const location_description_div = document.getElementById("location_description_d
 const current_game_time = new Game_time({year: 954, month: 4, day: 1, hour: 8, minute: 0, day_count: 0});
 time_field.innerHTML = current_game_time.toString();
 
-const tickrate = 1;
-//how many ticks per second
-//best leave it at 1, as less is rather slow, and more makes ticks noticably unstable
-
 // button testing cuz yes
 document.getElementById("test_button").addEventListener("click", test_button);
 function test_button() {
@@ -115,12 +125,12 @@ function change_location(location_name) {
     var action;
     action_div.innerHTML = '';
     if(typeof current_location !== "undefined") { //so it's not called when initializing the location on page load
-        log_message(`[ Entering ${location.name} ]`);
+        log_message(`[ Entering ${location.name} ]`, "message_travel");
     }
     
     if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
 
-        for(var i = 0; i < location.connected_locations.length; i++) {
+        for(let i = 0; i < location.connected_locations.length; i++) {
             action = document.createElement("div");
             
             enemy_info_div.style.opacity = 0;
@@ -203,7 +213,7 @@ function do_combat() {
     }
     
 
-    for(var i = 0; i <= additional_hero_attacks; i++) { //hero attacks
+    for(let i = 0; i <= additional_hero_attacks; i++) { //hero attacks
         if(i > 0) {
             additional_hero_attacks -= 1;
         }
@@ -258,7 +268,7 @@ function do_combat() {
         }
     }
 
-    for(var i = 0; i <= additional_enemy_attacks; i++) { //enemy attacks
+    for(let i = 0; i <= additional_enemy_attacks; i++) { //enemy attacks
         if(i > 0) {
             additional_enemy_attacks -= 1;
         }
@@ -467,6 +477,9 @@ function log_message(message_to_add, message_type) {
         case "skill_raised":
             class_to_add = "message_skill_leveled_up";
             break;	
+        case "message_travel":
+            class_to_add = "message_travel";
+            break;
     }
 
     message.classList.add(class_to_add);
@@ -491,7 +504,7 @@ function log_loot(loot_list) {
 
     var message = "Looted " + loot_list[0]["item"]["name"] + " x" + loot_list[0]["count"];
     if(loot_list.length > 1) {
-        for (var i = 1; i < loot_list.length; i++) {
+        for(let i = 1; i < loot_list.length; i++) {
             message += (", " + loot_list[i]["item"]["name"] + " x" + loot_list[i]["count"]);
         }
     } //this looks terrible
@@ -519,7 +532,7 @@ function clear_enemy_and_enemy_info() {
 }
 
 function add_to_inventory(items) {
-    for(var i = 0; i < items.length; i++){
+    for(let i = 0; i < items.length; i++){
         if(!character.inventory.hasOwnProperty(items[i].item.name)) //not in inventory
         {
             if(items[i].item.stackable)
@@ -601,7 +614,7 @@ function update_displayed_inventory() {
     Object.keys(character.inventory).forEach(function(key) {
         if(character.inventory[key] instanceof Array) //unstackables
         { 
-            for(var i = 0; i < character.inventory[key].length; i++) {
+            for(let i = 0; i < character.inventory[key].length; i++) {
                 var item_control_div = document.createElement("div");
                 var item_div = document.createElement("div");
                 //item_div is just name + item count (if stackable)
@@ -896,7 +909,7 @@ function load(save_data) {
 
     Object.keys(save_data.character.inventory).forEach(function(key){
         if(Array.isArray(save_data.character.inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
-            for(var i = 0; i < save_data.character.inventory[key].length; i++) {
+            for(let i = 0; i < save_data.character.inventory[key].length; i++) {
                 item_list.push({item: save_data.character.inventory[key][i], count: 1});
             }
         }
@@ -952,68 +965,64 @@ function update_timer() {
     time_field.innerHTML = current_game_time.toString();
 } //updates time div
 
-function tick(tickrate, time_variance) {
-    return new Promise(resolve => setTimeout(resolve, (1000 - time_variance)/tickrate));
-} //ticks
-
 function update() {
     //so technically everything is supposed to be happening in here
     //maybe just a bunch of IFs, checking what character is currently doing and acting properly?
     //i.e. fighting, sleeping, training, mining (if it even becomes a thing)
     //active skills, like eating, probably can be safely calculated outside of this?
-    update_timer();
 
-    if("parent_location" in current_location){ //if it's a combat_zone
-        do_combat();
-    } else { //everything other than combat
-        if(is_resting) { //make a change so it only switches to true on clicking the resting action and is false on default
-            do_resting();
+    setTimeout(function()
+    {
+        end_date = Date.now(); 
+        //basically when previous tick ends
+
+        time_variance_accumulator += ((end_date - start_date) - 1000/tickrate);
+        //duration of previous tick, minus time it was supposed to take
+        //important to keep it between setting end_date and start_date, so they are 2 completely separate values
+
+        //console.log((end_date - start_date).toString() + " : " + time_variance_accumulator.toString());
+
+        start_date = Date.now();
+        /*
+        basically when current tick starts
+        so before this assignment, start_date is when previous tick started
+        and end_date is when previous_tick ended
+        */
+
+        update_timer();
+
+
+        if("parent_location" in current_location){ //if it's a combat_zone
+            do_combat();
+        } else { //everything other than combat
+            if(is_resting) { //make a change so it only switches to true on clicking the resting action and is false on default
+                do_resting();
+            }
         }
-    }
-}
-
-async function run() {
-
-    var time_variance = 0;
-    //how much deviated was duration of tick
-    var accumulator = 0;
-    //accumulates deviations
-
-    var start_date;
-    var end_date;
-
-    var save_counter = 0;
-
-    if(typeof current_location === "undefined") {
-        change_location("Village");
-    } //to initialize the starting location
-    //later on call it also in the save loading method
-
-    update_displayed_health();
-
-    while(true){
-        start_date = new Date();
-
-        await tick(tickrate, accumulator);
-        //uses value from accumulator (instead of time_variance) for more precise overall stabilization
-        //(instead of only stabilizing relative to previous tick, it now stabilizes relative to sum of deviations)
-        update();
-
         save_counter += 1;
         if(save_counter >= save_period) {
             save_counter = 0;
             save_to_localStorage();
         } //save every X/60 minutes
-
-        end_date = new Date();
-
-        time_variance = (end_date - start_date) - 1000/tickrate;
-        accumulator += time_variance;
-
-        //console.log((end_date - start_date).toString() + " : " + accumulator.toString());
-    }
+        
+        update();
+    }, (1000 - time_variance_accumulator));
+    //uses time_variance_accumulator for more precise overall stabilization
+    //(instead of only stabilizing relative to previous tick, it stabilizes relative to sum of deviations)
 }
 
+function run() {
+    if(typeof current_location === "undefined") {
+        change_location("Village");
+    } 
+    //to initialize the starting location
+    //later on call it also in the save loading method
+    
+    update_displayed_health();
+        
+    start_date = Date.now();
+    update();   
+}
 
 window.equip_item = equip_item_from_inventory;
 window.unequip_item = unequip_item;
