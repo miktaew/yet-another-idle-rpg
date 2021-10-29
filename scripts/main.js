@@ -129,21 +129,30 @@ function change_location(location_name) {
     }
     
     if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
-
         for(let i = 0; i < location.connected_locations.length; i++) {
             action = document.createElement("div");
             
             enemy_info_div.style.opacity = 0;
 
-            if("connected_locations" in location.connected_locations[i]) {// check again if connected location is normal or combat
+            if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
                 action.classList.add("travel_normal");
-                action.innerHTML = "Go to " + location.connected_locations[i].name;
+                if("custom_text" in location.connected_locations[i]) {
+                    action.innerHTML = location.connected_locations[i].custom_text;
+                }
+                else {
+                    action.innerHTML = "Go to " + location.connected_locations[i].location.name;
+                }
             } else {
                 action.classList.add("travel_combat");
-                action.innerHTML = "Enter the " + location.connected_locations[i].name;
+                if("custom_text" in location.connected_locations[i]) {
+                    action.innerHTML = location.connected_locations[i].custom_text;
+                }
+                else {
+                    action.innerHTML = "Enter the " + location.connected_locations[i].location.name;
+                }
             }
             action.classList.add("action_travel");
-            action.setAttribute("data-travel", location.connected_locations[i].name);
+            action.setAttribute("data-travel", location.connected_locations[i].location.name);
             action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
 
             action_div.appendChild(action);
@@ -330,10 +339,11 @@ function do_combat() {
             if(character.stats.health < 0) {
                 character.stats.health = 0;
             }
-
+            update_displayed_health();
             additional_hero_attacks = 0;
             current_enemy = null;
             change_location(current_location.parent_location.name);
+            return;
         }
         update_displayed_health();
     }

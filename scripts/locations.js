@@ -74,29 +74,46 @@ locations["Infested field"] = new Combat_zone({
     parent_location: locations["Village"],
     reset_kills_on_leaving: false, 
 });
-locations["Village"].connected_locations.push(locations["Infested field"]);
+locations["Village"].connected_locations.push({location: locations["Infested field"]});
 //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
 
-locations["Forest road"] = new Location({
-    name: "Forest road", description: "Shabby road leading through a dark forest, the only way to leave your village",
-    connected_locations: [locations["Village"]],
+locations["Forest road"] = new Location({ 
+    connected_locations: [{location: locations["Village"]}],
+    description: "Shabby road leading through a dark forest, the only way to leave your village",
+    name: "Forest road",
     is_unlocked: false,
 });
-locations["Village"].connected_locations.push(locations["Forest road"]);
+locations["Village"].connected_locations.push({location: locations["Forest road"], custom_text: "Leave the village"});
 
 locations["Forest"] = new Combat_zone({
-    name: "Forest", description: "Forest surrounding your village, a dangerous place", is_unlocked:  true,
+    description: "Forest surrounding your village, a dangerous place", 
     enemies_list: [enemy_templates["Starving wolf"], enemy_templates["Young wolf"]],
-    enemy_count: 30, reset_kills_on_leaving: false, parent_location: locations["Forest road"],
+    enemy_count: 30, 
+    is_unlocked:  true,
+    name: "Forest", 
+    parent_location: locations["Forest road"],
+    reset_kills_on_leaving: false, 
     rewards: {locations: locations["Deep forest"]},
 });
-locations["Forest road"].connected_locations.push(locations["Forest"]);
+locations["Forest road"].connected_locations.push({location: locations["Forest"], custom_text: "Leave the safe path"});
 
 locations["Deep forest"] = new Combat_zone({
-    name: "Deep forest", description: "Deeper part of the forest, a dangerous place", is_unlocked: false,
+    description: "Deeper part of the forest, a dangerous place", 
     enemies_list: [enemy_templates["Wolf"], enemy_templates["Starving wolf"], enemy_templates["Young wolf"]],
-    enemy_count: 50, reset_kills_on_leaving: false, parent_location: locations["Forest road"],
+    enemy_count: 50, 
+    is_unlocked: false,
+    name: "Deep forest", 
+    parent_location: locations["Forest road"],
+    reset_kills_on_leaving: false, 
+    
 });
-locations["Forest road"].connected_locations.push(locations["Deep forest"]);
+locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture deeper into the woods"});
 
 export {locations};
+
+
+/*
+TODO:
+    instead add connected locations as {location, custom_text, etc}
+    some "quick travel" location that would connect all important ones? (e.g. some towns?)
+*/

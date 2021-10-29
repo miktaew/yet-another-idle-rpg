@@ -74,6 +74,11 @@ body {
 	 font-weight: bold;
  }
 
+ .message_travel {
+	 font-weight: bold;
+	 color: white;
+ }
+
  .action_travel {
 	 text-align: center;
 	 font-size: 20;
