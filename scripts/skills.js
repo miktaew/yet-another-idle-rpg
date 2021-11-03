@@ -13,6 +13,7 @@ function Skill(skill_data) {
     this.base_xp_cost = skill_data.base_xp_cost; //xp to go from lvl 1 to lvl 2
     this.xp_to_next_lvl = this.base_xp_cost; //for display only
     this.total_xp_to_next_lvl = this.base_xp_cost; //total xp needed to lvl up
+    this.get_effect_description = skill_data.get_effect_description;
 
     if("xp_scaling" in skill_data) {
         this.xp_scaling = skill_data.xp_scaling; //More than 1; too high value will make progress extremely slow
@@ -96,10 +97,10 @@ function Skill(skill_data) {
                 return Math.round(Math.pow(this.max_level_coefficient, this.current_level/this.max_level)*1000)/1000;
                 break;
             default:  //same as on multiplicative
-                return 1 + Math.round(Math.pow(this.max_level_coefficient - 1, this.current_level/this.max_level)*1000)/1000;
+                return Math.round(Math.pow(this.max_level_coefficient, this.current_level/this.max_level)*1000)/1000;
                 break;
         }
-    }
+    } 
 }
 
 //basic combat skills

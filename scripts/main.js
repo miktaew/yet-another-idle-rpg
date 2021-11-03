@@ -102,16 +102,8 @@ time_field.innerHTML = current_game_time.toString();
 // button testing cuz yes
 document.getElementById("test_button").addEventListener("click", test_button);
 function test_button() {
-    //add_xp_to_skill(skills["Combat"], parseInt(character["name"]));
-    //console.log(`${skills["Combat"].current_level} : ${skills["Combat"].current_xp}/${skills["Combat"].xp_to_next_lvl}`)
-    //console.log(`${skills["Blocking"].current_level}: ${skills["Blocking"].get_coefficient("multiplicative")} | ${skills["Blocking"].get_coefficient("flat")}`);
-    //console.log(skills["Evasion"].name());
-
-    //load_from_localstorage();
-    //save();
-
-    //var text = window.prompt("bruh?");
-    //console.log(text);
+    locations["Forest"].enemies_killed = 30;
+    get_location_rewards(locations["Forest"]);
 }
 
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
@@ -124,12 +116,18 @@ function change_location(location_name) {
     var location = locations[location_name];
     var action;
     action_div.innerHTML = '';
-    if(typeof current_location !== "undefined") { //so it's not called when initializing the location on page load
+    if(typeof current_location !== "undefined" && current_location.name !== location.name ) { 
+        //so it's not called when initializing the location on page load or when it's called when new location is unlocked
         log_message(`[ Entering ${location.name} ]`, "message_travel");
     }
     
     if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
         for(let i = 0; i < location.connected_locations.length; i++) {
+
+            if(location.connected_locations[i].location.is_unlocked == false) { //skip if not unlocked
+                continue;
+            }
+
             action = document.createElement("div");
             
             enemy_info_div.style.opacity = 0;
@@ -233,8 +231,11 @@ function do_combat() {
                 add_xp_to_skill(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`], current_enemy.xp_value, true); 
             }
 
-            damage_dealt = Math.round(hero_base_damage * (1.2 - Math.random() * 0.4));
-            //small randomization by up to 20%
+            damage_dealt = Math.round(hero_base_damage * (1.2 - Math.random() * 0.4) 
+                                      * skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient());
+            //small randomization by up to 20% + bonus from skill
+
+            console.log(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient());
             
             if(character.stats.crit_rate > Math.random()) {
                 damage_dealt = Math.round(damage_dealt * character.stats.crit_multiplier);
@@ -265,6 +266,10 @@ function do_combat() {
                 if(loot.length > 0) {
                     log_loot(loot);
                     add_to_inventory(loot);
+                }
+                current_location.enemies_killed += 1;
+                if(current_location.enemies_killed > 0 && current_location.enemies_killed % current_location.enemy_count == 0) {
+                    get_location_rewards(current_location);
                 }
                 current_enemy = null;
                 additional_enemy_attacks = 0;
@@ -436,6 +441,20 @@ function add_xp_to_skill(skill, xp_to_add, should_info) {
     
 
     //TODO: sort displayed skills
+}
+
+function get_location_rewards(location) {
+    if(location.enemies_killed == location.enemy_count) { //first clear
+        for(let i = 0; i < location.rewards.locations.length; i++) {
+            location.rewards.locations[i].is_unlocked = true;
+            log_message(`You can now go to ${location.rewards.locations[i].name}`);
+            //no need to do any refreshing here to add buttons to go to new locations, as this happens within combat zone and not in location that gets new travel options
+        }
+    }
+
+    /*
+    TODO: give other rewards
+    */
 }
 
 //single tick of resting

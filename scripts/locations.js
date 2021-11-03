@@ -31,7 +31,7 @@ function Combat_zone(location_data) {
     this.is_unlocked = location_data.is_unlocked;
     this.enemies_list = location_data.enemies_list;
     this.enemy_count = location_data.enemy_count;
-    this.enemies_killed = 0; 
+    this.enemies_killed = 0;
     /*
     TODO: increase after each kill, upon reaching enemy_count (and it's multiples if repeatable_rewards) 
     give the rewards and possibly unlock some new zone
@@ -72,6 +72,7 @@ locations["Infested field"] = new Combat_zone({
     is_unlocked: true, 
     name: "Infested field", 
     parent_location: locations["Village"],
+    repeatable_rewards: true,
     reset_kills_on_leaving: false, 
 });
 locations["Village"].connected_locations.push({location: locations["Infested field"]});
@@ -81,7 +82,7 @@ locations["Forest road"] = new Location({
     connected_locations: [{location: locations["Village"]}],
     description: "Shabby road leading through a dark forest, the only way to leave your village",
     name: "Forest road",
-    is_unlocked: false,
+    is_unlocked: true,
 });
 locations["Village"].connected_locations.push({location: locations["Forest road"], custom_text: "Leave the village"});
 
@@ -92,8 +93,9 @@ locations["Forest"] = new Combat_zone({
     is_unlocked:  true,
     name: "Forest", 
     parent_location: locations["Forest road"],
+    repeatable_rewards: false,
     reset_kills_on_leaving: false, 
-    rewards: {locations: locations["Deep forest"]},
+    rewards: {},
 });
 locations["Forest road"].connected_locations.push({location: locations["Forest"], custom_text: "Leave the safe path"});
 
@@ -104,10 +106,13 @@ locations["Deep forest"] = new Combat_zone({
     is_unlocked: false,
     name: "Deep forest", 
     parent_location: locations["Forest road"],
+    repeatable_rewards: true,
+    rewards: {},
     reset_kills_on_leaving: false, 
     
 });
 locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture deeper into the woods"});
+locations["Forest"].rewards.locations = [locations["Deep forest"]];
 
 export {locations};
 
