@@ -100,11 +100,13 @@ const current_game_time = new Game_time({year: 954, month: 4, day: 1, hour: 8, m
 time_field.innerHTML = current_game_time.toString();
 
 // button testing cuz yes
-document.getElementById("test_button").addEventListener("click", test_button);
-function test_button() {
+document.getElementById("test_button").addEventListener("click", () => 
+{
     locations["Forest"].enemies_killed = 30;
     get_location_rewards(locations["Forest"]);
-}
+
+    //console.log(skills["Combat"].get_effect_description());
+});
 
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
 
@@ -369,8 +371,10 @@ function do_combat() {
 }
 
 
-function add_xp_to_skill(skill, xp_to_add, should_info) {
-    if(skill.total_xp == 0) { //creates new skill bar
+function add_xp_to_skill(skill, xp_to_add, should_info) 
+{
+    if(skill.total_xp == 0) 
+    { //creates new skill bar
         skill_bar_divs[skill.skill_id] = document.createElement("div");
 
         const skill_bar_max = document.createElement("div");
@@ -396,6 +400,11 @@ function add_xp_to_skill(skill, xp_to_add, should_info) {
 
         skill_tooltip.appendChild(tooltip_xp);
         skill_tooltip.appendChild(tooltip_desc);
+
+        if(typeof skill.get_effect_description !== "undefined")
+        {
+            tooltip_desc.innerHTML = `${skill.get_effect_description()}`;
+        }
 
         skill_bar_max.appendChild(skill_bar_text);
         skill_bar_max.appendChild(skill_bar_current);
@@ -434,11 +443,14 @@ function add_xp_to_skill(skill, xp_to_add, should_info) {
     {
         log_message(level_up, "message_skill_leveled_up");
         update_character_stats();
-
-        //skill_bar_divs[skill.skill_id].children[0].children[2].children[1].innerHTML = ``;
-        //tooltip_desc
+    } 
+    else 
+    {
+        if(typeof level_up !== "undefined")
+        {
+            skill_bar_divs[skill.skill_id].children[0].children[2].children[1].innerHTML = `${skill.get_effect_description()}`;
+        }
     }
-    
 
     //TODO: sort displayed skills
 }

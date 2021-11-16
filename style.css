@@ -134,7 +134,7 @@ body {
 
  .skill_tooltip {
 	display: none;
-	background-color: rgba(120, 120, 120, 0.8);
+	background-color: rgba(120, 120, 120, 0.9);
 	border-radius: 10px;
 	margin-left: 30px;
 	padding: 5px;
