@@ -4,6 +4,7 @@ import { Game_time } from "./game_time.js";
 import { Item, item_templates } from "./items.js";
 import { locations } from "./locations.js";
 import { skills } from "./skills.js";
+import { dialogues } from "./dialogues.js";
 
 //player character
 const character = {name: "Hero", titles: {}, 
@@ -58,6 +59,8 @@ var time_variance_accumulator = 0;
 var start_date;
 var end_date;
 
+var current_dialogue = null;
+
 
 const tickrate = 1;
 //how many ticks per second
@@ -79,6 +82,8 @@ const current_enemy_health_bar = document.getElementById("enemy_healthbar_curren
 const enemy_info_div = document.getElementById("enemy_info_div");
 const enemy_stats_div = document.getElementById("enemy_stats_div");
 const enemy_name_div = document.getElementById("enemy_name_div");
+
+const enemy_count_div = document.getElementById("enemy_count_div");
 
 //inventory display
 const inventory_div = document.getElementById("inventory_content_div");
@@ -102,8 +107,8 @@ time_field.innerHTML = current_game_time.toString();
 // button testing cuz yes
 document.getElementById("test_button").addEventListener("click", () => 
 {
-    locations["Forest"].enemies_killed = 30;
-    get_location_rewards(locations["Forest"]);
+    locations["Infested field"].enemies_killed = 30;
+    get_location_rewards(locations["Infested field"]);
 
     //console.log(skills["Combat"].get_effect_description());
 });
@@ -117,14 +122,30 @@ function capitalize_first_letter(some_string) {
 function change_location(location_name) {
     var location = locations[location_name];
     var action;
-    action_div.innerHTML = '';
+    clear_action_div();
     if(typeof current_location !== "undefined" && current_location.name !== location.name ) { 
         //so it's not called when initializing the location on page load or when it's called when new location is unlocked
         log_message(`[ Entering ${location.name} ]`, "message_travel");
     }
     
     if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
-        for(let i = 0; i < location.connected_locations.length; i++) {
+        enemy_info_div.style.opacity = 0;
+        enemy_count_div.style.opacity = 0;
+
+        for(let i = 0; i < location.dialogues.length; i++) { //add buttons for starting dialogues (displaying their textlines on click will be in another method?)
+            if(dialogues[location.dialogues[i]].is_unlocked == false || dialogues[location.dialogues[i]].is_finished) { //skip if dialogue is not available
+                continue;
+            } 
+            
+            const dialogue_div = document.createElement("div");
+            dialogue_div.innerHTML = dialogues[location.dialogues[i]].starting_text;
+            dialogue_div.classList.add("start_dialogue");
+            dialogue_div.setAttribute("data-dialogue", location.dialogues[i]);
+            dialogue_div.setAttribute("onclick", "start_dialogue(this.getAttribute('data-dialogue'));");
+            action_div.appendChild(dialogue_div);
+        }
+
+        for(let i = 0; i < location.connected_locations.length; i++) { //add butttons to change location
 
             if(location.connected_locations[i].location.is_unlocked == false) { //skip if not unlocked
                 continue;
@@ -132,8 +153,6 @@ function change_location(location_name) {
 
             action = document.createElement("div");
             
-            enemy_info_div.style.opacity = 0;
-
             if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
                 action.classList.add("travel_normal");
                 if("custom_text" in location.connected_locations[i]) {
@@ -162,8 +181,10 @@ function change_location(location_name) {
                 update_combat_stats();
             }
         }
-    } else {
+    } else { //so if entering combat zone
+        enemy_count_div.style.opacity = 1;
         enemy_info_div.style.opacity = 1;
+        enemy_count_div.children[0].children[1].innerHTML = location.enemy_count - location.enemies_killed % location.enemy_count;
 
         action = document.createElement("div");
         action.classList.add("travel_normal", "action_travel");
@@ -177,6 +198,68 @@ function change_location(location_name) {
     current_location = location;
     location_name_div.innerHTML = current_location.name;
     location_description_div.innerHTML = current_location.description;
+}
+
+function start_dialogue(dialogue_name) {
+    //initialize dialogue options
+    current_dialogue = dialogues[dialogue_name];
+
+    clear_action_div();
+    Object.keys(current_dialogue.textlines).forEach(function(key) { //add buttons for textlines
+            if(!(current_dialogue.textlines[key].is_unlocked == false || current_dialogue.textlines[key].is_finished)) { //do only if text_line is not unavailable
+                const textline_div = document.createElement("div");
+                textline_div.innerHTML = `"${current_dialogue.textlines[key].name}"`;
+                textline_div.classList.add("dialogue_textline");
+                textline_div.setAttribute("data-textline", key);
+                textline_div.setAttribute("onclick", `start_textline(this.getAttribute('data-textline'))`);
+                action_div.appendChild(textline_div);
+            }
+    });
+
+    const end_dialogue_div = document.createElement("div");
+    end_dialogue_div.innerHTML = current_dialogue.ending_text;
+    end_dialogue_div.classList.add("end_dialogue_button");
+    end_dialogue_div.setAttribute("onclick", "end_dialogue()");
+    action_div.appendChild(end_dialogue_div);
+
+    //ending dialogue -> just do: change_location(current_location.name);
+}
+
+function end_dialogue() {
+    current_dialogue = null;
+    change_location(current_location.name);
+}
+
+function start_textline(textline_key){
+    const textline = current_dialogue.textlines[textline_key];
+    //TODO: log a message when unlocking new location?
+    //maybe another method for this
+
+    log_message(`> > ${textline.name}`, "dialogue_question")
+    log_message(textline.text, "dialogue_answer");
+
+    for(let i = 0; i < textline.unlocks.textlines.length; i++) { //unlocking textlines
+        const dialogue_name = textline.unlocks.textlines[i].dialogue;
+        for(let j = 0; j < textline.unlocks.textlines[i].lines.length; j++) {
+            dialogues[dialogue_name].textlines[textline.unlocks.textlines[i].lines[j]].is_unlocked = true;
+        }
+    }
+
+    for(let i = 0; i < textline.unlocks.locations.length; i++) { //unlocking locations
+        unlock_location(locations[textline.unlocks.locations[i]]);
+    }
+
+    for(let i = 0; i < textline.locks_lines.length; i++) { //locking textlines
+        current_dialogue.textlines[textline.locks_lines[i]].is_finished = true;
+    }
+
+    start_dialogue(current_dialogue.name);
+}
+
+function clear_action_div() {
+    while(action_div.lastElementChild) {
+        action_div.removeChild(action_div.lastElementChild);
+    }
 }
 
 function get_new_enemy() {
@@ -236,8 +319,6 @@ function do_combat() {
             damage_dealt = Math.round(hero_base_damage * (1.2 - Math.random() * 0.4) 
                                       * skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient());
             //small randomization by up to 20% + bonus from skill
-
-            console.log(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient());
             
             if(character.stats.crit_rate > Math.random()) {
                 damage_dealt = Math.round(damage_dealt * character.stats.crit_multiplier);
@@ -257,7 +338,6 @@ function do_combat() {
                 log_message(current_enemy.name + " was hit for " + damage_dealt + " dmg", "enemy_attacked");
             }
 
-
             if(current_enemy.stats.health <= 0) {
                 current_enemy.stats.health = 0; 
                 update_displayed_enemy_health();
@@ -272,7 +352,10 @@ function do_combat() {
                 current_location.enemies_killed += 1;
                 if(current_location.enemies_killed > 0 && current_location.enemies_killed % current_location.enemy_count == 0) {
                     get_location_rewards(current_location);
-                }
+                } 
+
+                enemy_count_div.children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemies_killed % current_location.enemy_count;
+
                 current_enemy = null;
                 additional_enemy_attacks = 0;
                 return;
@@ -386,6 +469,7 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
         const skill_tooltip = document.createElement("div");
         const tooltip_xp = document.createElement("div");
         const tooltip_desc = document.createElement("div");
+        const tooltip_effect = document.createElement("div");
         
 
         skill_bar_max.classList.add("skill_bar_max");
@@ -400,12 +484,15 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
 
         skill_tooltip.appendChild(tooltip_xp);
         skill_tooltip.appendChild(tooltip_desc);
+        skill_tooltip.appendChild(tooltip_effect);
 
+        tooltip_desc.innerHTML = skill.description;
         if(typeof skill.get_effect_description !== "undefined")
         {
-            tooltip_desc.innerHTML = `${skill.get_effect_description()}`;
+            tooltip_effect.innerHTML = `${skill.get_effect_description()}`;
         }
-
+        
+        
         skill_bar_max.appendChild(skill_bar_text);
         skill_bar_max.appendChild(skill_bar_current);
         skill_bar_max.appendChild(skill_tooltip);
@@ -446,9 +533,9 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
     } 
     else 
     {
-        if(typeof level_up !== "undefined")
+        if(typeof level_up !== "undefined" && typeof skill.get_effect_description !== "undefined")
         {
-            skill_bar_divs[skill.skill_id].children[0].children[2].children[1].innerHTML = `${skill.get_effect_description()}`;
+            skill_bar_divs[skill.skill_id].children[0].children[2].children[2].innerHTML = `${skill.get_effect_description()}`;
         }
     }
 
@@ -457,16 +544,26 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
 
 function get_location_rewards(location) {
     if(location.enemies_killed == location.enemy_count) { //first clear
-        for(let i = 0; i < location.rewards.locations.length; i++) {
-            location.rewards.locations[i].is_unlocked = true;
-            log_message(`You can now go to ${location.rewards.locations[i].name}`);
-            //no need to do any refreshing here to add buttons to go to new locations, as this happens within combat zone and not in location that gets new travel options
+        for(let i = 0; i < location.rewards.locations.length; i++) { //unlock locations
+            unlock_location(location.rewards.locations[i])
+        }
+
+        for(let i = 0; i < location.rewards.textlines.length; i++) { //unlock textlines and dialogues
+            for(let j = 0; j < location.rewards.textlines[i].lines.length; j++) {
+                dialogues[location.rewards.textlines[i].dialogue].textlines[location.rewards.textlines[i].lines[j]].is_unlocked = true;
+                //TODO: log message like "you should talk to X"
+            }
         }
     }
 
     /*
     TODO: give other rewards
     */
+}
+
+function unlock_location(location) {
+    location.is_unlocked = true;
+    log_message(`You can now go to ${location.name}`, "location_unlocked");
 }
 
 //single tick of resting
@@ -521,6 +618,14 @@ function log_message(message_to_add, message_type) {
         case "message_travel":
             class_to_add = "message_travel";
             break;
+        case "dialogue_question":
+            class_to_add = "message_dialogue_question";
+            break;
+        case "dialogue_answer":
+            class_to_add = "message_dialogue_answer";
+            break;
+        case "location_unlocked":
+            class_to_add = "message_location_unlocked";
     }
 
     message.classList.add(class_to_add);
@@ -893,7 +998,6 @@ function update_displayed_combat_stats() {
     }
 }
 
-
 function create_save() {
     const save_data = {};
     save_data["current time"] = current_game_time;
@@ -1068,10 +1172,13 @@ function run() {
 window.equip_item = equip_item_from_inventory;
 window.unequip_item = unequip_item;
 window.change_location = change_location;
+window.start_dialogue = start_dialogue;
+window.end_dialogue = end_dialogue;
+window.start_textline = start_textline;
+
 window.save_to_localStorage = save_to_localStorage;
 window.save_to_file = save_to_file;
 window.load_progress = load_from_file;
-//attaching all needed functions to the window so they can be called from index.html
 
 
 if("save data" in localStorage) {

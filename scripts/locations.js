@@ -1,4 +1,5 @@
 import {enemy_templates, Enemy} from "./enemies.js";
+import { dialogues } from "./dialogues.js";
 var locations = {};
 //will contain all the locations
 
@@ -11,7 +12,7 @@ function Location(location_data) {
         this.description = location_data.description;
         this.connected_locations = location_data.connected_locations; //a list
         this.is_unlocked = location_data.is_unlocked;
-
+        this.dialogues = typeof location_data.dialogues !== "undefined"? location_data.dialogues : [];
         // Activities, maybe make a special object type for actions (passive_activities ?), like sleeping/training/learning 
         // => or make it only one action per "location_action", similarly to combat_zone (except no child zones)?,
         // or "location_actions" (a list/dict)
@@ -30,16 +31,23 @@ function Combat_zone(location_data) {
     this.description = location_data.description;
     this.is_unlocked = location_data.is_unlocked;
     this.enemies_list = location_data.enemies_list;
-    this.enemy_count = location_data.enemy_count;
+    this.enemy_count = typeof location_data.enemy_count !== "undefined"? location_data.enemy_count : 30;
     this.enemies_killed = 0;
     /*
     TODO: increase after each kill, upon reaching enemy_count (and it's multiples if repeatable_rewards) 
     give the rewards and possibly unlock some new zone
     */
-    this.reset_kills_on_leaving = location_data.reset_kills_on_leaving;
     this.repeatable_rewards = location_data.repeatable_rewards; //if rewards can be obtained on subsequent clearings
     this.parent_location = location_data.parent_location;
-    this.rewards = location_data.rewards;
+    if(typeof location_data.rewards !== "undefined") { 
+        this.rewards = location_data.rewards;
+        this.rewards.dialogues = typeof location_data.rewards.dialogues !== "undefined"? location_data.rewards.dialogues : [];
+        this.rewards.textlines = typeof location_data.rewards.textlines !== "undefined"? location_data.rewards.textlines : [];
+        this.rewards.locations = typeof location_data.rewards.locations !== "undefined"? location_data.rewards.locations : [];
+    }
+    else {
+        this.rewards = {dialogues: [], textlines: [], locations: []};
+    }
 
     this.get_next_enemy = function() {
         var enemy = this.enemies_list[Math.floor(Math.random() * this.enemies_list.length)];
@@ -61,6 +69,7 @@ function Combat_zone(location_data) {
 locations["Village"] = new Location({ 
     connected_locations: [], 
     description: "Medium-sized village surrounded by many fields, some of them infested by rats. Other than that, there's nothing interesting around.", 
+    dialogues: ["village elder"],
     is_unlocked: true,
     name: "Village", 
 });
@@ -69,11 +78,13 @@ locations["Infested field"] = new Combat_zone({
     description: "Field infested with rats.", 
     enemy_count: 30, 
     enemies_list: [enemy_templates["Starving wolf rat"], enemy_templates["Wolf rat"]],
-    is_unlocked: true, 
+    is_unlocked: false, 
     name: "Infested field", 
     parent_location: locations["Village"],
     repeatable_rewards: true,
-    reset_kills_on_leaving: false, 
+    rewards: {
+        textlines: [{dialogue: "village elder", lines: ["cleared"]}],
+    }
 });
 locations["Village"].connected_locations.push({location: locations["Infested field"]});
 //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
@@ -82,7 +93,7 @@ locations["Forest road"] = new Location({
     connected_locations: [{location: locations["Village"]}],
     description: "Shabby road leading through a dark forest, the only way to leave your village",
     name: "Forest road",
-    is_unlocked: true,
+    is_unlocked: false,
 });
 locations["Village"].connected_locations.push({location: locations["Forest road"], custom_text: "Leave the village"});
 
@@ -94,7 +105,6 @@ locations["Forest"] = new Combat_zone({
     name: "Forest", 
     parent_location: locations["Forest road"],
     repeatable_rewards: false,
-    reset_kills_on_leaving: false, 
     rewards: {},
 });
 locations["Forest road"].connected_locations.push({location: locations["Forest"], custom_text: "Leave the safe path"});
@@ -108,7 +118,6 @@ locations["Deep forest"] = new Combat_zone({
     parent_location: locations["Forest road"],
     repeatable_rewards: true,
     rewards: {},
-    reset_kills_on_leaving: false, 
     
 });
 locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture deeper into the woods"});

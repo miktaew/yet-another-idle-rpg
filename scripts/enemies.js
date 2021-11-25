@@ -44,7 +44,7 @@ enemy_templates["Starving wolf rat"] = new Enemy({
     name: "Starving wolf rat", 
     description: "Rat with size of a dog, starved and weakened", 
     xp_value: 1, 
-    stats: {health: 10, strength: 2, agility: 5, magic: 0, attack_speed: 1, defense: 0}, 
+    stats: {health: 10, strength: 2, agility: 5, magic: 0, attack_speed: 0.9, defense: 0}, 
     loot_list: [
         {item: item_templates["Rat tail"], chance: 0.1},
         {item: item_templates["Rat fang"], chance: 0.1},
@@ -56,7 +56,7 @@ enemy_templates["Wolf rat"] = new Enemy({
     name: "Wolf rat", 
     description: "Rat with size of a dog",
     xp_value: 1, 
-    stats: {health: 12, strength: 5, agility: 5, magic: 0, attack_speed: 1.1, defense: 0}, 
+    stats: {health: 12, strength: 5, agility: 5, magic: 0, attack_speed: 1.2, defense: 0}, 
     loot_list: [
         {item: item_templates["Rat tail"], chance: 0.1},
         {item: item_templates["Rat fang"], chance: 0.1},
@@ -67,7 +67,7 @@ enemy_templates["Wolf rat"] = new Enemy({
 enemy_templates["Starving wolf"] = new Enemy({
     name: "Starving wolf", description: "A large, wild and hungry canine", 
     xp_value: 3, 
-    stats: {health: 25, strength: 10, agility: 7, magic: 0, attack_speed: 1.5, defense: 2}, 
+    stats: {health: 25, strength: 10, agility: 7, magic: 0, attack_speed: 0.8, defense: 2}, 
     loot_list: [
         {item: "Wolf tooth", chance: 0.05, count: {min: 1, max: 2}},
         {item: "Wolf pelt", chance: 0.02}
@@ -78,7 +78,7 @@ enemy_templates["Young wolf"] = new Enemy({
     name: "Young wolf", 
     description: "A small, wild canine", 
     xp_value: 3, 
-    stats: {health: 25, strength: 8, agility: 9, magic: 0, attack_speed: 1.7, defense: 0}, 
+    stats: {health: 25, strength: 8, agility: 9, magic: 0, attack_speed: 1.1, defense: 0}, 
     loot_list: [
         {item: "Wolf tooth", chance: 0.02},
         {item: "Wolf pelt", chance: 0.01}
@@ -89,7 +89,7 @@ enemy_templates["Wolf"] = new Enemy({
     name: "Wolf", 
     description: "A large, wild canine", 
     xp_value: 5, 
-    stats: {health: 25, strength: 15, agility: 10, magic: 0, attack_speed: 1.7, defense: 2}, 
+    stats: {health: 25, strength: 15, agility: 10, magic: 0, attack_speed: 1, defense: 2}, 
     loot_list: [
         {item: "Wolf tooth", chance: 0.07, count: {min: 1, max: 3}},
         {item: "Wolf pelt", chance: 0.03}
