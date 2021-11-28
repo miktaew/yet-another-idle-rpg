@@ -5,10 +5,11 @@ import { Item, item_templates } from "./items.js";
 import { locations } from "./locations.js";
 import { skills } from "./skills.js";
 import { dialogues } from "./dialogues.js";
+import { Enemy, enemy_templates } from "./enemies.js";
 
 //player character
 const character = {name: "Hero", titles: {}, 
-                stats: {max_health: 100, health: 100, strength: 1, agility: 5, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, attack_power: 0,
+                stats: {max_health: 30, health: 30, strength: 1, agility: 4, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, attack_power: 0,
                         hit_chance: 0, evasion_chance: 0, block_chance: 0, defense: 0},
                 // crit damage is a multiplier; defense should be only based on worn armor and/or magic skills;
                 inventory: {},
@@ -56,6 +57,7 @@ var time_variance = 0;
 //how much deviated was duration of a tick
 var time_variance_accumulator = 0;
 //accumulates deviations
+var time_adjustment = 0;
 var start_date;
 var end_date;
 
@@ -176,7 +178,7 @@ function change_location(location_name) {
 
             action_div.appendChild(action);
 
-            if(typeof current_location !== "undefined" && "parent_location" in current_location) { // previous was combat, new is normal
+            if(typeof current_location !== "undefined" && "parent_location" in current_location) { // if previous was combat and new is normal
                 clear_enemy_and_enemy_info();
                 update_combat_stats();
             }
@@ -206,7 +208,7 @@ function start_dialogue(dialogue_name) {
 
     clear_action_div();
     Object.keys(current_dialogue.textlines).forEach(function(key) { //add buttons for textlines
-            if(!(current_dialogue.textlines[key].is_unlocked == false || current_dialogue.textlines[key].is_finished)) { //do only if text_line is not unavailable
+            if(current_dialogue.textlines[key].is_unlocked && !current_dialogue.textlines[key].is_finished) { //do only if text_line is not unavailable
                 const textline_div = document.createElement("div");
                 textline_div.innerHTML = `"${current_dialogue.textlines[key].name}"`;
                 textline_div.classList.add("dialogue_textline");
@@ -543,7 +545,12 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
 }
 
 function get_location_rewards(location) {
+    console.log(location.enemies_killed);
+    console.log(location.enemy_count);
     if(location.enemies_killed == location.enemy_count) { //first clear
+
+        change_location(current_location.parent_location.name); //go back to parent location, only on first clear
+
         for(let i = 0; i < location.rewards.locations.length; i++) { //unlock locations
             unlock_location(location.rewards.locations[i])
         }
@@ -551,8 +558,9 @@ function get_location_rewards(location) {
         for(let i = 0; i < location.rewards.textlines.length; i++) { //unlock textlines and dialogues
             for(let j = 0; j < location.rewards.textlines[i].lines.length; j++) {
                 dialogues[location.rewards.textlines[i].dialogue].textlines[location.rewards.textlines[i].lines[j]].is_unlocked = true;
-                //TODO: log message like "you should talk to X"
             }
+            log_message(`Maybe you should check on ${location.rewards.textlines[i].dialogue}...`);
+            //maybe do this only when there's just 1 dialogue with changes?
         }
     }
 
@@ -633,7 +641,7 @@ function log_message(message_to_add, message_type) {
     message.innerHTML = message_to_add + "<div class='message_border'> </>";
 
 
-    if(message_log.children.length > 30) 
+    if(message_log.children.length > 40) 
     {
         message_log.removeChild(message_log.children[0]);
     } //removes first position if there's too many messages
@@ -1015,10 +1023,28 @@ function create_save() {
         save_data["current enemy"] = null;
     } 
     else {
-        save_data["current enemy"] = {}; //no need to save everything, just name + stats -> get enemy from template and change stats to those saved
-        save_data["current enemy"]["name"] = current_enemy.name;
-        save_data["current enemy"]["stats"] = current_enemy.stats;
+        save_data["current enemy"] = {name: current_enemy.name, stats: current_enemy.stats}; 
+        //no need to save everything, just name + stats -> get enemy from template and change stats to those saved
     }
+
+    save_data["locations"] = {};
+    Object.keys(locations).forEach(function(key) {        
+        save_data["locations"][key] = {is_unlocked: locations[key].is_unlocked};
+        if("parent_location" in locations[key]) { //combat zone
+            save_data["locations"][key]["enemies_killed"] = locations[key].enemies_killed;
+        }
+    }); //save locations's unlocked status and their killcounts
+
+    save_data["dialogues"] = {};
+    Object.keys(dialogues).forEach(function(dialogue) {
+        save_data["dialogues"][dialogue] = {is_unlocked: dialogues[dialogue].is_unlocked, is_finished: dialogues[dialogue].is_finished, textlines: {}};
+        Object.keys(dialogues[dialogue].textlines).forEach(function(textline) {
+            save_data["dialogues"][dialogue].textlines[textline] = {is_unlocked: dialogues[dialogue].textlines[textline].is_unlocked,
+                                                          is_finished: dialogues[dialogue].textlines[textline].is_finished};
+        });
+    }); //save dialogues' and their textlines' unlocked/finished statuses
+
+    //TODO: dialogues
 
     return JSON.stringify(save_data);
 } //puts important stuff into the save string and returns it
@@ -1034,15 +1060,19 @@ function save_to_localStorage() {
 function load(save_data) {
     //single loading method
 
-    
     //TODO: some loading screen
     //TODO: clear/replace enemy info
-    //TODO: load location
 
     current_game_time.load_time(save_data["current time"]);
+    //set game time
 
     name_field.value = save_data.character.name;
     character.name = save_data.character.name;
+
+    if(save_data["current enemy"] != null) { 
+        current_enemy = new Enemy(enemy_templates[save_data["current enemy"].name]);
+        current_enemy.stats = save_data["current enemy"].stats; 
+    } //load enemy
 
     Object.keys(save_data.character.equipment).forEach(function(key){
         if(save_data.character.equipment[key] != null) {
@@ -1063,6 +1093,7 @@ function load(save_data) {
         }
         
     }); //add all loaded items to list
+
     add_to_inventory(item_list); // and then to inventory
 
     Object.keys(save_data.skills).forEach(function(key){ 
@@ -1070,6 +1101,28 @@ function load(save_data) {
             add_xp_to_skill(skills[key], save_data.skills[key].total_xp, false);
         }
     }); //add xp to skills
+
+
+    Object.keys(save_data.dialogues).forEach(function(dialogue) {
+        dialogues[dialogue].is_unlocked = save_data.dialogues[dialogue].is_unlocked;
+        dialogues[dialogue].is_finished = save_data.dialogues[dialogue].is_finished;
+
+        Object.keys(save_data.dialogues[dialogue].textlines).forEach(function(textline){
+            dialogues[dialogue].textlines[textline].is_unlocked = save_data.dialogues[dialogue].textlines[textline].is_unlocked;
+            dialogues[dialogue].textlines[textline].is_finished = save_data.dialogues[dialogue].textlines[textline].is_finished;
+        });
+    }); //load for dialogues and their textlines their unlocked/finished status
+
+    Object.keys(save_data.locations).forEach(function(key) {
+        locations[key].is_unlocked = save_data.locations[key].is_unlocked;
+        if("parent_location" in locations[key]) { // if combat zone
+            locations[key].enemies_killed = save_data.locations[key].enemies_killed;
+        }
+    }); //load for locations their unlocked status and their killcounts
+
+    change_location(save_data["current location"]);
+
+
 } //core function for loading
 
 function load_from_file(save_string) {
@@ -1149,10 +1202,34 @@ function update() {
             save_counter = 0;
             save_to_localStorage();
         } //save every X/60 minutes
-        
+
+
+
+        if(time_variance_accumulator <= 100 && time_variance_accumulator >= -100) {
+            time_adjustment = time_variance_accumulator;
+        }
+        else {
+            if(time_variance_accumulator > 100) {
+                time_adjustment = 100;
+            }
+            else {
+                if(time_variance_accumulator < -100) {
+                    time_adjustment = -100;
+                }
+            }
+        }
+        /*
+        small correction, limiting maximum adjustment; absolutely necessary, as otherwise tabbing out would then cause problems
+        as having tab unfocused would sometimes result in ticks either being a bit longer and accumulating over time, 
+        or just almost entirely stop, and so in both cases time_variance_accumulator would keep growing and growing
+        and growing and growing to some ridiculous values, then when game tab is focused again, 
+        it would try to get rid of this "time debt" by going with max possible speed, 
+        possibly for minutes or even longer
+        */
+
         update();
-    }, (1000 - time_variance_accumulator));
-    //uses time_variance_accumulator for more precise overall stabilization
+    }, 1000 - time_adjustment);
+    //uses time_adjustment based on time_variance_accumulator for more precise overall stabilization
     //(instead of only stabilizing relative to previous tick, it stabilizes relative to sum of deviations)
 }
 
@@ -1186,9 +1263,9 @@ if("save data" in localStorage) {
 }
 else {
     //add_to_inventory([{item: new Item(item_templates["Rat fang"]), count: 5}]);
-    add_to_inventory([{item: new Item(item_templates["Long stick"])}]);
+    add_to_inventory([{item: new Item(item_templates["Hard stone"])}]);
     //add_to_inventory([{item: new Item(item_templates["Crude wooden shield"])}]);
-    equip_item_from_inventory({name: "Long stick", id: 0});
+    equip_item_from_inventory({name: "Hard stone", id: 0});
 }
 //checks if there's an existing save file, otherwise just sets up some initial equipment
 

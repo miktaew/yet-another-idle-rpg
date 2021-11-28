@@ -91,6 +91,7 @@ They are a nasty vermin that's really hard to get rid of. And with their numbers
                 textlines: [{dialogue: "village elder", lines: ["ask to leave 3"]}],
                 locations: ["Forest road"],
             },
+            locks_lines: ["ask to leave 2", "rats", "cleared"],
         }),
         "ask to leave 3": new Textline({
             name: "Can I leave the village?",

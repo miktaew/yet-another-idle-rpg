@@ -8,12 +8,13 @@ function Item(item_data) {
 
     this.name = item_data.name;
     this.description = item_data.description;
-    this.value = item_data.value;
-    this.stackable = item_data.stackable; 
+    this.value = typeof item_data.value !== "undefined" ? item_data.value : 0;
+    this.stackable = typeof item_data.stackable !== "undefined"? item_data.stackable : false; 
     //false currently only for equippables, but might change it in future so let's keep it
 
-    this.can_be_dismantled = item_data.can_be_dismantled; //maybe remove it and simply check if dismantling_materials is not undefined?
-    this.dismantling_materials = item_data.dismantling_materials;
+    this.can_be_dismantled = typeof item_data.can_be_dismantled !== "undefined"? item_data.can_be_dismantled : false; 
+    //maybe remove it and simply check if dismantling_materials is not undefined?
+    this.dismantling_materials = typeof item_data.dismantling_materials !== "undefined"? item_data.dismantling_materials : {};
 
     if(item_data.item_type === "EQUIPPABLE" || item_data.item_type === "USABLE" || item_data.item_type === "OTHER") {
         this.item_type = item_data.item_type; 
@@ -67,7 +68,7 @@ item_templates["Rat pelt"] = new Item({
 //equippables:
 
 item_templates["Ratslayer"] = new Item({
-    name: "Ratslayer", description: "Test item", value: 1000, stackable: false, 
+    name: "Ratslayer", description: "Test item", value: 1000, 
     item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "sword",
     equip_effect: {
         attack: {
@@ -77,8 +78,19 @@ item_templates["Ratslayer"] = new Item({
     }
 });
 
+item_templates["Hard stone"] = new Item({
+    name: "Hard stone", description: "Still better than punching with your fists",
+    item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "blunt weapon",
+    equip_effect: {
+        attack: {
+            flat_bonus: 2,
+            multiplier: 1,
+        }
+    }
+});
+
 item_templates["Long stick"] = new Item({
-    name: "Long stick", description: "Can be used as a simple weapon", value: 3, stackable: false,
+    name: "Long stick", description: "Can be used as a simple weapon", value: 3,
     item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "blunt weapon",
     equip_effect: {
         attack: {
@@ -89,13 +101,13 @@ item_templates["Long stick"] = new Item({
 });
 
 item_templates["Crude wooden shield"] = new Item({
-    name: "Crude wooden shield", description: "Crude shield made of wood, not very strong", value: 3, stackable: false,
+    name: "Crude wooden shield", description: "Crude shield made of wood, not very strong", value: 3,
     item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 1,
     equip_effect: {},
 });
 
 item_templates["Wooden shield"] = new Item({
-    name: "Wooden shield", description: "A proper wooden shield", value: 15, stackable: false,
+    name: "Wooden shield", description: "A proper wooden shield", value: 15,
     item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 5,
     equip_effect: {},
 });

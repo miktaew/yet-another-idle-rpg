@@ -5,21 +5,17 @@ function Skill(skill_data) {
     this.names = skill_data.names; // put only {0: name} to have skill always named the same, no matter the level
     this.description = skill_data.description;
     this.current_level = 0; //initial lvl
-    this.max_level = skill_data.max_level; //max possible lvl, dont make it too high
+    this.max_level = typeof skill_data.max_level !== "undefined"? skill_data.max_level : 100; //max possible lvl, dont make it too high
     this.max_level_coefficient = skill_data.max_level_coefficient;
     this.current_xp = 0; // how much of xp_to_next_lvl there is currently
     this.total_xp = 0; // total collected xp, on loading calculate lvl based on this (so to not break skills if scaling ever changes)
-    this.base_xp_cost = skill_data.base_xp_cost; //xp to go from lvl 1 to lvl 2
+    this.base_xp_cost = typeof skill_data.base_xp_cost !== "undefined"? skill_data.base_xp_cost : 100; //xp to go from lvl 1 to lvl 2
     this.xp_to_next_lvl = this.base_xp_cost; //for display only
     this.total_xp_to_next_lvl = this.base_xp_cost; //total xp needed to lvl up
     this.get_effect_description = skill_data.get_effect_description;
 
-    if("xp_scaling" in skill_data) {
-        this.xp_scaling = skill_data.xp_scaling; //More than 1; too high value will make progress extremely slow
-    }
-    else {
-        this.xp_scaling = 2;
-    }
+    this.xp_scaling = typeof skill_data.xp_scaling !== "undefined" && skill_data.xp_scaling > 1? skill_data.xp_scaling : 2;
+    //how many times more xp needed for next level
 
     this.name = function() { // returns rank name of skill, based on current level
         const keys = Object.keys(skill_data.names);
@@ -91,7 +87,7 @@ function Skill(skill_data) {
 
         switch(scaling_type) {
             case "flat":
-                return Math.round(this.max_level_coefficient * this.current_level/this.max_level * 1000)/1000;
+                return 1 + Math.round((this.max_level_coefficient - 1) * this.current_level/this.max_level * 1000)/1000;
             case "multiplicative": 
                 return Math.round(Math.pow(this.max_level_coefficient, this.current_level/this.max_level)*1000)/1000;
                 break;
@@ -106,9 +102,6 @@ function Skill(skill_data) {
 skills["Combat"] = new Skill({skill_id: "Combat", 
                             names: {0: "Combat"}, 
                             description: "Overall combat ability", 
-                            max_level: 100, 
-                            base_xp_cost: 100, 
-                            xp_scaling: 2,
                             max_level_coefficient: 4,
                             get_effect_description: ()=> {
                                 return `Multiplies your hit chance by ${Math.round(skills["Combat"].get_coefficient("multiplicative")*1000)/1000}`;
@@ -117,9 +110,6 @@ skills["Combat"] = new Skill({skill_id: "Combat",
 skills["Evasion"] = new Skill({skill_id: "Evasion", 
                                names: {0: "Evasion [Basic]", 20: "Evasion [Intermediate]", 40: "Evasion [Advanced]", 60: "Evasion [Master]", 80: "Evasion [Absolute"},                                
                                description:" Ability to evade attacks", 
-                               max_level: 100, 
-                               base_xp_cost: 100, 
-                               xp_scaling: 2, 
                                max_level_coefficient: 2,
                                get_effect_description: ()=> {
                                    return `Multiplies your evasion chance by ${Math.round(skills["Evasion"].get_coefficient("multiplicative")*1000)/1000}`;
@@ -128,8 +118,6 @@ skills["Blocking"] = new Skill({skill_id: "Blocking",
                                 names: {0: "Shield blocking"}, 
                                 description: "Ability to block attacks with shield", 
                                 max_level: 20, 
-                                base_xp_cost: 100, 
-                                xp_scaling: 2, 
                                 max_level_coefficient: 4,
                                 get_effect_description: ()=> {
                                     return `Increases your block chance by flat ${Math.round(skills["Blocking"].get_coefficient("flat")*100)/100}%`;
@@ -139,49 +127,31 @@ skills["Blocking"] = new Skill({skill_id: "Blocking",
 skills["Swords"] = new Skill({skill_id: "Swords", 
                               names: {0: "Sword [Basics]"}, 
                               description: "Ability to fight with use of swords, increases damage dealt", 
-                              max_level: 100, 
-                              base_xp_cost: 100, 
-                              xp_scaling: 2, 
                               max_level_coefficient: 10});
 
 skills["Axes"] = new Skill({skill_id: "Axes", 
                             names: {0: "Axe [Basics]"}, 
                             description: "Ability to fight with use of axes, increases damage dealt", 
-                            max_level: 100, 
-                            base_xp_cost: 100, 
-                            xp_scaling: 2, 
                             max_level_coefficient: 10});
 
 skills["Spears"] = new Skill({skill_id: "Spears", 
                               names: {0: "Spear [Basics]"}, 
                               description: "Ability to fight with use of spears, increases damage dealt", 
-                              max_level: 100, 
-                              base_xp_cost: 100, 
-                              xp_scaling: 2, 
                               max_level_coefficient: 10});
 
 skills["Blunt weapons"] = new Skill({skill_id: "Blunt weapons", 
                                      names: {0: "Blunt weapons [Basics]"}, 
                                      description: "Ability to fight with use of blunt weapons, increases damage dealt", 
-                                     max_level: 100, 
-                                     base_xp_cost: 100, 
-                                     xp_scaling: 2, 
                                      max_level_coefficient: 10});
 
 skills["Wands"] = new Skill({skill_id: "Wands", 
                              names: {0: "Wand [Basics]"}, 
                              description: "Ability to cast spells with magic wands, increases damage dealt", 
-                             max_level: 100, 
-                             base_xp_cost: 100, 
-                             xp_scaling: 2, 
                              max_level_coefficient: 10});
 
 skills["Staffs"] = new Skill({skill_id: "Staffs", 
                               names: {0: "Staff [Basics]"}, 
                               description: "Ability to cast spells with magic staffs, increases damage dealt", 
-                              max_level: 100, 
-                              base_xp_cost: 100, 
-                              xp_scaling: 2, 
                               max_level_coefficient: 10});
 
 
