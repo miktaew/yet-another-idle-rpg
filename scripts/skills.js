@@ -1,4 +1,4 @@
-var skills = {};
+const skills = {};
 
 function Skill(skill_data) {
     this.skill_id = skill_data.skill_id;
@@ -114,13 +114,13 @@ skills["Evasion"] = new Skill({skill_id: "Evasion",
                                get_effect_description: ()=> {
                                    return `Multiplies your evasion chance by ${Math.round(skills["Evasion"].get_coefficient("multiplicative")*1000)/1000}`;
                                }});
-skills["Blocking"] = new Skill({skill_id: "Blocking", 
+skills["Shield blocking"] = new Skill({skill_id: "Shield blocking", 
                                 names: {0: "Shield blocking"}, 
                                 description: "Ability to block attacks with shield", 
                                 max_level: 20, 
                                 max_level_coefficient: 4,
                                 get_effect_description: ()=> {
-                                    return `Increases your block chance by flat ${Math.round(skills["Blocking"].get_coefficient("flat")*100)/100}%`;
+                                    return `Increases your block chance by flat ${Math.round(skills["Shield blocking"].get_coefficient("flat")*100)/100}%`;
                                 }});
 
 //weapon skills

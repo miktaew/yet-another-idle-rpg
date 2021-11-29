@@ -8,7 +8,7 @@ var dialogues = {};
 
 function Dialogue(dialogue_data) {
     this.name = dialogue_data.name; // displayed name, e.g. "Village elder"
-    this.starting_text = typeof dialogue_data.starting_text !== "undefined"? dialogue_data.starting_text : `> Talk to the ${this.name} <`;
+    this.starting_text = typeof dialogue_data.starting_text !== "undefined"? dialogue_data.starting_text : `Talk to the ${this.name}`;
     this.ending_text = typeof dialogue_data.ending_text !== "undefined"? dialogue_data.ending_text : `> Go back <`;
     this.is_unlocked = typeof dialogue_data.is_unlocked !== "undefined"? dialogue_data.is_unlocked : true;
     this.is_finished = typeof dialogue_data.is_finished !== "undefined"? dialogue_data.is_finished : false; 

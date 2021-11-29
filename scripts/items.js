@@ -27,7 +27,7 @@ function Item(item_data) {
     // (only bonuses to main stats)
     this.equip_slot = item_data.equip_slot;
     // equipment slot to where item goes
-    this.equip_effect = item_data.equip_effect;
+    this.equip_effect = typeof item_data.equip_effect !== "undefined"? item_data.equip_effect : {};
     // stats gained by equipping, {stats: {}, stat_multipliers: {}}
     // multipliers probably will only be used for weapon damage
     this.weapon_type = item_data.weapon_type; // "sword", "axe", "spear", "blunt weapon", "wand", "staff"
@@ -61,7 +61,7 @@ item_templates["Rat fang"] = new Item({
 });
 
 item_templates["Rat pelt"] = new Item({
-    name: "Rat pelt", description: "Pelt of a huge rat, terrible quality", value: 3, stackable: true,
+    name: "Rat pelt", description: "Pelt of a huge rat, terrible quality", value: 2, stackable: true,
     item_type: "OTHER",
 });
 
@@ -90,7 +90,7 @@ item_templates["Hard stone"] = new Item({
 });
 
 item_templates["Long stick"] = new Item({
-    name: "Long stick", description: "Can be used as a simple weapon", value: 3,
+    name: "Long stick", description: "Can be used as a simple weapon", value: 7,
     item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "blunt weapon",
     equip_effect: {
         attack: {
@@ -100,17 +100,41 @@ item_templates["Long stick"] = new Item({
     }
 });
 
-item_templates["Crude wooden shield"] = new Item({
-    name: "Crude wooden shield", description: "Crude shield made of wood, not very strong", value: 3,
+item_templates["Plank with a handle"] = new Item({
+    name: "Plank with a handle", description: "Technically can be used as a very basic shield, except it won't really block anything", value: 5,
     item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 1,
-    equip_effect: {},
+});
+
+item_templates["Crude wooden shield"] = new Item({
+    name: "Crude wooden shield", description: "Crude shield made of wood, not very strong", value: 20,
+    item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 5,
 });
 
 item_templates["Wooden shield"] = new Item({
-    name: "Wooden shield", description: "A proper wooden shield", value: 15,
-    item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 5,
-    equip_effect: {},
+    name: "Wooden shield", description: "A proper wooden shield, although without any form of reinforcement", value: 40,
+    item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 10,
 });
+
+item_templates["Shabby leather vest"] = new Item({
+    name: "Shabby leather vest", description: "Vest of terrible quality, providing almost no protection. Better not to know what's it made from", value: 15,
+    item_type: "EQUIPPABLE", equip_slot: "torso",
+    equip_effect: {
+        defense: {
+            flat_bonus: 1
+        }
+    }
+});
+
+item_templates["Raggy leather pants"] = new Item({
+    name: "Raggy leather pants", description: "Pants of terrible quality, made of unknown leather. Lots of holes", value: 15,
+    item_type: "EQUIPPABLE", equip_slot: "legs",
+    equip_effect: {
+        defense: {
+            flat_bonus: 1
+        }
+    }
+});
+
 
 
 export {item_templates, Item};

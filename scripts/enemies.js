@@ -29,7 +29,7 @@ function Enemy(enemy_data) {
                     // calculates how much drops (from range min-max, both inclusive)
                 } 
 
-                loot.push({"item": new Item(item["item"]), "count": item_count});
+                loot.push({"item": new Item(item_templates[item.item_name]), "count": item_count});
             }
         }
 
@@ -46,9 +46,9 @@ enemy_templates["Starving wolf rat"] = new Enemy({
     xp_value: 1, 
     stats: {health: 12, strength: 1, agility: 3, magic: 0, attack_speed: 0.9, defense: 0}, 
     loot_list: [
-        {item: item_templates["Rat tail"], chance: 0.1},
-        {item: item_templates["Rat fang"], chance: 0.1},
-        {item: item_templates["Rat pelt"], chance: 0.1}
+        {item_name: "Rat tail", chance: 0.1},
+        {item_name: "Rat fang", chance: 0.1},
+        {item_name: "Rat pelt", chance: 0.1}
     ]
 });
 
@@ -58,9 +58,9 @@ enemy_templates["Wolf rat"] = new Enemy({
     xp_value: 1, 
     stats: {health: 15, strength: 2, agility: 4, magic: 0, attack_speed: 1.2, defense: 0}, 
     loot_list: [
-        {item: item_templates["Rat tail"], chance: 0.1},
-        {item: item_templates["Rat fang"], chance: 0.1},
-        {item: item_templates["Rat pelt"], chance: 0.1},
+        {item_name: "Rat tail", chance: 0.1},
+        {item_name: "Rat fang", chance: 0.1},
+        {item_name: "Rat pelt", chance: 0.1},
     ]
 });
 
@@ -69,8 +69,8 @@ enemy_templates["Starving wolf"] = new Enemy({
     xp_value: 3, 
     stats: {health: 25, strength: 5, agility: 7, magic: 0, attack_speed: 0.8, defense: 2}, 
     loot_list: [
-        {item: "Wolf tooth", chance: 0.05, count: {min: 1, max: 2}},
-        {item: "Wolf pelt", chance: 0.02}
+        {item_name: "Wolf tooth", chance: 0.05, count: {min: 1, max: 2}},
+        {item_name: "Wolf pelt", chance: 0.02}
     ]
 });
 
@@ -80,8 +80,8 @@ enemy_templates["Young wolf"] = new Enemy({
     xp_value: 3, 
     stats: {health: 20, strength: 7, agility: 9, magic: 0, attack_speed: 1.1, defense: 0}, 
     loot_list: [
-        {item: "Wolf tooth", chance: 0.02},
-        {item: "Wolf pelt", chance: 0.01}
+        {item_name: "Wolf tooth", chance: 0.02},
+        {item_name: "Wolf pelt", chance: 0.01}
     ]
 });
 
@@ -91,8 +91,8 @@ enemy_templates["Wolf"] = new Enemy({
     xp_value: 5, 
     stats: {health: 25, strength: 10, agility: 10, magic: 0, attack_speed: 1, defense: 2}, 
     loot_list: [
-        {item: "Wolf tooth", chance: 0.07, count: {min: 1, max: 3}},
-        {item: "Wolf pelt", chance: 0.03}
+        {item_name: "Wolf tooth", chance: 0.07, count: {min: 1, max: 3}},
+        {item_name: "Wolf pelt", chance: 0.03}
     ]
 });
 

@@ -6,8 +6,7 @@ function Game_time(new_time) {
     this.minute = new_time.minute;
     this.day_count = new_time.day_count;
     //only hours and minutes should be allowed to be 0
-    //day_count is purely for calculating day of the week, by default it always start at monday
-    //might be a wrong approach
+    //day_count is purely for calculating day of the week, by default it always start at monday (so day_count = 1)
 
     this.go_up = function () {
         this.minute += 1;
@@ -26,13 +25,13 @@ function Game_time(new_time) {
     
         if(this.day >= 30) 
         {
-            this.day = this.day - 30;
+            this.day = Math.max(1, this.day - 30);
             this.month += 1;
         }
     
         if(this.month >= 12) 
         {
-            this.month = this.month - 12;
+            this.month = Math.max(1, this.month - 12);
             this.year += 1;
         }
     }
@@ -93,4 +92,6 @@ Game_time.prototype.toString = function() {
     return date_string;
 }
 
-export {Game_time};
+const current_game_time = new Game_time({year: 954, month: 4, day: 1, hour: 8, minute: 0, day_count: 1});
+
+export {current_game_time};

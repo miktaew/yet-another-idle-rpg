@@ -1,6 +1,6 @@
 import {enemy_templates, Enemy} from "./enemies.js";
 import { dialogues } from "./dialogues.js";
-var locations = {};
+const locations = {};
 //will contain all the locations
 
 
@@ -50,7 +50,7 @@ function Combat_zone(location_data) {
     }
 
     this.get_next_enemy = function() {
-        var enemy = this.enemies_list[Math.floor(Math.random() * this.enemies_list.length)];
+        const enemy = enemy_templates[this.enemies_list[Math.floor(Math.random() * this.enemies_list.length)]];
         return new Enemy({
             name: enemy.name, description: enemy.description, xp_value: enemy.xp_value, 
             stats: {health: Math.round(enemy.stats.health * (1.1 - Math.random() * 0.2)),
@@ -76,7 +76,7 @@ locations["Village"] = new Location({
 locations["Infested field"] = new Combat_zone({
     description: "Field infested with rats.", 
     enemy_count: 30, 
-    enemies_list: [enemy_templates["Starving wolf rat"], enemy_templates["Wolf rat"]],
+    enemies_list: ["Starving wolf rat", "Wolf rat"],
     is_unlocked: false, 
     name: "Infested field", 
     parent_location: locations["Village"],
@@ -97,7 +97,7 @@ locations["Village"].connected_locations.push({location: locations["Forest road"
 
 locations["Forest"] = new Combat_zone({
     description: "Forest surrounding your village, a dangerous place", 
-    enemies_list: [enemy_templates["Starving wolf"], enemy_templates["Young wolf"]],
+    enemies_list: ["Starving wolf", "Young wolf"],
     enemy_count: 30, 
     name: "Forest", 
     parent_location: locations["Forest road"],
@@ -107,7 +107,7 @@ locations["Forest road"].connected_locations.push({location: locations["Forest"]
 
 locations["Deep forest"] = new Combat_zone({
     description: "Deeper part of the forest, a dangerous place", 
-    enemies_list: [enemy_templates["Wolf"], enemy_templates["Starving wolf"], enemy_templates["Young wolf"]],
+    enemies_list: ["Wolf", "Starving wolf", "Young wolf"],
     enemy_count: 50, 
     is_unlocked: false,
     name: "Deep forest", 

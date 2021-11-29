@@ -1,6 +1,6 @@
 "use strict";
 
-import { Game_time } from "./game_time.js";
+import { current_game_time } from "./game_time.js";
 import { Item, item_templates } from "./items.js";
 import { locations } from "./locations.js";
 import { skills } from "./skills.js";
@@ -9,7 +9,7 @@ import { Enemy, enemy_templates } from "./enemies.js";
 
 //player character
 const character = {name: "Hero", titles: {}, 
-                stats: {max_health: 30, health: 30, strength: 1, agility: 4, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, attack_power: 0,
+                stats: {max_health: 30, health: 30, strength: 2, agility: 4, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, attack_power: 0,
                         hit_chance: 0, evasion_chance: 0, block_chance: 0, defense: 0},
                 // crit damage is a multiplier; defense should be only based on worn armor and/or magic skills;
                 inventory: {},
@@ -21,11 +21,11 @@ const character = {name: "Hero", titles: {},
 
 //equipment slots, keep same order as in character eq slots
 const equipment_slots_divs = {head: document.getElementById("head_slot"), torso: document.getElementById("torso_slot"),
-                            arms: document.getElementById("arms_slot"), ring: document.getElementById("ring_slot"),
-                            weapon: document.getElementById("weapon_slot"), offhand: document.getElementById("offhand_slot"),
-                            legs: document.getElementById("legs_slot"), feet: document.getElementById("feet_slot"),
-                            amulet: document.getElementById("amulet_slot")
-                            };		
+                              arms: document.getElementById("arms_slot"), ring: document.getElementById("ring_slot"),
+                              weapon: document.getElementById("weapon_slot"), offhand: document.getElementById("offhand_slot"),
+                              legs: document.getElementById("legs_slot"), feet: document.getElementById("feet_slot"),
+                              amulet: document.getElementById("amulet_slot")
+                              };		
                             
 const stats_divs = {strength: document.getElementById("strength_slot"), agility: document.getElementById("agility_slot"),
                     magic: document.getElementById("magic_slot"), attack_speed: document.getElementById("attack_speed_slot"),
@@ -94,6 +94,8 @@ const inventory_div = document.getElementById("inventory_content_div");
 const name_field = document.getElementById("character_name_field");
 name_field.value = character.name;
 
+const skill_list = document.getElementById("skill_list_div");
+
 const message_log = document.getElementById("message_log_div");
 const time_field = document.getElementById("time_div");
 
@@ -102,8 +104,6 @@ const action_div = document.getElementById("location_actions_div");
 const location_name_div = document.getElementById("location_name_div");
 const location_description_div = document.getElementById("location_description_div");
 
-//game time (years, months, days, hours, minutes)
-const current_game_time = new Game_time({year: 954, month: 4, day: 1, hour: 8, minute: 0, day_count: 0});
 time_field.innerHTML = current_game_time.toString();
 
 // button testing cuz yes
@@ -140,7 +140,7 @@ function change_location(location_name) {
             } 
             
             const dialogue_div = document.createElement("div");
-            dialogue_div.innerHTML = dialogues[location.dialogues[i]].starting_text;
+            dialogue_div.innerHTML = dialogues[location.dialogues[i]].starting_text + `  <i class="far fa-comments"></i>`;
             dialogue_div.classList.add("start_dialogue");
             dialogue_div.setAttribute("data-dialogue", location.dialogues[i]);
             dialogue_div.setAttribute("onclick", "start_dialogue(this.getAttribute('data-dialogue'));");
@@ -158,18 +158,18 @@ function change_location(location_name) {
             if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
                 action.classList.add("travel_normal");
                 if("custom_text" in location.connected_locations[i]) {
-                    action.innerHTML = location.connected_locations[i].custom_text;
+                    action.innerHTML = location.connected_locations[i].custom_text + `  <i class="fas fa-map-signs"></i>`;
                 }
                 else {
-                    action.innerHTML = "Go to " + location.connected_locations[i].location.name;
+                    action.innerHTML = "Go to " + location.connected_locations[i].location.name + `  <i class="fas fa-map-signs"></i>`;
                 }
             } else {
                 action.classList.add("travel_combat");
                 if("custom_text" in location.connected_locations[i]) {
-                    action.innerHTML = location.connected_locations[i].custom_text;
+                    action.innerHTML = location.connected_locations[i].custom_text + `  <i class="fas fa-skull"></i>`;
                 }
                 else {
-                    action.innerHTML = "Enter the " + location.connected_locations[i].location.name;
+                    action.innerHTML = "Enter the " + location.connected_locations[i].location.name + `  <i class="fas fa-skull"></i>`;
                 }
             }
             action.classList.add("action_travel");
@@ -190,7 +190,7 @@ function change_location(location_name) {
 
         action = document.createElement("div");
         action.classList.add("travel_normal", "action_travel");
-        action.innerHTML = "Go back to " + location.parent_location.name;
+        action.innerHTML = "Go back to " + location.parent_location.name + `  <i class="fas fa-map-signs"></i>`;
         action.setAttribute("data-travel", location.parent_location.name);
         action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
 
@@ -381,14 +381,14 @@ function do_combat() {
         if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
             if(character.equipment.offhand.shield_strength >= damage_dealt) {
                 if(character.stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
-                    add_xp_to_skill(skills["Blocking"], current_enemy.xp_value, true);
+                    add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
                     log_message(character.name + " has blocked the attack");
                     continue;
                  }
             }
             else { 
                 if(character.stats.block_chance - 0.3 > Math.random()) { //PARTIALLY BLOCKED THE ATTACK
-                    add_xp_to_skill(skills["Blocking"], current_enemy.xp_value, true);
+                    add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
                     damage_dealt -= character.equipment.offhand.shield_strength;
                     partially_blocked = true;
                     //FIGHT GOES LIKE NORMAL, but log that it was partially blocked
@@ -500,7 +500,13 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
         skill_bar_max.appendChild(skill_tooltip);
 
         skill_bar_divs[skill.skill_id].appendChild(skill_bar_max);
-        document.getElementById("skill_list_div").appendChild(skill_bar_divs[skill.skill_id]);
+        skill_bar_divs[skill.skill_id].setAttribute("data-skill", skill.skill_id);
+        skill_list.appendChild(skill_bar_divs[skill.skill_id]);
+
+        [...skill_list_div.children]
+        .sort((a,b)=>a.getAttribute("data-skill")>b.getAttribute("data-skill")?1:-1)
+        .forEach(node=>skill_list_div.appendChild(node));
+    //sorts inventory_div alphabetically
     } 
 
     const level_up = skill.add_xp(xp_to_add);
@@ -846,7 +852,6 @@ function update_displayed_inventory() {
 
             }
 
-
             item_div.appendChild(item_tooltip);
 
             item_control_div.classList.add(`item_${character.inventory[key].item.item_type.toLowerCase()}`);
@@ -856,6 +861,11 @@ function update_displayed_inventory() {
                inventory_div.appendChild(item_control_div);
         }
     });
+
+    [...inventory_div.children]
+        .sort((a,b)=>a.getAttribute("data-inventory_item")>b.getAttribute("data-inventory_item")?1:-1)
+        .forEach(node=>inventory_div.appendChild(node));
+    //sorts inventory_div alphabetically
 }
 
 function equip_item_from_inventory(item_info) {
@@ -935,7 +945,14 @@ function update_character_stats() { //updates character stats
         character.stats.attack_power = character.stats.strength;
     }
 
-    character.stats.defense  = 0; //TODO: calculate it based on armor values of equipped items
+    character.stats.defense  = 0;
+    Object.keys(character.equipment).forEach(function(key) {
+        if(character.equipment[key] != null && character.equipment[key].equip_effect.defense) {
+            character.stats.defense += character.equipment[key].equip_effect.defense.flat_bonus;
+        }
+    }); //calculate defense based on equipment
+    //TODO: add bonuses from skills
+
     character.stats.crit_rate = character.stats.crit_rate; //TODO: calculate it based on skills and equipment
     character.stats.crit_multiplier = character.stats.crit_multiplier; //TODO: calculate it based on skils and equipment
 
@@ -957,7 +974,7 @@ function update_displayed_stats() { //updates displayed stats
 function update_combat_stats() { //chances to hit and evade/block
     if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
         character.stats.evasion_chance = null;
-        character.stats.block_chance = Math.round(0.4 * skills["Blocking"].get_coefficient("flat") * 10000)/10000;
+        character.stats.block_chance = Math.round(0.4 * skills["Shield blocking"].get_coefficient("flat") * 10000)/10000;
     }
 
     if(current_enemy != null) { //IN COMBAT
@@ -1262,10 +1279,9 @@ if("save data" in localStorage) {
     load_from_localstorage();
 }
 else {
-    //add_to_inventory([{item: new Item(item_templates["Rat fang"]), count: 5}]);
-    add_to_inventory([{item: new Item(item_templates["Hard stone"])}]);
-    //add_to_inventory([{item: new Item(item_templates["Crude wooden shield"])}]);
+    add_to_inventory([{item: new Item(item_templates["Hard stone"])}, {item: new Item(item_templates["Raggy leather pants"])}]);
     equip_item_from_inventory({name: "Hard stone", id: 0});
+    equip_item_from_inventory({name: "Raggy leather pants", id: 0});
 }
 //checks if there's an existing save file, otherwise just sets up some initial equipment
 
