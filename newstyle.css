@@ -550,6 +550,14 @@ body {
 	font-style: italic;
 }
 
+#main_controller {
+	position: absolute;
+	width: 100%;
+	height: 20px;
+	top: 0px;
+	right: 0px;
+}
+
 #message_log_div {
 	width: 400px;
 	height: 712px;

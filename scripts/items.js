@@ -30,7 +30,7 @@ function Item(item_data) {
     this.equip_effect = typeof item_data.equip_effect !== "undefined"? item_data.equip_effect : {};
     // stats gained by equipping, {stats: {}, stat_multipliers: {}}
     // multipliers probably will only be used for weapon damage
-    this.weapon_type = item_data.weapon_type; // "sword", "axe", "spear", "blunt weapon", "wand", "staff"
+    this.weapon_type = item_data.weapon_type; // "sword", "axe", "dagger", "spear", "blunt weapon", "wand", "staff"
     //remember to add proper skills if adding new weapon types aside from those above
 
     this.offhand_type = item_data.offhand_type; // "shield", something else?
@@ -90,12 +90,40 @@ item_templates["Hard stone"] = new Item({
 });
 
 item_templates["Long stick"] = new Item({
-    name: "Long stick", description: "Can be used as a simple weapon", value: 7,
+    name: "Long stick", description: "Can be used as a simple weapon", value: 8,
     item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "blunt weapon",
     equip_effect: {
         attack: {
             flat_bonus: 5,
             multiplier: 1,
+        }
+    }
+});
+
+item_templates["Rusty knife"] = new Item({
+    name: "Rusty knife", description: "Knife of an unknown designation, rusty and not very sharp", value: 10,
+    item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "dagger",
+    equip_effect: {
+        attack: {
+            flat_bonus: 4,
+            multiplier: 1
+        },
+        agility: {
+            flat_bonus: 2
+        },
+        crit_chance: {
+            flat_bonus: 0.1
+        }
+    }
+});
+
+item_templates["Worn-out wooden sword"] = new Item({
+    name: "Worn-out wooden sword", description: "Closer to a toy than to a real weapon", value: 8,
+    item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "sword",
+    equip_effect: {
+        attack: {
+            flat_bonus: 5,
+            multiplier: 1
         }
     }
 });

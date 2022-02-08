@@ -1,5 +1,6 @@
 import { enemy_templates } from "./enemies.js";
 import { locations } from "./locations.js";
+import { traders } from "./trade.js";
 
 var dialogues = {};
 
@@ -13,6 +14,7 @@ function Dialogue(dialogue_data) {
     this.is_unlocked = typeof dialogue_data.is_unlocked !== "undefined"? dialogue_data.is_unlocked : true;
     this.is_finished = typeof dialogue_data.is_finished !== "undefined"? dialogue_data.is_finished : false; 
     //separate bool to remove dialogue option if it's finished
+    this.trader = typeof dialogue_data.trader !== "undefined"? dialogue_data.trader : null;
 
     this.textlines = dialogue_data.textlines;  //all the lines in dialogue
 }
@@ -99,6 +101,17 @@ They are a nasty vermin that's really hard to get rid of. And with their numbers
             is_unlocked: false,
         }),
     }
+});
+
+dialogues["village trader"] = new Dialogue({
+    name: "trader",
+    textlines: {
+        "wares": new Textline({
+            name: "You've got anything interesting?",
+            text: "Come and take a look"
+        }) 
+    },
+    trader: "village trader",
 });
 
 export {dialogues};

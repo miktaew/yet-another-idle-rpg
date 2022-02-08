@@ -69,7 +69,7 @@ function Combat_zone(location_data) {
 locations["Village"] = new Location({ 
     connected_locations: [], 
     description: "Medium-sized village surrounded by many fields, some of them infested by rats. Other than that, there's nothing interesting around.", 
-    dialogues: ["village elder"],
+    dialogues: ["village elder", "village trader"],
     name: "Village", 
 });
 

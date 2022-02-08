@@ -144,6 +144,11 @@ skills["Blunt weapons"] = new Skill({skill_id: "Blunt weapons",
                                      description: "Ability to fight with use of blunt weapons, increases damage dealt", 
                                      max_level_coefficient: 10});
 
+skills["Daggers"] = new Skill({skill_id: "Daggers",
+                               names: {0: "Dagger [Basics]"},
+                               description: "Ability to use daggers, increases damage dealt",
+                               max_level_coefficient: 10});
+
 skills["Wands"] = new Skill({skill_id: "Wands", 
                              names: {0: "Wand [Basics]"}, 
                              description: "Ability to cast spells with magic wands, increases damage dealt", 
@@ -153,6 +158,8 @@ skills["Staffs"] = new Skill({skill_id: "Staffs",
                               names: {0: "Staff [Basics]"}, 
                               description: "Ability to cast spells with magic staffs, increases damage dealt", 
                               max_level_coefficient: 10});
+
+
 
 
 export {skills};

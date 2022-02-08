@@ -6,6 +6,7 @@ import { locations } from "./locations.js";
 import { skills } from "./skills.js";
 import { dialogues } from "./dialogues.js";
 import { Enemy, enemy_templates } from "./enemies.js";
+import { traders } from "./trade.js";
 
 //player character
 const character = {name: "Hero", titles: {}, 
@@ -19,7 +20,7 @@ const character = {name: "Hero", titles: {},
                             legs: null, feet: null, 
                             amulet: null}};
 
-//equipment slots, keep same order as in character eq slots
+//equipment slots
 const equipment_slots_divs = {head: document.getElementById("head_slot"), torso: document.getElementById("torso_slot"),
                               arms: document.getElementById("arms_slot"), ring: document.getElementById("ring_slot"),
                               weapon: document.getElementById("weapon_slot"), offhand: document.getElementById("offhand_slot"),
@@ -109,10 +110,12 @@ time_field.innerHTML = current_game_time.toString();
 // button testing cuz yes
 document.getElementById("test_button").addEventListener("click", () => 
 {
-    locations["Infested field"].enemies_killed = 30;
-    get_location_rewards(locations["Infested field"]);
+    //locations["Infested field"].enemies_killed = 30;
+    //get_location_rewards(locations["Infested field"]);
 
     //console.log(skills["Combat"].get_effect_description());
+    traders["village trader"].refresh();
+    console.log(traders["village trader"].inventory);
 });
 
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
@@ -140,7 +143,9 @@ function change_location(location_name) {
             } 
             
             const dialogue_div = document.createElement("div");
-            dialogue_div.innerHTML = dialogues[location.dialogues[i]].starting_text + `  <i class="far fa-comments"></i>`;
+            
+            dialogue_div.innerHTML = dialogues[location.dialogues[i]].starting_text;
+            dialogue_div.innerHTML += dialogues[location.dialogues[i]].trader? `  <i class="fas fa-store"></i>` : `  <i class="far fa-comments"></i>`;
             dialogue_div.classList.add("start_dialogue");
             dialogue_div.setAttribute("data-dialogue", location.dialogues[i]);
             dialogue_div.setAttribute("onclick", "start_dialogue(this.getAttribute('data-dialogue'));");
@@ -218,11 +223,25 @@ function start_dialogue(dialogue_name) {
             }
     });
 
+    if(current_dialogue.trader) {
+        const trade_div = document.createElement("div");
+        trade_div.innerHTML = traders[current_dialogue.trader].trade_text + `  <i class="fas fa-store"></i>`;
+        trade_div.classList.add("dialogue_trade")
+        trade_div.setAttribute("data-trader", current_dialogue.trader);
+        //trade_div.setAttribute("onclick", "start_trade(this.getAttribute('data-trader'))")
+        //TODO: this
+        action_div.appendChild(trade_div);
+    }
+
     const end_dialogue_div = document.createElement("div");
+
     end_dialogue_div.innerHTML = current_dialogue.ending_text;
     end_dialogue_div.classList.add("end_dialogue_button");
     end_dialogue_div.setAttribute("onclick", "end_dialogue()");
+
     action_div.appendChild(end_dialogue_div);
+
+    
 
     //ending dialogue -> just do: change_location(current_location.name);
 }
