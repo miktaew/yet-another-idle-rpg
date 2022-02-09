@@ -54,8 +54,6 @@ var save_period = 60;
 //ticks between saves, 60 = ~1 minute
 var save_counter = 0;
 
-var time_variance = 0;
-//how much deviated was duration of a tick
 var time_variance_accumulator = 0;
 //accumulates deviations
 var time_adjustment = 0;
@@ -95,12 +93,16 @@ const inventory_div = document.getElementById("inventory_content_div");
 const name_field = document.getElementById("character_name_field");
 name_field.value = character.name;
 
+//skills
 const skill_list = document.getElementById("skill_list_div");
 
 const message_log = document.getElementById("message_log_div");
 const time_field = document.getElementById("time_div");
 
+//location actions & trade
 const action_div = document.getElementById("location_actions_div");
+const trade_div = document.getElementById("trade_div");
+const trader_inventory_div = document.getElementById("trader_inventory_div");
 
 const location_name_div = document.getElementById("location_name_div");
 const location_description_div = document.getElementById("location_description_div");
@@ -110,10 +112,9 @@ time_field.innerHTML = current_game_time.toString();
 // button testing cuz yes
 document.getElementById("test_button").addEventListener("click", () => 
 {
-    //locations["Infested field"].enemies_killed = 30;
-    //get_location_rewards(locations["Infested field"]);
 
-    //console.log(skills["Combat"].get_effect_description());
+    console.log(character.inventory);
+
     traders["village trader"].refresh();
     console.log(traders["village trader"].inventory);
 });
@@ -136,7 +137,7 @@ function change_location(location_name) {
     if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
         enemy_info_div.style.opacity = 0;
         enemy_count_div.style.opacity = 0;
-
+        
         for(let i = 0; i < location.dialogues.length; i++) { //add buttons for starting dialogues (displaying their textlines on click will be in another method?)
             if(dialogues[location.dialogues[i]].is_unlocked == false || dialogues[location.dialogues[i]].is_finished) { //skip if dialogue is not available
                 continue;
@@ -207,15 +208,17 @@ function change_location(location_name) {
     location_description_div.innerHTML = current_location.description;
 }
 
-function start_dialogue(dialogue_name) {
+function start_dialogue(dialogue_key) {
     //initialize dialogue options
-    current_dialogue = dialogues[dialogue_name];
+    
+    const dialogue = dialogues[dialogue_key];
+    current_dialogue = dialogue_key;
 
     clear_action_div();
-    Object.keys(current_dialogue.textlines).forEach(function(key) { //add buttons for textlines
-            if(current_dialogue.textlines[key].is_unlocked && !current_dialogue.textlines[key].is_finished) { //do only if text_line is not unavailable
+    Object.keys(dialogue.textlines).forEach(function(key) { //add buttons for textlines
+            if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished) { //do only if text_line is not unavailable
                 const textline_div = document.createElement("div");
-                textline_div.innerHTML = `"${current_dialogue.textlines[key].name}"`;
+                textline_div.innerHTML = `"${dialogue.textlines[key].name}"`;
                 textline_div.classList.add("dialogue_textline");
                 textline_div.setAttribute("data-textline", key);
                 textline_div.setAttribute("onclick", `start_textline(this.getAttribute('data-textline'))`);
@@ -223,19 +226,19 @@ function start_dialogue(dialogue_name) {
             }
     });
 
-    if(current_dialogue.trader) {
+    if(dialogue.trader) {
         const trade_div = document.createElement("div");
-        trade_div.innerHTML = traders[current_dialogue.trader].trade_text + `  <i class="fas fa-store"></i>`;
+        trade_div.innerHTML = traders[dialogue.trader].trade_text + `  <i class="fas fa-store"></i>`;
         trade_div.classList.add("dialogue_trade")
-        trade_div.setAttribute("data-trader", current_dialogue.trader);
-        //trade_div.setAttribute("onclick", "start_trade(this.getAttribute('data-trader'))")
+        trade_div.setAttribute("data-trader", dialogue.trader);
+        trade_div.setAttribute("onclick", "start_trade(this.getAttribute('data-trader'))")
         //TODO: this
         action_div.appendChild(trade_div);
     }
 
     const end_dialogue_div = document.createElement("div");
 
-    end_dialogue_div.innerHTML = current_dialogue.ending_text;
+    end_dialogue_div.innerHTML = dialogue.ending_text;
     end_dialogue_div.classList.add("end_dialogue_button");
     end_dialogue_div.setAttribute("onclick", "end_dialogue()");
 
@@ -252,9 +255,8 @@ function end_dialogue() {
 }
 
 function start_textline(textline_key){
-    const textline = current_dialogue.textlines[textline_key];
-    //TODO: log a message when unlocking new location?
-    //maybe another method for this
+    const dialogue = dialogues[current_dialogue];
+    const textline = dialogue.textlines[textline_key];
 
     log_message(`> > ${textline.name}`, "dialogue_question")
     log_message(textline.text, "dialogue_answer");
@@ -271,10 +273,121 @@ function start_textline(textline_key){
     }
 
     for(let i = 0; i < textline.locks_lines.length; i++) { //locking textlines
-        current_dialogue.textlines[textline.locks_lines[i]].is_finished = true;
+        dialogue.textlines[textline.locks_lines[i]].is_finished = true;
     }
 
-    start_dialogue(current_dialogue.name);
+    start_dialogue(current_dialogue);
+}
+
+function start_trade(trader_key) {
+    traders[trader_key].refresh(); 
+    action_div.style.display = "none";
+    trade_div.style.display = "inherit";
+    //todo: save inventory with the rest of saved data (still need to leave this refresh here though)
+    
+    //trader_inventory_div
+
+    update_displayed_trader_inventory(trader_key);
+}
+
+function update_displayed_trader_inventory(trader_key) {
+    const trader = traders[trader_key];
+    trader_inventory_div.textContent = "";
+
+    Object.keys(trader.inventory).forEach(function(key) {
+        if(trader.inventory[key] instanceof Array) //unstackables
+        { 
+            for(let i = 0; i < trader.inventory[key].length; i++) {
+                var item_control_div = document.createElement("div");
+                var item_div = document.createElement("div");
+                //item_div is just name + item count (if stackable)
+
+
+                //create tooltip and it's content
+                var item_tooltip = document.createElement("span");
+                item_tooltip.classList.add("item_tooltip");
+                item_tooltip.innerHTML = 
+                `<b>${trader.inventory[key][i].name}</b>
+                <br>${trader.inventory[key][i].description}`;
+    
+                item_div.innerHTML = `${trader.inventory[key][i].name}`;
+                item_div.classList.add("trader_item");
+
+                item_control_div.setAttribute("data-trader_item", `${trader.inventory[key][i].name} #${i}`)
+
+                item_div.appendChild(item_tooltip);
+                item_control_div.classList.add(`item_${trader.inventory[key][i].item_type.toLowerCase()}`);
+                item_control_div.appendChild(item_div);
+
+                if(trader.inventory[key][i].item_type === "EQUIPPABLE") {
+                    //add stats to tooltip
+
+                    if(trader.inventory[key][i].equip_slot === "offhand" && trader.inventory[key][i].offhand_type === "shield") {
+                        item_tooltip.innerHTML += 
+                        `<br><br>Can fully block attacks not stronger than: ${trader.inventory[key][i].shield_strength}`;
+                    }
+
+                    Object.keys(trader.inventory[key][i].equip_effect).forEach(function(effect_key) {
+                        item_tooltip.innerHTML += 
+                        `<br><br>Flat ${effect_key} bonus: ${trader.inventory[key][i].equip_effect[effect_key].flat_bonus}`;
+
+                        if(trader.inventory[key][i].equip_effect[effect_key].multiplier != null) {
+                                item_tooltip.innerHTML += 
+                            `<br>${capitalize_first_letter(effect_key)} multiplier: ${trader.inventory[key][i].equip_effect[effect_key].multiplier}`;
+                        }
+                    });
+                }
+
+                   trader_inventory_div.appendChild(item_control_div);
+            }
+        } else //stackables
+        {
+            var item_control_div = document.createElement("div");
+            var item_div = document.createElement("div");
+
+            if(trader.inventory[key].count > 1)
+            {
+                item_div.innerHTML = `${trader.inventory[key].item.name} x${trader.inventory[key].count}`;
+            } else 
+            {
+                item_div.innerHTML = `${trader.inventory[key].item.name}`;
+            }
+            item_div.classList.add("inventory_item");
+
+            //create tooltip and it's content
+            var item_tooltip = document.createElement("span");
+            item_tooltip.classList.add("item_tooltip");
+            item_tooltip.innerHTML = 
+            `<b>${trader.inventory[key].item.name}</b> 
+            <br>${trader.inventory[key].item.description}`;
+
+
+            if(trader.inventory[key].item.item_type === "EQUIPPABLE") {
+                //add stats to tooltip
+
+            }
+            item_div.appendChild(item_tooltip);
+
+            item_control_div.classList.add(`item_${trader.inventory[key].item.item_type.toLowerCase()}`);
+            item_control_div.setAttribute("trader-inventory_item", `${trader.inventory[key].item.name}`)
+            item_control_div.appendChild(item_div);
+
+            trader_inventory_div.appendChild(item_control_div);
+        }
+    });
+
+    /*
+    todo: functions for sorting inventory trader alphabetically and by cost
+    [...trader_inventory_div.children]
+        .sort((a,b)=>a.getAttribute("data-trader_item")>b.getAttribute("data-trader_item")?1:-1)
+        .forEach(node=>trader_inventory_div.appendChild(node));
+    */
+}
+
+function end_trade() {
+    action_div.style.display = "";
+    trade_div.style.display = "none";
+    
 }
 
 function clear_action_div() {
@@ -603,7 +716,8 @@ function unlock_location(location) {
 function do_resting() {
     if(character.stats.health < character.stats.max_health)
     {
-        var resting_heal_ammount = 1; //leave this flat and let it serve as passive regeneration, but also add sleeping that will heal faster and scale with level
+        var resting_heal_ammount = 1; 
+        //todo: leave this flat and let it serve as passive regeneration, but also add sleeping that will heal faster and scale with skill level
         character.stats.health += (resting_heal_ammount);
         update_displayed_health();
     }
@@ -785,8 +899,7 @@ function dismantle_item() {
 }
 
 function update_displayed_inventory() {
-    //inventory only, equipped items separately
-    //todo: do it only for changed items?
+    //inventory only, character item slots separately
     
     inventory_div.innerHTML = "";
 
@@ -841,7 +954,7 @@ function update_displayed_inventory() {
                     });
                 }
 
-                   inventory_div.appendChild(item_control_div);
+                inventory_div.appendChild(item_control_div);
             }
         } else //stackables
         {
@@ -881,6 +994,52 @@ function update_displayed_inventory() {
         }
     });
 
+    Object.keys(character.equipment).forEach(function(key) {
+        const item = character.equipment[key];
+        if(item) {
+            var item_control_div = document.createElement("div");
+            var item_div = document.createElement("div");
+
+            //create tooltip and it's content
+            var item_tooltip = document.createElement("span");
+            item_tooltip.classList.add("item_tooltip");
+            item_tooltip.innerHTML = 
+            `<b>${item.name}</b>
+            <br>${item.description}`;
+
+            item_div.innerHTML = `${item.name}`;
+            item_div.classList.add("inventory_equipped_item");
+
+            item_control_div.setAttribute("data-inventory_item", ` ${item.name} #${key}`)
+
+            item_div.appendChild(item_tooltip);
+            item_control_div.classList.add(`item_${item.item_type.toLowerCase()}`);
+            item_control_div.appendChild(item_div);
+                
+            var item_unequip_div = document.createElement("div");
+            item_unequip_div.innerHTML = "U";
+            item_unequip_div.classList.add("unequip_item_button");
+            item_control_div.appendChild(item_unequip_div);
+
+            //add stats to tooltip
+            if(item.equip_slot === "offhand" && item.offhand_type === "shield") {
+                item_tooltip.innerHTML += 
+                `<br><br>Can fully block attacks not stronger than: ${item.shield_strength}`;
+            }
+
+            Object.keys(item.equip_effect).forEach(function(effect_key) {
+                    item_tooltip.innerHTML += 
+                `<br><br>Flat ${effect_key} bonus: ${item.equip_effect[effect_key].flat_bonus}`;
+                if(item.equip_effect[effect_key].multiplier != null) {
+                        item_tooltip.innerHTML += 
+                    `<br>${capitalize_first_letter(effect_key)} multiplier: ${item.equip_effect[effect_key].multiplier}`;
+                }
+            });
+
+            inventory_div.appendChild(item_control_div);
+        }
+    });
+
     [...inventory_div.children]
         .sort((a,b)=>a.getAttribute("data-inventory_item")>b.getAttribute("data-inventory_item")?1:-1)
         .forEach(node=>inventory_div.appendChild(node));
@@ -909,6 +1068,7 @@ function equip_item(item) {
     update_displayed_inventory();
     update_character_stats();	
 }
+
 
 function unequip_item(item_slot) {
     if(character.equipment[item_slot] != null) {
@@ -1284,10 +1444,14 @@ function run() {
 
 window.equip_item = equip_item_from_inventory;
 window.unequip_item = unequip_item;
+
 window.change_location = change_location;
+
 window.start_dialogue = start_dialogue;
 window.end_dialogue = end_dialogue;
 window.start_textline = start_textline;
+window.start_trade = start_trade;
+window.end_trade = end_trade;
 
 window.save_to_localStorage = save_to_localStorage;
 window.save_to_file = save_to_file;

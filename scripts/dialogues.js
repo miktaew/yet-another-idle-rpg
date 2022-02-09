@@ -20,7 +20,7 @@ function Dialogue(dialogue_data) {
 }
 
 function Textline(textline_data) {
-    this.name = textline_data.name; // option to click, don't make it too long
+    this.name = textline_data.name; // displayed option to click, don't make it too long
     this.text = textline_data.text; // what's shown after clicking
     this.is_unlocked = typeof textline_data.is_unlocked !== "undefined"? textline_data.is_unlocked : true;
     this.is_finished = typeof textline_data.is_finished !== "undefined"? textline_data.is_finished : false;

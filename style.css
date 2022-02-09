@@ -2,11 +2,6 @@
 	--equipment_display: initial;
 	--consumables_display: initial;
 	--other_display: initial;
-	--stats_display: grid;
-	--equipped_display: none;
-	--location_actions_display: block;
-	--skill_list_display: none;
-	--journal_display: none;
 }
 
 body {
@@ -25,6 +20,29 @@ body {
 	background-color: inherit;
 	position: absolute;
 	width: 100%;
+}
+
+.main_controller_button {
+    width: fit-content;
+    min-width: 388px;
+    padding: 10px;
+	height: fit-content;
+    font-weight: bold;
+    font-size: 20;
+	background-color: #15152d; 
+	color: white;
+	cursor: pointer;
+	text-align: center;
+	display: inline-block;
+}
+
+.main_controller_button:hover {
+    background-image: none;
+	background-color: #435270;
+}
+
+.main_controller_button_active {
+    background-color: #435270;
 }
 
 .message_common { 
@@ -134,8 +152,18 @@ body {
 	 width: 325px;
  }
 
+ .inventory_equipped_item {
+	color: gold;
+	font-size:15;
+	display: inline-block;
+	width: 325px;
+	font-weight: bold;
+}
+
  .item_tooltip {
 	 display: none;
+	 color: white;
+	 font-weight: normal;
 	 background-color: rgba(120, 120, 120, 0.8);
 	 border-radius: 10px;
 	 margin-left: 30px;
@@ -147,7 +175,7 @@ body {
 	 height: auto;
  }
 
- .inventory_item:hover .item_tooltip {
+ .inventory_item:hover .item_tooltip, .inventory_equipped_item:hover .item_tooltip {
 	display: block;
 }
 
@@ -191,6 +219,14 @@ body {
 	 font-weight: bold;
 	 display: inline-block;
 	 cursor: pointer;
+ }
+
+ .unequip_item_button {
+	color: gold;
+	font-size: 15;
+	font-weight: bold;
+	display: inline-block;
+	cursor: pointer;
  }
 
  .inventory_control_button {
@@ -304,7 +340,7 @@ body {
 
 .actions_div {
 	height: 370px;
-	width: 100%;
+	width: 450;
 	overflow-y: scroll;
 }
 
@@ -371,13 +407,19 @@ body {
 #action_selection_div {
 	width: 450px;
 	height: 400px;
-	left: 370px;
-	top: 320px;
+	left: 360px;
+	top: 360px;
 }
 
 #action_control_div {
 	position: absolute;
 	bottom: 0;
+}
+
+#basic_character_info_div {
+    width: 400px;
+    height: 80px;
+    z-index: 100;
 }
 
 #bottom_panel_div {
@@ -392,8 +434,13 @@ body {
 }
 
 #character_div {
-	width: 400px;
-	height: 300px;
+    width: 400px;
+    top: 86px;
+    padding-top: 7px;
+    height: 260px;
+	max-width: 400px;
+	max-height: 300px;
+    border-top: none;
 }
 
 #character_name_div {
@@ -444,11 +491,11 @@ body {
 #character_equipment_div { 
 	margin: auto;
 	width: 350px;
-	display: var(--equipped_display);
+	display: none;
 }
 
 #character_stats_div {
-	display: var(--stats_display);
+	display: grid;
 	width: 350px;
 	margin: auto;
 }
@@ -457,6 +504,17 @@ body {
 	color: white;
 	position: absolute;
 	bottom: 0;
+}
+
+#end_trade_button {
+    float:left;
+	
+	width: 448;
+	text-align: center;
+	border: 1px solid white;
+	cursor: pointer;
+	font-size: 16;
+	color: white;
 }
 
 #enemy_info_div {
@@ -511,31 +569,33 @@ body {
 #inventory_control_div {
 	color: white;
 	font-size: 20;
+	position: fixed;
+	top: 740px;
 }
 
 #inventory_div {
 	width: 350px;
 	height: 400px;
-	top: 320;
+	top: 360;
 }
 
 #journal_div {
-	display: var(--journal_display);
+	display: none;
 }
 
 #location_actions_div {
-	display: var(--location_actions_display);
+	display: block;
 }
 
 #location_div {
 	width: 400px;
-	height: 300px;
+	height: 350px;
 	margin-bottom: 5px;
-	left: 420;
+	left: 410px;
 }
 
 #location_data_div {
-	height: 166px;
+	height: 216px;
 	color: white;
 	text-align: center;
 }
@@ -550,10 +610,23 @@ body {
 	font-style: italic;
 }
 
+#main_controller {
+	height: 40px;
+    margin-bottom: 5px;
+    display: flex;
+	height: 40px;
+    width: fit-content;
+
+}
+
+#main_content {
+    position: relative;
+}
+
 #message_log_div {
 	width: 400px;
-	height: 712px;
-	left: 832px;
+	height: 760px;
+	left: 820px;
 	overflow-y: scroll;
 	overflow-x: hidden;
 	padding-right: 15px;
@@ -565,7 +638,7 @@ body {
 }
 
 #skill_list_div {
-	display: var(--skill_list_display);
+	display: none;
 }
 
 #time_div {
@@ -582,7 +655,16 @@ body {
 	width: 60px;
 	height: 60px;
 	background-color: silver;
-	top: 750;
+	bottom: 50px;
+}
+
+#trade_div {
+
+    display: none;
+}
+
+#trader_inventory_div {
+    height: 350px;
 }
 
 

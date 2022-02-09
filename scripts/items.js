@@ -8,13 +8,13 @@ function Item(item_data) {
 
     this.name = item_data.name;
     this.description = item_data.description;
-    this.value = typeof item_data.value !== "undefined" ? item_data.value : 0;
-    this.stackable = typeof item_data.stackable !== "undefined"? item_data.stackable : false; 
+    this.value = item_data.value || 0;
+    this.stackable = item_data.stackable || false; 
     //false currently only for equippables, but might change it in future so let's keep it
 
-    this.can_be_dismantled = typeof item_data.can_be_dismantled !== "undefined"? item_data.can_be_dismantled : false; 
+    this.can_be_dismantled = item_data.can_be_dismantled || false; 
     //maybe remove it and simply check if dismantling_materials is not undefined?
-    this.dismantling_materials = typeof item_data.dismantling_materials !== "undefined"? item_data.dismantling_materials : {};
+    this.dismantling_materials = item_data.dismantling_materials || {};
 
     if(item_data.item_type === "EQUIPPABLE" || item_data.item_type === "USABLE" || item_data.item_type === "OTHER") {
         this.item_type = item_data.item_type; 
@@ -27,7 +27,7 @@ function Item(item_data) {
     // (only bonuses to main stats)
     this.equip_slot = item_data.equip_slot;
     // equipment slot to where item goes
-    this.equip_effect = typeof item_data.equip_effect !== "undefined"? item_data.equip_effect : {};
+    this.equip_effect = item_data.equip_effect || {};
     // stats gained by equipping, {stats: {}, stat_multipliers: {}}
     // multipliers probably will only be used for weapon damage
     this.weapon_type = item_data.weapon_type; // "sword", "axe", "dagger", "spear", "blunt weapon", "wand", "staff"

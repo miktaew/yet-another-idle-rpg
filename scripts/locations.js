@@ -11,8 +11,13 @@ function Location(location_data) {
         this.name = location_data.name;
         this.description = location_data.description;
         this.connected_locations = location_data.connected_locations; //a list
-        this.is_unlocked = typeof location_data.is_unlocked !== "undefined"? location_data.is_unlocked : true;
-        this.dialogues = typeof location_data.dialogues !== "undefined"? location_data.dialogues : [];
+        this.is_unlocked = location_data.is_unlocked && true;
+        this.dialogues = location_data.dialogues || [];
+        for(let i = 0; i < this.dialogues.length; i++) {
+            if(!dialogues[this.dialogues[i]]) {
+                throw new Error(`No such dialogue as "${this.dialogues[i]}"!`);
+            }
+        }
         // Activities, maybe make a special object type for actions (passive_activities ?), like sleeping/training/learning 
         // => or make it only one action per "location_action", similarly to combat_zone (except no child zones)?,
         // or "location_actions" (a list/dict)
@@ -29,9 +34,9 @@ function Combat_zone(location_data) {
     */
     this.name = location_data.name;
     this.description = location_data.description;
-    this.is_unlocked = typeof location_data.is_unlocked !== "undefined"? location_data.is_unlocked : true;
+    this.is_unlocked = location_data.is_unlocked && true;
     this.enemies_list = location_data.enemies_list;
-    this.enemy_count = typeof location_data.enemy_count !== "undefined"? location_data.enemy_count : 30;
+    this.enemy_count = location_data.enemy_count || 30;
     this.enemies_killed = 0;
     /*
     TODO: increase after each kill, upon reaching enemy_count (and it's multiples if repeatable_rewards) 
@@ -41,9 +46,9 @@ function Combat_zone(location_data) {
     this.parent_location = location_data.parent_location;
     if(typeof location_data.rewards !== "undefined") { 
         this.rewards = location_data.rewards;
-        this.rewards.dialogues = typeof location_data.rewards.dialogues !== "undefined"? location_data.rewards.dialogues : [];
-        this.rewards.textlines = typeof location_data.rewards.textlines !== "undefined"? location_data.rewards.textlines : [];
-        this.rewards.locations = typeof location_data.rewards.locations !== "undefined"? location_data.rewards.locations : [];
+        this.rewards.dialogues = location_data.rewards.dialogues || [];
+        this.rewards.textlines = location_data.rewards.textlines || [];
+        this.rewards.locations = location_data.rewards.locations || [];
     }
     else {
         this.rewards = {dialogues: [], textlines: [], locations: []};

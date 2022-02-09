@@ -5,11 +5,11 @@ function Skill(skill_data) {
     this.names = skill_data.names; // put only {0: name} to have skill always named the same, no matter the level
     this.description = skill_data.description;
     this.current_level = 0; //initial lvl
-    this.max_level = typeof skill_data.max_level !== "undefined"? skill_data.max_level : 100; //max possible lvl, dont make it too high
+    this.max_level = skill_data.max_level || 100; //max possible lvl, dont make it too high
     this.max_level_coefficient = skill_data.max_level_coefficient;
     this.current_xp = 0; // how much of xp_to_next_lvl there is currently
     this.total_xp = 0; // total collected xp, on loading calculate lvl based on this (so to not break skills if scaling ever changes)
-    this.base_xp_cost = typeof skill_data.base_xp_cost !== "undefined"? skill_data.base_xp_cost : 100; //xp to go from lvl 1 to lvl 2
+    this.base_xp_cost = skill_data.base_xp_cost || 100; //xp to go from lvl 1 to lvl 2
     this.xp_to_next_lvl = this.base_xp_cost; //for display only
     this.total_xp_to_next_lvl = this.base_xp_cost; //total xp needed to lvl up
     this.get_effect_description = skill_data.get_effect_description;
