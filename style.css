@@ -36,15 +36,6 @@ body {
 	display: inline-block;
 }
 
-.main_controller_button:hover {
-    background-image: none;
-	background-color: #435270;
-}
-
-.main_controller_button_active {
-    background-color: #435270;
-}
-
 .message_common { 
 	text-align: center;
 	width: inherit;
@@ -145,28 +136,39 @@ body {
 	padding: 5px;
 }
 
- .inventory_item {
+ .inventory_item, .trader_item {
 	 color: white;
-	 font-size:15;
+	 font-size: 15;
 	 display: inline-block;
+	 width: 325px;
+ }
+
+ .character_item {
 	 width: 325px;
  }
 
  .inventory_equipped_item {
 	color: gold;
+	background-color: rgba(255, 236, 128, 0.3);
 	font-size:15;
 	display: inline-block;
 	width: 325px;
 	font-weight: bold;
 }
 
+.item_other {
+	width: 340px;
+}
+
  .item_tooltip {
 	 display: none;
+	 text-align: left;
 	 color: white;
 	 font-weight: normal;
 	 background-color: rgba(120, 120, 120, 0.8);
 	 border-radius: 10px;
 	 margin-left: 30px;
+	 margin-top:20px;
 	 padding: 5px;
 	 position: absolute;
 	 z-index: 1000;
@@ -175,7 +177,8 @@ body {
 	 height: auto;
  }
 
- .inventory_item:hover .item_tooltip, .inventory_equipped_item:hover .item_tooltip {
+ .equipment_slot_div:hover .item_tooltip, .trader_item_control:hover .item_tooltip, 
+ .inventory_item_control:hover .item_tooltip, .equipped_item_control:hover .item_tooltip{
 	display: block;
 }
 
@@ -219,14 +222,17 @@ body {
 	 font-weight: bold;
 	 display: inline-block;
 	 cursor: pointer;
+	 width: 15px;
  }
 
  .unequip_item_button {
 	color: gold;
 	font-size: 15;
+	width: 15;
 	font-weight: bold;
 	display: inline-block;
 	cursor: pointer;
+	background-color: rgba(255, 236, 128, 0.3);
  }
 
  .inventory_control_button {
@@ -248,16 +254,16 @@ body {
 	cursor: pointer;
  }
 
- .item_equippable {
+ .character_item_equippable {
 	display: var(--equipment_display)
  }
 
- .item_usable {
+ .character_item_usable {
 	display: var(--consumables_display)
  }
 
- .item_other {
-	display: var(--other_display)
+ .character_item_other {
+	display: var(--other_display);
  }
 
 .message_border { 
@@ -284,22 +290,6 @@ body {
 .equipment_slot_empty {
 	color: silver;
 	font-style: italic;
-}
-
-.equipment_tooltip {
-	display: none;
-	text-align: left;
-	background-color: rgba(120, 120, 120, 0.8);
-	border-radius: 10px;
-	margin-left: 30px;
-	padding: 5px;
-	position: absolute;
-	z-index: 1000;
-	max-width: 400px;
-	width: fit-content;
-	height: auto;
-	font-style: normal;
-	color: white;
 }
 
 .equipment_slot_div:hover .equipment_tooltip {
@@ -404,6 +394,60 @@ body {
 	background-color: #2c3953;
 }
 
+.trader_category_button {
+	float:left;
+	padding: 3px 0px 3px 0px;
+	min-width: 110.5px;
+	text-align: center;
+	color: white;
+	border: 1px solid white;
+	margin-top: 5px;
+	cursor: pointer;
+}
+
+.character_sorting_button {
+    float:left;
+	width: 173;
+	text-align: center;
+	border: 1px solid white;
+	cursor: pointer;
+	font-size: 16;
+	color: white;
+}
+
+
+.character_control_button:hover, .inventory_control_button:hover, .action_selection_button:hover, 
+.trader_category_button:hover, .trader_sorting_button:hover, .active_selection_button, .character_sorting_button:hover {
+	background-color: #435270;
+	background-image: none;
+}
+
+.trader_item_control.item_to_trade {
+	background-color: rgba(255, 0, 0, 0.4);
+
+}
+
+.character_item_control.item_to_trade {
+	background-color: rgba(0, 128, 0, 0.4);
+}
+
+#accept_trade_button, #cancel_trade_button, .trader_sorting_button {
+    float:left;
+	width: 223;
+	text-align: center;
+	border: 1px solid white;
+	cursor: pointer;
+	font-size: 16;
+	color: white;
+}
+#accept_trade_button {
+	background-color: green;
+}
+
+#cancel_trade_button {
+	background-color: red;
+}
+
 #action_selection_div {
 	width: 450px;
 	height: 400px;
@@ -506,14 +550,16 @@ body {
 	bottom: 0;
 }
 
-#end_trade_button {
-    float:left;
-	
+#exit_trade_button {
+	float:left;
 	width: 448;
 	text-align: center;
 	border: 1px solid white;
+	border-top: none;
+	border-bottom: none;
 	cursor: pointer;
-	font-size: 16;
+	font-size: 20;
+	padding: 1px 0px 1px 0px;
 	color: white;
 }
 
@@ -561,7 +607,7 @@ body {
 }
 
 #inventory_content_div {
-	height: 370px;
+	height: 327px;
 	overflow-y: scroll;
 	overflow-x: visible;
 }
@@ -569,8 +615,8 @@ body {
 #inventory_control_div {
 	color: white;
 	font-size: 20;
-	position: fixed;
-	top: 740px;
+	position: absolute;
+	top: 370px;
 }
 
 #inventory_div {
@@ -633,6 +679,13 @@ body {
 	margin-bottom: 20px;
 }
 
+#money_div {
+	color: white;
+	border-bottom: 1px solid white;
+	padding: 2px 5px 2px 5px;
+}
+
+
 #saved_file_input {
 	display: none;
 }
@@ -659,14 +712,62 @@ body {
 }
 
 #trade_div {
-
     display: none;
 }
 
 #trader_inventory_div {
-    height: 350px;
+    height: 250px;
 }
 
+#trade_price_div {
+	color: white;
+	border-top: 1px solid white;
+	border-left: 1px solid white;
+	border-right: 1px solid white;
+	padding: 2px 1px 2px 1px;
+	width: 292px;
+	float: left;
+	
+}
+
+#trader_cost_mult {
+	width: 150px;
+	color: white;
+	border-top: 1px solid white;
+	border-left: 1px solid white;
+	border-right: 1px solid white;
+	padding: 2px 1px 2px 1px;
+	float:left;
+	color: orange;
+	font-weight: bold;
+}
+
+#trader_cost_mult_text {
+	width: 75px;
+	float: left;
+	padding-left: 5px;
+}
+
+#trader_cost_mult_value {
+	width: 65px;
+	float: left;
+	text-align: right;
+	padding-right: 5px;
+}
+
+
+#trade_price_text {
+	display: inline-block;
+	width: 80px;
+	padding-left: 5px;
+}
+
+#trade_price_value {
+	width: 195px;
+	display: inline-block;
+	text-align: right;
+	padding-right: 5px;
+}
 
 
 /* scrollbar */

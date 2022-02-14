@@ -10,15 +10,16 @@ import { traders } from "./trade.js";
 
 //player character
 const character = {name: "Hero", titles: {}, 
-                stats: {max_health: 30, health: 30, strength: 2, agility: 4, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, attack_power: 0,
+                   stats: {max_health: 30, health: 30, strength: 2, agility: 4, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, attack_power: 0,
                         hit_chance: 0, evasion_chance: 0, block_chance: 0, defense: 0},
-                // crit damage is a multiplier; defense should be only based on worn armor and/or magic skills;
-                inventory: {},
-                equipment: {head: null, torso: null, 
+                   // crit damage is a multiplier; defense should be only based on worn armor and/or magic skills;
+                   inventory: {},
+                   equipment: {head: null, torso: null, 
                             arms: null, ring: null, 
                             weapon: null, offhand: null,
                             legs: null, feet: null, 
-                            amulet: null}};
+                            amulet: null},
+                    money: 0};
 
 //equipment slots
 const equipment_slots_divs = {head: document.getElementById("head_slot"), torso: document.getElementById("torso_slot"),
@@ -62,6 +63,9 @@ var end_date;
 
 var current_dialogue = null;
 
+var current_trader = null;
+const to_sell = {value: 0, items: []};
+const to_buy = {value: 0, items: []};
 
 const tickrate = 1;
 //how many ticks per second
@@ -99,6 +103,9 @@ const skill_list = document.getElementById("skill_list_div");
 const message_log = document.getElementById("message_log_div");
 const time_field = document.getElementById("time_div");
 
+//just a small multiplier for xp, mostly for testing I guess
+const global_xp_bonus = 1;
+
 //location actions & trade
 const action_div = document.getElementById("location_actions_div");
 const trade_div = document.getElementById("trade_div");
@@ -112,11 +119,10 @@ time_field.innerHTML = current_game_time.toString();
 // button testing cuz yes
 document.getElementById("test_button").addEventListener("click", () => 
 {
-
-    console.log(character.inventory);
-
-    traders["village trader"].refresh();
-    console.log(traders["village trader"].inventory);
+    console.log("To sell", to_sell);
+    console.log("To buy", to_buy);
+    console.log("Character inv",character.inventory);
+    console.log("Trader inv",traders[current_trader].inventory);
 });
 
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
@@ -231,7 +237,7 @@ function start_dialogue(dialogue_key) {
         trade_div.innerHTML = traders[dialogue.trader].trade_text + `  <i class="fas fa-store"></i>`;
         trade_div.classList.add("dialogue_trade")
         trade_div.setAttribute("data-trader", dialogue.trader);
-        trade_div.setAttribute("onclick", "start_trade(this.getAttribute('data-trader'))")
+        trade_div.setAttribute("onclick", "startTrade(this.getAttribute('data-trader'))")
         //TODO: this
         action_div.appendChild(trade_div);
     }
@@ -283,111 +289,345 @@ function start_trade(trader_key) {
     traders[trader_key].refresh(); 
     action_div.style.display = "none";
     trade_div.style.display = "inherit";
-    //todo: save inventory with the rest of saved data (still need to leave this refresh here though)
+    //todo: save inventory (and last_refresh) with the rest of saved data (still need to leave this refresh here though)
     
-    //trader_inventory_div
 
-    update_displayed_trader_inventory(trader_key);
+    current_trader = trader_key;
+    document.getElementById("trader_cost_mult_value").textContent = `${100*traders[current_trader].profit_margin}%`
+    update_displayed_trader_inventory();
 }
 
-function update_displayed_trader_inventory(trader_key) {
-    const trader = traders[trader_key];
+function cancel_trade() {
+    
+    to_buy.items = [];
+    to_buy.value = 0;
+    to_sell.items = [];
+    to_sell.value = 0;
+
+    update_displayed_inventory();
+    update_displayed_trader_inventory();
+}
+
+function accept_trade() {
+    
+
+    //button shouldn't be clickable if trade is not affordable, so this is just in case
+    console.log(to_buy);
+    const new_balance = character.money + to_sell.value - to_buy.value
+    if(new_balance < 0) {
+        throw "Trying to make a trade that can't be afforded"
+    } else {
+
+        character.money = new_balance;
+
+        while(to_buy.items.length > 0) {
+            //add to character inventory
+            //remove from trader inventory
+
+            const item = to_buy.items.shift();
+
+            add_to_inventory("character", [{item: new Item(item_templates[item.item.split(" #")[0]]), 
+                                            count: item.count}])
+            
+            remove_from_inventory("trader", {name: item.item.split(" #")[0], 
+                                            count: item.count,
+                                            id: item.item.split(" #")[1]});
+
+        }
+        while(to_sell.items.length > 0) {
+            //remove from character inventory
+            //add to trader inventory
+
+            const item = to_sell.items.shift();
+            
+            remove_from_inventory("character", {name: item.item.split(" #")[0], 
+                count: item.count,
+                id: item.item.split(" #")[1]});
+
+            add_to_inventory("trader", [{item: new Item(item_templates[item.item.split(" #")[0]]), 
+                count: item.count}])
+        }
+    }
+
+    to_buy.value = 0;
+    to_sell.value = 0;
+
+    update_displayed_inventory();
+    update_displayed_trader_inventory();
+    update_displayed_money();
+}
+
+function exit_trade() {
+    action_div.style.display = "";
+    trade_div.style.display = "none";
+    current_trader = null;
+    to_buy.items = [];
+    to_buy.value = 0;
+    to_sell.items = [];
+    to_sell.value = 0;
+
+    update_displayed_inventory();
+}
+
+function get_character_money() {
+    return character.money;
+}
+
+function add_to_buying_list(selected_item) {
+    const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
+
+    if(is_stackable) {
+        const present_item = to_buy.items.find(a => a.item === selected_item.item);
+
+        if(present_item) {
+            to_buy.items[to_buy.items.indexOf(present_item)].count += selected_item.count;
+        } else {
+            to_buy.items.push(selected_item);
+        }
+    } else {
+        to_buy.items.push(selected_item);
+    }
+
+    to_buy.value += Math.floor(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].value) * selected_item.count;
+
+    return -Math.floor(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].value) * selected_item.count;
+}
+
+function remove_from_buying_list(selected_item) {
+    const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
+    var actual_number_to_remove = selected_item.count;
+
+    if(is_stackable) { //stackable, so "count" may be more than 1
+        const present_item = to_buy.items.find(a => a.item === selected_item.item);
+        if(present_item && present_item.count > selected_item.count) {
+            to_buy.items[to_buy.items.indexOf(present_item)].count -= selected_item.count;
+        } else {
+            actual_number_to_remove = to_buy.items[to_buy.items.indexOf(present_item)].count
+            to_buy.items.splice(to_buy.items.indexOf(present_item),1);
+        }
+    } else { //unstackable item, so always just 1
+        to_buy.items.splice(to_buy.items.indexOf(selected_item),1);
+    }
+
+    to_buy.value -= Math.floor(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].value) * actual_number_to_remove;
+    return Math.floor(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].value) * actual_number_to_remove;
+}
+
+function add_to_selling_list(selected_item) {
+    const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
+
+    if(is_stackable) {
+        const present_item = to_sell.items.find(a => a.item === selected_item.item);
+        
+        if(present_item) {
+
+            to_sell.items[to_sell.items.indexOf(present_item)].count += selected_item.count;
+        } else {
+
+            to_sell.items.push(selected_item);
+        }
+    } else {
+        to_sell.items.push(selected_item);
+    }
+
+    to_sell.value += item_templates[selected_item.item.split(' #')[0]].value * selected_item.count;
+    return item_templates[selected_item.item.split(' #')[0]].value * selected_item.count;
+}
+
+function remove_from_selling_list(selected_item) {
+    const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
+    var actual_number_to_remove = selected_item.count;
+
+    if(is_stackable) { //stackable, so "count" may be more than 1
+        const present_item = to_sell.items.find(a => a.item === selected_item.item);
+        if(present_item && present_item.count > selected_item.count) {
+            to_sell.items[to_sell.items.indexOf(present_item)].count -= selected_item.count;
+        } else {
+            actual_number_to_remove = to_sell.items[to_sell.items.indexOf(present_item)].count
+            to_sell.items.splice(to_sell.items.indexOf(present_item), 1);
+        }
+    } else { //unstackable item, so just 1
+        to_sell.items.splice(to_sell.items.indexOf(selected_item),1);
+    }
+
+    to_sell.value -= item_templates[selected_item.item.split(' #')[0]].value * actual_number_to_remove;
+    return -item_templates[selected_item.item.split(' #')[0]].value * actual_number_to_remove;
+}
+
+function update_displayed_trader_inventory(sorting_param) {
+    const trader = traders[current_trader];
     trader_inventory_div.textContent = "";
 
     Object.keys(trader.inventory).forEach(function(key) {
         if(trader.inventory[key] instanceof Array) //unstackables
         { 
             for(let i = 0; i < trader.inventory[key].length; i++) {
-                var item_control_div = document.createElement("div");
-                var item_div = document.createElement("div");
-                //item_div is just name + item count (if stackable)
 
-
-                //create tooltip and it's content
-                var item_tooltip = document.createElement("span");
-                item_tooltip.classList.add("item_tooltip");
-                item_tooltip.innerHTML = 
-                `<b>${trader.inventory[key][i].name}</b>
-                <br>${trader.inventory[key][i].description}`;
-    
-                item_div.innerHTML = `${trader.inventory[key][i].name}`;
-                item_div.classList.add("trader_item");
-
-                item_control_div.setAttribute("data-trader_item", `${trader.inventory[key][i].name} #${i}`)
-
-                item_div.appendChild(item_tooltip);
-                item_control_div.classList.add(`item_${trader.inventory[key][i].item_type.toLowerCase()}`);
-                item_control_div.appendChild(item_div);
-
-                if(trader.inventory[key][i].item_type === "EQUIPPABLE") {
-                    //add stats to tooltip
-
-                    if(trader.inventory[key][i].equip_slot === "offhand" && trader.inventory[key][i].offhand_type === "shield") {
-                        item_tooltip.innerHTML += 
-                        `<br><br>Can fully block attacks not stronger than: ${trader.inventory[key][i].shield_strength}`;
+                let should_continue = false;
+                for(let j = 0; j < to_buy.items.length; j++) {
+                    if(trader.inventory[key][i].name === to_buy.items[j].item.split(" #")[0] && i == Number(to_buy.items[j].item.split(" #")[1])) {
+                        //checks if item is present in to_buy, if so then doesn't add it to displayed in this inventory
+                        should_continue = true;
+                        break;
                     }
-
-                    Object.keys(trader.inventory[key][i].equip_effect).forEach(function(effect_key) {
-                        item_tooltip.innerHTML += 
-                        `<br><br>Flat ${effect_key} bonus: ${trader.inventory[key][i].equip_effect[effect_key].flat_bonus}`;
-
-                        if(trader.inventory[key][i].equip_effect[effect_key].multiplier != null) {
-                                item_tooltip.innerHTML += 
-                            `<br>${capitalize_first_letter(effect_key)} multiplier: ${trader.inventory[key][i].equip_effect[effect_key].multiplier}`;
-                        }
-                    });
+                }
+                if(should_continue) {
+                    continue;
                 }
 
-                   trader_inventory_div.appendChild(item_control_div);
+                const item_control_div = document.createElement("div");
+                const item_div = document.createElement("div");
+                const item_name_div = document.createElement("div");
+
+                item_name_div.innerHTML = `${trader.inventory[key][i].name}`;
+                item_name_div.classList.add("inventory_item_name");
+                item_div.appendChild(item_name_div);
+                item_div.classList.add("inventory_item", "trader_item");       
+
+                //add tooltip
+                item_div.appendChild(create_item_tooltip(trader.inventory[key][i], {trader: true}));
+
+                item_control_div.classList.add('inventory_item_control', 'trader_item_control', `trader_item_${trader.inventory[key][i].item_type.toLowerCase()}`);
+                item_control_div.setAttribute("data-trader_item", `${trader.inventory[key][i].name} #${i}`)
+                item_control_div.appendChild(item_div);
+
+                trader_inventory_div.appendChild(item_control_div);
             }
         } else //stackables
         {
-            var item_control_div = document.createElement("div");
-            var item_div = document.createElement("div");
+            let item_count = trader.inventory[key].count;
+            for(let i = 0; i < to_buy.items.length; i++) {
+                
+                if(trader.inventory[key].item.name === to_buy.items[i].item.split(" #")[0]) {
+                    item_count -= Number(to_buy.items[i].count);
 
-            if(trader.inventory[key].count > 1)
-            {
-                item_div.innerHTML = `${trader.inventory[key].item.name} x${trader.inventory[key].count}`;
-            } else 
-            {
-                item_div.innerHTML = `${trader.inventory[key].item.name}`;
+                    if(item_count == 0) {
+                        return;
+                    }
+                    if(item_count < 0) {
+                        throw 'Something is wrong with trader item count';
+                    }
+
+                    break;
+                }
             }
-            item_div.classList.add("inventory_item");
+            
+            const item_control_div = document.createElement("div");
+            const item_div = document.createElement("div");
+            const item_name_div = document.createElement("div");
+    
+            item_name_div.innerHTML = `${trader.inventory[key].item.name} x${item_count}`;
+            item_name_div.classList.add("inventory_item_name");
+            item_div.appendChild(item_name_div);
 
-            //create tooltip and it's content
-            var item_tooltip = document.createElement("span");
-            item_tooltip.classList.add("item_tooltip");
-            item_tooltip.innerHTML = 
-            `<b>${trader.inventory[key].item.name}</b> 
-            <br>${trader.inventory[key].item.description}`;
+            item_div.classList.add("inventory_item", 'trader_item');
 
+            item_div.appendChild(create_item_tooltip(trader.inventory[key].item, {trader: true}));
 
-            if(trader.inventory[key].item.item_type === "EQUIPPABLE") {
-                //add stats to tooltip
-
-            }
-            item_div.appendChild(item_tooltip);
-
-            item_control_div.classList.add(`item_${trader.inventory[key].item.item_type.toLowerCase()}`);
-            item_control_div.setAttribute("trader-inventory_item", `${trader.inventory[key].item.name}`)
+            item_control_div.classList.add('trader_item_control', 'inventory_item_control', `trader_item_${trader.inventory[key].item.item_type.toLowerCase()}`);
+            item_control_div.setAttribute("data-trader_item", `${trader.inventory[key].item.name}`);
+            item_control_div.setAttribute("data-item_count", `${item_count}`);
             item_control_div.appendChild(item_div);
 
             trader_inventory_div.appendChild(item_control_div);
         }
     });
+    
+    for(let i = 0; i < to_sell.items.length; i++) {
+        //add items from to_sell to display
+        // to_sell only contains names, so need to browse character.inventory for items that match
 
-    /*
-    todo: functions for sorting inventory trader alphabetically and by cost
-    [...trader_inventory_div.children]
-        .sort((a,b)=>a.getAttribute("data-trader_item")>b.getAttribute("data-trader_item")?1:-1)
-        .forEach(node=>trader_inventory_div.appendChild(node));
-    */
+        const item_index = Number(to_sell.items[i].item.split(" #")[1]);
+
+        if(isNaN(item_index)) { //it's stackable, so item_count is needed
+            const item_count = to_sell.items[i].count;
+            const actual_item = character.inventory[to_sell.items[i].item].item;
+
+            const item_control_div = document.createElement("div");
+            const item_div = document.createElement("div");
+            const item_name_div = document.createElement("div");
+    
+            item_name_div.innerHTML = `${actual_item.name} x${item_count}`;
+            item_name_div.classList.add("inventory_item_name");
+            item_div.appendChild(item_name_div);
+
+            item_div.classList.add("inventory_item", 'trader_item');
+
+            item_div.appendChild(create_item_tooltip(actual_item));
+
+            item_control_div.classList.add('item_to_trade', 'trader_item_control', 'inventory_item_control', `trader_item_${actual_item.item_type.toLowerCase()}`);
+            item_control_div.setAttribute("data-trader_item", `${actual_item.name}`);
+            item_control_div.setAttribute("data-item_count", `${item_count}`);
+            item_control_div.appendChild(item_div);
+
+            trader_inventory_div.appendChild(item_control_div);
+            
+        } else { //it's unstackable, no need for item_count as it's always at 1
+
+            const actual_item = character.inventory[to_sell.items[i].item.split(" #")[0]][item_index];
+
+            const item_control_div = document.createElement("div");
+            const item_div = document.createElement("div");
+            const item_name_div = document.createElement("div");
+
+            item_name_div.innerHTML = `${actual_item.name}`;
+            item_name_div.classList.add("inventory_item_name");
+            item_div.appendChild(item_name_div);
+            item_div.classList.add("inventory_item", "trader_item");       
+
+            //add tooltip
+            item_div.appendChild(create_item_tooltip(actual_item));
+
+            item_control_div.classList.add('item_to_trade', 'inventory_item_control', 'trader_item_control', `trader_item_${actual_item.item_type.toLowerCase()}`);
+            item_control_div.setAttribute("data-trader_item", `${actual_item.name} #${item_index}`)
+            item_control_div.appendChild(item_div);
+
+            trader_inventory_div.appendChild(item_control_div);
+        }
+    }
+
+    sort_displayed_inventory({sort_by: sorting_param || "name", target: "trader"});
 }
 
-function end_trade() {
-    action_div.style.display = "";
-    trade_div.style.display = "none";
+function sort_displayed_inventory(options) {
+
+    const target = options.target === "trader" ? trader_inventory_div : inventory_div;
+
+    /*
+    seems terribly overcomplicated
+    can't think of better solution for now
     
+    */
+    [...target.children].sort((a,b) => {
+        //equipped items on top
+        if(a.classList.contains("equipped_item_control") && !b.classList.contains("equipped_item_control")) {
+            return -1;
+        } else if(!a.classList.contains("equipped_item_control") && b.classList.contains("equipped_item_control")){
+            return 1;
+        } 
+        //items being traded on bottom
+        else if(a.classList.contains("item_to_trade") && !b.classList.contains("item_to_trade")) {
+            return 1;
+        } else if(!a.classList.contains("item_to_trade") && b.classList.contains("item_to_trade")) {
+            return -1;
+        }
+        //other items by either name (if no option specificied or if option is "name"), or otherwise by value
+        else if(!options || options && options.sort_by === "name") {
+            if(a.getAttribute("data-character_item") || a.getAttribute("data-trader_item") > b.getAttribute("data-character_item") || b.getAttribute("data-trader_item")) {
+                return -1;
+            } else {
+                return 1;
+            }
+        } else {
+            if(item_templates[(a.getAttribute("data-character_item") || a.getAttribute("data-trade_item")).split(" #")[0]].value 
+                    > item_templates[(b.getAttribute("data-character_item") || b.getAttribute("data-trader_item")).split(" #")[0]].value) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+
+    }).forEach(node => target.appendChild(node));
 }
 
 function clear_action_div() {
@@ -481,7 +721,7 @@ function do_combat() {
                 var loot = current_enemy.get_loot();
                 if(loot.length > 0) {
                     log_loot(loot);
-                    add_to_inventory(loot);
+                    add_to_inventory("character", loot);
                 }
                 current_location.enemies_killed += 1;
                 if(current_location.enemies_killed > 0 && current_location.enemies_killed % current_location.enemy_count == 0) {
@@ -641,7 +881,7 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
     //sorts inventory_div alphabetically
     } 
 
-    const level_up = skill.add_xp(xp_to_add);
+    const level_up = skill.add_xp(xp_to_add * (global_xp_bonus || 1));
 
     /*
     skill_bar divs: 
@@ -824,73 +1064,94 @@ function clear_enemy_and_enemy_info() {
     enemy_name_div.innerHTML = "None";
 }
 
-function add_to_inventory(items) {
+function add_to_inventory(who, items) {
+    //items  -> [{item: some item object, count: X}]
+    let target;
+    if(who === "character") {
+        target = character;
+    } else if(who === "trader") {
+        target = traders[current_trader];
+    }
+
     for(let i = 0; i < items.length; i++){
-        if(!character.inventory.hasOwnProperty(items[i].item.name)) //not in inventory
+        if(!target.inventory.hasOwnProperty(items[i].item.name)) //not in inventory
         {
             if(items[i].item.stackable)
             {
-                character.inventory[items[i].item.name] = items[i];
+                target.inventory[items[i].item.name] = items[i];
             }
             else 
             {
-                character.inventory[items[i].item.name] = [items[i].item];
+                target.inventory[items[i].item.name] = [items[i].item];
             }
         }
         else //in inventory 
         {
             if(items[i].item.stackable)
             {
-                character.inventory[items[i].item.name].count += items[i].count;
+                target.inventory[items[i].item.name].count += items[i].count;
             } 
             else 
             {
-                character.inventory[items[i].item.name].push(items[i].item);
+                target.inventory[items[i].item.name].push(items[i].item);
             }
         }
 
     }
-    update_displayed_inventory();
+    if(who === "character") {
+        update_displayed_inventory();
+    } else if(who === "trader") {
+        update_displayed_trader_inventory();
+    }
 }
 
-function remove_from_inventory(item_info) {
+function remove_from_inventory(who, item_info) {
     //item info -> {name: X, count: X, id: X}, with either count or id, depending on if item is stackable or not
 
-    if(character.inventory.hasOwnProperty(item_info.name)) { //check if its in inventory, just in case, probably not needed
+    let target;
+    if(who === "character") {
+        target = character;
+    } else if(who === "trader") {
+        target = traders[current_trader];
+    }
 
-        if(character.inventory[item_info.name].hasOwnProperty("item")) { //stackable
-            //console.log(character.inventory[item_info.name].item.stackable);
+    if(target.inventory.hasOwnProperty(item_info.name)) { //check if its in inventory, just in case, probably not needed
+
+        if(target.inventory[item_info.name].hasOwnProperty("item")) { //stackable
 
             if(typeof item_info.count === "number" && Number.isInteger(item_info.count) && item_info.count >= 1) 
             {
-                character.inventory[item_info.name].count -= item_info.count;
+                target.inventory[item_info.name].count -= item_info.count;
             } 
             else 
             {
-                character.inventory[item_info.name].count -= 1;
+                target.inventory[item_info.name].count -= 1;
             }
 
-            if(character.inventory[item_info.name].count <= 0) 
+            if(target.inventory[item_info.name].count == 0) //less than 0 shouldn't happen so no need to check
             {
-                delete character.inventory[item_info.name];
-                //removes item frm inventory if it's county is less than 1
+                delete target.inventory[item_info.name];
+                //removes item from inventory if it's county is less than 1
             }
         }
         else { //unstackable
-            character.inventory[item_info.name].splice([item_info.id], 1);
+            target.inventory[item_info.name].splice(item_info.id, 1);
             //removes item from the array
-            //dont need to check if .id even exists, as splice by default uses 0
+            //dont need to check if .id even exists, as splice by default uses 0 (even when undefined is passed)
 
-            if(character.inventory[item_info.name].length == 0) 
+            if(target.inventory[item_info.name].length == 0) 
             {
-                delete character.inventory[item_info.name];
+                delete target.inventory[item_info.name];
                 //removes item array from inventory if its empty
-                //might be unnecessary, lets leave it for now
             } 
         }
     }
 
-    update_displayed_inventory();
+    if(who === "character") {
+        update_displayed_inventory();
+    } else if(who === "trader") {
+        update_displayed_trader_inventory();
+    }
 }
 
 function dismantle_item() {
@@ -898,8 +1159,12 @@ function dismantle_item() {
     //priority: extremely low
 }
 
+function update_displayed_money() {
+    document.getElementById("money_div").innerHTML = `Your purse contains: ${format_money(character.money)}`;
+}
+
 function update_displayed_inventory() {
-    //inventory only, character item slots separately
+    //actual inventory only, character item slots separately
     
     inventory_div.innerHTML = "";
 
@@ -907,27 +1172,36 @@ function update_displayed_inventory() {
         if(character.inventory[key] instanceof Array) //unstackables
         { 
             for(let i = 0; i < character.inventory[key].length; i++) {
-                var item_control_div = document.createElement("div");
-                var item_div = document.createElement("div");
-                //item_div is just name + item count (if stackable)
 
+                let should_continue = false;
+                for(let j = 0; j < to_sell.items.length; j++) {
+                    if(character.inventory[key][i].name === to_sell.items[j].item.split(" #")[0] && i == Number(to_sell.items[j].item.split(" #")[1])) {
+                        //checks if item is present in to_sell, if so then doesn't add it to displayed in this inventory
+                        should_continue = true;
+                        break;
+                    }
+                }
+                if(should_continue) {
+                    continue;
+                }
 
-                //create tooltip and it's content
-                var item_tooltip = document.createElement("span");
-                item_tooltip.classList.add("item_tooltip");
-                item_tooltip.innerHTML = 
-                `<b>${character.inventory[key][i].name}</b>
-                <br>${character.inventory[key][i].description}`;
+                const item_control_div = document.createElement("div");
+                const item_div = document.createElement("div");
+                const item_name_div = document.createElement("div");
     
-                item_div.innerHTML = `${character.inventory[key][i].name}`;
-                item_div.classList.add("inventory_item");
 
-                item_control_div.setAttribute("data-inventory_item", `${character.inventory[key][i].name} #${i}`)
+                item_name_div.innerHTML = `${character.inventory[key][i].name}`;
+                item_name_div.classList.add("inventory_item_name");
+                item_div.appendChild(item_name_div);
+    
+                item_div.classList.add("inventory_item", "character_item", `item_${character.inventory[key][i].item_type.toLowerCase()}`);
+
+                item_control_div.setAttribute("data-character_item", `${character.inventory[key][i].name} #${i}`)
                 //shouldnt create any problems, as any change to inventory will also call this method, 
                 //so removing/equipping any item wont cause mismatch
 
-                item_div.appendChild(item_tooltip);
-                item_control_div.classList.add(`item_${character.inventory[key][i].item_type.toLowerCase()}`);
+                item_div.appendChild(create_item_tooltip(character.inventory[key][i]));
+                item_control_div.classList.add('inventory_item_control', 'character_item_control', `character_item_${character.inventory[key][i].item_type.toLowerCase()}`);
                 item_control_div.appendChild(item_div);
 
                 if(character.inventory[key][i].item_type === "EQUIPPABLE") {
@@ -935,115 +1209,136 @@ function update_displayed_inventory() {
                     item_equip_div.innerHTML = "E";
                     item_equip_div.classList.add("equip_item_button");
                     item_control_div.appendChild(item_equip_div);
-
-                    //add stats to tooltip
-
-                    if(character.inventory[key][i].equip_slot === "offhand" && character.inventory[key][i].offhand_type === "shield") {
-                        item_tooltip.innerHTML += 
-                        `<br><br>Can fully block attacks not stronger than: ${character.inventory[key][i].shield_strength}`;
-                    }
-
-                    Object.keys(character.inventory[key][i].equip_effect).forEach(function(effect_key) {
-                        item_tooltip.innerHTML += 
-                        `<br><br>Flat ${effect_key} bonus: ${character.inventory[key][i].equip_effect[effect_key].flat_bonus}`;
-
-                        if(character.inventory[key][i].equip_effect[effect_key].multiplier != null) {
-                                item_tooltip.innerHTML += 
-                            `<br>${capitalize_first_letter(effect_key)} multiplier: ${character.inventory[key][i].equip_effect[effect_key].multiplier}`;
-                        }
-                    });
                 }
 
                 inventory_div.appendChild(item_control_div);
             }
         } else //stackables
         {
+            let item_count = character.inventory[key].count;
+            for(let i = 0; i < to_sell.items.length; i++) {
+                
+                if(character.inventory[key].item.name === to_sell.items[i].item.split(" #")[0]) {
+                    item_count -= Number(to_sell.items[i].count);
+
+                    if(item_count == 0) {
+                        return;
+                    }
+                    if(item_count < 0) {
+                        throw 'Something is wrong with character item count';
+                    }
+
+                    break;
+                }
+            }
+
             var item_control_div = document.createElement("div");
             var item_div = document.createElement("div");
+            const item_name_div = document.createElement("div");
+    
 
-            if(character.inventory[key].count > 1)
-            {
-                item_div.innerHTML = `${character.inventory[key].item.name} x${character.inventory[key].count}`;
-            } else 
-            {
-                item_div.innerHTML = `${character.inventory[key].item.name}`;
-            }
-            item_div.classList.add("inventory_item");
+            item_name_div.innerHTML = `${character.inventory[key].item.name} x${item_count}`;
+            item_name_div.classList.add("inventory_item_name");
+            item_div.appendChild(item_name_div);
 
-            //create tooltip and it's content
-            var item_tooltip = document.createElement("span");
-            item_tooltip.classList.add("item_tooltip");
-            item_tooltip.innerHTML = 
-            `<b>${character.inventory[key].item.name}</b> 
-            <br>${character.inventory[key].item.description}`;
+            item_div.classList.add("inventory_item", 'character_item', `item_${character.inventory[key].item.item_type.toLowerCase()}`);
 
+            item_div.appendChild(create_item_tooltip(character.inventory[key].item));
 
-            if(character.inventory[key].item.item_type === "EQUIPPABLE") {
-                //add stats to tooltip
-
-
-            }
-
-            item_div.appendChild(item_tooltip);
-
-            item_control_div.classList.add(`item_${character.inventory[key].item.item_type.toLowerCase()}`);
-            item_control_div.setAttribute("data-inventory_item", `${character.inventory[key].item.name}`)
+            item_control_div.classList.add('inventory_item_control', 'character_item_control', `character_item_${character.inventory[key].item.item_type.toLowerCase()}`);
+            item_control_div.setAttribute("data-character_item", `${character.inventory[key].item.name}`)
+            item_control_div.setAttribute("data-item_count", `${item_count}`)
             item_control_div.appendChild(item_div);
 
-               inventory_div.appendChild(item_control_div);
+            inventory_div.appendChild(item_control_div);
         }
+
     });
 
+    //equipped items
     Object.keys(character.equipment).forEach(function(key) {
         const item = character.equipment[key];
         if(item) {
             var item_control_div = document.createElement("div");
             var item_div = document.createElement("div");
+            const item_name_div = document.createElement("div");
+    
 
-            //create tooltip and it's content
-            var item_tooltip = document.createElement("span");
-            item_tooltip.classList.add("item_tooltip");
-            item_tooltip.innerHTML = 
-            `<b>${item.name}</b>
-            <br>${item.description}`;
+            item_name_div.innerHTML = `${item.name}`;
+            item_name_div.classList.add("inventory_item_name");
+            item_div.appendChild(item_name_div);
 
-            item_div.innerHTML = `${item.name}`;
             item_div.classList.add("inventory_equipped_item");
 
-            item_control_div.setAttribute("data-inventory_item", ` ${item.name} #${key}`)
+            item_control_div.setAttribute("data-character_item", `${item.name} #${key}`)
 
-            item_div.appendChild(item_tooltip);
-            item_control_div.classList.add(`item_${item.item_type.toLowerCase()}`);
+            item_div.appendChild(create_item_tooltip(item));
+            item_control_div.classList.add("equipped_item_control", `item_${item.item_type.toLowerCase()}`);
             item_control_div.appendChild(item_div);
-                
+
             var item_unequip_div = document.createElement("div");
-            item_unequip_div.innerHTML = "U";
+            item_unequip_div.innerHTML = "R";
             item_unequip_div.classList.add("unequip_item_button");
             item_control_div.appendChild(item_unequip_div);
-
-            //add stats to tooltip
-            if(item.equip_slot === "offhand" && item.offhand_type === "shield") {
-                item_tooltip.innerHTML += 
-                `<br><br>Can fully block attacks not stronger than: ${item.shield_strength}`;
-            }
-
-            Object.keys(item.equip_effect).forEach(function(effect_key) {
-                    item_tooltip.innerHTML += 
-                `<br><br>Flat ${effect_key} bonus: ${item.equip_effect[effect_key].flat_bonus}`;
-                if(item.equip_effect[effect_key].multiplier != null) {
-                        item_tooltip.innerHTML += 
-                    `<br>${capitalize_first_letter(effect_key)} multiplier: ${item.equip_effect[effect_key].multiplier}`;
-                }
-            });
 
             inventory_div.appendChild(item_control_div);
         }
     });
 
-    [...inventory_div.children]
-        .sort((a,b)=>a.getAttribute("data-inventory_item")>b.getAttribute("data-inventory_item")?1:-1)
-        .forEach(node=>inventory_div.appendChild(node));
-    //sorts inventory_div alphabetically
+    //add items from to_buy to display
+    for(let i = 0; i < to_buy.items.length; i++) {
+        
+        const item_index = Number(to_buy.items[i].item.split(" #")[1]);
+
+        if(isNaN(item_index)) { //it's stackable, so item_count is needed
+            const item_count = to_buy.items[i].count;
+            const actual_item = traders[current_trader].inventory[to_buy.items[i].item].item;
+
+            const item_control_div = document.createElement("div");
+            const item_div = document.createElement("div");
+            const item_name_div = document.createElement("div");
+    
+            item_name_div.innerHTML = `${actual_item.name} x${item_count}`;
+            item_name_div.classList.add("inventory_item_name");
+            item_div.appendChild(item_name_div);
+
+            item_div.classList.add("inventory_item", 'character_item');
+
+            item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
+
+            item_control_div.classList.add('item_to_trade', 'character_item_control', 'inventory_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
+            item_control_div.setAttribute("data-character_item", `${actual_item.name}`);
+            item_control_div.setAttribute("data-item_count", `${item_count}`);
+            item_control_div.appendChild(item_div);
+
+            inventory_div.appendChild(item_control_div);
+            
+        } else { //it's unstackable, no need for item_count as it's always at 1
+
+            const actual_item = traders[current_trader].inventory[to_buy.items[i].item.split(" #")[0]][item_index];
+
+            const item_control_div = document.createElement("div");
+            const item_div = document.createElement("div");
+            const item_name_div = document.createElement("div");
+
+            item_name_div.innerHTML = `${actual_item.name}`;
+            item_name_div.classList.add("inventory_item_name");
+            item_div.appendChild(item_name_div);
+            item_div.classList.add("inventory_item", "character_item");       
+
+            //add tooltip
+            item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
+
+            item_control_div.classList.add('item_to_trade', 'inventory_item_control', 'character_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
+            item_control_div.setAttribute("data-character_item", `${actual_item.name} #${item_index}`)
+            item_control_div.appendChild(item_div);
+
+            inventory_div.appendChild(item_control_div);
+        }
+    }
+
+
+    sort_displayed_inventory("character");
 }
 
 function equip_item_from_inventory(item_info) {
@@ -1056,7 +1351,7 @@ function equip_item_from_inventory(item_info) {
             //add specific item to equipment slot
             // -> id and name tell which exactly item it is, then also check slot in item object and thats all whats needed
             equip_item(character.inventory[item_info.name][item_info.id]);
-            remove_from_inventory(item_info); //put this outside if() when equipping gets implemented for stackables as well
+            remove_from_inventory("character", item_info); //put this outside if() when equipping gets implemented for stackables as well
         }
     }
 }
@@ -1072,7 +1367,7 @@ function equip_item(item) {
 
 function unequip_item(item_slot) {
     if(character.equipment[item_slot] != null) {
-        add_to_inventory([{item: character.equipment[item_slot]}]);
+        add_to_inventory("character", [{item: character.equipment[item_slot]}]);
         character.equipment[item_slot] = null;
         update_displayed_equipment();
         update_displayed_inventory();
@@ -1080,11 +1375,51 @@ function unequip_item(item_slot) {
     }
 }
 
+function create_item_tooltip(item, options) {
+    //create tooltip and it's content
+    var item_tooltip = document.createElement("span");
+    item_tooltip.classList.add(options && options.css_class || "item_tooltip");
+    item_tooltip.innerHTML = 
+    `<b>${item.name}</b>
+    <br>${item.description}`;
+
+    //add stats if can be equipped
+    if(item.item_type === "EQUIPPABLE"){
+
+        //if a shield
+        if(item.offhand_type === "shield") {
+            item_tooltip.innerHTML += 
+            `<br><br><strong>[shield]</strong><br><br>Can fully block attacks not stronger than: ${item.shield_strength}`;
+        }
+        else if(item.equip_slot === "weapon") {
+            item_tooltip.innerHTML += `<br><br><strong>[${item.weapon_type}]</strong>`;
+        }
+        else {
+            item_tooltip.innerHTML += `<br><br><strong>[${item.equip_slot}]</strong`;
+        }
+
+        Object.keys(item.equip_effect).forEach(function(effect_key) {
+                item_tooltip.innerHTML += 
+            `<br><br>Flat ${effect_key} bonus: ${item.equip_effect[effect_key].flat_bonus}`;
+            if(item.equip_effect[effect_key].multiplier != null) {
+                    item_tooltip.innerHTML += 
+                `<br>${capitalize_first_letter(effect_key)} multiplier: ${item.equip_effect[effect_key].multiplier}`;
+            }
+        });
+    }
+
+    item_tooltip.innerHTML += `<br><br>Value: ${format_money(Math.floor(item.value * ((options && options.trader) ? traders[current_trader].profit_margin : 1)))}`;
+
+    return item_tooltip;
+}
+
 function update_displayed_equipment() {
     Object.keys(equipment_slots_divs).forEach(function(key) {
-        var eq_tooltip = document.createElement("span");
-        eq_tooltip.classList.add("equipment_tooltip");
+        var eq_tooltip; 
+
         if(character.equipment[key] == null) { //no item in slot
+            eq_tooltip = document.createElement("span");
+            eq_tooltip.classList.add("item_tooltip");
             equipment_slots_divs[key].innerHTML = `${key} slot`;
             equipment_slots_divs[key].classList.add("equipment_slot_empty");
             eq_tooltip.innerHTML = `Your ${key} slot`;
@@ -1093,23 +1428,8 @@ function update_displayed_equipment() {
         {
             equipment_slots_divs[key].innerHTML = character.equipment[key].name;
             equipment_slots_divs[key].classList.remove("equipment_slot_empty");
-            eq_tooltip.innerHTML = 
-            `<b>${character.equipment[key].name}</b>
-            <br>${character.equipment[key].description}`;
 
-            Object.keys(character.equipment[key].equip_effect).forEach(function(effect_key) { //add all effects to tooltip
-                eq_tooltip.innerHTML += 
-                `<br><br>Flat ${effect_key} bonus: ${character.equipment[key].equip_effect[effect_key].flat_bonus}`;
-
-                if(character.equipment[key].equip_effect[effect_key].multiplier != null) {
-                        eq_tooltip.innerHTML += 
-                    `<br>${capitalize_first_letter(effect_key)} multiplier: ${character.equipment[key].equip_effect[effect_key].multiplier}`;
-                }
-            });
-
-            if(character.equipment[key].equip_slot === "offhand" && character.equipment[key].offhand_type === "shield") {
-                eq_tooltip.innerHTML += `<br><br>Can fully block attacks not stronger than: ${character.equipment[key].shield_strength}`;
-            }
+            eq_tooltip = create_item_tooltip(character.equipment[key]);
         }
         equipment_slots_divs[key].appendChild(eq_tooltip);
     });
@@ -1202,10 +1522,32 @@ function update_displayed_combat_stats() {
     }
 }
 
+//formats money to a nice string in form x..x G xx S xx C (gold/silver/copper) 
+function format_money(num) {
+    var value;
+    const sign = num >= 0 ? '' : '-';
+    num = Math.abs(num);
+    if(num > 0) {
+        value = (num%100 != 0 ? `${num%100} C` : '');
+
+        if(num > 99) {
+            value = (Math.floor(num/100)%100 != 0?`${Math.floor(num/100)%100} S ` :'') + value;
+            if(num > 9999) {
+                value = `${Math.floor(num/10000)} G ` + value;
+            }
+        }
+    } else {
+        return 'nothing';
+    }
+    return sign + value;
+}
+
 function create_save() {
     const save_data = {};
     save_data["current time"] = current_game_time;
-    save_data["character"] = {name: character.name, titles: character.titles, inventory: character.inventory, equipment: character.equipment};
+    save_data["character"] = {name: character.name, titles: character.titles, 
+                              inventory: character.inventory, equipment: character.equipment,
+                              money: character.money};
     //no need to save stats; on loading, base stats will be taken from code and then additional stuff will be calculated again (in case anything changed)
 
     save_data["skills"] = {};
@@ -1260,6 +1602,7 @@ function load(save_data) {
     //TODO: clear/replace enemy info
 
     current_game_time.load_time(save_data["current time"]);
+    time_field.innerHTML = current_game_time.toString();
     //set game time
 
     name_field.value = save_data.character.name;
@@ -1272,6 +1615,8 @@ function load(save_data) {
 
     Object.keys(save_data.character.equipment).forEach(function(key){
         if(save_data.character.equipment[key] != null) {
+            save_data.character.equipment[key].value = item_templates[save_data.character.equipment[key].name].value;
+            save_data.character.equipment[key].equip_effect = item_templates[save_data.character.equipment[key].name].equip_effect;
             equip_item(save_data.character.equipment[key]);
         }
     }); //equip proper items
@@ -1281,16 +1626,27 @@ function load(save_data) {
     Object.keys(save_data.character.inventory).forEach(function(key){
         if(Array.isArray(save_data.character.inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
             for(let i = 0; i < save_data.character.inventory[key].length; i++) {
+                save_data.character.inventory[key][i].value = item_templates[key].value;
+                if(item_templates[key].item_type = "EQUIPPABLE") {
+                    save_data.character.inventory[key][i].equip_effect = item_templates[key].equip_effect;
+                }
                 item_list.push({item: save_data.character.inventory[key][i], count: 1});
             }
         }
         else {
+            save_data.character.inventory[key].item.value = item_templates[key].value;
+            if(item_templates[key].item_type === "EQUIPPABLE") {
+                save_data.character.inventory[key].item.equip_effect = item_templates[key].equip_effect;
+            }
             item_list.push({item: save_data.character.inventory[key].item, count: save_data.character.inventory[key].count});
         }
         
     }); //add all loaded items to list
 
-    add_to_inventory(item_list); // and then to inventory
+    add_to_inventory("character", item_list); // and then to inventory
+
+    character.money = save_data.character.money || 0;
+    update_displayed_money();
 
     Object.keys(save_data.skills).forEach(function(key){ 
         if(save_data.skills[key].total_xp > 0) {
@@ -1450,8 +1806,22 @@ window.change_location = change_location;
 window.start_dialogue = start_dialogue;
 window.end_dialogue = end_dialogue;
 window.start_textline = start_textline;
+
 window.start_trade = start_trade;
-window.end_trade = end_trade;
+window.exit_trade = exit_trade;
+window.add_to_buying_list = add_to_buying_list;
+window.remove_from_buying_list = remove_from_buying_list;
+window.add_to_selling_list = add_to_selling_list;
+window.remove_from_selling_list = remove_from_selling_list;
+window.cancel_trade = cancel_trade;
+window.accept_trade = accept_trade;
+
+window.format_money = format_money;
+window.get_character_money = get_character_money;
+
+window.sort_displayed_inventory = sort_displayed_inventory;
+window.update_displayed_inventory = update_displayed_inventory;
+window.update_displayed_trader_inventory = update_displayed_trader_inventory;
 
 window.save_to_localStorage = save_to_localStorage;
 window.save_to_file = save_to_file;
@@ -1462,9 +1832,10 @@ if("save data" in localStorage) {
     load_from_localstorage();
 }
 else {
-    add_to_inventory([{item: new Item(item_templates["Hard stone"])}, {item: new Item(item_templates["Raggy leather pants"])}]);
+    add_to_inventory("character", [{item: new Item(item_templates["Hard stone"])}, {item: new Item(item_templates["Raggy leather pants"])}]);
     equip_item_from_inventory({name: "Hard stone", id: 0});
     equip_item_from_inventory({name: "Raggy leather pants", id: 0});
+    character.money = 10;
 }
 //checks if there's an existing save file, otherwise just sets up some initial equipment
 

@@ -5,7 +5,7 @@ function Skill(skill_data) {
     this.names = skill_data.names; // put only {0: name} to have skill always named the same, no matter the level
     this.description = skill_data.description;
     this.current_level = 0; //initial lvl
-    this.max_level = skill_data.max_level || 100; //max possible lvl, dont make it too high
+    this.max_level = skill_data.max_level || 60; //max possible lvl, dont make it too high
     this.max_level_coefficient = skill_data.max_level_coefficient;
     this.current_xp = 0; // how much of xp_to_next_lvl there is currently
     this.total_xp = 0; // total collected xp, on loading calculate lvl based on this (so to not break skills if scaling ever changes)
@@ -127,37 +127,37 @@ skills["Shield blocking"] = new Skill({skill_id: "Shield blocking",
 skills["Swords"] = new Skill({skill_id: "Swords", 
                               names: {0: "Sword [Basics]"}, 
                               description: "Ability to fight with use of swords, increases damage dealt", 
-                              max_level_coefficient: 10});
+                              max_level_coefficient: 8});
 
 skills["Axes"] = new Skill({skill_id: "Axes", 
                             names: {0: "Axe [Basics]"}, 
                             description: "Ability to fight with use of axes, increases damage dealt", 
-                            max_level_coefficient: 10});
+                            max_level_coefficient: 8});
 
 skills["Spears"] = new Skill({skill_id: "Spears", 
                               names: {0: "Spear [Basics]"}, 
                               description: "Ability to fight with use of spears, increases damage dealt", 
-                              max_level_coefficient: 10});
+                              max_level_coefficient: 8});
 
 skills["Blunt weapons"] = new Skill({skill_id: "Blunt weapons", 
                                      names: {0: "Blunt weapons [Basics]"}, 
                                      description: "Ability to fight with use of blunt weapons, increases damage dealt", 
-                                     max_level_coefficient: 10});
+                                     max_level_coefficient: 8});
 
 skills["Daggers"] = new Skill({skill_id: "Daggers",
                                names: {0: "Dagger [Basics]"},
                                description: "Ability to use daggers, increases damage dealt",
-                               max_level_coefficient: 10});
+                               max_level_coefficient: 8});
 
 skills["Wands"] = new Skill({skill_id: "Wands", 
                              names: {0: "Wand [Basics]"}, 
                              description: "Ability to cast spells with magic wands, increases damage dealt", 
-                             max_level_coefficient: 10});
+                             max_level_coefficient: 8});
 
 skills["Staffs"] = new Skill({skill_id: "Staffs", 
                               names: {0: "Staff [Basics]"}, 
                               description: "Ability to cast spells with magic staffs, increases damage dealt", 
-                              max_level_coefficient: 10});
+                              max_level_coefficient: 8});
 
 
 

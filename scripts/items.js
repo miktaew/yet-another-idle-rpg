@@ -61,14 +61,14 @@ item_templates["Rat fang"] = new Item({
 });
 
 item_templates["Rat pelt"] = new Item({
-    name: "Rat pelt", description: "Pelt of a huge rat, terrible quality", value: 2, stackable: true,
+    name: "Rat pelt", description: "Pelt of a huge rat, terrible quality but maybe there's some use", value: 2, stackable: true,
     item_type: "OTHER",
 });
 
 //equippables:
 
 item_templates["Ratslayer"] = new Item({
-    name: "Ratslayer", description: "Test item", value: 1000, 
+    name: "Ratslayer", description: "Test item", value: 1000000000, 
     item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "sword",
     equip_effect: {
         attack: {
@@ -90,18 +90,32 @@ item_templates["Hard stone"] = new Item({
 });
 
 item_templates["Long stick"] = new Item({
-    name: "Long stick", description: "Can be used as a simple weapon", value: 8,
+    name: "Long stick", description: "Can be used as a simple weapon", value: 3,
     item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "blunt weapon",
     equip_effect: {
         attack: {
-            flat_bonus: 5,
+            flat_bonus: 4,
+
+        }
+    }
+});
+
+item_templates["Sharpened long stick"] = new Item({
+    name: "Sharpened long stick", description: "Works somewhat okay-ish as a makeshift spear", value: 10,
+    item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "spear",
+    equip_effect: {
+        attack: {
+            flat_bonus: 6,
             multiplier: 1,
+        },
+        agility: {
+            flat_bonus: 1,
         }
     }
 });
 
 item_templates["Rusty knife"] = new Item({
-    name: "Rusty knife", description: "Knife of an unknown designation, rusty and not very sharp", value: 10,
+    name: "Rusty knife", description: "Knife of an unknown designation, rusty and dull", value: 10,
     item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "dagger",
     equip_effect: {
         attack: {
@@ -118,18 +132,18 @@ item_templates["Rusty knife"] = new Item({
 });
 
 item_templates["Worn-out wooden sword"] = new Item({
-    name: "Worn-out wooden sword", description: "Closer to a toy than to a real weapon", value: 8,
+    name: "Worn-out wooden sword", description: "Closer to a toy than to a real weapon", value: 10,
     item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "sword",
     equip_effect: {
         attack: {
-            flat_bonus: 5,
+            flat_bonus: 7,
             multiplier: 1
         }
     }
 });
 
 item_templates["Plank with a handle"] = new Item({
-    name: "Plank with a handle", description: "Technically can be used as a very basic shield, except it won't really block anything", value: 5,
+    name: "Plank with a handle", description: "Technically can be used as a very basic shield, except it won't really block anything", value: 7,
     item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 1,
 });
 
