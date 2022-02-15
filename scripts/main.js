@@ -10,8 +10,8 @@ import { traders } from "./trade.js";
 
 //player character
 const character = {name: "Hero", titles: {}, 
-                   stats: {max_health: 30, health: 30, strength: 2, agility: 4, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, attack_power: 0,
-                        hit_chance: 0, evasion_chance: 0, block_chance: 0, defense: 0},
+                   stats: {max_health: 30, health: 30, strength: 2, agility: 4, dexterity: 4, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, 
+                    attack_power: 0, hit_chance: 0, evasion_chance: 0, block_chance: 0, defense: 0},
                    // crit damage is a multiplier; defense should be only based on worn armor and/or magic skills;
                    inventory: {},
                    equipment: {head: null, torso: null, 
@@ -30,9 +30,10 @@ const equipment_slots_divs = {head: document.getElementById("head_slot"), torso:
                               };		
                             
 const stats_divs = {strength: document.getElementById("strength_slot"), agility: document.getElementById("agility_slot"),
-                    magic: document.getElementById("magic_slot"), attack_speed: document.getElementById("attack_speed_slot"),
-                    attack_power: document.getElementById("attack_power_slot"), defense: document.getElementById("defense_slot"),
-                    crit_rate: document.getElementById("crit_rate_slot"), crit_multiplier: document.getElementById("crit_multiplier_slot")
+                    dexterity: document.getElementById("dexterity_slot"), magic: document.getElementById("magic_slot"), 
+                    attack_speed: document.getElementById("attack_speed_slot"), attack_power: document.getElementById("attack_power_slot"), 
+                    defense: document.getElementById("defense_slot"), crit_rate: document.getElementById("crit_rate_slot"), 
+                    crit_multiplier: document.getElementById("crit_multiplier_slot")
                     };
 
 const other_combat_divs = {hit_chance: document.getElementById("hit_chance_slot"), defensive_action: document.getElementById("defensive_action_slot"),
@@ -377,6 +378,11 @@ function add_to_buying_list(selected_item) {
     const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
 
     if(is_stackable) {
+        
+        if(traders[current_trader].inventory[selected_item.item.split(' #')[0]].count < selected_item.count) {
+            selected_item.count = traders[current_trader].inventory[selected_item.item.split(' #')[0]].count;
+        }
+
         const present_item = to_buy.items.find(a => a.item === selected_item.item);
 
         if(present_item) {
@@ -417,6 +423,11 @@ function add_to_selling_list(selected_item) {
     const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
 
     if(is_stackable) {
+        
+        if(character.inventory[selected_item.item.split(' #')[0]].count < selected_item.count) {
+            selected_item.count = character.inventory[selected_item.item.split(' #')[0]].count;
+        }
+        
         const present_item = to_sell.items.find(a => a.item === selected_item.item);
         
         if(present_item) {
@@ -520,7 +531,17 @@ function update_displayed_trader_inventory(sorting_param) {
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
 
-            item_div.classList.add("inventory_item", 'trader_item');
+            item_div.classList.add('item_stackable', "inventory_item", 'trader_item');
+
+            const trade_button_5 = document.createElement("div");
+            trade_button_5.classList.add("trade_ammount_button");
+            trade_button_5.innerText = "5";
+            trade_button_5.setAttribute("data-trade_ammount", 5);
+
+            const trade_button_10 = document.createElement("div");
+            trade_button_10.classList.add("trade_ammount_button");
+            trade_button_10.innerText = "10";
+            trade_button_10.setAttribute("data-trade_ammount", 10);
 
             item_div.appendChild(create_item_tooltip(trader.inventory[key].item, {trader: true}));
 
@@ -528,6 +549,9 @@ function update_displayed_trader_inventory(sorting_param) {
             item_control_div.setAttribute("data-trader_item", `${trader.inventory[key].item.name}`);
             item_control_div.setAttribute("data-item_count", `${item_count}`);
             item_control_div.appendChild(item_div);
+
+            item_control_div.appendChild(trade_button_5);
+            item_control_div.appendChild(trade_button_10);
 
             trader_inventory_div.appendChild(item_control_div);
         }
@@ -551,14 +575,27 @@ function update_displayed_trader_inventory(sorting_param) {
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
 
-            item_div.classList.add("inventory_item", 'trader_item');
+            item_div.classList.add('item_stackable', "inventory_item", 'trader_item');
 
             item_div.appendChild(create_item_tooltip(actual_item));
+
+            const trade_button_5 = document.createElement("div");
+            trade_button_5.classList.add("trade_ammount_button");
+            trade_button_5.innerText = "5";
+            trade_button_5.setAttribute("data-trade_ammount", 5);
+
+            const trade_button_10 = document.createElement("div");
+            trade_button_10.classList.add("trade_ammount_button");
+            trade_button_10.innerText = "10";
+            trade_button_10.setAttribute("data-trade_ammount", 10);
 
             item_control_div.classList.add('item_to_trade', 'trader_item_control', 'inventory_item_control', `trader_item_${actual_item.item_type.toLowerCase()}`);
             item_control_div.setAttribute("data-trader_item", `${actual_item.name}`);
             item_control_div.setAttribute("data-item_count", `${item_count}`);
             item_control_div.appendChild(item_div);
+
+            item_control_div.appendChild(trade_button_5);
+            item_control_div.appendChild(trade_button_10);
 
             trader_inventory_div.appendChild(item_control_div);
             
@@ -638,8 +675,9 @@ function clear_action_div() {
 
 function get_new_enemy() {
     current_enemy = current_location.get_next_enemy();
-    enemy_stats_div.innerHTML = `Str: ${current_enemy.stats.strength} | Agl: ${current_enemy.stats.agility}
-    | Def: ${current_enemy.stats.defense} | Atk speed: ${current_enemy.stats.attack_speed.toFixed(1)}`
+    enemy_stats_div.innerHTML = `Str: ${current_enemy.stats.strength} | Agl: ${current_enemy.stats.agility} 
+    | Dex: ${current_enemy.stats.dexterity} | Def: ${current_enemy.stats.defense} 
+    | Atk speed: ${current_enemy.stats.attack_speed.toFixed(1)}`
 
     enemy_name_div.innerHTML = current_enemy.name;
 
@@ -1060,7 +1098,7 @@ function clear_enemy_and_enemy_info() {
     current_enemy = null;
     current_enemy_health_value_div.innerHTML = "0";
     current_enemy_health_bar.style.width = "100%";
-    enemy_stats_div.innerHTML = `Str: 0 | Agl: 0 | Def: 0 | Magic: 0 | Atk speed: 0;`
+    enemy_stats_div.innerHTML = `Str: 0 | Agl: 0 | Dex: 0 | Def: 0 | Magic: 0 | Atk speed: 0;`
     enemy_name_div.innerHTML = "None";
 }
 
@@ -1188,7 +1226,6 @@ function update_displayed_inventory() {
                 const item_control_div = document.createElement("div");
                 const item_div = document.createElement("div");
                 const item_name_div = document.createElement("div");
-    
 
                 item_name_div.innerHTML = `${character.inventory[key][i].name}`;
                 item_name_div.classList.add("inventory_item_name");
@@ -1241,14 +1278,26 @@ function update_displayed_inventory() {
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
 
-            item_div.classList.add("inventory_item", 'character_item', `item_${character.inventory[key].item.item_type.toLowerCase()}`);
+            item_div.classList.add("inventory_item", 'character_item', 'item_stackable', `item_${character.inventory[key].item.item_type.toLowerCase()}`);
 
             item_div.appendChild(create_item_tooltip(character.inventory[key].item));
+
+            const trade_button_5 = document.createElement("div");
+            trade_button_5.classList.add("trade_ammount_button");
+            trade_button_5.innerText = "5";
+            trade_button_5.setAttribute("data-trade_ammount", 5);
+
+            const trade_button_10 = document.createElement("div");
+            trade_button_10.classList.add("trade_ammount_button");
+            trade_button_10.innerText = "10";
+            trade_button_10.setAttribute("data-trade_ammount", 10);
 
             item_control_div.classList.add('inventory_item_control', 'character_item_control', `character_item_${character.inventory[key].item.item_type.toLowerCase()}`);
             item_control_div.setAttribute("data-character_item", `${character.inventory[key].item.name}`)
             item_control_div.setAttribute("data-item_count", `${item_count}`)
             item_control_div.appendChild(item_div);
+            item_control_div.appendChild(trade_button_5);
+            item_control_div.appendChild(trade_button_10);
 
             inventory_div.appendChild(item_control_div);
         }
@@ -1302,14 +1351,27 @@ function update_displayed_inventory() {
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
 
-            item_div.classList.add("inventory_item", 'character_item');
+            item_div.classList.add('item_stackable', "inventory_item", 'character_item');
 
             item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
+
+            const trade_button_5 = document.createElement("div");
+            trade_button_5.classList.add("trade_ammount_button");
+            trade_button_5.innerText = "5";
+            trade_button_5.setAttribute("data-trade_ammount", 5);
+
+            const trade_button_10 = document.createElement("div");
+            trade_button_10.classList.add("trade_ammount_button");
+            trade_button_10.innerText = "10";
+            trade_button_10.setAttribute("data-trade_ammount", 10);
 
             item_control_div.classList.add('item_to_trade', 'character_item_control', 'inventory_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
             item_control_div.setAttribute("data-character_item", `${actual_item.name}`);
             item_control_div.setAttribute("data-item_count", `${item_count}`);
             item_control_div.appendChild(item_div);
+
+            item_control_div.appendChild(trade_button_5);
+            item_control_div.appendChild(trade_button_10);
 
             inventory_div.appendChild(item_control_div);
             
@@ -1438,7 +1500,7 @@ function update_displayed_equipment() {
 function update_character_stats() { //updates character stats
     if(character.equipment.weapon != null) { 
         character.stats.attack_power = (character.stats.strength + character.equipment.weapon.equip_effect.attack.flat_bonus) 
-                                        * character.equipment.weapon.equip_effect.attack.multiplier;
+                                        * (character.equipment.weapon.equip_effect.attack.multiplier || 1);
     } 
     else {
         character.stats.attack_power = character.stats.strength;
@@ -1477,10 +1539,10 @@ function update_combat_stats() { //chances to hit and evade/block
     }
 
     if(current_enemy != null) { //IN COMBAT
-        character.stats.hit_chance = Math.min(1, Math.max(0.2, (character.stats.agility/current_enemy.stats.agility) * 0.5 * skills["Combat"].get_coefficient("multiplicative")));
+        character.stats.hit_chance = Math.min(1, Math.max(0.2, (character.stats.dexterity/current_enemy.stats.agility) * 0.5 * skills["Combat"].get_coefficient("multiplicative")));
         //so 100% if at least twice more agility, 50% if same, and never less than 20%
         if(character.equipment.offhand == null || character.equipment.offhand.offhand_type !== "shield") {
-            character.stats.evasion_chance = Math.min(0.95, (character.stats.agility/current_enemy.stats.agility) * 0.33 * skills["Evasion"].get_coefficient("multiplicative"));
+            character.stats.evasion_chance = Math.min(0.95, (character.stats.agility/current_enemy.stats.dexterity) * 0.33 * skills["Evasion"].get_coefficient("multiplicative"));
             //so up to 95% if at least thrice more agility, 33% if same, can go down almost to 0%
         }
     } 

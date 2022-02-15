@@ -42,14 +42,14 @@
                         <div class = "stat_slot_div"> 
                             <div class = "stat_name"> Agility: </div>
                             <div class = "stat_value" id = "agility_slot"></div> 
-                            <span class = "stat_tooltip"> Your agility. It affects chance to hit and evade </span>
+                            <span class = "stat_tooltip"> Your agility. It affects your evasion chance </span>
                         </div>
                     </div>
                     <div class = "grid_container">
                         <div class = "stat_slot_div"> 
-                            <div class = "stat_name"> Magic: </div>
-                            <div class = "stat_value" id = "magic_slot"></div> 
-                            <span class = "stat_tooltip"> Your magic power. It affects damage of magic attacks </span>
+                            <div class = "stat_name"> Dexterity: </div>
+                            <div class = "stat_value" id = "dexterity_slot"></div> 
+                            <span class = "stat_tooltip"> Your dexterity. It affects your chance to hit target </span>
                         </div>
                         <div class = "stat_slot_div"> 
                             <div class = "stat_name"> Atk spd: </div>
@@ -67,6 +67,19 @@
                             <div class = "stat_name"> Defense: </div>
                             <div class = "stat_value" id = "defense_slot"></div> 
                             <span class = "stat_tooltip"> Your defense. Based on worn equipment, lowers damage taken </span>
+                        </div>
+                        
+                    </div>
+                    <div class = "grid_container">
+                        <div class = "stat_slot_div"> 
+                            <div class = "stat_name"> Magic: </div>
+                            <div class = "stat_value" id = "magic_slot"></div> 
+                            <span class = "stat_tooltip"> Your magic power. It affects damage of magic attacks </span>
+                        </div>
+                        <div class = "stat_slot_div" id ="unused_stat_div"> 
+                            <div class = "stat_name">  </div>
+                            <div class = "stat_value" id = "unusued_slot"></div> 
+                            <span class = "stat_tooltip"> Maybe something will be here </span>
                         </div>
                     </div>
                     <div class = "grid_container">
@@ -342,18 +355,30 @@
                 in_trade = true;
                 total_price = 0;
                 trade_price_value.innerHTML = format_money(total_price);
+                document.documentElement.style.setProperty('--trade_ammount_button_display', 'inline_block');
                 start_trade(trader_key);
             }
             function exitTrade() {
                 in_trade = false;
                 total_price = 0;
                 trade_price_value.innerHTML = format_money(total_price);
+                document.documentElement.style.setProperty('--trade_ammount_button_display', 'none');
+
+                const accept_button = document.getElementById("accept_trade_button");
+                accept_button.style.cursor = "pointer";
+                accept_button.style.backgroundColor = "green";
+
                 exit_trade();
             }
 
             function cancelTrade() {
                 total_price = 0;
                 trade_price_value.innerHTML = format_money(total_price);
+
+                const accept_button = document.getElementById("accept_trade_button");
+                accept_button.style.cursor = "pointer";
+                accept_button.style.backgroundColor = "green";
+
                 cancel_trade();
             }
 
@@ -458,6 +483,9 @@
                     } else if(hovered_element.classList.contains("inventory_item_name")) {
                         hovered_element.parentNode.children[1].style.left = event.pageX + "px";
                         hovered_element.parentNode.children[1].style.top = event.pageY - 370 + "px";
+                    } else if(hovered_element.classList.contains("trade_ammount_button")) {
+                        hovered_element.parentNode.children[0].children[1].style.left = event.pageX + "px";
+                        hovered_element.parentNode.children[0].children[1].style.top = event.pageY - 370 + "px";
                     }
                 }
 
@@ -555,7 +583,7 @@
                     }
                     var clicked_element = event.target;
 
-                    const number_to_move = 1; //TODO: make so it's based on button if there are buttons and otherwise is 1
+                    var number_to_move = 1; //TODO: make so it's based on button if there are buttons and otherwise is 1
 
                     //reassignes clicked element to the one with inventory_item_control class 
                     if(!clicked_element.classList.contains("inventory_item_control")) {
@@ -563,6 +591,9 @@
                             clicked_element = clicked_element.parentNode; 
                         } else if(clicked_element.classList.contains("inventory_item_name")) {
                             clicked_element = clicked_element.parentNode.parentNode; 
+                        } else if(clicked_element.classList.contains("trade_ammount_button")) {
+                            number_to_move = Number(clicked_element.getAttribute("data-trade_ammount"));
+                            clicked_element = clicked_element.parentNode; 
                         } else {
                             return;
                         }
@@ -592,13 +623,16 @@
                     }
                     var clicked_element = event.target;
 
-                    const number_to_move = 1; //make so it's based on button if there are buttons and otherwise is 1
+                    var number_to_move = 1; //make so it's based on button if there are buttons and otherwise is 1
 
                     if(!clicked_element.classList.contains("inventory_item_control")) {
                         if(clicked_element.classList.contains("inventory_item")) {
                             clicked_element = clicked_element.parentNode; 
                         } else if(clicked_element.classList.contains("inventory_item_name")) {
                             clicked_element = clicked_element.parentNode.parentNode; 
+                        } else if(clicked_element.classList.contains("trade_ammount_button")) {
+                            number_to_move = Number(clicked_element.getAttribute("data-trade_ammount"));
+                            clicked_element = clicked_element.parentNode; 
                         } else {
                             return;
                         }

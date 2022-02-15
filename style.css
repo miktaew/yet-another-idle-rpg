@@ -2,6 +2,7 @@
 	--equipment_display: initial;
 	--consumables_display: initial;
 	--other_display: initial;
+	--trade_ammount_button_display: none;
 }
 
 body {
@@ -431,6 +432,34 @@ body {
 	background-color: rgba(0, 128, 0, 0.4);
 }
 
+.trade_ammount_button {
+	display: var(--trade_ammount_button_display);
+	color: white;
+	border-right: 1px solid white;
+	border-left: 1px solid white;
+	padding-left: 2px;
+	padding-right: 2px;
+	margin-left: 5px;
+}
+
+.trade_ammount_button {
+	display: var(--trade_ammount_button_display);
+	color: white;
+	border-right: 1px solid white;
+	border-left: 1px solid white;
+	padding-left: 2px;
+	padding-right: 2px;
+	margin-left: 5px;
+}
+
+.item_stackable {
+	width: 291px;
+}
+
+.trader_item_control  .item_stackable {
+	width: 391px;
+}
+
 #accept_trade_button, #cancel_trade_button, .trader_sorting_button {
     float:left;
 	width: 223;
@@ -767,6 +796,10 @@ body {
 	display: inline-block;
 	text-align: right;
 	padding-right: 5px;
+}
+
+#unused_stat_div {
+	background-image: linear-gradient(to bottom right, rgba(70, 70, 70, 0.9), rgba(0, 0, 0, 0.9));
 }
 
 

@@ -95,7 +95,6 @@ item_templates["Long stick"] = new Item({
     equip_effect: {
         attack: {
             flat_bonus: 4,
-
         }
     }
 });

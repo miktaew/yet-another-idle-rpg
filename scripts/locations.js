@@ -59,8 +59,11 @@ function Combat_zone(location_data) {
         return new Enemy({
             name: enemy.name, description: enemy.description, xp_value: enemy.xp_value, 
             stats: {health: Math.round(enemy.stats.health * (1.1 - Math.random() * 0.2)),
-                    strength: Math.round(enemy.stats.strength * (1.1 - Math.random() * 0.2)), agility: Math.round(enemy.stats.agility * (1.1 - Math.random() * 0.2)),
-                    magic: Math.round(enemy.stats.magic * (1.1 - Math.random() * 0.2)), attack_speed: Math.round(enemy.stats.attack_speed * (1.1 - Math.random() * 0.2)*100)/100,
+                    strength: Math.round(enemy.stats.strength * (1.1 - Math.random() * 0.2)), 
+                    agility: Math.round(enemy.stats.agility * (1.1 - Math.random() * 0.2)),
+                    dexterity: Math.round(enemy.stats.dexterity * (1.1 - Math.random() * 0.2)),
+                    magic: Math.round(enemy.stats.magic * (1.1 - Math.random() * 0.2)), 
+                    attack_speed: Math.round(enemy.stats.attack_speed * (1.1 - Math.random() * 0.2)*100)/100,
                     defense: Math.round(enemy.stats.defense * (1.1 - Math.random() * 0.2))}, 
             loot_list: enemy.loot_list
             //up to 10% deviation for each stat
