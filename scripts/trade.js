@@ -21,9 +21,7 @@ function Trader(trader_data) {
     //how much more expensive are the trader's items than their actual value, with default being 2 (so 2x more)
 
     this.refresh = function() {
-        if(this.last_refresh < 0 || current_game_time.day_count - (this.last_refresh + this.refresh_shift) >= this.refresh_time) { 
-            //if enough time passed since last refresh
-
+        if(this.can_refresh()) { 
             //refresh inventory
             this.inventory = this.get_inventory_from_template();
 
@@ -31,6 +29,12 @@ function Trader(trader_data) {
             return true;
         } 
         //otherwise do nothing
+        return false;
+    }
+
+    this.can_refresh = function() {
+        return (this.last_refresh < 0 || current_game_time.day_count - (this.last_refresh + this.refresh_shift) >= this.refresh_time);
+                    //if enough time passed since last refresh
     }
 
     this.get_inventory_from_template = function() {

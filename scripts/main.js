@@ -7,19 +7,7 @@ import { skills } from "./skills.js";
 import { dialogues } from "./dialogues.js";
 import { Enemy, enemy_templates } from "./enemies.js";
 import { traders } from "./trade.js";
-
-//player character
-const character = {name: "Hero", titles: {}, 
-                   stats: {max_health: 30, health: 30, strength: 2, agility: 4, dexterity: 4, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, 
-                    attack_power: 0, hit_chance: 0, evasion_chance: 0, block_chance: 0, defense: 0},
-                   // crit damage is a multiplier; defense should be only based on worn armor and/or magic skills;
-                   inventory: {},
-                   equipment: {head: null, torso: null, 
-                            arms: null, ring: null, 
-                            weapon: null, offhand: null,
-                            legs: null, feet: null, 
-                            amulet: null},
-                    money: 0};
+import { character } from "./character.js";
 
 //equipment slots
 const equipment_slots_divs = {head: document.getElementById("head_slot"), torso: document.getElementById("torso_slot"),
@@ -62,7 +50,7 @@ var time_adjustment = 0;
 var start_date;
 var end_date;
 
-var current_dialogue = null;
+var current_dialogue;
 
 var current_trader = null;
 const to_sell = {value: 0, items: []};
@@ -80,6 +68,9 @@ const enemy_crit_damage = 2; //multiplier, not a flat bonus
 //character healt display
 const current_health_value_div = document.getElementById("character_health_value");
 const current_health_bar = document.getElementById("character_healthbar_current");
+
+//character xp display
+const character_xp_div = document.getElementById("character_xp_div");
 
 //enemy health display
 const current_enemy_health_value_div = document.getElementById("enemy_health_value");
@@ -118,12 +109,11 @@ const location_description_div = document.getElementById("location_description_d
 time_field.innerHTML = current_game_time.toString();
 
 // button testing cuz yes
+document.getElementById("test_button").style.display = "none";
 document.getElementById("test_button").addEventListener("click", () => 
 {
-    console.log("To sell", to_sell);
-    console.log("To buy", to_buy);
-    console.log("Character inv",character.inventory);
-    console.log("Trader inv",traders[current_trader].inventory);
+    add_xp_to_character(100);
+
 });
 
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
@@ -134,6 +124,9 @@ function capitalize_first_letter(some_string) {
 
 function change_location(location_name) {
     var location = locations[location_name];
+    if(!location) {
+        throw `No such location as "${location_name}"`;
+    }
     var action;
     clear_action_div();
     if(typeof current_location !== "undefined" && current_location.name !== location.name ) { 
@@ -768,6 +761,8 @@ function do_combat() {
 
                 enemy_count_div.children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemies_killed % current_location.enemy_count;
 
+                add_xp_to_character(current_enemy.xp_value, true);
+
                 current_enemy = null;
                 additional_enemy_attacks = 0;
                 return;
@@ -931,7 +926,8 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
                 skill_bar_current, 
                 skill_tooltip -> children(2):
                     tooltip_xp,
-                    tooltip_desc
+                    tooltip_desc,
+                    tooltip_effect
     */
 
     skill_bar_divs[skill.skill_id].children[0].children[0].children[0].innerHTML = `${skill.name()} : level ${skill.current_level}`;
@@ -940,9 +936,14 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
     //skill_bar_xp
     skill_bar_divs[skill.skill_id].children[0].children[1].style.width = `${100*skill.current_xp/skill.xp_to_next_lvl}%`;
     //skill_bar_current
-
     skill_bar_divs[skill.skill_id].children[0].children[2].children[0].innerHTML = `${skill.current_xp}/${skill.xp_to_next_lvl}`;
     //tooltip_xp
+
+    if(typeof skill.get_effect_description !== "undefined")
+        {
+            skill_bar_divs[skill.skill_id].children[0].children[2].children[2].innerHTML = `${skill.get_effect_description()}`;
+            //tooltip_effect
+        }
     
     if(typeof level_up !== "undefined" && (typeof should_info === "undefined" || should_info))
     {
@@ -958,6 +959,29 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
     }
 
     //TODO: sort displayed skills
+}
+
+function add_xp_to_character(xp_to_add, should_info) {
+    const level_up = character.add_xp(xp_to_add * (global_xp_bonus || 1));
+
+    /*
+    character_xp_div
+        character_level_div
+        character_xp_bar_max
+            character_xp_bar_current
+        charaxter_xp_value
+
+    */
+
+    character_xp_div.children[1].children[0].style.width = `${100*character.xp.current_xp/character.xp.xp_to_next_lvl}%`;
+    character_xp_div.children[2].innerText = `${character.xp.current_xp}/${character.xp.xp_to_next_lvl} xp`;
+    
+    if((typeof should_info === "undefined" || should_info) && level_up) {
+        character_xp_div.children[0].innerText = `Level: ${character.xp.current_level}`;
+        log_message(level_up);
+        update_character_stats();
+        update_displayed_health();
+    }
 }
 
 function get_location_rewards(location) {
@@ -1539,8 +1563,8 @@ function update_combat_stats() { //chances to hit and evade/block
     }
 
     if(current_enemy != null) { //IN COMBAT
-        character.stats.hit_chance = Math.min(1, Math.max(0.2, (character.stats.dexterity/current_enemy.stats.agility) * 0.5 * skills["Combat"].get_coefficient("multiplicative")));
-        //so 100% if at least twice more agility, 50% if same, and never less than 20%
+        character.stats.hit_chance = Math.min(0.99, Math.max(0.2, (character.stats.dexterity/current_enemy.stats.agility) * 0.5 * skills["Combat"].get_coefficient("multiplicative")));
+        //so 99% if at least twice more agility, 50% if same, and never less than 20%
         if(character.equipment.offhand == null || character.equipment.offhand.offhand_type !== "shield") {
             character.stats.evasion_chance = Math.min(0.95, (character.stats.agility/current_enemy.stats.dexterity) * 0.33 * skills["Evasion"].get_coefficient("multiplicative"));
             //so up to 95% if at least thrice more agility, 33% if same, can go down almost to 0%
@@ -1604,12 +1628,13 @@ function format_money(num) {
     return sign + value;
 }
 
+//puts important stuff into the save string and returns it
 function create_save() {
     const save_data = {};
     save_data["current time"] = current_game_time;
     save_data["character"] = {name: character.name, titles: character.titles, 
                               inventory: character.inventory, equipment: character.equipment,
-                              money: character.money};
+                              money: character.money, xp: character.xp};
     //no need to save stats; on loading, base stats will be taken from code and then additional stuff will be calculated again (in case anything changed)
 
     save_data["skills"] = {};
@@ -1644,13 +1669,21 @@ function create_save() {
         });
     }); //save dialogues' and their textlines' unlocked/finished statuses
 
-    //TODO: dialogues
+    save_data["traders"] = {};
+    Object.keys(traders).forEach(function(trader) {
+        if(traders[trader].last_refresh == -1 || traders[trader].can_refresh()) {
+            //no need to save, as trader would be anyway refreshed on any visit
+            return;
+        } else {
+            save_data["traders"][trader] = {inventory: traders[trader].inventory};
+        }
+    });
 
     return JSON.stringify(save_data);
-} //puts important stuff into the save string and returns it
+} 
 
 function save_to_file() {
-    return create_save();
+    return btoa(create_save());
 } //called from index.html
 
 function save_to_localStorage() {
@@ -1710,6 +1743,8 @@ function load(save_data) {
     character.money = save_data.character.money || 0;
     update_displayed_money();
 
+    add_xp_to_character(save_data.character.xp.total_xp, false);
+
     Object.keys(save_data.skills).forEach(function(key){ 
         if(save_data.skills[key].total_xp > 0) {
             add_xp_to_skill(skills[key], save_data.skills[key].total_xp, false);
@@ -1747,6 +1782,10 @@ function load_from_file(save_string) {
     }); //remove equipment
     character.inventory = {}; //reset inventory to not duplicate items
 
+    character.stats = character.base_stats;
+    character.xp = character.base_xp;
+    //reset stats and xp
+
     Object.keys(skills).forEach(function(key){
         if(skills[key].total_xp > 0) {
             skills[key].current_xp = 0;
@@ -1760,12 +1799,14 @@ function load_from_file(save_string) {
         delete skill_bar_divs[key];
     });
 
+    cancel_trade();
+
     const skill_list_div = document.getElementById("skill_list_div");
     while(skill_list_div.firstChild) {
         skill_list_div.removeChild(skill_list_div.lastChild);
     } //remove skill bars from display
 
-    load(JSON.parse(save_string));
+    load(atob(JSON.parse(save_string)));
 } //called on loading from file, clears everything
 
 function load_from_localstorage() {
@@ -1778,10 +1819,6 @@ function update_timer() {
 } //updates time div
 
 function update() {
-    //so technically everything is supposed to be happening in here
-    //maybe just a bunch of IFs, checking what character is currently doing and acting properly?
-    //i.e. fighting, sleeping, training, mining (if it even becomes a thing)
-    //active skills, like eating, probably can be safely calculated outside of this?
 
     setTimeout(function()
     {
@@ -1845,14 +1882,13 @@ function update() {
     }, 1000 - time_adjustment);
     //uses time_adjustment based on time_variance_accumulator for more precise overall stabilization
     //(instead of only stabilizing relative to previous tick, it stabilizes relative to sum of deviations)
+    //probably completely unnecessary lol, but hey, it sounds cool
 }
 
 function run() {
     if(typeof current_location === "undefined") {
         change_location("Village");
     } 
-    //to initialize the starting location
-    //later on call it also in the save loading method
     
     update_displayed_health();
         
@@ -1897,7 +1933,9 @@ else {
     add_to_inventory("character", [{item: new Item(item_templates["Hard stone"])}, {item: new Item(item_templates["Raggy leather pants"])}]);
     equip_item_from_inventory({name: "Hard stone", id: 0});
     equip_item_from_inventory({name: "Raggy leather pants", id: 0});
+    add_xp_to_character(0);
     character.money = 10;
+    update_displayed_money();
 }
 //checks if there's an existing save file, otherwise just sets up some initial equipment
 

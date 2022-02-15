@@ -18,15 +18,28 @@
                     <input type = "text" id = "character_name_field"> 
                 </div>
                 <div id = "character_title_div">
-                    No one
                     <!-- placeholder for future -->
                 </div>
+
                 <div id = "character_health_div"> 
+                    <div id = "character_health_text">Health</div>
                     <div id = "character_healthbar_max"> 
                         <div id = "character_healthbar_current">
                         </div>
                     </div>
                     <div id = "character_health_value">
+                    </div>
+                </div>
+                <div id = "character_xp_div">
+                    <div id = "character_level_div">
+                        Lvl: 0
+                    </div>
+                    <div id ="character_xp_bar_max">
+                        <div id = "character_xp_bar_current">
+                            
+                        </div>
+                    </div>
+                    <div id = "character_xp_value">
                     </div>
                 </div>
             </div>
@@ -570,9 +583,6 @@
 
                 }
 
-                /*
-                TODO: get item count from buttons
-                */
 
                 //move clicked items to proper list
                 var inventory_content_div = document.getElementById("inventory_content_div");
@@ -583,7 +593,7 @@
                     }
                     var clicked_element = event.target;
 
-                    var number_to_move = 1; //TODO: make so it's based on button if there are buttons and otherwise is 1
+                    var number_to_move = 1;
 
                     //reassignes clicked element to the one with inventory_item_control class 
                     if(!clicked_element.classList.contains("inventory_item_control")) {
@@ -597,6 +607,11 @@
                         } else {
                             return;
                         }
+                    }
+
+                    if(clicked_element.classList.contains("equipped_item_control")) {
+                        console.log("Can't sell equipped items");
+                        return;
                     }
 
                     const selected_item = clicked_element.getAttribute("data-character_item");
@@ -623,7 +638,7 @@
                     }
                     var clicked_element = event.target;
 
-                    var number_to_move = 1; //make so it's based on button if there are buttons and otherwise is 1
+                    var number_to_move = 1;
 
                     if(!clicked_element.classList.contains("inventory_item_control")) {
                         if(clicked_element.classList.contains("inventory_item")) {

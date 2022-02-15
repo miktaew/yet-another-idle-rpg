@@ -143,12 +143,12 @@ item_templates["Worn-out wooden sword"] = new Item({
 
 item_templates["Plank with a handle"] = new Item({
     name: "Plank with a handle", description: "Technically can be used as a very basic shield, except it won't really block anything", value: 7,
-    item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 1,
+    item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 2,
 });
 
 item_templates["Crude wooden shield"] = new Item({
     name: "Crude wooden shield", description: "Crude shield made of wood, not very strong", value: 20,
-    item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 5,
+    item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 6,
 });
 
 item_templates["Wooden shield"] = new Item({

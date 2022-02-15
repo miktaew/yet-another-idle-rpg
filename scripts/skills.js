@@ -14,7 +14,7 @@ function Skill(skill_data) {
     this.total_xp_to_next_lvl = this.base_xp_cost; //total xp needed to lvl up
     this.get_effect_description = skill_data.get_effect_description;
 
-    this.xp_scaling = typeof skill_data.xp_scaling !== "undefined" && skill_data.xp_scaling > 1? skill_data.xp_scaling : 2;
+    this.xp_scaling = typeof skill_data.xp_scaling !== "undefined" && skill_data.xp_scaling > 1? skill_data.xp_scaling : 1.6;
     //how many times more xp needed for next level
 
     this.name = function() { // returns rank name of skill, based on current level

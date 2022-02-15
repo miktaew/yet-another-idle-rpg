@@ -491,7 +491,7 @@ body {
 
 #basic_character_info_div {
     width: 400px;
-    height: 80px;
+    height: 120px;
     z-index: 100;
 }
 
@@ -508,9 +508,9 @@ body {
 
 #character_div {
     width: 400px;
-    top: 86px;
+    top: 126px;
     padding-top: 7px;
-    height: 260px;
+    height: 220px;
 	max-width: 400px;
 	max-height: 300px;
     border-top: none;
@@ -531,26 +531,59 @@ body {
 }
 
 #character_health_div {
-	position: relative;
+	top: 50px;
 }
+
 #character_healthbar_max {
 	border: 2px solid red;
 	margin: auto;
-	margin-top:10px;
 	margin-bottom:10px;
-	width: 60%;
+	width: 85%;
 }
 #character_healthbar_current {
 	background-color: rgb(255, 46, 46);
 	height: 15px;
 }
 
-#character_health_value {
+#character_health_value, #character_health_text, #character_xp_value, #character_level_div {
 	color: white;
 	width: 100%;
+}
+#character_health_value, #character_health_text {
 	text-align: center;
-	position: absolute;
-	top: 0;
+}
+
+#character_health_value {
+	position: fixed;
+	width: 400px;
+	top: 56px;
+}
+#character_health_text, #character_level_div {
+	text-align: left; margin-left: 28px;
+}
+
+
+#character_xp_bar_max {
+	border: 2px solid rgb(255, 126, 0);
+	margin: auto;
+	width: 85%;
+}
+
+#character_xp_bar_current {
+	height: 16px;
+	background-color: orange;
+	width: 0px;
+}
+
+#character_xp_value {
+	position: fixed;
+	width: 400px;
+	top: 104px;
+	text-align: center;
+}
+
+#character_xp_div {
+
 }
 
 #character_title_div {
