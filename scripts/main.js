@@ -56,6 +56,13 @@ var current_trader = null;
 const to_sell = {value: 0, items: []};
 const to_buy = {value: 0, items: []};
 
+const active_effects = {};
+//e.g. health regen from food
+
+//active effects display
+const active_effects_tooltip = document.getElementById("effects_tooltip");
+const active_effect_count = document.getElementById("active_effect_count");
+
 const tickrate = 1;
 //how many ticks per second
 //best leave it at 1, as less is rather slow, and more makes ticks noticably unstable
@@ -109,10 +116,17 @@ const location_description_div = document.getElementById("location_description_d
 time_field.innerHTML = current_game_time.toString();
 
 // button testing cuz yes
-document.getElementById("test_button").style.display = "none";
+//document.getElementById("test_button").style.display = "none";
 document.getElementById("test_button").addEventListener("click", () => 
 {
-    add_xp_to_character(100);
+    //add_xp_to_character(100);
+    add_to_inventory("character", [{item: new Item(item_templates["Stale bread"]), count: 5}]);
+    add_to_inventory("character", [{item: new Item(item_templates["Fresh bread"]), count: 5}]);
+    //add_to_inventory("character", [{item: new Item(item_templates["Rat fang"]), count: 5}]);
+
+    console.log(active_effects);
+    console.log(traders["village trader"].can_refresh());
+    console.log(traders["village trader"]);
 
 });
 
@@ -318,7 +332,7 @@ function accept_trade() {
             //add to character inventory
             //remove from trader inventory
 
-            const item = to_buy.items.shift();
+            const item = to_buy.items.pop();
 
             add_to_inventory("character", [{item: new Item(item_templates[item.item.split(" #")[0]]), 
                                             count: item.count}])
@@ -332,7 +346,7 @@ function accept_trade() {
             //remove from character inventory
             //add to trader inventory
 
-            const item = to_sell.items.shift();
+            const item = to_sell.items.pop();
             
             remove_from_inventory("character", {name: item.item.split(" #")[0], 
                 count: item.count,
@@ -1018,13 +1032,13 @@ function unlock_location(location) {
 function do_resting() {
     if(character.stats.health < character.stats.max_health)
     {
-        var resting_heal_ammount = 1; 
-        //todo: leave this flat and let it serve as passive regeneration, but also add sleeping that will heal faster and scale with skill level
+        const resting_heal_ammount = 1; 
+        //todo: add sleeping that will heal faster and scale with level of some skill
+        //and also with max hp (like at least 1% of total hp, maybe even 10% with stuff maxed out?)
         character.stats.health += (resting_heal_ammount);
         update_displayed_health();
     }
 }
-
 
 //writes message to the message log
 function log_message(message_to_add, message_type) {
@@ -1221,6 +1235,30 @@ function dismantle_item() {
     //priority: extremely low
 }
 
+function use_item(item_name) { 
+    //can only use 1 at once and usable items are stackable, so item_name is enough
+
+    const item_effects = item_templates[item_name].use_effect;
+    console.log(item_effects);
+
+    Object.keys(item_effects).forEach(function(key) {
+        /*
+        add effects to active_effects if not present
+        same or lower strength: dont allow
+        stronger: overwrite current
+        */
+
+        //temporary implementation
+        if(!active_effects[key] || active_effects[key].flat < item_effects[key].flat) {
+            active_effects[key] = Object.assign({}, item_effects[key]);
+        }
+        
+    });
+
+    update_displayed_effects();
+    remove_from_inventory("character", {name: item_name, count: 1});
+}
+
 function update_displayed_money() {
     document.getElementById("money_div").innerHTML = `Your purse contains: ${format_money(character.money)}`;
 }
@@ -1320,6 +1358,14 @@ function update_displayed_inventory() {
             item_control_div.setAttribute("data-character_item", `${character.inventory[key].item.name}`)
             item_control_div.setAttribute("data-item_count", `${item_count}`)
             item_control_div.appendChild(item_div);
+
+            if(character.inventory[key].item.item_type === "USABLE") {
+                const item_use_button = document.createElement("div");
+                item_use_button.classList.add("item_use_button");
+                item_use_button.innerText = "[use]";
+                item_control_div.appendChild(item_use_button);
+            }    
+
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);
 
@@ -1450,7 +1496,6 @@ function equip_item(item) {
     update_character_stats();	
 }
 
-
 function unequip_item(item_slot) {
     if(character.equipment[item_slot] != null) {
         add_to_inventory("character", [{item: character.equipment[item_slot]}]);
@@ -1490,6 +1535,28 @@ function create_item_tooltip(item, options) {
             if(item.equip_effect[effect_key].multiplier != null) {
                     item_tooltip.innerHTML += 
                 `<br>${capitalize_first_letter(effect_key)} multiplier: ${item.equip_effect[effect_key].multiplier}`;
+            }
+        });
+    } 
+    else if (item.item_type === "USABLE") {
+
+        Object.keys(item.use_effect).forEach(function(effect) {
+
+            item_tooltip.innerHTML += `<br><br>Increases ${effect.replace("_", " ")} by`;
+
+            if(item.use_effect[effect].flat) {
+                item_tooltip.innerHTML += ` +${item.use_effect[effect].flat}`;
+                if(item.use_effect[effect].percent) {
+                    item_tooltip.innerHTML += ` and +${item.use_effect[effect].percent}%`;
+                }
+            } else if(item.use_effect[effect].percent) {
+                item_tooltip.innerHTML += ` +${item.use_effect[effect].percent}%`;
+            }
+
+            if(item.use_effect[effect].duration) {
+                item_tooltip.innerHTML += ` for ${item.use_effect[effect].duration} ticks`;
+            } else {
+                item_tooltip.innerHTML += ` permanently`;
             }
         });
     }
@@ -1608,6 +1675,40 @@ function update_displayed_combat_stats() {
     }
 }
 
+function update_displayed_effects() {
+    const effect_count = Object.keys(active_effects).length;
+    active_effect_count.innerText = effect_count;
+    if(effect_count > 0) {
+        active_effects_tooltip.innerHTML = '';
+        Object.keys(active_effects).forEach(function(effect) {
+            const effect_div = document.createElement("div");
+            const effect_desc_div = document.createElement("div");
+            const effect_duration_div = document.createElement("div");
+
+            effect_desc_div.innerText = `${capitalize_first_letter(effect.replace("_", " "))} +${active_effects[effect].flat}`;
+
+            effect_duration_div.innerText = active_effects[effect].duration;
+
+            effect_div.appendChild(effect_desc_div);
+            effect_div.append(effect_duration_div);
+            active_effects_tooltip.appendChild(effect_div);
+        });
+    } else {
+        active_effects_tooltip.innerHTML = 'No active effects';
+    }
+    update_displayed_effect_durations();
+}
+
+function update_displayed_effect_durations() {
+    //it just iterates over all tooltips and decreases their durations by 1
+    //kinda stupid, but makes some sense
+    //later on might instead make another function for it and call it here
+    for(let i = 0; i < active_effects_tooltip.children.length; i++) {
+        active_effects_tooltip.children[i].children[1].innerText = Number(active_effects_tooltip.children[i].children[1].innerText) - 1;
+    }
+
+}
+
 //formats money to a nice string in form x..x G xx S xx C (gold/silver/copper) 
 function format_money(num) {
     var value;
@@ -1675,9 +1776,11 @@ function create_save() {
             //no need to save, as trader would be anyway refreshed on any visit
             return;
         } else {
-            save_data["traders"][trader] = {inventory: traders[trader].inventory};
+            save_data["traders"][trader] = {inventory: traders[trader].inventory, last_refresh: traders[trader].last_refresh};
         }
     });
+
+    save_data["active_effects"] = active_effects;
 
     return JSON.stringify(save_data);
 } 
@@ -1686,15 +1789,17 @@ function save_to_file() {
     return btoa(create_save());
 } //called from index.html
 
-function save_to_localStorage() {
+function save_to_localStorage(is_manual) {
     localStorage.setItem("save data", create_save());
+    if(is_manual) {
+        console.log("Saved the game");
+    }
 }
 
 function load(save_data) {
     //single loading method
 
     //TODO: some loading screen
-    //TODO: clear/replace enemy info
 
     current_game_time.load_time(save_data["current time"]);
     time_field.innerHTML = current_game_time.toString();
@@ -1732,6 +1837,8 @@ function load(save_data) {
             save_data.character.inventory[key].item.value = item_templates[key].value;
             if(item_templates[key].item_type === "EQUIPPABLE") {
                 save_data.character.inventory[key].item.equip_effect = item_templates[key].equip_effect;
+            } else if(item_templates[key].item_type === "USABLE") {
+                save_data.character.inventory[key].item.use_effect = item_templates[key].use_effect;
             }
             item_list.push({item: save_data.character.inventory[key].item, count: save_data.character.inventory[key].count});
         }
@@ -1762,12 +1869,22 @@ function load(save_data) {
         });
     }); //load for dialogues and their textlines their unlocked/finished status
 
+    Object.keys(save_data.traders).forEach(function(trader) { 
+        traders[trader].inventory = save_data.traders[trader].inventory;
+        traders[trader].last_refresh = save_data.traders[trader].last_refresh;
+    }); //load trader inventories
+
     Object.keys(save_data.locations).forEach(function(key) {
         locations[key].is_unlocked = save_data.locations[key].is_unlocked;
         if("parent_location" in locations[key]) { // if combat zone
             locations[key].enemies_killed = save_data.locations[key].enemies_killed;
         }
     }); //load for locations their unlocked status and their killcounts
+
+    Object.keys(save_data.active_effects).forEach(function(effect) {
+        active_effects[effect] = save_data.active_effects[effect];
+    });
+    //TODO: apply effects properly
 
     change_location(save_data["current location"]);
 
@@ -1848,6 +1965,27 @@ function update() {
                 do_resting();
             }
         }
+
+        if(active_effects.health_regeneration) {
+            if(character.stats.health < character.stats.max_health) {
+                character.stats.health += active_effects.health_regeneration.flat;
+
+                if(character.stats.health > character.stats.max_health) {
+                    character.stats.health = character.stats.max_health
+                }
+
+                update_displayed_health();
+            }
+            active_effects.health_regeneration.duration -= 1;
+            if(active_effects.health_regeneration.duration <= 0) {
+                delete active_effects.health_regeneration;
+                update_displayed_effects();
+            }
+            else {
+                update_displayed_effect_durations();
+            }
+        }
+
         save_counter += 1;
         if(save_counter >= save_period) {
             save_counter = 0;
@@ -1916,6 +2054,8 @@ window.accept_trade = accept_trade;
 
 window.format_money = format_money;
 window.get_character_money = get_character_money;
+
+window.use_item = use_item;
 
 window.sort_displayed_inventory = sort_displayed_inventory;
 window.update_displayed_inventory = update_displayed_inventory;

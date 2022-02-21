@@ -29,25 +29,23 @@ function Item(item_data) {
     // equipment slot to where item goes
     this.equip_effect = item_data.equip_effect || {};
     // stats gained by equipping, {stats: {}, stat_multipliers: {}}
-    // multipliers probably will only be used for weapon damage
     this.weapon_type = item_data.weapon_type; // "sword", "axe", "dagger", "spear", "blunt weapon", "wand", "staff"
     //remember to add proper skills if adding new weapon types aside from those above
 
     this.offhand_type = item_data.offhand_type; // "shield", something else?
 
-    this.shield_strength = item_data.shield_strength;
+    this.shield_strength = item_data.shield_strength; //how much dmg can be blocked
 
+    this.use_effect = item_data.use_effect || {};
 
-    // if usable, bonus gained on using? (so heal hp, heal hunger, permanently raise max stats, etc)
-    // assume it can't be both usable and equippable 
+    // assume it can't be both usable and equippable  and that all usable items are stackable
 
 
     //crafting?
-    //might need something like is_crafting_unlocked (would need to be applied to templates probably)
-
 }
 
-
+//
+//
 //materials:
 
 item_templates["Rat tail"] = new Item({
@@ -65,6 +63,8 @@ item_templates["Rat pelt"] = new Item({
     item_type: "OTHER",
 });
 
+//
+//
 //equippables:
 
 item_templates["Ratslayer"] = new Item({
@@ -175,6 +175,33 @@ item_templates["Raggy leather pants"] = new Item({
         }
     }
 });
+
+//
+//
+//usables:
+
+item_templates["Stale bread"] = new Item({
+    name: "Stale bread", description: "Big piece of an old bread, still edible", value: 3,
+    stackable: true, item_type: "USABLE", 
+    use_effect: {
+        health_regeneration: {
+            flat: 1,
+            duration: 30,
+        },
+    }
+});
+
+item_templates["Fresh bread"] = new Item({
+    name: "Fresh bread", description: "Freshly baked bread, delicious", value: 8,
+    stackable: true, item_type: "USABLE", 
+    use_effect: {
+        health_regeneration: {
+            flat: 3,
+            duration: 60,
+        },
+    }
+});
+
 
 
 

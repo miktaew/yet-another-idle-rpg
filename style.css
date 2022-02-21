@@ -3,6 +3,8 @@
 	--consumables_display: initial;
 	--other_display: initial;
 	--trade_ammount_button_display: none;
+	--item_use_button_display: inline-block;
+	--item_other_width: 340px;
 }
 
 body {
@@ -155,10 +157,6 @@ body {
 	display: inline-block;
 	width: 325px;
 	font-weight: bold;
-}
-
-.item_other {
-	width: 340px;
 }
 
  .item_tooltip {
@@ -434,30 +432,39 @@ body {
 
 .trade_ammount_button {
 	display: var(--trade_ammount_button_display);
-	color: white;
 	border-right: 1px solid white;
 	border-left: 1px solid white;
-	padding-left: 2px;
-	padding-right: 2px;
-	margin-left: 5px;
+	
 }
 
-.trade_ammount_button {
-	display: var(--trade_ammount_button_display);
+.trade_ammount_button, .item_use_button {
 	color: white;
-	border-right: 1px solid white;
-	border-left: 1px solid white;
 	padding-left: 2px;
 	padding-right: 2px;
 	margin-left: 5px;
+	cursor: pointer;
+}
+
+.item_use_button {
+	display: var(--item_use_button_display);
+	width: 40px;
+	font-weight: bold;
 }
 
 .item_stackable {
 	width: 291px;
 }
 
+.item_stackable.item_other {
+	width: var(--item_other_width);
+}
+
 .trader_item_control  .item_stackable {
 	width: 391px;
+}
+
+.effects_div {
+	display: inline-block;
 }
 
 #accept_trade_button, #cancel_trade_button, .trader_sorting_button {
@@ -471,6 +478,12 @@ body {
 }
 #accept_trade_button {
 	background-color: green;
+}
+
+#active_effect_count {
+	text-align: right;
+	width: 90px;
+	font-weight: bold;
 }
 
 #cancel_trade_button {
@@ -582,10 +595,6 @@ body {
 	text-align: center;
 }
 
-#character_xp_div {
-
-}
-
 #character_title_div {
 	margin-top:5px;
 	color: white;
@@ -610,6 +619,34 @@ body {
 	color: white;
 	position: absolute;
 	bottom: 0;
+}
+
+#effects_div {
+	background-color: #232f47;
+	font-size: 16;
+	color: white;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	padding-left: 4px;
+	width: 200px;
+	left: 120px;
+	top: 294px;
+	position: fixed;
+}
+
+#effects_tooltip {
+	display: none;
+	position: absolute;
+	left: 220px;
+	z-index: 1000;
+	background-color: rgba(120, 120, 120, 0.9);
+	color: white;
+	border-radius: 10px;
+	margin-left: 30px;
+	padding: 10px; 
+	max-width: 300px;
+	width: fit-content;
+	height: auto;
 }
 
 #exit_trade_button {

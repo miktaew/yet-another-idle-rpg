@@ -87,7 +87,9 @@ inventory_templates["Basic"] = new Inventory_template({inventory_template :
         new Trade_item({item_name: "Rusty knife", count: [1,2]}),
         new Trade_item({item_name: "Worn-out wooden sword", count: [1]}),
         new Trade_item({item_name: "Sharpened long stick", count: [1,2]}),
-        new Trade_item({item_name: "Rat fang", count: [4,8]}),
+        new Trade_item({item_name: "Rat fang", count: [2,6]}),
+        new Trade_item({item_name: "Stale bread", count: [4,10]}),
+        new Trade_item({item_name: "Fresh bread", count: [2,5]}),
 ]});
 
 export {traders};

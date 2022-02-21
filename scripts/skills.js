@@ -108,7 +108,7 @@ skills["Combat"] = new Skill({skill_id: "Combat",
                             }});
 
 skills["Evasion"] = new Skill({skill_id: "Evasion", 
-                               names: {0: "Evasion [Basic]", 20: "Evasion [Intermediate]", 40: "Evasion [Advanced]", 60: "Evasion [Master]", 80: "Evasion [Absolute"},                                
+                               names: {0: "Evasion [Basic]", 15: "Evasion [Intermediate]", 30: "Evasion [Advanced]", 40: "Evasion [Master]", 50: "Evasion [Absolute"},                                
                                description:" Ability to evade attacks", 
                                max_level_coefficient: 2,
                                get_effect_description: ()=> {

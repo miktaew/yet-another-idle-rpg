@@ -11,6 +11,11 @@
     </head>
 
     <body onload = "prepareGame()">
+        <!-- tooltip for active character effects, couldnt make it to display on top when placed where it should be, so it's here instead-->
+        <div id = "effects_tooltip"> 
+            No active effects            
+        </div>
+
         <div id = "main_content">
             <!-- basic character info (name, title, hp)-->
             <div id = "basic_character_info_div" class = "box_div">
@@ -118,6 +123,11 @@
                             <div class = "stat_value" id = "defensive_action_chance_slot"></div> 
                             <span class = "stat_tooltip"> Your chance for defensive action </span>
                         </div>
+                    </div>
+
+                    <div id = "effects_div">
+                        <div class = "effects_div"> Active effects: </div>
+                        <div class = "effects_div" id = "active_effect_count"> 0 </div>
                     </div>
                 </div>
 
@@ -369,6 +379,8 @@
                 total_price = 0;
                 trade_price_value.innerHTML = format_money(total_price);
                 document.documentElement.style.setProperty('--trade_ammount_button_display', 'inline_block');
+                document.documentElement.style.setProperty('--item_use_button_display', 'none');
+                document.documentElement.style.setProperty('--item_other_width', '291px');
                 start_trade(trader_key);
             }
             function exitTrade() {
@@ -376,6 +388,8 @@
                 total_price = 0;
                 trade_price_value.innerHTML = format_money(total_price);
                 document.documentElement.style.setProperty('--trade_ammount_button_display', 'none');
+                document.documentElement.style.setProperty('--item_use_button_display', 'inline-block');
+                document.documentElement.style.setProperty('--item_other_width', '340px');
 
                 const accept_button = document.getElementById("accept_trade_button");
                 accept_button.style.cursor = "pointer";
@@ -429,7 +443,7 @@
             }
 
             function saveProgress() {
-                save_to_localStorage();
+                save_to_localStorage(true);
             }
 
             function loadProgress(event) {
@@ -458,6 +472,7 @@
             
 
             function prepareGame() { //called on body loaded
+                //sets up event listeners
 
                 //(un)equipping items:
                 const inventory_div = document.getElementById("inventory_div");
@@ -496,7 +511,7 @@
                     } else if(hovered_element.classList.contains("inventory_item_name")) {
                         hovered_element.parentNode.children[1].style.left = event.pageX + "px";
                         hovered_element.parentNode.children[1].style.top = event.pageY - 370 + "px";
-                    } else if(hovered_element.classList.contains("trade_ammount_button")) {
+                    } else if(hovered_element.classList.contains("trade_ammount_button") || hovered_element.classList.contains("item_use_button")) {
                         hovered_element.parentNode.children[0].children[1].style.left = event.pageX + "px";
                         hovered_element.parentNode.children[0].children[1].style.top = event.pageY - 370 + "px";
                     }
@@ -583,9 +598,38 @@
 
                 }
 
+                //active effects tooltip
+                const active_effects_div = document.getElementById("effects_div");
+                const effects_tooltip = document.getElementById("effects_tooltip");
+                active_effects_div.addEventListener('mousemove', move_effects_tooltip, false);
+                function move_effects_tooltip(event) {
+
+                    const hovered_element = event.target;
+                    effects_tooltip.style.display = "block";
+                    if(hovered_element.id === "effects_div" || hovered_element.classList.contains("effects_div")) {
+                        effects_tooltip.style.left = event.pageX + "px";
+                        effects_tooltip.style.top = event.pageY + 30 + "px";
+                    }
+                }
+
+                active_effects_div.addEventListener('mouseout', end_effects_tooltip, false);
+                function end_effects_tooltip(event) {
+                    effects_tooltip.style.display = "none";
+                }
+                
+                var inventory_content_div = document.getElementById("inventory_content_div");
+                inventory_content_div.addEventListener('click', useItem, false);
+                function useItem(event) {
+                    const clicked_element = event.target;
+                    if(!clicked_element.classList.contains("item_use_button")) {
+                        return;
+                    }
+
+                    use_item(clicked_element.parentNode.getAttribute("data-character_item"));
+                    update_displayed_inventory(character_sorting);
+                }
 
                 //move clicked items to proper list
-                var inventory_content_div = document.getElementById("inventory_content_div");
                 inventory_content_div.addEventListener('click', move_character_item, false);
                 function move_character_item(event) {
                     if(!in_trade) {
