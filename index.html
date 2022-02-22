@@ -494,44 +494,19 @@
                     }
                 }
 
-                //item tooltips
+                //item  tooltips
                 inventory_div.addEventListener('mousemove', move_item_tooltip, false);
                 function move_item_tooltip(event) {
-                    var hovered_element = event.target;
-                    if(hovered_element.classList.contains("inventory_item") || hovered_element.classList.contains("inventory_equipped_item")) {
-                        hovered_element.children[1].style.left = event.pageX + "px";
-                        hovered_element.children[1].style.top = event.pageY - 370 + "px";
-                    }
-                    else if(hovered_element.classList.contains("equip_item_button") || hovered_element.classList.contains("unequip_item_button")) {
-                        hovered_element.parentNode.children[0].children[1].style.left = event.pageX + "px";
-                        hovered_element.parentNode.children[0].children[1].style.top = event.pageY - 370 + "px";
-                    } else if(hovered_element.classList.contains("inventory_item_control")) {
-                        hovered_element.children[0].children[1].style.left = event.pageX + "px";
-                        hovered_element.children[0].children[1].style.top = event.pageY - 370 + "px";
-                    } else if(hovered_element.classList.contains("inventory_item_name")) {
-                        hovered_element.parentNode.children[1].style.left = event.pageX + "px";
-                        hovered_element.parentNode.children[1].style.top = event.pageY - 370 + "px";
-                    } else if(hovered_element.classList.contains("trade_ammount_button") || hovered_element.classList.contains("item_use_button")) {
-                        hovered_element.parentNode.children[0].children[1].style.left = event.pageX + "px";
-                        hovered_element.parentNode.children[0].children[1].style.top = event.pageY - 370 + "px";
-                    }
+                    document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 370}px`);
+                    document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX}px`);
                 }
-
+                
                 //trader item tooltips
                 var trader_inventory_div = document.getElementById("trader_inventory_div");
                 trader_inventory_div.addEventListener('mousemove', move_trader_item_tooltip, false);
                 function move_trader_item_tooltip(event) {
-                    var hovered_element = event.target;
-                    if(hovered_element.classList.contains("inventory_item")){
-                        hovered_element.children[1].style.left = event.pageX - 370 + "px";
-                        hovered_element.children[1].style.top = event.pageY - 370 + "px";
-                    } else if(hovered_element.classList.contains("inventory_item_control")) {
-                        hovered_element.children[0].children[1].style.left = event.pageX - 370 + "px";
-                        hovered_element.children[0].children[1].style.top = event.pageY - 370 + "px";
-                    } else if(hovered_element.classList.contains("inventory_item_name")) {
-                        hovered_element.parentNode.children[1].style.left = event.pageX -370 + "px";
-                        hovered_element.parentNode.children[1].style.top = event.pageY - 370 + "px";
-                    }
+                    document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 370}px`);
+                    document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX - 370}px`);
                 }
 
                 //item slots / worn equipment tooltips

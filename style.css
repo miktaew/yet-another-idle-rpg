@@ -5,6 +5,8 @@
 	--trade_ammount_button_display: none;
 	--item_use_button_display: inline-block;
 	--item_other_width: 340px;
+	--item_tooltip_top: 0px;
+	--item_tooltip_left: 0px;
 }
 
 body {
@@ -168,6 +170,8 @@ body {
 	 border-radius: 10px;
 	 margin-left: 30px;
 	 margin-top:20px;
+	 top: var(--item_tooltip_top);
+	 left: var(--item_tooltip_left);
 	 padding: 5px;
 	 position: absolute;
 	 z-index: 1000;
