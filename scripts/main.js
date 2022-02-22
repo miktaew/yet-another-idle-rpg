@@ -116,7 +116,7 @@ const location_description_div = document.getElementById("location_description_d
 time_field.innerHTML = current_game_time.toString();
 
 // button testing cuz yes
-//document.getElementById("test_button").style.display = "none";
+/*
 document.getElementById("test_button").addEventListener("click", () => 
 {
     //add_xp_to_character(100);
@@ -128,7 +128,7 @@ document.getElementById("test_button").addEventListener("click", () =>
     console.log(traders["village trader"].can_refresh());
     console.log(traders["village trader"]);
 
-});
+});*/
 
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
 
@@ -1239,7 +1239,8 @@ function use_item(item_name) {
     //can only use 1 at once and usable items are stackable, so item_name is enough
 
     const item_effects = item_templates[item_name].use_effect;
-    console.log(item_effects);
+    
+    var used = false;
 
     Object.keys(item_effects).forEach(function(key) {
         /*
@@ -1251,12 +1252,14 @@ function use_item(item_name) {
         //temporary implementation
         if(!active_effects[key] || active_effects[key].flat < item_effects[key].flat) {
             active_effects[key] = Object.assign({}, item_effects[key]);
+            used = true;
         }
         
     });
-
-    update_displayed_effects();
-    remove_from_inventory("character", {name: item_name, count: 1});
+    if(used) {
+        update_displayed_effects();
+        remove_from_inventory("character", {name: item_name, count: 1});
+    }
 }
 
 function update_displayed_money() {
