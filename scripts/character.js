@@ -13,14 +13,14 @@ const character = {name: "Hero", titles: {},
                     money: 0, 
                     xp: {current_level: 0, total_xp: 0, current_xp: 0, xp_to_next_lvl: base_xp_cost, 
                          total_xp_to_next_lvl: base_xp_cost, base_xp_cost: base_xp_cost, xp_scaling: 1.5},
-                    add_xp: add_xp, get_level_bonus: get_level_bonus};
+                    add_xp: add_xp, get_level_bonus: get_level_bonus
+                };
 
 character.base_stats = character.stats;
 character.starting_xp = character.xp;
 
 function add_xp(xp_to_add) {
         character.xp.total_xp += xp_to_add;
-        
 
         if(xp_to_add + character.xp.current_xp < character.xp.xp_to_next_lvl) { // no levelup
                 character.xp.current_xp += xp_to_add;

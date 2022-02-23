@@ -120,15 +120,16 @@ time_field.innerHTML = current_game_time.toString();
 document.getElementById("test_button").addEventListener("click", () => 
 {
     //add_xp_to_character(100);
-    add_to_inventory("character", [{item: new Item(item_templates["Stale bread"]), count: 5}]);
-    add_to_inventory("character", [{item: new Item(item_templates["Fresh bread"]), count: 5}]);
-    //add_to_inventory("character", [{item: new Item(item_templates["Rat fang"]), count: 5}]);
+    // add_to_inventory("character", [{item: new Item(item_templates["Stale bread"]), count: 5}]);
+    // add_to_inventory("character", [{item: new Item(item_templates["Fresh bread"]), count: 5}]);
+    // //add_to_inventory("character", [{item: new Item(item_templates["Rat fang"]), count: 5}]);
 
-    console.log(active_effects);
-    console.log(traders["village trader"].can_refresh());
-    console.log(traders["village trader"]);
+    // console.log(active_effects);
+    // console.log(traders["village trader"].can_refresh());
+    // console.log(traders["village trader"]);
 
-});*/
+    console.log(character.xp);
+}); */
 
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
 
@@ -1734,58 +1735,66 @@ function format_money(num) {
 
 //puts important stuff into the save string and returns it
 function create_save() {
-    const save_data = {};
-    save_data["current time"] = current_game_time;
-    save_data["character"] = {name: character.name, titles: character.titles, 
-                              inventory: character.inventory, equipment: character.equipment,
-                              money: character.money, xp: character.xp};
-    //no need to save stats; on loading, base stats will be taken from code and then additional stuff will be calculated again (in case anything changed)
+    try{
+        const save_data = {};
+        save_data["current time"] = current_game_time;
+        save_data["character"] = {name: character.name, titles: character.titles, 
+                                inventory: character.inventory, equipment: character.equipment,
+                                money: character.money, 
+                                xp: {
+                                    total_xp: character.xp.total_xp,
+                                }};
+        //no need to save stats; on loading, base stats will be taken from code and then additional stuff will be calculated again (in case anything changed)
 
-    save_data["skills"] = {};
-    Object.keys(skills).forEach(function(key) {
-        save_data["skills"][skills[key].skill_id] = {total_xp: skills[key].total_xp}; //a bit redundant, but keep it in case key in skills is different than skill_id
-    }); //only save total xp of each skill, again in case of any changes
-    
-    save_data["current location"] = current_location.name;
+        save_data["skills"] = {};
+        Object.keys(skills).forEach(function(key) {
+            save_data["skills"][skills[key].skill_id] = {total_xp: skills[key].total_xp}; //a bit redundant, but keep it in case key in skills is different than skill_id
+        }); //only save total xp of each skill, again in case of any changes
+        
+        save_data["current location"] = current_location.name;
 
-    if(current_enemy == null) {
-        save_data["current enemy"] = null;
-    } 
-    else {
-        save_data["current enemy"] = {name: current_enemy.name, stats: current_enemy.stats}; 
-        //no need to save everything, just name + stats -> get enemy from template and change stats to those saved
-    }
-
-    save_data["locations"] = {};
-    Object.keys(locations).forEach(function(key) {        
-        save_data["locations"][key] = {is_unlocked: locations[key].is_unlocked};
-        if("parent_location" in locations[key]) { //combat zone
-            save_data["locations"][key]["enemies_killed"] = locations[key].enemies_killed;
+        if(current_enemy == null) {
+            save_data["current enemy"] = null;
+        } 
+        else {
+            save_data["current enemy"] = {name: current_enemy.name, stats: current_enemy.stats}; 
+            //no need to save everything, just name + stats -> get enemy from template and change stats to those saved
         }
-    }); //save locations's unlocked status and their killcounts
 
-    save_data["dialogues"] = {};
-    Object.keys(dialogues).forEach(function(dialogue) {
-        save_data["dialogues"][dialogue] = {is_unlocked: dialogues[dialogue].is_unlocked, is_finished: dialogues[dialogue].is_finished, textlines: {}};
-        Object.keys(dialogues[dialogue].textlines).forEach(function(textline) {
-            save_data["dialogues"][dialogue].textlines[textline] = {is_unlocked: dialogues[dialogue].textlines[textline].is_unlocked,
-                                                          is_finished: dialogues[dialogue].textlines[textline].is_finished};
+        save_data["locations"] = {};
+        Object.keys(locations).forEach(function(key) {        
+            save_data["locations"][key] = {is_unlocked: locations[key].is_unlocked};
+            if("parent_location" in locations[key]) { //combat zone
+                save_data["locations"][key]["enemies_killed"] = locations[key].enemies_killed;
+            }
+        }); //save locations's unlocked status and their killcounts
+
+        save_data["dialogues"] = {};
+        Object.keys(dialogues).forEach(function(dialogue) {
+            save_data["dialogues"][dialogue] = {is_unlocked: dialogues[dialogue].is_unlocked, is_finished: dialogues[dialogue].is_finished, textlines: {}};
+            Object.keys(dialogues[dialogue].textlines).forEach(function(textline) {
+                save_data["dialogues"][dialogue].textlines[textline] = {is_unlocked: dialogues[dialogue].textlines[textline].is_unlocked,
+                                                            is_finished: dialogues[dialogue].textlines[textline].is_finished};
+            });
+        }); //save dialogues' and their textlines' unlocked/finished statuses
+
+        save_data["traders"] = {};
+        Object.keys(traders).forEach(function(trader) {
+            if(traders[trader].last_refresh == -1 || traders[trader].can_refresh()) {
+                //no need to save, as trader would be anyway refreshed on any visit
+                return;
+            } else {
+                save_data["traders"][trader] = {inventory: traders[trader].inventory, last_refresh: traders[trader].last_refresh};
+            }
         });
-    }); //save dialogues' and their textlines' unlocked/finished statuses
 
-    save_data["traders"] = {};
-    Object.keys(traders).forEach(function(trader) {
-        if(traders[trader].last_refresh == -1 || traders[trader].can_refresh()) {
-            //no need to save, as trader would be anyway refreshed on any visit
-            return;
-        } else {
-            save_data["traders"][trader] = {inventory: traders[trader].inventory, last_refresh: traders[trader].last_refresh};
-        }
-    });
+        save_data["active_effects"] = active_effects;
 
-    save_data["active_effects"] = active_effects;
-
-    return JSON.stringify(save_data);
+        return JSON.stringify(save_data);
+    } catch(error) {
+        console.error("Something went wrong on saving the game!");
+        console.error(error);
+    }
 } 
 
 function save_to_file() {
@@ -1803,134 +1812,151 @@ function load(save_data) {
     //single loading method
 
     //TODO: some loading screen
+    try{
+        current_game_time.load_time(save_data["current time"]);
+        time_field.innerHTML = current_game_time.toString();
+        //set game time
 
-    current_game_time.load_time(save_data["current time"]);
-    time_field.innerHTML = current_game_time.toString();
-    //set game time
+        name_field.value = save_data.character.name;
+        character.name = save_data.character.name;
 
-    name_field.value = save_data.character.name;
-    character.name = save_data.character.name;
+        if(save_data["current enemy"] != null) { 
+            current_enemy = new Enemy(enemy_templates[save_data["current enemy"].name]);
+            current_enemy.stats = save_data["current enemy"].stats; 
+        } //load enemy
 
-    if(save_data["current enemy"] != null) { 
-        current_enemy = new Enemy(enemy_templates[save_data["current enemy"].name]);
-        current_enemy.stats = save_data["current enemy"].stats; 
-    } //load enemy
+        Object.keys(save_data.character.equipment).forEach(function(key){
+            if(save_data.character.equipment[key] != null) {
+                save_data.character.equipment[key].value = item_templates[save_data.character.equipment[key].name].value;
+                save_data.character.equipment[key].equip_effect = item_templates[save_data.character.equipment[key].name].equip_effect;
+                equip_item(save_data.character.equipment[key]);
+            }
+        }); //equip proper items
 
-    Object.keys(save_data.character.equipment).forEach(function(key){
-        if(save_data.character.equipment[key] != null) {
-            save_data.character.equipment[key].value = item_templates[save_data.character.equipment[key].name].value;
-            save_data.character.equipment[key].equip_effect = item_templates[save_data.character.equipment[key].name].equip_effect;
-            equip_item(save_data.character.equipment[key]);
-        }
-    }); //equip proper items
+        const item_list = [];
 
-    const item_list = [];
-
-    Object.keys(save_data.character.inventory).forEach(function(key){
-        if(Array.isArray(save_data.character.inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
-            for(let i = 0; i < save_data.character.inventory[key].length; i++) {
-                save_data.character.inventory[key][i].value = item_templates[key].value;
-                if(item_templates[key].item_type = "EQUIPPABLE") {
-                    save_data.character.inventory[key][i].equip_effect = item_templates[key].equip_effect;
+        Object.keys(save_data.character.inventory).forEach(function(key){
+            if(Array.isArray(save_data.character.inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
+                for(let i = 0; i < save_data.character.inventory[key].length; i++) {
+                    save_data.character.inventory[key][i].value = item_templates[key].value;
+                    if(item_templates[key].item_type = "EQUIPPABLE") {
+                        save_data.character.inventory[key][i].equip_effect = item_templates[key].equip_effect;
+                    }
+                    item_list.push({item: save_data.character.inventory[key][i], count: 1});
                 }
-                item_list.push({item: save_data.character.inventory[key][i], count: 1});
             }
-        }
-        else {
-            save_data.character.inventory[key].item.value = item_templates[key].value;
-            if(item_templates[key].item_type === "EQUIPPABLE") {
-                save_data.character.inventory[key].item.equip_effect = item_templates[key].equip_effect;
-            } else if(item_templates[key].item_type === "USABLE") {
-                save_data.character.inventory[key].item.use_effect = item_templates[key].use_effect;
+            else {
+                save_data.character.inventory[key].item.value = item_templates[key].value;
+                if(item_templates[key].item_type === "EQUIPPABLE") {
+                    save_data.character.inventory[key].item.equip_effect = item_templates[key].equip_effect;
+                } else if(item_templates[key].item_type === "USABLE") {
+                    save_data.character.inventory[key].item.use_effect = item_templates[key].use_effect;
+                }
+                item_list.push({item: save_data.character.inventory[key].item, count: save_data.character.inventory[key].count});
             }
-            item_list.push({item: save_data.character.inventory[key].item, count: save_data.character.inventory[key].count});
-        }
-        
-    }); //add all loaded items to list
+            
+        }); //add all loaded items to list
 
-    add_to_inventory("character", item_list); // and then to inventory
+        add_to_inventory("character", item_list); // and then to inventory
 
-    character.money = save_data.character.money || 0;
-    update_displayed_money();
+        character.money = save_data.character.money || 0;
+        update_displayed_money();
 
-    add_xp_to_character(save_data.character.xp.total_xp, false);
+        add_xp_to_character(save_data.character.xp.total_xp, false);
 
-    Object.keys(save_data.skills).forEach(function(key){ 
-        if(save_data.skills[key].total_xp > 0) {
-            add_xp_to_skill(skills[key], save_data.skills[key].total_xp, false);
-        }
-    }); //add xp to skills
+        Object.keys(save_data.skills).forEach(function(key){ 
+            if(save_data.skills[key].total_xp > 0) {
+                add_xp_to_skill(skills[key], save_data.skills[key].total_xp, false);
+            }
+        }); //add xp to skills
 
 
-    Object.keys(save_data.dialogues).forEach(function(dialogue) {
-        dialogues[dialogue].is_unlocked = save_data.dialogues[dialogue].is_unlocked;
-        dialogues[dialogue].is_finished = save_data.dialogues[dialogue].is_finished;
+        Object.keys(save_data.dialogues).forEach(function(dialogue) {
+            dialogues[dialogue].is_unlocked = save_data.dialogues[dialogue].is_unlocked;
+            dialogues[dialogue].is_finished = save_data.dialogues[dialogue].is_finished;
 
-        Object.keys(save_data.dialogues[dialogue].textlines).forEach(function(textline){
-            dialogues[dialogue].textlines[textline].is_unlocked = save_data.dialogues[dialogue].textlines[textline].is_unlocked;
-            dialogues[dialogue].textlines[textline].is_finished = save_data.dialogues[dialogue].textlines[textline].is_finished;
+            Object.keys(save_data.dialogues[dialogue].textlines).forEach(function(textline){
+                dialogues[dialogue].textlines[textline].is_unlocked = save_data.dialogues[dialogue].textlines[textline].is_unlocked;
+                dialogues[dialogue].textlines[textline].is_finished = save_data.dialogues[dialogue].textlines[textline].is_finished;
+            });
+        }); //load for dialogues and their textlines their unlocked/finished status
+
+        Object.keys(save_data.traders).forEach(function(trader) { 
+            traders[trader].inventory = save_data.traders[trader].inventory;
+            traders[trader].last_refresh = save_data.traders[trader].last_refresh;
+        }); //load trader inventories
+
+        Object.keys(save_data.locations).forEach(function(key) {
+            locations[key].is_unlocked = save_data.locations[key].is_unlocked;
+            if("parent_location" in locations[key]) { // if combat zone
+                locations[key].enemies_killed = save_data.locations[key].enemies_killed;
+            }
+        }); //load for locations their unlocked status and their killcounts
+
+        Object.keys(save_data.active_effects).forEach(function(effect) {
+            active_effects[effect] = save_data.active_effects[effect];
         });
-    }); //load for dialogues and their textlines their unlocked/finished status
+        //TODO: apply effects properly
 
-    Object.keys(save_data.traders).forEach(function(trader) { 
-        traders[trader].inventory = save_data.traders[trader].inventory;
-        traders[trader].last_refresh = save_data.traders[trader].last_refresh;
-    }); //load trader inventories
-
-    Object.keys(save_data.locations).forEach(function(key) {
-        locations[key].is_unlocked = save_data.locations[key].is_unlocked;
-        if("parent_location" in locations[key]) { // if combat zone
-            locations[key].enemies_killed = save_data.locations[key].enemies_killed;
-        }
-    }); //load for locations their unlocked status and their killcounts
-
-    Object.keys(save_data.active_effects).forEach(function(effect) {
-        active_effects[effect] = save_data.active_effects[effect];
-    });
-    //TODO: apply effects properly
-
-    change_location(save_data["current location"]);
-
+        change_location(save_data["current location"]);
+    } catch(error) {
+        throw error; //let other loading methods (from_file and from_localstorage) take care of it
+    }
 
 } //core function for loading
 
 function load_from_file(save_string) {
-    Object.keys(character.equipment).forEach(function(key){
-        if(character.equipment[key] != null) {
-            unequip_item(key);
+    try{
+        Object.keys(character.equipment).forEach(function(key){
+            if(character.equipment[key] != null) {
+                unequip_item(key);
+            }
+        }); //remove equipment
+        character.inventory = {}; //reset inventory to not duplicate items
+
+        character.stats = character.base_stats;
+        character.xp = character.starting_xp;
+        //reset stats and xp
+
+        Object.keys(skills).forEach(function(key){
+            if(skills[key].total_xp > 0) {
+                skills[key].current_xp = 0;
+                skills[key].current_lvl = 0;
+                skills[key].total_xp = 0;
+                skills[key].xp_to_next_lvl = skills[key].base_xp_cost;
+                skills[key].total_xp_to_next_lvl = skills[key].base_xp_cost;
+            }
+        }); //clear all skill progress from display
+        Object.keys(skill_bar_divs).forEach(function(key) {
+            delete skill_bar_divs[key];
+        });
+
+        exit_trade();
+
+        const skill_list_div = document.getElementById("skill_list_div");
+        while(skill_list_div.firstChild) {
+            skill_list_div.removeChild(skill_list_div.lastChild);
+        } //remove skill bars from display
+
+        try {
+            load(JSON.parse(atob(save_string)));
+        } catch(error) {
+            console.error("Something went wrong on loading from file!");
+            console.error(error);
         }
-    }); //remove equipment
-    character.inventory = {}; //reset inventory to not duplicate items
-
-    character.stats = character.base_stats;
-    character.xp = character.base_xp;
-    //reset stats and xp
-
-    Object.keys(skills).forEach(function(key){
-        if(skills[key].total_xp > 0) {
-            skills[key].current_xp = 0;
-            skills[key].current_lvl = 0;
-            skills[key].total_xp = 0;
-            skills[key].xp_to_next_lvl = skills[key].base_xp_cost;
-            skills[key].total_xp_to_next_lvl = skills[key].base_xp_cost;
-        }
-    }); //clear all skill progress from display
-    Object.keys(skill_bar_divs).forEach(function(key) {
-        delete skill_bar_divs[key];
-    });
-
-    cancel_trade();
-
-    const skill_list_div = document.getElementById("skill_list_div");
-    while(skill_list_div.firstChild) {
-        skill_list_div.removeChild(skill_list_div.lastChild);
-    } //remove skill bars from display
-
-    load(atob(JSON.parse(save_string)));
+    } catch (error) {
+        console.error("Something went wrong on preparing to load from file!");
+        console.error(error);
+    }
 } //called on loading from file, clears everything
 
 function load_from_localstorage() {
-    load(JSON.parse(localStorage.getItem("save data")));
+    try{
+        load(JSON.parse(localStorage.getItem("save data")));
+    } catch(error) {
+        console.error("Something went wrong on loading from localStorage!");
+        console.error(error);
+    }
 } //called on loading the page, doesn't clear anything
 
 function update_timer() {
