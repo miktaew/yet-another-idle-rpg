@@ -1,4 +1,7 @@
 const skills = {};
+const skill_groups = {};
+
+import { character } from "./character.js";
 
 function Skill(skill_data) {
     this.skill_id = skill_data.skill_id;
@@ -13,6 +16,15 @@ function Skill(skill_data) {
     this.xp_to_next_lvl = this.base_xp_cost; //for display only
     this.total_xp_to_next_lvl = this.base_xp_cost; //total xp needed to lvl up
     this.get_effect_description = skill_data.get_effect_description;
+
+    this.skill_group = skill_data.skill_group;
+    this.rewards = skill_data.skill_rewards; //leveling rewards (and levels on which they are given)
+    /*
+    if skill_group is defined, rewards will be based on it and setting them here will have no effect
+
+    as most of skills will provide some bonus anyway, there's no need to give stat reward at every single level
+    and might instead give them, let's say, every 5 levels
+    */
 
     this.xp_scaling = typeof skill_data.xp_scaling !== "undefined" && skill_data.xp_scaling > 1? skill_data.xp_scaling : 1.6;
     //how many times more xp needed for next level
@@ -53,33 +65,79 @@ function Skill(skill_data) {
                     level_after_xp += 1;
                     this.total_xp_to_next_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** (level_after_xp + 1))/(1 - this.xp_scaling));
                 } //calculates lvl reached after adding xp
+                //probably could be done much more efficiently, but it shouldn't be a problem anyway
                 
 
                 var total_xp_to_previous_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** level_after_xp)/(1 - this.xp_scaling));
                 //xp needed for current lvl, same formula but for n-1
 
+                var gains;
                 if(level_after_xp < this.max_level ) { //wont reach max lvl
+                    gains = this.get_bonus_stats(level_after_xp);
                     this.xp_to_next_lvl = this.total_xp_to_next_lvl - total_xp_to_previous_lvl;
                     this.current_level = level_after_xp;
                     this.current_xp = this.total_xp - total_xp_to_previous_lvl;
                 }		
                 else { //will reach max lvl
+                    gains = this.get_bonus_stats(this.max_level);
                     this.current_level = this.max_level;
                     this.total_xp_to_next_lvl = "Already reached max lvl";
                     this.current_xp = "Max";
                     this.xp_to_next_lvl = "Max";
                 }		
                 
-                return `${this.name()} has reached level ${this.current_level}`;
+                var message = `${this.name()} has reached level ${this.current_level}`;
+
+                if(!Object.keys(gains).length == 0) {
+                    if(this.skill_group) {
+                        message += `<br><br> Thank's to [${this.skill_group}] reaching new milestone, ${character.name} gained: `;
+                    } else {
+                        message += `<br><br> Thank's to ${this.name()} reaching new milestone, ${character.name} gained: `;
+                    }
+
+                    Object.keys(gains).forEach(function(stat) {
+                        message += `<br> +${gains[stat]} ${stat}`;
+                    });
+                }
+                return message;
+                //TODO: add gained stats ('gains' variable) to returned string
             }
         } 
     }
 
-    this.get_bonus_stats = function() { 
-        //will need a method in main.js to add all bonuses to character
-        //iterate over bonuses, summing all up to the current level
-        //flat bonuses + stat multiplier; total stat multiplier starting at 1 and bonuses being additive; simply multiplying (base value + flat bonus)
+    this.get_bonus_stats = function(level) { 
+        //add stats to character
+        //returns all the stats so they can be logged in message_log 
+        const gains = {};
+        var stats;
 
+        for(let i = this.current_level + 1; i <= level; i++) {
+            if(this.skill_group) { //only skill_group rewards
+
+                if(skill_groups[this.skill_group].rewards.milestones[i]) {
+                    stats = skill_groups[this.skill_group].rewards.milestones[i].stats;
+                    console.log(stats);
+                    Object.keys(stats).forEach(function(stat) {
+                        gains[stat] = (gains[stat] + stats[stat]) || stats[stat]; 
+                    });
+                }
+            } else { //only normal rewards
+
+                if(this.rewards?.milestones[i]) {
+                    stats = this.rewards.milestones[i].stats;
+                    console.log(stats);
+                    Object.keys(stats).forEach(function(stat) {
+                        gains[stat] = (gains[stat] + stats[stat]) || stats[stat]; 
+                    });
+                }
+            }
+        }
+
+        Object.keys(gains).forEach(function (stat) {
+            character.stats[stat] += gains[stat];
+        });
+
+        return gains;
     }
 
     this.get_coefficient = function(scaling_type) { //get multiplier from skill based on max possible multiplier and current skill level
@@ -98,11 +156,59 @@ function Skill(skill_data) {
     } 
 }
 
+function SkillGroup(skill_group_data) {
+    this.rewards = skill_group_data.rewards;
+}
+
+skill_groups["weapon skills"] = new SkillGroup({
+    rewards: {
+        milestones: {
+            5: {
+                stats: {
+                    "strength": 3,
+                    "dexterity": 3,
+                }
+            },
+            10: {
+                stats: {
+                    "strength": 5,
+                    "dexterity": 5,
+                }
+            },
+            15: {
+                stats: {
+                    "strength": 8,
+                    "dexterity": 8,
+                }
+            },
+            20: {
+                stats: {
+                    "strength": 12,
+                    "dexterity": 12,
+                }
+            },
+            25: {
+                stats: {
+                    "strength": 15,
+                    "dexterity": 15,
+                }
+            },
+            30: {
+                stats: {
+                    "strength": 20,
+                    "dexterity": 20,
+                }
+            },
+        }
+    }
+});
+
+
 //basic combat skills
 skills["Combat"] = new Skill({skill_id: "Combat", 
                             names: {0: "Combat"}, 
                             description: "Overall combat ability", 
-                            max_level_coefficient: 4,
+                            max_level_coefficient: 2,
                             get_effect_description: ()=> {
                                 return `Multiplies your hit chance by ${Math.round(skills["Combat"].get_coefficient("multiplicative")*1000)/1000}`;
                             }});
@@ -125,41 +231,46 @@ skills["Shield blocking"] = new Skill({skill_id: "Shield blocking",
 
 //weapon skills
 skills["Swords"] = new Skill({skill_id: "Swords", 
+                              skill_group: "weapon skills",
                               names: {0: "Sword [Basics]"}, 
                               description: "Ability to fight with use of swords, increases damage dealt", 
                               max_level_coefficient: 8});
 
 skills["Axes"] = new Skill({skill_id: "Axes", 
+                            skill_group: "weapon skills",
                             names: {0: "Axe [Basics]"}, 
                             description: "Ability to fight with use of axes, increases damage dealt", 
                             max_level_coefficient: 8});
 
 skills["Spears"] = new Skill({skill_id: "Spears", 
+                              skill_group: "weapon skills",
                               names: {0: "Spear [Basics]"}, 
                               description: "Ability to fight with use of spears, increases damage dealt", 
                               max_level_coefficient: 8});
 
 skills["Blunt weapons"] = new Skill({skill_id: "Blunt weapons", 
+                                     skill_group: "weapon skills",
                                      names: {0: "Blunt weapons [Basics]"}, 
                                      description: "Ability to fight with use of blunt weapons, increases damage dealt", 
                                      max_level_coefficient: 8});
 
 skills["Daggers"] = new Skill({skill_id: "Daggers",
+                               skill_group: "weapon skills",
                                names: {0: "Dagger [Basics]"},
                                description: "Ability to use daggers, increases damage dealt",
                                max_level_coefficient: 8});
 
 skills["Wands"] = new Skill({skill_id: "Wands", 
+                             skill_group: "weapon skills",
                              names: {0: "Wand [Basics]"}, 
                              description: "Ability to cast spells with magic wands, increases damage dealt", 
                              max_level_coefficient: 8});
 
 skills["Staffs"] = new Skill({skill_id: "Staffs", 
+                              skill_group: "weapon skills",
                               names: {0: "Staff [Basics]"}, 
                               description: "Ability to cast spells with magic staffs, increases damage dealt", 
                               max_level_coefficient: 8});
-
-
 
 
 export {skills};

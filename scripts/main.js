@@ -124,10 +124,7 @@ document.getElementById("test_button").addEventListener("click", () =>
     // add_to_inventory("character", [{item: new Item(item_templates["Fresh bread"]), count: 5}]);
     // //add_to_inventory("character", [{item: new Item(item_templates["Rat fang"]), count: 5}]);
 
-    // console.log(active_effects);
-    // console.log(traders["village trader"].can_refresh());
-    // console.log(traders["village trader"]);
-
+    //add_xp_to_skill(skills["Swords"], 100000000);
     console.log(character.xp);
 }); */
 
@@ -321,7 +318,6 @@ function accept_trade() {
     
 
     //button shouldn't be clickable if trade is not affordable, so this is just in case
-    console.log(to_buy);
     const new_balance = character.money + to_sell.value - to_buy.value
     if(new_balance < 0) {
         throw "Trying to make a trade that can't be afforded"
@@ -413,7 +409,7 @@ function remove_from_buying_list(selected_item) {
 
     if(is_stackable) { //stackable, so "count" may be more than 1
         const present_item = to_buy.items.find(a => a.item === selected_item.item);
-        if(present_item && present_item.count > selected_item.count) {
+        if(present_item?.count > selected_item.count) {
             to_buy.items[to_buy.items.indexOf(present_item)].count -= selected_item.count;
         } else {
             actual_number_to_remove = to_buy.items[to_buy.items.indexOf(present_item)].count
@@ -459,7 +455,7 @@ function remove_from_selling_list(selected_item) {
 
     if(is_stackable) { //stackable, so "count" may be more than 1
         const present_item = to_sell.items.find(a => a.item === selected_item.item);
-        if(present_item && present_item.count > selected_item.count) {
+        if(present_item?.count > selected_item.count) {
             to_sell.items[to_sell.items.indexOf(present_item)].count -= selected_item.count;
         } else {
             actual_number_to_remove = to_sell.items[to_sell.items.indexOf(present_item)].count
@@ -764,6 +760,8 @@ function do_combat() {
                 //just to not go negative on displayed health
 
                 log_message(character.name + " has defeated " + current_enemy.name, "enemy_defeated");
+                add_xp_to_character(current_enemy.xp_value, true);
+
                 var loot = current_enemy.get_loot();
                 if(loot.length > 0) {
                     log_loot(loot);
@@ -776,7 +774,7 @@ function do_combat() {
 
                 enemy_count_div.children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemies_killed % current_location.enemy_count;
 
-                add_xp_to_character(current_enemy.xp_value, true);
+                
 
                 current_enemy = null;
                 additional_enemy_attacks = 0;
@@ -991,17 +989,20 @@ function add_xp_to_character(xp_to_add, should_info) {
     character_xp_div.children[1].children[0].style.width = `${100*character.xp.current_xp/character.xp.xp_to_next_lvl}%`;
     character_xp_div.children[2].innerText = `${character.xp.current_xp}/${character.xp.xp_to_next_lvl} xp`;
     
-    if((typeof should_info === "undefined" || should_info) && level_up) {
+    if(level_up) {
+        if((typeof should_info === "undefined" || should_info)) {
+            
+            log_message(level_up);
+        }
+
         character_xp_div.children[0].innerText = `Level: ${character.xp.current_level}`;
-        log_message(level_up);
         update_character_stats();
         update_displayed_health();
     }
+    
 }
 
 function get_location_rewards(location) {
-    console.log(location.enemies_killed);
-    console.log(location.enemy_count);
     if(location.enemies_killed == location.enemy_count) { //first clear
 
         change_location(current_location.parent_location.name); //go back to parent location, only on first clear
@@ -1020,7 +1021,7 @@ function get_location_rewards(location) {
     }
 
     /*
-    TODO: give other rewards
+    TODO: give other rewards on subsequent clears
     */
 }
 
@@ -1634,11 +1635,16 @@ function update_combat_stats() { //chances to hit and evade/block
     }
 
     if(current_enemy != null) { //IN COMBAT
-        character.stats.hit_chance = Math.min(0.99, Math.max(0.2, (character.stats.dexterity/current_enemy.stats.agility) * 0.5 * skills["Combat"].get_coefficient("multiplicative")));
-        //so 99% if at least twice more agility, 50% if same, and never less than 20%
+
+        character.stats.hit_chance = Math.min(0.99, Math.max(0.1, Math.sqrt(character.stats.dexterity/current_enemy.stats.agility) 
+                                            * 0.5 * skills["Combat"].get_coefficient("multiplicative")));
+
+        //so 99% if at least four times more dexterity, 50% if same, and never less than 10%
+
         if(character.equipment.offhand == null || character.equipment.offhand.offhand_type !== "shield") {
-            character.stats.evasion_chance = Math.min(0.95, (character.stats.agility/current_enemy.stats.dexterity) * 0.33 * skills["Evasion"].get_coefficient("multiplicative"));
-            //so up to 95% if at least thrice more agility, 33% if same, can go down almost to 0%
+            const power = character.stats.agility > current_enemy.stats.dexterity ? 2/3 : 1
+            character.stats.evasion_chance = Math.min(0.99, Math.pow(character.stats.agility/current_enemy.stats.dexterity, power) * 0.25 * skills["Evasion"].get_coefficient("multiplicative"));
+            //so up to 99% if at least eight more agility, 25% if same, can go down almost to 0%
         }
     } 
     else {
@@ -1862,11 +1868,12 @@ function load(save_data) {
         character.money = save_data.character.money || 0;
         update_displayed_money();
 
-        add_xp_to_character(save_data.character.xp.total_xp, false);
+        add_xp_to_character(save_data.character.xp.total_xp/(global_xp_bonus || 1), false);
+        //TODO: make it less dumb
 
         Object.keys(save_data.skills).forEach(function(key){ 
             if(save_data.skills[key].total_xp > 0) {
-                add_xp_to_skill(skills[key], save_data.skills[key].total_xp, false);
+                add_xp_to_skill(skills[key], save_data.skills[key].total_xp/(global_xp_bonus || 1), false);
             }
         }); //add xp to skills
 

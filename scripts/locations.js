@@ -44,7 +44,7 @@ function Combat_zone(location_data) {
     */
     this.repeatable_rewards = typeof location_data.repeatable_rewards !== "undefined"? location_data.repeatable_rewards : true; //if rewards can be obtained on subsequent clearings
     this.parent_location = location_data.parent_location;
-    if(typeof location_data.rewards !== "undefined") { 
+    if(location_data.rewards) { 
         this.rewards = location_data.rewards;
         this.rewards.dialogues = location_data.rewards.dialogues || [];
         this.rewards.textlines = location_data.rewards.textlines || [];
