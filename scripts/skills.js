@@ -12,7 +12,7 @@ function Skill(skill_data) {
     this.max_level_coefficient = skill_data.max_level_coefficient;
     this.current_xp = 0; // how much of xp_to_next_lvl there is currently
     this.total_xp = 0; // total collected xp, on loading calculate lvl based on this (so to not break skills if scaling ever changes)
-    this.base_xp_cost = skill_data.base_xp_cost || 100; //xp to go from lvl 1 to lvl 2
+    this.base_xp_cost = skill_data.base_xp_cost || 40; //xp to go from lvl 1 to lvl 2
     this.xp_to_next_lvl = this.base_xp_cost; //for display only
     this.total_xp_to_next_lvl = this.base_xp_cost; //total xp needed to lvl up
     this.get_effect_description = skill_data.get_effect_description;
@@ -26,7 +26,7 @@ function Skill(skill_data) {
     and might instead give them, let's say, every 5 levels
     */
 
-    this.xp_scaling = typeof skill_data.xp_scaling !== "undefined" && skill_data.xp_scaling > 1? skill_data.xp_scaling : 1.6;
+    this.xp_scaling = typeof skill_data.xp_scaling !== "undefined" && skill_data.xp_scaling > 1? skill_data.xp_scaling : 1.7;
     //how many times more xp needed for next level
 
     this.name = function() { // returns rank name of skill, based on current level

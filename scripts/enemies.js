@@ -48,7 +48,7 @@ enemy_templates["Starving wolf rat"] = new Enemy({
     loot_list: [
         {item_name: "Rat tail", chance: 0.1},
         {item_name: "Rat fang", chance: 0.1},
-        {item_name: "Rat pelt", chance: 0.1}
+        {item_name: "Rat pelt", chance: 0.05}
     ]
 });
 
@@ -60,6 +60,30 @@ enemy_templates["Wolf rat"] = new Enemy({
     loot_list: [
         {item_name: "Rat tail", chance: 0.1},
         {item_name: "Rat fang", chance: 0.1},
+        {item_name: "Rat pelt", chance: 0.05},
+    ]
+});
+
+enemy_templates["Group of rats"] = new Enemy({
+    name: "Group of rats", 
+    description: "Maybe they are a family?", 
+    xp_value: 1, 
+    stats: {health: 40, strength: 5, agility: 6, dexterity: 12, magic: 0, attack_speed: 2, defense: 0}, 
+    loot_list: [
+        {item_name: "Rat tail", chance: 0.2},
+        {item_name: "Rat fang", chance: 0.2},
+        {item_name: "Rat pelt", chance: 0.1}
+    ]
+});
+
+enemy_templates["Horde of rats"] = new Enemy({
+    name: "Horde of rats", 
+    description: "How many is there?",
+    xp_value: 1, 
+    stats: {health: 60, strength: 6, agility: 6, dexterity: 15, magic: 0, attack_speed: 2.5, defense: 0}, 
+    loot_list: [
+        {item_name: "Rat tail", chance: 0.2},
+        {item_name: "Rat fang", chance: 0.2},
         {item_name: "Rat pelt", chance: 0.1},
     ]
 });
@@ -67,7 +91,7 @@ enemy_templates["Wolf rat"] = new Enemy({
 enemy_templates["Starving wolf"] = new Enemy({
     name: "Starving wolf", description: "A large, wild and hungry canine", 
     xp_value: 3, 
-    stats: {health: 35, strength: 8, agility: 10, dexterity: 7, magic: 0, attack_speed: 0.9, defense: 2}, 
+    stats: {health: 60, strength: 10, agility: 15, dexterity: 15, magic: 0, attack_speed: 1, defense: 2}, 
     loot_list: [
         {item_name: "Wolf tooth", chance: 0.05, count: {min: 1, max: 2}},
         {item_name: "Wolf pelt", chance: 0.02}
@@ -78,7 +102,7 @@ enemy_templates["Young wolf"] = new Enemy({
     name: "Young wolf", 
     description: "A small, wild canine", 
     xp_value: 3, 
-    stats: {health: 30, strength: 7, agility: 8, dexterity: 8, magic: 0, attack_speed: 1.1, defense: 0}, 
+    stats: {health: 50, strength: 8, agility: 17, dexterity: 12, magic: 0, attack_speed: 1.2, defense: 0}, 
     loot_list: [
         {item_name: "Wolf tooth", chance: 0.02},
         {item_name: "Wolf pelt", chance: 0.01}
@@ -89,7 +113,7 @@ enemy_templates["Wolf"] = new Enemy({
     name: "Wolf", 
     description: "A large, wild canine", 
     xp_value: 5, 
-    stats: {health: 40, strength: 12, agility: 11, dexterity: 11, magic: 0, attack_speed: 1, defense: 2}, 
+    stats: {health: 70, strength: 15, agility: 17, dexterity: 20, magic: 0, attack_speed: 1.1, defense: 3}, 
     loot_list: [
         {item_name: "Wolf tooth", chance: 0.07, count: {min: 1, max: 3}},
         {item_name: "Wolf pelt", chance: 0.03}
