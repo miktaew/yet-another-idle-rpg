@@ -288,11 +288,13 @@ body {
 	padding-bottom: 1px;
 	color: white;
 	border: 1px solid white;
+	padding-top: auto;
 }
 
 .equipment_slot_empty {
 	color: silver;
 	font-style: italic;
+	font-size: 12;
 }
 
 .equipment_slot_div:hover .equipment_tooltip {
