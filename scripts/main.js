@@ -734,7 +734,7 @@ function do_combat() {
 
             damage_dealt = Math.round(hero_base_damage * (1.2 - Math.random() * 0.4) 
                                       * skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient());
-            //small randomization by up to 20% + bonus from skill
+            //small randomization by up to 20%, then bonus from skill
             
             if(character.stats.crit_rate > Math.random()) {
                 damage_dealt = Math.round(damage_dealt * character.stats.crit_multiplier);
@@ -1535,12 +1535,19 @@ function create_item_tooltip(item, options) {
         }
 
         Object.keys(item.equip_effect).forEach(function(effect_key) {
+
+            if(effect_key === "attack") {
                 item_tooltip.innerHTML += 
-            `<br><br>Flat ${effect_key} bonus: ${item.equip_effect[effect_key].flat_bonus}`;
-            if(item.equip_effect[effect_key].multiplier != null) {
-                    item_tooltip.innerHTML += 
-                `<br>${capitalize_first_letter(effect_key)} multiplier: ${item.equip_effect[effect_key].multiplier}`;
+                `<br><br>Attack: ${item.equip_effect[effect_key].flat}`;
+            } else {
+                item_tooltip.innerHTML += 
+                `<br><br>Flat ${effect_key} bonus: ${item.equip_effect[effect_key].flat_bonus}`;
             }
+
+            if(item.equip_effect[effect_key].multiplier != null) {
+                item_tooltip.innerHTML += 
+            `<br>${capitalize_first_letter(effect_key)} multiplier: ${item.equip_effect[effect_key].multiplier}`;
+        }
         });
     } 
     else if (item.item_type === "USABLE") {
@@ -1595,11 +1602,11 @@ function update_displayed_equipment() {
 
 function update_character_stats() { //updates character stats
     if(character.equipment.weapon != null) { 
-        character.stats.attack_power = (character.stats.strength + character.equipment.weapon.equip_effect.attack.flat_bonus) 
+        character.stats.attack_power = (character.stats.strength/10) * character.equipment.weapon.equip_effect.attack.flat 
                                         * (character.equipment.weapon.equip_effect.attack.multiplier || 1);
     } 
     else {
-        character.stats.attack_power = character.stats.strength;
+        character.stats.attack_power = character.stats.strength/10;
     }
 
     character.stats.defense  = 0;
@@ -2106,8 +2113,10 @@ if("save data" in localStorage) {
     load_from_localstorage();
 }
 else {
-    add_to_inventory("character", [{item: new Item(item_templates["Hard stone"])}, {item: new Item(item_templates["Raggy leather pants"])}]);
-    equip_item_from_inventory({name: "Hard stone", id: 0});
+    add_to_inventory("character", [{item: new Item(item_templates["Long stick"])}, 
+                                   {item: new Item(item_templates["Raggy leather pants"])},
+                                   {item: new Item(item_templates["Stale bread"]), count: 5}]);
+    equip_item_from_inventory({name: "Long stick", id: 0});
     equip_item_from_inventory({name: "Raggy leather pants", id: 0});
     add_xp_to_character(0);
     character.money = 10;

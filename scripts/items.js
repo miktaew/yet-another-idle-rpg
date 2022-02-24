@@ -72,19 +72,8 @@ item_templates["Ratslayer"] = new Item({
     item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "sword",
     equip_effect: {
         attack: {
-            flat_bonus: 10000,
+            flat: 10000,
             multiplier: 10,
-        }
-    }
-});
-
-item_templates["Hard stone"] = new Item({
-    name: "Hard stone", description: "Still better than punching with your fists",
-    item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "blunt weapon",
-    equip_effect: {
-        attack: {
-            flat_bonus: 2,
-            multiplier: 1,
         }
     }
 });
@@ -94,7 +83,7 @@ item_templates["Long stick"] = new Item({
     item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "blunt weapon",
     equip_effect: {
         attack: {
-            flat_bonus: 4,
+            flat: 4,
         }
     }
 });
@@ -104,7 +93,7 @@ item_templates["Sharpened long stick"] = new Item({
     item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "spear",
     equip_effect: {
         attack: {
-            flat_bonus: 6,
+            flat: 6,
             multiplier: 1,
         },
         agility: {
@@ -118,7 +107,7 @@ item_templates["Rusty knife"] = new Item({
     item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "dagger",
     equip_effect: {
         attack: {
-            flat_bonus: 4,
+            flat: 4,
             multiplier: 1
         },
         agility: {
@@ -135,7 +124,7 @@ item_templates["Worn-out wooden sword"] = new Item({
     item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "sword",
     equip_effect: {
         attack: {
-            flat_bonus: 7,
+            flat: 7,
             multiplier: 1
         }
     }
