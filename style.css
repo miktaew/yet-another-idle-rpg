@@ -581,9 +581,9 @@ body {
 }
 
 #character_health_value {
-	position: fixed;
+	position: absolute;
 	width: 400px;
-	top: 56px;
+	top: 46px;
 }
 #character_health_text, #character_level_div {
 	text-align: left; margin-left: 28px;
@@ -603,9 +603,9 @@ body {
 }
 
 #character_xp_value {
-	position: fixed;
+	position: absolute;
 	width: 400px;
-	top: 104px;
+	top: 92px;
 	text-align: center;
 }
 
