@@ -387,7 +387,7 @@ body {
 .sl_button {
 	width: fit-content;
 	padding: 10px 10px;
-	height: 20;
+	height: 20px;
 	background-image: linear-gradient(to left, #232f47, #15152d);
 	color: white;
 	cursor: pointer;
