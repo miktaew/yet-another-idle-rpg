@@ -169,7 +169,7 @@ body {
 	 background-color: rgba(120, 120, 120, 0.8);
 	 border-radius: 10px;
 	 margin-left: 30px;
-	 margin-top:20px;
+	 margin-top: 20px;
 	 top: var(--item_tooltip_top);
 	 left: var(--item_tooltip_left);
 	 padding: 5px;
@@ -643,9 +643,10 @@ body {
 	padding-bottom: 4px;
 	padding-left: 4px;
 	width: 200px;
-	left: 120px;
-	top: 294px;
-	position: fixed;
+	left: 100px;
+	top: 160px;
+	position: absolute;
+	z-index: 1;
 }
 
 #effects_tooltip {
