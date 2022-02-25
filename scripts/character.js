@@ -1,5 +1,5 @@
 //player character
-const base_xp_cost = 100;
+const base_xp_cost = 10;
 const character = {name: "Hero", titles: {}, 
                    stats: {max_health: 40, health: 40, strength: 5, agility: 5, dexterity: 5, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, 
                     attack_power: 0, hit_chance: 0, evasion_chance: 0, block_chance: 0, defense: 0},
@@ -12,7 +12,7 @@ const character = {name: "Hero", titles: {},
                                amulet: null},
                     money: 0, 
                     xp: {current_level: 0, total_xp: 0, current_xp: 0, xp_to_next_lvl: base_xp_cost, 
-                         total_xp_to_next_lvl: base_xp_cost, base_xp_cost: base_xp_cost, xp_scaling: 1.5},
+                         total_xp_to_next_lvl: base_xp_cost, base_xp_cost: base_xp_cost, xp_scaling: 1.6},
                     add_xp: add_xp, get_level_bonus: get_level_bonus
                 };
 

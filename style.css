@@ -297,8 +297,9 @@ body {
 	font-size: 12;
 }
 
-.equipment_slot_div:hover .equipment_tooltip {
-	display: block;
+.equipment_slot_empty .item_tooltip {
+	font-size: 14;
+	font-style: normal;
 }
 
 .amulet_slot_div {
@@ -386,7 +387,7 @@ body {
 .sl_button {
 	width: fit-content;
 	padding: 10px 10px;
-	height: 40px;
+	height: 20px;
 	background-image: linear-gradient(to left, #232f47, #15152d);
 	color: white;
 	cursor: pointer;
@@ -523,6 +524,13 @@ body {
 	border-top: 3px solid #0e0e25;
 	bottom: 0;
 	left: 0;
+}
+
+@media only screen and (max-height: 830px) {
+	#bottom_panel_div {
+		position: absolute;
+		top: 780px;
+	}
 }
 
 #character_div {
@@ -668,9 +676,6 @@ body {
 	color: white;
 }
 
-#enemy_info_div {
-	opacity: 0;
-}
 
 #enemy_healthbar_max {
 	border: 2px solid red;
@@ -694,7 +699,6 @@ body {
 #enemy_count_div { 
 	width: 100%;
 	border-top: 1px solid white;
-	opacity: 0;
 }
 
 #enemy_count_content {

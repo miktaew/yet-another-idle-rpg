@@ -38,10 +38,6 @@ function Combat_zone(location_data) {
     this.enemies_list = location_data.enemies_list;
     this.enemy_count = location_data.enemy_count || 30;
     this.enemies_killed = 0;
-    /*
-    TODO: increase after each kill, upon reaching enemy_count (and it's multiples if repeatable_rewards) 
-    give the rewards and possibly unlock some new zone
-    */
     this.repeatable_rewards = typeof location_data.repeatable_rewards !== "undefined"? location_data.repeatable_rewards : true; //if rewards can be obtained on subsequent clearings
     this.parent_location = location_data.parent_location;
     if(location_data.rewards) { 
@@ -83,17 +79,39 @@ locations["Village"] = new Location({
 
 locations["Infested field"] = new Combat_zone({
     description: "Field infested with rats.", 
-    enemy_count: 30, 
+    enemy_count: 15, 
     enemies_list: ["Starving wolf rat", "Wolf rat"],
     is_unlocked: false, 
     name: "Infested field", 
     parent_location: locations["Village"],
     rewards: {
-        textlines: [{dialogue: "village elder", lines: ["cleared"]}],
+        textlines: [{dialogue: "village elder", lines: ["cleared field"]}],
     }
 });
 locations["Village"].connected_locations.push({location: locations["Infested field"]});
 //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
+
+locations["Nearby cave"] = new Location({ 
+    connected_locations: [{location: locations["Village"]}], 
+    description: "Cave near the village. You can hear sounds of rats somewhere deeper...", 
+    name: "Nearby cave", 
+    is_unlocked: false,
+});
+locations["Village"].connected_locations.push({location: locations["Nearby cave"]});
+//remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
+
+locations["Cave depths"] = new Combat_zone({
+    description: "Field infested with rats.", 
+    enemy_count: 30, 
+    enemies_list: ["Group of rats", "Horde of rats"],
+    is_unlocked: true, 
+    name: "Cave depths", 
+    parent_location: locations["Nearby cave"],
+    rewards: {
+        textlines: [{dialogue: "village elder", lines: ["cleared cave"]}],
+    }
+});
+locations["Nearby cave"].connected_locations.push({location: locations["Cave depths"]});
 
 locations["Forest road"] = new Location({ 
     connected_locations: [{location: locations["Village"]}],

@@ -494,7 +494,7 @@
                     }
                 }
 
-                //item  tooltips
+                //item tooltips
                 inventory_div.addEventListener('mousemove', move_item_tooltip, false);
                 function move_item_tooltip(event) {
                     document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 370}px`);
@@ -509,6 +509,12 @@
                     document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX - 370}px`);
                 }
 
+                trader_inventory_div.addEventListener('mouseenter', (event) => {
+                    document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 370}px`);
+                    document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX - 370}px`);
+                }); 
+                //prevents trader item tooltip from initially appearing in wrong spot on some occassions
+
                 //item slots / worn equipment tooltips
                 var equipment_div = document.getElementById("character_equipment_div");
                 equipment_div.addEventListener('mousemove', move_equipment_tooltip, false);
@@ -516,7 +522,7 @@
                     var hovered_element = event.target;
                     if(hovered_element.classList.contains("equipment_slot_div")){
                         hovered_element.children[0].style.left = event.pageX + "px";
-                        hovered_element.children[0].style.top = event.pageY - 100 + "px";
+                        hovered_element.children[0].style.top = event.pageY - 130 + "px";
                     }
                 }
 
@@ -538,12 +544,12 @@
                     var hovered_element = event.target;
                     if(hovered_element.classList.contains("stat_slot_div")) {
                         hovered_element.children[2].style.left = event.pageX + "px";
-                        hovered_element.children[2].style.top = event.pageY - 80 + "px";
+                        hovered_element.children[2].style.top = event.pageY - 110 + "px";
                     }
                     else {
                         if(hovered_element.classList.contains("stat_name") || hovered_element.classList.contains("stat_value")) {
                             hovered_element.parentNode.children[2].style.left = event.pageX + "px";
-                            hovered_element.parentNode.children[2].style.top = event.pageY - 80 + "px";
+                            hovered_element.parentNode.children[2].style.top = event.pageY - 110 + "px";
                         }
                     }
                 }

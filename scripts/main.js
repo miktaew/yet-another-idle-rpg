@@ -116,18 +116,17 @@ const location_description_div = document.getElementById("location_description_d
 time_field.innerHTML = current_game_time.toString();
 
 // button testing cuz yes
+const test_button = document.getElementById("test_button");
+test_button.style.display = 'none';
 /*
 document.getElementById("test_button").addEventListener("click", () => 
 {
-    //add_xp_to_character(100);
+    // add_xp_to_character(100);
     // add_to_inventory("character", [{item: new Item(item_templates["Stale bread"]), count: 5}]);
     // add_to_inventory("character", [{item: new Item(item_templates["Fresh bread"]), count: 5}]);
-    // //add_to_inventory("character", [{item: new Item(item_templates["Rat fang"]), count: 5}]);
-
-    //add_xp_to_skill(skills["Swords"], 100000000);
-    console.log(character.xp);
-}); */
-
+    // add_to_inventory("character", [{item: new Item(item_templates["Rat fang"]), count: 5}]);
+}); 
+*/
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
 
 function capitalize_first_letter(some_string) {
@@ -147,8 +146,8 @@ function change_location(location_name) {
     }
     
     if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
-        enemy_info_div.style.opacity = 0;
-        enemy_count_div.style.opacity = 0;
+        enemy_info_div.style.display = "none";
+        enemy_count_div.style.display = "none";
         
         for(let i = 0; i < location.dialogues.length; i++) { //add buttons for starting dialogues (displaying their textlines on click will be in another method?)
             if(dialogues[location.dialogues[i]].is_unlocked == false || dialogues[location.dialogues[i]].is_finished) { //skip if dialogue is not available
@@ -202,8 +201,8 @@ function change_location(location_name) {
             }
         }
     } else { //so if entering combat zone
-        enemy_count_div.style.opacity = 1;
-        enemy_info_div.style.opacity = 1;
+        enemy_count_div.style.display = "block";
+        enemy_info_div.style.display = "block";
         enemy_count_div.children[0].children[1].innerHTML = location.enemy_count - location.enemies_killed % location.enemy_count;
 
         action = document.createElement("div");
@@ -732,8 +731,8 @@ function do_combat() {
                 add_xp_to_skill(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`], current_enemy.xp_value, true); 
             }
 
-            damage_dealt = Math.round(hero_base_damage * (1.2 - Math.random() * 0.4) 
-                                      * skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient());
+            damage_dealt = Math.round(10*hero_base_damage * (1.2 - Math.random() * 0.4) 
+                                      * skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient())/10;
             //small randomization by up to 20%, then bonus from skill
             
             if(character.stats.crit_rate > Math.random()) {
@@ -792,7 +791,7 @@ function do_combat() {
             additional_enemy_attacks -= 1;
         }
 
-        damage_dealt = Math.round(enemy_base_damage * (1.2 - Math.random() * 0.4));
+        damage_dealt = Math.round(10*enemy_base_damage * (1.2 - Math.random() * 0.4))/10;
         partially_blocked = false;
 
 
@@ -1018,10 +1017,13 @@ function get_location_rewards(location) {
             log_message(`Maybe you should check on ${location.rewards.textlines[i].dialogue}...`);
             //maybe do this only when there's just 1 dialogue with changes?
         }
+        //TODO: unlocking full dialogues and not just textlines
     }
 
     /*
     TODO: give other rewards on subsequent clears
+    - bonus xp for character
+    - items/money?
     */
 }
 
@@ -1125,12 +1127,12 @@ function log_loot(loot_list) {
 }
 
 function update_displayed_health() { //call it when eating, resting or getting hit
-    current_health_value_div.innerHTML = character.stats.health + "/" + character.stats.max_health;
+    current_health_value_div.innerHTML = (Math.round(character.stats.health*10)/10) + "/" + character.stats.max_health;
     current_health_bar.style.width = (character.stats.health*100/character.stats.max_health).toString() +"%";
 }
 
 function update_displayed_enemy_health() { //call it when getting new enemy and when enemy gets hit
-    current_enemy_health_value_div.innerHTML = current_enemy.stats.health + "/" + current_enemy.stats.max_health;
+    current_enemy_health_value_div.innerHTML = (Math.round(current_enemy.stats.health*10)/10) + "/" + current_enemy.stats.max_health;
     current_enemy_health_bar.style.width =  (current_enemy.stats.health*100/current_enemy.stats.max_health).toString() +"%";
 }
 
