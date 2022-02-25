@@ -297,8 +297,9 @@ body {
 	font-size: 12;
 }
 
-.equipment_slot_div:hover .equipment_tooltip {
-	display: block;
+.equipment_slot_empty .item_tooltip {
+	font-size: 14;
+	font-style: normal;
 }
 
 .amulet_slot_div {

@@ -26,7 +26,7 @@ function Skill(skill_data) {
     and might instead give them, let's say, every 5 levels
     */
 
-    this.xp_scaling = typeof skill_data.xp_scaling !== "undefined" && skill_data.xp_scaling > 1? skill_data.xp_scaling : 1.7;
+    this.xp_scaling = typeof skill_data.xp_scaling !== "undefined" && skill_data.xp_scaling > 1? skill_data.xp_scaling : 1.6;
     //how many times more xp needed for next level
 
     this.name = function() { // returns rank name of skill, based on current level
