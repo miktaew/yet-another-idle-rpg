@@ -146,8 +146,8 @@ function change_location(location_name) {
     }
     
     if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
-        enemy_info_div.style.opacity = 0;
-        enemy_count_div.style.opacity = 0;
+        enemy_info_div.style.display = "none";
+        enemy_count_div.style.display = "none";
         
         for(let i = 0; i < location.dialogues.length; i++) { //add buttons for starting dialogues (displaying their textlines on click will be in another method?)
             if(dialogues[location.dialogues[i]].is_unlocked == false || dialogues[location.dialogues[i]].is_finished) { //skip if dialogue is not available
@@ -201,8 +201,8 @@ function change_location(location_name) {
             }
         }
     } else { //so if entering combat zone
-        enemy_count_div.style.opacity = 1;
-        enemy_info_div.style.opacity = 1;
+        enemy_count_div.style.display = "block";
+        enemy_info_div.style.display = "block";
         enemy_count_div.children[0].children[1].innerHTML = location.enemy_count - location.enemies_killed % location.enemy_count;
 
         action = document.createElement("div");
@@ -1017,10 +1017,13 @@ function get_location_rewards(location) {
             log_message(`Maybe you should check on ${location.rewards.textlines[i].dialogue}...`);
             //maybe do this only when there's just 1 dialogue with changes?
         }
+        //TODO: unlocking full dialogues and not just textlines
     }
 
     /*
     TODO: give other rewards on subsequent clears
+    - bonus xp for character
+    - items/money?
     */
 }
 
