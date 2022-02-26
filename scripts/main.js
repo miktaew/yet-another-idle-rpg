@@ -804,7 +804,7 @@ function do_combat() {
             additional_enemy_attacks -= 1;
         }
 
-        damage_dealt = Math.round(10*enemy_base_damage * (1.2 - Math.random() * 0.4))/10;
+        damage_dealt = enemy_base_damage * (1.2 - Math.random() * 0.4);
         partially_blocked = false;
 
 
@@ -836,7 +836,7 @@ function do_combat() {
         if(enemy_crit_chance > Math.random())
         {
             damage_dealt *= enemy_crit_damage;
-            damage_dealt = Math.max(damage_dealt - character.full_stats.defense, 0.5);
+            damage_dealt = Math.round(10*Math.max(damage_dealt - character.full_stats.defense, 1))/10;
             character.full_stats.health -= damage_dealt;
             if(partially_blocked) {
                 log_message(character.name + " partially blocked the attack, but was critically hit for " + damage_dealt + " dmg", "hero_attacked_critically");
@@ -845,7 +845,7 @@ function do_combat() {
                 log_message(character.name + " was critically hit for " + damage_dealt + " dmg", "hero_attacked_critically");
             }
         } else {
-            damage_dealt = Math.max(damage_dealt - character.full_stats.defense, 0.5);
+            damage_dealt = Math.round(10*Math.max(damage_dealt - character.full_stats.defense, 1))/10;
             character.full_stats.health -= damage_dealt;
             if(partially_blocked) {
                 log_message(character.name + " partially blocked the attack and was hit for " + damage_dealt + " dmg", "hero_attacked");
@@ -1139,8 +1139,8 @@ function log_loot(loot_list) {
 }
 
 function update_displayed_health() { //call it when eating, resting or getting hit
-    current_health_value_div.innerHTML = (Math.round(character.stats.health*10)/10) + "/" + character.stats.max_health;
-    current_health_bar.style.width = (character.stats.health*100/character.stats.max_health).toString() +"%";
+    current_health_value_div.innerHTML = (Math.round(character.full_stats.health*10)/10) + "/" + character.full_stats.max_health;
+    current_health_bar.style.width = (character.full_stats.health*100/character.full_stats.max_health).toString() +"%";
 }
 
 function update_displayed_enemy_health() { //call it when getting new enemy and when enemy gets hit
