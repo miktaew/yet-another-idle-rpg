@@ -116,7 +116,7 @@ function Skill(skill_data) {
 
                 if(skill_groups[this.skill_group].rewards.milestones[i]) {
                     stats = skill_groups[this.skill_group].rewards.milestones[i].stats;
-                    console.log(stats);
+
                     Object.keys(stats).forEach(function(stat) {
                         gains[stat] = (gains[stat] + stats[stat]) || stats[stat]; 
                     });
@@ -125,7 +125,7 @@ function Skill(skill_data) {
 
                 if(this.rewards?.milestones[i]) {
                     stats = this.rewards.milestones[i].stats;
-                    console.log(stats);
+
                     Object.keys(stats).forEach(function(stat) {
                         gains[stat] = (gains[stat] + stats[stat]) || stats[stat]; 
                     });
