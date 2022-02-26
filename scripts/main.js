@@ -385,15 +385,16 @@ function add_to_buying_list(selected_item) {
         const present_item = to_buy.items.find(a => a.item === selected_item.item);
         
         if(present_item) {
-            if(traders[current_trader].inventory[selected_item.item.split(' #')[0]].count >= selected_item.count + to_buy.items[to_buy.items.indexOf(present_item)].count) {
-                selected_item.count = traders[current_trader].inventory[selected_item.item.split(' #')[0]].count;
+            if(traders[current_trader].inventory[selected_item.item.split(' #')[0]].count < selected_item.count + present_item.count) {
+                //trader has not enough when items already added make the total be too much, so just put all in the list
+                present_item.count = traders[current_trader].inventory[selected_item.item.split(' #')[0]].count;
             } else {
-                selected_item.count = traders[current_trader].inventory[selected_item.item.split(' #')[0]].count - to_buy.items[to_buy.items.indexOf(present_item)].count;
+                present_item.count += selected_item.count;
             }
 
-            to_buy.items[to_buy.items.indexOf(present_item)].count += selected_item.count;
         } else { 
-            if(traders[current_trader].inventory[selected_item.item.split(' #')[0]].count < selected_item.count) {
+            if(traders[current_trader].inventory[selected_item.item.split(' #')[0]].count < selected_item.count) { 
+                //trader has not enough: buy all available
                 selected_item.count = traders[current_trader].inventory[selected_item.item.split(' #')[0]].count;
             }
 
@@ -416,9 +417,9 @@ function remove_from_buying_list(selected_item) {
     if(is_stackable) { //stackable, so "count" may be more than 1
         const present_item = to_buy.items.find(a => a.item === selected_item.item);
         if(present_item?.count > selected_item.count) {
-            to_buy.items[to_buy.items.indexOf(present_item)].count -= selected_item.count;
+            present_item.count -= selected_item.count;
         } else {
-            actual_number_to_remove = to_buy.items[to_buy.items.indexOf(present_item)].count
+            actual_number_to_remove = present_item.count
             to_buy.items.splice(to_buy.items.indexOf(present_item),1);
         }
     } else { //unstackable item, so always just 1
@@ -435,22 +436,24 @@ function add_to_selling_list(selected_item) {
     if(is_stackable) {
 
         const present_item = to_sell.items.find(a => a.item === selected_item.item);
-        
+
         if(present_item) {
-            if(character.inventory[selected_item.item.split(' #')[0]].count >= selected_item.count + to_sell.items[to_sell.items.indexOf(present_item)].count) {
-                selected_item.count = character.inventory[selected_item.item.split(' #')[0]].count;
+            if(character.inventory[selected_item.item.split(' #')[0]].count < selected_item.count + present_item.count) {
+                //character has not enough when items already added make the total be too much, so just put all in the list
+                present_item.count = character.inventory[selected_item.item.split(' #')[0]].count;
             } else {
-                selected_item.count = character.inventory[selected_item.item.split(' #')[0]].count - to_sell.items[to_sell.items.indexOf(present_item)].count;
+                present_item.count += selected_item.count;
             }
 
-            to_sell.items[to_sell.items.indexOf(present_item)].count += selected_item.count;
         } else { 
-            if(character.inventory[selected_item.item.split(' #')[0]].count < selected_item.count) {
+            if(character.inventory[selected_item.item.split(' #')[0]].count < selected_item.count) { 
+                //character has not enough: sell all available
                 selected_item.count = character.inventory[selected_item.item.split(' #')[0]].count;
             }
 
             to_sell.items.push(selected_item);
         }
+
     } else {
         to_sell.items.push(selected_item);
     }
@@ -466,9 +469,9 @@ function remove_from_selling_list(selected_item) {
     if(is_stackable) { //stackable, so "count" may be more than 1
         const present_item = to_sell.items.find(a => a.item === selected_item.item);
         if(present_item?.count > selected_item.count) {
-            to_sell.items[to_sell.items.indexOf(present_item)].count -= selected_item.count;
+            present_item.count -= selected_item.count;
         } else {
-            actual_number_to_remove = to_sell.items[to_sell.items.indexOf(present_item)].count
+            actual_number_to_remove = present_item.count;
             to_sell.items.splice(to_sell.items.indexOf(present_item), 1);
         }
     } else { //unstackable item, so just 1

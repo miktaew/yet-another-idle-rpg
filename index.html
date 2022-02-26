@@ -512,7 +512,7 @@
                 var trader_inventory_div = document.getElementById("trader_inventory_div");
                 trader_inventory_div.addEventListener('mousemove', move_trader_item_tooltip, false);
                 function move_trader_item_tooltip(event) {
-                    if(event.target.id === "trader_inventory_div" || event.target.classList.contains("item_tooltip")) {
+                    if(event.target.id === "trader_inventory_div") {
                         return;
                     }
 
@@ -525,11 +525,12 @@
                     if(!hovered_element.classList.contains("trader_item_control")){
                         if(hovered_element.classList.contains("trade_ammount_button") || hovered_element.classList.contains("trader_item")) {
                             hovered_element = hovered_element.parentNode;
-                        } else if(hovered_element.classList.contains("inventory_item_name")) {
+                        } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip")) {
                             hovered_element = hovered_element.parentNode.parentNode;
+                        } else if(hovered_element.parentNode.classList.contains("item_tooltip")) {
+                            hovered_element = hovered_element.parentNode.parentNode.parentNode;
                         }
                     }
-
                     const tooltip_width = hovered_element.children[0].children[1].offsetWidth;
                     
                     const edge_position = window.innerWidth - tooltip_width - tooltip_margin + window.scrollX;
