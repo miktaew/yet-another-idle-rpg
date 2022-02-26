@@ -122,11 +122,11 @@ test_button.style.display = 'none';
 document.getElementById("test_button").addEventListener("click", () => 
 {
     // add_xp_to_character(100);
-    // add_to_inventory("character", [{item: new Item(item_templates["Stale bread"]), count: 5}]);
+    add_to_inventory("character", [{item: new Item(item_templates["Stale bread"]), count: 5}]);
     // add_to_inventory("character", [{item: new Item(item_templates["Fresh bread"]), count: 5}]);
     // add_to_inventory("character", [{item: new Item(item_templates["Rat fang"]), count: 5}]);
-}); 
-*/
+}); */ 
+
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
 
 function capitalize_first_letter(some_string) {
@@ -381,18 +381,25 @@ function add_to_buying_list(selected_item) {
     const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
 
     if(is_stackable) {
-        
-        if(traders[current_trader].inventory[selected_item.item.split(' #')[0]].count < selected_item.count) {
-            selected_item.count = traders[current_trader].inventory[selected_item.item.split(' #')[0]].count;
-        }
 
         const present_item = to_buy.items.find(a => a.item === selected_item.item);
-
+        
         if(present_item) {
+            if(traders[current_trader].inventory[selected_item.item.split(' #')[0]].count >= selected_item.count + to_buy.items[to_buy.items.indexOf(present_item)].count) {
+                selected_item.count = traders[current_trader].inventory[selected_item.item.split(' #')[0]].count;
+            } else {
+                selected_item.count = traders[current_trader].inventory[selected_item.item.split(' #')[0]].count - to_buy.items[to_buy.items.indexOf(present_item)].count;
+            }
+
             to_buy.items[to_buy.items.indexOf(present_item)].count += selected_item.count;
-        } else {
+        } else { 
+            if(traders[current_trader].inventory[selected_item.item.split(' #')[0]].count < selected_item.count) {
+                selected_item.count = traders[current_trader].inventory[selected_item.item.split(' #')[0]].count;
+            }
+
             to_buy.items.push(selected_item);
         }
+
     } else {
         to_buy.items.push(selected_item);
     }
@@ -426,17 +433,21 @@ function add_to_selling_list(selected_item) {
     const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
 
     if(is_stackable) {
-        
-        if(character.inventory[selected_item.item.split(' #')[0]].count < selected_item.count) {
-            selected_item.count = character.inventory[selected_item.item.split(' #')[0]].count;
-        }
-        
+
         const present_item = to_sell.items.find(a => a.item === selected_item.item);
         
         if(present_item) {
+            if(character.inventory[selected_item.item.split(' #')[0]].count >= selected_item.count + to_sell.items[to_sell.items.indexOf(present_item)].count) {
+                selected_item.count = character.inventory[selected_item.item.split(' #')[0]].count;
+            } else {
+                selected_item.count = character.inventory[selected_item.item.split(' #')[0]].count - to_sell.items[to_sell.items.indexOf(present_item)].count;
+            }
 
             to_sell.items[to_sell.items.indexOf(present_item)].count += selected_item.count;
-        } else {
+        } else { 
+            if(character.inventory[selected_item.item.split(' #')[0]].count < selected_item.count) {
+                selected_item.count = character.inventory[selected_item.item.split(' #')[0]].count;
+            }
 
             to_sell.items.push(selected_item);
         }
@@ -700,7 +711,7 @@ function do_combat() {
     //todo: separate formulas for physical and magical weapons
     //and also need magic weapons before that...
 
-    var hero_base_damage = character.stats.attack_power;
+    var hero_base_damage = character.full_stats.attack_power;
     var enemy_base_damage = current_enemy.stats.strength;
 
     var damage_dealt;
@@ -708,8 +719,6 @@ function do_combat() {
     var critted;
 
     var partially_blocked;
-
-    var hero_defense = 0; //will be a sum of armor from worn equipment + maybe a bonus from some magic stuff
 
     if(character.stats.attack_speed > current_enemy.stats.attack_speed) {
         additional_hero_attacks += (character.stats.attack_speed/current_enemy.stats.attack_speed - 1);
@@ -725,18 +734,21 @@ function do_combat() {
             additional_hero_attacks -= 1;
         }
 
-        if(character.stats.hit_chance > Math.random()) {//hero's attack hits
+        if(character.combat_stats.hit_chance > Math.random()) {//hero's attack hits
             add_xp_to_skill(skills["Combat"], current_enemy.xp_value, true);
             if(character.equipment.weapon != null) {
                 add_xp_to_skill(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`], current_enemy.xp_value, true); 
+            
+                damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) 
+                                            * skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient())/10;
+            } else {
+                damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4))/10;
+                //TODO: unarmed skill, apply bonus here
             }
-
-            damage_dealt = Math.round(10*hero_base_damage * (1.2 - Math.random() * 0.4) 
-                                      * skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient())/10;
             //small randomization by up to 20%, then bonus from skill
             
-            if(character.stats.crit_rate > Math.random()) {
-                damage_dealt = Math.round(damage_dealt * character.stats.crit_multiplier);
+            if(character.full_stats.crit_rate > Math.random()) {
+                damage_dealt = Math.round(damage_dealt * character.full_stats.crit_multiplier);
                 critted = true;
             }
             else {
@@ -773,8 +785,6 @@ function do_combat() {
 
                 enemy_count_div.children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemies_killed % current_location.enemy_count;
 
-                
-
                 current_enemy = null;
                 additional_enemy_attacks = 0;
                 return;
@@ -797,14 +807,14 @@ function do_combat() {
 
         if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
             if(character.equipment.offhand.shield_strength >= damage_dealt) {
-                if(character.stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
+                if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
                     add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
                     log_message(character.name + " has blocked the attack");
                     continue;
                  }
             }
             else { 
-                if(character.stats.block_chance - 0.3 > Math.random()) { //PARTIALLY BLOCKED THE ATTACK
+                if(character.combat_stats.block_chance - 0.3 > Math.random()) { //PARTIALLY BLOCKED THE ATTACK
                     add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
                     damage_dealt -= character.equipment.offhand.shield_strength;
                     partially_blocked = true;
@@ -813,7 +823,7 @@ function do_combat() {
             }
         }
         else { // HAS NO SHIELD
-            if(character.stats.evasion_chance > Math.random()) { //EVADED ATTACK
+            if(character.combat_stats.evasion_chance > Math.random()) { //EVADED ATTACK
                 add_xp_to_skill(skills["Evasion"], current_enemy.xp_value, true);
                 log_message(character.name + " has evaded the attack");
                 continue;
@@ -823,8 +833,8 @@ function do_combat() {
         if(enemy_crit_chance > Math.random())
         {
             damage_dealt *= enemy_crit_damage;
-            damage_dealt = Math.max(damage_dealt - hero_defense, 1);
-            character.stats.health -= damage_dealt;
+            damage_dealt = Math.max(damage_dealt - character.full_stats.defense, 0.5);
+            character.full_stats.health -= damage_dealt;
             if(partially_blocked) {
                 log_message(character.name + " partially blocked the attack, but was critically hit for " + damage_dealt + " dmg", "hero_attacked_critically");
             } 
@@ -832,8 +842,8 @@ function do_combat() {
                 log_message(character.name + " was critically hit for " + damage_dealt + " dmg", "hero_attacked_critically");
             }
         } else {
-            damage_dealt = Math.max(damage_dealt - hero_defense, 1);
-            character.stats.health -= damage_dealt;
+            damage_dealt = Math.max(damage_dealt - character.full_stats.defense, 0.5);
+            character.full_stats.health -= damage_dealt;
             if(partially_blocked) {
                 log_message(character.name + " partially blocked the attack and was hit for " + damage_dealt + " dmg", "hero_attacked");
             }
@@ -842,11 +852,11 @@ function do_combat() {
             }
         }
 
-        if(character.stats.health <= 0) {
+        if(character.full_stats.health <= 0) {
             log_message(character.name + " has lost consciousness", "hero_defeat");
 
-            if(character.stats.health < 0) {
-                character.stats.health = 0;
+            if(character.full_stats.health < 0) {
+                character.full_stats.health = 0;
             }
             update_displayed_health();
             additional_hero_attacks = 0;
@@ -871,7 +881,6 @@ function do_combat() {
      */
 
 }
-
 
 function add_xp_to_skill(skill, xp_to_add, should_info) 
 {
@@ -1603,24 +1612,39 @@ function update_displayed_equipment() {
 }
 
 function update_character_stats() { //updates character stats
+    Object.keys(character.stats).forEach(function(stat){
+        if(stat === "attack_power") {
+            return;
+        }
+
+        character.full_stats[stat] = character.stats[stat];
+
+        Object.keys(character.equipment).forEach(function(key) {
+            if(character.equipment[key] != null && character.equipment[key].equip_effect[stat]) {
+                character.full_stats[stat] += character.equipment[key].equip_effect[stat].flat_bonus;
+            }
+        }); //calculate stats based on equipment
+
+        /*
+        Object.keys(character.equipment).forEach(function(key) {
+            if(character.equipment[key] != null && character.equipment[key].equip_effect[stat]) {
+                character.full_stats[stat] *= character.equipment[key].equip_effect[stat].multiplier;
+            }
+        }); //same, but add multiplicative bonuses // or maybe sumarize the bonus first and then add it? (make it additive instead of multiplicative)
+        */
+    });
+    //TODO: add bonuses from skills
+
+
     if(character.equipment.weapon != null) { 
-        character.stats.attack_power = (character.stats.strength/10) * character.equipment.weapon.equip_effect.attack.flat 
+        character.stats.attack_power = (character.full_stats.strength/10) * character.equipment.weapon.equip_effect.attack.flat 
                                         * (character.equipment.weapon.equip_effect.attack.multiplier || 1);
     } 
     else {
-        character.stats.attack_power = character.stats.strength/10;
+        character.stats.attack_power = character.full_stats.strength/10;
     }
 
-    character.stats.defense  = 0;
-    Object.keys(character.equipment).forEach(function(key) {
-        if(character.equipment[key] != null && character.equipment[key].equip_effect.defense) {
-            character.stats.defense += character.equipment[key].equip_effect.defense.flat_bonus;
-        }
-    }); //calculate defense based on equipment
-    //TODO: add bonuses from skills
-
-    character.stats.crit_rate = character.stats.crit_rate; //TODO: calculate it based on skills and equipment
-    character.stats.crit_multiplier = character.stats.crit_multiplier; //TODO: calculate it based on skils and equipment
+    character.full_stats.attack_power = character.stats.attack_power;
 
     update_displayed_stats();
     update_combat_stats();
@@ -1629,36 +1653,36 @@ function update_character_stats() { //updates character stats
 function update_displayed_stats() { //updates displayed stats
     Object.keys(stats_divs).forEach(function(key){
         if(key === "crit_rate" || key === "crit_multiplier") {
-            stats_divs[key].innerHTML = `${(character.stats[key]*100).toFixed(1)}%`
+            stats_divs[key].innerHTML = `${(character.full_stats[key]*100).toFixed(1)}%`
         } 
         else {
-            stats_divs[key].innerHTML = `${(character.stats[key]).toFixed(1)}`
+            stats_divs[key].innerHTML = `${(character.full_stats[key]).toFixed(1)}`
         }
     });
 }
 
 function update_combat_stats() { //chances to hit and evade/block
     if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
-        character.stats.evasion_chance = null;
-        character.stats.block_chance = Math.round(0.4 * skills["Shield blocking"].get_coefficient("flat") * 10000)/10000;
+        character.combat_stats.evasion_chance = null;
+        character.combat_stats.block_chance = Math.round(0.4 * skills["Shield blocking"].get_coefficient("flat") * 10000)/10000;
     }
 
     if(current_enemy != null) { //IN COMBAT
 
-        character.stats.hit_chance = Math.min(0.99, Math.max(0.1, Math.sqrt(character.stats.dexterity/current_enemy.stats.agility) 
+        character.combat_stats.hit_chance = Math.min(0.99, Math.max(0.1, Math.sqrt(character.full_stats.dexterity/current_enemy.stats.agility) 
                                             * 0.5 * skills["Combat"].get_coefficient("multiplicative")));
 
         //so 99% if at least four times more dexterity, 50% if same, and never less than 10%
 
         if(character.equipment.offhand == null || character.equipment.offhand.offhand_type !== "shield") {
-            const power = character.stats.agility > current_enemy.stats.dexterity ? 2/3 : 1
-            character.stats.evasion_chance = Math.min(0.99, Math.pow(character.stats.agility/current_enemy.stats.dexterity, power) * 0.25 * skills["Evasion"].get_coefficient("multiplicative"));
+            const power = character.full_stats.agility > current_enemy.stats.dexterity ? 2/3 : 1
+            character.combat_stats.evasion_chance = Math.min(0.99, Math.pow(character.full_stats.agility/current_enemy.stats.dexterity, power) * 0.25 * skills["Evasion"].get_coefficient("multiplicative"));
             //so up to 99% if at least eight more agility, 25% if same, can go down almost to 0%
         }
     } 
     else {
-        character.stats.hit_chance = null;
-        character.stats.evasion_chance = null;
+        character.combat_stats.hit_chance = null;
+        character.combat_stats.evasion_chance = null;
     }
 
     update_displayed_combat_stats();
@@ -1666,7 +1690,7 @@ function update_combat_stats() { //chances to hit and evade/block
 
 function update_displayed_combat_stats() {
     if(current_enemy != null) {
-        other_combat_divs.hit_chance.innerHTML = `${(character.stats.hit_chance*100).toFixed(1)}%`;
+        other_combat_divs.hit_chance.innerHTML = `${(character.combat_stats.hit_chance*100).toFixed(1)}%`;
     }
     else {
         other_combat_divs.hit_chance.innerHTML = "";
@@ -1677,16 +1701,16 @@ function update_displayed_combat_stats() {
         other_combat_divs.defensive_action.innerHTML = "Block:";
 
         if(current_enemy != null && character.equipment.offhand.shield_strength < current_enemy.stats.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
-            other_combat_divs.defensive_action_chance.innerHTML = `${(character.stats.block_chance*100-30).toFixed(1)}%`;
+            other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.block_chance*100-30).toFixed(1)}%`;
         } 
         else {
-            other_combat_divs.defensive_action_chance.innerHTML = `${(character.stats.block_chance*100).toFixed(1)}%`;
+            other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.block_chance*100).toFixed(1)}%`;
         }
     }
     else {
         other_combat_divs.defensive_action.innerHTML = "Evasion:";
         if(current_enemy != null) {
-            other_combat_divs.defensive_action_chance.innerHTML = `${(character.stats.evasion_chance*100).toFixed(1)}%`;
+            other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.evasion_chance*100).toFixed(1)}%`;
         }
         else {
             other_combat_divs.defensive_action_chance.innerHTML = "";

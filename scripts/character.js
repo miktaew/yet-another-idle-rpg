@@ -2,8 +2,10 @@
 const base_xp_cost = 10;
 const character = {name: "Hero", titles: {}, 
                    stats: {max_health: 40, health: 40, strength: 5, agility: 5, dexterity: 5, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, 
-                    attack_power: 0, hit_chance: 0, evasion_chance: 0, block_chance: 0, defense: 0},
-                   // crit damage is a multiplier; defense should be only based on worn armor and/or magic skills;
+                    attack_power: 0, defense: 0},
+                   // crit damage is a multiplier; defense should be only based on worn armor and/or skills (incl magic);
+                   combat_stats: {hit_chance: 0, evasion_chance: 0, block_chance: 0}, //depend on stats of current enemy
+                   full_stats: {}, //non-combat stats + equipment bonuses
                    inventory: {},
                    equipment: {head: null, torso: null, 
                                arms: null, ring: null, 

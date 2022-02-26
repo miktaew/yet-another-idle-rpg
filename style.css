@@ -169,7 +169,7 @@ body {
 	 background-color: rgba(120, 120, 120, 0.8);
 	 border-radius: 10px;
 	 margin-left: 30px;
-	 margin-top:20px;
+	 margin-top: 20px;
 	 top: var(--item_tooltip_top);
 	 left: var(--item_tooltip_left);
 	 padding: 5px;
@@ -581,9 +581,9 @@ body {
 }
 
 #character_health_value {
-	position: fixed;
+	position: absolute;
 	width: 400px;
-	top: 56px;
+	top: 46px;
 }
 #character_health_text, #character_level_div {
 	text-align: left; margin-left: 28px;
@@ -603,9 +603,9 @@ body {
 }
 
 #character_xp_value {
-	position: fixed;
+	position: absolute;
 	width: 400px;
-	top: 104px;
+	top: 92px;
 	text-align: center;
 }
 
@@ -643,9 +643,10 @@ body {
 	padding-bottom: 4px;
 	padding-left: 4px;
 	width: 200px;
-	left: 120px;
-	top: 294px;
-	position: fixed;
+	left: 100px;
+	top: 160px;
+	position: absolute;
+	z-index: 1;
 }
 
 #effects_tooltip {

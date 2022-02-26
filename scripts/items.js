@@ -94,7 +94,6 @@ item_templates["Sharpened long stick"] = new Item({
     equip_effect: {
         attack: {
             flat: 6,
-            multiplier: 1,
         },
         agility: {
             flat_bonus: 1,
@@ -108,12 +107,11 @@ item_templates["Rusty knife"] = new Item({
     equip_effect: {
         attack: {
             flat: 4,
-            multiplier: 1
         },
         agility: {
             flat_bonus: 2
         },
-        crit_chance: {
+        crit_rate: {
             flat_bonus: 0.1
         }
     }
@@ -125,7 +123,6 @@ item_templates["Worn-out wooden sword"] = new Item({
     equip_effect: {
         attack: {
             flat: 7,
-            multiplier: 1
         }
     }
 });
