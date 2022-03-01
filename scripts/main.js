@@ -1,6 +1,6 @@
 "use strict";
 
-import { current_game_time } from "./game_time.js";
+import { current_game_time, format_time } from "./game_time.js";
 import { Item, item_templates } from "./items.js";
 import { locations } from "./locations.js";
 import { skills, skill_groups } from "./skills.js";
@@ -129,10 +129,6 @@ document.getElementById("test_button").addEventListener("click", () =>
     //add_to_inventory("character", [{item: new Item(item_templates["Stale bread"]), count: 5}]);
     // add_to_inventory("character", [{item: new Item(item_templates["Fresh bread"]), count: 5}]);
     // add_to_inventory("character", [{item: new Item(item_templates["Rat fang"]), count: 5}]);
-
-    add_xp_to_skill(skills["Swords"], 10000);
-    add_xp_to_skill(skills["Axes"], 10000);
-    console.log(skill_groups["weapon skills"].highest_level);
 }); 
 */
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
@@ -183,9 +179,28 @@ function change_location(location_name) {
             activity_div.innerHTML = location.activities[i].starting_text;
             if(activities[location.activities[i].activity].type === "JOB") {
                 activity_div.innerHTML += `  <i class="fas fa-hammer"></i>`;
-                activity_div.classList.add("start_activity");
+                activity_div.classList.add("activity_div");
                 activity_div.setAttribute("data-activity", i);
                 activity_div.setAttribute("onclick", `start_activity({id: ${i}});`);
+
+                if(enough_time_for_work(location.activities[i])) {
+                    activity_div.classList.add("start_activity");
+                } else {
+                    activity_div.classList.add("activity_unavailable");
+                }
+
+                const job_tooltip = document.createElement("div");
+                job_tooltip.classList.add("job_tooltip");
+                job_tooltip.innerHTML = `Available from ${location.activities[i].availability_time.start} to ${location.activities[i].availability_time.end} <br>`;
+                if(location.activities[i].max_working_time / location.activities[i].working_period >= 2) {
+                    job_tooltip.innerHTML += `Pays ${format_money(location.activities[i].payment)} per every ` +  
+                        `${format_time({time: {minutes: location.activities[i].working_period}})} worked, up to ${format_time({time: {minutes: location.activities[i].max_working_time}})}`;
+                } else {
+                    job_tooltip.innerHTML += `Pays ${format_money(location.activities[i].payment)} after working for ${format_time({time: {minutes: location.activities[i].working_period}})}`;
+                }
+
+
+                activity_div.appendChild(job_tooltip);
             }
             else {
                 console.error("Activity type not yet supported!");
@@ -252,12 +267,18 @@ function change_location(location_name) {
 
 function start_activity(selected_activity) {
     //{type, id}
+    
 
     current_activity = Object.assign({},current_location.activities[selected_activity.id]);
     current_activity.name = current_activity.activity;
     current_activity.activity = activities[current_activity.activity];
 
     if(activities[current_activity.name].type === "JOB") {
+        if(!enough_time_for_work(current_activity)) {
+            current_activity = null;
+            return;
+        }
+
         current_activity.earnings = 0;
         current_activity.working_time = 0;
 
@@ -329,12 +350,11 @@ function enough_time_for_work(selected_job) {
             return false;
         }
     } else {
-        //ends on the next day (i.e. working through the night)
-        
+        //ends on the next day (i.e. working through the night)        
         if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.start*60
-            //timer is past the starting hour, so it's the same day as job started
+            //timer is past the starting hour, so it's the same day as job starts
             && 
-            current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60 + selected_job.availability_time.start*60
+            current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60 + 24*60
             //time available on this day + time available on next day are less than time needed
             ||
             current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
@@ -2235,16 +2255,21 @@ function update() {
 
                 //if gathering: add drops to inventory
             } else {
-                const divs = document.getElementsByClassName("start_activity");
+                const divs = document.getElementsByClassName("activity_div");
                 for(let i = 0; i < divs.length; i++) {
                     const activity = current_location.activities[divs[i].getAttribute("data-activity")];
 
                     if(activities[activity.activity].type === "JOB") {
                         if(enough_time_for_work(activity)) {
-                            divs[i].style.display = "block";
+                            divs[i].classList.remove("activity_unavailable");
+                            divs[i].classList.add("start_activity");
                         } else {
-                            divs[i].style.display = "none";
+                            divs[i].classList.remove("start_activity");
+                            divs[i].classList.add("activity_unavailable");
                         }
+                        //TODO: instead make it grayed out and change cursor style
+                        //and show a tooltip with hours when job is available
+                        
                     }
                 }
             }

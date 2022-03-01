@@ -166,7 +166,7 @@ class Combat_zone {
             max_working_time: 60*12, //both are ticks, so 2 and 12 in-game hours
             //with both the same, getting money requires working full time
             //otherwise, money will be accumulated per each finished period
-            availability_time: {start: 6, end: 20}, //in-game hours of when job is available, currently only jobs that start and end on same day are supported
+            availability_time: {start: 6, end: 20}, //in-game hours of when job is available
             skill_xp_per_tick: 1, 
             skill_affects: "PAYMENT",
         },

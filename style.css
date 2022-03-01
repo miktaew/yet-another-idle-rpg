@@ -7,6 +7,8 @@
 	--item_other_width: 340px;
 	--item_tooltip_top: 0px;
 	--item_tooltip_left: 0px;
+	--job_tooltip_top: 0px;
+	--job_tooltip_left: 0px;
 }
 
 body {
@@ -111,14 +113,24 @@ body {
  }
 
  .action_travel, .start_dialogue, .start_activity, .end_dialogue_button, #action_status_div, #action_end_div {
-	 text-align: center;
+	text-align: center;
+	font-size: 20;
+	color: white;
+	border-bottom: 1px solid white;
+	cursor: pointer;
+	padding: 5px;
+ }
+
+ .activity_unavailable {
+	text-align: center;
 	 font-size: 20;
-	 color: white;
+	 color: gray;
 	 border-bottom: 1px solid white;
-	 cursor: pointer;
+	 cursor: not-allowed;
 	 padding: 5px;
  }
- .action_travel:hover, .start_dialogue:hover, 
+
+ .action_travel:hover, .start_dialogue:hover, .start_activity:hover,
  .dialogue_textline:hover, .end_dialogue_button:hover, .dialogue_trade:hover {
 	background-color: #2c3953;
 }
@@ -161,7 +173,7 @@ body {
 	font-weight: bold;
 }
 
- .item_tooltip {
+ .item_tooltip, .job_tooltip {
 	 display: none;
 	 text-align: left;
 	 color: white;
@@ -170,8 +182,6 @@ body {
 	 border-radius: 10px;
 	 margin-left: 30px;
 	 margin-top: 20px;
-	 top: var(--item_tooltip_top);
-	 left: var(--item_tooltip_left);
 	 padding: 5px;
 	 position: absolute;
 	 z-index: 1000;
@@ -180,8 +190,18 @@ body {
 	 height: auto;
  }
 
- .equipment_slot_div:hover .item_tooltip, .trader_item_control:hover .item_tooltip, 
- .inventory_item_control:hover .item_tooltip, .equipped_item_control:hover .item_tooltip{
+ .item_tooltip {
+	top: var(--item_tooltip_top);
+	left: var(--item_tooltip_left);
+ }
+ .job_tooltip {
+	top: var(--job_tooltip_top);
+	left: var(--job_tooltip_left);
+}
+
+ .equipment_slot_div:hover .item_tooltip, .trader_item_control:hover .item_tooltip, .inventory_item_control:hover .item_tooltip, 
+ .equipped_item_control:hover .item_tooltip, .start_activity:hover .job_tooltip, .activity_unavailable:hover .job_tooltip, 
+ .effects_div:hover .effects_tooltip{
 	display: block;
 }
 
