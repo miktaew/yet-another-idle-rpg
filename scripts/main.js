@@ -3,7 +3,7 @@
 import { current_game_time, format_time } from "./game_time.js";
 import { Item, item_templates } from "./items.js";
 import { locations } from "./locations.js";
-import { skills, skill_groups } from "./skills.js";
+import { skills, skill_groups, get_next_skill_milestone, get_unlocked_skill_rewards} from "./skills.js";
 import { dialogues } from "./dialogues.js";
 import { Enemy, enemy_templates } from "./enemies.js";
 import { traders } from "./trade.js";
@@ -129,6 +129,9 @@ document.getElementById("test_button").addEventListener("click", () =>
     //add_to_inventory("character", [{item: new Item(item_templates["Stale bread"]), count: 5}]);
     // add_to_inventory("character", [{item: new Item(item_templates["Fresh bread"]), count: 5}]);
     // add_to_inventory("character", [{item: new Item(item_templates["Rat fang"]), count: 5}]);
+
+    add_xp_to_skill(skills["Farming"], 10000);
+    add_xp_to_skill(skills["Swords"], 10000);
 }); 
 */
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
@@ -1067,6 +1070,8 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
         const tooltip_xp = document.createElement("div");
         const tooltip_desc = document.createElement("div");
         const tooltip_effect = document.createElement("div");
+        const tooltip_milestones = document.createElement("div");
+        const tooltip_next = document.createElement("div");
         
 
         skill_bar_max.classList.add("skill_bar_max");
@@ -1075,20 +1080,22 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
         skill_bar_name.classList.add("skill_bar_name");
         skill_bar_xp.classList.add("skill_bar_xp");
         skill_tooltip.classList.add("skill_tooltip");
+        tooltip_next.classList.add("skill_tooltip_next_milestone");
 
         skill_bar_text.appendChild(skill_bar_name);
         skill_bar_text.append(skill_bar_xp);
 
         skill_tooltip.appendChild(tooltip_xp);
         skill_tooltip.appendChild(tooltip_desc);
-        skill_tooltip.appendChild(tooltip_effect);
+        skill_tooltip.appendChild(tooltip_effect); 
+        skill_tooltip.appendChild(tooltip_milestones);
+        skill_tooltip.appendChild(tooltip_next);
 
-        tooltip_desc.innerHTML = skill.description;
-        if(typeof skill.get_effect_description !== "undefined")
-        {
-            tooltip_effect.innerHTML = `${skill.get_effect_description()}`;
+        if(skill.skill_group) {
+            tooltip_desc.innerHTML = `${skill.description}<br><br>Group: ${skill.skill_group}`; 
+        } else {
+            tooltip_desc.innerHTML = `${skill.description}`; 
         }
-        
         
         skill_bar_max.appendChild(skill_bar_text);
         skill_bar_max.appendChild(skill_bar_current);
@@ -1096,6 +1103,7 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
 
         skill_bar_divs[skill.skill_id].appendChild(skill_bar_max);
         skill_bar_divs[skill.skill_id].setAttribute("data-skill", skill.skill_id);
+        skill_bar_divs[skill.skill_id].classList.add("skill_div");
         skill_list.appendChild(skill_bar_divs[skill.skill_id]);
 
         [...skill_list_div.children]
@@ -1114,20 +1122,43 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
                     skill_bar_name,
                     skill_bar_xp
                 skill_bar_current, 
-                skill_tooltip -> children(2):
+                skill_tooltip -> children(5):
                     tooltip_xp,
                     tooltip_desc,
-                    tooltip_effect
+                    tooltip_effect,
+                    tooltip_milestones,
+                    tooltip_next
     */
 
     skill_bar_divs[skill.skill_id].children[0].children[0].children[0].innerHTML = `${skill.name()} : level ${skill.current_level}`;
     //skill_bar_name
-    skill_bar_divs[skill.skill_id].children[0].children[0].children[1].innerHTML = `${100*Math.round(skill.current_xp/skill.xp_to_next_lvl*1000)/1000}%`;
+
+    if(skill.current_xp !== "Max") {
+        skill_bar_divs[skill.skill_id].children[0].children[0].children[1].innerHTML = `${100*Math.round(skill.current_xp/skill.xp_to_next_lvl*1000)/1000}%`;
+    } else {
+        skill_bar_divs[skill.skill_id].children[0].children[0].children[1].innerHTML = `Max!`;
+    }
     //skill_bar_xp
+
     skill_bar_divs[skill.skill_id].children[0].children[1].style.width = `${100*skill.current_xp/skill.xp_to_next_lvl}%`;
     //skill_bar_current
-    skill_bar_divs[skill.skill_id].children[0].children[2].children[0].innerHTML = `${skill.current_xp}/${skill.xp_to_next_lvl}`;
+
+    if(skill.current_xp !== "Max") {
+        skill_bar_divs[skill.skill_id].children[0].children[2].children[0].innerHTML = `${skill.current_xp}/${skill.xp_to_next_lvl}`;
+    } else {
+        skill_bar_divs[skill.skill_id].children[0].children[2].children[0].innerHTML = `Maxed out!`;
+    }
     //tooltip_xp
+
+    if(get_unlocked_skill_rewards(skill.skill_id)) {
+        skill_bar_divs[skill.skill_id].children[0].children[2].children[3].innerHTML  = `<br>${get_unlocked_skill_rewards(skill.skill_id)}`;
+    }
+
+    if(typeof get_next_skill_milestone(skill.skill_id) !== "undefined") {
+        skill_bar_divs[skill.skill_id].children[0].children[2].children[4].innerHTML  = `lvl ${get_next_skill_milestone(skill.skill_id)}: ???`;
+    } else {
+        skill_bar_divs[skill.skill_id].children[0].children[2].children[4].innerHTML = "";
+    }
 
     if(typeof skill.get_effect_description !== "undefined")
         {
@@ -1135,17 +1166,20 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
             //tooltip_effect
         }
     
-    if(typeof level_up !== "undefined" && (typeof should_info === "undefined" || should_info))
-    {
-        log_message(level_up, "message_skill_leveled_up");
-        update_character_stats();
-    } 
-    else 
-    {
-        if(typeof level_up !== "undefined" && typeof skill.get_effect_description !== "undefined")
+    if(typeof level_up !== "undefined"){
+        if(typeof should_info === "undefined" || should_info)
+        {
+            log_message(level_up, "message_skill_leveled_up");
+            update_character_stats();
+        }
+
+        if(typeof skill.get_effect_description !== "undefined")
         {
             skill_bar_divs[skill.skill_id].children[0].children[2].children[2].innerHTML = `${skill.get_effect_description()}`;
+
         }
+
+        //TODO: update tooltip
     }
 
     //TODO: sort displayed skills
