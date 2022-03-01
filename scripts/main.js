@@ -419,6 +419,19 @@ function start_textline(textline_key){
         dialogue.textlines[textline.locks_lines[i]].is_finished = true;
     }
 
+    if(textline.unlocks.activities) { //unlocking activities
+        for(let i = 0; i < textline.unlocks.activities.length; i++) { 
+            for(let j = 0; j < locations[textline.unlocks.activities[i].location].activities.length; j++) {
+                if(locations[textline.unlocks.activities[i].location].activities[j].activity === textline.unlocks.activities[i].activity) {
+                    locations[textline.unlocks.activities[i].location].activities[j].is_unlocked = true;
+                    if(current_location.name === textline.unlocks.activities[i].location) {
+                        change_location(current_location.name);
+                    }
+                    break;
+                }
+            }
+        }
+    }
     start_dialogue(current_dialogue);
 }
 
@@ -1941,8 +1954,23 @@ function create_save() {
             if("parent_location" in locations[key]) { //combat zone
                 save_data["locations"][key]["enemies_killed"] = locations[key].enemies_killed;
             }
-        }); //save locations's unlocked status and their killcounts
+            if(locations[key].activities) {
+                for(let i = 0; i < locations[key].activities.length; i++) {
+                    save_data["locations"][key]["unlocked_activities"] = []
+                    if(locations[key].activities[i].is_unlocked) {
+                        save_data["locations"][key]["unlocked_activities"].push(locations[key].activities[i].activity);
+                    }
+                }
+            }
+        }); //save locations' (and their activities') unlocked status and their killcounts
 
+        save_data["activities"] = {};
+        Object.keys(activities).forEach(function(activity) {
+            if(activities[activity].is_unlocked) {
+                save_data["activities"][activity] = {is_unlocked: true};
+            }
+        }); //save activities' unlocked status (this is separate from unlock status in location)
+        
         save_data["dialogues"] = {};
         Object.keys(dialogues).forEach(function(dialogue) {
             save_data["dialogues"][dialogue] = {is_unlocked: dialogues[dialogue].is_unlocked, is_finished: dialogues[dialogue].is_finished, textlines: {}};
@@ -2066,11 +2094,24 @@ function load(save_data) {
             if("parent_location" in locations[key]) { // if combat zone
                 locations[key].enemies_killed = save_data.locations[key].enemies_killed;
             }
+            if("unlocked_activities" in save_data.locations[key]) {
+                for(let i = 0; i < locations[key].activities.length; i++) {
+                    if(save_data.locations[key].unlocked_activities.includes(locations[key].activities[i].activity)) {
+                        locations[key].activities[i].is_unlocked = true;
+                    }
+                }
+            }
         }); //load for locations their unlocked status and their killcounts
+
+        Object.keys(activities).forEach(function(activity) {
+            activities[activity].is_unlocked = save_data.activities[activity].is_unlocked || false;
+        });
 
         Object.keys(save_data.active_effects).forEach(function(effect) {
             active_effects[effect] = save_data.active_effects[effect];
         });
+
+        
         //TODO: apply effects properly
         update_displayed_effects();
 

@@ -95,6 +95,18 @@ function Textline(textline_data) {
     If you need money, try selling him some rat remains. Fangs, tails or pelts, he will buy them all. I have no idea what he does with this stuff...`,
                 is_unlocked: false,
                 locks_lines: ["equipment"],
+                unlocks: {
+                    textlines: [{dialogue: "village elder", lines: ["money"]}],
+                }
+            }),
+            "money": new Textline({
+                name: "Are there other ways to make money?",
+                text: "You could help us with some fieldwork. I'm afraid it won't pay too well.",
+                is_unlocked: false,
+                locks_lines: ["money"],
+                unlocks: {
+                    activities: [{location: "Village", activity: "plowing the fields"}],
+                }
             }),
             "ask to leave 2": new Textline({
                 name: "Can I leave the village?",

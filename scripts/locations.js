@@ -13,7 +13,7 @@ class Location {
         this.name = location_data.name;
         this.description = location_data.description;
         this.connected_locations = location_data.connected_locations; //a list
-        this.is_unlocked = location_data.is_unlocked && true;
+        this.is_unlocked = typeof location_data.is_unlocked !== "undefined" ? location_data.is_unlocked : true;
         this.dialogues = location_data.dialogues || [];
         this.jobs = [];
         for (let i = 0; i < this.dialogues.length; i++) {
@@ -38,7 +38,7 @@ class Combat_zone {
         */
         this.name = location_data.name;
         this.description = location_data.description;
-        this.is_unlocked = location_data.is_unlocked && true;
+        this.is_unlocked = typeof location_data.is_unlocked !== "undefined" ? location_data.is_unlocked : true;
         this.enemies_list = location_data.enemies_list;
         this.enemy_count = location_data.enemy_count || 30;
         this.enemies_killed = 0;
@@ -161,7 +161,7 @@ class Combat_zone {
             activity: "plowing the fields",
             starting_text: "Work on the fields",
             payment: 1, 
-            is_unlocked: true,
+            is_unlocked: false,
             working_period: 60*2,
             max_working_time: 60*12, //both are ticks, so 2 and 12 in-game hours
             //with both the same, getting money requires working full time
