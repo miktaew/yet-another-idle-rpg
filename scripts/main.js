@@ -266,8 +266,7 @@ function change_location(location_name) {
 }
 
 function start_activity(selected_activity) {
-    //{type, id}
-    
+    //{id}
 
     current_activity = Object.assign({},current_location.activities[selected_activity.id]);
     current_activity.name = current_activity.activity;
@@ -326,12 +325,14 @@ function start_activity(selected_activity) {
 }
 
 function end_activity() {
-
+    
+    log_message(`${character.name} finished ${current_activity.name}`);
+    
     if(current_activity.earnings) {
         character.money += current_activity.earnings;
+        log_message(`${character.name} earned ${format_money(current_activity.earnings)}`);
         update_displayed_money();
     }
-    log_message(`${character.name} finished ${current_activity.name}`);
     
     current_activity = null;
     change_location(current_location.name);
@@ -1990,6 +1991,12 @@ function create_save() {
                 save_data["activities"][activity] = {is_unlocked: true};
             }
         }); //save activities' unlocked status (this is separate from unlock status in location)
+
+        if(current_activity) {
+            save_data["current_activity"] = {activity: current_activity.activity.name, 
+                                             working_time: current_activity.working_time, 
+                                             earnings: current_activity.earnings};
+        }
         
         save_data["dialogues"] = {};
         Object.keys(dialogues).forEach(function(dialogue) {
@@ -2136,6 +2143,23 @@ function load(save_data) {
         update_displayed_effects();
 
         change_location(save_data["current location"]);
+
+        //set activity if any saved
+        if(save_data.current_activity) {
+            //search for it in location from save_data
+            const activity_id = locations[save_data["current location"]].activities.findIndex(activity => activity.activity ===  save_data.current_activity.activity);
+
+            if(typeof activity_id !== "undefined") {
+                start_activity({id: activity_id});
+                current_activity.working_time = save_data.current_activity.working_time;
+                current_activity.earnings = save_data.current_activity.earnings;
+                document.getElementById("action_end_earnings").innerText = `(earnings: ${format_money(current_activity.earnings)})`;
+                
+            } else {
+                console.error("Couldn't find saved activity! It might have been removed");
+            }
+        }
+
     } catch(error) {
         throw error; //let other loading methods (from_file and from_localstorage) take care of it
     }

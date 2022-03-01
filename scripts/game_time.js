@@ -133,10 +133,6 @@ function format_time(data) { //{time, long_names?}
         formatted_time += data.long_names? `${data.time.minutes} minutes` : `${data.time.minutes} m`;
     }
 
-
-
-    console.log(data.time);
-
     return formatted_time;
 }
 
