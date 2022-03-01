@@ -565,6 +565,7 @@
                     if(clicked_element.classList.contains("equipment_slot_div") && !clicked_element.classList.contains("equipment_slot_empty"))
                     {
                         unequip_item(clicked_element.id.replace("_slot", ""));
+
                         clicked_element.children[0].style.left = event.pageX + "px";
                         clicked_element.children[0].style.top = event.pageY + "px";
                     }
@@ -586,6 +587,15 @@
                         }
                     }
                 }
+
+                //activities tooltips
+                const location_actions_div = document.getElementById("location_actions_div");
+                location_actions_div.addEventListener('mousemove', move_activity_tooltip, false);
+                function move_activity_tooltip(event) {
+                    document.documentElement.style.setProperty('--job_tooltip_top', `${event.pageY - 370}px`);
+                    document.documentElement.style.setProperty('--job_tooltip_left', `${event.pageX - 370}px`);
+                }
+
 
                 //skill tooltips
                 var skills_div = document.getElementById("skill_list_div");
@@ -617,7 +627,6 @@
                 const effects_tooltip = document.getElementById("effects_tooltip");
                 active_effects_div.addEventListener('mousemove', move_effects_tooltip, false);
                 function move_effects_tooltip(event) {
-
                     const hovered_element = event.target;
                     effects_tooltip.style.display = "block";
                     if(hovered_element.id === "effects_div" || hovered_element.classList.contains("effects_div")) {

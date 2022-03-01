@@ -23,15 +23,15 @@ function Game_time(new_time) {
             this.day_count += 1;
         }
     
-        if(this.day >= 30) 
+        if(this.day > 30) 
         {
-            this.day = Math.max(1, this.day - 30);
+            this.day = this.day - 30;
             this.month += 1;
         }
     
-        if(this.month >= 12) 
+        if(this.month > 12) 
         {
-            this.month = Math.max(1, this.month - 12);
+            this.month = this.month - 12;
             this.year += 1;
         }
     }
@@ -92,6 +92,50 @@ Game_time.prototype.toString = function() {
     return date_string;
 }
 
+function format_time(data) { //{time, long_names?}
+    if(!data.time) {
+        throw "No time passed in arguments!";
+    }
+    
+    if(data.time.minutes >= 60) {
+        data.time.hours = data.time.hours + Math.floor(data.time.minutes/60) || Math.floor(data.time.minutes/60);
+        data.time.minutes = data.time.minutes % 60;
+    }
+    if(data.time.hours >= 24) {
+        data.time.days = data.time.days + Math.floor(data.time.hours/24) || Math.floor(data.time.hours/24);
+        data.time.hours = data.time.hours % 24;
+    }
+    if(data.time.days > 30) {
+        data.time.months = data.time.months + Math.floor(data.time.days/30) || Math.floor(data.time.days/30);
+        data.time.days = data.time.days % 30;
+    }
+    if(data.time.months > 12) {
+        data.time.years = data.time.years + Math.floor(data.time.months/12) || Math.floor(data.time.months/12);
+        data.time.months = data.time.months % 30;
+    }
+
+
+
+    var formatted_time = '';
+    if(data.time.years > 0) {
+        formatted_time += data.long_names? `${data.time.year} years` : `${data.time.year} Y`;
+    }
+    if(data.time.months > 0) {
+        formatted_time += data.long_names? `${data.time.months} months` : `${data.time.months} M`;
+    }
+    if(data.time.days > 0) {
+        formatted_time += data.long_names? `${data.time.days} days` : `${data.time.days} D`;
+    }
+    if(data.time.hours > 0) {
+        formatted_time += data.long_names? `${data.time.hours} hours` : `${data.time.hours} h`;
+    }
+    if(data.time.minutes > 0) {
+        formatted_time += data.long_names? `${data.time.minutes} minutes` : `${data.time.minutes} m`;
+    }
+
+    return formatted_time;
+}
+
 const current_game_time = new Game_time({year: 954, month: 4, day: 1, hour: 8, minute: 0, day_count: 1});
 
-export {current_game_time};
+export {current_game_time, format_time};
