@@ -110,7 +110,7 @@ body {
 	 color: silver;
  }
 
- .action_travel, .start_dialogue, .end_dialogue_button {
+ .action_travel, .start_dialogue, .start_activity, .end_dialogue_button, #action_status_div, #action_end_div {
 	 text-align: center;
 	 font-size: 20;
 	 color: white;
@@ -491,6 +491,23 @@ body {
 	text-align: right;
 	width: 90px;
 	font-weight: bold;
+}
+
+#action_status_div {
+	font-size: 16;
+	font-style: italic;
+	cursor: default;
+}
+
+#action_end_text, #action_end_earnings {
+	display: inline;
+}
+
+#action_end_earnings {
+
+	font-style: italic;
+	color: gray;
+	padding-left: 10px;
 }
 
 #cancel_trade_button {

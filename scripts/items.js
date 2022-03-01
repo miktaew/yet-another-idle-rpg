@@ -47,147 +47,149 @@ function Item(item_data) {
 //
 //
 //materials:
+(function(){
+    item_templates["Rat tail"] = new Item({
+        name: "Rat tail", description: "Tail of a huge rat, basically useless", value: 1, stackable: true,
+        item_type: "OTHER",
+    });
 
-item_templates["Rat tail"] = new Item({
-    name: "Rat tail", description: "Tail of a huge rat, basically useless", value: 1, stackable: true,
-    item_type: "OTHER",
-});
+    item_templates["Rat fang"] = new Item({
+        name: "Rat fang", description: "Fang of a huge rat, not very sharp", value: 1, stackable: true,
+        item_type: "OTHER",
+    });
 
-item_templates["Rat fang"] = new Item({
-    name: "Rat fang", description: "Fang of a huge rat, not very sharp", value: 1, stackable: true,
-    item_type: "OTHER",
-});
-
-item_templates["Rat pelt"] = new Item({
-    name: "Rat pelt", description: "Pelt of a huge rat, terrible quality but maybe there's some use", value: 2, stackable: true,
-    item_type: "OTHER",
-});
+    item_templates["Rat pelt"] = new Item({
+        name: "Rat pelt", description: "Pelt of a huge rat, terrible quality but maybe there's some use", value: 2, stackable: true,
+        item_type: "OTHER",
+    });
+})();
 
 //
 //
 //equippables:
-
-item_templates["Ratslayer"] = new Item({
-    name: "Ratslayer", description: "Test item", value: 1000000000, 
-    item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "sword",
-    equip_effect: {
-        attack: {
-            flat: 10000,
-            multiplier: 10,
+(function(){
+    item_templates["Ratslayer"] = new Item({
+        name: "Ratslayer", description: "Test item", value: 1000000000, 
+        item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "sword",
+        equip_effect: {
+            attack: {
+                flat: 10000,
+                multiplier: 10,
+            }
         }
-    }
-});
+    });
 
-item_templates["Long stick"] = new Item({
-    name: "Long stick", description: "Can be used as a simple weapon", value: 3,
-    item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "blunt weapon",
-    equip_effect: {
-        attack: {
-            flat: 4,
+    item_templates["Long stick"] = new Item({
+        name: "Long stick", description: "Can be used as a simple weapon", value: 3,
+        item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "blunt weapon",
+        equip_effect: {
+            attack: {
+                flat: 4,
+            }
         }
-    }
-});
+    });
 
-item_templates["Sharpened long stick"] = new Item({
-    name: "Sharpened long stick", description: "Works somewhat okay-ish as a makeshift spear", value: 10,
-    item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "spear",
-    equip_effect: {
-        attack: {
-            flat: 6,
-        },
-        agility: {
-            flat_bonus: 1,
+    item_templates["Sharpened long stick"] = new Item({
+        name: "Sharpened long stick", description: "Works somewhat okay-ish as a makeshift spear", value: 10,
+        item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "spear",
+        equip_effect: {
+            attack: {
+                flat: 6,
+            },
+            agility: {
+                flat_bonus: 1,
+            }
         }
-    }
-});
+    });
 
-item_templates["Rusty knife"] = new Item({
-    name: "Rusty knife", description: "Knife of an unknown designation, rusty and dull", value: 10,
-    item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "dagger",
-    equip_effect: {
-        attack: {
-            flat: 4,
-        },
-        agility: {
-            flat_bonus: 2
-        },
-        crit_rate: {
-            flat_bonus: 0.1
+    item_templates["Rusty knife"] = new Item({
+        name: "Rusty knife", description: "Knife of an unknown designation, rusty and dull", value: 10,
+        item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "dagger",
+        equip_effect: {
+            attack: {
+                flat: 4,
+            },
+            agility: {
+                flat_bonus: 2
+            },
+            crit_rate: {
+                flat_bonus: 0.1
+            }
         }
-    }
-});
+    });
 
-item_templates["Worn-out wooden sword"] = new Item({
-    name: "Worn-out wooden sword", description: "Closer to a toy than to a real weapon", value: 10,
-    item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "sword",
-    equip_effect: {
-        attack: {
-            flat: 7,
+    item_templates["Worn-out wooden sword"] = new Item({
+        name: "Worn-out wooden sword", description: "Closer to a toy than to a real weapon", value: 10,
+        item_type: "EQUIPPABLE", equip_slot: "weapon", weapon_type: "sword",
+        equip_effect: {
+            attack: {
+                flat: 7,
+            }
         }
-    }
-});
+    });
 
-item_templates["Plank with a handle"] = new Item({
-    name: "Plank with a handle", description: "Technically can be used as a very basic shield, except it won't really block anything", value: 7,
-    item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 2,
-});
+    item_templates["Plank with a handle"] = new Item({
+        name: "Plank with a handle", description: "Technically can be used as a very basic shield, except it won't really block anything", value: 7,
+        item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 2,
+    });
 
-item_templates["Crude wooden shield"] = new Item({
-    name: "Crude wooden shield", description: "Crude shield made of wood, not very strong", value: 20,
-    item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 6,
-});
+    item_templates["Crude wooden shield"] = new Item({
+        name: "Crude wooden shield", description: "Crude shield made of wood, not very strong", value: 20,
+        item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 6,
+    });
 
-item_templates["Wooden shield"] = new Item({
-    name: "Wooden shield", description: "A proper wooden shield, although without any form of reinforcement", value: 40,
-    item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 10,
-});
+    item_templates["Wooden shield"] = new Item({
+        name: "Wooden shield", description: "A proper wooden shield, although without any form of reinforcement", value: 40,
+        item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 10,
+    });
 
-item_templates["Shabby leather vest"] = new Item({
-    name: "Shabby leather vest", description: "Vest of terrible quality, providing almost no protection. Better not to know what's it made from", value: 15,
-    item_type: "EQUIPPABLE", equip_slot: "torso",
-    equip_effect: {
-        defense: {
-            flat_bonus: 1
+    item_templates["Shabby leather vest"] = new Item({
+        name: "Shabby leather vest", description: "Vest of terrible quality, providing almost no protection. Better not to know what's it made from", value: 15,
+        item_type: "EQUIPPABLE", equip_slot: "torso",
+        equip_effect: {
+            defense: {
+                flat_bonus: 1
+            }
         }
-    }
-});
+    });
 
-item_templates["Raggy leather pants"] = new Item({
-    name: "Raggy leather pants", description: "Pants of terrible quality, made of unknown leather. Lots of holes", value: 15,
-    item_type: "EQUIPPABLE", equip_slot: "legs",
-    equip_effect: {
-        defense: {
-            flat_bonus: 1
+    item_templates["Raggy leather pants"] = new Item({
+        name: "Raggy leather pants", description: "Pants of terrible quality, made of unknown leather. Lots of holes", value: 15,
+        item_type: "EQUIPPABLE", equip_slot: "legs",
+        equip_effect: {
+            defense: {
+                flat_bonus: 1
+            }
         }
-    }
-});
+    });
+})();
 
 //
 //
 //usables:
+(function(){
+    item_templates["Stale bread"] = new Item({
+        name: "Stale bread", description: "Big piece of an old bread, still edible", value: 3,
+        stackable: true, item_type: "USABLE", 
+        use_effect: {
+            health_regeneration: {
+                flat: 1,
+                duration: 30,
+            },
+        }
+    });
 
-item_templates["Stale bread"] = new Item({
-    name: "Stale bread", description: "Big piece of an old bread, still edible", value: 3,
-    stackable: true, item_type: "USABLE", 
-    use_effect: {
-        health_regeneration: {
-            flat: 1,
-            duration: 30,
-        },
-    }
-});
-
-item_templates["Fresh bread"] = new Item({
-    name: "Fresh bread", description: "Freshly baked bread, delicious", value: 8,
-    stackable: true, item_type: "USABLE", 
-    use_effect: {
-        health_regeneration: {
-            flat: 3,
-            duration: 60,
-        },
-    }
-});
-
+    item_templates["Fresh bread"] = new Item({
+        name: "Fresh bread", description: "Freshly baked bread, delicious", value: 8,
+        stackable: true, item_type: "USABLE", 
+        use_effect: {
+            health_regeneration: {
+                flat: 3,
+                duration: 60,
+            },
+        }
+    });
+})();
 
 
 

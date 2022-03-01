@@ -3,11 +3,12 @@
 import { current_game_time } from "./game_time.js";
 import { Item, item_templates } from "./items.js";
 import { locations } from "./locations.js";
-import { skills } from "./skills.js";
+import { skills, skill_groups } from "./skills.js";
 import { dialogues } from "./dialogues.js";
 import { Enemy, enemy_templates } from "./enemies.js";
 import { traders } from "./trade.js";
 import { character } from "./character.js";
+import { activities } from "./activities.js";
 
 //equipment slots
 const equipment_slots_divs = {head: document.getElementById("head_slot"), torso: document.getElementById("torso_slot"),
@@ -37,6 +38,9 @@ var additional_hero_attacks = 0;
 var additional_enemy_attacks = 0;
 //current location
 var current_location;
+
+var current_activity;
+
 //resting, true -> health regenerates
 var is_resting = true;
 
@@ -122,11 +126,15 @@ test_button.style.display = 'none';
 document.getElementById("test_button").addEventListener("click", () => 
 {
     // add_xp_to_character(100);
-    add_to_inventory("character", [{item: new Item(item_templates["Stale bread"]), count: 5}]);
+    //add_to_inventory("character", [{item: new Item(item_templates["Stale bread"]), count: 5}]);
     // add_to_inventory("character", [{item: new Item(item_templates["Fresh bread"]), count: 5}]);
     // add_to_inventory("character", [{item: new Item(item_templates["Rat fang"]), count: 5}]);
-}); */ 
 
+    add_xp_to_skill(skills["Swords"], 10000);
+    add_xp_to_skill(skills["Axes"], 10000);
+    console.log(skill_groups["weapon skills"].highest_level);
+}); 
+*/
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
 
 function capitalize_first_letter(some_string) {
@@ -150,7 +158,7 @@ function change_location(location_name) {
         enemy_count_div.style.display = "none";
         
         for(let i = 0; i < location.dialogues.length; i++) { //add buttons for starting dialogues (displaying their textlines on click will be in another method?)
-            if(dialogues[location.dialogues[i]].is_unlocked == false || dialogues[location.dialogues[i]].is_finished) { //skip if dialogue is not available
+            if(!dialogues[location.dialogues[i]].is_unlocked || dialogues[location.dialogues[i]].is_finished) { //skip if dialogue is not available
                 continue;
             } 
             
@@ -162,6 +170,28 @@ function change_location(location_name) {
             dialogue_div.setAttribute("data-dialogue", location.dialogues[i]);
             dialogue_div.setAttribute("onclick", "start_dialogue(this.getAttribute('data-dialogue'));");
             action_div.appendChild(dialogue_div);
+        }
+
+        //add buttons to start activities
+        for(let i = 0; i < location.activities.length; i++) {
+            if(!activities[location.activities[i].activity]?.is_unlocked || !location.activities[i]?.is_unlocked) {
+                continue;
+            }
+
+            const activity_div = document.createElement("div");
+            
+            activity_div.innerHTML = location.activities[i].starting_text;
+            if(activities[location.activities[i].activity].type === "JOB") {
+                activity_div.innerHTML += `  <i class="fas fa-hammer"></i>`;
+                activity_div.classList.add("start_activity");
+                activity_div.setAttribute("data-activity", i);
+                activity_div.setAttribute("onclick", `start_activity({id: ${i}});`);
+            }
+            else {
+                console.error("Activity type not yet supported!");
+            }
+
+            action_div.appendChild(activity_div);
         }
 
         for(let i = 0; i < location.connected_locations.length; i++) { //add butttons to change location
@@ -200,6 +230,7 @@ function change_location(location_name) {
                 update_combat_stats();
             }
         }
+
     } else { //so if entering combat zone
         enemy_count_div.style.display = "block";
         enemy_info_div.style.display = "block";
@@ -217,6 +248,107 @@ function change_location(location_name) {
     current_location = location;
     location_name_div.innerHTML = current_location.name;
     location_description_div.innerHTML = current_location.description;
+}
+
+function start_activity(selected_activity) {
+    //{type, id}
+
+    current_activity = Object.assign({},current_location.activities[selected_activity.id]);
+    current_activity.name = current_activity.activity;
+    current_activity.activity = activities[current_activity.activity];
+
+    if(activities[current_activity.name].type === "JOB") {
+        current_activity.earnings = 0;
+        current_activity.working_time = 0;
+
+        if(!current_activity.activity) {
+            throw "Job option not found!";
+        }
+    } else if(activities[current_activity].type === "TRAINING") {
+        if(!current_activity.activity) {
+            throw "Training option not found!";
+        }
+    } else if(activities[current_activity].type === "GATHERING") { 
+        if(!current_activity.activiti) {
+            throw `"${activities[current_activity].type}" is not a valid activity type!`;
+        } 
+    }
+
+    clear_action_div();
+
+    const action_status_div = document.createElement("div");
+    action_status_div.innerText = current_activity.activity.action_text;
+    action_status_div.id = "action_status_div";
+
+    const action_end_div = document.createElement("div");
+    action_end_div.setAttribute("onclick", "end_activity()");
+    action_end_div.id = "action_end_div";
+
+
+    const action_end_text = document.createElement("div");
+    action_end_text.innerText = `Finish ${current_activity.name}`;
+    action_end_text.id = "action_end_text";
+
+    
+    action_end_div.appendChild(action_end_text);
+
+    if(current_activity.activity.type === "JOB") {
+        const action_end_earnings = document.createElement("div");
+        action_end_earnings.innerText = `(earnings: ${format_money(0)})`;
+        action_end_earnings.id = "action_end_earnings";
+
+        action_end_div.appendChild(action_end_earnings);
+    }
+
+     action_div.appendChild(action_status_div);
+     action_div.appendChild(action_end_div);
+}
+
+function end_activity() {
+
+    if(current_activity.earnings) {
+        character.money += current_activity.earnings;
+        update_displayed_money();
+    }
+    log_message(`${character.name} finished ${current_activity.name}`);
+    
+    current_activity = null;
+    change_location(current_location.name);
+}
+
+function enough_time_for_work(selected_job) {
+    //if enough time for at least 1 working period
+
+    if(selected_job.availability_time.end > selected_job.availability_time.start) {
+        //ends on the same day
+        if(current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60
+            ||  //not enough time left for another work period
+            current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
+            ) {  //too early to start (shouldn't be allowed to start and get here at all)
+            
+            return false;
+        }
+    } else {
+        //ends on the next day (i.e. working through the night)
+        
+        if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.start*60
+            //timer is past the starting hour, so it's the same day as job started
+            && 
+            current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60 + selected_job.availability_time.start*60
+            //time available on this day + time available on next day are less than time needed
+            ||
+            current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
+            //timer is less than the starting hour, so it's the next day
+            &&
+            current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60
+            //time left on this day is not enough to finish
+        ) {  
+            
+            return false;
+        }
+    }
+
+    return true;
 }
 
 function start_dialogue(dialogue_key) {
@@ -1846,7 +1978,7 @@ function save_to_file() {
 function save_to_localStorage(is_manual) {
     localStorage.setItem("save data", create_save());
     if(is_manual) {
-        console.log("Saved the game");
+        log_message("Saved the game manually");
     }
 }
 
@@ -1940,6 +2072,7 @@ function load(save_data) {
             active_effects[effect] = save_data.active_effects[effect];
         });
         //TODO: apply effects properly
+        update_displayed_effects();
 
         change_location(save_data["current location"]);
     } catch(error) {
@@ -2036,6 +2169,44 @@ function update() {
             if(is_resting) { //make a change so it only switches to true on clicking the resting action and is false on default
                 do_resting();
             }
+
+            if(current_activity) { //in activity
+
+                //add xp to all related skills
+                for(let i = 0; i < current_activity.activity.base_skills_names.length; i++) {
+                    add_xp_to_skill(skills[current_activity.activity.base_skills_names[i]], current_activity.skill_xp_per_tick);
+                }
+
+                //if job: payment
+                if(current_activity.activity.type === "JOB") {
+                    current_activity.working_time += 1;
+
+                    if(current_activity.working_time % current_activity.working_period == 0) { 
+                        //finished working period, add money, then check if there's enough time left for another
+                        current_activity.earnings += current_activity.payment;
+                        document.getElementById("action_end_earnings").innerText = `(earnings: ${format_money(current_activity.earnings)})`
+
+                        if(!enough_time_for_work(current_activity)) {
+                            end_activity();
+                        }
+                    }
+                }
+
+                //if gathering: add drops to inventory
+            } else {
+                const divs = document.getElementsByClassName("start_activity");
+                for(let i = 0; i < divs.length; i++) {
+                    const activity = current_location.activities[divs[i].getAttribute("data-activity")];
+
+                    if(activities[activity.activity].type === "JOB") {
+                        if(enough_time_for_work(activity)) {
+                            divs[i].style.display = "block";
+                        } else {
+                            divs[i].style.display = "none";
+                        }
+                    }
+                }
+            }
         }
 
         if(active_effects.health_regeneration) {
@@ -2089,7 +2260,7 @@ function update() {
         */
 
         update();
-    }, 1000 - time_adjustment);
+    }, 1000/tickrate - time_adjustment);
     //uses time_adjustment based on time_variance_accumulator for more precise overall stabilization
     //(instead of only stabilizing relative to previous tick, it stabilizes relative to sum of deviations)
     //probably completely unnecessary lol, but hey, it sounds cool
@@ -2114,6 +2285,9 @@ window.change_location = change_location;
 window.start_dialogue = start_dialogue;
 window.end_dialogue = end_dialogue;
 window.start_textline = start_textline;
+
+window.start_activity = start_activity;
+window.end_activity = end_activity;
 
 window.start_trade = start_trade;
 window.exit_trade = exit_trade;
@@ -2140,6 +2314,9 @@ window.load_progress = load_from_file;
 
 if("save data" in localStorage) {
     load_from_localstorage();
+
+    update_character_stats();
+    update_combat_stats();
 }
 else {
     add_to_inventory("character", [{item: new Item(item_templates["Long stick"])}, 
@@ -2150,9 +2327,13 @@ else {
     add_xp_to_character(0);
     character.money = 10;
     update_displayed_money();
+    update_displayed_stats();
 }
 //checks if there's an existing save file, otherwise just sets up some initial equipment
 
-update_displayed_stats();
+
+
 update_displayed_equipment();
 run();
+
+export {tickrate};
