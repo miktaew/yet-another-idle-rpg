@@ -835,14 +835,14 @@ function sort_displayed_inventory(options) {
             return -1;
         }
         //other items by either name (if no option specificied or if option is "name"), or otherwise by value
-        else if(!options || options && options.sort_by === "name") {
-            if(a.getAttribute("data-character_item") || a.getAttribute("data-trader_item") > b.getAttribute("data-character_item") || b.getAttribute("data-trader_item")) {
-                return -1;
-            } else {
+        else if(options.sort_by === "name") {
+            if((a.getAttribute("data-character_item") || a.getAttribute("data-trader_item")) > (b.getAttribute("data-character_item") || b.getAttribute("data-trader_item"))) {
                 return 1;
+            } else {
+                return -1;
             }
-        } else {
-            if(item_templates[(a.getAttribute("data-character_item") || a.getAttribute("data-trade_item")).split(" #")[0]].value 
+        } else if(options.sort_by === "price") {
+            if(item_templates[(a.getAttribute("data-character_item") || a.getAttribute("data-trader_item")).split(" #")[0]].value 
                     > item_templates[(b.getAttribute("data-character_item") || b.getAttribute("data-trader_item")).split(" #")[0]].value) {
                 return 1;
             } else {

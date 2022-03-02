@@ -230,16 +230,16 @@
                             </div>
                         </div>
                         <div id = "trader_category_buttons">
-                            <div id = "trader_category_all" class = "trader_category_button active_selection_button">
+                            <div id = "trader_category_all" class = "trader_category_button active_selection_button" onclick='showAllTraderItems()'>
                                 all
                             </div>
-                            <div id = "trader_category_equipment" class = "trader_category_button">
+                            <div id = "trader_category_equipment" class = "trader_category_button" onclick="showOnlyTraderEquipment()">
                                 equipment
                             </div>
-                            <div id = "trader_category_usable" class = "trader_category_button">
+                            <div id = "trader_category_usable" class = "trader_category_button" onclick="showOnlyTraderConsumables()">
                                 usable
                             </div>
-                            <div id = "trader_category_other" class = "trader_category_button">
+                            <div id = "trader_category_other" class = "trader_category_button" onclick="showOnlyTraderOther()">
                                 other
                             </div>
                         </div>
@@ -328,6 +328,27 @@
                 document.documentElement.style.setProperty('--equipment_display', 'none');
                 document.documentElement.style.setProperty('--consumables_display', 'none');
                 document.documentElement.style.setProperty('--other_display', 'initial');
+            }
+
+            function showAllTraderItems() {
+                document.documentElement.style.setProperty('--trader_equipment_display', 'block');
+                document.documentElement.style.setProperty('--trader_consumable_display', 'block');
+                document.documentElement.style.setProperty('--trader_other_display', 'block');
+            }
+            function showOnlyTraderEquipment() {
+                document.documentElement.style.setProperty('--trader_equipment_display', 'block');
+                document.documentElement.style.setProperty('--trader_consumable_display', 'none');
+                document.documentElement.style.setProperty('--trader_other_display', 'none');
+            }
+            function showOnlyTraderConsumables() {
+                document.documentElement.style.setProperty('--trader_equipment_display', 'none');
+                document.documentElement.style.setProperty('--trader_consumable_display', 'block');
+                document.documentElement.style.setProperty('--trader_other_display', 'none');
+            }
+            function showOnlyTraderOther() {
+                document.documentElement.style.setProperty('--trader_equipment_display', 'none');
+                document.documentElement.style.setProperty('--trader_consumable_display', 'none');
+                document.documentElement.style.setProperty('--trader_other_display', 'block');
             }
             
 
@@ -758,6 +779,7 @@
                 document.getElementById("trader_sort_by_name").addEventListener("click", set_active_button);
                 document.getElementById("trader_sort_by_price").addEventListener("click", set_active_button);
                 document.getElementById("inventory_sorting_div").addEventListener("click", set_active_button);
+                document.getElementById("trader_category_buttons").addEventListener("click", set_active_button);
                 function set_active_button(event) {
                     //based on assumption none of them has child elements
                     //alternatively just give all control buttons some attribute that could be then checked for

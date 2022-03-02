@@ -90,9 +90,9 @@ function Skill(skill_data) {
 
                 if(!Object.keys(gains).length == 0) {
                     if(this.skill_group) {
-                        message += `<br><br> Thank's to [${this.skill_group}] reaching new milestone, ${character.name} gained: `;
+                        message += `<br><br> Thanks to [${this.skill_group}] reaching new milestone, ${character.name} gained: `;
                     } else {
-                        message += `<br><br> Thank's to ${this.name()} reaching new milestone, ${character.name} gained: `;
+                        message += `<br><br> Thanks to ${this.name()} reaching new milestone, ${character.name} gained: `;
                     }
 
                     Object.keys(gains).forEach(function(stat) {
