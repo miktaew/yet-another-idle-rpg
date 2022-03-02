@@ -18,7 +18,7 @@ function Skill(skill_data) {
     this.get_effect_description = skill_data.get_effect_description;
 
     this.skill_group = skill_data.skill_group;
-    this.rewards = skill_data.skill_rewards; //leveling rewards (and levels on which they are given)
+    this.rewards = skill_data.rewards; //leveling rewards (and levels on which they are given)
     /*
     if skill_group is defined, rewards will be based on it and setting them here will have no effect
 
@@ -124,7 +124,7 @@ function Skill(skill_data) {
                 skill_groups[this.skill_group].highest_level++;
             }
             
-        } else { //only normal rewards
+        } else { //only normal 
             for(let i = this.current_level + 1; i <= level; i++) {
                 if(this.rewards?.milestones[i]) {
                     stats = this.rewards.milestones[i].stats;
@@ -133,11 +133,8 @@ function Skill(skill_data) {
                         gains[stat] = (gains[stat] + stats[stat]) || stats[stat]; 
                     });
                 }
-            }
-            
+            }         
         }
-
-        
 
         Object.keys(gains).forEach(function (stat) {
             character.stats[stat] += gains[stat];
@@ -223,7 +220,7 @@ skill_groups["weapon skills"] = new SkillGroup({
 
     skills["Evasion"] = new Skill({skill_id: "Evasion", 
                                 names: {0: "Evasion [Basic]", 15: "Evasion [Intermediate]", 30: "Evasion [Advanced]", 40: "Evasion [Master]", 50: "Evasion [Absolute"},                                
-                                description:" Ability to evade attacks", 
+                                description:"Ability to evade attacks", 
                                 max_level_coefficient: 2,
                                 get_effect_description: ()=> {
                                     return `Multiplies your evasion chance by ${Math.round(skills["Evasion"].get_coefficient("multiplicative")*1000)/1000}`;
@@ -291,8 +288,118 @@ skill_groups["weapon skills"] = new SkillGroup({
                                 description: "Even simple act of plowing field requires some skill",
                                 base_xp_cost: 100,
                                 max_level: 10,
-                                max_level_coefficient: 2});
+                                max_level_coefficient: 2,
+                                rewards: {
+                                    milestones: {
+                                        2: {
+                                            stats: {
+                                                "strength": 1,
+                                            }
+                                        },
+                                        5: {
+                                            stats: {
+                                                "strength": 1,
+                                                "dexterity": 1,
+                                            }
+                                        },
+                                        7: {
+                                            stats: {
+                                                "strength": 2,
+                                                "dexterity": 1,
+                                            }
+                                        },
+                                        10: {
+                                            stats: {
+                                                "strength": 3,
+                                                "dexterity": 2,
+                                            }
+                                        }
+                                    }
+                                }});
 
 })();
 
-export {skills, skill_groups};
+
+const stat_names = {"strength": "str",
+                    "health": "hp",
+                    "agility": "agl",
+                    "dexterity": "dex",
+                    "magic": "magic",
+                    "attack_speed": "atk spd",
+                    "crit_rate": "crit rate",
+                    "crit_multiplier": "crit dmg"};
+
+//get all unlocked leveling rewards, formatted to string
+function get_unlocked_skill_rewards(skill_id) {
+    var unlocked_rewards = '';
+    
+    if(skills[skill_id].skill_group){ //skill group
+        const milestones = Object.keys(skill_groups[skills[skill_id].skill_group].rewards.milestones).filter(level => level <= skill_groups[skills[skill_id].skill_group].highest_level);
+        if(milestones.length > 0) {
+            unlocked_rewards = `Skill group rewards:<br>lvl ${milestones[0]}: ${format_skill_rewards(skill_groups[skills[skill_id].skill_group].rewards.milestones[milestones[0]])}`;
+            for(let i = 1; i < milestones.length; i++) {
+                unlocked_rewards += `<br>\n\nlvl ${milestones[i]}: ${format_skill_rewards(skill_groups[skills[skill_id].skill_group].rewards.milestones[milestones[i]])}`;
+            } 
+        }
+
+    } else if(skills[skill_id].rewards){ //no skill group but rewards
+        const milestones = Object.keys(skills[skill_id].rewards.milestones).filter(level => level <= skills[skill_id].current_level);
+        if(milestones.length > 0) {
+            unlocked_rewards = `lvl ${milestones[0]}: ${format_skill_rewards(skills[skill_id].rewards.milestones[milestones[0]])}`;
+            for(let i = 1; i < milestones.length; i++) {
+                unlocked_rewards += `<br>\n\nlvl ${milestones[i]}: ${format_skill_rewards(skills[skill_id].rewards.milestones[milestones[i]])}`;
+            }
+        }
+    } else { //no skill group and no rewards
+        return '';
+    }
+
+    return unlocked_rewards;
+}
+
+//get rewards for next lvl, formatted to string
+function get_next_skill_reward(skill_id) {
+    if(skills[skill_id].current_level !== "Max!") {
+        var rewards;
+        if(!skills[skill_id].skill_group){ //no skill group
+            rewards = skills[skill_id].rewards.milestones[get_next_skill_milestone(skill_id)];
+        } else if(skills[skill_id].skill_group){ //skill group
+            rewards = skill_groups[skills[skill_id].skill_group].rewards.milestones[get_next_skill_milestone(skill_id)];
+        } else {
+            return '';
+        }
+        //I feel like I'm missing some obviously easier way of doing it
+
+        if(rewards) {
+            return format_skill_rewards(rewards);
+        } else {
+            return '';
+        }
+    } else {
+        return '';
+    }
+}
+
+function get_next_skill_milestone(skill_id){
+    if(skills[skill_id].rewards){
+        return Object.keys(skills[skill_id].rewards.milestones).find(
+            level => level > skills[skill_id].current_level);
+    } else if(skills[skill_id].skill_group){
+        return Object.keys(skill_groups[skills[skill_id].skill_group].rewards.milestones).find(
+            level => level > skill_groups[skills[skill_id].skill_group].highest_level);
+    }
+
+}
+
+function format_skill_rewards(milestone){
+    // num: { stats: {stat1, stat2... }}
+    const stats = Object.keys(milestone.stats);
+    var formatted = `+${milestone.stats[stats[0]]} ${stat_names[stats[0]]}`;
+    for(let i = 1; i < stats.length; i++) {
+        formatted += `, +${milestone.stats[stats[i]]} ${stat_names[stats[i]]}`;
+    }
+
+    return formatted;
+}
+
+export {skills, skill_groups, get_unlocked_skill_rewards, get_next_skill_milestone};

@@ -437,7 +437,14 @@
             function saveToFile() {
                 var a = window.document.createElement('a');
                 a.href = window.URL.createObjectURL(new Blob([save_to_file()], {type: 'text/plain'}));
-                a.download = 'save.txt';
+                const date = new Date();
+                const year = date.getFullYear();
+                const month = date.getMonth() > 9 ? date.getMonth().toString() : "0" + date.getMonth().toString();
+                const day = date.getDay() > 9 ? date.getDay().toString() : "0" + date.getDay().toString();
+                const hour = date.getHours() > 9 ? date.getHours().toString() : "0" + date.getHours().toString();
+                const minute = date.getMinutes() > 9 ? date.getMinutes().toString() : "0" + date.getMinutes().toString();
+                const second = date.getSeconds() > 9 ? date.getSeconds().toString() : "0" + date.getSeconds().toString();
+                a.download = `yet-another-idle-rpg ${year}-${month}-${day} ${hour}_${minute}_${second}.txt`;
 
                 document.body.appendChild(a);
                 a.click();
@@ -603,21 +610,28 @@
                 function move_skill_tooltip(event) {
                     var hovered_element = event.target;
 
-                    if(hovered_element.classList.contains("skill_bar_max")) {
-                        hovered_element.children[2].style.left = event.pageX-400 + "px";
-                        hovered_element.children[2].style.top = event.pageY-300 + "px";
-                    }
-                    else {
-                        if(hovered_element.classList.contains("skill_bar_text") || hovered_element.classList.contains("skill_bar_current")) {
-                            hovered_element.parentNode.children[2].style.left = event.pageX-400 + "px";
-                            hovered_element.parentNode.children[2].style.top = event.pageY-300 + "px";
+                    if(!hovered_element.classList.contains("skill_div")) {
+                        if(hovered_element.classList.contains("skill_bar_max")) {
+                            hovered_element = hovered_element.parentNode;
+                        } else if(hovered_element.classList.contains("skill_bar_text") || hovered_element.classList.contains("skill_bar_current")) {
+                            hovered_element = hovered_element.parentNode.parentNode;
+                        } else if(hovered_element.classList.contains("skill_bar_name") || hovered_element.classList.contains("skill_bar_xp")) {
+                            hovered_element = hovered_element.parentNode.parentNode.parentNode;
+                        } else {
+                            return;
                         }
-                        else {
-                            if(hovered_element.classList.contains("skill_bar_name") || hovered_element.classList.contains("skill_bar_xp")) {
-                                hovered_element.parentNode.parentNode.children[2].style.left = event.pageX-400 + "px";
-                                hovered_element.parentNode.parentNode.children[2].style.top = event.pageY-300 + "px";
-                            }
-                        }
+                    } 
+                    
+                    document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 340}px`)
+
+                    const tooltip_width = hovered_element.children[0].children[2].offsetWidth;
+                    
+                    const edge_position = window.innerWidth - tooltip_width - tooltip_margin + window.scrollX;
+
+                    if(event.pageX > edge_position) {
+                        document.documentElement.style.setProperty('--skill_tooltip_left', `${edge_position - 360}px`);
+                    } else {
+                        document.documentElement.style.setProperty('--skill_tooltip_left', `${event.pageX - 360}px`);
                     }
 
                 }
