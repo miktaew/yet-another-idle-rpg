@@ -172,7 +172,7 @@ function change_location(location_name) {
         }
 
         //add buttons to start activities
-        for(let i = 0; i < location.activities.length; i++) {
+        for(let i = 0; i < location.activities?.length; i++) {
             if(!activities[location.activities[i].activity]?.is_unlocked || !location.activities[i]?.is_unlocked) {
                 continue;
             }
