@@ -1841,7 +1841,6 @@ function update_character_stats() { //updates character stats
     });
     //TODO: add bonuses from skills
 
-
     if(character.equipment.weapon != null) { 
         character.stats.attack_power = (character.full_stats.strength/10) * character.equipment.weapon.equip_effect.attack.flat 
                                         * (character.equipment.weapon.equip_effect.attack.multiplier || 1);
@@ -1988,8 +1987,9 @@ function create_save() {
                                 money: character.money, 
                                 xp: {
                                     total_xp: character.xp.total_xp,
-                                }};
-        //no need to save stats; on loading, base stats will be taken from code and then additional stuff will be calculated again (in case anything changed)
+                                },
+                                hp_to_full: character.full_stats.max_health - character.full_stats.health};
+        //no need to save all stats; on loading, base stats will be taken from code and then additional stuff will be calculated again (in case anything changed)
 
         save_data["skills"] = {};
         Object.keys(skills).forEach(function(key) {
@@ -2175,10 +2175,18 @@ function load(save_data) {
             active_effects[effect] = save_data.active_effects[effect];
         });
 
+        update_character_stats();
+        if(character.full_stats.max_health - save_data.character.hp_to_full > 0) {
+            character.full_stats.health = character.full_stats.max_health - save_data.character.hp_to_full;
+        } else {
+            character.full_stats.health = 1;
+        }
+        update_displayed_health();
+        //load current health
         
         //TODO: apply effects properly
         update_displayed_effects();
-
+        
         change_location(save_data["current location"]);
 
         //set activity if any saved
@@ -2442,7 +2450,6 @@ window.load_progress = load_from_file;
 if("save data" in localStorage) {
     load_from_localstorage();
 
-    update_character_stats();
     update_combat_stats();
 }
 else {
