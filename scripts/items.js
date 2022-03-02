@@ -129,8 +129,8 @@ function Item(item_data) {
     });
 
     item_templates["Plank with a handle"] = new Item({
-        name: "Plank with a handle", description: "Technically can be used as a very basic shield, except it won't really block anything", value: 7,
-        item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 2,
+        name: "Plank with a handle", description: "Technically can be used as a very basic shield, except it won't really block anything", value: 8,
+        item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 3,
     });
 
     item_templates["Crude wooden shield"] = new Item({

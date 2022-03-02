@@ -44,9 +44,9 @@ function Enemy(enemy_data) {
         xp_value: 1, 
         stats: {health: 8, strength: 3, agility: 4, dexterity: 4, magic: 0, attack_speed: 0.8, defense: 0}, 
         loot_list: [
-            {item_name: "Rat tail", chance: 0.1},
-            {item_name: "Rat fang", chance: 0.1},
-            {item_name: "Rat pelt", chance: 0.05}
+            {item_name: "Rat tail", chance: 0.04},
+            {item_name: "Rat fang", chance: 0.04},
+            {item_name: "Rat pelt", chance: 0.02}
         ]
     });
 
@@ -56,9 +56,9 @@ function Enemy(enemy_data) {
         xp_value: 1, 
         stats: {health: 12, strength: 4, agility: 5, dexterity: 4, magic: 0, attack_speed: 1, defense: 0}, 
         loot_list: [
-            {item_name: "Rat tail", chance: 0.1},
-            {item_name: "Rat fang", chance: 0.1},
-            {item_name: "Rat pelt", chance: 0.05},
+            {item_name: "Rat tail", chance: 0.04},
+            {item_name: "Rat fang", chance: 0.04},
+            {item_name: "Rat pelt", chance: 0.02},
         ]
     });
 
@@ -66,11 +66,11 @@ function Enemy(enemy_data) {
         name: "Group of rats", 
         description: "Maybe they are a family?", 
         xp_value: 3, 
-        stats: {health: 40, strength: 8, agility: 6, dexterity: 12, magic: 0, attack_speed: 2, defense: 0}, 
+        stats: {health: 40, strength: 8, agility: 6, dexterity: 12, magic: 0, attack_speed: 1.3, defense: 0}, 
         loot_list: [
-            {item_name: "Rat tail", chance: 0.2},
-            {item_name: "Rat fang", chance: 0.2},
-            {item_name: "Rat pelt", chance: 0.1}
+            {item_name: "Rat tail", chance: 0.08},
+            {item_name: "Rat fang", chance: 0.08},
+            {item_name: "Rat pelt", chance: 0.04}
         ]
     });
 
@@ -78,11 +78,11 @@ function Enemy(enemy_data) {
         name: "Horde of rats", 
         description: "How many is there?",
         xp_value: 4, 
-        stats: {health: 60, strength: 10, agility: 6, dexterity: 15, magic: 0, attack_speed: 2.5, defense: 0}, 
+        stats: {health: 60, strength: 10, agility: 6, dexterity: 15, magic: 0, attack_speed: 1.6, defense: 0}, 
         loot_list: [
-            {item_name: "Rat tail", chance: 0.2},
-            {item_name: "Rat fang", chance: 0.2},
-            {item_name: "Rat pelt", chance: 0.1},
+            {item_name: "Rat tail", chance: 0.08},
+            {item_name: "Rat fang", chance: 0.08},
+            {item_name: "Rat pelt", chance: 0.04},
         ]
     });
 
