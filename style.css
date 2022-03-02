@@ -2,13 +2,21 @@
 	--equipment_display: initial;
 	--consumables_display: initial;
 	--other_display: initial;
+
+	--trader_equipment_display: block;
+	--trader_consumables_display: block;
+	--trader_other_display: block;
+
 	--trade_ammount_button_display: none;
 	--item_use_button_display: inline-block;
 	--item_other_width: 340px;
+
 	--item_tooltip_top: 0px;
 	--item_tooltip_left: 0px;
+
 	--job_tooltip_top: 0px;
 	--job_tooltip_left: 0px;
+
 	--skill_tooltip_top: 0px;
 	--skill_tooltip_left: 0px;
 }
@@ -465,6 +473,7 @@ body {
 
 .character_item_control.item_to_trade {
 	background-color: rgba(0, 128, 0, 0.4);
+	display:block;
 }
 
 .trade_ammount_button {
@@ -498,6 +507,16 @@ body {
 
 .trader_item_control  .item_stackable {
 	width: 391px;
+}
+
+.trader_item_other {
+	display: var(--trader_other_display);
+}
+.trader_item_equippable {
+	display: var(--trader_equipment_display);
+}
+.trader_item_usable {
+	display: var(--trader_consumable_display);
 }
 
 .effects_div {
