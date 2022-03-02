@@ -172,7 +172,7 @@ function change_location(location_name) {
         }
 
         //add buttons to start activities
-        for(let i = 0; i < location.activities.length; i++) {
+        for(let i = 0; i < location.activities?.length; i++) {
             if(!activities[location.activities[i].activity]?.is_unlocked || !location.activities[i]?.is_unlocked) {
                 continue;
             }
@@ -2148,10 +2148,40 @@ function load(save_data) {
             });
         }); //load for dialogues and their textlines their unlocked/finished status
 
+        
         Object.keys(save_data.traders).forEach(function(trader) { 
-            traders[trader].inventory = save_data.traders[trader].inventory;
+            let trader_item_list = [];
+
+            
+            Object.keys(save_data.traders[trader].inventory).forEach(function(key){
+                if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
+                    for(let i = 0; i < save_data.traders[trader].inventory[key].length; i++) {
+                        save_data.traders[trader].inventory[key][i].value = item_templates[key].value;
+                        if(item_templates[key].item_type = "EQUIPPABLE") {
+                            save_data.traders[trader].inventory[key][i].equip_effect = item_templates[key].equip_effect;
+                        }
+                        trader_item_list.push({item: save_data.traders[trader].inventory[key][i], count: 1});
+                    }
+                }
+                else {
+                    save_data.traders[trader].inventory[key].item.value = item_templates[key].value;
+                    if(item_templates[key].item_type === "EQUIPPABLE") {
+                        save_data.traders[trader].inventory[key].item.equip_effect = item_templates[key].equip_effect;
+                    } else if(item_templates[key].item_type === "USABLE") {
+                        save_data.traders[trader].inventory[key].item.use_effect = item_templates[key].use_effect;
+                    }
+                    trader_item_list.push({item: save_data.traders[trader].inventory[key].item, count: save_data.traders[trader].inventory[key].count});
+                }
+            });
+
+            start_trade(trader);
+            traders[trader].inventory = {};
+            add_to_inventory("trader", trader_item_list);
+            exit_trade();
+
             traders[trader].last_refresh = save_data.traders[trader].last_refresh;
         }); //load trader inventories
+        
 
         Object.keys(save_data.locations).forEach(function(key) {
             locations[key].is_unlocked = save_data.locations[key].is_unlocked;
