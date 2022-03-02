@@ -168,42 +168,54 @@ function SkillGroup(skill_group_data) {
 skill_groups["weapon skills"] = new SkillGroup({
     rewards: {
         milestones: {
+            3: {
+                stats: {
+                    "strength": 1,
+                    "dexterity": 1,
+                }
+            },
             5: {
                 stats: {
-                    "strength": 3,
-                    "dexterity": 1,
+                    "strength": 2,
+                    "dexterity": 2,
+                }
+            },
+            7: {
+                stats: {
+                    "strength": 2,
+                    "dexterity": 2,
                 }
             },
             10: {
                 stats: {
-                    "strength": 5,
+                    "strength": 3,
                     "dexterity": 3,
+                }
+            },
+            12: {
+                stats: {
+                    "strength": 4,
+                    "dexterity": 4,
                 }
             },
             15: {
                 stats: {
-                    "strength": 8,
+                    "strength": 5,
                     "dexterity": 5,
+                }
+            },
+            17: {
+                stats: {
+                    "strength": 6,
+                    "dexterity": 6,
                 }
             },
             20: {
                 stats: {
-                    "strength": 12,
+                    "strength": 8,
                     "dexterity": 8,
                 }
-            },
-            25: {
-                stats: {
-                    "strength": 15,
-                    "dexterity": 10,
-                }
-            },
-            30: {
-                stats: {
-                    "strength": 20,
-                    "dexterity": 15,
-                }
-            },
+            }
         }
     }
 });
@@ -286,7 +298,7 @@ skill_groups["weapon skills"] = new SkillGroup({
     skills["Farming"] = new Skill({skill_id: "Farming", 
                                 names: {0: "Farming"}, 
                                 description: "Even simple act of plowing field requires some skill",
-                                base_xp_cost: 100,
+                                base_xp_cost: 40,
                                 max_level: 10,
                                 max_level_coefficient: 2,
                                 rewards: {
@@ -296,22 +308,28 @@ skill_groups["weapon skills"] = new SkillGroup({
                                                 "strength": 1,
                                             }
                                         },
-                                        5: {
+                                        4: {
                                             stats: {
                                                 "strength": 1,
                                                 "dexterity": 1,
                                             }
                                         },
-                                        7: {
+                                        6: {
                                             stats: {
                                                 "strength": 2,
                                                 "dexterity": 1,
                                             }
                                         },
+                                        8: {
+                                            stats: {
+                                                "strength": 2,
+                                                "dexterity": 2,
+                                            }
+                                        },
                                         10: {
                                             stats: {
-                                                "strength": 3,
-                                                "dexterity": 2,
+                                                "strength": 4,
+                                                "dexterity": 3,
                                             }
                                         }
                                     }
