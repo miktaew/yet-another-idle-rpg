@@ -127,20 +127,26 @@ function Textline(textline_data) {
                 is_unlocked: false,
                 unlocks: {
                     locations: ["Nearby cave"],
+                    textlines: [{dialogue: "village elder", lines: ["ask to leave 3"]}],
                 },
                 locks_lines: ["ask to leave 2", "rats", "cleared field"],
+            }),
+            "ask to leave 3": new Textline({
+                name: "Can I leave the village?",
+                text: "You still need to get stronger.",
+                is_unlocked: false,
             }),
             "cleared cave": new Textline({
                 name: "I cleared the cave. Most of it, at least",
                 text: `That's wonderful! I can't claim you are "too weak" anymore, can I? You can leave whenever you want, just be careful.`,
                 is_unlocked: false,
                 unlocks: {
-                    textlines: [{dialogue: "village elder", lines: ["ask to leave 3"]}],
+                    textlines: [{dialogue: "village elder", lines: ["ask to leave 4"]}],
                     locations: ["Forest road"],
                 },
                 locks_lines: ["ask to leave 2", "rats", "cleared cave"],
             }),
-            "ask to leave 3": new Textline({
+            "ask to leave 4": new Textline({
                 name: "Can I leave the village?",
                 text: "You are strong enough, you can leave and come whenever you want.",
                 is_unlocked: false,
