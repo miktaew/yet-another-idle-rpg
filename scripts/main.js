@@ -1246,12 +1246,15 @@ function unlock_location(location) {
 
 //single tick of resting
 function do_resting() {
-    if(character.stats.health < character.stats.max_health)
+    if(character.full_stats.health < character.full_stats.max_health)
     {
         const resting_heal_ammount = 1; 
         //todo: add sleeping that will heal faster and scale with level of some skill
         //and also with max hp (like at least 1% of total hp, maybe even 10% with stuff maxed out?)
-        character.stats.health += (resting_heal_ammount);
+        character.full_stats.health += (resting_heal_ammount);
+        if(character.full_stats.health > character.full_stats.max_health) {
+            character.full_stats.health = character.full_stats.max_health;
+        } 
         update_displayed_health();
     }
 }
@@ -2334,11 +2337,11 @@ function update() {
         }
 
         if(active_effects.health_regeneration) {
-            if(character.stats.health < character.stats.max_health) {
-                character.stats.health += active_effects.health_regeneration.flat;
+            if(character.full_stats.health < character.full_stats.max_health) {
+                character.full_stats.health += active_effects.health_regeneration.flat;
 
-                if(character.stats.health > character.stats.max_health) {
-                    character.stats.health = character.stats.max_health
+                if(character.full_stats.health > character.full_stats.max_health) {
+                    character.full_stats.health = character.full_stats.max_health
                 }
 
                 update_displayed_health();
