@@ -110,7 +110,7 @@ class Combat_zone {
     //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
 
     locations["Cave depths"] = new Combat_zone({
-        description: "Field infested with rats.", 
+        description: "It's dark. And full of rats.", 
         enemy_count: 30, 
         enemies_list: ["Group of rats", "Horde of rats"],
         is_unlocked: true, 
