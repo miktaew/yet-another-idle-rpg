@@ -71,7 +71,7 @@ function Textline(textline_data) {
 
             "ask to leave 1": new Textline({
                 name: "Can I leave the village?",
-                text: "It's dangerous and you are still too weak to leave. Do you plan on getting ambushed again?",
+                text: "Nearby lands are dangerous and you are still too weak to leave. Do you plan on getting ambushed again?",
                 is_unlocked: false,
                 unlocks: {
                     textlines: [{dialogue: "village elder", lines: ["need to"]}],
@@ -129,27 +129,33 @@ function Textline(textline_data) {
                     locations: ["Nearby cave"],
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 3"]}],
                 },
-                locks_lines: ["ask to leave 2", "rats", "cleared field"],
+                locks_lines: ["ask to leave 2", "cleared field"],
             }),
             "ask to leave 3": new Textline({
                 name: "Can I leave the village?",
                 text: "You still need to get stronger.",
+                unlocks: {
+                    locations: ["Nearby cave"],
+                },
                 is_unlocked: false,
             }),
             "cleared cave": new Textline({
                 name: "I cleared the cave. Most of it, at least",
-                text: `That's wonderful! I can't claim you are "too weak" anymore, can I? You can leave whenever you want, just be careful.`,
+                text: `Then I can't call you "too weak" anymore, can I? You can leave whenever you want, but still, be careful.`,
                 is_unlocked: false,
                 unlocks: {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 4"]}],
                     locations: ["Forest road"],
                 },
-                locks_lines: ["ask to leave 2", "rats", "cleared cave"],
+                locks_lines: ["ask to leave 3", "rats", "cleared cave"],
             }),
             "ask to leave 4": new Textline({
                 name: "Can I leave the village?",
                 text: "You are strong enough, you can leave and come whenever you want.",
                 is_unlocked: false,
+                unlocks: {
+                    locations: ["Forest road"],
+                },
             }),
         }
     });

@@ -13,7 +13,7 @@ import { activities } from "./activities.js";
 //equipment slots
 const equipment_slots_divs = {head: document.getElementById("head_slot"), torso: document.getElementById("torso_slot"),
                               arms: document.getElementById("arms_slot"), ring: document.getElementById("ring_slot"),
-                              weapon: document.getElementById("weapon_slot"), offhand: document.getElementById("offhand_slot"),
+                              weapon: document.getElementById("weapon_slot"), "off-hand": document.getElementById("offhand_slot"),
                               legs: document.getElementById("legs_slot"), feet: document.getElementById("feet_slot"),
                               amulet: document.getElementById("amulet_slot")
                               };		
@@ -676,7 +676,7 @@ function update_displayed_trader_inventory(sorting_param) {
                 const item_div = document.createElement("div");
                 const item_name_div = document.createElement("div");
 
-                item_name_div.innerHTML = `${trader.inventory[key][i].name}`;
+                item_name_div.innerHTML = `[${trader.inventory[key][i].equip_slot}] ${trader.inventory[key][i].name}`;
                 item_name_div.classList.add("inventory_item_name");
                 item_div.appendChild(item_name_div);
                 item_div.classList.add("inventory_item", "trader_item");       
@@ -757,7 +757,7 @@ function update_displayed_trader_inventory(sorting_param) {
             const item_div = document.createElement("div");
             const item_name_div = document.createElement("div");
     
-            item_name_div.innerHTML = `${actual_item.name} x${item_count}`;
+            item_name_div.innerHTML = `[${actual_item.equip_slot}] ${actual_item.name} x${item_count}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
 
@@ -793,7 +793,7 @@ function update_displayed_trader_inventory(sorting_param) {
             const item_div = document.createElement("div");
             const item_name_div = document.createElement("div");
 
-            item_name_div.innerHTML = `${actual_item.name}`;
+            item_name_div.innerHTML = `[${item_templates[actual_item.name].equip_slot}] ${actual_item.name}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
             item_div.classList.add("inventory_item", "trader_item");       
@@ -834,13 +834,21 @@ function sort_displayed_inventory(options) {
         } else if(!a.classList.contains("item_to_trade") && b.classList.contains("item_to_trade")) {
             return -1;
         }
-        //other items by either name (if no option specificied or if option is "name"), or otherwise by value
+        //other items by either name or otherwise by value
         else if(options.sort_by === "name") {
-            if((a.getAttribute("data-character_item") || a.getAttribute("data-trader_item")) > (b.getAttribute("data-character_item") || b.getAttribute("data-trader_item"))) {
+            
+            //if they are equippable, take in account the [slot] value displayed in front of item in inventory
+            const item_a = item_templates[(a.getAttribute("data-character_item") || a.getAttribute("data-trader_item")).split(" #")[0]];
+            const name_a = (item_a.equip_slot || '') + item_a.name;
+            const item_b = item_templates[(b.getAttribute("data-character_item") || b.getAttribute("data-trader_item")).split(" #")[0]];
+            const name_b = (item_b.equip_slot || '') + item_b.name;
+
+            if(name_a > name_b) {
                 return 1;
             } else {
                 return -1;
             }
+
         } else if(options.sort_by === "price") {
             if(item_templates[(a.getAttribute("data-character_item") || a.getAttribute("data-trader_item")).split(" #")[0]].value 
                     > item_templates[(b.getAttribute("data-character_item") || b.getAttribute("data-trader_item")).split(" #")[0]].value) {
@@ -1215,33 +1223,44 @@ function add_xp_to_character(xp_to_add, should_info) {
 
 function get_location_rewards(location) {
     if(location.enemies_killed == location.enemy_count) { //first clear
-
         change_location(current_location.parent_location.name); //go back to parent location, only on first clear
+    }
 
-        for(let i = 0; i < location.rewards.locations.length; i++) { //unlock locations
-            unlock_location(location.rewards.locations[i])
-        }
 
-        for(let i = 0; i < location.rewards.textlines.length; i++) { //unlock textlines and dialogues
-            for(let j = 0; j < location.rewards.textlines[i].lines.length; j++) {
+    //all clears, so that if something gets added after location was cleared, it will still be unlockable
+    for(let i = 0; i < location.rewards.locations.length; i++) { //unlock locations
+        unlock_location(location.rewards.locations[i])
+    }
+
+    for(let i = 0; i < location.rewards.textlines.length; i++) { //unlock textlines and dialogues
+        var any_unlocked = false;
+        for(let j = 0; j < location.rewards.textlines[i].lines.length; j++) {
+            if(dialogues[location.rewards.textlines[i].dialogue].textlines[location.rewards.textlines[i].lines[j]].is_unlocked == false) {
+                any_unlocked = true;
                 dialogues[location.rewards.textlines[i].dialogue].textlines[location.rewards.textlines[i].lines[j]].is_unlocked = true;
             }
+        }
+        if(any_unlocked) {
             log_message(`Maybe you should check on ${location.rewards.textlines[i].dialogue}...`);
             //maybe do this only when there's just 1 dialogue with changes?
         }
-        //TODO: unlocking full dialogues and not just textlines
     }
+    //TODO: unlocking full dialogues and not just textlines
 
+    
     /*
-    TODO: give other rewards on subsequent clears
+    TODO: give more rewards on all clears
     - bonus xp for character
+    - some xp for location-related skills? (i.e. if location is dark, then for "night vision" or whatever it will be called)
     - items/money?
     */
 }
 
 function unlock_location(location) {
-    location.is_unlocked = true;
-    log_message(`You can now go to ${location.name}`, "location_unlocked");
+    if(!location.is_unlocked){
+        location.is_unlocked = true;
+        log_message(`You can now go to ${location.name}`, "location_unlocked");
+    }
 }
 
 //single tick of resting
@@ -1315,7 +1334,7 @@ function log_message(message_to_add, message_type) {
     message.innerHTML = message_to_add + "<div class='message_border'> </>";
 
 
-    if(message_log.children.length > 40) 
+    if(message_log.children.length > 60) 
     {
         message_log.removeChild(message_log.children[0]);
     } //removes first position if there's too many messages
@@ -1511,7 +1530,7 @@ function update_displayed_inventory() {
                 const item_div = document.createElement("div");
                 const item_name_div = document.createElement("div");
 
-                item_name_div.innerHTML = `${character.inventory[key][i].name}`;
+                item_name_div.innerHTML = `[${item_templates[character.inventory[key][i].name].equip_slot}] ${character.inventory[key][i].name}`;
                 item_name_div.classList.add("inventory_item_name");
                 item_div.appendChild(item_name_div);
     
@@ -1525,12 +1544,12 @@ function update_displayed_inventory() {
                 item_control_div.classList.add('inventory_item_control', 'character_item_control', `character_item_${character.inventory[key][i].item_type.toLowerCase()}`);
                 item_control_div.appendChild(item_div);
 
-                if(character.inventory[key][i].item_type === "EQUIPPABLE") {
-                    var item_equip_div = document.createElement("div");
-                    item_equip_div.innerHTML = "E";
-                    item_equip_div.classList.add("equip_item_button");
-                    item_control_div.appendChild(item_equip_div);
-                }
+                
+                var item_equip_div = document.createElement("div");
+                item_equip_div.innerHTML = "E";
+                item_equip_div.classList.add("equip_item_button");
+                item_control_div.appendChild(item_equip_div);
+                
 
                 inventory_div.appendChild(item_control_div);
             }
@@ -1605,7 +1624,7 @@ function update_displayed_inventory() {
             const item_name_div = document.createElement("div");
     
 
-            item_name_div.innerHTML = `${item.name}`;
+            item_name_div.innerHTML = `[${item_templates[item.name].equip_slot}] ${item.name}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
 
@@ -1675,7 +1694,7 @@ function update_displayed_inventory() {
             const item_div = document.createElement("div");
             const item_name_div = document.createElement("div");
 
-            item_name_div.innerHTML = `${actual_item.name}`;
+            item_name_div.innerHTML = `[${item_templates[actual_item.name].equip_slot}] ${actual_item.name}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
             item_div.classList.add("inventory_item", "character_item");       
@@ -1745,10 +1764,10 @@ function create_item_tooltip(item, options) {
             `<br><br><strong>[shield]</strong><br><br>Can fully block attacks not stronger than: ${item.shield_strength}`;
         }
         else if(item.equip_slot === "weapon") {
-            item_tooltip.innerHTML += `<br><br><strong>[${item.weapon_type}]</strong>`;
+            item_tooltip.innerHTML += `<br><br>Type: <strong>${item.weapon_type}</strong>`;
         }
         else {
-            item_tooltip.innerHTML += `<br><br><strong>[${item.equip_slot}]</strong`;
+            item_tooltip.innerHTML += `<br><br>Slot: <strong>${item.equip_slot}</strong`;
         }
 
         Object.keys(item.equip_effect).forEach(function(effect_key) {
