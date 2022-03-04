@@ -1546,7 +1546,7 @@ function update_displayed_inventory() {
 
                 
                 var item_equip_div = document.createElement("div");
-                item_equip_div.innerHTML = "E";
+                item_equip_div.innerHTML = "[equip]";
                 item_equip_div.classList.add("equip_item_button");
                 item_control_div.appendChild(item_equip_div);
                 
@@ -1633,11 +1633,11 @@ function update_displayed_inventory() {
             item_control_div.setAttribute("data-character_item", `${item.name} #${key}`)
 
             item_div.appendChild(create_item_tooltip(item));
-            item_control_div.classList.add("equipped_item_control", `item_${item.item_type.toLowerCase()}`);
+            item_control_div.classList.add("equipped_item_control", `character_item_${item.item_type.toLowerCase()}`);
             item_control_div.appendChild(item_div);
 
             var item_unequip_div = document.createElement("div");
-            item_unequip_div.innerHTML = "R";
+            item_unequip_div.innerHTML = "[take off]";
             item_unequip_div.classList.add("unequip_item_button");
             item_control_div.appendChild(item_unequip_div);
 

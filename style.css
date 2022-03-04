@@ -174,14 +174,27 @@ body {
 	 width: 325px;
  }
 
- .inventory_equipped_item {
+ .equipped_item_control {
 	color: gold;
-	background-color: rgba(255, 236, 128, 0.3);
-	font-size:15;
-	display: inline-block;
-	width: 325px;
-	font-weight: bold;
+	
+	font-size: 15;
 }
+ .inventory_equipped_item {
+	display: inline-block;
+	width: 273px;
+	font-weight: bold;
+	height: 19px;
+	background-color: rgba(255, 236, 128, 0.3);
+}
+.unequip_item_button {
+	width: 64;
+	padding-right: 3px;
+	font-weight: bold;
+	display: inline-block;
+	cursor: pointer;
+	height: 19px;
+	background-color: rgba(255, 236, 128, 0.3);
+ }
 
  .item_tooltip, .job_tooltip {
 	 display: none;
@@ -263,17 +276,8 @@ body {
 	 font-weight: bold;
 	 display: inline-block;
 	 cursor: pointer;
-	 width: 15px;
- }
-
- .unequip_item_button {
-	color: gold;
-	font-size: 15;
-	width: 15;
-	font-weight: bold;
-	display: inline-block;
-	cursor: pointer;
-	background-color: rgba(255, 236, 128, 0.3);
+	 width: 50px;
+	 padding-right: 4px;
  }
 
  .inventory_control_button {
@@ -296,11 +300,11 @@ body {
  }
 
  .character_item_equippable {
-	display: var(--equipment_display)
+	display: var(--equipment_display);
  }
 
  .character_item_usable {
-	display: var(--consumables_display)
+	display: var(--consumables_display);
  }
 
  .character_item_other {
@@ -480,7 +484,6 @@ body {
 	display: var(--trade_ammount_button_display);
 	border-right: 1px solid white;
 	border-left: 1px solid white;
-	
 }
 
 .trade_ammount_button, .item_use_button {
@@ -495,10 +498,15 @@ body {
 	display: var(--item_use_button_display);
 	width: 40px;
 	font-weight: bold;
+	padding-left: 6px;
 }
 
 .item_stackable {
-	width: 291px;
+	width: 287px;
+}
+
+.item_equippable {
+	width: 286px;
 }
 
 .item_stackable.item_other {
@@ -783,7 +791,7 @@ body {
 }
 
 #inventory_content_div {
-	height: 327px;
+	height: 326px;
 	overflow-y: scroll;
 	overflow-x: visible;
 }
@@ -792,7 +800,7 @@ body {
 	color: white;
 	font-size: 20;
 	position: absolute;
-	top: 370px;
+	top: 369px;
 }
 
 #inventory_div {
@@ -817,6 +825,8 @@ body {
 }
 
 #location_data_div {
+	top: 200px;
+	position: absolute;
 	height: 216px;
 	color: white;
 	text-align: center;
@@ -873,10 +883,11 @@ body {
 #time_div {
 	font-size: 20;
 	color: white;
-	padding-right:5px;
-	padding-bottom: 5px;
-	padding-top: 3px;
+
 	text-align: right;
+	top: 320px;
+	position: absolute;
+	width: 390px;
 }
 
 #test_button {
