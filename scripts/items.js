@@ -130,17 +130,17 @@ function Item(item_data) {
 
     item_templates["Plank with a handle"] = new Item({
         name: "Plank with a handle", description: "Technically can be used as a very basic shield, except it won't really block anything", value: 8,
-        item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 3,
+        item_type: "EQUIPPABLE", equip_slot: "off-hand", offhand_type: "shield", shield_strength: 3,
     });
 
     item_templates["Crude wooden shield"] = new Item({
         name: "Crude wooden shield", description: "Crude shield made of wood, not very strong", value: 20,
-        item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 6,
+        item_type: "EQUIPPABLE", equip_slot: "off-hand", offhand_type: "shield", shield_strength: 6,
     });
 
     item_templates["Wooden shield"] = new Item({
         name: "Wooden shield", description: "A proper wooden shield, although without any form of reinforcement", value: 40,
-        item_type: "EQUIPPABLE", equip_slot: "offhand", offhand_type: "shield", shield_strength: 10,
+        item_type: "EQUIPPABLE", equip_slot: "off-hand", offhand_type: "shield", shield_strength: 10,
     });
 
     item_templates["Shabby leather vest"] = new Item({

@@ -234,9 +234,40 @@ skill_groups["weapon skills"] = new SkillGroup({
                                 names: {0: "Evasion [Basic]", 15: "Evasion [Intermediate]", 30: "Evasion [Advanced]", 40: "Evasion [Master]", 50: "Evasion [Absolute"},                                
                                 description:"Ability to evade attacks", 
                                 max_level_coefficient: 2,
+                                base_xp_cost: 20,
                                 get_effect_description: ()=> {
                                     return `Multiplies your evasion chance by ${Math.round(skills["Evasion"].get_coefficient("multiplicative")*1000)/1000}`;
-                                }});
+                                },
+                                rewards: {
+                                    milestones: {
+                                        2: {
+                                            stats: {
+                                                "agility": 1,
+                                            }
+                                        },
+                                        4: {
+                                            stats: {
+                                                "agility": 1,
+                                            }
+                                        },
+                                        6: {
+                                            stats: {
+                                                "agility": 2,
+                                            }
+                                        },
+                                        8: {
+                                            stats: {
+                                                "agility": 2,
+                                            }
+                                        },
+                                        10: {
+                                            stats: {
+                                                "agility": 3,
+                                            }
+                                        }
+                                    }
+                                }
+                            });
     skills["Shield blocking"] = new Skill({skill_id: "Shield blocking", 
                                     names: {0: "Shield blocking"}, 
                                     description: "Ability to block attacks with shield", 

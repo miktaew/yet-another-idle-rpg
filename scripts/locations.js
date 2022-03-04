@@ -21,13 +21,6 @@ class Location {
                 throw new Error(`No such dialogue as "${this.dialogues[i]}"!`);
             }
         }
-        // Activities, maybe make a special object type for actions (passive_activities ?), like sleeping/training/learning 
-        // => or make it only one action per "location_action", similarly to combat_zone (except no child zones)?,
-        // or "location_actions" (a list/dict)
-        // either way, leaving the location should automatically stop it
-        // is_unlocked; //quests and combat_zones and stuff can have something like "unlocks: Location"
-        //or maybe "rewards: {"locations": X, "stats": X, "items": X, "quests"}}" or something like that?"
-        // something for conversations
     }
 }
 
@@ -53,6 +46,20 @@ class Combat_zone {
         else {
             this.rewards = { dialogues: [], textlines: [], locations: [] };
         }
+
+        this.required_skills = location_data.required_skills || [];
+        /*
+        skills required to fight with full efficiency
+        [{skill_name, skill_coefficient needed, item needed to prevent debuf, affected stats}]
+        e.g.
+        [{skill: nightvision, coefficient: 2, item_to_prevent: light_source, affected_stats: ["agility", "dexterity"]}]
+        */
+        this.gained_skills = location_data.gained_skills || [];
+        /*
+        skills that will raise by themselves when fighting in some locations
+        e.g. due to environment, i.e. night vision skill in dark areas
+        [{skill_name, xp gained}]
+        */
 
         this.get_next_enemy = function () {
             const enemy = enemy_templates[this.enemies_list[Math.floor(Math.random() * this.enemies_list.length)]];
