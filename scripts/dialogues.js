@@ -162,12 +162,6 @@ function Textline(textline_data) {
 
     dialogues["village trader"] = new Dialogue({
         name: "trader",
-        textlines: {
-            "wares": new Textline({
-                name: "You've got anything interesting?",
-                text: "Come and take a look",
-            })
-        },
         trader: "village trader",
     });
 })();

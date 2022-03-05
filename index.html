@@ -30,7 +30,6 @@
                 </div>
 
                 <div id = "character_health_div"> 
-                    <div id = "character_health_text">Health</div>
                     <div id = "character_healthbar_max"> 
                         <div id = "character_healthbar_current">
                         </div>
@@ -162,11 +161,7 @@
                 
             <!-- location info (name, type[safe/combat], weather, time, etc?)-->
             <div id = "location_div" class = "box_div"> 
-                <div id = "time_div"> </div>
-                <div id = "location_data_div" >
-                    <div id = "location_name_div"></div>
-                    <div id = "location_description_div"></div>	
-                </div>
+                
 
                 <div id = "enemy_info_div">
                     <div id = "enemy_name_div">
@@ -192,6 +187,14 @@
                         </div>
                     </div>
                 </div>
+
+                <div id = "location_data_div" >
+                    <div id = "location_name_div">
+                        <div id = "location_description_tooltip"></div>	
+                    </div>
+                </div>
+                <div id = "time_div"> </div>
+                
             </div>
 
             <!-- inventory list -->
@@ -613,6 +616,33 @@
                             hovered_element.parentNode.children[2].style.left = event.pageX + "px";
                             hovered_element.parentNode.children[2].style.top = event.pageY - 110 + "px";
                         }
+                    }
+                }
+
+
+                //location description tooltip
+                const location_div = document.getElementById("location_div");
+                location_div.addEventListener('mousemove', move_location_description_tooltip, false);
+                function move_location_description_tooltip(event) {
+                    location_description_tooltip.style.top = event.pageY - 270 + "px";
+
+                    var hovered_element = event.target;
+                    if(event.target.id !== "location_data_div") {
+                        if(event.target.id === "location_name_div") {
+                            hovered_element = event.target.parentNode;
+                        } else {
+                            return;
+                        }
+                    }
+
+                    const tooltip_width = hovered_element.children[0].offsetWidth;
+                    
+                    const edge_position = window.innerWidth - tooltip_width + window.scrollX;
+
+                    if(event.pageX > edge_position) {
+                        location_description_tooltip.style.left = edge_position - 420 + "px";
+                    } else {
+                        location_description_tooltip.style.left = event.pageX - 420 + "px";
                     }
                 }
 
