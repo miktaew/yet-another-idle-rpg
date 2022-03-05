@@ -73,7 +73,7 @@ function Trade_item(trade_item_data) {
 }
 
 traders["village trader"] = new Trader({
-    trade_text: "Trade",
+    trade_text: "Trade with village trader",
     inventory_template: "Basic",
 });
 

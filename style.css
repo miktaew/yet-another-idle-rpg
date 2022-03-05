@@ -122,7 +122,7 @@ body {
 	 color: silver;
  }
 
- .action_travel, .start_dialogue, .start_activity, .end_dialogue_button, #action_status_div, #action_end_div {
+ .action_travel, .start_dialogue, .dialogue_trade, .start_activity, .end_dialogue_button, #action_status_div, #action_end_div {
 	text-align: center;
 	font-size: 20;
 	color: white;
@@ -148,15 +148,6 @@ body {
 	text-align: center;
 	font-size: 16;
 	font-style: italic;
-	color: white;
-	border-bottom: 1px solid white;
-	cursor: pointer;
-	padding: 5px;
-}
-
-.dialogue_trade {
-	text-align: center;
-	font-size: 18;
 	color: white;
 	border-bottom: 1px solid white;
 	cursor: pointer;
@@ -285,7 +276,8 @@ body {
 	padding: 3px;
 	min-width: 74px;
 	text-align: center;
-	border: 1px solid white;
+	outline: 1px solid white;
+	margin: 1px;
 	cursor: pointer;
  }
 
@@ -295,7 +287,8 @@ body {
 	min-width: 186px;
 	font-size: 14;
 	text-align: center;
-	border: 1px solid white;
+	margin: 1px;
+	outline: 1px solid white;
 	cursor: pointer;
  }
 
@@ -387,7 +380,8 @@ body {
 	padding: 3px;
 	width: 142px;
 	text-align: center;
-	border: 1px solid white;
+	outline: 1px solid white;
+	margin: 1px;
 	cursor: pointer;
 	font-size: 20;
 	color: white;
@@ -445,11 +439,11 @@ body {
 .trader_category_button {
 	float:left;
 	padding: 3px 0px 3px 0px;
-	min-width: 110.5px;
+	width: 110.5px;
 	text-align: center;
 	color: white;
-	border: 1px solid white;
-	margin-top: 5px;
+	outline: 1px solid white;
+	margin: 2px 1px;
 	cursor: pointer;
 }
 
@@ -457,8 +451,9 @@ body {
     float:left;
 	width: 173;
 	text-align: center;
-	border: 1px solid white;
+	outline: 1px solid white;
 	cursor: pointer;
+	margin: 1px;
 	font-size: 16;
 	color: white;
 }
@@ -482,8 +477,6 @@ body {
 
 .trade_ammount_button {
 	display: var(--trade_ammount_button_display);
-	border-right: 1px solid white;
-	border-left: 1px solid white;
 }
 
 .trade_ammount_button, .item_use_button {
@@ -535,7 +528,8 @@ body {
     float:left;
 	width: 223;
 	text-align: center;
-	border: 1px solid white;
+	outline: 1px solid white;
+	margin: -1px 1px;
 	cursor: pointer;
 	font-size: 16;
 	color: white;
@@ -617,33 +611,34 @@ body {
     border-top: none;
 }
 
-#character_name_div {
-	width: 50%;
-	margin: auto;
-}
-
 #character_name_field {
 	text-align: center;
-	width: 100%;
+	width: 120px;
 	margin: auto;
-	background-color: inherit;
-	border: 2px solid white;
-	background-color: white;
+	border: 0px;
+	background-color: #3a4e75;
+	color: white;
+	position: absolute;
+	top: 2px;
+	font-size: 16;
+	left: 140px;
 }
 
 #character_health_div {
-	top: 50px;
+	padding-top: 20px;
 }
 
 #character_healthbar_max {
-	border: 2px solid red;
+	outline: 2px solid red;
+	background-color: rgba(255, 46, 46, 0.3);
 	margin: auto;
 	margin-bottom:10px;
 	width: 85%;
+	height: 18px;
 }
 #character_healthbar_current {
 	background-color: rgb(255, 46, 46);
-	height: 15px;
+	height: 100%;
 }
 
 #character_health_value, #character_health_text, #character_xp_value, #character_level_div {
@@ -657,7 +652,7 @@ body {
 #character_health_value {
 	position: absolute;
 	width: 400px;
-	top: 46px;
+	top: 26px;
 }
 #character_health_text, #character_level_div {
 	text-align: left; margin-left: 28px;
@@ -665,21 +660,22 @@ body {
 
 
 #character_xp_bar_max {
-	border: 2px solid rgb(255, 126, 0);
+	outline: 2px solid rgb(255, 126, 0);
 	margin: auto;
 	width: 85%;
+	height: 18px;
+	background-color: rgba(255, 165, 0, 0.3);
 }
 
 #character_xp_bar_current {
-	height: 16px;
+	height: 18px;
 	background-color: orange;
-	width: 0px;
 }
 
 #character_xp_value {
 	position: absolute;
 	width: 400px;
-	top: 92px;
+	top: 72px;
 	text-align: center;
 }
 
@@ -751,17 +747,22 @@ body {
 	color: white;
 }
 
-
 #enemy_healthbar_max {
-	border: 2px solid red;
+	outline: 2px solid red;
+	background-color: rgba(255, 46, 46, 0.3);
 	margin: auto;
-	margin-top: 10px;
-	width: 60%;
+	margin-top: 3px;
+	width: 85%;
+	height: 18px;
 }
 
 #enemy_healthbar_current {
 	background-color: rgb(255, 46, 46);
-	height: 15px;
+	height: 100%;
+}
+
+#enemy_name_div {
+	padding-top: 4px;
 }
 
 #enemy_health_value, #enemy_stats_div, #enemy_name_div {
@@ -773,15 +774,26 @@ body {
 
 #enemy_count_div { 
 	width: 100%;
-	border-top: 1px solid white;
+	padding-top: 2px;
+	border-bottom: 1px solid white;
+}
+
+#enemy_health_value {
+	position: absolute;
+	top: 27px;
+}
+
+#enemy_stats_div {
+	padding: 5px;
 }
 
 #enemy_count_content {
 	color: white;
-	width: 150px;
-	margin-right: 5;
+	width: 140px;
+	padding-right: 5;
 	margin-left: auto;
 	text-align: right;
+	
 }
 
 #enemies_left_div {
@@ -825,9 +837,8 @@ body {
 }
 
 #location_data_div {
-	top: 200px;
+	top: 285px;
 	position: absolute;
-	height: 216px;
 	color: white;
 	text-align: center;
 }
@@ -835,11 +846,30 @@ body {
 #location_name_div {
 	font-size: 20;
 	border-top: 1px solid white;
+	border-bottom: 1px solid white;
 	padding-top: 5px;
+	padding-bottom: 5px;
+	width: 400px;
 }
 
-#location_description_div {
+#location_name_div:hover #location_description_tooltip {
+	display: block;
+}
+
+#location_description_tooltip {
 	font-style: italic;
+	display: none;
+	background-color: rgba(120, 120, 120, 0.9);
+	color: white;
+	border-radius: 10px;
+	margin-left: 30px;
+	padding: 5px;
+	position: absolute;
+	z-index: 1000;
+	max-width: 500px;
+	font-size: 18;
+	width: fit-content;
+	height: auto;
 }
 
 #main_controller {
@@ -885,7 +915,7 @@ body {
 	color: white;
 
 	text-align: right;
-	top: 320px;
+	top: 325px;
 	position: absolute;
 	width: 390px;
 }
@@ -903,27 +933,25 @@ body {
 }
 
 #trader_inventory_div {
-    height: 250px;
+    height: 262px;
 }
 
 #trade_price_div {
 	color: white;
-	border-top: 1px solid white;
-	border-left: 1px solid white;
-	border-right: 1px solid white;
+	outline: 1px solid white;
 	padding: 2px 1px 2px 1px;
 	width: 292px;
 	float: left;
+	margin: 1px;
 	
 }
 
 #trader_cost_mult {
 	width: 150px;
 	color: white;
-	border-top: 1px solid white;
-	border-left: 1px solid white;
-	border-right: 1px solid white;
+	outline: 1px solid white;
 	padding: 2px 1px 2px 1px;
+	margin: 1px;
 	float:left;
 	color: orange;
 	font-weight: bold;

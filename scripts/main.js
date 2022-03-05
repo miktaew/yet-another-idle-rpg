@@ -115,7 +115,6 @@ const trade_div = document.getElementById("trade_div");
 const trader_inventory_div = document.getElementById("trader_inventory_div");
 
 const location_name_div = document.getElementById("location_name_div");
-const location_description_div = document.getElementById("location_description_div");
 
 time_field.innerHTML = current_game_time.toString();
 
@@ -163,12 +162,21 @@ function change_location(location_name) {
             
             const dialogue_div = document.createElement("div");
             
-            dialogue_div.innerHTML = dialogues[location.dialogues[i]].starting_text;
-            dialogue_div.innerHTML += dialogues[location.dialogues[i]].trader? `  <i class="fas fa-store"></i>` : `  <i class="far fa-comments"></i>`;
-            dialogue_div.classList.add("start_dialogue");
-            dialogue_div.setAttribute("data-dialogue", location.dialogues[i]);
-            dialogue_div.setAttribute("onclick", "start_dialogue(this.getAttribute('data-dialogue'));");
-            action_div.appendChild(dialogue_div);
+            if(dialogues[location.dialogues[i]].textlines) {
+                dialogue_div.innerHTML = dialogues[location.dialogues[i]].starting_text;
+                dialogue_div.innerHTML += dialogues[location.dialogues[i]].trader? `  <i class="fas fa-store"></i>` : `  <i class="far fa-comments"></i>`;
+                dialogue_div.classList.add("start_dialogue");
+                dialogue_div.setAttribute("data-dialogue", location.dialogues[i]);
+                dialogue_div.setAttribute("onclick", "start_dialogue(this.getAttribute('data-dialogue'));");
+                action_div.appendChild(dialogue_div);
+            } else if(dialogues[location.dialogues[i]].trader) {
+                const trade_div = document.createElement("div");
+                trade_div.innerHTML = traders[dialogues[location.dialogues[i]].trader].trade_text + `  <i class="fas fa-store"></i>`;
+                trade_div.classList.add("dialogue_trade")
+                trade_div.setAttribute("data-trader", dialogues[location.dialogues[i]].trader);
+                trade_div.setAttribute("onclick", "startTrade(this.getAttribute('data-trader'))")
+                action_div.appendChild(trade_div);
+            }
         }
 
         //add buttons to start activities
@@ -264,8 +272,11 @@ function change_location(location_name) {
     }
 
     current_location = location;
-    location_name_div.innerHTML = current_location.name;
-    location_description_div.innerHTML = current_location.description;
+    location_name_div.innerText = current_location.name;
+    const location_description_tooltip = document.createElement("div");
+    location_description_tooltip.id = "location_description_tooltip";
+    location_description_tooltip.innerText = current_location.description;
+    location_name_div.appendChild(location_description_tooltip);
 }
 
 function start_activity(selected_activity) {
@@ -399,7 +410,6 @@ function start_dialogue(dialogue_key) {
         trade_div.classList.add("dialogue_trade")
         trade_div.setAttribute("data-trader", dialogue.trader);
         trade_div.setAttribute("onclick", "startTrade(this.getAttribute('data-trader'))")
-        //TODO: this
         action_div.appendChild(trade_div);
     }
 
@@ -1361,12 +1371,12 @@ function log_loot(loot_list) {
 }
 
 function update_displayed_health() { //call it when eating, resting or getting hit
-    current_health_value_div.innerHTML = (Math.round(character.full_stats.health*10)/10) + "/" + character.full_stats.max_health;
+    current_health_value_div.innerText = (Math.round(character.full_stats.health*10)/10) + "/" + character.full_stats.max_health + " hp";
     current_health_bar.style.width = (character.full_stats.health*100/character.full_stats.max_health).toString() +"%";
 }
 
 function update_displayed_enemy_health() { //call it when getting new enemy and when enemy gets hit
-    current_enemy_health_value_div.innerHTML = (Math.round(current_enemy.stats.health*10)/10) + "/" + current_enemy.stats.max_health;
+    current_enemy_health_value_div.innerHTML = (Math.round(current_enemy.stats.health*10)/10) + "/" + current_enemy.stats.max_health + " hp";
     current_enemy_health_bar.style.width =  (current_enemy.stats.health*100/current_enemy.stats.max_health).toString() +"%";
 }
 
@@ -2057,10 +2067,12 @@ function create_save() {
         save_data["dialogues"] = {};
         Object.keys(dialogues).forEach(function(dialogue) {
             save_data["dialogues"][dialogue] = {is_unlocked: dialogues[dialogue].is_unlocked, is_finished: dialogues[dialogue].is_finished, textlines: {}};
-            Object.keys(dialogues[dialogue].textlines).forEach(function(textline) {
-                save_data["dialogues"][dialogue].textlines[textline] = {is_unlocked: dialogues[dialogue].textlines[textline].is_unlocked,
-                                                            is_finished: dialogues[dialogue].textlines[textline].is_finished};
-            });
+            if(dialogues[dialogue].textlines) {
+                Object.keys(dialogues[dialogue].textlines).forEach(function(textline) {
+                    save_data["dialogues"][dialogue].textlines[textline] = {is_unlocked: dialogues[dialogue].textlines[textline].is_unlocked,
+                                                                is_finished: dialogues[dialogue].textlines[textline].is_finished};
+                });
+            }
         }); //save dialogues' and their textlines' unlocked/finished statuses
 
         save_data["traders"] = {};
@@ -2161,10 +2173,12 @@ function load(save_data) {
             dialogues[dialogue].is_unlocked = save_data.dialogues[dialogue].is_unlocked;
             dialogues[dialogue].is_finished = save_data.dialogues[dialogue].is_finished;
 
-            Object.keys(save_data.dialogues[dialogue].textlines).forEach(function(textline){
-                dialogues[dialogue].textlines[textline].is_unlocked = save_data.dialogues[dialogue].textlines[textline].is_unlocked;
-                dialogues[dialogue].textlines[textline].is_finished = save_data.dialogues[dialogue].textlines[textline].is_finished;
-            });
+            if(save_data.dialogues[dialogue].textlines) {
+                Object.keys(save_data.dialogues[dialogue].textlines).forEach(function(textline){
+                    dialogues[dialogue].textlines[textline].is_unlocked = save_data.dialogues[dialogue].textlines[textline].is_unlocked;
+                    dialogues[dialogue].textlines[textline].is_finished = save_data.dialogues[dialogue].textlines[textline].is_finished;
+                });
+            }
         }); //load for dialogues and their textlines their unlocked/finished status
 
         
