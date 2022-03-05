@@ -877,8 +877,8 @@ function clear_action_div() {
     }
 }
 
-function get_new_enemy() {
-    current_enemy = current_location.get_next_enemy();
+function get_new_enemy(enemy) {
+    current_enemy = enemy || current_location.get_next_enemy();
     enemy_stats_div.innerHTML = `Str: ${current_enemy.stats.strength} | Agl: ${current_enemy.stats.agility} 
     | Dex: ${current_enemy.stats.dexterity} | Def: ${current_enemy.stats.defense} 
     | Atk speed: ${current_enemy.stats.attack_speed.toFixed(1)}`
@@ -927,13 +927,14 @@ function do_combat() {
         if(character.combat_stats.hit_chance > Math.random()) {//hero's attack hits
             add_xp_to_skill(skills["Combat"], current_enemy.xp_value, true);
             if(character.equipment.weapon != null) {
-                add_xp_to_skill(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`], current_enemy.xp_value, true); 
-            
                 damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) 
                                             * skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient())/10;
+
+
+                add_xp_to_skill(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`], current_enemy.xp_value, true); 
             } else {
-                damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4))/10;
-                //TODO: unarmed skill, apply bonus here
+                damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) * skills['Unarmed'].get_coefficient())/10;
+                add_xp_to_skill(skills['Unarmed'], current_enemy.xp_value, true);
             }
             //small randomization by up to 20%, then bonus from skill
             
@@ -1072,6 +1073,7 @@ function do_combat() {
 
 }
 
+//adds xp to skills, handles their levelups and tooltips
 function add_xp_to_skill(skill, xp_to_add, should_info) 
 {
     if(skill.total_xp == 0) 
@@ -1110,9 +1112,9 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
         skill_tooltip.appendChild(tooltip_next);
 
         if(skill.skill_group) {
-            tooltip_desc.innerHTML = `${skill.description}<br><br>Group: ${skill.skill_group}`; 
+            tooltip_desc.innerHTML = `${skill.description}<br><br>Group: ${skill.skill_group}<br><br>`; 
         } else {
-            tooltip_desc.innerHTML = `${skill.description}`; 
+            tooltip_desc.innerHTML = `${skill.description}<br><br>`; 
         }
         
         skill_bar_max.appendChild(skill_bar_text);
@@ -1225,6 +1227,7 @@ function add_xp_to_character(xp_to_add, should_info) {
         }
 
         character_xp_div.children[0].innerText = `Level: ${character.xp.current_level}`;
+        character.full_stats.health = character.full_stats.max_health; //free healing on level up, because it's a nice thing to have
         update_character_stats();
         update_displayed_health();
     }
@@ -1277,9 +1280,9 @@ function unlock_location(location) {
 function do_resting() {
     if(character.full_stats.health < character.full_stats.max_health)
     {
-        const resting_heal_ammount = 1; 
+        const resting_heal_ammount = Math.max(character.full_stats.max_health * 0.01,1); 
         //todo: add sleeping that will heal faster and scale with level of some skill
-        //and also with max hp (like at least 1% of total hp, maybe even 10% with stuff maxed out?)
+        
         character.full_stats.health += (resting_heal_ammount);
         if(character.full_stats.health > character.full_stats.max_health) {
             character.full_stats.health = character.full_stats.max_health;
@@ -1847,6 +1850,10 @@ function update_displayed_equipment() {
 }
 
 function update_character_stats() { //updates character stats
+
+    const missing_health = (character.full_stats["max_health"] - character.full_stats["health"]) || 0;
+    //to avoid fully healing character whenever this function is called
+
     Object.keys(character.stats).forEach(function(stat){
         if(stat === "attack_power") {
             return;
@@ -1859,7 +1866,7 @@ function update_character_stats() { //updates character stats
                 character.full_stats[stat] += character.equipment[key].equip_effect[stat].flat_bonus;
             }
         }); //calculate stats based on equipment
-
+  
         /*
         Object.keys(character.equipment).forEach(function(key) {
             if(character.equipment[key] != null && character.equipment[key].equip_effect[stat]) {
@@ -1867,6 +1874,10 @@ function update_character_stats() { //updates character stats
             }
         }); //same, but add multiplicative bonuses // or maybe sumarize the bonus first and then add it? (make it additive instead of multiplicative)
         */
+
+        if(stat === "health") {
+            character.full_stats["health"] = Math.max(1, character.full_stats["health"] - missing_health);
+        }
     });
     //TODO: add bonuses from skills
 
@@ -1881,6 +1892,7 @@ function update_character_stats() { //updates character stats
     character.full_stats.attack_power = character.stats.attack_power;
 
     update_displayed_stats();
+    update_displayed_health();
     update_combat_stats();
 }
 
@@ -2120,6 +2132,7 @@ function load(save_data) {
         if(save_data["current enemy"] != null) { 
             current_enemy = new Enemy(enemy_templates[save_data["current enemy"].name]);
             current_enemy.stats = save_data["current enemy"].stats; 
+            get_new_enemy(current_enemy);
         } //load enemy
 
         Object.keys(save_data.character.equipment).forEach(function(key){

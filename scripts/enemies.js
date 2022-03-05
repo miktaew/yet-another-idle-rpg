@@ -90,9 +90,9 @@ function Enemy(enemy_data) {
         name: "Starving wolf", description: "A large, wild and hungry canine", 
         xp_value: 7, 
         stats: {health: 60, strength: 13, agility: 15, dexterity: 15, magic: 0, attack_speed: 1, defense: 2}, 
-        loot_list: [
+        loot_list: [/* //those items were removed, so let's keep it in comment for a while
             {item_name: "Wolf tooth", chance: 0.02, count: {min: 1, max: 2}},
-            {item_name: "Wolf pelt", chance: 0.01}
+            {item_name: "Wolf pelt", chance: 0.01}*/
         ]
     });
 
@@ -101,9 +101,9 @@ function Enemy(enemy_data) {
         description: "A small, wild canine", 
         xp_value: 7, 
         stats: {health: 50, strength: 11, agility: 17, dexterity: 12, magic: 0, attack_speed: 1.2, defense: 0}, 
-        loot_list: [
+        loot_list: [/*
             {item_name: "Wolf tooth", chance: 0.02},
-            {item_name: "Wolf pelt", chance: 0.01}
+            {item_name: "Wolf pelt", chance: 0.01}*/
         ]
     });
 
@@ -112,9 +112,9 @@ function Enemy(enemy_data) {
         description: "A large, wild canine", 
         xp_value: 10, 
         stats: {health: 70, strength: 16, agility: 17, dexterity: 20, magic: 0, attack_speed: 1.1, defense: 3}, 
-        loot_list: [
+        loot_list: [/*
             {item_name: "Wolf tooth", chance: 0.02, count: {min: 1, max: 3}},
-            {item_name: "Wolf pelt", chance: 0.01}
+            {item_name: "Wolf pelt", chance: 0.01}*/
         ]
     });
 })();
