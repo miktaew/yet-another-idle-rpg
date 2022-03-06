@@ -2159,7 +2159,7 @@ function load(save_data) {
                     save_data.character.equipment[key].equip_effect = item_templates[save_data.character.equipment[key].name].equip_effect;
                     equip_item(save_data.character.equipment[key]); 
                 } else {
-                    console.error(`Equipped item "${item_templates[save_data.character.equipment[key].name]}" couldn't be found`);
+                    console.warn(`Equipped item "${item_templates[save_data.character.equipment[key].name]}" couldn't be found`);
                     return;
                 }
             }
@@ -2177,7 +2177,7 @@ function load(save_data) {
                         }
                         item_list.push({item: save_data.character.inventory[key][i], count: 1});
                     } else {
-                        console.error(`Inventory item "${key}" couldn't be found!`);
+                        console.warn(`Inventory item "${key}" couldn't be found!`);
                         return;
                     }
                 }
@@ -2192,7 +2192,7 @@ function load(save_data) {
                     }
                     item_list.push({item: save_data.character.inventory[key].item, count: save_data.character.inventory[key].count});
                 } else {
-                    console.error(`Inventory item "${key}" couldn't be found!`);
+                    console.warn(`Inventory item "${key}" couldn't be found!`);
                     return;
                 }
             }
@@ -2212,7 +2212,7 @@ function load(save_data) {
                     add_xp_to_skill(skills[key], save_data.skills[key].total_xp/(global_xp_bonus || 1), false);
                 }
             } else {
-                console.error(`Skill "${key}" couldn't be found!`);
+                console.warn(`Skill "${key}" couldn't be found!`);
                 return;
             }
         }); //add xp to skills
@@ -2223,7 +2223,7 @@ function load(save_data) {
                 dialogues[dialogue].is_unlocked = save_data.dialogues[dialogue].is_unlocked;
                 dialogues[dialogue].is_finished = save_data.dialogues[dialogue].is_finished;
             } else {
-                console.error(`Dialogue "${dialogue}" couldn't be found!`);
+                console.warn(`Dialogue "${dialogue}" couldn't be found!`);
                 return;
             }
             if(save_data.dialogues[dialogue].textlines) {  
@@ -2232,7 +2232,7 @@ function load(save_data) {
                         dialogues[dialogue].textlines[textline].is_unlocked = save_data.dialogues[dialogue].textlines[textline].is_unlocked;
                         dialogues[dialogue].textlines[textline].is_finished = save_data.dialogues[dialogue].textlines[textline].is_finished;
                     } else {
-                        console.error(`Textline "${textline}" in dialogue "${dialogue}" couldn't be found!`);
+                        console.warn(`Textline "${textline}" in dialogue "${dialogue}" couldn't be found!`);
                         return;
                     }
                 }); 
@@ -2272,7 +2272,7 @@ function load(save_data) {
                 traders[trader].last_refresh = save_data.traders[trader].last_refresh; 
             }
             else {
-                console.error(`Trader "${trader} couldn't be found!`);
+                console.warn(`Trader "${trader} couldn't be found!`);
                 return;
             }
         }); //load trader inventories
@@ -2292,7 +2292,7 @@ function load(save_data) {
                     }
                 }
             } else {
-                console.error(`Location "${key}" couldn't be found!`);
+                console.warn(`Location "${key}" couldn't be found!`);
                 return;
             }
         }); //load for locations their unlocked status and their killcounts
@@ -2331,7 +2331,7 @@ function load(save_data) {
                 document.getElementById("action_end_earnings").innerText = `(earnings: ${format_money(current_activity.earnings)})`;
                 
             } else {
-                console.error("Couldn't find saved activity! It might have been removed");
+                console.warn("Couldn't find saved activity! It might have been removed");
             }
         }
 
