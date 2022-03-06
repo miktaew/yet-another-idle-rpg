@@ -164,211 +164,6 @@ function SkillGroup(skill_group_data) {
     this.highest_level  = 0;
 }
 
-
-skill_groups["weapon skills"] = new SkillGroup({
-    rewards: {
-        milestones: {
-            3: {
-                stats: {
-                    "strength": 1,
-                    "dexterity": 1,
-                }
-            },
-            5: {
-                stats: {
-                    "strength": 2,
-                    "dexterity": 2,
-                }
-            },
-            7: {
-                stats: {
-                    "strength": 2,
-                    "dexterity": 2,
-                }
-            },
-            10: {
-                stats: {
-                    "strength": 3,
-                    "dexterity": 3,
-                }
-            },
-            12: {
-                stats: {
-                    "strength": 4,
-                    "dexterity": 4,
-                }
-            },
-            15: {
-                stats: {
-                    "strength": 5,
-                    "dexterity": 5,
-                }
-            },
-            17: {
-                stats: {
-                    "strength": 6,
-                    "dexterity": 6,
-                }
-            },
-            20: {
-                stats: {
-                    "strength": 8,
-                    "dexterity": 8,
-                }
-            }
-        }
-    }
-});
-
-//basic combat skills
-(function(){
-    skills["Combat"] = new Skill({skill_id: "Combat", 
-                                names: {0: "Combat"}, 
-                                description: "Overall combat ability", 
-                                max_level_coefficient: 2,
-                                get_effect_description: ()=> {
-                                    return `Multiplies your hit chance by ${Math.round(skills["Combat"].get_coefficient("multiplicative")*1000)/1000}`;
-                                }});
-
-    skills["Evasion"] = new Skill({skill_id: "Evasion", 
-                                names: {0: "Evasion [Basic]", 15: "Evasion [Intermediate]", 30: "Evasion [Advanced]", 40: "Evasion [Master]", 50: "Evasion [Absolute"},                                
-                                description:"Ability to evade attacks", 
-                                max_level_coefficient: 2,
-                                base_xp_cost: 20,
-                                get_effect_description: ()=> {
-                                    return `Multiplies your evasion chance by ${Math.round(skills["Evasion"].get_coefficient("multiplicative")*1000)/1000}`;
-                                },
-                                rewards: {
-                                    milestones: {
-                                        2: {
-                                            stats: {
-                                                "agility": 1,
-                                            }
-                                        },
-                                        4: {
-                                            stats: {
-                                                "agility": 1,
-                                            }
-                                        },
-                                        6: {
-                                            stats: {
-                                                "agility": 2,
-                                            }
-                                        },
-                                        8: {
-                                            stats: {
-                                                "agility": 2,
-                                            }
-                                        },
-                                        10: {
-                                            stats: {
-                                                "agility": 3,
-                                            }
-                                        }
-                                    }
-                                }
-                            });
-    skills["Shield blocking"] = new Skill({skill_id: "Shield blocking", 
-                                    names: {0: "Shield blocking"}, 
-                                    description: "Ability to block attacks with shield", 
-                                    max_level: 20, 
-                                    max_level_coefficient: 4,
-                                    get_effect_description: ()=> {
-                                        return `Increases your block chance by flat ${Math.round(skills["Shield blocking"].get_coefficient("flat")*100)/100}%`;
-                                    }});
-})();
-
-//weapon skills
-(function(){
-    skills["Swords"] = new Skill({skill_id: "Swords", 
-                                skill_group: "weapon skills",
-                                names: {0: "Sword [Basics]"}, 
-                                description: "Ability to fight with use of swords, increases damage dealt", 
-                                max_level_coefficient: 8});
-
-    skills["Axes"] = new Skill({skill_id: "Axes", 
-                                skill_group: "weapon skills",
-                                names: {0: "Axe [Basics]"}, 
-                                description: "Ability to fight with use of axes, increases damage dealt", 
-                                max_level_coefficient: 8});
-
-    skills["Spears"] = new Skill({skill_id: "Spears", 
-                                skill_group: "weapon skills",
-                                names: {0: "Spear [Basics]"}, 
-                                description: "Ability to fight with use of spears, increases damage dealt", 
-                                max_level_coefficient: 8});
-
-    skills["Blunt weapons"] = new Skill({skill_id: "Blunt weapons", 
-                                        skill_group: "weapon skills",
-                                        names: {0: "Blunt weapons [Basics]"}, 
-                                        description: "Ability to fight with use of blunt weapons, increases damage dealt", 
-                                        max_level_coefficient: 8});
-
-    skills["Daggers"] = new Skill({skill_id: "Daggers",
-                                skill_group: "weapon skills",
-                                names: {0: "Dagger [Basics]"},
-                                description: "Ability to use daggers, increases damage dealt",
-                                max_level_coefficient: 8});
-
-    skills["Wands"] = new Skill({skill_id: "Wands", 
-                                skill_group: "weapon skills",
-                                names: {0: "Wand [Basics]"}, 
-                                description: "Ability to cast spells with magic wands, increases damage dealt", 
-                                max_level_coefficient: 8});
-
-    skills["Staffs"] = new Skill({skill_id: "Staffs", 
-                                skill_group: "weapon skills",
-                                names: {0: "Staff [Basics]"}, 
-                                description: "Ability to cast spells with magic staffs, increases damage dealt", 
-                                max_level_coefficient: 8});
-})();
-
-
-//miscellanous
-(function(){
-    skills["Farming"] = new Skill({skill_id: "Farming", 
-                                names: {0: "Farming"}, 
-                                description: "Even simple act of plowing field requires some skill",
-                                base_xp_cost: 40,
-                                max_level: 10,
-                                max_level_coefficient: 2,
-                                rewards: {
-                                    milestones: {
-                                        2: {
-                                            stats: {
-                                                "strength": 1,
-                                            }
-                                        },
-                                        4: {
-                                            stats: {
-                                                "strength": 1,
-                                                "dexterity": 1,
-                                            }
-                                        },
-                                        6: {
-                                            stats: {
-                                                "strength": 2,
-                                                "dexterity": 1,
-                                            }
-                                        },
-                                        8: {
-                                            stats: {
-                                                "strength": 2,
-                                                "dexterity": 2,
-                                            }
-                                        },
-                                        10: {
-                                            stats: {
-                                                "strength": 4,
-                                                "dexterity": 3,
-                                            }
-                                        }
-                                    }
-                                }});
-
-})();
-
-
 const stat_names = {"strength": "str",
                     "health": "hp",
                     "agility": "agl",
@@ -450,5 +245,287 @@ function format_skill_rewards(milestone){
 
     return formatted;
 }
+
+skill_groups["weapon skills"] = new SkillGroup({
+    rewards: {
+        milestones: {
+            3: {
+                stats: {
+                    "strength": 1,
+                    "dexterity": 1,
+                }
+            },
+            5: {
+                stats: {
+                    "strength": 2,
+                    "dexterity": 2,
+                }
+            },
+            7: {
+                stats: {
+                    "strength": 2,
+                    "dexterity": 2,
+                }
+            },
+            10: {
+                stats: {
+                    "strength": 3,
+                    "dexterity": 3,
+                }
+            },
+            12: {
+                stats: {
+                    "strength": 4,
+                    "dexterity": 4,
+                }
+            },
+            15: {
+                stats: {
+                    "strength": 5,
+                    "dexterity": 5,
+                }
+            },
+            17: {
+                stats: {
+                    "strength": 6,
+                    "dexterity": 6,
+                }
+            },
+            20: {
+                stats: {
+                    "strength": 8,
+                    "dexterity": 8,
+                }
+            }
+        }
+    }
+});
+
+//basic combat skills
+(function(){
+    skills["Combat"] = new Skill({skill_id: "Combat", 
+                                names: {0: "Combat"}, 
+                                description: "Overall combat ability", 
+                                max_level_coefficient: 2,
+                                get_effect_description: ()=> {
+                                    return `Multiplies hit chance by ${Math.round(skills["Combat"].get_coefficient("multiplicative")*1000)/1000}`;
+                                }});
+
+    skills["Evasion"] = new Skill({skill_id: "Evasion", 
+                                names: {0: "Evasion"},                                
+                                description:"Ability to evade attacks", 
+                                max_level_coefficient: 2,
+                                base_xp_cost: 20,
+                                get_effect_description: ()=> {
+                                    return `Multiplies your evasion chance by ${Math.round(skills["Evasion"].get_coefficient("multiplicative")*1000)/1000}`;
+                                },
+                                rewards: {
+                                    milestones: {
+                                        2: {
+                                            stats: {
+                                                "agility": 1,
+                                            }
+                                        },
+                                        4: {
+                                            stats: {
+                                                "agility": 1,
+                                            }
+                                        },
+                                        6: {
+                                            stats: {
+                                                "agility": 2,
+                                            }
+                                        },
+                                        8: {
+                                            stats: {
+                                                "agility": 2,
+                                            }
+                                        },
+                                        10: {
+                                            stats: {
+                                                "agility": 3,
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+    skills["Shield blocking"] = new Skill({skill_id: "Shield blocking", 
+                                    names: {0: "Shield blocking"}, 
+                                    description: "Ability to block attacks with shield", 
+                                    max_level: 20, 
+                                    max_level_coefficient: 4,
+                                    get_effect_description: ()=> {
+                                        return `Increases block chance by flat ${Math.round(skills["Shield blocking"].get_coefficient("flat")*100)/100}%`;
+                                    }});
+    
+     skills["Unarmed"] = new Skill({skill_id: "Unarmed", 
+                                    names: {0: "Unarmed"}, 
+                                    description: "It's definitely, unquestionably, undoubtedly better to just use a weapon. But sure, why not?",
+                                    get_effect_description: ()=> {
+                                        return `Multiplies damage dealt in unarmed combat by ${Math.round(skills["Unarmed"].get_coefficient("multiplicative")*1000)/1000}`;
+                                    },
+                                    max_level_coefficient: 64, //even with 8x more it's still gonna be worse than just using a weapon lol
+                                    rewards: {
+                                        milestones: {
+                                            2: {
+                                                stats: {
+                                                    "strength": 1,
+                                                }
+                                            },
+                                            4: {
+                                                stats: {
+                                                    "strength": 1,
+                                                    "dexterity": 1,
+                                                }
+                                            },
+                                            6: {
+                                                stats: {
+                                                    "strength": 1,
+                                                    "dexterity": 1,
+                                                    "agility": 1,
+                                                }
+                                            },
+                                            8: {
+                                                stats: {
+                                                    "strength": 1,
+                                                    "dexterity": 1,
+                                                    "agility": 1,
+                                                }
+                                            },
+                                            10: {
+                                                stats: {
+                                                    "strength": 2,
+                                                    "dexterity": 1,
+                                                    "agility": 1,
+                                                }
+                                            }
+                                        }
+                                    }});                                
+})();
+
+//weapon skills
+(function(){
+    skills["Swords"] = new Skill({skill_id: "Swords", 
+                                skill_group: "weapon skills",
+                                names: {0: "Sword"}, 
+                                description: "The noble art of swordsmanship", 
+                                get_effect_description: ()=> {
+                                    return `Multiplies damage dealt with swords by ${Math.round(skills["Swords"].get_coefficient("multiplicative")*1000)/1000}`;
+                                },
+                                max_level_coefficient: 8});
+
+    skills["Axes"] = new Skill({skill_id: "Axes", 
+                                skill_group: "weapon skills",
+                                names: {0: "Axe"}, 
+                                description: "Ability to fight with use of axes", 
+                                get_effect_description: ()=> {
+                                    return `Multiplies damage dealt with axes by ${Math.round(skills["Axes"].get_coefficient("multiplicative")*1000)/1000}`;
+                                },
+                                max_level_coefficient: 8});
+
+    skills["Spears"] = new Skill({skill_id: "Spears", 
+                                skill_group: "weapon skills",
+                                names: {0: "Spear"}, 
+                                description: "The ability to fight with the most deadly weapon in the history", 
+                                get_effect_description: ()=> {
+                                    return `Multiplies damage dealt with spears by ${Math.round(skills["Spears"].get_coefficient("multiplicative")*1000)/1000}`;
+                                },
+                                max_level_coefficient: 8});
+
+    skills["Blunt weapons"] = new Skill({skill_id: "Blunt weapons", 
+                                        skill_group: "weapon skills",
+                                        names: {0: "Blunt weapons"}, 
+                                        description: "Ability to fight with use of blunt weapons", 
+                                        get_effect_description: ()=> {
+                                            return `Multiplies damage dealt with blunt weapons by ${Math.round(skills["Blunt weapons"].get_coefficient("multiplicative")*1000)/1000}`;
+                                        },
+                                        max_level_coefficient: 8});
+
+    skills["Daggers"] = new Skill({skill_id: "Daggers",
+                                skill_group: "weapon skills",
+                                names: {0: "Dagger"},
+                                description: "The looked upon art of fighting (and stabbing) with daggers",
+                                get_effect_description: ()=> {
+                                    return `Multiplies damage dealt with daggers by ${Math.round(skills["Daggers"].get_coefficient("multiplicative")*1000)/1000}`;
+                                },
+                                max_level_coefficient: 8});
+
+    skills["Wands"] = new Skill({skill_id: "Wands", 
+                                skill_group: "weapon skills",
+                                names: {0: "Wand"}, 
+                                description: "Ability to cast spells with magic wands, increases damage dealt", 
+                                get_effect_description: ()=> {
+                                    return `Multiplies damage dealt with wands by ${Math.round(skills["Wands"].get_coefficient("multiplicative")*1000)/1000}`;
+                                },
+                                max_level_coefficient: 8});
+
+    skills["Staffs"] = new Skill({skill_id: "Staffs", 
+                                skill_group: "weapon skills",
+                                names: {0: "Staff"}, 
+                                description: "Ability to cast spells with magic staffs, increases damage dealt", 
+                                get_effect_description: ()=> {
+                                    return `Multiplies damage dealth with staffs by ${Math.round(skills["Staffs"].get_coefficient("multiplicative")*1000)/1000}`;
+                                },
+                                max_level_coefficient: 8});
+})();
+
+
+//work related
+(function(){
+    skills["Farming"] = new Skill({skill_id: "Farming", 
+                                names: {0: "Farming"}, 
+                                description: "Even simple act of plowing field requires some skill",
+                                base_xp_cost: 40,
+                                max_level: 10,
+                                max_level_coefficient: 2,
+                                rewards: {
+                                    milestones: {
+                                        2: {
+                                            stats: {
+                                                "strength": 1,
+                                            }
+                                        },
+                                        4: {
+                                            stats: {
+                                                "strength": 1,
+                                                "dexterity": 1,
+                                            }
+                                        },
+                                        6: {
+                                            stats: {
+                                                "strength": 2,
+                                                "dexterity": 1,
+                                            }
+                                        },
+                                        8: {
+                                            stats: {
+                                                "strength": 2,
+                                                "dexterity": 2,
+                                            }
+                                        },
+                                        10: {
+                                            stats: {
+                                                "strength": 4,
+                                                "dexterity": 3,
+                                            }
+                                        }
+                                    }
+                                }});
+
+})();
+
+//activity related
+(function(){
+    skills["Sleeping"] = new Skill({skill_id: "Sleeping",
+                                    names: {0: "Sleeping"}, 
+                                    description: "Getting a proper sleep is much harder than some would thing, but it can be very rewarding",
+                                    base_xp_cost: 1000,
+                                    xp_scaling: 2,
+                                    max_level: 10,
+                                    max_level_coefficient: 2.5,    
+                                });
+})();
+
+
 
 export {skills, skill_groups, get_unlocked_skill_rewards, get_next_skill_milestone};

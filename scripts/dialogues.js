@@ -16,7 +16,7 @@ function Dialogue(dialogue_data) {
     //separate bool to remove dialogue option if it's finished
     this.trader = typeof dialogue_data.trader !== "undefined"? dialogue_data.trader : null;
 
-    this.textlines = dialogue_data.textlines;  //all the lines in dialogue
+    this.textlines = dialogue_data.textlines || [];  //all the lines in dialogue
 }
 
 function Textline(textline_data) {

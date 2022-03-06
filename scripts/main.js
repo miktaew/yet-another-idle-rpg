@@ -44,6 +44,9 @@ var current_activity;
 //resting, true -> health regenerates
 var is_resting = true;
 
+//sleeping, true -> health regenerates, timer goes up faster
+var is_sleeping = false;
+
 var save_period = 60;
 //ticks between saves, 60 = ~1 minute
 var save_counter = 0;
@@ -180,7 +183,7 @@ function change_location(location_name) {
         }
 
         //add buttons to start activities
-        for(let i = 0; i < location.activities?.length; i++) {
+        for(let i = 0; i < location.activities.length; i++) {
             if(!activities[location.activities[i].activity]?.is_unlocked || !location.activities[i]?.is_unlocked) {
                 continue;
             }
@@ -219,6 +222,17 @@ function change_location(location_name) {
 
             action_div.appendChild(activity_div);
         }
+
+        /*
+        if(location.sleeping) { //add button to go to sleep
+            const start_sleeping_div = document.createElement("div");
+            
+            start_sleeping_div.innerHTML = location.sleeping.text + '  <i class="fas fa-bed"></i>';
+            start_sleeping_div.id = "start_sleeping_div";
+            start_sleeping_div.setAttribute('onclick', 'start_sleeping()');
+
+            action_div.appendChild(start_sleeping_div);
+        }*/
 
         for(let i = 0; i < location.connected_locations.length; i++) { //add butttons to change location
 
@@ -264,7 +278,11 @@ function change_location(location_name) {
 
         action = document.createElement("div");
         action.classList.add("travel_normal", "action_travel");
-        action.innerHTML = "Go back to " + location.parent_location.name + `  <i class="fas fa-map-signs"></i>`;
+        if(location.leave_text) {
+            action.innerHTML = location.leave_text + `  <i class="fas fa-map-signs"></i>`;
+        } else {
+            action.innerHTML = "Go back to " + location.parent_location.name + `  <i class="fas fa-map-signs"></i>`;
+        }
         action.setAttribute("data-travel", location.parent_location.name);
         action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
 
@@ -877,9 +895,9 @@ function clear_action_div() {
     }
 }
 
-function get_new_enemy() {
-    current_enemy = current_location.get_next_enemy();
-    enemy_stats_div.innerHTML = `Str: ${current_enemy.stats.strength} | Agl: ${current_enemy.stats.agility} 
+function get_new_enemy(enemy) {
+    current_enemy = enemy || current_location.get_next_enemy();
+    enemy_stats_div.innerHTML = `Atk: ${current_enemy.stats.strength} | Agl: ${current_enemy.stats.agility} 
     | Dex: ${current_enemy.stats.dexterity} | Def: ${current_enemy.stats.defense} 
     | Atk speed: ${current_enemy.stats.attack_speed.toFixed(1)}`
 
@@ -927,25 +945,26 @@ function do_combat() {
         if(character.combat_stats.hit_chance > Math.random()) {//hero's attack hits
             add_xp_to_skill(skills["Combat"], current_enemy.xp_value, true);
             if(character.equipment.weapon != null) {
-                add_xp_to_skill(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`], current_enemy.xp_value, true); 
-            
                 damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) 
                                             * skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient())/10;
+
+
+                add_xp_to_skill(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`], current_enemy.xp_value, true); 
             } else {
-                damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4))/10;
-                //TODO: unarmed skill, apply bonus here
+                damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) * skills['Unarmed'].get_coefficient())/10;
+                add_xp_to_skill(skills['Unarmed'], current_enemy.xp_value, true);
             }
             //small randomization by up to 20%, then bonus from skill
             
             if(character.full_stats.crit_rate > Math.random()) {
-                damage_dealt = Math.round(damage_dealt * character.full_stats.crit_multiplier);
+                damage_dealt = Math.round(10*damage_dealt * character.full_stats.crit_multiplier)/10;
                 critted = true;
             }
             else {
                 critted = false;
             }
             
-            damage_dealt = Math.max(damage_dealt - current_enemy.stats.defense, 1);
+            damage_dealt = Math.max(Math.round(10*(damage_dealt - current_enemy.stats.defense))/10, 1);
 
             current_enemy.stats.health -= damage_dealt;
             if(critted) {
@@ -995,8 +1014,8 @@ function do_combat() {
         partially_blocked = false;
 
 
-        if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
-            if(character.equipment.offhand.shield_strength >= damage_dealt) {
+        if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
+            if(character.equipment["off-hand"].shield_strength >= damage_dealt) {
                 if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
                     add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
                     log_message(character.name + " has blocked the attack");
@@ -1006,7 +1025,7 @@ function do_combat() {
             else { 
                 if(character.combat_stats.block_chance - 0.3 > Math.random()) { //PARTIALLY BLOCKED THE ATTACK
                     add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
-                    damage_dealt -= character.equipment.offhand.shield_strength;
+                    damage_dealt -= character.equipment["off-hand"].shield_strength;
                     partially_blocked = true;
                     //FIGHT GOES LIKE NORMAL, but log that it was partially blocked
                 }
@@ -1072,6 +1091,7 @@ function do_combat() {
 
 }
 
+//adds xp to skills, handles their levelups and tooltips
 function add_xp_to_skill(skill, xp_to_add, should_info) 
 {
     if(skill.total_xp == 0) 
@@ -1109,10 +1129,12 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
         skill_tooltip.appendChild(tooltip_milestones);
         skill_tooltip.appendChild(tooltip_next);
 
+        
+
         if(skill.skill_group) {
-            tooltip_desc.innerHTML = `${skill.description}<br><br>Group: ${skill.skill_group}`; 
+            tooltip_desc.innerHTML = `${skill.description}<br><br>Group: ${skill.skill_group}<br><br>`; 
         } else {
-            tooltip_desc.innerHTML = `${skill.description}`; 
+            tooltip_desc.innerHTML = `${skill.description}<br><br>`; 
         }
         
         skill_bar_max.appendChild(skill_bar_text);
@@ -1123,6 +1145,11 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
         skill_bar_divs[skill.skill_id].setAttribute("data-skill", skill.skill_id);
         skill_bar_divs[skill.skill_id].classList.add("skill_div");
         skill_list.appendChild(skill_bar_divs[skill.skill_id]);
+
+
+        if(should_info) {
+            log_message(`Learned new skill: ${skill.name()}`);
+        }
 
         [...skill_list_div.children]
         .sort((a,b)=>a.getAttribute("data-skill")>b.getAttribute("data-skill")?1:-1)
@@ -1225,6 +1252,7 @@ function add_xp_to_character(xp_to_add, should_info) {
         }
 
         character_xp_div.children[0].innerText = `Level: ${character.xp.current_level}`;
+        character.full_stats.health = character.full_stats.max_health; //free healing on level up, because it's a nice thing to have
         update_character_stats();
         update_displayed_health();
     }
@@ -1277,15 +1305,41 @@ function unlock_location(location) {
 function do_resting() {
     if(character.full_stats.health < character.full_stats.max_health)
     {
-        const resting_heal_ammount = 1; 
-        //todo: add sleeping that will heal faster and scale with level of some skill
-        //and also with max hp (like at least 1% of total hp, maybe even 10% with stuff maxed out?)
+        const resting_heal_ammount = Math.max(character.full_stats.max_health * 0.01,1); 
+        //todo: scale it with skill, because why not?; maybe up to x2 bonus
+
         character.full_stats.health += (resting_heal_ammount);
         if(character.full_stats.health > character.full_stats.max_health) {
             character.full_stats.health = character.full_stats.max_health;
         } 
         update_displayed_health();
     }
+}
+
+function do_sleeping() {
+    if(character.full_stats.health < character.full_stats.max_health)
+    {
+        const sleeping_heal_ammount = Math.max(character.full_stats.max_health * 0.04, 1); 
+        //todo: scale it with skill (maybe up to x2.5 bonus)
+        
+        character.full_stats.health += (sleeping_heal_ammount);
+        if(character.full_stats.health > character.full_stats.max_health) {
+            character.full_stats.health = character.full_stats.max_health;
+        } 
+        update_displayed_health();
+    }
+}
+
+function start_sleeping() {
+    //reset action div
+    //add something nonclickable with info
+    //add button to wake up (end_sleeping() function)
+    //set sleeping to true
+}
+
+function end_sleeping() {
+    is_sleeping = false;
+    change_location(current_location.name);
 }
 
 //writes message to the message log
@@ -1847,6 +1901,10 @@ function update_displayed_equipment() {
 }
 
 function update_character_stats() { //updates character stats
+
+    const missing_health = (character.full_stats["max_health"] - character.full_stats["health"]) || 0;
+    //to avoid fully healing character whenever this function is called
+
     Object.keys(character.stats).forEach(function(stat){
         if(stat === "attack_power") {
             return;
@@ -1859,7 +1917,7 @@ function update_character_stats() { //updates character stats
                 character.full_stats[stat] += character.equipment[key].equip_effect[stat].flat_bonus;
             }
         }); //calculate stats based on equipment
-
+  
         /*
         Object.keys(character.equipment).forEach(function(key) {
             if(character.equipment[key] != null && character.equipment[key].equip_effect[stat]) {
@@ -1867,6 +1925,11 @@ function update_character_stats() { //updates character stats
             }
         }); //same, but add multiplicative bonuses // or maybe sumarize the bonus first and then add it? (make it additive instead of multiplicative)
         */
+
+        if(stat === "health") {
+            character.full_stats["health"] = Math.max(1, character.full_stats["health"] - missing_health);
+        }
+        character.full_stats[stat] = Math.round(10*character.full_stats[stat])/10;
     });
     //TODO: add bonuses from skills
 
@@ -1881,6 +1944,7 @@ function update_character_stats() { //updates character stats
     character.full_stats.attack_power = character.stats.attack_power;
 
     update_displayed_stats();
+    update_displayed_health();
     update_combat_stats();
 }
 
@@ -1896,7 +1960,7 @@ function update_displayed_stats() { //updates displayed stats
 }
 
 function update_combat_stats() { //chances to hit and evade/block
-    if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
+    if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
         character.combat_stats.evasion_chance = null;
         character.combat_stats.block_chance = Math.round(0.4 * skills["Shield blocking"].get_coefficient("flat") * 10000)/10000;
     }
@@ -1908,7 +1972,7 @@ function update_combat_stats() { //chances to hit and evade/block
 
         //so 99% if at least four times more dexterity, 50% if same, and never less than 10%
 
-        if(character.equipment.offhand == null || character.equipment.offhand.offhand_type !== "shield") {
+        if(character.equipment["off-hand"] == null || character.equipment["offhand"].offhand_type !== "shield") {
             const power = character.full_stats.agility > current_enemy.stats.dexterity ? 2/3 : 1
             character.combat_stats.evasion_chance = Math.min(0.99, Math.pow(character.full_stats.agility/current_enemy.stats.dexterity, power) * 0.25 * skills["Evasion"].get_coefficient("multiplicative"));
             //so up to 99% if at least eight more agility, 25% if same, can go down almost to 0%
@@ -1930,11 +1994,11 @@ function update_displayed_combat_stats() {
         other_combat_divs.hit_chance.innerHTML = "";
     }
 
-    if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
+    if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
 
         other_combat_divs.defensive_action.innerHTML = "Block:";
 
-        if(current_enemy != null && character.equipment.offhand.shield_strength < current_enemy.stats.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
+        if(current_enemy != null && character.equipment["off-hand"].shield_strength < current_enemy.stats.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
             other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.block_chance*100-30).toFixed(1)}%`;
         } 
         else {
@@ -2120,13 +2184,19 @@ function load(save_data) {
         if(save_data["current enemy"] != null) { 
             current_enemy = new Enemy(enemy_templates[save_data["current enemy"].name]);
             current_enemy.stats = save_data["current enemy"].stats; 
+            get_new_enemy(current_enemy);
         } //load enemy
 
         Object.keys(save_data.character.equipment).forEach(function(key){
             if(save_data.character.equipment[key] != null) {
-                save_data.character.equipment[key].value = item_templates[save_data.character.equipment[key].name].value;
-                save_data.character.equipment[key].equip_effect = item_templates[save_data.character.equipment[key].name].equip_effect;
-                equip_item(save_data.character.equipment[key]);
+                if(item_templates[save_data.character.equipment[key].name]) {
+                    save_data.character.equipment[key].value = item_templates[save_data.character.equipment[key].name].value;
+                    save_data.character.equipment[key].equip_effect = item_templates[save_data.character.equipment[key].name].equip_effect;
+                    equip_item(save_data.character.equipment[key]); 
+                } else {
+                    console.warn(`Equipped item "${item_templates[save_data.character.equipment[key].name]}" couldn't be found`);
+                    return;
+                }
             }
         }); //equip proper items
 
@@ -2135,21 +2205,31 @@ function load(save_data) {
         Object.keys(save_data.character.inventory).forEach(function(key){
             if(Array.isArray(save_data.character.inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
                 for(let i = 0; i < save_data.character.inventory[key].length; i++) {
-                    save_data.character.inventory[key][i].value = item_templates[key].value;
-                    if(item_templates[key].item_type = "EQUIPPABLE") {
-                        save_data.character.inventory[key][i].equip_effect = item_templates[key].equip_effect;
+                    if(item_templates[key]) {
+                        save_data.character.inventory[key][i].value = item_templates[key].value;
+                        if(item_templates[key].item_type = "EQUIPPABLE") {
+                            save_data.character.inventory[key][i].equip_effect = item_templates[key].equip_effect;
+                        }
+                        item_list.push({item: save_data.character.inventory[key][i], count: 1});
+                    } else {
+                        console.warn(`Inventory item "${key}" couldn't be found!`);
+                        return;
                     }
-                    item_list.push({item: save_data.character.inventory[key][i], count: 1});
                 }
             }
             else {
-                save_data.character.inventory[key].item.value = item_templates[key].value;
-                if(item_templates[key].item_type === "EQUIPPABLE") {
-                    save_data.character.inventory[key].item.equip_effect = item_templates[key].equip_effect;
-                } else if(item_templates[key].item_type === "USABLE") {
-                    save_data.character.inventory[key].item.use_effect = item_templates[key].use_effect;
+                if(item_templates[key]) {
+                    save_data.character.inventory[key].item.value = item_templates[key].value;
+                    if(item_templates[key].item_type === "EQUIPPABLE") {
+                        save_data.character.inventory[key].item.equip_effect = item_templates[key].equip_effect;
+                    } else if(item_templates[key].item_type === "USABLE") {
+                        save_data.character.inventory[key].item.use_effect = item_templates[key].use_effect;
+                    }
+                    item_list.push({item: save_data.character.inventory[key].item, count: save_data.character.inventory[key].count});
+                } else {
+                    console.warn(`Inventory item "${key}" couldn't be found!`);
+                    return;
                 }
-                item_list.push({item: save_data.character.inventory[key].item, count: save_data.character.inventory[key].count});
             }
             
         }); //add all loaded items to list
@@ -2160,73 +2240,95 @@ function load(save_data) {
         update_displayed_money();
 
         add_xp_to_character(save_data.character.xp.total_xp/(global_xp_bonus || 1), false);
-        //TODO: make it less dumb
 
         Object.keys(save_data.skills).forEach(function(key){ 
-            if(save_data.skills[key].total_xp > 0) {
-                add_xp_to_skill(skills[key], save_data.skills[key].total_xp/(global_xp_bonus || 1), false);
+            if(skills[key]){
+                if(save_data.skills[key].total_xp > 0) {
+                    add_xp_to_skill(skills[key], save_data.skills[key].total_xp/(global_xp_bonus || 1), false);
+                }
+            } else {
+                console.warn(`Skill "${key}" couldn't be found!`);
+                return;
             }
         }); //add xp to skills
 
 
         Object.keys(save_data.dialogues).forEach(function(dialogue) {
-            dialogues[dialogue].is_unlocked = save_data.dialogues[dialogue].is_unlocked;
-            dialogues[dialogue].is_finished = save_data.dialogues[dialogue].is_finished;
-
-            if(save_data.dialogues[dialogue].textlines) {
+            if(dialogues[dialogue]) {
+                dialogues[dialogue].is_unlocked = save_data.dialogues[dialogue].is_unlocked;
+                dialogues[dialogue].is_finished = save_data.dialogues[dialogue].is_finished;
+            } else {
+                console.warn(`Dialogue "${dialogue}" couldn't be found!`);
+                return;
+            }
+            if(save_data.dialogues[dialogue].textlines) {  
                 Object.keys(save_data.dialogues[dialogue].textlines).forEach(function(textline){
-                    dialogues[dialogue].textlines[textline].is_unlocked = save_data.dialogues[dialogue].textlines[textline].is_unlocked;
-                    dialogues[dialogue].textlines[textline].is_finished = save_data.dialogues[dialogue].textlines[textline].is_finished;
-                });
+                    if(dialogues[dialogue].textlines[textline]) {
+                        dialogues[dialogue].textlines[textline].is_unlocked = save_data.dialogues[dialogue].textlines[textline].is_unlocked;
+                        dialogues[dialogue].textlines[textline].is_finished = save_data.dialogues[dialogue].textlines[textline].is_finished;
+                    } else {
+                        console.warn(`Textline "${textline}" in dialogue "${dialogue}" couldn't be found!`);
+                        return;
+                    }
+                }); 
             }
         }); //load for dialogues and their textlines their unlocked/finished status
 
         
         Object.keys(save_data.traders).forEach(function(trader) { 
             let trader_item_list = [];
-
-            
-            Object.keys(save_data.traders[trader].inventory).forEach(function(key){
-                if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
-                    for(let i = 0; i < save_data.traders[trader].inventory[key].length; i++) {
-                        save_data.traders[trader].inventory[key][i].value = item_templates[key].value;
-                        if(item_templates[key].item_type = "EQUIPPABLE") {
-                            save_data.traders[trader].inventory[key][i].equip_effect = item_templates[key].equip_effect;
+            if(traders[trader]){
+                Object.keys(save_data.traders[trader].inventory).forEach(function(key){
+                    if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
+                        for(let i = 0; i < save_data.traders[trader].inventory[key].length; i++) {
+                            save_data.traders[trader].inventory[key][i].value = item_templates[key].value;
+                            if(item_templates[key].item_type = "EQUIPPABLE") {
+                                save_data.traders[trader].inventory[key][i].equip_effect = item_templates[key].equip_effect;
+                            }
+                            trader_item_list.push({item: save_data.traders[trader].inventory[key][i], count: 1});
                         }
-                        trader_item_list.push({item: save_data.traders[trader].inventory[key][i], count: 1});
                     }
-                }
-                else {
-                    save_data.traders[trader].inventory[key].item.value = item_templates[key].value;
-                    if(item_templates[key].item_type === "EQUIPPABLE") {
-                        save_data.traders[trader].inventory[key].item.equip_effect = item_templates[key].equip_effect;
-                    } else if(item_templates[key].item_type === "USABLE") {
-                        save_data.traders[trader].inventory[key].item.use_effect = item_templates[key].use_effect;
+                    else {
+                        save_data.traders[trader].inventory[key].item.value = item_templates[key].value;
+                        if(item_templates[key].item_type === "EQUIPPABLE") {
+                            save_data.traders[trader].inventory[key].item.equip_effect = item_templates[key].equip_effect;
+                        } else if(item_templates[key].item_type === "USABLE") {
+                            save_data.traders[trader].inventory[key].item.use_effect = item_templates[key].use_effect;
+                        }
+                        trader_item_list.push({item: save_data.traders[trader].inventory[key].item, count: save_data.traders[trader].inventory[key].count});
                     }
-                    trader_item_list.push({item: save_data.traders[trader].inventory[key].item, count: save_data.traders[trader].inventory[key].count});
-                }
-            });
+                });
 
-            start_trade(trader);
-            traders[trader].inventory = {};
-            add_to_inventory("trader", trader_item_list);
-            exit_trade();
+                start_trade(trader);
+                traders[trader].inventory = {};
+                add_to_inventory("trader", trader_item_list);
+                exit_trade();
 
-            traders[trader].last_refresh = save_data.traders[trader].last_refresh;
+                traders[trader].last_refresh = save_data.traders[trader].last_refresh; 
+            }
+            else {
+                console.warn(`Trader "${trader} couldn't be found!`);
+                return;
+            }
         }); //load trader inventories
         
 
         Object.keys(save_data.locations).forEach(function(key) {
-            locations[key].is_unlocked = save_data.locations[key].is_unlocked;
-            if("parent_location" in locations[key]) { // if combat zone
-                locations[key].enemies_killed = save_data.locations[key].enemies_killed;
-            }
-            if("unlocked_activities" in save_data.locations[key]) {
-                for(let i = 0; i < locations[key].activities.length; i++) {
-                    if(save_data.locations[key].unlocked_activities.includes(locations[key].activities[i].activity)) {
-                        locations[key].activities[i].is_unlocked = true;
+            if(locations[key]) {
+                locations[key].is_unlocked = save_data.locations[key].is_unlocked;
+                if("parent_location" in locations[key]) { // if combat zone
+                    locations[key].enemies_killed = save_data.locations[key].enemies_killed;
+                }
+                if("unlocked_activities" in save_data.locations[key]) {
+                    for(let i = 0; i < locations[key].activities.length; i++) {
+                        if(save_data.locations[key].unlocked_activities.includes(locations[key].activities[i].activity)) {
+                            locations[key].activities[i].is_unlocked = true;
+                        }
                     }
                 }
+            } else {
+                console.warn(`Location "${key}" couldn't be found!`);
+                return;
             }
         }); //load for locations their unlocked status and their killcounts
 
@@ -2264,7 +2366,7 @@ function load(save_data) {
                 document.getElementById("action_end_earnings").innerText = `(earnings: ${format_money(current_activity.earnings)})`;
                 
             } else {
-                console.error("Couldn't find saved activity! It might have been removed");
+                console.warn("Couldn't find saved activity! It might have been removed");
             }
         }
 
@@ -2329,7 +2431,7 @@ function load_from_localstorage() {
 } //called on loading the page, doesn't clear anything
 
 function update_timer() {
-    current_game_time.go_up();
+    current_game_time.go_up(is_sleeping ? 5 : 1);
     time_field.innerHTML = current_game_time.toString();
 } //updates time div
 
@@ -2359,7 +2461,10 @@ function update() {
         if("parent_location" in current_location){ //if it's a combat_zone
             do_combat();
         } else { //everything other than combat
-            if(is_resting) { //make a change so it only switches to true on clicking the resting action and is false on default
+            if(is_sleeping) {
+                do_sleeping();
+            }
+            else if(is_resting) {
                 do_resting();
             }
 
@@ -2486,6 +2591,9 @@ window.start_textline = start_textline;
 
 window.start_activity = start_activity;
 window.end_activity = end_activity;
+
+window.start_sleeping = start_sleeping;
+window.end_sleeping = end_sleeping;
 
 window.start_trade = start_trade;
 window.exit_trade = exit_trade;
