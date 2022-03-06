@@ -222,7 +222,6 @@ function change_location(location_name) {
 
             action_div.appendChild(activity_div);
         }
-
         /*
         if(location.sleeping) { //add button to go to sleep
             const start_sleeping_div = document.createElement("div");
@@ -232,8 +231,8 @@ function change_location(location_name) {
             start_sleeping_div.setAttribute('onclick', 'start_sleeping()');
 
             action_div.appendChild(start_sleeping_div);
-        }*/
-
+        }
+        */
         for(let i = 0; i < location.connected_locations.length; i++) { //add butttons to change location
 
             if(location.connected_locations[i].location.is_unlocked == false) { //skip if not unlocked
@@ -1147,7 +1146,7 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
         skill_list.appendChild(skill_bar_divs[skill.skill_id]);
 
 
-        if(should_info) {
+        if(typeof should_info === "undefined" || should_info) {
             log_message(`Learned new skill: ${skill.name()}`);
         }
 
@@ -2333,7 +2332,7 @@ function load(save_data) {
         }); //load for locations their unlocked status and their killcounts
 
         Object.keys(activities).forEach(function(activity) {
-            activities[activity].is_unlocked = save_data.activities[activity].is_unlocked || false;
+            activities[activity].is_unlocked = save_data.activities[activity].is_unlocked || true; 
         });
 
         Object.keys(save_data.active_effects).forEach(function(effect) {
@@ -2369,6 +2368,8 @@ function load(save_data) {
                 console.warn("Couldn't find saved activity! It might have been removed");
             }
         }
+        dialogues["village elder"].textlines["cleared cave"].is_finished = false;
+        dialogues["village elder"].textlines["ask to leave 4"].is_finished = false;
 
     } catch(error) {
         throw error; //let other loading methods (from_file and from_localstorage) take care of it

@@ -126,7 +126,7 @@ function Textline(textline_data) {
     Don't worry, a few people will stay a bit behind you and will help you escape if needed`,
                 is_unlocked: false,
                 unlocks: {
-                    locations: ["Nearby cave"],
+                    locations: ["Nearby cave", "Infested field"],
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 3"]}],
                 },
                 locks_lines: ["ask to leave 2", "cleared field"],
@@ -135,7 +135,7 @@ function Textline(textline_data) {
                 name: "Can I leave the village?",
                 text: "You still need to get stronger.",
                 unlocks: {
-                    locations: ["Nearby cave"],
+                    locations: ["Nearby cave", "Infested field"],
                 },
                 is_unlocked: false,
             }),
@@ -145,7 +145,7 @@ function Textline(textline_data) {
                 is_unlocked: false,
                 unlocks: {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 4"]}],
-                    locations: ["Forest road"],
+                    locations: ["Forest road", "Infested field", "Nearby cave"],
                 },
                 locks_lines: ["ask to leave 3", "rats", "cleared cave"],
             }),
@@ -154,7 +154,7 @@ function Textline(textline_data) {
                 text: "You are strong enough, you can leave and come whenever you want.",
                 is_unlocked: false,
                 unlocks: {
-                    locations: ["Forest road"],
+                    locations: ["Forest road", "Infested field", "Nearby cave"],
                 },
             }),
         }
