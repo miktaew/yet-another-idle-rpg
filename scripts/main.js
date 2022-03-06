@@ -44,6 +44,9 @@ var current_activity;
 //resting, true -> health regenerates
 var is_resting = true;
 
+//sleeping, true -> health regenerates, timer goes up faster
+var is_sleeping = false;
+
 var save_period = 60;
 //ticks between saves, 60 = ~1 minute
 var save_counter = 0;
@@ -1281,9 +1284,23 @@ function do_resting() {
     if(character.full_stats.health < character.full_stats.max_health)
     {
         const resting_heal_ammount = Math.max(character.full_stats.max_health * 0.01,1); 
-        //todo: add sleeping that will heal faster and scale with level of some skill
-        
+        //todo: scale it with skill, because why not?; maybe up to x2 bonus
+
         character.full_stats.health += (resting_heal_ammount);
+        if(character.full_stats.health > character.full_stats.max_health) {
+            character.full_stats.health = character.full_stats.max_health;
+        } 
+        update_displayed_health();
+    }
+}
+
+function do_sleeping() {
+    if(character.full_stats.health < character.full_stats.max_health)
+    {
+        const sleeping_heal_ammount = Math.max(character.full_stats.max_health * 0.04, 1); 
+        //todo: scale it with skill (maybe up to x2.5 bonus)
+        
+        character.full_stats.health += (sleeping_heal_ammount);
         if(character.full_stats.health > character.full_stats.max_health) {
             character.full_stats.health = character.full_stats.max_health;
         } 
@@ -2137,9 +2154,14 @@ function load(save_data) {
 
         Object.keys(save_data.character.equipment).forEach(function(key){
             if(save_data.character.equipment[key] != null) {
-                save_data.character.equipment[key].value = item_templates[save_data.character.equipment[key].name].value;
-                save_data.character.equipment[key].equip_effect = item_templates[save_data.character.equipment[key].name].equip_effect;
-                equip_item(save_data.character.equipment[key]);
+                if(item_templates[save_data.character.equipment[key].name]) {
+                    save_data.character.equipment[key].value = item_templates[save_data.character.equipment[key].name].value;
+                    save_data.character.equipment[key].equip_effect = item_templates[save_data.character.equipment[key].name].equip_effect;
+                    equip_item(save_data.character.equipment[key]); 
+                } else {
+                    console.error(`Equipped item "${item_templates[save_data.character.equipment[key].name]}" couldn't be found`);
+                    return;
+                }
             }
         }); //equip proper items
 
@@ -2148,21 +2170,31 @@ function load(save_data) {
         Object.keys(save_data.character.inventory).forEach(function(key){
             if(Array.isArray(save_data.character.inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
                 for(let i = 0; i < save_data.character.inventory[key].length; i++) {
-                    save_data.character.inventory[key][i].value = item_templates[key].value;
-                    if(item_templates[key].item_type = "EQUIPPABLE") {
-                        save_data.character.inventory[key][i].equip_effect = item_templates[key].equip_effect;
+                    if(item_templates[key]) {
+                        save_data.character.inventory[key][i].value = item_templates[key].value;
+                        if(item_templates[key].item_type = "EQUIPPABLE") {
+                            save_data.character.inventory[key][i].equip_effect = item_templates[key].equip_effect;
+                        }
+                        item_list.push({item: save_data.character.inventory[key][i], count: 1});
+                    } else {
+                        console.error(`Inventory item "${key}" couldn't be found!`);
+                        return;
                     }
-                    item_list.push({item: save_data.character.inventory[key][i], count: 1});
                 }
             }
             else {
-                save_data.character.inventory[key].item.value = item_templates[key].value;
-                if(item_templates[key].item_type === "EQUIPPABLE") {
-                    save_data.character.inventory[key].item.equip_effect = item_templates[key].equip_effect;
-                } else if(item_templates[key].item_type === "USABLE") {
-                    save_data.character.inventory[key].item.use_effect = item_templates[key].use_effect;
+                if(item_templates[key]) {
+                    save_data.character.inventory[key].item.value = item_templates[key].value;
+                    if(item_templates[key].item_type === "EQUIPPABLE") {
+                        save_data.character.inventory[key].item.equip_effect = item_templates[key].equip_effect;
+                    } else if(item_templates[key].item_type === "USABLE") {
+                        save_data.character.inventory[key].item.use_effect = item_templates[key].use_effect;
+                    }
+                    item_list.push({item: save_data.character.inventory[key].item, count: save_data.character.inventory[key].count});
+                } else {
+                    console.error(`Inventory item "${key}" couldn't be found!`);
+                    return;
                 }
-                item_list.push({item: save_data.character.inventory[key].item, count: save_data.character.inventory[key].count});
             }
             
         }); //add all loaded items to list
@@ -2173,73 +2205,95 @@ function load(save_data) {
         update_displayed_money();
 
         add_xp_to_character(save_data.character.xp.total_xp/(global_xp_bonus || 1), false);
-        //TODO: make it less dumb
 
         Object.keys(save_data.skills).forEach(function(key){ 
-            if(save_data.skills[key].total_xp > 0) {
-                add_xp_to_skill(skills[key], save_data.skills[key].total_xp/(global_xp_bonus || 1), false);
+            if(skills[key]){
+                if(save_data.skills[key].total_xp > 0) {
+                    add_xp_to_skill(skills[key], save_data.skills[key].total_xp/(global_xp_bonus || 1), false);
+                }
+            } else {
+                console.error(`Skill "${key}" couldn't be found!`);
+                return;
             }
         }); //add xp to skills
 
 
         Object.keys(save_data.dialogues).forEach(function(dialogue) {
-            dialogues[dialogue].is_unlocked = save_data.dialogues[dialogue].is_unlocked;
-            dialogues[dialogue].is_finished = save_data.dialogues[dialogue].is_finished;
-
-            if(save_data.dialogues[dialogue].textlines) {
+            if(dialogues[dialogue]) {
+                dialogues[dialogue].is_unlocked = save_data.dialogues[dialogue].is_unlocked;
+                dialogues[dialogue].is_finished = save_data.dialogues[dialogue].is_finished;
+            } else {
+                console.error(`Dialogue "${dialogue}" couldn't be found!`);
+                return;
+            }
+            if(save_data.dialogues[dialogue].textlines) {  
                 Object.keys(save_data.dialogues[dialogue].textlines).forEach(function(textline){
-                    dialogues[dialogue].textlines[textline].is_unlocked = save_data.dialogues[dialogue].textlines[textline].is_unlocked;
-                    dialogues[dialogue].textlines[textline].is_finished = save_data.dialogues[dialogue].textlines[textline].is_finished;
-                });
+                    if(dialogues[dialogue].textlines[textline]) {
+                        dialogues[dialogue].textlines[textline].is_unlocked = save_data.dialogues[dialogue].textlines[textline].is_unlocked;
+                        dialogues[dialogue].textlines[textline].is_finished = save_data.dialogues[dialogue].textlines[textline].is_finished;
+                    } else {
+                        console.error(`Textline "${textline}" in dialogue "${dialogue}" couldn't be found!`);
+                        return;
+                    }
+                }); 
             }
         }); //load for dialogues and their textlines their unlocked/finished status
 
         
         Object.keys(save_data.traders).forEach(function(trader) { 
             let trader_item_list = [];
-
-            
-            Object.keys(save_data.traders[trader].inventory).forEach(function(key){
-                if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
-                    for(let i = 0; i < save_data.traders[trader].inventory[key].length; i++) {
-                        save_data.traders[trader].inventory[key][i].value = item_templates[key].value;
-                        if(item_templates[key].item_type = "EQUIPPABLE") {
-                            save_data.traders[trader].inventory[key][i].equip_effect = item_templates[key].equip_effect;
+            if(traders[trader]){
+                Object.keys(save_data.traders[trader].inventory).forEach(function(key){
+                    if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
+                        for(let i = 0; i < save_data.traders[trader].inventory[key].length; i++) {
+                            save_data.traders[trader].inventory[key][i].value = item_templates[key].value;
+                            if(item_templates[key].item_type = "EQUIPPABLE") {
+                                save_data.traders[trader].inventory[key][i].equip_effect = item_templates[key].equip_effect;
+                            }
+                            trader_item_list.push({item: save_data.traders[trader].inventory[key][i], count: 1});
                         }
-                        trader_item_list.push({item: save_data.traders[trader].inventory[key][i], count: 1});
                     }
-                }
-                else {
-                    save_data.traders[trader].inventory[key].item.value = item_templates[key].value;
-                    if(item_templates[key].item_type === "EQUIPPABLE") {
-                        save_data.traders[trader].inventory[key].item.equip_effect = item_templates[key].equip_effect;
-                    } else if(item_templates[key].item_type === "USABLE") {
-                        save_data.traders[trader].inventory[key].item.use_effect = item_templates[key].use_effect;
+                    else {
+                        save_data.traders[trader].inventory[key].item.value = item_templates[key].value;
+                        if(item_templates[key].item_type === "EQUIPPABLE") {
+                            save_data.traders[trader].inventory[key].item.equip_effect = item_templates[key].equip_effect;
+                        } else if(item_templates[key].item_type === "USABLE") {
+                            save_data.traders[trader].inventory[key].item.use_effect = item_templates[key].use_effect;
+                        }
+                        trader_item_list.push({item: save_data.traders[trader].inventory[key].item, count: save_data.traders[trader].inventory[key].count});
                     }
-                    trader_item_list.push({item: save_data.traders[trader].inventory[key].item, count: save_data.traders[trader].inventory[key].count});
-                }
-            });
+                });
 
-            start_trade(trader);
-            traders[trader].inventory = {};
-            add_to_inventory("trader", trader_item_list);
-            exit_trade();
+                start_trade(trader);
+                traders[trader].inventory = {};
+                add_to_inventory("trader", trader_item_list);
+                exit_trade();
 
-            traders[trader].last_refresh = save_data.traders[trader].last_refresh;
+                traders[trader].last_refresh = save_data.traders[trader].last_refresh; 
+            }
+            else {
+                console.error(`Trader "${trader} couldn't be found!`);
+                return;
+            }
         }); //load trader inventories
         
 
         Object.keys(save_data.locations).forEach(function(key) {
-            locations[key].is_unlocked = save_data.locations[key].is_unlocked;
-            if("parent_location" in locations[key]) { // if combat zone
-                locations[key].enemies_killed = save_data.locations[key].enemies_killed;
-            }
-            if("unlocked_activities" in save_data.locations[key]) {
-                for(let i = 0; i < locations[key].activities.length; i++) {
-                    if(save_data.locations[key].unlocked_activities.includes(locations[key].activities[i].activity)) {
-                        locations[key].activities[i].is_unlocked = true;
+            if(locations[key]) {
+                locations[key].is_unlocked = save_data.locations[key].is_unlocked;
+                if("parent_location" in locations[key]) { // if combat zone
+                    locations[key].enemies_killed = save_data.locations[key].enemies_killed;
+                }
+                if("unlocked_activities" in save_data.locations[key]) {
+                    for(let i = 0; i < locations[key].activities.length; i++) {
+                        if(save_data.locations[key].unlocked_activities.includes(locations[key].activities[i].activity)) {
+                            locations[key].activities[i].is_unlocked = true;
+                        }
                     }
                 }
+            } else {
+                console.error(`Location "${key}" couldn't be found!`);
+                return;
             }
         }); //load for locations their unlocked status and their killcounts
 
@@ -2342,7 +2396,7 @@ function load_from_localstorage() {
 } //called on loading the page, doesn't clear anything
 
 function update_timer() {
-    current_game_time.go_up();
+    current_game_time.go_up(is_sleeping ? 5 : 1);
     time_field.innerHTML = current_game_time.toString();
 } //updates time div
 
@@ -2372,7 +2426,10 @@ function update() {
         if("parent_location" in current_location){ //if it's a combat_zone
             do_combat();
         } else { //everything other than combat
-            if(is_resting) { //make a change so it only switches to true on clicking the resting action and is false on default
+            if(is_sleeping) {
+                do_sleeping();
+            }
+            else if(is_resting) {
                 do_resting();
             }
 

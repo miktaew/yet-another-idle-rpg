@@ -8,8 +8,8 @@ function Game_time(new_time) {
     //only hours and minutes should be allowed to be 0
     //day_count is purely for calculating day of the week, by default it always start at monday (so day_count = 1)
 
-    this.go_up = function () {
-        this.minute += 1;
+    this.go_up = function(how_much) {
+        this.minute += how_much || 1;
         if(this.minute >= 60) 
         {
             this.minute = this.minute - 60;

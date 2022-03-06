@@ -15,7 +15,7 @@ class Location {
         this.connected_locations = location_data.connected_locations; //a list
         this.is_unlocked = typeof location_data.is_unlocked !== "undefined" ? location_data.is_unlocked : true;
         this.dialogues = location_data.dialogues || [];
-        this.jobs = [];
+        this.activities = [];
         for (let i = 0; i < this.dialogues.length; i++) {
             if (!dialogues[this.dialogues[i]]) {
                 throw new Error(`No such dialogue as "${this.dialogues[i]}"!`);
