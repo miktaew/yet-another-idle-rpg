@@ -183,7 +183,7 @@ function change_location(location_name) {
         }
 
         //add buttons to start activities
-        for(let i = 0; i < location.activities?.length; i++) {
+        for(let i = 0; i < location.activities.length; i++) {
             if(!activities[location.activities[i].activity]?.is_unlocked || !location.activities[i]?.is_unlocked) {
                 continue;
             }
@@ -222,6 +222,17 @@ function change_location(location_name) {
 
             action_div.appendChild(activity_div);
         }
+
+        /*
+        if(location.sleeping) { //add button to go to sleep
+            const start_sleeping_div = document.createElement("div");
+            
+            start_sleeping_div.innerHTML = location.sleeping.text + '  <i class="fas fa-bed"></i>';
+            start_sleeping_div.id = "start_sleeping_div";
+            start_sleeping_div.setAttribute('onclick', 'start_sleeping()');
+
+            action_div.appendChild(start_sleeping_div);
+        }*/
 
         for(let i = 0; i < location.connected_locations.length; i++) { //add butttons to change location
 
@@ -267,7 +278,11 @@ function change_location(location_name) {
 
         action = document.createElement("div");
         action.classList.add("travel_normal", "action_travel");
-        action.innerHTML = "Go back to " + location.parent_location.name + `  <i class="fas fa-map-signs"></i>`;
+        if(location.leave_text) {
+            action.innerHTML = location.leave_text + `  <i class="fas fa-map-signs"></i>`;
+        } else {
+            action.innerHTML = "Go back to " + location.parent_location.name + `  <i class="fas fa-map-signs"></i>`;
+        }
         action.setAttribute("data-travel", location.parent_location.name);
         action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
 
@@ -882,7 +897,7 @@ function clear_action_div() {
 
 function get_new_enemy(enemy) {
     current_enemy = enemy || current_location.get_next_enemy();
-    enemy_stats_div.innerHTML = `Str: ${current_enemy.stats.strength} | Agl: ${current_enemy.stats.agility} 
+    enemy_stats_div.innerHTML = `Atk: ${current_enemy.stats.strength} | Agl: ${current_enemy.stats.agility} 
     | Dex: ${current_enemy.stats.dexterity} | Def: ${current_enemy.stats.defense} 
     | Atk speed: ${current_enemy.stats.attack_speed.toFixed(1)}`
 
@@ -942,14 +957,14 @@ function do_combat() {
             //small randomization by up to 20%, then bonus from skill
             
             if(character.full_stats.crit_rate > Math.random()) {
-                damage_dealt = Math.round(damage_dealt * character.full_stats.crit_multiplier);
+                damage_dealt = Math.round(10*damage_dealt * character.full_stats.crit_multiplier)/10;
                 critted = true;
             }
             else {
                 critted = false;
             }
             
-            damage_dealt = Math.max(damage_dealt - current_enemy.stats.defense, 1);
+            damage_dealt = Math.max(Math.round(10*(damage_dealt - current_enemy.stats.defense))/10, 1);
 
             current_enemy.stats.health -= damage_dealt;
             if(critted) {
@@ -999,8 +1014,8 @@ function do_combat() {
         partially_blocked = false;
 
 
-        if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
-            if(character.equipment.offhand.shield_strength >= damage_dealt) {
+        if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
+            if(character.equipment["off-hand"].shield_strength >= damage_dealt) {
                 if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
                     add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
                     log_message(character.name + " has blocked the attack");
@@ -1010,7 +1025,7 @@ function do_combat() {
             else { 
                 if(character.combat_stats.block_chance - 0.3 > Math.random()) { //PARTIALLY BLOCKED THE ATTACK
                     add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
-                    damage_dealt -= character.equipment.offhand.shield_strength;
+                    damage_dealt -= character.equipment["off-hand"].shield_strength;
                     partially_blocked = true;
                     //FIGHT GOES LIKE NORMAL, but log that it was partially blocked
                 }
@@ -1114,6 +1129,8 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
         skill_tooltip.appendChild(tooltip_milestones);
         skill_tooltip.appendChild(tooltip_next);
 
+        
+
         if(skill.skill_group) {
             tooltip_desc.innerHTML = `${skill.description}<br><br>Group: ${skill.skill_group}<br><br>`; 
         } else {
@@ -1128,6 +1145,11 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
         skill_bar_divs[skill.skill_id].setAttribute("data-skill", skill.skill_id);
         skill_bar_divs[skill.skill_id].classList.add("skill_div");
         skill_list.appendChild(skill_bar_divs[skill.skill_id]);
+
+
+        if(should_info) {
+            log_message(`Learned new skill: ${skill.name()}`);
+        }
 
         [...skill_list_div.children]
         .sort((a,b)=>a.getAttribute("data-skill")>b.getAttribute("data-skill")?1:-1)
@@ -1306,6 +1328,18 @@ function do_sleeping() {
         } 
         update_displayed_health();
     }
+}
+
+function start_sleeping() {
+    //reset action div
+    //add something nonclickable with info
+    //add button to wake up (end_sleeping() function)
+    //set sleeping to true
+}
+
+function end_sleeping() {
+    is_sleeping = false;
+    change_location(current_location.name);
 }
 
 //writes message to the message log
@@ -1895,6 +1929,7 @@ function update_character_stats() { //updates character stats
         if(stat === "health") {
             character.full_stats["health"] = Math.max(1, character.full_stats["health"] - missing_health);
         }
+        character.full_stats[stat] = Math.round(10*character.full_stats[stat])/10;
     });
     //TODO: add bonuses from skills
 
@@ -1925,7 +1960,7 @@ function update_displayed_stats() { //updates displayed stats
 }
 
 function update_combat_stats() { //chances to hit and evade/block
-    if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
+    if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
         character.combat_stats.evasion_chance = null;
         character.combat_stats.block_chance = Math.round(0.4 * skills["Shield blocking"].get_coefficient("flat") * 10000)/10000;
     }
@@ -1937,7 +1972,7 @@ function update_combat_stats() { //chances to hit and evade/block
 
         //so 99% if at least four times more dexterity, 50% if same, and never less than 10%
 
-        if(character.equipment.offhand == null || character.equipment.offhand.offhand_type !== "shield") {
+        if(character.equipment["off-hand"] == null || character.equipment["offhand"].offhand_type !== "shield") {
             const power = character.full_stats.agility > current_enemy.stats.dexterity ? 2/3 : 1
             character.combat_stats.evasion_chance = Math.min(0.99, Math.pow(character.full_stats.agility/current_enemy.stats.dexterity, power) * 0.25 * skills["Evasion"].get_coefficient("multiplicative"));
             //so up to 99% if at least eight more agility, 25% if same, can go down almost to 0%
@@ -1959,11 +1994,11 @@ function update_displayed_combat_stats() {
         other_combat_divs.hit_chance.innerHTML = "";
     }
 
-    if(character.equipment.offhand != null && character.equipment.offhand.offhand_type === "shield") { //HAS SHIELD
+    if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
 
         other_combat_divs.defensive_action.innerHTML = "Block:";
 
-        if(current_enemy != null && character.equipment.offhand.shield_strength < current_enemy.stats.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
+        if(current_enemy != null && character.equipment["off-hand"].shield_strength < current_enemy.stats.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
             other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.block_chance*100-30).toFixed(1)}%`;
         } 
         else {
@@ -2556,6 +2591,9 @@ window.start_textline = start_textline;
 
 window.start_activity = start_activity;
 window.end_activity = end_activity;
+
+window.start_sleeping = start_sleeping;
+window.end_sleeping = end_sleeping;
 
 window.start_trade = start_trade;
 window.exit_trade = exit_trade;

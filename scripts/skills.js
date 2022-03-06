@@ -312,7 +312,7 @@ skill_groups["weapon skills"] = new SkillGroup({
                                 }});
 
     skills["Evasion"] = new Skill({skill_id: "Evasion", 
-                                names: {0: "Evasion [Basic]", 15: "Evasion [Intermediate]", 30: "Evasion [Advanced]", 40: "Evasion [Master]", 50: "Evasion [Absolute"},                                
+                                names: {0: "Evasion"},                                
                                 description:"Ability to evade attacks", 
                                 max_level_coefficient: 2,
                                 base_xp_cost: 20,
@@ -516,7 +516,14 @@ skill_groups["weapon skills"] = new SkillGroup({
 
 //activity related
 (function(){
-    //sleeping goes here
+    skills["Sleeping"] = new Skill({skill_id: "Sleeping",
+                                    names: {0: "Sleeping"}, 
+                                    description: "Getting a proper sleep is much harder than some would thing, but it can be very rewarding",
+                                    base_xp_cost: 1000,
+                                    xp_scaling: 2,
+                                    max_level: 10,
+                                    max_level_coefficient: 2.5,    
+                                });
 })();
 
 

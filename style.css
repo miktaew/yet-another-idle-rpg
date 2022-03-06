@@ -910,6 +910,19 @@ body {
 	display: none;
 }
 
+#start_sleeping_div, #end_sleeping_div {
+	text-align: center;
+	font-size: 20;
+	color: white;
+	border-bottom: 1px solid white;
+	cursor: pointer;
+	padding: 5px;
+}
+
+#start_sleeping_div:hover, #action_end_div:hover, #end_sleeping_div:hover {
+	background-color: #2c3953;
+}
+
 #time_div {
 	font-size: 20;
 	color: white;

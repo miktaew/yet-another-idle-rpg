@@ -16,6 +16,7 @@ class Location {
         this.is_unlocked = typeof location_data.is_unlocked !== "undefined" ? location_data.is_unlocked : true;
         this.dialogues = location_data.dialogues || [];
         this.activities = [];
+        this.sleeping = location_data.sleeping || null; // {text to start, xp per tick}
         for (let i = 0; i < this.dialogues.length; i++) {
             if (!dialogues[this.dialogues[i]]) {
                 throw new Error(`No such dialogue as "${this.dialogues[i]}"!`);
@@ -37,6 +38,7 @@ class Combat_zone {
         this.enemies_killed = 0;
         this.repeatable_rewards = typeof location_data.repeatable_rewards !== "undefined" ? location_data.repeatable_rewards : true; //if rewards can be obtained on subsequent clearings
         this.parent_location = location_data.parent_location;
+        this.leave_text = location_data.leave_text;
         if (location_data.rewards) {
             this.rewards = location_data.rewards;
             this.rewards.dialogues = location_data.rewards.dialogues || [];
@@ -93,6 +95,19 @@ class Combat_zone {
         name: "Village", 
     });
 
+    locations["Shack"] = new Location({
+        connected_locations: [{location: locations["Village"], custom_text: "Go outside"}],
+        description: "This small shack was the only spare building in the village. It's surprisingly tidy.",
+        name: "Shack",
+        is_unlocked: false,
+        sleeping: {
+            text: "Take a nap",
+            xp: 1},
+    })
+
+    locations["Village"].connected_locations.push({location: locations["Shack"]});
+    //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
+
     locations["Infested field"] = new Combat_zone({
         description: "Field infested with rats.", 
         enemy_count: 15, 
@@ -105,12 +120,12 @@ class Combat_zone {
         }
     });
     locations["Village"].connected_locations.push({location: locations["Infested field"]});
-    //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
+    
 
     locations["Nearby cave"] = new Location({ 
-        connected_locations: [{location: locations["Village"]}], 
+        connected_locations: [{location: locations["Village"], custom_text: "Go outside and to the village"}], 
         description: "Cave near the village. You can hear sounds of rats somewhere deeper...", 
-        name: "Nearby cave", 
+        name: "Nearby cave",
         is_unlocked: false,
     });
     locations["Village"].connected_locations.push({location: locations["Nearby cave"]});
@@ -122,6 +137,7 @@ class Combat_zone {
         enemies_list: ["Group of rats", "Horde of rats"],
         is_unlocked: true, 
         name: "Cave depths", 
+        leave_text: "Climb out",
         parent_location: locations["Nearby cave"],
         rewards: {
             textlines: [{dialogue: "village elder", lines: ["cleared cave"]}],
