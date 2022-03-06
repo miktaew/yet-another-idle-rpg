@@ -2368,7 +2368,7 @@ function load(save_data) {
                 console.warn("Couldn't find saved activity! It might have been removed");
             }
         }
-        
+        dialogues["village elder"].textlines["cleared cave"].is_finished = false;
         dialogues["village elder"].textlines["ask to leave 4"].is_finished = false;
 
     } catch(error) {
