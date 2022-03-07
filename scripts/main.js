@@ -1971,7 +1971,7 @@ function update_combat_stats() { //chances to hit and evade/block
 
         //so 99% if at least four times more dexterity, 50% if same, and never less than 10%
 
-        if(character.equipment["off-hand"] == null || character.equipment["offhand"].offhand_type !== "shield") {
+        if(character.equipment["off-hand"] == null || character.equipment["off-hand"].offhand_type !== "shield") {
             const power = character.full_stats.agility > current_enemy.stats.dexterity ? 2/3 : 1
             character.combat_stats.evasion_chance = Math.min(0.99, Math.pow(character.full_stats.agility/current_enemy.stats.dexterity, power) * 0.25 * skills["Evasion"].get_coefficient("multiplicative"));
             //so up to 99% if at least eight more agility, 25% if same, can go down almost to 0%
@@ -2368,6 +2368,7 @@ function load(save_data) {
                 console.warn("Couldn't find saved activity! It might have been removed");
             }
         }
+
         dialogues["village elder"].textlines["cleared cave"].is_finished = false;
         dialogues["village elder"].textlines["ask to leave 4"].is_finished = false;
 
