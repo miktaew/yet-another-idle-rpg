@@ -16,7 +16,7 @@ function Dialogue(dialogue_data) {
     //separate bool to remove dialogue option if it's finished
     this.trader = typeof dialogue_data.trader !== "undefined"? dialogue_data.trader : null;
 
-    this.textlines = dialogue_data.textlines || [];  //all the lines in dialogue
+    this.textlines = dialogue_data.textlines || {};  //all the lines in dialogue
 }
 
 function Textline(textline_data) {
@@ -68,9 +68,8 @@ function Textline(textline_data) {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 1"]}],
                 },
             }),
-
             "ask to leave 1": new Textline({
-                name: "Can I leave the village?",
+                name: "Great... Thank you for help, but I will leave now.",
                 text: "Nearby lands are dangerous and you are still too weak to leave. Do you plan on getting ambushed again?",
                 is_unlocked: false,
                 unlocks: {
@@ -122,11 +121,11 @@ function Textline(textline_data) {
             }),
             "cleared field": new Textline({ //will be unlocked on clearing infested field combat_zone
                 name: "I cleared the field, just as you asked me to",
-                text: `You did? That's good. How about a stronger target? Nearby cave is just full of this vermin. 
-    Don't worry, a few people will stay a bit behind you and will help you escape if needed`,
+                text: `You did? That's good. How about a stronger target? Nearby cave is just full of this vermin.
+Before that, maybe get some sleep? Some folks prepared that shack over there for you. It's clean, it's dry and it will give you some privacy.`,
                 is_unlocked: false,
                 unlocks: {
-                    locations: ["Nearby cave", "Infested field"],
+                    locations: ["Nearby cave", "Infested field", "Shack"],
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 3"]}],
                 },
                 locks_lines: ["ask to leave 2", "cleared field"],

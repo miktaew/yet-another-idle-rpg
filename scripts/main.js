@@ -40,6 +40,7 @@ var additional_enemy_attacks = 0;
 var current_location;
 
 var current_activity;
+var activity_anim; //small "animation" for activity text
 
 //resting, true -> health regenerates
 var is_resting = true;
@@ -132,10 +133,11 @@ document.getElementById("test_button").addEventListener("click", () =>
     // add_to_inventory("character", [{item: new Item(item_templates["Fresh bread"]), count: 5}]);
     // add_to_inventory("character", [{item: new Item(item_templates["Rat fang"]), count: 5}]);
 
-    add_xp_to_skill(skills["Farming"], 10000);
+    add_xp_to_skill(skills["Sleeping"], 10000);
     add_xp_to_skill(skills["Swords"], 10000);
 }); 
 */
+
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
 
 function capitalize_first_letter(some_string) {
@@ -164,15 +166,15 @@ function change_location(location_name) {
             } 
             
             const dialogue_div = document.createElement("div");
-            
-            if(dialogues[location.dialogues[i]].textlines) {
+
+            if(Object.keys(dialogues[location.dialogues[i]].textlines).length > 0) { //has any textlines
                 dialogue_div.innerHTML = dialogues[location.dialogues[i]].starting_text;
                 dialogue_div.innerHTML += dialogues[location.dialogues[i]].trader? `  <i class="fas fa-store"></i>` : `  <i class="far fa-comments"></i>`;
                 dialogue_div.classList.add("start_dialogue");
                 dialogue_div.setAttribute("data-dialogue", location.dialogues[i]);
                 dialogue_div.setAttribute("onclick", "start_dialogue(this.getAttribute('data-dialogue'));");
                 action_div.appendChild(dialogue_div);
-            } else if(dialogues[location.dialogues[i]].trader) {
+            } else if(dialogues[location.dialogues[i]].trader) { //has no textlines but is a trader -> add button to directly start trading
                 const trade_div = document.createElement("div");
                 trade_div.innerHTML = traders[dialogues[location.dialogues[i]].trader].trade_text + `  <i class="fas fa-store"></i>`;
                 trade_div.classList.add("dialogue_trade")
@@ -222,7 +224,7 @@ function change_location(location_name) {
 
             action_div.appendChild(activity_div);
         }
-        /*
+        
         if(location.sleeping) { //add button to go to sleep
             const start_sleeping_div = document.createElement("div");
             
@@ -232,7 +234,7 @@ function change_location(location_name) {
 
             action_div.appendChild(start_sleeping_div);
         }
-        */
+        
         for(let i = 0; i < location.connected_locations.length; i++) { //add butttons to change location
 
             if(location.connected_locations[i].location.is_unlocked == false) { //skip if not unlocked
@@ -296,9 +298,11 @@ function change_location(location_name) {
     location_name_div.appendChild(location_description_tooltip);
 }
 
+/**
+ * 
+ * @param {Object} selected_activity - {id} of activity in Location's activities list
+ */
 function start_activity(selected_activity) {
-    //{id}
-
     current_activity = Object.assign({},current_location.activities[selected_activity.id]);
     current_activity.name = current_activity.activity;
     current_activity.activity = activities[current_activity.activity];
@@ -353,6 +357,25 @@ function start_activity(selected_activity) {
 
      action_div.appendChild(action_status_div);
      action_div.appendChild(action_end_div);
+
+     start_activity_animation();
+}
+
+function start_activity_animation() {
+    activity_anim = setInterval(() => { //sets a tiny little "animation" for activity text
+        const action_status_div = document.getElementById("action_status_div");
+        if(action_status_div.innerText[action_status_div.innerText.length - 4] === ' ') {
+            action_status_div.innerText = action_status_div.innerText.slice(0, action_status_div.innerText.length - 4) 
+                                         + action_status_div.innerText.slice(action_status_div.innerText.length - 3);
+        } else {
+            action_status_div.innerText = action_status_div.innerText.slice(0, action_status_div.innerText.length - 3) 
+                                         + " " + action_status_div.innerText.slice(action_status_div.innerText.length - 3);
+        }
+     }, 600);
+}
+
+function end_activity_animation() {
+    clearInterval(activity_anim);
 }
 
 function end_activity() {
@@ -364,11 +387,89 @@ function end_activity() {
         log_message(`${character.name} earned ${format_money(current_activity.earnings)}`);
         update_displayed_money();
     }
-    
+    end_activity_animation(); //clears the "animation"
     current_activity = null;
     change_location(current_location.name);
 }
 
+/**
+ * 
+ * @param {Object} activity_data {activity, location.name}
+ */
+ function unlock_activity(activity_data) {
+    if(!activity_data.activity.is_unlocked){
+        activity_data.activity.is_unlocked = true;
+        log_message(`Unlocked activity ${activity_data.activity.activity} in location ${activity_data.location}`, "activity_unlocked");
+    }
+}
+
+//single tick of resting
+function do_resting() {
+    if(character.full_stats.health < character.full_stats.max_health)
+    {
+        const resting_heal_ammount = Math.max(character.full_stats.max_health * 0.01,1); 
+        //todo: scale it with skill, because why not?; maybe up to x2 bonus
+
+        character.full_stats.health += (resting_heal_ammount);
+        if(character.full_stats.health > character.full_stats.max_health) {
+            character.full_stats.health = character.full_stats.max_health;
+        } 
+        update_displayed_health();
+    }
+}
+
+function do_sleeping() {
+    if(character.full_stats.health < character.full_stats.max_health)
+    {
+        const sleeping_heal_ammount = Math.max(character.full_stats.max_health * 0.04, 1); 
+        //todo: scale it with skill (maybe up to x2.5 bonus)
+        
+        character.full_stats.health += (sleeping_heal_ammount);
+        if(character.full_stats.health > character.full_stats.max_health) {
+            character.full_stats.health = character.full_stats.max_health;
+        } 
+        update_displayed_health();
+    }
+}
+
+function start_sleeping() {
+    clear_action_div();
+
+    //add something nonclickable with info (that character is sleeping and about xp gained per tick?)
+    //add button to wake up (end_sleeping() function)
+    //set sleeping to true
+
+    const action_status_div = document.createElement("div");
+    action_status_div.innerText = "Sleeping...";
+    action_status_div.id = "action_status_div";
+
+    const action_end_div = document.createElement("div");
+    action_end_div.setAttribute("onclick", "end_sleeping()");
+    action_end_div.id = "action_end_div";
+
+
+    const action_end_text = document.createElement("div");
+    action_end_text.innerText = `Wake up`;
+    action_end_text.id = "action_end_text";
+
+    
+    action_end_div.appendChild(action_end_text);
+
+    action_div.appendChild(action_status_div);
+    action_div.appendChild(action_end_div);
+
+    start_activity_animation();
+
+    is_sleeping = true;
+}
+
+function end_sleeping() {
+    is_sleeping = false;
+    change_location(current_location.name);
+    end_activity_animation();
+}
+
+//TODO: remove this (players might want to work just for xp) or only use it to inform there's not enough time available to earn anything?
 function enough_time_for_work(selected_job) {
     //if enough time for at least 1 working period
 
@@ -403,6 +504,10 @@ function enough_time_for_work(selected_job) {
     return true;
 }
 
+/**
+ * 
+ * @param {String} dialogue_key 
+ */
 function start_dialogue(dialogue_key) {
     //initialize dialogue options
     
@@ -448,6 +553,10 @@ function end_dialogue() {
     change_location(current_location.name);
 }
 
+/**
+ * 
+ * @param {String} textline_key 
+ */
 function start_textline(textline_key){
     const dialogue = dialogues[current_dialogue];
     const textline = dialogue.textlines[textline_key];
@@ -474,7 +583,10 @@ function start_textline(textline_key){
         for(let i = 0; i < textline.unlocks.activities.length; i++) { 
             for(let j = 0; j < locations[textline.unlocks.activities[i].location].activities.length; j++) {
                 if(locations[textline.unlocks.activities[i].location].activities[j].activity === textline.unlocks.activities[i].activity) {
-                    locations[textline.unlocks.activities[i].location].activities[j].is_unlocked = true;
+
+                    unlock_activity({location: locations[textline.unlocks.activities[i].location].name, 
+                                     activity: locations[textline.unlocks.activities[i].location].activities[j]});
+
                     if(current_location.name === textline.unlocks.activities[i].location) {
                         change_location(current_location.name);
                     }
@@ -486,6 +598,10 @@ function start_textline(textline_key){
     start_dialogue(current_dialogue);
 }
 
+/**
+ * 
+ * @param {String} trader_key 
+ */
 function start_trade(trader_key) {
     traders[trader_key].refresh(); 
     action_div.style.display = "none";
@@ -572,7 +688,11 @@ function exit_trade() {
 function get_character_money() {
     return character.money;
 }
-
+/**
+ * @param {} selected_item 
+ * {item: {string with value of data- attribute}, count: Number}
+ * @returns {Number} total cost of operation
+ */
 function add_to_buying_list(selected_item) {
     const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
 
@@ -1090,7 +1210,12 @@ function do_combat() {
 
 }
 
-//adds xp to skills, handles their levelups and tooltips
+/**
+ * adds xp to skills, handles their levelups and tooltips
+ * @param skill - skill object 
+ * @param {Number} xp_to_add 
+ * @param {Boolean} should_info 
+ */
 function add_xp_to_skill(skill, xp_to_add, should_info) 
 {
     if(skill.total_xp == 0) 
@@ -1174,7 +1299,7 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
                     tooltip_next
     */
 
-    skill_bar_divs[skill.skill_id].children[0].children[0].children[0].innerHTML = `${skill.name()} : level ${skill.current_level}`;
+    skill_bar_divs[skill.skill_id].children[0].children[0].children[0].innerHTML = `${skill.name()} : level ${skill.current_level}/${skill.max_level}`;
     //skill_bar_name
 
     if(skill.current_xp !== "Max") {
@@ -1210,7 +1335,8 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
             //tooltip_effect
         }
     
-    if(typeof level_up !== "undefined"){
+    if(typeof level_up !== "undefined"){ //not undefined => levelup happened and levelup message was returned
+//character stats currently get added in character.add_bonuses() method, called in skill.get_bonus_stats() method, called in skill.add_xp() when levelup happens
         if(typeof should_info === "undefined" || should_info)
         {
             log_message(level_up, "message_skill_leveled_up");
@@ -1222,13 +1348,14 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
             skill_bar_divs[skill.skill_id].children[0].children[2].children[2].innerHTML = `${skill.get_effect_description()}`;
 
         }
-
-        //TODO: update tooltip
     }
-
-    //TODO: sort displayed skills
 }
 
+/**
+ * adds xp to character, handles levelups
+ * @param {Number} xp_to_add 
+ * @param {Boolean} should_info 
+ */
 function add_xp_to_character(xp_to_add, should_info) {
     const level_up = character.add_xp(xp_to_add * (global_xp_bonus || 1));
 
@@ -1258,6 +1385,10 @@ function add_xp_to_character(xp_to_add, should_info) {
     
 }
 
+/**
+ * 
+ * @param location game location object 
+ */
 function get_location_rewards(location) {
     if(location.enemies_killed == location.enemy_count) { //first clear
         change_location(current_location.parent_location.name); //go back to parent location, only on first clear
@@ -1293,55 +1424,22 @@ function get_location_rewards(location) {
     */
 }
 
+/**
+ * 
+ * @param location game location object 
+ */
 function unlock_location(location) {
     if(!location.is_unlocked){
         location.is_unlocked = true;
-        log_message(`You can now go to ${location.name}`, "location_unlocked");
+        log_message(`Unlocked location ${location.name}`, "location_unlocked");
     }
 }
 
-//single tick of resting
-function do_resting() {
-    if(character.full_stats.health < character.full_stats.max_health)
-    {
-        const resting_heal_ammount = Math.max(character.full_stats.max_health * 0.01,1); 
-        //todo: scale it with skill, because why not?; maybe up to x2 bonus
-
-        character.full_stats.health += (resting_heal_ammount);
-        if(character.full_stats.health > character.full_stats.max_health) {
-            character.full_stats.health = character.full_stats.max_health;
-        } 
-        update_displayed_health();
-    }
-}
-
-function do_sleeping() {
-    if(character.full_stats.health < character.full_stats.max_health)
-    {
-        const sleeping_heal_ammount = Math.max(character.full_stats.max_health * 0.04, 1); 
-        //todo: scale it with skill (maybe up to x2.5 bonus)
-        
-        character.full_stats.health += (sleeping_heal_ammount);
-        if(character.full_stats.health > character.full_stats.max_health) {
-            character.full_stats.health = character.full_stats.max_health;
-        } 
-        update_displayed_health();
-    }
-}
-
-function start_sleeping() {
-    //reset action div
-    //add something nonclickable with info
-    //add button to wake up (end_sleeping() function)
-    //set sleeping to true
-}
-
-function end_sleeping() {
-    is_sleeping = false;
-    change_location(current_location.name);
-}
-
-//writes message to the message log
+/**
+ * writes message to the message log
+ * @param {String} message_to_add text to display
+ * @param {String} message_type used for adding proper class to html element
+ */
 function log_message(message_to_add, message_type) {
     if(typeof message_to_add === 'undefined') {
         return;
@@ -1388,6 +1486,7 @@ function log_message(message_to_add, message_type) {
         case "dialogue_answer":
             class_to_add = "message_dialogue_answer";
             break;
+        case "activity_unlocked":
         case "location_unlocked":
             class_to_add = "message_location_unlocked";
     }
@@ -1441,6 +1540,11 @@ function clear_enemy_and_enemy_info() {
     enemy_name_div.innerHTML = "None";
 }
 
+/**
+ * 
+ * @param {String} who either "character" or "trader"
+ * @param {*} items list of items to add
+ */
 function add_to_inventory(who, items) {
     //items  -> [{item: some item object, count: X}]
     let target;
@@ -1482,6 +1586,11 @@ function add_to_inventory(who, items) {
     }
 }
 
+/**
+ * 
+ * @param {String} who  either "character" or "trader"
+ * @param {*} item_info item to remove: {name, count, id} 
+ */
 function remove_from_inventory(who, item_info) {
     //item info -> {name: X, count: X, id: X}, with either count or id, depending on if item is stackable or not
 
@@ -1899,9 +2008,12 @@ function update_displayed_equipment() {
     });
 }
 
+/**
+ * updates character main stats (health, strength, etc), stats dependant on enemy are updated in update_combat_stats()
+ */
 function update_character_stats() { //updates character stats
 
-    const missing_health = (character.full_stats["max_health"] - character.full_stats["health"]) || 0;
+    const missing_health = (character.full_stats["max_health"] - character.full_stats["health"]) || 0;   
     //to avoid fully healing character whenever this function is called
 
     Object.keys(character.stats).forEach(function(stat){
@@ -1910,24 +2022,26 @@ function update_character_stats() { //updates character stats
         }
 
         character.full_stats[stat] = character.stats[stat];
+        character.full_multipliers[stat] = character.multipliers[stat];
 
         Object.keys(character.equipment).forEach(function(key) {
-            if(character.equipment[key] != null && character.equipment[key].equip_effect[stat]) {
+            if(character.equipment[key]?.equip_effect[stat]?.flat_bonus) {
                 character.full_stats[stat] += character.equipment[key].equip_effect[stat].flat_bonus;
             }
         }); //calculate stats based on equipment
   
-        /*
+        
         Object.keys(character.equipment).forEach(function(key) {
-            if(character.equipment[key] != null && character.equipment[key].equip_effect[stat]) {
-                character.full_stats[stat] *= character.equipment[key].equip_effect[stat].multiplier;
+            if(character.equipment[key]?.equip_effect[stat]?.multiplier) {
+                character.full_multipliers[stat] *= character.equipment[key].equip_effect[stat].multiplier;
             }
-        }); //same, but add multiplicative bonuses // or maybe sumarize the bonus first and then add it? (make it additive instead of multiplicative)
-        */
+        });
+        
+        character.full_stats[stat] *= (character.full_multipliers[stat] || 1);
 
         if(stat === "health") {
-            character.full_stats["health"] = Math.max(1, character.full_stats["health"] - missing_health);
-        }
+            character.full_stats["health"] = Math.max(1, character.full_stats["max_health"] - missing_health);
+        } 
         character.full_stats[stat] = Math.round(10*character.full_stats[stat])/10;
     });
     //TODO: add bonuses from skills
@@ -1957,7 +2071,9 @@ function update_displayed_stats() { //updates displayed stats
         }
     });
 }
-
+/**
+ * updates character stats that depend on enemy, so hit chance and evasion/block
+ */
 function update_combat_stats() { //chances to hit and evade/block
     if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
         character.combat_stats.evasion_chance = null;
@@ -2049,7 +2165,10 @@ function update_displayed_effect_durations() {
 
 }
 
-//formats money to a nice string in form x..x G xx S xx C (gold/silver/copper) 
+/** 
+ * formats money to a nice string in form x..x G xx S xx C (gold/silver/copper) 
+ * @param {Number} num value to be formatted
+ */
 function format_money(num) {
     var value;
     const sign = num >= 0 ? '' : '-';
@@ -2069,7 +2188,10 @@ function format_money(num) {
     return sign + value;
 }
 
-//puts important stuff into the save string and returns it
+/**
+ * puts all important stuff into a string
+ * @returns string with save data
+ */
 function create_save() {
     try{
         const save_data = {};
@@ -2099,11 +2221,16 @@ function create_save() {
         }
 
         save_data["locations"] = {};
-        Object.keys(locations).forEach(function(key) {        
-            save_data["locations"][key] = {is_unlocked: locations[key].is_unlocked};
+        Object.keys(locations).forEach(function(key) { 
+            save_data["locations"][key] = {};
+            if(locations[key].is_unlocked) {      
+                save_data["locations"][key].is_unlocked = true;
+            }
+
             if("parent_location" in locations[key]) { //combat zone
                 save_data["locations"][key]["enemies_killed"] = locations[key].enemies_killed;
             }
+
             if(locations[key].activities) {
                 for(let i = 0; i < locations[key].activities.length; i++) {
                     save_data["locations"][key]["unlocked_activities"] = []
@@ -2148,6 +2275,8 @@ function create_save() {
             }
         });
 
+        save_data["is_sleeping"] = is_sleeping;
+
         save_data["active_effects"] = active_effects;
 
         return JSON.stringify(save_data);
@@ -2157,10 +2286,18 @@ function create_save() {
     }
 } 
 
+/**
+ * called from index.html
+ * @returns save string encoded to base64
+ */
 function save_to_file() {
     return btoa(create_save());
-} //called from index.html
+}
 
+/**
+ * saves game state to localStorage, on manual saves also logs message about it being done
+ * @param {Boolean} is_manual 
+ */
 function save_to_localStorage(is_manual) {
     localStorage.setItem("save data", create_save());
     if(is_manual) {
@@ -2314,11 +2451,13 @@ function load(save_data) {
 
         Object.keys(save_data.locations).forEach(function(key) {
             if(locations[key]) {
-                locations[key].is_unlocked = save_data.locations[key].is_unlocked;
+                if(save_data.locations[key].is_unlocked) {
+                    locations[key].is_unlocked = true;
+                }
                 if("parent_location" in locations[key]) { // if combat zone
                     locations[key].enemies_killed = save_data.locations[key].enemies_killed;
                 }
-                if("unlocked_activities" in save_data.locations[key]) {
+                if(save_data.locations[key].unlocked_activities) {
                     for(let i = 0; i < locations[key].activities.length; i++) {
                         if(save_data.locations[key].unlocked_activities.includes(locations[key].activities[i].activity)) {
                             locations[key].activities[i].is_unlocked = true;
@@ -2331,8 +2470,12 @@ function load(save_data) {
             }
         }); //load for locations their unlocked status and their killcounts
 
-        Object.keys(activities).forEach(function(activity) {
-            activities[activity].is_unlocked = save_data.activities[activity].is_unlocked || true; 
+        Object.keys(save_data.activities).forEach(function(activity) {
+            if(activities[activity]) {
+                activities[activity].is_unlocked = save_data.activities[activity].is_unlocked || false;
+            } else {
+                console.warn(`Activity "${activity}" couldn't be found!`);
+            }
         });
 
         Object.keys(save_data.active_effects).forEach(function(effect) {
@@ -2369,15 +2512,21 @@ function load(save_data) {
             }
         }
 
-        dialogues["village elder"].textlines["cleared cave"].is_finished = false;
-        dialogues["village elder"].textlines["ask to leave 4"].is_finished = false;
-
+        if(save_data.is_sleeping) {
+            start_sleeping();
+        }
+        
     } catch(error) {
         throw error; //let other loading methods (from_file and from_localstorage) take care of it
     }
 
 } //core function for loading
 
+/**
+ * called from index.html
+ * loads game from file by resetting everything that needs to be reset and then calling main loading method with same parameter
+ * @param {String} save_string 
+ */
 function load_from_file(save_string) {
     try{
         Object.keys(character.equipment).forEach(function(key){
@@ -2423,6 +2572,10 @@ function load_from_file(save_string) {
     }
 } //called on loading from file, clears everything
 
+/**
+ * loads the game from localStorage
+ * it's called when page is refreshed, so there's no need for it to reset anything
+ */
 function load_from_localstorage() {
     try{
         load(JSON.parse(localStorage.getItem("save data")));
@@ -2430,10 +2583,10 @@ function load_from_localstorage() {
         console.error("Something went wrong on loading from localStorage!");
         console.error(error);
     }
-} //called on loading the page, doesn't clear anything
+}
 
 function update_timer() {
-    current_game_time.go_up(is_sleeping ? 5 : 1);
+    current_game_time.go_up(is_sleeping ? 6 : 1);
     time_field.innerHTML = current_game_time.toString();
 } //updates time div
 
@@ -2465,6 +2618,7 @@ function update() {
         } else { //everything other than combat
             if(is_sleeping) {
                 do_sleeping();
+                add_xp_to_skill(skills["Sleeping"], current_location.sleeping.xp);
             }
             else if(is_resting) {
                 do_resting();
@@ -2493,6 +2647,7 @@ function update() {
                 }
 
                 //if gathering: add drops to inventory
+
             } else {
                 const divs = document.getElementsByClassName("activity_div");
                 for(let i = 0; i < divs.length; i++) {

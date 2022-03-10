@@ -184,7 +184,7 @@ class Combat_zone {
             activity: "plowing the fields",
             starting_text: "Work on the fields",
             payment: 1, 
-            is_unlocked: true,
+            is_unlocked: false,
             working_period: 60*2,
             max_working_time: 60*12, //both are ticks, so 2 and 12 in-game hours
             //with both the same, getting money requires working full time

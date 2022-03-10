@@ -46,7 +46,7 @@ function Item(item_data) {
 
 //
 //
-//materials:
+//miscellaneous:
 (function(){
     item_templates["Rat tail"] = new Item({
         name: "Rat tail", description: "Tail of a huge rat, basically useless", value: 1, stackable: true,
@@ -169,7 +169,7 @@ function Item(item_data) {
 //usables:
 (function(){
     item_templates["Stale bread"] = new Item({
-        name: "Stale bread", description: "Big piece of an old bread, still edible", value: 3,
+        name: "Stale bread", description: "Big piece of an old bread, still edible", value: 2,
         stackable: true, item_type: "USABLE", 
         use_effect: {
             health_regeneration: {
@@ -180,7 +180,7 @@ function Item(item_data) {
     });
 
     item_templates["Fresh bread"] = new Item({
-        name: "Fresh bread", description: "Freshly baked bread, delicious", value: 8,
+        name: "Fresh bread", description: "Freshly baked bread, delicious", value: 5,
         stackable: true, item_type: "USABLE", 
         use_effect: {
             health_regeneration: {
