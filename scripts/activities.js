@@ -48,5 +48,16 @@ class Job extends Activity {
     }) 
 })();
 
+//trainings
+(function(){
+    activities["running"] = new Training({
+        name: "running",
+        action_text: "Just running around...",
+        description: "One of the most basic exercises",
+        base_skills_names: ["Running"],
+        is_unlocked: true,
+    })
+})();
+
 
 export {activities};

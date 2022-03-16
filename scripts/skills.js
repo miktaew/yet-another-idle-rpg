@@ -649,7 +649,48 @@ skill_groups["weapon skills"] = new SkillGroup({
                                             }
                                         }
                                     }
-                                  });
+                                });
+    skills["Running"] = new Skill({skill_id: "Running",
+                                  description: "Great way to improve the efficiency of the body",
+                                  names: {0: "Running"},
+                                  base_xp_cost: 100,
+                                  rewards: {
+                                    milestones: {
+                                        1: {
+                                            stats: {
+                                                "agility": 1,
+                                            },
+                                        },
+                                        3: {
+                                            stats: {
+                                                "agility": 1,
+                                            }
+                                        },
+                                        5: {
+                                            stats: {
+                                                "agility": 2,
+                                            },
+                                            multipliers: {
+                                                "agility": 1.1,
+                                            }
+                                        },
+                                        7: {
+                                            stats: {
+                                                "agility": 2,
+                                            },
+                                        },
+                                        10: {
+                                            stats: {
+                                                "agility": 3,
+                                            },
+                                            multipliers: {
+                                                "agility": 1.1,
+                                            }
+                                        }
+                                    }
+                                }
+                                  
+                                });
 })();
 
 

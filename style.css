@@ -544,10 +544,17 @@ body {
 	font-weight: bold;
 }
 
-#action_status_div {
+#action_status_div, #not_enough_time_for_earnings_div {
 	font-size: 16;
 	font-style: italic;
 	cursor: default;
+}
+#not_enough_time_for_earnings_div, #action_xp_div {
+	color: rgb(192,192,192);
+	border-bottom: 1px solid white;
+	text-align: center;
+
+	padding: 5px;
 }
 
 #action_end_text, #action_end_earnings {
@@ -657,7 +664,6 @@ body {
 #character_health_text, #character_level_div {
 	text-align: left; margin-left: 28px;
 }
-
 
 #character_xp_bar_max {
 	outline: 2px solid rgb(255, 126, 0);

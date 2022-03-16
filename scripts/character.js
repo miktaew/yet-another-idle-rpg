@@ -16,7 +16,7 @@ const character = {name: "Hero", titles: {},
                                amulet: null},
                     money: 0, 
                     xp: {current_level: 0, total_xp: 0, current_xp: 0, xp_to_next_lvl: base_xp_cost, 
-                         total_xp_to_next_lvl: base_xp_cost, base_xp_cost: base_xp_cost, xp_scaling: 1.6},
+                         total_xp_to_next_lvl: base_xp_cost, base_xp_cost: base_xp_cost, xp_scaling: 1.7},
                 };
 
 character.base_stats = character.stats;
@@ -96,6 +96,51 @@ character.add_bonuses = function add_bonuses(bonuses) {
         Object.keys(bonuses.multipliers).forEach(function (multiplier) {
                 character.multipliers[multiplier] = (bonuses.multipliers[multiplier] * (character.multipliers[multiplier] || 1));
         });
+}
+
+character.update_stats = function update_stats() {
+        const missing_health = (character.full_stats["max_health"] - character.full_stats["health"]) || 0;   
+    //to avoid fully healing character whenever this function is called
+
+    Object.keys(character.stats).forEach(function(stat){
+        if(stat === "attack_power") {
+            return;
+        }
+
+        character.full_stats[stat] = character.stats[stat];
+        character.full_multipliers[stat] = character.multipliers[stat];
+
+        Object.keys(character.equipment).forEach(function(key) {
+            if(character.equipment[key]?.equip_effect[stat]?.flat_bonus) {
+                character.full_stats[stat] += character.equipment[key].equip_effect[stat].flat_bonus;
+            }
+        }); //calculate stats based on equipment
+  
+        
+        Object.keys(character.equipment).forEach(function(key) {
+            if(character.equipment[key]?.equip_effect[stat]?.multiplier) {
+                character.full_multipliers[stat] *= character.equipment[key].equip_effect[stat].multiplier;
+            }
+        });
+        
+        character.full_stats[stat] *= (character.full_multipliers[stat] || 1);
+
+        if(stat === "health") {
+            character.full_stats["health"] = Math.max(1, character.full_stats["max_health"] - missing_health);
+        } 
+        character.full_stats[stat] = Math.round(10*character.full_stats[stat])/10;
+    });
+    //TODO: add bonuses from skills
+
+    if(character.equipment.weapon != null) { 
+        character.stats.attack_power = (character.full_stats.strength/10) * character.equipment.weapon.equip_effect.attack.flat 
+                                        * (character.equipment.weapon.equip_effect.attack.multiplier || 1);
+    } 
+    else {
+        character.stats.attack_power = character.full_stats.strength/10;
+    }
+
+    character.full_stats.attack_power = character.stats.attack_power;
 }
 
 export {character};

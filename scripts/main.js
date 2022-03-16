@@ -199,7 +199,7 @@ function change_location(location_name) {
                 activity_div.setAttribute("data-activity", i);
                 activity_div.setAttribute("onclick", `start_activity({id: ${i}});`);
 
-                if(enough_time_for_work(location.activities[i])) {
+                if(can_work(location.activities[i])) {
                     activity_div.classList.add("start_activity");
                 } else {
                     activity_div.classList.add("activity_unavailable");
@@ -218,8 +218,14 @@ function change_location(location_name) {
 
                 activity_div.appendChild(job_tooltip);
             }
-            else {
-                console.error("Activity type not yet supported!");
+            else if(activities[location.activities[i].activity].type === "TRAINING") {
+                activity_div.innerHTML += `  <i class="fas fa-dumbbell"></i>`;
+                activity_div.classList.add("activity_div");
+                activity_div.setAttribute("data-activity", i);
+                activity_div.setAttribute("onclick", `start_activity({id: ${i}});`);
+
+                activity_div.classList.add("start_activity");
+
             }
 
             action_div.appendChild(activity_div);
@@ -308,7 +314,7 @@ function start_activity(selected_activity) {
     current_activity.activity = activities[current_activity.activity];
 
     if(activities[current_activity.name].type === "JOB") {
-        if(!enough_time_for_work(current_activity)) {
+        if(!can_work(current_activity)) {
             current_activity = null;
             return;
         }
@@ -319,13 +325,13 @@ function start_activity(selected_activity) {
         if(!current_activity.activity) {
             throw "Job option not found!";
         }
-    } else if(activities[current_activity].type === "TRAINING") {
+    } else if(activities[current_activity.name].type === "TRAINING") {
         if(!current_activity.activity) {
             throw "Training option not found!";
         }
-    } else if(activities[current_activity].type === "GATHERING") { 
-        if(!current_activity.activiti) {
-            throw `"${activities[current_activity].type}" is not a valid activity type!`;
+    } else if(activities[current_activity.name].type === "GATHERING") { 
+        if(!current_activity.activity) {
+            throw `"${activities[current_activity.name].type}" is not a valid activity type!`;
         } 
     }
 
@@ -334,6 +340,10 @@ function start_activity(selected_activity) {
     const action_status_div = document.createElement("div");
     action_status_div.innerText = current_activity.activity.action_text;
     action_status_div.id = "action_status_div";
+
+    const action_xp_div = document.createElement("div");
+    action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${current_activity.activity.base_skills_names.toString().replace(",", ", ")}`;
+    action_xp_div.id = "action_xp_div";
 
     const action_end_div = document.createElement("div");
     action_end_div.setAttribute("onclick", "end_activity()");
@@ -356,7 +366,15 @@ function start_activity(selected_activity) {
     }
 
      action_div.appendChild(action_status_div);
+     action_div.appendChild(action_xp_div);
      action_div.appendChild(action_end_div);
+
+     if(current_activity.activity.type === "JOB" && !enough_time_for_earnings(current_activity) && !document.getElementById("not_enough_time_for_earnings_div")) {
+                            const time_info_div = document.createElement("div");
+                            time_info_div.id = "not_enough_time_for_earnings_div";
+                            time_info_div.innerHTML = `There's not enough time left to earn more, but ${character.name} might still learn something...`;
+                            action_div.insertBefore(time_info_div, action_div.children[2]);
+                        }
 
      start_activity_animation();
 }
@@ -364,12 +382,19 @@ function start_activity(selected_activity) {
 function start_activity_animation() {
     activity_anim = setInterval(() => { //sets a tiny little "animation" for activity text
         const action_status_div = document.getElementById("action_status_div");
+        /*
         if(action_status_div.innerText[action_status_div.innerText.length - 4] === ' ') {
             action_status_div.innerText = action_status_div.innerText.slice(0, action_status_div.innerText.length - 4) 
                                          + action_status_div.innerText.slice(action_status_div.innerText.length - 3);
         } else {
             action_status_div.innerText = action_status_div.innerText.slice(0, action_status_div.innerText.length - 3) 
                                          + " " + action_status_div.innerText.slice(action_status_div.innerText.length - 3);
+        }
+        */
+        if(action_status_div.innerText.endsWith("...")) {
+            action_status_div.innerText = action_status_div.innerText.substring(0, action_status_div.innerText.length - 3);
+        } else{
+            action_status_div.innerText += ".";
         }
      }, 600);
 }
@@ -435,9 +460,7 @@ function do_sleeping() {
 function start_sleeping() {
     clear_action_div();
 
-    //add something nonclickable with info (that character is sleeping and about xp gained per tick?)
-    //add button to wake up (end_sleeping() function)
-    //set sleeping to true
+    //TODO: add something nonclickable with info about xp gained per tick
 
     const action_status_div = document.createElement("div");
     action_status_div.innerText = "Sleeping...";
@@ -469,17 +492,52 @@ function end_sleeping() {
     end_activity_animation();
 }
 
-//TODO: remove this (players might want to work just for xp) or only use it to inform there's not enough time available to earn anything?
-function enough_time_for_work(selected_job) {
-    //if enough time for at least 1 working period
+/**
+ * 
+ * @param {*} selected_job location job property
+ * @returns if current time is within working hours
+ */
+function can_work(selected_job) {
+    //if can start at all
 
+    if(selected_job.availability_time.end > selected_job.availability_time.start) {
+        //ends on the same day
+        if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.end*60
+            ||  //too late
+            current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
+            ) {  //too early
+            
+            return false;
+        }
+    } else {
+        //ends on the next day (i.e. working through the night)        
+        if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.start*60
+            //too late
+            ||
+            current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.end*60
+            //too early
+
+        ) {  
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * 
+ * @param {} selected_job location job property
+ * @returns if there's enough time to earn anything
+ */
+function enough_time_for_earnings(selected_job) {
+    //if enough time for at least 1 working period
     if(selected_job.availability_time.end > selected_job.availability_time.start) {
         //ends on the same day
         if(current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60
             ||  //not enough time left for another work period
             current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
             ) {  //too early to start (shouldn't be allowed to start and get here at all)
-            
             return false;
         }
     } else {
@@ -495,8 +553,7 @@ function enough_time_for_work(selected_job) {
             &&
             current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60
             //time left on this day is not enough to finish
-        ) {  
-            
+            ) {  
             return false;
         }
     }
@@ -1365,9 +1422,7 @@ function add_xp_to_character(xp_to_add, should_info) {
         character_xp_bar_max
             character_xp_bar_current
         charaxter_xp_value
-
     */
-
     character_xp_div.children[1].children[0].style.width = `${100*character.xp.current_xp/character.xp.xp_to_next_lvl}%`;
     character_xp_div.children[2].innerText = `${character.xp.current_xp}/${character.xp.xp_to_next_lvl} xp`;
     
@@ -1886,6 +1941,10 @@ function update_displayed_inventory() {
     sort_displayed_inventory("character");
 }
 
+/**
+ * equips item and removes it from inventory
+ * @param item_info {name, id}
+ */
 function equip_item_from_inventory(item_info) {
     //item info -> {name: X, count: X, id: X}, count currently not used
     if(character.inventory.hasOwnProperty(item_info.name)) { //check if its in inventory, just in case
@@ -1901,6 +1960,11 @@ function equip_item_from_inventory(item_info) {
     }
 }
 
+/**
+ * equips passed item, doesn't do anything more with it 
+ * don't call this one directly, but via equip_item_from_inventory()
+ * @param: game item object
+ */
 function equip_item(item) {
     unequip_item(item.equip_slot);
     character.equipment[item.equip_slot] = item;
@@ -2013,48 +2077,7 @@ function update_displayed_equipment() {
  */
 function update_character_stats() { //updates character stats
 
-    const missing_health = (character.full_stats["max_health"] - character.full_stats["health"]) || 0;   
-    //to avoid fully healing character whenever this function is called
-
-    Object.keys(character.stats).forEach(function(stat){
-        if(stat === "attack_power") {
-            return;
-        }
-
-        character.full_stats[stat] = character.stats[stat];
-        character.full_multipliers[stat] = character.multipliers[stat];
-
-        Object.keys(character.equipment).forEach(function(key) {
-            if(character.equipment[key]?.equip_effect[stat]?.flat_bonus) {
-                character.full_stats[stat] += character.equipment[key].equip_effect[stat].flat_bonus;
-            }
-        }); //calculate stats based on equipment
-  
-        
-        Object.keys(character.equipment).forEach(function(key) {
-            if(character.equipment[key]?.equip_effect[stat]?.multiplier) {
-                character.full_multipliers[stat] *= character.equipment[key].equip_effect[stat].multiplier;
-            }
-        });
-        
-        character.full_stats[stat] *= (character.full_multipliers[stat] || 1);
-
-        if(stat === "health") {
-            character.full_stats["health"] = Math.max(1, character.full_stats["max_health"] - missing_health);
-        } 
-        character.full_stats[stat] = Math.round(10*character.full_stats[stat])/10;
-    });
-    //TODO: add bonuses from skills
-
-    if(character.equipment.weapon != null) { 
-        character.stats.attack_power = (character.full_stats.strength/10) * character.equipment.weapon.equip_effect.attack.flat 
-                                        * (character.equipment.weapon.equip_effect.attack.multiplier || 1);
-    } 
-    else {
-        character.stats.attack_power = character.full_stats.strength/10;
-    }
-
-    character.full_stats.attack_power = character.stats.attack_power;
+    character.update_stats();
 
     update_displayed_stats();
     update_displayed_health();
@@ -2232,8 +2255,8 @@ function create_save() {
             }
 
             if(locations[key].activities) {
+                save_data["locations"][key]["unlocked_activities"] = []
                 for(let i = 0; i < locations[key].activities.length; i++) {
-                    save_data["locations"][key]["unlocked_activities"] = []
                     if(locations[key].activities[i].is_unlocked) {
                         save_data["locations"][key]["unlocked_activities"].push(locations[key].activities[i].activity);
                     }
@@ -2503,9 +2526,11 @@ function load(save_data) {
 
             if(typeof activity_id !== "undefined") {
                 start_activity({id: activity_id});
-                current_activity.working_time = save_data.current_activity.working_time;
-                current_activity.earnings = save_data.current_activity.earnings;
-                document.getElementById("action_end_earnings").innerText = `(earnings: ${format_money(current_activity.earnings)})`;
+                if(activities[current_activity.activity.name].type === "JOB") {
+                    current_activity.working_time = save_data.current_activity.working_time;
+                    current_activity.earnings = save_data.current_activity.earnings;
+                    document.getElementById("action_end_earnings").innerText = `(earnings: ${format_money(current_activity.earnings)})`;
+                }
                 
             } else {
                 console.warn("Couldn't find saved activity! It might have been removed");
@@ -2640,9 +2665,17 @@ function update() {
                         current_activity.earnings += current_activity.payment;
                         document.getElementById("action_end_earnings").innerText = `(earnings: ${format_money(current_activity.earnings)})`
 
-                        if(!enough_time_for_work(current_activity)) {
-                            end_activity();
+                        
+                        if(!enough_time_for_earnings(current_activity) && !document.getElementById("not_enough_time_for_earnings_div")) {
+                            const time_info_div = document.createElement("div");
+                            time_info_div.id = "not_enough_time_for_earnings_div";
+                            time_info_div.innerHTML = `There's not enough time left to earn more, but ${character.name} might still learn something...`;
+                            action_div.insertBefore(time_info_div, action_div.children[2]);
                         }
+                    }
+                    
+                    if(!can_work(current_activity)) {
+                        end_activity();
                     }
                 }
 
@@ -2654,7 +2687,7 @@ function update() {
                     const activity = current_location.activities[divs[i].getAttribute("data-activity")];
 
                     if(activities[activity.activity].type === "JOB") {
-                        if(enough_time_for_work(activity)) {
+                        if(can_work(activity)) {
                             divs[i].classList.remove("activity_unavailable");
                             divs[i].classList.add("start_activity");
                         } else {
@@ -2697,16 +2730,16 @@ function update() {
 
 
 
-        if(time_variance_accumulator <= 100 && time_variance_accumulator >= -100) {
+        if(time_variance_accumulator <= 100/tickrate && time_variance_accumulator >= -100/tickrate) {
             time_adjustment = time_variance_accumulator;
         }
         else {
-            if(time_variance_accumulator > 100) {
-                time_adjustment = 100;
+            if(time_variance_accumulator > 100/tickrate) {
+                time_adjustment = 100/tickrate;
             }
             else {
-                if(time_variance_accumulator < -100) {
-                    time_adjustment = -100;
+                if(time_variance_accumulator < -100/tickrate) {
+                    time_adjustment = -100/tickrate;
                 }
             }
         }
@@ -2797,5 +2830,3 @@ else {
 
 update_displayed_equipment();
 run();
-
-export {tickrate};
