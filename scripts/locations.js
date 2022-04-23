@@ -184,15 +184,23 @@ class Combat_zone {
             activity: "plowing the fields",
             starting_text: "Work on the fields",
             payment: 1, 
-            is_unlocked: true,
+            is_unlocked: false,
             working_period: 60*2,
             max_working_time: 60*12, //both are ticks, so 2 and 12 in-game hours
             //with both the same, getting money requires working full time
             //otherwise, money will be accumulated per each finished period
+            //at least in theory, as it's not really in use yet (other than for some description stuff)
+            //so, TODO
             availability_time: {start: 6, end: 20}, //in-game hours of when job is available
             skill_xp_per_tick: 1, 
             skill_affects: "PAYMENT",
         },
+        {
+            activity: "running",
+            starting_text: "Go for a run around the village",
+            skill_xp_per_tick: 1,
+            is_unlocked: true,
+        }
     ];
 })();
 

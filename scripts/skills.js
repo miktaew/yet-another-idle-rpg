@@ -88,16 +88,23 @@ function Skill(skill_data) {
                 
                 var message = `${this.name()} has reached level ${this.current_level}`;
 
-                if(!Object.keys(gains).length == 0) {
+                if(!Object.keys(gains.stats).length == 0) {
                     if(this.skill_group) {
                         message += `<br><br> Thanks to [${this.skill_group}] reaching new milestone, ${character.name} gained: `;
                     } else {
                         message += `<br><br> Thanks to ${this.name()} reaching new milestone, ${character.name} gained: `;
                     }
 
-                    Object.keys(gains).forEach(function(stat) {
-                        message += `<br> +${gains[stat]} ${stat}`;
-                    });
+                    if(gains.stats) {
+                        Object.keys(gains.stats).forEach(function(stat) {
+                            message += `<br> +${gains.stats[stat]} ${stat_names[stat]}`;
+                        });
+                    }
+                    if(gains.multipliers) {
+                        Object.keys(gains.multipliers).forEach(function(multiplier) {
+                            message += `<br> x${gains.multipliers[multiplier]} ${stat_names[multiplier]}`;
+                        });
+                    }
                 }
                 return message;
                 //TODO: add gained stats ('gains' variable) to returned string
@@ -108,17 +115,25 @@ function Skill(skill_data) {
     this.get_bonus_stats = function(level) { 
         //add stats to character
         //returns all the stats so they can be logged in message_log 
-        const gains = {};
+        const gains = {stats: {}, multipliers: {}};
         var stats;
+        var multipliers;
 
         if(this.skill_group) { //only skill_group rewards
             for(let i = skill_groups[this.skill_group].highest_level + 1; i <= level; i++) {
                 if(skill_groups[this.skill_group].rewards.milestones[i]) {
                     stats = skill_groups[this.skill_group].rewards.milestones[i].stats;
-    
-                    Object.keys(stats).forEach(function(stat) {
-                        gains[stat] = (gains[stat] + stats[stat]) || stats[stat]; 
-                    });
+                    multipliers = skill_groups[this.skill_group].rewards.milestones[i].multipliers;
+                    if(stats) {
+                        Object.keys(stats).forEach(function(stat) {
+                            gains.stats[stat] = (gains.stats[stat] + stats[stat]) || stats[stat]; 
+                        });
+                    }
+                    if(multipliers){
+                        Object.keys(multipliers).forEach(function(multiplier) {
+                            gains.multipliers[multiplier] = (gains.multipliers[multiplier] * multipliers[multiplier]) || multipliers[multiplier]; 
+                        });
+                    }
                 }
 
                 skill_groups[this.skill_group].highest_level++;
@@ -128,17 +143,28 @@ function Skill(skill_data) {
             for(let i = this.current_level + 1; i <= level; i++) {
                 if(this.rewards?.milestones[i]) {
                     stats = this.rewards.milestones[i].stats;
-    
-                    Object.keys(stats).forEach(function(stat) {
-                        gains[stat] = (gains[stat] + stats[stat]) || stats[stat]; 
-                    });
+                    multipliers = this.rewards.milestones[i].multipliers;
+                    if(stats) {
+                        Object.keys(stats).forEach(function(stat) {
+                            gains.stats[stat] = (gains.stats[stat] + stats[stat]) || stats[stat]; 
+                        });
+                    }
+                    if(multipliers) {
+                        Object.keys(multipliers).forEach(function(multiplier) {
+                            gains.multipliers[multiplier] = (gains.multipliers[multiplier] * multipliers[multiplier]) || multipliers[multiplier]; 
+                        }); 
+                    }
                 }
             }         
         }
 
-        Object.keys(gains).forEach(function (stat) {
-            character.stats[stat] += gains[stat];
-        });
+        if(gains.multipliers) {
+            Object.keys(gains.multipliers).forEach((multiplier) => {
+                gains.multipliers[multiplier] = Math.round(100*gains.multipliers[multiplier])/100;
+            });
+        }
+
+        character.add_bonuses(gains);
 
         return gains;
     }
@@ -166,6 +192,7 @@ function SkillGroup(skill_group_data) {
 
 const stat_names = {"strength": "str",
                     "health": "hp",
+                    "max_health": "hp", //same as for "health"
                     "agility": "agl",
                     "dexterity": "dex",
                     "magic": "magic",
@@ -173,7 +200,10 @@ const stat_names = {"strength": "str",
                     "crit_rate": "crit rate",
                     "crit_multiplier": "crit dmg"};
 
-//get all unlocked leveling rewards, formatted to string
+/**
+ * @param {String} skill_id key from skills object
+ * @returns all unlocked leveling rewards, formatted to string
+ */
 function get_unlocked_skill_rewards(skill_id) {
     var unlocked_rewards = '';
     
@@ -201,7 +231,11 @@ function get_unlocked_skill_rewards(skill_id) {
     return unlocked_rewards;
 }
 
-//get rewards for next lvl, formatted to string
+/**
+ * get rewards for next lvl
+ * @param {String} skill_id key used in skills object
+ * @returns rewards for next level, formatted to a string
+ */
 function get_next_skill_reward(skill_id) {
     if(skills[skill_id].current_level !== "Max!") {
         var rewards;
@@ -224,6 +258,11 @@ function get_next_skill_reward(skill_id) {
     }
 }
 
+/**
+ * 
+ * @param {*} skill_id key used in skills object
+ * @returns next lvl at which skill has any rewards
+ */
 function get_next_skill_milestone(skill_id){
     if(skills[skill_id].rewards){
         return Object.keys(skills[skill_id].rewards.milestones).find(
@@ -235,14 +274,32 @@ function get_next_skill_milestone(skill_id){
 
 }
 
+/**
+ * @param milestone milestone from object rewards - {stats: {stat1, stat2... }} 
+ * @returns rewards formatted to a nice string
+ */
 function format_skill_rewards(milestone){
-    // num: { stats: {stat1, stat2... }}
-    const stats = Object.keys(milestone.stats);
-    var formatted = `+${milestone.stats[stats[0]]} ${stat_names[stats[0]]}`;
-    for(let i = 1; i < stats.length; i++) {
-        formatted += `, +${milestone.stats[stats[i]]} ${stat_names[stats[i]]}`;
+    var formatted = '';
+    if(milestone.stats) {
+        const stats = Object.keys(milestone.stats);
+        
+        formatted = `+${milestone.stats[stats[0]]} ${stat_names[stats[0]]}`;
+        for(let i = 1; i < stats.length; i++) {
+            formatted += `, +${milestone.stats[stats[i]]} ${stat_names[stats[i]]}`;
+        }
     }
 
+    if(milestone.multipliers) {
+        const multipliers = Object.keys(milestone.multipliers);
+        if(formatted) {
+            formatted += `, x${milestone.multipliers[multipliers[0]]} ${stat_names[multipliers[0]]}`;
+        } else {
+            formatted = `x${milestone.multipliers[multipliers[0]]} ${stat_names[multipliers[0]]}`;
+        }
+        for(let i = 1; i < multipliers.length; i++) {
+            formatted += `, x${milestone.multipliers[multipliers[i]]} ${stat_names[multipliers[i]]}`;
+        }
+    }
     return formatted;
 }
 
@@ -259,6 +316,10 @@ skill_groups["weapon skills"] = new SkillGroup({
                 stats: {
                     "strength": 2,
                     "dexterity": 2,
+                },
+                multipliers: {
+                    "strength": 1.1,
+                    "dexterity": 1.1,
                 }
             },
             7: {
@@ -271,6 +332,10 @@ skill_groups["weapon skills"] = new SkillGroup({
                 stats: {
                     "strength": 3,
                     "dexterity": 3,
+                },
+                multipliers: {
+                    "strength": 1.1,
+                    "dexterity": 1.1,
                 }
             },
             12: {
@@ -283,6 +348,10 @@ skill_groups["weapon skills"] = new SkillGroup({
                 stats: {
                     "strength": 5,
                     "dexterity": 5,
+                },
+                multipliers: {
+                    "strength": 1.1,
+                    "dexterity": 1.1,
                 }
             },
             17: {
@@ -295,6 +364,10 @@ skill_groups["weapon skills"] = new SkillGroup({
                 stats: {
                     "strength": 8,
                     "dexterity": 8,
+                },
+                multipliers: {
+                    "strength": 1.1,
+                    "dexterity": 1.1,
                 }
             }
         }
@@ -321,22 +394,25 @@ skill_groups["weapon skills"] = new SkillGroup({
                                 },
                                 rewards: {
                                     milestones: {
-                                        2: {
+                                        1: {
                                             stats: {
                                                 "agility": 1,
                                             }
                                         },
-                                        4: {
+                                        3: {
                                             stats: {
                                                 "agility": 1,
                                             }
                                         },
-                                        6: {
+                                        5: {
                                             stats: {
                                                 "agility": 2,
+                                            },
+                                            multipliers: {
+                                                "agility": 1.1,
                                             }
                                         },
-                                        8: {
+                                        7: {
                                             stats: {
                                                 "agility": 2,
                                             }
@@ -344,6 +420,9 @@ skill_groups["weapon skills"] = new SkillGroup({
                                         10: {
                                             stats: {
                                                 "agility": 3,
+                                            },
+                                            multipliers: {
+                                                "agility": 1.1,
                                             }
                                         }
                                     }
@@ -407,7 +486,7 @@ skill_groups["weapon skills"] = new SkillGroup({
 (function(){
     skills["Swords"] = new Skill({skill_id: "Swords", 
                                 skill_group: "weapon skills",
-                                names: {0: "Sword"}, 
+                                names: {0: "Swordsmanship"}, 
                                 description: "The noble art of swordsmanship", 
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with swords by ${Math.round(skills["Swords"].get_coefficient("multiplicative")*1000)/1000}`;
@@ -416,7 +495,7 @@ skill_groups["weapon skills"] = new SkillGroup({
 
     skills["Axes"] = new Skill({skill_id: "Axes", 
                                 skill_group: "weapon skills",
-                                names: {0: "Axe"}, 
+                                names: {0: "Axe combat"}, 
                                 description: "Ability to fight with use of axes", 
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with axes by ${Math.round(skills["Axes"].get_coefficient("multiplicative")*1000)/1000}`;
@@ -425,7 +504,7 @@ skill_groups["weapon skills"] = new SkillGroup({
 
     skills["Spears"] = new Skill({skill_id: "Spears", 
                                 skill_group: "weapon skills",
-                                names: {0: "Spear"}, 
+                                names: {0: "Spearmanship"}, 
                                 description: "The ability to fight with the most deadly weapon in the history", 
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with spears by ${Math.round(skills["Spears"].get_coefficient("multiplicative")*1000)/1000}`;
@@ -434,7 +513,7 @@ skill_groups["weapon skills"] = new SkillGroup({
 
     skills["Blunt weapons"] = new Skill({skill_id: "Blunt weapons", 
                                         skill_group: "weapon skills",
-                                        names: {0: "Blunt weapons"}, 
+                                        names: {0: "Blunt weapons combat"}, 
                                         description: "Ability to fight with use of blunt weapons", 
                                         get_effect_description: ()=> {
                                             return `Multiplies damage dealt with blunt weapons by ${Math.round(skills["Blunt weapons"].get_coefficient("multiplicative")*1000)/1000}`;
@@ -443,7 +522,7 @@ skill_groups["weapon skills"] = new SkillGroup({
 
     skills["Daggers"] = new Skill({skill_id: "Daggers",
                                 skill_group: "weapon skills",
-                                names: {0: "Dagger"},
+                                names: {0: "Dagger combat"},
                                 description: "The looked upon art of fighting (and stabbing) with daggers",
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with daggers by ${Math.round(skills["Daggers"].get_coefficient("multiplicative")*1000)/1000}`;
@@ -452,7 +531,7 @@ skill_groups["weapon skills"] = new SkillGroup({
 
     skills["Wands"] = new Skill({skill_id: "Wands", 
                                 skill_group: "weapon skills",
-                                names: {0: "Wand"}, 
+                                names: {0: "Wand casting"}, 
                                 description: "Ability to cast spells with magic wands, increases damage dealt", 
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with wands by ${Math.round(skills["Wands"].get_coefficient("multiplicative")*1000)/1000}`;
@@ -461,7 +540,7 @@ skill_groups["weapon skills"] = new SkillGroup({
 
     skills["Staffs"] = new Skill({skill_id: "Staffs", 
                                 skill_group: "weapon skills",
-                                names: {0: "Staff"}, 
+                                names: {0: "Staff casting"}, 
                                 description: "Ability to cast spells with magic staffs, increases damage dealt", 
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealth with staffs by ${Math.round(skills["Staffs"].get_coefficient("multiplicative")*1000)/1000}`;
@@ -469,12 +548,11 @@ skill_groups["weapon skills"] = new SkillGroup({
                                 max_level_coefficient: 8});
 })();
 
-
 //work related
 (function(){
     skills["Farming"] = new Skill({skill_id: "Farming", 
                                 names: {0: "Farming"}, 
-                                description: "Even simple act of plowing field requires some skill",
+                                description: "Even a simple action of plowing some fields, can be done better with skills and experience",
                                 base_xp_cost: 40,
                                 max_level: 10,
                                 max_level_coefficient: 2,
@@ -483,7 +561,7 @@ skill_groups["weapon skills"] = new SkillGroup({
                                         2: {
                                             stats: {
                                                 "strength": 1,
-                                            }
+                                            },
                                         },
                                         4: {
                                             stats: {
@@ -499,14 +577,18 @@ skill_groups["weapon skills"] = new SkillGroup({
                                         },
                                         8: {
                                             stats: {
-                                                "strength": 2,
-                                                "dexterity": 2,
+                                                "strength": 3,
+                                                "dexterity": 1,
                                             }
                                         },
                                         10: {
                                             stats: {
-                                                "strength": 4,
-                                                "dexterity": 3,
+                                                "strength": 5,
+                                                "dexterity": 2,
+                                            },
+                                            multipliers: {
+                                                "strength": 1.2,
+                                                "dexterity": 1.1,
                                             }
                                         }
                                     }
@@ -514,15 +596,100 @@ skill_groups["weapon skills"] = new SkillGroup({
 
 })();
 
-//activity related
+//non-work activity related
 (function(){
     skills["Sleeping"] = new Skill({skill_id: "Sleeping",
                                     names: {0: "Sleeping"}, 
-                                    description: "Getting a proper sleep is much harder than some would thing, but it can be very rewarding",
+                                    description: "Good, regular sleep is the basis of getting stronger and helps your body heal.",
                                     base_xp_cost: 1000,
                                     xp_scaling: 2,
                                     max_level: 10,
                                     max_level_coefficient: 2.5,    
+                                    rewards: {
+                                        milestones: {
+                                            2: {
+                                                stats: {
+                                                    "max_health": 10,
+                                                },
+                                                multipliers: {
+                                                    "max_health": 1.1,
+                                                }
+                                            },
+                                            4: {
+                                                stats: {
+                                                    "max_health": 20,
+                                                },
+                                                multipliers: {
+                                                    "max_health": 1.1,
+                                                }
+                                            },
+                                            6: {
+                                                stats: {
+                                                    "max_health": 40,
+                                                },
+                                                multipliers: {
+                                                    "max_health": 1.1,
+                                                }
+                                            },
+                                            8: {
+                                                stats: {
+                                                    "max_health": 80,
+                                                },
+                                                multipliers: {
+                                                    "max_health": 1.1,
+                                                }
+                                            },
+                                            10: {
+                                                stats: {
+                                                    "max_health": 160,
+                                                },
+                                                multipliers: {
+                                                    "max_health": 1.1,
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+    skills["Running"] = new Skill({skill_id: "Running",
+                                  description: "Great way to improve the efficiency of the body",
+                                  names: {0: "Running"},
+                                  base_xp_cost: 100,
+                                  rewards: {
+                                    milestones: {
+                                        1: {
+                                            stats: {
+                                                "agility": 1,
+                                            },
+                                        },
+                                        3: {
+                                            stats: {
+                                                "agility": 1,
+                                            }
+                                        },
+                                        5: {
+                                            stats: {
+                                                "agility": 2,
+                                            },
+                                            multipliers: {
+                                                "agility": 1.1,
+                                            }
+                                        },
+                                        7: {
+                                            stats: {
+                                                "agility": 2,
+                                            },
+                                        },
+                                        10: {
+                                            stats: {
+                                                "agility": 3,
+                                            },
+                                            multipliers: {
+                                                "agility": 1.1,
+                                            }
+                                        }
+                                    }
+                                }
+                                  
                                 });
 })();
 
