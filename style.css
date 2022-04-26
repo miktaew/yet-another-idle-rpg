@@ -477,25 +477,26 @@ body {
 
 .trade_ammount_button {
 	display: var(--trade_ammount_button_display);
+	margin-left: 5px;
 }
 
 .trade_ammount_button, .item_use_button {
 	color: white;
 	padding-left: 2px;
 	padding-right: 2px;
-	margin-left: 5px;
 	cursor: pointer;
 }
 
 .item_use_button {
 	display: var(--item_use_button_display);
-	width: 40px;
+	width: 36px;
 	font-weight: bold;
 	padding-left: 6px;
+	margin-left: 1px;
 }
 
 .item_stackable {
-	width: 287px;
+	width: 291px;
 }
 
 .item_equippable {

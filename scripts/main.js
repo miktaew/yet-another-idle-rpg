@@ -1,7 +1,7 @@
 "use strict";
 
 import { current_game_time, format_time } from "./game_time.js";
-import { Item, item_templates } from "./items.js";
+import { item_templates, getItem} from "./items.js";
 import { locations } from "./locations.js";
 import { skills, skill_groups, get_next_skill_milestone, get_unlocked_skill_rewards} from "./skills.js";
 import { dialogues } from "./dialogues.js";
@@ -699,7 +699,7 @@ function accept_trade() {
 
             const item = to_buy.items.pop();
 
-            add_to_inventory("character", [{item: new Item(item_templates[item.item.split(" #")[0]]), 
+            add_to_inventory("character", [{item: getItem(item_templates[item.item.split(" #")[0]]), 
                                             count: item.count}])
             
             remove_from_inventory("trader", {name: item.item.split(" #")[0], 
@@ -717,7 +717,7 @@ function accept_trade() {
                 count: item.count,
                 id: item.item.split(" #")[1]});
 
-            add_to_inventory("trader", [{item: new Item(item_templates[item.item.split(" #")[0]]), 
+            add_to_inventory("trader", [{item: getItem(item_templates[item.item.split(" #")[0]]), 
                 count: item.count}])
         }
     }
@@ -778,9 +778,9 @@ function add_to_buying_list(selected_item) {
         to_buy.items.push(selected_item);
     }
 
-    to_buy.value += Math.floor(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].value) * selected_item.count;
+    to_buy.value += Math.floor(Math.max(1,traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue())) * selected_item.count;
 
-    return -Math.floor(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].value) * selected_item.count;
+    return -Math.floor(Math.max(1,traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue())) * selected_item.count;
 }
 
 function remove_from_buying_list(selected_item) {
@@ -799,8 +799,8 @@ function remove_from_buying_list(selected_item) {
         to_buy.items.splice(to_buy.items.indexOf(selected_item),1);
     }
 
-    to_buy.value -= Math.floor(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].value) * actual_number_to_remove;
-    return Math.floor(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].value) * actual_number_to_remove;
+    to_buy.value -= Math.floor(Math.max(1, traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue())) * actual_number_to_remove;
+    return Math.floor(Math.max(1, traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue())) * actual_number_to_remove;
 }
 
 function add_to_selling_list(selected_item) {
@@ -831,8 +831,8 @@ function add_to_selling_list(selected_item) {
         to_sell.items.push(selected_item);
     }
 
-    to_sell.value += item_templates[selected_item.item.split(' #')[0]].value * selected_item.count;
-    return item_templates[selected_item.item.split(' #')[0]].value * selected_item.count;
+    to_sell.value += item_templates[selected_item.item.split(' #')[0]].getValue() * selected_item.count;
+    return item_templates[selected_item.item.split(' #')[0]].getValue() * selected_item.count;
 }
 
 function remove_from_selling_list(selected_item) {
@@ -851,8 +851,8 @@ function remove_from_selling_list(selected_item) {
         to_sell.items.splice(to_sell.items.indexOf(selected_item),1);
     }
 
-    to_sell.value -= item_templates[selected_item.item.split(' #')[0]].value * actual_number_to_remove;
-    return -item_templates[selected_item.item.split(' #')[0]].value * actual_number_to_remove;
+    to_sell.value -= item_templates[selected_item.item.split(' #')[0]].getValue() * actual_number_to_remove;
+    return -item_templates[selected_item.item.split(' #')[0]].getValue() * actual_number_to_remove;
 }
 
 function update_displayed_trader_inventory(sorting_param) {
@@ -1191,7 +1191,7 @@ function do_combat() {
 
 
         if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
-            if(character.equipment["off-hand"].shield_strength >= damage_dealt) {
+            if(character.equipment["off-hand"].getShieldStrength >= damage_dealt) {
                 if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
                     add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
                     log_message(character.name + " has blocked the attack");
@@ -1201,7 +1201,7 @@ function do_combat() {
             else { 
                 if(character.combat_stats.block_chance - 0.3 > Math.random()) { //PARTIALLY BLOCKED THE ATTACK
                     add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
-                    damage_dealt -= character.equipment["off-hand"].shield_strength;
+                    damage_dealt -= character.equipment["off-hand"].getShieldStrength;
                     partially_blocked = true;
                     //FIGHT GOES LIKE NORMAL, but log that it was partially blocked
                 }
@@ -1695,9 +1695,14 @@ function remove_from_inventory(who, item_info) {
     }
 }
 
-function dismantle_item() {
-    //todo: this thing
-    //priority: extremely low
+/**
+ * 
+ * @param {*} item_info item to dismantle: {name, id}
+ */
+function dismantle_item(item_info) {
+    dismantle(character.inventory[item_info.name]);
+
+    remove_from_inventory("character", item_info);
 }
 
 function use_item(item_name) { 
@@ -1994,10 +1999,12 @@ function create_item_tooltip(item, options) {
     //add stats if can be equipped
     if(item.item_type === "EQUIPPABLE"){
 
+        item_tooltip.innerHTML += `<br><br><strong>Quality: ${Math.round(item.quality*100)}%</strong>`;
+
         //if a shield
         if(item.offhand_type === "shield") {
             item_tooltip.innerHTML += 
-            `<br><br><strong>[shield]</strong><br><br>Can fully block attacks not stronger than: ${item.shield_strength}`;
+            `<br><br><strong>[shield]</strong><br><br>Can fully block attacks not stronger than: ${item.getShieldStrength()}`;
         }
         else if(item.equip_slot === "weapon") {
             item_tooltip.innerHTML += `<br><br>Type: <strong>${item.weapon_type}</strong>`;
@@ -2006,15 +2013,17 @@ function create_item_tooltip(item, options) {
             item_tooltip.innerHTML += `<br><br>Slot: <strong>${item.equip_slot}</strong`;
         }
 
+        if(item.attack_value) {
+            item_tooltip.innerHTML += 
+                `<br><br>Attack: ${item.getAttack()}`;
+        } else if(item.defense_value) { 
+            item_tooltip.innerHTML += 
+            `<br><br>Defense value ${item.getDefense()}`;
+        } 
         Object.keys(item.equip_effect).forEach(function(effect_key) {
 
-            if(effect_key === "attack") {
-                item_tooltip.innerHTML += 
-                `<br><br>Attack: ${item.equip_effect[effect_key].flat}`;
-            } else {
-                item_tooltip.innerHTML += 
+            item_tooltip.innerHTML += 
                 `<br><br>Flat ${effect_key} bonus: ${item.equip_effect[effect_key].flat_bonus}`;
-            }
 
             if(item.equip_effect[effect_key].multiplier != null) {
                 item_tooltip.innerHTML += 
@@ -2045,7 +2054,7 @@ function create_item_tooltip(item, options) {
         });
     }
 
-    item_tooltip.innerHTML += `<br><br>Value: ${format_money(Math.floor(item.value * ((options && options.trader) ? traders[current_trader].profit_margin : 1)))}`;
+    item_tooltip.innerHTML += `<br><br>Value: ${format_money(Math.max(1, Math.floor(item.getValue() * ((options && options.trader) ? traders[current_trader].profit_margin : 1) || 1)))}`;
 
     return item_tooltip;
 }
@@ -2113,7 +2122,7 @@ function update_combat_stats() { //chances to hit and evade/block
         if(character.equipment["off-hand"] == null || character.equipment["off-hand"].offhand_type !== "shield") {
             const power = character.full_stats.agility > current_enemy.stats.dexterity ? 2/3 : 1
             character.combat_stats.evasion_chance = Math.min(0.99, Math.pow(character.full_stats.agility/current_enemy.stats.dexterity, power) * 0.25 * skills["Evasion"].get_coefficient("multiplicative"));
-            //so up to 99% if at least eight more agility, 25% if same, can go down almost to 0%
+            //so up to 99% if at least eight times more agility, 25% if same, can go down almost to 0%
         }
     } 
     else {
@@ -2136,7 +2145,7 @@ function update_displayed_combat_stats() {
 
         other_combat_divs.defensive_action.innerHTML = "Block:";
 
-        if(current_enemy != null && character.equipment["off-hand"].shield_strength < current_enemy.stats.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
+        if(current_enemy != null && character.equipment["off-hand"].getShieldStrength < current_enemy.stats.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
             other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.block_chance*100-30).toFixed(1)}%`;
         } 
         else {
@@ -2351,9 +2360,12 @@ function load(save_data) {
                 if(item_templates[save_data.character.equipment[key].name]) {
                     save_data.character.equipment[key].value = item_templates[save_data.character.equipment[key].name].value;
                     save_data.character.equipment[key].equip_effect = item_templates[save_data.character.equipment[key].name].equip_effect;
-                    equip_item(save_data.character.equipment[key]); 
+                    save_data.character.equipment[key].attack_value = item_templates[save_data.character.equipment[key].name].attack_value;
+                    save_data.character.equipment[key].shield_strength = item_templates[save_data.character.equipment[key].name].shield_strength;
+                    save_data.character.equipment[key].defense_value = item_templates[save_data.character.equipment[key].name].defense_value;
+                    equip_item(getItem(save_data.character.equipment[key])); 
                 } else {
-                    console.warn(`Equipped item "${item_templates[save_data.character.equipment[key].name]}" couldn't be found`);
+                    console.warn(`Equipped item "${save_data.character.equipment[key].name}" couldn't be found`);
                     return;
                 }
             }
@@ -2369,7 +2381,7 @@ function load(save_data) {
                         if(item_templates[key].item_type = "EQUIPPABLE") {
                             save_data.character.inventory[key][i].equip_effect = item_templates[key].equip_effect;
                         }
-                        item_list.push({item: save_data.character.inventory[key][i], count: 1});
+                        item_list.push({item: getItem(save_data.character.inventory[key][i]), count: 1});
                     } else {
                         console.warn(`Inventory item "${key}" couldn't be found!`);
                         return;
@@ -2381,10 +2393,13 @@ function load(save_data) {
                     save_data.character.inventory[key].item.value = item_templates[key].value;
                     if(item_templates[key].item_type === "EQUIPPABLE") {
                         save_data.character.inventory[key].item.equip_effect = item_templates[key].equip_effect;
+                        save_data.character.inventory[key].attack_value = item_templates[key].attack_value;
+                        save_data.character.inventory[key].shield_strength = item_templates[key].shield_strength;
+                        save_data.character.inventory[key].defense_value = item_templates[key].defense_value;
                     } else if(item_templates[key].item_type === "USABLE") {
                         save_data.character.inventory[key].item.use_effect = item_templates[key].use_effect;
                     }
-                    item_list.push({item: save_data.character.inventory[key].item, count: save_data.character.inventory[key].count});
+                    item_list.push({item: getItem(save_data.character.inventory[key].item), count: save_data.character.inventory[key].count});
                 } else {
                     console.warn(`Inventory item "${key}" couldn't be found!`);
                     return;
@@ -2444,7 +2459,7 @@ function load(save_data) {
                             if(item_templates[key].item_type = "EQUIPPABLE") {
                                 save_data.traders[trader].inventory[key][i].equip_effect = item_templates[key].equip_effect;
                             }
-                            trader_item_list.push({item: save_data.traders[trader].inventory[key][i], count: 1});
+                            trader_item_list.push({item: getItem(save_data.traders[trader].inventory[key][i]), count: 1});
                         }
                     }
                     else {
@@ -2454,7 +2469,7 @@ function load(save_data) {
                         } else if(item_templates[key].item_type === "USABLE") {
                             save_data.traders[trader].inventory[key].item.use_effect = item_templates[key].use_effect;
                         }
-                        trader_item_list.push({item: save_data.traders[trader].inventory[key].item, count: save_data.traders[trader].inventory[key].count});
+                        trader_item_list.push({item: getItem(save_data.traders[trader].inventory[key].item), count: save_data.traders[trader].inventory[key].count});
                     }
                 });
 
@@ -2814,19 +2829,18 @@ if("save data" in localStorage) {
     update_combat_stats();
 }
 else {
-    add_to_inventory("character", [{item: new Item(item_templates["Long stick"])}, 
-                                   {item: new Item(item_templates["Raggy leather pants"])},
-                                   {item: new Item(item_templates["Stale bread"]), count: 5}]);
+    add_to_inventory("character", [{item: getItem({...item_templates["Long stick"], quality: 0.5})}, 
+                                   {item: getItem({...item_templates["Cheap leather pants"], quality: 0.5})},
+                                   {item: getItem(item_templates["Stale bread"]), count: 5}]);
+
     equip_item_from_inventory({name: "Long stick", id: 0});
-    equip_item_from_inventory({name: "Raggy leather pants", id: 0});
+    equip_item_from_inventory({name: "Cheap leather pants", id: 0});
     add_xp_to_character(0);
     character.money = 10;
     update_displayed_money();
     update_displayed_stats();
 }
 //checks if there's an existing save file, otherwise just sets up some initial equipment
-
-
 
 update_displayed_equipment();
 run();

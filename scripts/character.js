@@ -110,31 +110,39 @@ character.update_stats = function update_stats() {
         character.full_stats[stat] = character.stats[stat];
         character.full_multipliers[stat] = character.multipliers[stat];
 
-        Object.keys(character.equipment).forEach(function(key) {
-            if(character.equipment[key]?.equip_effect[stat]?.flat_bonus) {
-                character.full_stats[stat] += character.equipment[key].equip_effect[stat].flat_bonus;
-            }
-        }); //calculate stats based on equipment
-  
+        if(stat !== "defense") {
+                Object.keys(character.equipment).forEach(function(key) {
+                if(character.equipment[key]?.equip_effect[stat]?.flat_bonus) {
+                        character.full_stats[stat] += character.equipment[key].equip_effect[stat].flat_bonus;
+                }
+                }); //calculate stats based on equipment
         
-        Object.keys(character.equipment).forEach(function(key) {
-            if(character.equipment[key]?.equip_effect[stat]?.multiplier) {
-                character.full_multipliers[stat] *= character.equipment[key].equip_effect[stat].multiplier;
-            }
-        });
-        
-        character.full_stats[stat] *= (character.full_multipliers[stat] || 1);
+                
+                Object.keys(character.equipment).forEach(function(key) {
+                if(character.equipment[key]?.equip_effect[stat]?.multiplier) {
+                        character.full_multipliers[stat] *= character.equipment[key].equip_effect[stat].multiplier;
+                }
+                });
 
-        if(stat === "health") {
-            character.full_stats["health"] = Math.max(1, character.full_stats["max_health"] - missing_health);
-        } 
+                character.full_stats[stat] *= (character.full_multipliers[stat] || 1);
+
+                if(stat === "health") {
+                character.full_stats["health"] = Math.max(1, character.full_stats["max_health"] - missing_health);
+                } 
+        } else {
+                Object.keys(character.equipment).forEach(function(key) {
+                        if(character.equipment[key]?.defense_value) {
+                                character.full_stats[stat] += character.equipment[key].getDefense();
+                        }
+                });
+        }
+        
         character.full_stats[stat] = Math.round(10*character.full_stats[stat])/10;
     });
     //TODO: add bonuses from skills
 
     if(character.equipment.weapon != null) { 
-        character.stats.attack_power = (character.full_stats.strength/10) * character.equipment.weapon.equip_effect.attack.flat 
-                                        * (character.equipment.weapon.equip_effect.attack.multiplier || 1);
+        character.stats.attack_power = (character.full_stats.strength/10) * character.equipment.weapon.getAttack();
     } 
     else {
         character.stats.attack_power = character.full_stats.strength/10;
