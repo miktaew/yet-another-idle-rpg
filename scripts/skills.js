@@ -511,12 +511,12 @@ skill_groups["weapon skills"] = new SkillGroup({
                                 },
                                 max_level_coefficient: 8});
 
-    skills["Blunt weapons"] = new Skill({skill_id: "Blunt weapons", 
+    skills["Hammers"] = new Skill({skill_id: "Hammers", 
                                         skill_group: "weapon skills",
-                                        names: {0: "Blunt weapons combat"}, 
-                                        description: "Ability to fight with use of blunt weapons", 
+                                        names: {0: "Hammer combat"}, 
+                                        description: "Ability to fight with use of battle hammers. Why bother trying to cut someone, when you can just crack all their bones?", 
                                         get_effect_description: ()=> {
-                                            return `Multiplies damage dealt with blunt weapons by ${Math.round(skills["Blunt weapons"].get_coefficient("multiplicative")*1000)/1000}`;
+                                            return `Multiplies damage dealt with battle hammers by ${Math.round(skills["Hammers"].get_coefficient("multiplicative")*1000)/1000}`;
                                         },
                                         max_level_coefficient: 8});
 
@@ -691,6 +691,59 @@ skill_groups["weapon skills"] = new SkillGroup({
                                 }
                                   
                                 });
+})();
+
+//crafting skills
+skill_groups["crafting skills"] = new SkillGroup({
+    rewards: {
+        milestones: {
+            1: {
+                stats: {
+                    dexterity: 1,
+                }
+            },
+            3: {
+                stats: {
+                    dexterity: 1,
+                },
+            },
+            5: {
+                stats: {
+                    dexterity: 2,
+                },
+            },
+            7: {
+                stats: {
+                    dexterity: 2,
+                },
+            },
+            10: {
+                stats: {
+                    dexterity: 3,
+                },
+            }
+        }
+    }
+});
+
+(function(){
+    skills["Weapon crafting"] = new Skill({
+        skill_id: "Weapon crafting", 
+        names: {0: "Weapon crafting"}, 
+        skill_group: "crafting skills",
+        description: "Ability to craft weapons",
+        base_xp_cost: 20,
+        max_level: 40,
+
+    });
+    skills["Armor crafting"] = new Skill({
+        skill_id: "Armor crafting", 
+        names: {0: "Armor crafting"}, 
+        skill_group: "crafting skills",
+        description: "Ability to create protective equipment",
+        base_xp_cost: 20,
+        max_level: 40,
+    });
 })();
 
 

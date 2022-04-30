@@ -99,7 +99,7 @@ character.add_bonuses = function add_bonuses(bonuses) {
 }
 
 character.update_stats = function update_stats() {
-        const missing_health = (character.full_stats["max_health"] - character.full_stats["health"]) || 0;   
+    const missing_health = (character.full_stats["max_health"] - character.full_stats["health"]) || 0;   
     //to avoid fully healing character whenever this function is called
 
     Object.keys(character.stats).forEach(function(stat){
@@ -112,26 +112,26 @@ character.update_stats = function update_stats() {
 
         if(stat !== "defense") {
                 Object.keys(character.equipment).forEach(function(key) {
-                if(character.equipment[key]?.equip_effect[stat]?.flat_bonus) {
-                        character.full_stats[stat] += character.equipment[key].equip_effect[stat].flat_bonus;
-                }
+                        if(character.equipment[key]?.getStats()[stat]?.flat) {
+                                character.full_stats[stat] += character.equipment[key].getStats()[stat].flat;
+                        }
                 }); //calculate stats based on equipment
         
                 
                 Object.keys(character.equipment).forEach(function(key) {
-                if(character.equipment[key]?.equip_effect[stat]?.multiplier) {
-                        character.full_multipliers[stat] *= character.equipment[key].equip_effect[stat].multiplier;
-                }
+                        if(character.equipment[key]?.getStats()[stat]?.multiplier) {
+                                character.full_multipliers[stat] *= character.equipment[key].getStats()[stat].multiplier;
+                        }
                 });
 
                 character.full_stats[stat] *= (character.full_multipliers[stat] || 1);
 
                 if(stat === "health") {
-                character.full_stats["health"] = Math.max(1, character.full_stats["max_health"] - missing_health);
+                        character.full_stats["health"] = Math.max(1, character.full_stats["max_health"] - missing_health);
                 } 
         } else {
                 Object.keys(character.equipment).forEach(function(key) {
-                        if(character.equipment[key]?.defense_value) {
+                        if(character.equipment[key]?.getDefense) {
                                 character.full_stats[stat] += character.equipment[key].getDefense();
                         }
                 });

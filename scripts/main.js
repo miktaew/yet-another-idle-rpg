@@ -122,6 +122,15 @@ const location_name_div = document.getElementById("location_name_div");
 
 time_field.innerHTML = current_game_time.toString();
 
+const rarity_colors = {
+    trash: "lightgray",
+    common: "white",
+    uncommon: "lightgreen",
+    rare: "blue",
+    epic: "purple",
+    legendary: "orange",
+}
+
 // button testing cuz yes
 const test_button = document.getElementById("test_button");
 test_button.style.display = 'none';
@@ -747,12 +756,11 @@ function get_character_money() {
 }
 /**
  * @param {} selected_item 
- * {item: {string with value of data- attribute}, count: Number}
+ * {item: {string with value of data- attribute}, count: Number, id: Number (position in inventory)}
  * @returns {Number} total cost of operation
  */
 function add_to_buying_list(selected_item) {
-    const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
-
+    const is_stackable = !Array.isArray(traders[current_trader].inventory[selected_item.item.split(' #')[0]]);
     if(is_stackable) {
 
         const present_item = to_buy.items.find(a => a.item === selected_item.item);
@@ -774,17 +782,25 @@ function add_to_buying_list(selected_item) {
             to_buy.items.push(selected_item);
         }
 
+        const value = Math.ceil(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue()) * selected_item.count;
+
+        to_buy.value += value;
+        return -value;
+
     } else {
+
         to_buy.items.push(selected_item);
+        const actual_item = traders[current_trader].inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
+
+        const value = Math.ceil(traders[current_trader].profit_margin * actual_item.getValue());
+        to_buy.value += value
+
+        return -value;
     }
-
-    to_buy.value += Math.floor(Math.max(1,traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue())) * selected_item.count;
-
-    return -Math.floor(Math.max(1,traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue())) * selected_item.count;
 }
 
 function remove_from_buying_list(selected_item) {
-    const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
+    const is_stackable = !Array.isArray(traders[current_trader].inventory[selected_item.item.split(' #')[0]]);
     var actual_number_to_remove = selected_item.count;
 
     if(is_stackable) { //stackable, so "count" may be more than 1
@@ -795,16 +811,25 @@ function remove_from_buying_list(selected_item) {
             actual_number_to_remove = present_item.count
             to_buy.items.splice(to_buy.items.indexOf(present_item),1);
         }
-    } else { //unstackable item, so always just 1
-        to_buy.items.splice(to_buy.items.indexOf(selected_item),1);
-    }
 
-    to_buy.value -= Math.floor(Math.max(1, traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue())) * actual_number_to_remove;
-    return Math.floor(Math.max(1, traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue())) * actual_number_to_remove;
+        const value = Math.ceil(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue()) * actual_number_to_remove;
+        to_buy.value -= value;
+        return value;
+    } else { //unstackable item, so always just 1
+        //find index of item and remove it
+        to_buy.items.splice(to_buy.items.map(item => item.item).indexOf(selected_item.item),1);
+
+        const actual_item = traders[current_trader].inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
+        const value = Math.ceil(traders[current_trader].profit_margin * actual_item.getValue());
+
+        to_buy.value -= value;
+        return value;
+    }
 }
 
 function add_to_selling_list(selected_item) {
-    const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
+    console.log(to_sell);
+    const is_stackable = !Array.isArray(character.inventory[selected_item.item.split(' #')[0]]);
 
     if(is_stackable) {
 
@@ -823,20 +848,26 @@ function add_to_selling_list(selected_item) {
                 //character has not enough: sell all available
                 selected_item.count = character.inventory[selected_item.item.split(' #')[0]].count;
             }
-
             to_sell.items.push(selected_item);
+            
         }
+        const value = item_templates[selected_item.item.split(' #')[0]].getValue() * selected_item.count;
+        to_sell.value += value;
+        return value;
 
     } else {
         to_sell.items.push(selected_item);
-    }
 
-    to_sell.value += item_templates[selected_item.item.split(' #')[0]].getValue() * selected_item.count;
-    return item_templates[selected_item.item.split(' #')[0]].getValue() * selected_item.count;
+        const actual_item = character.inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
+        const value = actual_item.getValue();
+        to_sell.value += value;
+        return value;
+    }
 }
 
 function remove_from_selling_list(selected_item) {
-    const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
+    console.log(to_sell);
+    const is_stackable = !Array.isArray(character.inventory[selected_item.item.split(' #')[0]]);
     var actual_number_to_remove = selected_item.count;
 
     if(is_stackable) { //stackable, so "count" may be more than 1
@@ -847,12 +878,19 @@ function remove_from_selling_list(selected_item) {
             actual_number_to_remove = present_item.count;
             to_sell.items.splice(to_sell.items.indexOf(present_item), 1);
         }
-    } else { //unstackable item, so just 1
-        to_sell.items.splice(to_sell.items.indexOf(selected_item),1);
+        const value = item_templates[selected_item.item.split(' #')[0]].getValue() * actual_number_to_remove;
+        to_sell.value -= value;
+        return -value;
+    } else { //unstackable item
+        //find index of item and remove it
+        to_sell.items.splice(to_sell.items.map(item => item.item).indexOf(selected_item.item),1);
+
+        const actual_item = character.inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
+        const value = actual_item.getValue();
+        to_sell.value -= value;
+        return -value;
     }
 
-    to_sell.value -= item_templates[selected_item.item.split(' #')[0]].getValue() * actual_number_to_remove;
-    return -item_templates[selected_item.item.split(' #')[0]].getValue() * actual_number_to_remove;
 }
 
 function update_displayed_trader_inventory(sorting_param) {
@@ -866,7 +904,7 @@ function update_displayed_trader_inventory(sorting_param) {
 
                 let should_continue = false;
                 for(let j = 0; j < to_buy.items.length; j++) {
-                    if(trader.inventory[key][i].name === to_buy.items[j].item.split(" #")[0] && i == Number(to_buy.items[j].item.split(" #")[1])) {
+                    if(trader.inventory[key][i].getName() === to_buy.items[j].item.split(" #")[0] && i == Number(to_buy.items[j].item.split(" #")[1])) {
                         //checks if item is present in to_buy, if so then doesn't add it to displayed in this inventory
                         should_continue = true;
                         break;
@@ -880,7 +918,7 @@ function update_displayed_trader_inventory(sorting_param) {
                 const item_div = document.createElement("div");
                 const item_name_div = document.createElement("div");
 
-                item_name_div.innerHTML = `[${trader.inventory[key][i].equip_slot}] ${trader.inventory[key][i].name}`;
+                item_name_div.innerHTML = `[${trader.inventory[key][i].equip_slot}] ${trader.inventory[key][i].getName()}`;
                 item_name_div.classList.add("inventory_item_name");
                 item_div.appendChild(item_name_div);
                 item_div.classList.add("inventory_item", "trader_item");       
@@ -889,7 +927,7 @@ function update_displayed_trader_inventory(sorting_param) {
                 item_div.appendChild(create_item_tooltip(trader.inventory[key][i], {trader: true}));
 
                 item_control_div.classList.add('inventory_item_control', 'trader_item_control', `trader_item_${trader.inventory[key][i].item_type.toLowerCase()}`);
-                item_control_div.setAttribute("data-trader_item", `${trader.inventory[key][i].name} #${i}`)
+                item_control_div.setAttribute("data-trader_item", `${trader.inventory[key][i].getName()} #${i}`)
                 item_control_div.appendChild(item_div);
 
                 trader_inventory_div.appendChild(item_control_div);
@@ -997,7 +1035,7 @@ function update_displayed_trader_inventory(sorting_param) {
             const item_div = document.createElement("div");
             const item_name_div = document.createElement("div");
 
-            item_name_div.innerHTML = `[${item_templates[actual_item.name].equip_slot}] ${actual_item.name}`;
+            item_name_div.innerHTML = `[${actual_item.equip_slot}] ${actual_item.getName()}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
             item_div.classList.add("inventory_item", "trader_item");       
@@ -1006,7 +1044,7 @@ function update_displayed_trader_inventory(sorting_param) {
             item_div.appendChild(create_item_tooltip(actual_item));
 
             item_control_div.classList.add('item_to_trade', 'inventory_item_control', 'trader_item_control', `trader_item_${actual_item.item_type.toLowerCase()}`);
-            item_control_div.setAttribute("data-trader_item", `${actual_item.name} #${item_index}`)
+            item_control_div.setAttribute("data-trader_item", `${actual_item.getName()} #${item_index}`)
             item_control_div.appendChild(item_div);
 
             trader_inventory_div.appendChild(item_control_div);
@@ -1019,7 +1057,6 @@ function update_displayed_trader_inventory(sorting_param) {
 function sort_displayed_inventory(options) {
 
     const target = options.target === "trader" ? trader_inventory_div : inventory_div;
-
     /*
     seems terribly overcomplicated
     can't think of better solution for now
@@ -1610,26 +1647,26 @@ function add_to_inventory(who, items) {
     }
 
     for(let i = 0; i < items.length; i++){
-        if(!target.inventory.hasOwnProperty(items[i].item.name)) //not in inventory
+        if(!target.inventory.hasOwnProperty(items[i].item.getName())) //not in inventory
         {
             if(items[i].item.stackable)
             {
-                target.inventory[items[i].item.name] = items[i];
+                target.inventory[items[i].item.getName()] = items[i];
             }
             else 
             {
-                target.inventory[items[i].item.name] = [items[i].item];
+                target.inventory[items[i].item.getName()] = [items[i].item];
             }
         }
         else //in inventory 
         {
             if(items[i].item.stackable)
             {
-                target.inventory[items[i].item.name].count += items[i].count;
+                target.inventory[items[i].item.getName()].count += items[i].count;
             } 
             else 
             {
-                target.inventory[items[i].item.name].push(items[i].item);
+                target.inventory[items[i].item.getName()].push(items[i].item);
             }
         }
 
@@ -1748,7 +1785,7 @@ function update_displayed_inventory() {
 
                 let should_continue = false;
                 for(let j = 0; j < to_sell.items.length; j++) {
-                    if(character.inventory[key][i].name === to_sell.items[j].item.split(" #")[0] && i == Number(to_sell.items[j].item.split(" #")[1])) {
+                    if(character.inventory[key][i].getName() === to_sell.items[j].item.split(" #")[0] && i == Number(to_sell.items[j].item.split(" #")[1])) {
                         //checks if item is present in to_sell, if so then doesn't add it to displayed in this inventory
                         should_continue = true;
                         break;
@@ -1762,13 +1799,13 @@ function update_displayed_inventory() {
                 const item_div = document.createElement("div");
                 const item_name_div = document.createElement("div");
 
-                item_name_div.innerHTML = `[${item_templates[character.inventory[key][i].name].equip_slot}] ${character.inventory[key][i].name}`;
+                item_name_div.innerHTML = `[${character.inventory[key][i].equip_slot}] ${character.inventory[key][i].getName()}`;
                 item_name_div.classList.add("inventory_item_name");
                 item_div.appendChild(item_name_div);
     
                 item_div.classList.add("inventory_item", "character_item", `item_${character.inventory[key][i].item_type.toLowerCase()}`);
 
-                item_control_div.setAttribute("data-character_item", `${character.inventory[key][i].name} #${i}`)
+                item_control_div.setAttribute("data-character_item", `${character.inventory[key][i].getName()} #${i}`)
                 //shouldnt create any problems, as any change to inventory will also call this method, 
                 //so removing/equipping any item wont cause mismatch
 
@@ -1856,13 +1893,13 @@ function update_displayed_inventory() {
             const item_name_div = document.createElement("div");
     
 
-            item_name_div.innerHTML = `[${item_templates[item.name].equip_slot}] ${item.name}`;
+            item_name_div.innerHTML = `[${item.equip_slot}] ${item.getName()}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
 
             item_div.classList.add("inventory_equipped_item");
 
-            item_control_div.setAttribute("data-character_item", `${item.name} #${key}`)
+            item_control_div.setAttribute("data-character_item", `${item.getName()} #${key}`)
 
             item_div.appendChild(create_item_tooltip(item));
             item_control_div.classList.add("equipped_item_control", `character_item_${item.item_type.toLowerCase()}`);
@@ -1926,7 +1963,7 @@ function update_displayed_inventory() {
             const item_div = document.createElement("div");
             const item_name_div = document.createElement("div");
 
-            item_name_div.innerHTML = `[${item_templates[actual_item.name].equip_slot}] ${actual_item.name}`;
+            item_name_div.innerHTML = `[${item_templates[actual_item.getName()].equip_slot}] ${actual_item.getName()}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
             item_div.classList.add("inventory_item", "character_item");       
@@ -1935,7 +1972,7 @@ function update_displayed_inventory() {
             item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
 
             item_control_div.classList.add('item_to_trade', 'inventory_item_control', 'character_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
-            item_control_div.setAttribute("data-character_item", `${actual_item.name} #${item_index}`)
+            item_control_div.setAttribute("data-character_item", `${actual_item.getName()} #${item_index}`)
             item_control_div.appendChild(item_div);
 
             inventory_div.appendChild(item_control_div);
@@ -1951,17 +1988,11 @@ function update_displayed_inventory() {
  * @param item_info {name, id}
  */
 function equip_item_from_inventory(item_info) {
-    //item info -> {name: X, count: X, id: X}, count currently not used
     if(character.inventory.hasOwnProperty(item_info.name)) { //check if its in inventory, just in case
-        if(character.inventory[item_info.name].hasOwnProperty("item")) { //stackable
-            console.log("not implemented");
-        }
-        else { //unstackable
-            //add specific item to equipment slot
-            // -> id and name tell which exactly item it is, then also check slot in item object and thats all whats needed
-            equip_item(character.inventory[item_info.name][item_info.id]);
-            remove_from_inventory("character", item_info); //put this outside if() when equipping gets implemented for stackables as well
-        }
+        //add specific item to equipment slot
+        // -> id and name tell which exactly item it is, then also check slot in item object and thats all whats needed
+        equip_item(character.inventory[item_info.name][item_info.id]);
+        remove_from_inventory("character", item_info); //put this outside if() when equipping gets implemented for stackables as well
     }
 }
 
@@ -1992,42 +2023,46 @@ function create_item_tooltip(item, options) {
     //create tooltip and it's content
     var item_tooltip = document.createElement("span");
     item_tooltip.classList.add(options && options.css_class || "item_tooltip");
-    item_tooltip.innerHTML = 
-    `<b>${item.name}</b>
-    <br>${item.description}`;
+
+    item_tooltip.innerHTML = `<b>${item.getName()}</b>`;
+    if(item.description) {
+        item_tooltip.innerHTML += `<br>${item.description}`; 
+    }
 
     //add stats if can be equipped
     if(item.item_type === "EQUIPPABLE"){
 
-        item_tooltip.innerHTML += `<br><br><strong>Quality: ${Math.round(item.quality*100)}%</strong>`;
+        item_tooltip.innerHTML += `<br><br><b style="color: ${rarity_colors[item.getRarity()]}">Quality: ${Math.round(item.quality*100)}% </b>`;
 
         //if a shield
         if(item.offhand_type === "shield") {
             item_tooltip.innerHTML += 
-            `<br><br><strong>[shield]</strong><br><br>Can fully block attacks not stronger than: ${item.getShieldStrength()}`;
+            `<br><br><b>[shield]</b><br><br>Can fully block attacks not stronger than: ${item.getShieldStrength()}`;
         }
         else if(item.equip_slot === "weapon") {
-            item_tooltip.innerHTML += `<br><br>Type: <strong>${item.weapon_type}</strong>`;
+            item_tooltip.innerHTML += `<br><br>Type: <b>${item.weapon_type}</b>`;
         }
         else {
-            item_tooltip.innerHTML += `<br><br>Slot: <strong>${item.equip_slot}</strong`;
+            item_tooltip.innerHTML += `<br><br>Slot: <b>${item.equip_slot}</b`;
         }
 
-        if(item.attack_value) {
+        if(item.getAttack) {
             item_tooltip.innerHTML += 
-                `<br><br>Attack: ${item.getAttack()}`;
+                `<br><br>Attack: ${item.getAttack()}<br>`;
         } else if(item.defense_value) { 
             item_tooltip.innerHTML += 
-            `<br><br>Defense value ${item.getDefense()}`;
+            `<br><br>Defense value ${item.getDefense()}<br>`;
         } 
-        Object.keys(item.equip_effect).forEach(function(effect_key) {
+        const equip_stats = item.getStats();
+        Object.keys(equip_stats).forEach(function(effect_key) {
 
-            item_tooltip.innerHTML += 
-                `<br><br>Flat ${effect_key} bonus: ${item.equip_effect[effect_key].flat_bonus}`;
-
-            if(item.equip_effect[effect_key].multiplier != null) {
+            if(equip_stats[effect_key].flat != null) {
                 item_tooltip.innerHTML += 
-            `<br>${capitalize_first_letter(effect_key)} multiplier: ${item.equip_effect[effect_key].multiplier}`;
+                `<br>${capitalize_first_letter(effect_key).replace("_"," ")} +${equip_stats[effect_key].flat}`;
+            }
+            if(equip_stats[effect_key].multiplier != null) {
+                item_tooltip.innerHTML += 
+                `<br>${capitalize_first_letter(effect_key).replace("_"," ")} x${equip_stats[effect_key].multiplier}`;
         }
         });
     } 
@@ -2054,7 +2089,7 @@ function create_item_tooltip(item, options) {
         });
     }
 
-    item_tooltip.innerHTML += `<br><br>Value: ${format_money(Math.max(1, Math.floor(item.getValue() * ((options && options.trader) ? traders[current_trader].profit_margin : 1) || 1)))}`;
+    item_tooltip.innerHTML += `<br><br>Value: ${format_money(Math.ceil(item.getValue() * ((options && options.trader) ? traders[current_trader].profit_margin : 1) || 1))}`;
 
     return item_tooltip;
 }
@@ -2072,7 +2107,7 @@ function update_displayed_equipment() {
         }
         else 
         {
-            equipment_slots_divs[key].innerHTML = character.equipment[key].name;
+            equipment_slots_divs[key].innerHTML = character.equipment[key].getName();
             equipment_slots_divs[key].classList.remove("equipment_slot_empty");
 
             eq_tooltip = create_item_tooltip(character.equipment[key]);
@@ -2094,6 +2129,7 @@ function update_character_stats() { //updates character stats
 }
 
 function update_displayed_stats() { //updates displayed stats
+
     Object.keys(stats_divs).forEach(function(key){
         if(key === "crit_rate" || key === "crit_multiplier") {
             stats_divs[key].innerHTML = `${(character.full_stats[key]*100).toFixed(1)}%`
@@ -2357,16 +2393,41 @@ function load(save_data) {
 
         Object.keys(save_data.character.equipment).forEach(function(key){
             if(save_data.character.equipment[key] != null) {
-                if(item_templates[save_data.character.equipment[key].name]) {
-                    save_data.character.equipment[key].value = item_templates[save_data.character.equipment[key].name].value;
-                    save_data.character.equipment[key].equip_effect = item_templates[save_data.character.equipment[key].name].equip_effect;
-                    save_data.character.equipment[key].attack_value = item_templates[save_data.character.equipment[key].name].attack_value;
-                    save_data.character.equipment[key].shield_strength = item_templates[save_data.character.equipment[key].name].shield_strength;
-                    save_data.character.equipment[key].defense_value = item_templates[save_data.character.equipment[key].name].defense_value;
-                    equip_item(getItem(save_data.character.equipment[key])); 
-                } else {
-                    console.warn(`Equipped item "${save_data.character.equipment[key].name}" couldn't be found`);
-                    return;
+                try{
+
+                    if(key === "weapon") {
+                        const {head, handle, quality, equip_slot} = save_data.character.equipment[key];
+                        if(!item_templates[head]){
+                            console.warn(`Skipped item: weapon head component ${head} couldn't be found!`);
+                        } else if(!item_templates[handle]) {
+                            console.warn(`Skipped item: weapon handle component ${handle} couldn't be found!`);
+                        } else {
+                            const item = getItem({head, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                            equip_item(item);
+                        }
+                    } else if(key === "off-hand") {
+                        const {shield_base, handle, quality, equip_slot} = save_data.character.equipment[key];
+                        if(!item_templates[shield_base]){
+                            console.warn(`Skipped item: shield base component ${shield_base} couldn't be found!`);
+                        } else if(!item_templates[handle]) {
+                            console.warn(`Skipped item: shield handle ${handle} couldn't be found!`);
+                        } else {
+                            const item = getItem({shield_base, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                            equip_item(item);
+                        }
+                    } else {
+                        const {internal, external, quality, equip_slot} = save_data.character.equipment[key];
+                        if(!item_templates[internal]){
+                            console.warn(`Skipped item: internal armor component ${internal} couldn't be found!`);
+                        } else if(external && !item_templates[external]) {
+                            console.warn(`Skipped item: external armor component ${external} couldn't be found!`);
+                        } else {
+                            const item = getItem({internal, external, quality, equip_slot, item_type: "EQUIPPABLE"});
+                            equip_item(item);
+                        }
+                    }
+                } catch (error) {
+                    console.error(error);
                 }
             }
         }); //equip proper items
@@ -2374,29 +2435,50 @@ function load(save_data) {
         const item_list = [];
 
         Object.keys(save_data.character.inventory).forEach(function(key){
-            if(Array.isArray(save_data.character.inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
+            if(Array.isArray(save_data.character.inventory[key])) { //is a list of unstackable items (equippables), needs to be added 1 by 1
                 for(let i = 0; i < save_data.character.inventory[key].length; i++) {
-                    if(item_templates[key]) {
-                        save_data.character.inventory[key][i].value = item_templates[key].value;
-                        if(item_templates[key].item_type = "EQUIPPABLE") {
-                            save_data.character.inventory[key][i].equip_effect = item_templates[key].equip_effect;
+                    try{
+                        if(save_data.character.inventory[key][i].equip_slot === "weapon") {
+                            const {head, handle, quality, equip_slot} = save_data.character.inventory[key][i];
+                            if(!item_templates[head]){
+                                console.warn(`Skipped item: weapon head component ${head} couldn't be found!`);
+                            } else if(!item_templates[handle]) {
+                                console.warn(`Skipped item: weapon handle component ${handle} couldn't be found!`);
+                            } else {
+                                const item = getItem({head, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                item_list.push({item, count: 1});
+                            }
+                        } else if(save_data.character.inventory[key][i].equip_slot === "off-hand") {
+                            const {shield_base, handle, quality, equip_slot} = save_data.character.inventory[key][i];
+                            if(!item_templates[shield_base]){
+                                console.warn(`Skipped item: shield base component "${shield_base}" couldn't be found!`);
+                            } else if(!item_templates[handle]) {
+                                console.warn(`Skipped item: shield handle "${handle}" couldn't be found!`);
+                            } else {
+                                const item = getItem({shield_base, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                item_list.push({item, count: 1});
+                            }
+                        } else {
+                            const {internal, external, quality, equip_slot} = save_data.character.inventory[key][i];
+                            if(!item_templates[internal]){
+                                console.warn(`Skipped item: internal armor component "${internal}" couldn't be found!`);
+                            } else if(external && !item_templates[external]) {
+                                console.warn(`Skipped item: external armor component "${external}" couldn't be found!`);
+                            } else {
+                                const item = getItem({internal, external, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                item_list.push({item, count: 1});
+                            }
                         }
-                        item_list.push({item: getItem(save_data.character.inventory[key][i]), count: 1});
-                    } else {
-                        console.warn(`Inventory item "${key}" couldn't be found!`);
-                        return;
+                    } catch (error) {
+                        console.error(error);
                     }
                 }
             }
-            else {
+            else { //is stackable 
                 if(item_templates[key]) {
                     save_data.character.inventory[key].item.value = item_templates[key].value;
-                    if(item_templates[key].item_type === "EQUIPPABLE") {
-                        save_data.character.inventory[key].item.equip_effect = item_templates[key].equip_effect;
-                        save_data.character.inventory[key].attack_value = item_templates[key].attack_value;
-                        save_data.character.inventory[key].shield_strength = item_templates[key].shield_strength;
-                        save_data.character.inventory[key].defense_value = item_templates[key].defense_value;
-                    } else if(item_templates[key].item_type === "USABLE") {
+                    save_data.character.inventory[key].item.description = item_templates[key].description;
+                    if(item_templates[key].item_type === "USABLE") {
                         save_data.character.inventory[key].item.use_effect = item_templates[key].use_effect;
                     }
                     item_list.push({item: getItem(save_data.character.inventory[key].item), count: save_data.character.inventory[key].count});
@@ -2453,13 +2535,43 @@ function load(save_data) {
             let trader_item_list = [];
             if(traders[trader]){
                 Object.keys(save_data.traders[trader].inventory).forEach(function(key){
-                    if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
+                    if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list of unstackable (equippable) item, needs to be added 1 by 1
                         for(let i = 0; i < save_data.traders[trader].inventory[key].length; i++) {
-                            save_data.traders[trader].inventory[key][i].value = item_templates[key].value;
-                            if(item_templates[key].item_type = "EQUIPPABLE") {
-                                save_data.traders[trader].inventory[key][i].equip_effect = item_templates[key].equip_effect;
+                            try{
+                                if(save_data.traders[trader].inventory[key][i].equip_slot === "weapon") {
+                                    const {head, handle, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
+                                    if(!item_templates[head]){
+                                        console.warn(`Skipped item: weapon head component ${head} couldn't be found!`);
+                                    } else if(!item_templates[handle]) {
+                                        console.warn(`Skipped item: weapon handle component ${handle} couldn't be found!`);
+                                    } else {
+                                        const item = getItem({head, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                        trader_item_list.push({item, count: 1});
+                                    }
+                                } else if( save_data.traders[trader].inventory[key][i].equip_slot === "off-hand") {
+                                    const {shield_base, handle, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
+                                    if(!item_templates[shield_base]){
+                                        console.warn(`Skipped item: shield base component "${shield_base}" couldn't be found!`);
+                                    } else if(!item_templates[handle]) {
+                                        console.warn(`Skipped item: shield handle "${handle}" couldn't be found!`);
+                                    } else {
+                                        const item = getItem({shield_base, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                        trader_item_list.push({item, count: 1});
+                                    }
+                                } else {
+                                    const {internal, external, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
+                                    if(!item_templates[internal]){
+                                        console.warn(`Skipped item: internal armor component "${internal}" couldn't be found!`);
+                                    } else if(external && !item_templates[external]) {
+                                        console.warn(`Skipped item: external armor component "${external}" couldn't be found!`);
+                                    } else {
+                                        const item = getItem({internal, external, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                        trader_item_list.push({item, count: 1});
+                                    }
+                                }
+                            } catch (error) {
+                                console.error(error);
                             }
-                            trader_item_list.push({item: getItem(save_data.traders[trader].inventory[key][i]), count: 1});
                         }
                     }
                     else {
@@ -2829,16 +2941,16 @@ if("save data" in localStorage) {
     update_combat_stats();
 }
 else {
-    add_to_inventory("character", [{item: getItem({...item_templates["Long stick"], quality: 0.5})}, 
-                                   {item: getItem({...item_templates["Cheap leather pants"], quality: 0.5})},
+    add_to_inventory("character", [{item: getItem({...item_templates["Cheap iron spear"], quality: 0.8})}, 
+                                   {item: getItem({...item_templates["Cheap leather pants"], quality: 0.8})},
                                    {item: getItem(item_templates["Stale bread"]), count: 5}]);
 
-    equip_item_from_inventory({name: "Long stick", id: 0});
+    equip_item_from_inventory({name: "Cheap iron spear", id: 0});
     equip_item_from_inventory({name: "Cheap leather pants", id: 0});
     add_xp_to_character(0);
     character.money = 10;
     update_displayed_money();
-    update_displayed_stats();
+    update_character_stats();
 }
 //checks if there's an existing save file, otherwise just sets up some initial equipment
 
