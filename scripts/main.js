@@ -930,6 +930,11 @@ function update_displayed_trader_inventory(sorting_param) {
                 item_control_div.setAttribute("data-trader_item", `${trader.inventory[key][i].getName()} #${i}`)
                 item_control_div.appendChild(item_div);
 
+                var item_value_span = document.createElement("span");
+                item_value_span.innerHTML = `${format_money(trader.inventory[key][i].getValue() * trader.profit_margin, true)}`;
+                item_value_span.classList.add("item_value", "item_controls");
+                item_control_div.appendChild(item_value_span);
+
                 trader_inventory_div.appendChild(item_control_div);
             }
         } else //stackables
@@ -973,13 +978,19 @@ function update_displayed_trader_inventory(sorting_param) {
 
             item_div.appendChild(create_item_tooltip(trader.inventory[key].item, {trader: true}));
 
+
             item_control_div.classList.add('trader_item_control', 'inventory_item_control', `trader_item_${trader.inventory[key].item.item_type.toLowerCase()}`);
             item_control_div.setAttribute("data-trader_item", `${trader.inventory[key].item.name}`);
             item_control_div.setAttribute("data-item_count", `${item_count}`);
+            
             item_control_div.appendChild(item_div);
-
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);
+
+            var item_value_span = document.createElement("span");
+            item_value_span.innerHTML = `${format_money(trader.inventory[key].item.getValue() * trader.profit_margin, true)}`;
+            item_value_span.classList.add("item_value", "item_controls");
+            item_control_div.appendChild(item_value_span);
 
             trader_inventory_div.appendChild(item_control_div);
         }
@@ -999,7 +1010,7 @@ function update_displayed_trader_inventory(sorting_param) {
             const item_div = document.createElement("div");
             const item_name_div = document.createElement("div");
     
-            item_name_div.innerHTML = `[${actual_item.equip_slot}] ${actual_item.name} x${item_count}`;
+            item_name_div.innerHTML = `${actual_item.name} x${item_count}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
 
@@ -1025,6 +1036,11 @@ function update_displayed_trader_inventory(sorting_param) {
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);
 
+            var item_value_span = document.createElement("span");
+            item_value_span.innerHTML = `${format_money(actual_item.getValue(), true)}`;
+            item_value_span.classList.add("item_value", "item_controls");
+            item_control_div.appendChild(item_value_span);
+
             trader_inventory_div.appendChild(item_control_div);
             
         } else { //it's unstackable, no need for item_count as it's always at 1
@@ -1046,6 +1062,11 @@ function update_displayed_trader_inventory(sorting_param) {
             item_control_div.classList.add('item_to_trade', 'inventory_item_control', 'trader_item_control', `trader_item_${actual_item.item_type.toLowerCase()}`);
             item_control_div.setAttribute("data-trader_item", `${actual_item.getName()} #${item_index}`)
             item_control_div.appendChild(item_div);
+
+            var item_value_span = document.createElement("span");
+            item_value_span.innerHTML = `${format_money(actual_item.getValue(), true)}`;
+            item_value_span.classList.add("item_value", "item_controls");
+            item_control_div.appendChild(item_value_span);
 
             trader_inventory_div.appendChild(item_control_div);
         }
@@ -1773,9 +1794,10 @@ function update_displayed_money() {
     document.getElementById("money_div").innerHTML = `Your purse contains: ${format_money(character.money)}`;
 }
 
-function update_displayed_inventory() {
-    //actual inventory only, character item slots separately
-    
+/**
+ * updates displayed inventory of the character (only inventory, worn equipment is managed by separate method)
+ */
+function update_displayed_inventory() {    
     inventory_div.innerHTML = "";
 
     Object.keys(character.inventory).forEach(function(key) {
@@ -1799,7 +1821,7 @@ function update_displayed_inventory() {
                 const item_div = document.createElement("div");
                 const item_name_div = document.createElement("div");
 
-                item_name_div.innerHTML = `[${character.inventory[key][i].equip_slot}] ${character.inventory[key][i].getName()}`;
+                item_name_div.innerHTML = `<span class = "item_slot" >[${character.inventory[key][i].equip_slot}]</span> ${character.inventory[key][i].getName()}`;
                 item_name_div.classList.add("inventory_item_name");
                 item_div.appendChild(item_name_div);
     
@@ -1814,12 +1836,16 @@ function update_displayed_inventory() {
                 item_control_div.appendChild(item_div);
 
                 
-                var item_equip_div = document.createElement("div");
-                item_equip_div.innerHTML = "[equip]";
-                item_equip_div.classList.add("equip_item_button");
-                item_control_div.appendChild(item_equip_div);
-                
+                var item_equip_span = document.createElement("span");
+                item_equip_span.innerHTML = "[equip]";
+                item_equip_span.classList.add("equip_item_button", "item_controls");
+                item_control_div.appendChild(item_equip_span);
 
+                var item_value_span = document.createElement("span");
+                item_value_span.innerHTML = `${format_money(character.inventory[key][i].getValue(), true)}`;
+                item_value_span.classList.add("item_value", "item_controls");
+                item_control_div.appendChild(item_value_span);
+                
                 inventory_div.appendChild(item_control_div);
             }
         } else //stackables
@@ -1879,6 +1905,11 @@ function update_displayed_inventory() {
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);
 
+            var item_value_span = document.createElement("span");
+            item_value_span.innerHTML = `${format_money(character.inventory[key].item.getValue(), true)}`;
+            item_value_span.classList.add("item_value", "item_controls");
+            item_control_div.appendChild(item_value_span);
+
             inventory_div.appendChild(item_control_div);
         }
 
@@ -1907,8 +1938,13 @@ function update_displayed_inventory() {
 
             var item_unequip_div = document.createElement("div");
             item_unequip_div.innerHTML = "[take off]";
-            item_unequip_div.classList.add("unequip_item_button");
+            item_unequip_div.classList.add("unequip_item_button", "item_controls");
             item_control_div.appendChild(item_unequip_div);
+
+            var item_value_span = document.createElement("span");
+            item_value_span.innerHTML = `${format_money(character.equipment[key].getValue(), true)}`;
+            item_value_span.classList.add("item_value", "item_controls");
+            item_control_div.appendChild(item_value_span);
 
             inventory_div.appendChild(item_control_div);
         }
@@ -1953,6 +1989,11 @@ function update_displayed_inventory() {
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);
 
+            var item_value_span = document.createElement("span");
+            item_value_span.innerHTML = `${format_money(actual_item.getValue() * traders[current_trader].profit_margin, true)}`;
+            item_value_span.classList.add("item_value", "item_controls");
+            item_control_div.appendChild(item_value_span);
+
             inventory_div.appendChild(item_control_div);
             
         } else { //it's unstackable, no need for item_count as it's always at 1
@@ -1966,7 +2007,7 @@ function update_displayed_inventory() {
             item_name_div.innerHTML = `[${item_templates[actual_item.getName()].equip_slot}] ${actual_item.getName()}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
-            item_div.classList.add("inventory_item", "character_item");       
+            item_div.classList.add("inventory_item", "character_item", "trade_item_equippable",);       
 
             //add tooltip
             item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
@@ -1974,6 +2015,11 @@ function update_displayed_inventory() {
             item_control_div.classList.add('item_to_trade', 'inventory_item_control', 'character_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
             item_control_div.setAttribute("data-character_item", `${actual_item.getName()} #${item_index}`)
             item_control_div.appendChild(item_div);
+
+            var item_value_span = document.createElement("span");
+            item_value_span.innerHTML = `${format_money(actual_item.getValue() * traders[current_trader].profit_margin, true)}`;
+            item_value_span.classList.add("item_value", "item_controls");
+            item_control_div.appendChild(item_value_span);
 
             inventory_div.appendChild(item_control_div);
         }
@@ -2236,11 +2282,23 @@ function update_displayed_effect_durations() {
 /** 
  * formats money to a nice string in form x..x G xx S xx C (gold/silver/copper) 
  * @param {Number} num value to be formatted
+ * @param {Boolean} round if the value should be rounded a bit
  */
-function format_money(num) {
+function format_money(num, round) {
     var value;
     const sign = num >= 0 ? '' : '-';
     num = Math.abs(num);
+
+    if(round) {
+        //round it up a bit to skip tiny little meaningless leftovers
+        const size = Math.log10(num);
+        if(size > 5 && size < 7) { //remove last 2 digits (C value)
+            num = Math.round(num/100) * 100;
+        } else if(size > 7) { //remove last 4 digits (S and C values)
+            num = Math.round(num/10000) * 10000;
+        }
+    }
+
     if(num > 0) {
         value = (num%100 != 0 ? `${num%100} C` : '');
 
@@ -2250,10 +2308,12 @@ function format_money(num) {
                 value = `${Math.floor(num/10000)} G ` + value;
             }
         }
+
+        return sign + value;
+
     } else {
         return 'nothing';
     }
-    return sign + value;
 }
 
 /**
@@ -2941,8 +3001,8 @@ if("save data" in localStorage) {
     update_combat_stats();
 }
 else {
-    add_to_inventory("character", [{item: getItem({...item_templates["Cheap iron spear"], quality: 0.8})}, 
-                                   {item: getItem({...item_templates["Cheap leather pants"], quality: 0.8})},
+    add_to_inventory("character", [{item: getItem({...item_templates["Cheap iron sword"], quality: 0.4})}, 
+                                   {item: getItem({...item_templates["Cheap leather pants"], quality: 0.4})},
                                    {item: getItem(item_templates["Stale bread"]), count: 5}]);
 
     equip_item_from_inventory({name: "Cheap iron spear", id: 0});

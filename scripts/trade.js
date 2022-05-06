@@ -91,6 +91,12 @@ inventory_templates["Basic"] =
         new Trade_item({item_name: "Cheap iron axe", count: [1,2], quality: [0.4, 0.9]}),
         new Trade_item({item_name: "Cheap iron battle hammer", count: [1,2], quality: [0.4, 0.9]}),
 
+        new Trade_item({item_name: "Cheap iron spear", count: [1], quality: [0.91, 1.2], chance: 0.5}),
+        new Trade_item({item_name: "Cheap iron dagger", count: [1], quality: [0.91, 1.2], chance: 0.5}),
+        new Trade_item({item_name: "Cheap iron sword", count: [1], quality: [0.91, 1.2], chance: 0.5}),
+        new Trade_item({item_name: "Cheap iron axe", count: [1], quality: [0.91, 1.2], chance: 0.5}),
+        new Trade_item({item_name: "Cheap iron battle hammer", count: [1], quality: [0.91, 1.2], chance: 0.5}),
+
 
         new Trade_item({item_name: "Cheap wooden shield", count: [1,2], quality: [0.4, 0.9]}),
         new Trade_item({item_name: "Crude wooden shield", count: [1], chance: 0.5, quality: [0.4, 0.9]}),
