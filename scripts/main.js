@@ -918,7 +918,7 @@ function update_displayed_trader_inventory(sorting_param) {
                 const item_div = document.createElement("div");
                 const item_name_div = document.createElement("div");
 
-                item_name_div.innerHTML = `[${trader.inventory[key][i].equip_slot}] ${trader.inventory[key][i].getName()}`;
+                item_name_div.innerHTML = `<span class="item_slot">[${trader.inventory[key][i].equip_slot}]</span> ${trader.inventory[key][i].getName()}`;
                 item_name_div.classList.add("inventory_item_name");
                 item_div.appendChild(item_name_div);
                 item_div.classList.add("inventory_item", "trader_item");       

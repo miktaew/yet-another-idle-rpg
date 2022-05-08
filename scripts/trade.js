@@ -51,7 +51,7 @@ function Trader(trader_data) {
                     inventory[inventory_template[i].item_name] = {item: getItem(item_templates[inventory_template[i].item_name]), count: item_count}; 
                 }
                 else { //unstackable, so add array of n items, each with random quality
-                    inventory[inventory_template[i].item_name] = []; 
+                    inventory[inventory_template[i].item_name] = inventory[inventory_template[i].item_name] || []; 
                     for(let j = 0; j < item_count; j++) {
                         let item = getItem(item_templates[inventory_template[i].item_name]);
                         item.quality = Math.round(100 * (Math.random() * 
@@ -85,11 +85,11 @@ traders["village trader"] = new Trader({
 
 inventory_templates["Basic"] = 
 [
-        new Trade_item({item_name: "Cheap iron spear", count: [1,2], quality: [0.4, 0.9]}),
-        new Trade_item({item_name: "Cheap iron dagger", count: [1,2], quality: [0.4, 0.9]}),
-        new Trade_item({item_name: "Cheap iron sword", count: [1,2], quality: [0.4, 0.9]}),
-        new Trade_item({item_name: "Cheap iron axe", count: [1,2], quality: [0.4, 0.9]}),
-        new Trade_item({item_name: "Cheap iron battle hammer", count: [1,2], quality: [0.4, 0.9]}),
+        new Trade_item({item_name: "Cheap iron spear", count: [1], quality: [0.4, 0.9]}),
+        new Trade_item({item_name: "Cheap iron dagger", count: [1], quality: [0.4, 0.9]}),
+        new Trade_item({item_name: "Cheap iron sword", count: [1], quality: [0.4, 0.9]}),
+        new Trade_item({item_name: "Cheap iron axe", count: [1], quality: [0.4, 0.9]}),
+        new Trade_item({item_name: "Cheap iron battle hammer", count: [1], quality: [0.4, 0.9]}),
 
         new Trade_item({item_name: "Cheap iron spear", count: [1], quality: [0.91, 1.2], chance: 0.5}),
         new Trade_item({item_name: "Cheap iron dagger", count: [1], quality: [0.91, 1.2], chance: 0.5}),
@@ -97,17 +97,18 @@ inventory_templates["Basic"] =
         new Trade_item({item_name: "Cheap iron axe", count: [1], quality: [0.91, 1.2], chance: 0.5}),
         new Trade_item({item_name: "Cheap iron battle hammer", count: [1], quality: [0.91, 1.2], chance: 0.5}),
 
+        new Trade_item({item_name: "Cheap wooden shield", count: [1], quality: [0.4, 0.9]}),
+        new Trade_item({item_name: "Cheap wooden shield", count: [1], chance: 0.5, quality: [0.91, 1.2]}),
+        new Trade_item({item_name: "Crude wooden shield", count: [1], chance: 0.4, quality: [0.4, 0.9]}),
+        new Trade_item({item_name: "Crude wooden shield", count: [1], chance: 0.3, quality: [0.91, 1.2]}),
 
-        new Trade_item({item_name: "Cheap wooden shield", count: [1,2], quality: [0.4, 0.9]}),
-        new Trade_item({item_name: "Crude wooden shield", count: [1], chance: 0.5, quality: [0.4, 0.9]}),
-
-        new Trade_item({item_name: "Cheap leather vest", count: [1,2], quality: [0.4, 0.9]}),
-        new Trade_item({item_name: "Cheap leather pants", count: [1,2], quality: [0.4, 0.9]}),
+        new Trade_item({item_name: "Cheap leather vest", count: [1], quality: [0.4, 0.9]}),
+        new Trade_item({item_name: "Cheap leather vest", count: [1], chance: 0.5, quality: [0.91, 1.2]}),
+        new Trade_item({item_name: "Cheap leather pants", count: [1], quality: [0.4, 0.9]}),
+        new Trade_item({item_name: "Cheap leather pants", count: [1], chance: 0.5, quality: [0.91, 1.2]}),
 
         new Trade_item({item_name: "Stale bread", count: [4,10]}),
         new Trade_item({item_name: "Fresh bread", count: [2,5]}),
-
-        new Trade_item({item_name: "Rat fang", count: [2,6]}),
 ];
 
 export {traders};
