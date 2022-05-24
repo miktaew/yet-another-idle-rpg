@@ -9,7 +9,7 @@ function Skill(skill_data) {
     this.description = skill_data.description;
     this.current_level = 0; //initial lvl
     this.max_level = skill_data.max_level || 60; //max possible lvl, dont make it too high
-    this.max_level_coefficient = skill_data.max_level_coefficient;
+    this.max_level_coefficient = skill_data.max_level_coefficient; //multiplicative bonus for levels
     this.current_xp = 0; // how much of xp_to_next_lvl there is currently
     this.total_xp = 0; // total collected xp, on loading calculate lvl based on this (so to not break skills if scaling ever changes)
     this.base_xp_cost = skill_data.base_xp_cost || 40; //xp to go from lvl 1 to lvl 2
@@ -107,7 +107,6 @@ function Skill(skill_data) {
                     }
                 }
                 return message;
-                //TODO: add gained stats ('gains' variable) to returned string
             }
         } 
     }
@@ -183,6 +182,9 @@ function Skill(skill_data) {
                 break;
         }
     } 
+    this.get_level_bonus = function() {
+        return this.max_level_bonus * this.current_level/this.max_level;
+    }
 }
 
 function SkillGroup(skill_group_data) {
@@ -193,6 +195,7 @@ function SkillGroup(skill_group_data) {
 const stat_names = {"strength": "str",
                     "health": "hp",
                     "max_health": "hp", //same as for "health"
+                    "max_stamina": "stamina",
                     "agility": "agl",
                     "dexterity": "dex",
                     "magic": "magic",
@@ -561,30 +564,35 @@ skill_groups["weapon skills"] = new SkillGroup({
                                         2: {
                                             stats: {
                                                 "strength": 1,
+                                                max_stamina: 3,
                                             },
                                         },
                                         4: {
                                             stats: {
                                                 "strength": 1,
                                                 "dexterity": 1,
+                                                max_stamina: 3,
                                             }
                                         },
                                         6: {
                                             stats: {
                                                 "strength": 2,
                                                 "dexterity": 1,
+                                                max_stamina: 3,
                                             }
                                         },
                                         8: {
                                             stats: {
                                                 "strength": 3,
                                                 "dexterity": 1,
+                                                max_stamina: 3,
                                             }
                                         },
                                         10: {
                                             stats: {
                                                 "strength": 5,
                                                 "dexterity": 2,
+                                                max_stamina: 5,
                                             },
                                             multipliers: {
                                                 "strength": 1.2,
@@ -653,42 +661,55 @@ skill_groups["weapon skills"] = new SkillGroup({
     skills["Running"] = new Skill({skill_id: "Running",
                                   description: "Great way to improve the efficiency of the body",
                                   names: {0: "Running"},
-                                  base_xp_cost: 100,
+                                  max_level: 50,
+                                  max_level_coefficient: 4,
+                                  base_xp_cost: 200,
                                   rewards: {
                                     milestones: {
                                         1: {
                                             stats: {
-                                                "agility": 1,
+                                                agility: 1,
                                             },
                                         },
                                         3: {
                                             stats: {
-                                                "agility": 1,
+                                                agility: 1,
                                             }
                                         },
                                         5: {
                                             stats: {
-                                                "agility": 2,
+                                                agility: 1,
                                             },
                                             multipliers: {
-                                                "agility": 1.1,
+                                                agility: 1.1,
+                                                max_stamina: 1.05,
                                             }
                                         },
                                         7: {
                                             stats: {
-                                                "agility": 2,
+                                                agility: 2,
                                             },
                                         },
                                         10: {
                                             stats: {
-                                                "agility": 3,
+                                                agility: 2,
                                             },
                                             multipliers: {
-                                                "agility": 1.1,
+                                                agility: 1.1,
+                                                max_stamina: 1.05,
                                             }
                                         }
                                     }
-                                }
+                                  },
+                                  get_effect_description: ()=> {
+                                    let value = skills["Running"].get_coefficient("multiplicative");
+                                    if(value >= 100) {
+                                        value = Math.round(value);
+                                    } else {
+                                        value = Math.round(value*10)/10;
+                                    }
+                                    return `Multiplies max stamina by ${value}`;
+                                  },
                                   
                                 });
 })();
@@ -725,7 +746,6 @@ skill_groups["crafting skills"] = new SkillGroup({
         }
     }
 });
-
 (function(){
     skills["Weapon crafting"] = new Skill({
         skill_id: "Weapon crafting", 
@@ -746,6 +766,21 @@ skill_groups["crafting skills"] = new SkillGroup({
     });
 })();
 
+//character related skills
+(function(){
+    skills["Persistence"] = new Skill({
+        skill_id: "Persistence",
+        names: {0: "Persistence"},
+        description: "Being tired is not a reason to give up",
+        base_xp_cost: 60,
+        max_level: 30,
+        get_effect_description: ()=> {
+            return `Reduces low stamina penalty by ${Math.round(skills["Persistence"].get_coefficient("flat")*1000)/1000} %p`;
+        },
+        max_level_coefficient: 0.3
+    });
+    
+})();
 
 
 export {skills, skill_groups, get_unlocked_skill_rewards, get_next_skill_milestone};

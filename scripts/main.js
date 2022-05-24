@@ -84,8 +84,13 @@ const enemy_crit_damage = 2; //multiplier, not a flat bonus
 const current_health_value_div = document.getElementById("character_health_value");
 const current_health_bar = document.getElementById("character_healthbar_current");
 
+//character stamina display
+const current_stamina_value_div = document.getElementById("character_stamina_value");
+const current_stamina_bar = document.getElementById("character_stamina_bar_current");
+
 //character xp display
 const character_xp_div = document.getElementById("character_xp_div");
+const character_level_div = document.getElementById("character_level_div");
 
 //enemy health display
 const current_enemy_health_value_div = document.getElementById("enemy_health_value");
@@ -450,6 +455,18 @@ function do_resting() {
         } 
         update_displayed_health();
     }
+
+    if(character.full_stats.stamina < character.full_stats.max_stamina)
+    {
+        const resting_stamina_ammount = Math.round(Math.max(character.full_stats.max_stamina/120, 1)); 
+        //todo: scale it with skill as well
+
+        character.full_stats.stamina += (resting_stamina_ammount);
+        if(character.full_stats.stamina > character.full_stats.max_stamina) {
+            character.full_stats.stamina = character.full_stats.max_stamina;
+        } 
+        update_displayed_stamina();
+    }
 }
 
 function do_sleeping() {
@@ -468,8 +485,6 @@ function do_sleeping() {
 
 function start_sleeping() {
     clear_action_div();
-
-    //TODO: add something nonclickable with info about xp gained per tick
 
     const action_status_div = document.createElement("div");
     action_status_div.innerText = "Sleeping...";
@@ -672,8 +687,6 @@ function start_trade(trader_key) {
     traders[trader_key].refresh(); 
     action_div.style.display = "none";
     trade_div.style.display = "inherit";
-    //todo: save inventory (and last_refresh) with the rest of saved data (still need to leave this refresh here though)
-    
 
     current_trader = trader_key;
     document.getElementById("trader_cost_mult_value").textContent = `${100*traders[current_trader].profit_margin}%`
@@ -1150,10 +1163,10 @@ function do_combat() {
         return;
     }
 
-    //todo: separate formulas for physical and magical weapons
+    //todo: separate formulas for physical and magical weapons?
     //and also need magic weapons before that...
 
-    var hero_base_damage = character.full_stats.attack_power;
+    var hero_base_damage = character.get_attack_power();
     var enemy_base_damage = current_enemy.stats.strength;
 
     var damage_dealt;
@@ -1162,16 +1175,19 @@ function do_combat() {
 
     var partially_blocked;
 
-    if(character.stats.attack_speed > current_enemy.stats.attack_speed) {
-        additional_hero_attacks += (character.stats.attack_speed/current_enemy.stats.attack_speed - 1);
+    if(character.get_attack_speed() > current_enemy.stats.attack_speed) {
+        additional_hero_attacks += (character.get_attack_speed()/current_enemy.stats.attack_speed - 1);
         additional_enemy_attacks = 0;
-    } else if (character.stats.attack_speed < current_enemy.stats.attack_speed) {
-        additional_enemy_attacks += (current_enemy.stats.attack_speed/character.stats.attack_speed - 1);
+    } else if (character.get_attack_speed() < current_enemy.stats.attack_speed) {
+        additional_enemy_attacks += (current_enemy.stats.attack_speed/character.get_attack_speed() - 1);
         additional_hero_attacks = 0;
     }
     
 
     for(let i = 0; i <= additional_hero_attacks; i++) { //hero attacks
+
+        use_stamina();
+
         if(i > 0) {
             additional_hero_attacks -= 1;
         }
@@ -1266,6 +1282,9 @@ function do_combat() {
             }
         }
         else { // HAS NO SHIELD
+
+            use_stamina()
+            
             if(character.combat_stats.evasion_chance > Math.random()) { //EVADED ATTACK
                 add_xp_to_skill(skills["Evasion"], current_enemy.xp_value, true);
                 log_message(character.name + " has evaded the attack");
@@ -1323,6 +1342,20 @@ function do_combat() {
      also a magic resistance skill for player
      */
 
+}
+
+function use_stamina(num) {
+    character.full_stats.stamina -= (num || 1);
+
+    if(character.full_stats.stamina < 0)  {
+        character.full_stats.stamina = 0;
+    };
+
+    if(character.full_stats.stamina < 1) {
+        add_xp_to_skill(skill_list["Persistence"], num || 1);
+    }
+
+    update_displayed_stamina();
 }
 
 /**
@@ -1476,21 +1509,20 @@ function add_xp_to_character(xp_to_add, should_info) {
 
     /*
     character_xp_div
-        character_level_div
         character_xp_bar_max
             character_xp_bar_current
         charaxter_xp_value
     */
-    character_xp_div.children[1].children[0].style.width = `${100*character.xp.current_xp/character.xp.xp_to_next_lvl}%`;
-    character_xp_div.children[2].innerText = `${character.xp.current_xp}/${character.xp.xp_to_next_lvl} xp`;
+    character_xp_div.children[0].children[0].style.width = `${100*character.xp.current_xp/character.xp.xp_to_next_lvl}%`;
+    character_xp_div.children[1].innerText = `${character.xp.current_xp}/${character.xp.xp_to_next_lvl} xp`;
     
     if(level_up) {
         if((typeof should_info === "undefined" || should_info)) {
             
             log_message(level_up);
         }
-
-        character_xp_div.children[0].innerText = `Level: ${character.xp.current_level}`;
+        
+        character_level_div.innerText = `Level: ${character.xp.current_level}`;
         character.full_stats.health = character.full_stats.max_health; //free healing on level up, because it's a nice thing to have
         update_character_stats();
         update_displayed_health();
@@ -1635,9 +1667,13 @@ function log_loot(loot_list) {
     
 }
 
-function update_displayed_health() { //call it when eating, resting or getting hit
+function update_displayed_health() { //call it when using healing items, resting or getting hit
     current_health_value_div.innerText = (Math.round(character.full_stats.health*10)/10) + "/" + character.full_stats.max_health + " hp";
     current_health_bar.style.width = (character.full_stats.health*100/character.full_stats.max_health).toString() +"%";
+}
+function update_displayed_stamina() { //call it when eating, resting or fighting
+    current_stamina_value_div.innerText = Math.round(character.full_stats.stamina) + "/" + Math.round(character.full_stats.max_stamina) + " stamina";
+    current_stamina_bar.style.width = (character.full_stats.stamina*100/character.full_stats.max_stamina).toString() +"%";
 }
 
 function update_displayed_enemy_health() { //call it when getting new enemy and when enemy gets hit
@@ -2171,6 +2207,8 @@ function update_character_stats() { //updates character stats
 
     update_displayed_stats();
     update_displayed_health();
+    update_displayed_stamina();
+    //update_displayed_mana();
     update_combat_stats();
 }
 
@@ -2881,14 +2919,13 @@ function update() {
                             divs[i].classList.remove("start_activity");
                             divs[i].classList.add("activity_unavailable");
                         }
-                        //TODO: instead make it grayed out and change cursor style
-                        //and show a tooltip with hours when job is available
                         
                     }
                 }
             }
         }
 
+        //regenerate hp
         if(active_effects.health_regeneration) {
             if(character.full_stats.health < character.full_stats.max_health) {
                 character.full_stats.health += active_effects.health_regeneration.flat;
@@ -2904,10 +2941,26 @@ function update() {
                 delete active_effects.health_regeneration;
                 update_displayed_effects();
             }
-            else {
-                update_displayed_effect_durations();
+        }
+
+        //regenerate stamina
+        if(active_effects.stamina_regeneration) {
+            if(character.full_stats.stamina < character.full_stats.max_stamina) {
+                character.full_stats.stamina += active_effects.stamina_regeneration.flat;
+
+                if(character.full_stats.stamina > character.full_stats.max_stamina) {
+                    character.full_stats.stamina = character.full_stats.max_stamina
+                }
+
+                update_displayed_stamina();
+            }
+            active_effects.stamina_regeneration.duration -= 1;
+            if(active_effects.stamina_regeneration.duration <= 0) {
+                delete active_effects.stamina_regeneration;
+                update_displayed_effects();
             }
         }
+        update_displayed_effect_durations();
 
         save_counter += 1;
         if(save_counter >= save_period) {
@@ -3008,11 +3061,12 @@ else {
     equip_item_from_inventory({name: "Cheap iron spear", id: 0});
     equip_item_from_inventory({name: "Cheap leather pants", id: 0});
     add_xp_to_character(0);
-    character.money = 10;
+    character.money = 100;
     update_displayed_money();
     update_character_stats();
 }
-//checks if there's an existing save file, otherwise just sets up some initial equipment
 
+//checks if there's an existing save file, otherwise just sets up some initial equipment
 update_displayed_equipment();
 run();
+

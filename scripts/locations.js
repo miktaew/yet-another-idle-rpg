@@ -210,6 +210,5 @@ export {locations};
 
 /*
 TODO:
-    instead add connected locations as {location, custom_text, etc}
     some "quick travel" location that would connect all important ones? (e.g. some towns?)
 */

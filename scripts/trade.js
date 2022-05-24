@@ -109,6 +109,8 @@ inventory_templates["Basic"] =
 
         new Trade_item({item_name: "Stale bread", count: [4,10]}),
         new Trade_item({item_name: "Fresh bread", count: [2,5]}),
+        new Trade_item({item_name: "Weak healing powder", count: [2,5]}),
+
 ];
 
 export {traders};

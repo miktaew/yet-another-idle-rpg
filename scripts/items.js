@@ -172,7 +172,6 @@ class Equippable extends Item {
 
         this.quality = item_data.quality || 1;
         //item quality, value of (0, 1>, set in other place
-        //todo: multiply  [ item attack power, item block value, item armor value, item trade value ] by item quality (rounded up, always at least 1)
     }
 
     getValue() {
@@ -762,19 +761,29 @@ function getItem(item_data) {
     item_templates["Stale bread"] = new UsableItem({
         name: "Stale bread", description: "Big piece of an old bread, still edible", value: 2,
         use_effect: {
-            health_regeneration: {
+            stamina_regeneration: {
                 flat: 1,
-                duration: 30,
+                duration: 60,
             },
         }
     });
 
     item_templates["Fresh bread"] = new UsableItem({
-        name: "Fresh bread", description: "Freshly baked bread, delicious", value: 5,
+        name: "Fresh bread", description: "Freshly baked bread, delicious", value: 4,
+        use_effect: {
+            stamina_regeneration: {
+                flat: 1,
+                duration: 120,
+            },
+        }
+    });
+
+    item_templates["Weak healing powder"] = new UsableItem({
+        name: "Weak healing powder", description: "Not very potent, but can still make body heal noticeably faster", value: 8,
         use_effect: {
             health_regeneration: {
-                flat: 3,
-                duration: 60,
+                flat: 1,
+                duration: 120,
             },
         }
     });
