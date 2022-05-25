@@ -10,6 +10,7 @@ function Skill(skill_data) {
     this.current_level = 0; //initial lvl
     this.max_level = skill_data.max_level || 60; //max possible lvl, dont make it too high
     this.max_level_coefficient = skill_data.max_level_coefficient; //multiplicative bonus for levels
+    this.max_level_bonus = skill_data.max_level_bonus; //other type bonus for levels
     this.current_xp = 0; // how much of xp_to_next_lvl there is currently
     this.total_xp = 0; // total collected xp, on loading calculate lvl based on this (so to not break skills if scaling ever changes)
     this.base_xp_cost = skill_data.base_xp_cost || 40; //xp to go from lvl 1 to lvl 2
@@ -182,7 +183,7 @@ function Skill(skill_data) {
                 break;
         }
     } 
-    this.get_level_bonus = function() {
+    this.get_level_bonus = function() { //other bonus type from skill level (e.g additive)
         return this.max_level_bonus * this.current_level/this.max_level;
     }
 }
@@ -775,9 +776,9 @@ skill_groups["crafting skills"] = new SkillGroup({
         base_xp_cost: 60,
         max_level: 30,
         get_effect_description: ()=> {
-            return `Reduces low stamina penalty by ${Math.round(skills["Persistence"].get_coefficient("flat")*1000)/1000} %p`;
+            return `Reduces low stamina penalty by ${Math.round(skills["Persistence"].get_level_bonus()*1000)/100000}`;
         },
-        max_level_coefficient: 0.3
+        max_level_bonus: 0.3
     });
     
 })();

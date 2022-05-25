@@ -33,11 +33,11 @@ const skill_bar_divs = {};
 
 //current enemy
 var current_enemy = null;
-//additional attacks for combat
-var additional_hero_attacks = 0;
-var additional_enemy_attacks = 0;
+//attacks for combat
+let attack_order = 0;
 //current location
 var current_location;
+let current_combat;
 
 var current_activity;
 var activity_anim; //small "animation" for activity text
@@ -159,7 +159,13 @@ function capitalize_first_letter(some_string) {
 }
 
 function change_location(location_name) {
+
+    clearInterval(current_combat);
+    current_combat = null;
+    attack_order = 0;
+
     var location = locations[location_name];
+
     if(!location) {
         throw `No such location as "${location_name}"`;
     }
@@ -170,9 +176,13 @@ function change_location(location_name) {
         log_message(`[ Entering ${location.name} ]`, "message_travel");
     }
     
+    current_location = location;
+
     if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
         enemy_info_div.style.display = "none";
         enemy_count_div.style.display = "none";
+
+        current_enemy = null;
         
         for(let i = 0; i < location.dialogues.length; i++) { //add buttons for starting dialogues (displaying their textlines on click will be in another method?)
             if(!dialogues[location.dialogues[i]].is_unlocked || dialogues[location.dialogues[i]].is_finished) { //skip if dialogue is not available
@@ -308,9 +318,10 @@ function change_location(location_name) {
         action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
 
         action_div.appendChild(action);
+
+        current_combat = setInterval(do_combat, 500/tickrate);
     }
 
-    current_location = location;
     location_name_div.innerText = current_location.name;
     const location_description_tooltip = document.createElement("div");
     location_description_tooltip.id = "location_description_tooltip";
@@ -1160,6 +1171,7 @@ function do_combat() {
     if(current_enemy == null) {
         get_new_enemy();
         update_combat_stats();
+        attack_order = 0;
         return;
     }
 
@@ -1174,23 +1186,10 @@ function do_combat() {
     var critted;
 
     var partially_blocked;
-
-    if(character.get_attack_speed() > current_enemy.stats.attack_speed) {
-        additional_hero_attacks += (character.get_attack_speed()/current_enemy.stats.attack_speed - 1);
-        additional_enemy_attacks = 0;
-    } else if (character.get_attack_speed() < current_enemy.stats.attack_speed) {
-        additional_enemy_attacks += (current_enemy.stats.attack_speed/character.get_attack_speed() - 1);
-        additional_hero_attacks = 0;
-    }
     
-
-    for(let i = 0; i <= additional_hero_attacks; i++) { //hero attacks
-
+    if(attack_order > 0 || attack_order == 0 && character.get_attack_speed() > current_enemy.stats.attack_speed) { //the hero attacks the enemy
+        attack_order -= current_enemy.stats.attack_speed;
         use_stamina();
-
-        if(i > 0) {
-            additional_hero_attacks -= 1;
-        }
 
         if(character.combat_stats.hit_chance > Math.random()) {//hero's attack hits
             add_xp_to_skill(skills["Combat"], current_enemy.xp_value, true);
@@ -1245,7 +1244,7 @@ function do_combat() {
                 enemy_count_div.children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemies_killed % current_location.enemy_count;
 
                 current_enemy = null;
-                additional_enemy_attacks = 0;
+                attack_order = 0;
                 return;
             }
 
@@ -1253,12 +1252,8 @@ function do_combat() {
         } else {
             log_message(character.name + " has missed");
         }
-    }
-
-    for(let i = 0; i <= additional_enemy_attacks; i++) { //enemy attacks
-        if(i > 0) {
-            additional_enemy_attacks -= 1;
-        }
+    } else { //the enemy attacks the hero
+        attack_order += character.get_attack_speed();
 
         damage_dealt = enemy_base_damage * (1.2 - Math.random() * 0.4);
         partially_blocked = false;
@@ -1269,7 +1264,7 @@ function do_combat() {
                 if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
                     add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
                     log_message(character.name + " has blocked the attack");
-                    continue;
+                    return; //damage fully blocked, nothing more can happen
                  }
             }
             else { 
@@ -1277,7 +1272,7 @@ function do_combat() {
                     add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
                     damage_dealt -= character.equipment["off-hand"].getShieldStrength;
                     partially_blocked = true;
-                    //FIGHT GOES LIKE NORMAL, but log that it was partially blocked
+                    //no return here
                 }
             }
         }
@@ -1288,7 +1283,7 @@ function do_combat() {
             if(character.combat_stats.evasion_chance > Math.random()) { //EVADED ATTACK
                 add_xp_to_skill(skills["Evasion"], current_enemy.xp_value, true);
                 log_message(character.name + " has evaded the attack");
-                continue;
+                return; //damage fully evaded, nothing more can happen
             }
         }
                 
@@ -1321,7 +1316,6 @@ function do_combat() {
                 character.full_stats.health = 0;
             }
             update_displayed_health();
-            additional_hero_attacks = 0;
             current_enemy = null;
             change_location(current_location.parent_location.name);
             return;
@@ -1333,7 +1327,6 @@ function do_combat() {
      enemy is in a global variable
      if killed, uses method of Location object to assign a random new enemy (of ones in Location) to that variable;
     
-     
      attack dmg either based on strength + weapon stat, or some magic stuff?
      maybe some weapons will be str based and will get some small bonus from magic if player has proper skill unlocked
      (something like "weapon aura"), while others (wands and staffs) will be based purely on magic
@@ -1341,7 +1334,6 @@ function do_combat() {
      also should offer a bit better scaling than strength, so worse at beginning but later on gets better?
      also a magic resistance skill for player
      */
-
 }
 
 function use_stamina(num) {
@@ -1352,7 +1344,7 @@ function use_stamina(num) {
     };
 
     if(character.full_stats.stamina < 1) {
-        add_xp_to_skill(skill_list["Persistence"], num || 1);
+        add_xp_to_skill(skills["Persistence"], num || 1);
     }
 
     update_displayed_stamina();
@@ -2864,7 +2856,7 @@ function update() {
 
 
         if("parent_location" in current_location){ //if it's a combat_zone
-            do_combat();
+            //nothing here i guess?
         } else { //everything other than combat
             if(is_sleeping) {
                 do_sleeping();
