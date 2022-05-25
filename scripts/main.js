@@ -852,7 +852,6 @@ function remove_from_buying_list(selected_item) {
 }
 
 function add_to_selling_list(selected_item) {
-    console.log(to_sell);
     const is_stackable = !Array.isArray(character.inventory[selected_item.item.split(' #')[0]]);
 
     if(is_stackable) {
@@ -1260,7 +1259,7 @@ function do_combat() {
 
 
         if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
-            if(character.equipment["off-hand"].getShieldStrength >= damage_dealt) {
+            if(character.equipment["off-hand"].getShieldStrength() >= damage_dealt) {
                 if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
                     add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
                     log_message(character.name + " has blocked the attack");
@@ -1270,7 +1269,7 @@ function do_combat() {
             else { 
                 if(character.combat_stats.block_chance - 0.3 > Math.random()) { //PARTIALLY BLOCKED THE ATTACK
                     add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
-                    damage_dealt -= character.equipment["off-hand"].getShieldStrength;
+                    damage_dealt -= character.equipment["off-hand"].getShieldStrength();
                     partially_blocked = true;
                     //no return here
                 }
@@ -2123,9 +2122,9 @@ function create_item_tooltip(item, options) {
         if(item.getAttack) {
             item_tooltip.innerHTML += 
                 `<br><br>Attack: ${item.getAttack()}<br>`;
-        } else if(item.defense_value) { 
+        } else if(item.getDefense) { 
             item_tooltip.innerHTML += 
-            `<br><br>Defense value ${item.getDefense()}<br>`;
+            `<br><br>Defense: ${item.getDefense()}<br>`;
         } 
         const equip_stats = item.getStats();
         Object.keys(equip_stats).forEach(function(effect_key) {
@@ -2257,7 +2256,7 @@ function update_displayed_combat_stats() {
 
         other_combat_divs.defensive_action.innerHTML = "Block:";
 
-        if(current_enemy != null && character.equipment["off-hand"].getShieldStrength < current_enemy.stats.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
+        if(current_enemy != null && character.equipment["off-hand"].getShieldStrength() < current_enemy.stats.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
             other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.block_chance*100-30).toFixed(1)}%`;
         } 
         else {
@@ -2488,9 +2487,9 @@ function load(save_data) {
                     if(key === "weapon") {
                         const {head, handle, quality, equip_slot} = save_data.character.equipment[key];
                         if(!item_templates[head]){
-                            console.warn(`Skipped item: weapon head component ${head} couldn't be found!`);
+                            console.warn(`Skipped item: weapon head component "${head}" couldn't be found!`);
                         } else if(!item_templates[handle]) {
-                            console.warn(`Skipped item: weapon handle component ${handle} couldn't be found!`);
+                            console.warn(`Skipped item: weapon handle component "${handle}" couldn't be found!`);
                         } else {
                             const item = getItem({head, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
                             equip_item(item);
@@ -2498,9 +2497,9 @@ function load(save_data) {
                     } else if(key === "off-hand") {
                         const {shield_base, handle, quality, equip_slot} = save_data.character.equipment[key];
                         if(!item_templates[shield_base]){
-                            console.warn(`Skipped item: shield base component ${shield_base} couldn't be found!`);
+                            console.warn(`Skipped item: shield base component "${shield_base}" couldn't be found!`);
                         } else if(!item_templates[handle]) {
-                            console.warn(`Skipped item: shield handle ${handle} couldn't be found!`);
+                            console.warn(`Skipped item: shield handle "${handle}" couldn't be found!`);
                         } else {
                             const item = getItem({shield_base, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
                             equip_item(item);
@@ -2508,9 +2507,9 @@ function load(save_data) {
                     } else {
                         const {internal, external, quality, equip_slot} = save_data.character.equipment[key];
                         if(!item_templates[internal]){
-                            console.warn(`Skipped item: internal armor component ${internal} couldn't be found!`);
+                            console.warn(`Skipped item: internal armor component "${internal}" couldn't be found!`);
                         } else if(external && !item_templates[external]) {
-                            console.warn(`Skipped item: external armor component ${external} couldn't be found!`);
+                            console.warn(`Skipped item: external armor component "${external}" couldn't be found!`);
                         } else {
                             const item = getItem({internal, external, quality, equip_slot, item_type: "EQUIPPABLE"});
                             equip_item(item);
@@ -2531,9 +2530,9 @@ function load(save_data) {
                         if(save_data.character.inventory[key][i].equip_slot === "weapon") {
                             const {head, handle, quality, equip_slot} = save_data.character.inventory[key][i];
                             if(!item_templates[head]){
-                                console.warn(`Skipped item: weapon head component ${head} couldn't be found!`);
+                                console.warn(`Skipped item: weapon head component "${head}" couldn't be found!`);
                             } else if(!item_templates[handle]) {
-                                console.warn(`Skipped item: weapon handle component ${handle} couldn't be found!`);
+                                console.warn(`Skipped item: weapon handle component "${handle}" couldn't be found!`);
                             } else {
                                 const item = getItem({head, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
                                 item_list.push({item, count: 1});
@@ -2631,9 +2630,9 @@ function load(save_data) {
                                 if(save_data.traders[trader].inventory[key][i].equip_slot === "weapon") {
                                     const {head, handle, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
                                     if(!item_templates[head]){
-                                        console.warn(`Skipped item: weapon head component ${head} couldn't be found!`);
+                                        console.warn(`Skipped item: weapon head component "${head}" couldn't be found!`);
                                     } else if(!item_templates[handle]) {
-                                        console.warn(`Skipped item: weapon handle component ${handle} couldn't be found!`);
+                                        console.warn(`Skipped item: weapon handle component "${handle}" couldn't be found!`);
                                     } else {
                                         const item = getItem({head, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
                                         trader_item_list.push({item, count: 1});
@@ -3053,7 +3052,7 @@ else {
     equip_item_from_inventory({name: "Cheap iron spear", id: 0});
     equip_item_from_inventory({name: "Cheap leather pants", id: 0});
     add_xp_to_character(0);
-    character.money = 100;
+    character.money = 15;
     update_displayed_money();
     update_character_stats();
 }
