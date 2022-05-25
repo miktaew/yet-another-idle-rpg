@@ -2722,11 +2722,14 @@ function load(save_data) {
         });
 
         update_character_stats();
-        if(character.full_stats.max_health - save_data.character.hp_to_full > 0) {
-            character.full_stats.health = character.full_stats.max_health - save_data.character.hp_to_full;
-        } else {
+        if(save_data.character.hp_to_full == null || save_data.character.hp_to_full >= character.full_stats.max_health) {
             character.full_stats.health = 1;
+        } else {
+            character.full_stats.health = character.full_stats.max_health - save_data.character.hp_to_full;
         }
+        //if missing hp is null (save got corrupted) or its more than max_health, set health to 0
+        //otherwise just do simple substraction
+        
         update_displayed_health();
         //load current health
         
