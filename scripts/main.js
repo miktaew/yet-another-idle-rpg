@@ -1,7 +1,7 @@
 "use strict";
 
 import { current_game_time, format_time } from "./game_time.js";
-import { Item, item_templates } from "./items.js";
+import { item_templates, getItem} from "./items.js";
 import { locations } from "./locations.js";
 import { skills, skill_groups, get_next_skill_milestone, get_unlocked_skill_rewards} from "./skills.js";
 import { dialogues } from "./dialogues.js";
@@ -33,11 +33,11 @@ const skill_bar_divs = {};
 
 //current enemy
 var current_enemy = null;
-//additional attacks for combat
-var additional_hero_attacks = 0;
-var additional_enemy_attacks = 0;
+//attacks for combat
+let attack_order = 0;
 //current location
 var current_location;
+let current_combat;
 
 var current_activity;
 var activity_anim; //small "animation" for activity text
@@ -84,8 +84,13 @@ const enemy_crit_damage = 2; //multiplier, not a flat bonus
 const current_health_value_div = document.getElementById("character_health_value");
 const current_health_bar = document.getElementById("character_healthbar_current");
 
+//character stamina display
+const current_stamina_value_div = document.getElementById("character_stamina_value");
+const current_stamina_bar = document.getElementById("character_stamina_bar_current");
+
 //character xp display
 const character_xp_div = document.getElementById("character_xp_div");
+const character_level_div = document.getElementById("character_level_div");
 
 //enemy health display
 const current_enemy_health_value_div = document.getElementById("enemy_health_value");
@@ -122,6 +127,15 @@ const location_name_div = document.getElementById("location_name_div");
 
 time_field.innerHTML = current_game_time.toString();
 
+const rarity_colors = {
+    trash: "lightgray",
+    common: "white",
+    uncommon: "lightgreen",
+    rare: "blue",
+    epic: "purple",
+    legendary: "orange",
+}
+
 // button testing cuz yes
 const test_button = document.getElementById("test_button");
 test_button.style.display = 'none';
@@ -145,7 +159,13 @@ function capitalize_first_letter(some_string) {
 }
 
 function change_location(location_name) {
+
+    clearInterval(current_combat);
+    current_combat = null;
+    attack_order = 0;
+
     var location = locations[location_name];
+
     if(!location) {
         throw `No such location as "${location_name}"`;
     }
@@ -156,9 +176,13 @@ function change_location(location_name) {
         log_message(`[ Entering ${location.name} ]`, "message_travel");
     }
     
+    current_location = location;
+
     if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
         enemy_info_div.style.display = "none";
         enemy_count_div.style.display = "none";
+
+        current_enemy = null;
         
         for(let i = 0; i < location.dialogues.length; i++) { //add buttons for starting dialogues (displaying their textlines on click will be in another method?)
             if(!dialogues[location.dialogues[i]].is_unlocked || dialogues[location.dialogues[i]].is_finished) { //skip if dialogue is not available
@@ -294,9 +318,10 @@ function change_location(location_name) {
         action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
 
         action_div.appendChild(action);
+
+        current_combat = setInterval(do_combat, 500/tickrate);
     }
 
-    current_location = location;
     location_name_div.innerText = current_location.name;
     const location_description_tooltip = document.createElement("div");
     location_description_tooltip.id = "location_description_tooltip";
@@ -441,6 +466,18 @@ function do_resting() {
         } 
         update_displayed_health();
     }
+
+    if(character.full_stats.stamina < character.full_stats.max_stamina)
+    {
+        const resting_stamina_ammount = Math.round(Math.max(character.full_stats.max_stamina/120, 1)); 
+        //todo: scale it with skill as well
+
+        character.full_stats.stamina += (resting_stamina_ammount);
+        if(character.full_stats.stamina > character.full_stats.max_stamina) {
+            character.full_stats.stamina = character.full_stats.max_stamina;
+        } 
+        update_displayed_stamina();
+    }
 }
 
 function do_sleeping() {
@@ -459,8 +496,6 @@ function do_sleeping() {
 
 function start_sleeping() {
     clear_action_div();
-
-    //TODO: add something nonclickable with info about xp gained per tick
 
     const action_status_div = document.createElement("div");
     action_status_div.innerText = "Sleeping...";
@@ -663,8 +698,6 @@ function start_trade(trader_key) {
     traders[trader_key].refresh(); 
     action_div.style.display = "none";
     trade_div.style.display = "inherit";
-    //todo: save inventory (and last_refresh) with the rest of saved data (still need to leave this refresh here though)
-    
 
     current_trader = trader_key;
     document.getElementById("trader_cost_mult_value").textContent = `${100*traders[current_trader].profit_margin}%`
@@ -699,7 +732,7 @@ function accept_trade() {
 
             const item = to_buy.items.pop();
 
-            add_to_inventory("character", [{item: new Item(item_templates[item.item.split(" #")[0]]), 
+            add_to_inventory("character", [{item: getItem(item_templates[item.item.split(" #")[0]]), 
                                             count: item.count}])
             
             remove_from_inventory("trader", {name: item.item.split(" #")[0], 
@@ -717,7 +750,7 @@ function accept_trade() {
                 count: item.count,
                 id: item.item.split(" #")[1]});
 
-            add_to_inventory("trader", [{item: new Item(item_templates[item.item.split(" #")[0]]), 
+            add_to_inventory("trader", [{item: getItem(item_templates[item.item.split(" #")[0]]), 
                 count: item.count}])
         }
     }
@@ -747,12 +780,11 @@ function get_character_money() {
 }
 /**
  * @param {} selected_item 
- * {item: {string with value of data- attribute}, count: Number}
+ * {item: {string with value of data- attribute}, count: Number, id: Number (position in inventory)}
  * @returns {Number} total cost of operation
  */
 function add_to_buying_list(selected_item) {
-    const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
-
+    const is_stackable = !Array.isArray(traders[current_trader].inventory[selected_item.item.split(' #')[0]]);
     if(is_stackable) {
 
         const present_item = to_buy.items.find(a => a.item === selected_item.item);
@@ -774,17 +806,25 @@ function add_to_buying_list(selected_item) {
             to_buy.items.push(selected_item);
         }
 
+        const value = Math.ceil(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue()) * selected_item.count;
+
+        to_buy.value += value;
+        return -value;
+
     } else {
+
         to_buy.items.push(selected_item);
+        const actual_item = traders[current_trader].inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
+
+        const value = Math.ceil(traders[current_trader].profit_margin * actual_item.getValue());
+        to_buy.value += value
+
+        return -value;
     }
-
-    to_buy.value += Math.floor(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].value) * selected_item.count;
-
-    return -Math.floor(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].value) * selected_item.count;
 }
 
 function remove_from_buying_list(selected_item) {
-    const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
+    const is_stackable = !Array.isArray(traders[current_trader].inventory[selected_item.item.split(' #')[0]]);
     var actual_number_to_remove = selected_item.count;
 
     if(is_stackable) { //stackable, so "count" may be more than 1
@@ -795,16 +835,25 @@ function remove_from_buying_list(selected_item) {
             actual_number_to_remove = present_item.count
             to_buy.items.splice(to_buy.items.indexOf(present_item),1);
         }
-    } else { //unstackable item, so always just 1
-        to_buy.items.splice(to_buy.items.indexOf(selected_item),1);
-    }
 
-    to_buy.value -= Math.floor(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].value) * actual_number_to_remove;
-    return Math.floor(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].value) * actual_number_to_remove;
+        const value = Math.ceil(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue()) * actual_number_to_remove;
+        to_buy.value -= value;
+        return value;
+    } else { //unstackable item, so always just 1
+        //find index of item and remove it
+        to_buy.items.splice(to_buy.items.map(item => item.item).indexOf(selected_item.item),1);
+
+        const actual_item = traders[current_trader].inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
+        const value = Math.ceil(traders[current_trader].profit_margin * actual_item.getValue());
+
+        to_buy.value -= value;
+        return value;
+    }
 }
 
 function add_to_selling_list(selected_item) {
-    const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
+    console.log(to_sell);
+    const is_stackable = !Array.isArray(character.inventory[selected_item.item.split(' #')[0]]);
 
     if(is_stackable) {
 
@@ -823,20 +872,26 @@ function add_to_selling_list(selected_item) {
                 //character has not enough: sell all available
                 selected_item.count = character.inventory[selected_item.item.split(' #')[0]].count;
             }
-
             to_sell.items.push(selected_item);
+            
         }
+        const value = item_templates[selected_item.item.split(' #')[0]].getValue() * selected_item.count;
+        to_sell.value += value;
+        return value;
 
     } else {
         to_sell.items.push(selected_item);
-    }
 
-    to_sell.value += item_templates[selected_item.item.split(' #')[0]].value * selected_item.count;
-    return item_templates[selected_item.item.split(' #')[0]].value * selected_item.count;
+        const actual_item = character.inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
+        const value = actual_item.getValue();
+        to_sell.value += value;
+        return value;
+    }
 }
 
 function remove_from_selling_list(selected_item) {
-    const is_stackable = item_templates[selected_item.item.split(' #')[0]].stackable;
+    console.log(to_sell);
+    const is_stackable = !Array.isArray(character.inventory[selected_item.item.split(' #')[0]]);
     var actual_number_to_remove = selected_item.count;
 
     if(is_stackable) { //stackable, so "count" may be more than 1
@@ -847,12 +902,19 @@ function remove_from_selling_list(selected_item) {
             actual_number_to_remove = present_item.count;
             to_sell.items.splice(to_sell.items.indexOf(present_item), 1);
         }
-    } else { //unstackable item, so just 1
-        to_sell.items.splice(to_sell.items.indexOf(selected_item),1);
+        const value = item_templates[selected_item.item.split(' #')[0]].getValue() * actual_number_to_remove;
+        to_sell.value -= value;
+        return -value;
+    } else { //unstackable item
+        //find index of item and remove it
+        to_sell.items.splice(to_sell.items.map(item => item.item).indexOf(selected_item.item),1);
+
+        const actual_item = character.inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
+        const value = actual_item.getValue();
+        to_sell.value -= value;
+        return -value;
     }
 
-    to_sell.value -= item_templates[selected_item.item.split(' #')[0]].value * actual_number_to_remove;
-    return -item_templates[selected_item.item.split(' #')[0]].value * actual_number_to_remove;
 }
 
 function update_displayed_trader_inventory(sorting_param) {
@@ -866,7 +928,7 @@ function update_displayed_trader_inventory(sorting_param) {
 
                 let should_continue = false;
                 for(let j = 0; j < to_buy.items.length; j++) {
-                    if(trader.inventory[key][i].name === to_buy.items[j].item.split(" #")[0] && i == Number(to_buy.items[j].item.split(" #")[1])) {
+                    if(trader.inventory[key][i].getName() === to_buy.items[j].item.split(" #")[0] && i == Number(to_buy.items[j].item.split(" #")[1])) {
                         //checks if item is present in to_buy, if so then doesn't add it to displayed in this inventory
                         should_continue = true;
                         break;
@@ -880,7 +942,7 @@ function update_displayed_trader_inventory(sorting_param) {
                 const item_div = document.createElement("div");
                 const item_name_div = document.createElement("div");
 
-                item_name_div.innerHTML = `[${trader.inventory[key][i].equip_slot}] ${trader.inventory[key][i].name}`;
+                item_name_div.innerHTML = `<span class="item_slot">[${trader.inventory[key][i].equip_slot}]</span> ${trader.inventory[key][i].getName()}`;
                 item_name_div.classList.add("inventory_item_name");
                 item_div.appendChild(item_name_div);
                 item_div.classList.add("inventory_item", "trader_item");       
@@ -889,8 +951,13 @@ function update_displayed_trader_inventory(sorting_param) {
                 item_div.appendChild(create_item_tooltip(trader.inventory[key][i], {trader: true}));
 
                 item_control_div.classList.add('inventory_item_control', 'trader_item_control', `trader_item_${trader.inventory[key][i].item_type.toLowerCase()}`);
-                item_control_div.setAttribute("data-trader_item", `${trader.inventory[key][i].name} #${i}`)
+                item_control_div.setAttribute("data-trader_item", `${trader.inventory[key][i].getName()} #${i}`)
                 item_control_div.appendChild(item_div);
+
+                var item_value_span = document.createElement("span");
+                item_value_span.innerHTML = `${format_money(trader.inventory[key][i].getValue() * trader.profit_margin, true)}`;
+                item_value_span.classList.add("item_value", "item_controls");
+                item_control_div.appendChild(item_value_span);
 
                 trader_inventory_div.appendChild(item_control_div);
             }
@@ -935,13 +1002,19 @@ function update_displayed_trader_inventory(sorting_param) {
 
             item_div.appendChild(create_item_tooltip(trader.inventory[key].item, {trader: true}));
 
+
             item_control_div.classList.add('trader_item_control', 'inventory_item_control', `trader_item_${trader.inventory[key].item.item_type.toLowerCase()}`);
             item_control_div.setAttribute("data-trader_item", `${trader.inventory[key].item.name}`);
             item_control_div.setAttribute("data-item_count", `${item_count}`);
+            
             item_control_div.appendChild(item_div);
-
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);
+
+            var item_value_span = document.createElement("span");
+            item_value_span.innerHTML = `${format_money(trader.inventory[key].item.getValue() * trader.profit_margin, true)}`;
+            item_value_span.classList.add("item_value", "item_controls");
+            item_control_div.appendChild(item_value_span);
 
             trader_inventory_div.appendChild(item_control_div);
         }
@@ -961,7 +1034,7 @@ function update_displayed_trader_inventory(sorting_param) {
             const item_div = document.createElement("div");
             const item_name_div = document.createElement("div");
     
-            item_name_div.innerHTML = `[${actual_item.equip_slot}] ${actual_item.name} x${item_count}`;
+            item_name_div.innerHTML = `${actual_item.name} x${item_count}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
 
@@ -987,6 +1060,11 @@ function update_displayed_trader_inventory(sorting_param) {
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);
 
+            var item_value_span = document.createElement("span");
+            item_value_span.innerHTML = `${format_money(actual_item.getValue(), true)}`;
+            item_value_span.classList.add("item_value", "item_controls");
+            item_control_div.appendChild(item_value_span);
+
             trader_inventory_div.appendChild(item_control_div);
             
         } else { //it's unstackable, no need for item_count as it's always at 1
@@ -997,7 +1075,7 @@ function update_displayed_trader_inventory(sorting_param) {
             const item_div = document.createElement("div");
             const item_name_div = document.createElement("div");
 
-            item_name_div.innerHTML = `[${item_templates[actual_item.name].equip_slot}] ${actual_item.name}`;
+            item_name_div.innerHTML = `[${actual_item.equip_slot}] ${actual_item.getName()}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
             item_div.classList.add("inventory_item", "trader_item");       
@@ -1006,8 +1084,13 @@ function update_displayed_trader_inventory(sorting_param) {
             item_div.appendChild(create_item_tooltip(actual_item));
 
             item_control_div.classList.add('item_to_trade', 'inventory_item_control', 'trader_item_control', `trader_item_${actual_item.item_type.toLowerCase()}`);
-            item_control_div.setAttribute("data-trader_item", `${actual_item.name} #${item_index}`)
+            item_control_div.setAttribute("data-trader_item", `${actual_item.getName()} #${item_index}`)
             item_control_div.appendChild(item_div);
+
+            var item_value_span = document.createElement("span");
+            item_value_span.innerHTML = `${format_money(actual_item.getValue(), true)}`;
+            item_value_span.classList.add("item_value", "item_controls");
+            item_control_div.appendChild(item_value_span);
 
             trader_inventory_div.appendChild(item_control_div);
         }
@@ -1019,7 +1102,6 @@ function update_displayed_trader_inventory(sorting_param) {
 function sort_displayed_inventory(options) {
 
     const target = options.target === "trader" ? trader_inventory_div : inventory_div;
-
     /*
     seems terribly overcomplicated
     can't think of better solution for now
@@ -1089,13 +1171,14 @@ function do_combat() {
     if(current_enemy == null) {
         get_new_enemy();
         update_combat_stats();
+        attack_order = 0;
         return;
     }
 
-    //todo: separate formulas for physical and magical weapons
+    //todo: separate formulas for physical and magical weapons?
     //and also need magic weapons before that...
 
-    var hero_base_damage = character.full_stats.attack_power;
+    var hero_base_damage = character.get_attack_power();
     var enemy_base_damage = current_enemy.stats.strength;
 
     var damage_dealt;
@@ -1103,20 +1186,10 @@ function do_combat() {
     var critted;
 
     var partially_blocked;
-
-    if(character.stats.attack_speed > current_enemy.stats.attack_speed) {
-        additional_hero_attacks += (character.stats.attack_speed/current_enemy.stats.attack_speed - 1);
-        additional_enemy_attacks = 0;
-    } else if (character.stats.attack_speed < current_enemy.stats.attack_speed) {
-        additional_enemy_attacks += (current_enemy.stats.attack_speed/character.stats.attack_speed - 1);
-        additional_hero_attacks = 0;
-    }
     
-
-    for(let i = 0; i <= additional_hero_attacks; i++) { //hero attacks
-        if(i > 0) {
-            additional_hero_attacks -= 1;
-        }
+    if(attack_order > 0 || attack_order == 0 && character.get_attack_speed() > current_enemy.stats.attack_speed) { //the hero attacks the enemy
+        attack_order -= current_enemy.stats.attack_speed;
+        use_stamina();
 
         if(character.combat_stats.hit_chance > Math.random()) {//hero's attack hits
             add_xp_to_skill(skills["Combat"], current_enemy.xp_value, true);
@@ -1171,7 +1244,7 @@ function do_combat() {
                 enemy_count_div.children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemies_killed % current_location.enemy_count;
 
                 current_enemy = null;
-                additional_enemy_attacks = 0;
+                attack_order = 0;
                 return;
             }
 
@@ -1179,39 +1252,38 @@ function do_combat() {
         } else {
             log_message(character.name + " has missed");
         }
-    }
-
-    for(let i = 0; i <= additional_enemy_attacks; i++) { //enemy attacks
-        if(i > 0) {
-            additional_enemy_attacks -= 1;
-        }
+    } else { //the enemy attacks the hero
+        attack_order += character.get_attack_speed();
 
         damage_dealt = enemy_base_damage * (1.2 - Math.random() * 0.4);
         partially_blocked = false;
 
 
         if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
-            if(character.equipment["off-hand"].shield_strength >= damage_dealt) {
+            if(character.equipment["off-hand"].getShieldStrength >= damage_dealt) {
                 if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
                     add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
                     log_message(character.name + " has blocked the attack");
-                    continue;
+                    return; //damage fully blocked, nothing more can happen
                  }
             }
             else { 
                 if(character.combat_stats.block_chance - 0.3 > Math.random()) { //PARTIALLY BLOCKED THE ATTACK
                     add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
-                    damage_dealt -= character.equipment["off-hand"].shield_strength;
+                    damage_dealt -= character.equipment["off-hand"].getShieldStrength;
                     partially_blocked = true;
-                    //FIGHT GOES LIKE NORMAL, but log that it was partially blocked
+                    //no return here
                 }
             }
         }
         else { // HAS NO SHIELD
+
+            use_stamina()
+            
             if(character.combat_stats.evasion_chance > Math.random()) { //EVADED ATTACK
                 add_xp_to_skill(skills["Evasion"], current_enemy.xp_value, true);
                 log_message(character.name + " has evaded the attack");
-                continue;
+                return; //damage fully evaded, nothing more can happen
             }
         }
                 
@@ -1244,7 +1316,6 @@ function do_combat() {
                 character.full_stats.health = 0;
             }
             update_displayed_health();
-            additional_hero_attacks = 0;
             current_enemy = null;
             change_location(current_location.parent_location.name);
             return;
@@ -1256,7 +1327,6 @@ function do_combat() {
      enemy is in a global variable
      if killed, uses method of Location object to assign a random new enemy (of ones in Location) to that variable;
     
-     
      attack dmg either based on strength + weapon stat, or some magic stuff?
      maybe some weapons will be str based and will get some small bonus from magic if player has proper skill unlocked
      (something like "weapon aura"), while others (wands and staffs) will be based purely on magic
@@ -1264,7 +1334,20 @@ function do_combat() {
      also should offer a bit better scaling than strength, so worse at beginning but later on gets better?
      also a magic resistance skill for player
      */
+}
 
+function use_stamina(num) {
+    character.full_stats.stamina -= (num || 1);
+
+    if(character.full_stats.stamina < 0)  {
+        character.full_stats.stamina = 0;
+    };
+
+    if(character.full_stats.stamina < 1) {
+        add_xp_to_skill(skills["Persistence"], num || 1);
+    }
+
+    update_displayed_stamina();
 }
 
 /**
@@ -1418,21 +1501,20 @@ function add_xp_to_character(xp_to_add, should_info) {
 
     /*
     character_xp_div
-        character_level_div
         character_xp_bar_max
             character_xp_bar_current
         charaxter_xp_value
     */
-    character_xp_div.children[1].children[0].style.width = `${100*character.xp.current_xp/character.xp.xp_to_next_lvl}%`;
-    character_xp_div.children[2].innerText = `${character.xp.current_xp}/${character.xp.xp_to_next_lvl} xp`;
+    character_xp_div.children[0].children[0].style.width = `${100*character.xp.current_xp/character.xp.xp_to_next_lvl}%`;
+    character_xp_div.children[1].innerText = `${character.xp.current_xp}/${character.xp.xp_to_next_lvl} xp`;
     
     if(level_up) {
         if((typeof should_info === "undefined" || should_info)) {
             
             log_message(level_up);
         }
-
-        character_xp_div.children[0].innerText = `Level: ${character.xp.current_level}`;
+        
+        character_level_div.innerText = `Level: ${character.xp.current_level}`;
         character.full_stats.health = character.full_stats.max_health; //free healing on level up, because it's a nice thing to have
         update_character_stats();
         update_displayed_health();
@@ -1577,9 +1659,13 @@ function log_loot(loot_list) {
     
 }
 
-function update_displayed_health() { //call it when eating, resting or getting hit
+function update_displayed_health() { //call it when using healing items, resting or getting hit
     current_health_value_div.innerText = (Math.round(character.full_stats.health*10)/10) + "/" + character.full_stats.max_health + " hp";
     current_health_bar.style.width = (character.full_stats.health*100/character.full_stats.max_health).toString() +"%";
+}
+function update_displayed_stamina() { //call it when eating, resting or fighting
+    current_stamina_value_div.innerText = Math.round(character.full_stats.stamina) + "/" + Math.round(character.full_stats.max_stamina) + " stamina";
+    current_stamina_bar.style.width = (character.full_stats.stamina*100/character.full_stats.max_stamina).toString() +"%";
 }
 
 function update_displayed_enemy_health() { //call it when getting new enemy and when enemy gets hit
@@ -1610,26 +1696,26 @@ function add_to_inventory(who, items) {
     }
 
     for(let i = 0; i < items.length; i++){
-        if(!target.inventory.hasOwnProperty(items[i].item.name)) //not in inventory
+        if(!target.inventory.hasOwnProperty(items[i].item.getName())) //not in inventory
         {
             if(items[i].item.stackable)
             {
-                target.inventory[items[i].item.name] = items[i];
+                target.inventory[items[i].item.getName()] = items[i];
             }
             else 
             {
-                target.inventory[items[i].item.name] = [items[i].item];
+                target.inventory[items[i].item.getName()] = [items[i].item];
             }
         }
         else //in inventory 
         {
             if(items[i].item.stackable)
             {
-                target.inventory[items[i].item.name].count += items[i].count;
+                target.inventory[items[i].item.getName()].count += items[i].count;
             } 
             else 
             {
-                target.inventory[items[i].item.name].push(items[i].item);
+                target.inventory[items[i].item.getName()].push(items[i].item);
             }
         }
 
@@ -1695,9 +1781,14 @@ function remove_from_inventory(who, item_info) {
     }
 }
 
-function dismantle_item() {
-    //todo: this thing
-    //priority: extremely low
+/**
+ * 
+ * @param {*} item_info item to dismantle: {name, id}
+ */
+function dismantle_item(item_info) {
+    dismantle(character.inventory[item_info.name]);
+
+    remove_from_inventory("character", item_info);
 }
 
 function use_item(item_name) { 
@@ -1731,9 +1822,10 @@ function update_displayed_money() {
     document.getElementById("money_div").innerHTML = `Your purse contains: ${format_money(character.money)}`;
 }
 
-function update_displayed_inventory() {
-    //actual inventory only, character item slots separately
-    
+/**
+ * updates displayed inventory of the character (only inventory, worn equipment is managed by separate method)
+ */
+function update_displayed_inventory() {    
     inventory_div.innerHTML = "";
 
     Object.keys(character.inventory).forEach(function(key) {
@@ -1743,7 +1835,7 @@ function update_displayed_inventory() {
 
                 let should_continue = false;
                 for(let j = 0; j < to_sell.items.length; j++) {
-                    if(character.inventory[key][i].name === to_sell.items[j].item.split(" #")[0] && i == Number(to_sell.items[j].item.split(" #")[1])) {
+                    if(character.inventory[key][i].getName() === to_sell.items[j].item.split(" #")[0] && i == Number(to_sell.items[j].item.split(" #")[1])) {
                         //checks if item is present in to_sell, if so then doesn't add it to displayed in this inventory
                         should_continue = true;
                         break;
@@ -1757,13 +1849,13 @@ function update_displayed_inventory() {
                 const item_div = document.createElement("div");
                 const item_name_div = document.createElement("div");
 
-                item_name_div.innerHTML = `[${item_templates[character.inventory[key][i].name].equip_slot}] ${character.inventory[key][i].name}`;
+                item_name_div.innerHTML = `<span class = "item_slot" >[${character.inventory[key][i].equip_slot}]</span> ${character.inventory[key][i].getName()}`;
                 item_name_div.classList.add("inventory_item_name");
                 item_div.appendChild(item_name_div);
     
                 item_div.classList.add("inventory_item", "character_item", `item_${character.inventory[key][i].item_type.toLowerCase()}`);
 
-                item_control_div.setAttribute("data-character_item", `${character.inventory[key][i].name} #${i}`)
+                item_control_div.setAttribute("data-character_item", `${character.inventory[key][i].getName()} #${i}`)
                 //shouldnt create any problems, as any change to inventory will also call this method, 
                 //so removing/equipping any item wont cause mismatch
 
@@ -1772,12 +1864,16 @@ function update_displayed_inventory() {
                 item_control_div.appendChild(item_div);
 
                 
-                var item_equip_div = document.createElement("div");
-                item_equip_div.innerHTML = "[equip]";
-                item_equip_div.classList.add("equip_item_button");
-                item_control_div.appendChild(item_equip_div);
-                
+                var item_equip_span = document.createElement("span");
+                item_equip_span.innerHTML = "[equip]";
+                item_equip_span.classList.add("equip_item_button", "item_controls");
+                item_control_div.appendChild(item_equip_span);
 
+                var item_value_span = document.createElement("span");
+                item_value_span.innerHTML = `${format_money(character.inventory[key][i].getValue(), true)}`;
+                item_value_span.classList.add("item_value", "item_controls");
+                item_control_div.appendChild(item_value_span);
+                
                 inventory_div.appendChild(item_control_div);
             }
         } else //stackables
@@ -1837,6 +1933,11 @@ function update_displayed_inventory() {
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);
 
+            var item_value_span = document.createElement("span");
+            item_value_span.innerHTML = `${format_money(character.inventory[key].item.getValue(), true)}`;
+            item_value_span.classList.add("item_value", "item_controls");
+            item_control_div.appendChild(item_value_span);
+
             inventory_div.appendChild(item_control_div);
         }
 
@@ -1851,13 +1952,13 @@ function update_displayed_inventory() {
             const item_name_div = document.createElement("div");
     
 
-            item_name_div.innerHTML = `[${item_templates[item.name].equip_slot}] ${item.name}`;
+            item_name_div.innerHTML = `[${item.equip_slot}] ${item.getName()}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
 
             item_div.classList.add("inventory_equipped_item");
 
-            item_control_div.setAttribute("data-character_item", `${item.name} #${key}`)
+            item_control_div.setAttribute("data-character_item", `${item.getName()} #${key}`)
 
             item_div.appendChild(create_item_tooltip(item));
             item_control_div.classList.add("equipped_item_control", `character_item_${item.item_type.toLowerCase()}`);
@@ -1865,8 +1966,13 @@ function update_displayed_inventory() {
 
             var item_unequip_div = document.createElement("div");
             item_unequip_div.innerHTML = "[take off]";
-            item_unequip_div.classList.add("unequip_item_button");
+            item_unequip_div.classList.add("unequip_item_button", "item_controls");
             item_control_div.appendChild(item_unequip_div);
+
+            var item_value_span = document.createElement("span");
+            item_value_span.innerHTML = `${format_money(character.equipment[key].getValue(), true)}`;
+            item_value_span.classList.add("item_value", "item_controls");
+            item_control_div.appendChild(item_value_span);
 
             inventory_div.appendChild(item_control_div);
         }
@@ -1911,6 +2017,11 @@ function update_displayed_inventory() {
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);
 
+            var item_value_span = document.createElement("span");
+            item_value_span.innerHTML = `${format_money(actual_item.getValue() * traders[current_trader].profit_margin, true)}`;
+            item_value_span.classList.add("item_value", "item_controls");
+            item_control_div.appendChild(item_value_span);
+
             inventory_div.appendChild(item_control_div);
             
         } else { //it's unstackable, no need for item_count as it's always at 1
@@ -1921,17 +2032,22 @@ function update_displayed_inventory() {
             const item_div = document.createElement("div");
             const item_name_div = document.createElement("div");
 
-            item_name_div.innerHTML = `[${item_templates[actual_item.name].equip_slot}] ${actual_item.name}`;
+            item_name_div.innerHTML = `[${item_templates[actual_item.getName()].equip_slot}] ${actual_item.getName()}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
-            item_div.classList.add("inventory_item", "character_item");       
+            item_div.classList.add("inventory_item", "character_item", "trade_item_equippable",);       
 
             //add tooltip
             item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
 
             item_control_div.classList.add('item_to_trade', 'inventory_item_control', 'character_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
-            item_control_div.setAttribute("data-character_item", `${actual_item.name} #${item_index}`)
+            item_control_div.setAttribute("data-character_item", `${actual_item.getName()} #${item_index}`)
             item_control_div.appendChild(item_div);
+
+            var item_value_span = document.createElement("span");
+            item_value_span.innerHTML = `${format_money(actual_item.getValue() * traders[current_trader].profit_margin, true)}`;
+            item_value_span.classList.add("item_value", "item_controls");
+            item_control_div.appendChild(item_value_span);
 
             inventory_div.appendChild(item_control_div);
         }
@@ -1946,17 +2062,11 @@ function update_displayed_inventory() {
  * @param item_info {name, id}
  */
 function equip_item_from_inventory(item_info) {
-    //item info -> {name: X, count: X, id: X}, count currently not used
     if(character.inventory.hasOwnProperty(item_info.name)) { //check if its in inventory, just in case
-        if(character.inventory[item_info.name].hasOwnProperty("item")) { //stackable
-            console.log("not implemented");
-        }
-        else { //unstackable
-            //add specific item to equipment slot
-            // -> id and name tell which exactly item it is, then also check slot in item object and thats all whats needed
-            equip_item(character.inventory[item_info.name][item_info.id]);
-            remove_from_inventory("character", item_info); //put this outside if() when equipping gets implemented for stackables as well
-        }
+        //add specific item to equipment slot
+        // -> id and name tell which exactly item it is, then also check slot in item object and thats all whats needed
+        equip_item(character.inventory[item_info.name][item_info.id]);
+        remove_from_inventory("character", item_info); //put this outside if() when equipping gets implemented for stackables as well
     }
 }
 
@@ -1987,38 +2097,46 @@ function create_item_tooltip(item, options) {
     //create tooltip and it's content
     var item_tooltip = document.createElement("span");
     item_tooltip.classList.add(options && options.css_class || "item_tooltip");
-    item_tooltip.innerHTML = 
-    `<b>${item.name}</b>
-    <br>${item.description}`;
+
+    item_tooltip.innerHTML = `<b>${item.getName()}</b>`;
+    if(item.description) {
+        item_tooltip.innerHTML += `<br>${item.description}`; 
+    }
 
     //add stats if can be equipped
     if(item.item_type === "EQUIPPABLE"){
 
+        item_tooltip.innerHTML += `<br><br><b style="color: ${rarity_colors[item.getRarity()]}">Quality: ${Math.round(item.quality*100)}% </b>`;
+
         //if a shield
         if(item.offhand_type === "shield") {
             item_tooltip.innerHTML += 
-            `<br><br><strong>[shield]</strong><br><br>Can fully block attacks not stronger than: ${item.shield_strength}`;
+            `<br><br><b>[shield]</b><br><br>Can fully block attacks not stronger than: ${item.getShieldStrength()}`;
         }
         else if(item.equip_slot === "weapon") {
-            item_tooltip.innerHTML += `<br><br>Type: <strong>${item.weapon_type}</strong>`;
+            item_tooltip.innerHTML += `<br><br>Type: <b>${item.weapon_type}</b>`;
         }
         else {
-            item_tooltip.innerHTML += `<br><br>Slot: <strong>${item.equip_slot}</strong`;
+            item_tooltip.innerHTML += `<br><br>Slot: <b>${item.equip_slot}</b`;
         }
 
-        Object.keys(item.equip_effect).forEach(function(effect_key) {
+        if(item.getAttack) {
+            item_tooltip.innerHTML += 
+                `<br><br>Attack: ${item.getAttack()}<br>`;
+        } else if(item.defense_value) { 
+            item_tooltip.innerHTML += 
+            `<br><br>Defense value ${item.getDefense()}<br>`;
+        } 
+        const equip_stats = item.getStats();
+        Object.keys(equip_stats).forEach(function(effect_key) {
 
-            if(effect_key === "attack") {
+            if(equip_stats[effect_key].flat != null) {
                 item_tooltip.innerHTML += 
-                `<br><br>Attack: ${item.equip_effect[effect_key].flat}`;
-            } else {
-                item_tooltip.innerHTML += 
-                `<br><br>Flat ${effect_key} bonus: ${item.equip_effect[effect_key].flat_bonus}`;
+                `<br>${capitalize_first_letter(effect_key).replace("_"," ")} +${equip_stats[effect_key].flat}`;
             }
-
-            if(item.equip_effect[effect_key].multiplier != null) {
+            if(equip_stats[effect_key].multiplier != null) {
                 item_tooltip.innerHTML += 
-            `<br>${capitalize_first_letter(effect_key)} multiplier: ${item.equip_effect[effect_key].multiplier}`;
+                `<br>${capitalize_first_letter(effect_key).replace("_"," ")} x${equip_stats[effect_key].multiplier}`;
         }
         });
     } 
@@ -2045,7 +2163,7 @@ function create_item_tooltip(item, options) {
         });
     }
 
-    item_tooltip.innerHTML += `<br><br>Value: ${format_money(Math.floor(item.value * ((options && options.trader) ? traders[current_trader].profit_margin : 1)))}`;
+    item_tooltip.innerHTML += `<br><br>Value: ${format_money(Math.ceil(item.getValue() * ((options && options.trader) ? traders[current_trader].profit_margin : 1) || 1))}`;
 
     return item_tooltip;
 }
@@ -2063,7 +2181,7 @@ function update_displayed_equipment() {
         }
         else 
         {
-            equipment_slots_divs[key].innerHTML = character.equipment[key].name;
+            equipment_slots_divs[key].innerHTML = character.equipment[key].getName();
             equipment_slots_divs[key].classList.remove("equipment_slot_empty");
 
             eq_tooltip = create_item_tooltip(character.equipment[key]);
@@ -2081,10 +2199,13 @@ function update_character_stats() { //updates character stats
 
     update_displayed_stats();
     update_displayed_health();
+    update_displayed_stamina();
+    //update_displayed_mana();
     update_combat_stats();
 }
 
 function update_displayed_stats() { //updates displayed stats
+
     Object.keys(stats_divs).forEach(function(key){
         if(key === "crit_rate" || key === "crit_multiplier") {
             stats_divs[key].innerHTML = `${(character.full_stats[key]*100).toFixed(1)}%`
@@ -2113,7 +2234,7 @@ function update_combat_stats() { //chances to hit and evade/block
         if(character.equipment["off-hand"] == null || character.equipment["off-hand"].offhand_type !== "shield") {
             const power = character.full_stats.agility > current_enemy.stats.dexterity ? 2/3 : 1
             character.combat_stats.evasion_chance = Math.min(0.99, Math.pow(character.full_stats.agility/current_enemy.stats.dexterity, power) * 0.25 * skills["Evasion"].get_coefficient("multiplicative"));
-            //so up to 99% if at least eight more agility, 25% if same, can go down almost to 0%
+            //so up to 99% if at least eight times more agility, 25% if same, can go down almost to 0%
         }
     } 
     else {
@@ -2136,7 +2257,7 @@ function update_displayed_combat_stats() {
 
         other_combat_divs.defensive_action.innerHTML = "Block:";
 
-        if(current_enemy != null && character.equipment["off-hand"].shield_strength < current_enemy.stats.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
+        if(current_enemy != null && character.equipment["off-hand"].getShieldStrength < current_enemy.stats.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
             other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.block_chance*100-30).toFixed(1)}%`;
         } 
         else {
@@ -2191,11 +2312,23 @@ function update_displayed_effect_durations() {
 /** 
  * formats money to a nice string in form x..x G xx S xx C (gold/silver/copper) 
  * @param {Number} num value to be formatted
+ * @param {Boolean} round if the value should be rounded a bit
  */
-function format_money(num) {
+function format_money(num, round) {
     var value;
     const sign = num >= 0 ? '' : '-';
     num = Math.abs(num);
+
+    if(round) {
+        //round it up a bit to skip tiny little meaningless leftovers
+        const size = Math.log10(num);
+        if(size > 5 && size < 7) { //remove last 2 digits (C value)
+            num = Math.round(num/100) * 100;
+        } else if(size > 7) { //remove last 4 digits (S and C values)
+            num = Math.round(num/10000) * 10000;
+        }
+    }
+
     if(num > 0) {
         value = (num%100 != 0 ? `${num%100} C` : '');
 
@@ -2205,10 +2338,12 @@ function format_money(num) {
                 value = `${Math.floor(num/10000)} G ` + value;
             }
         }
+
+        return sign + value;
+
     } else {
         return 'nothing';
     }
-    return sign + value;
 }
 
 /**
@@ -2348,13 +2483,41 @@ function load(save_data) {
 
         Object.keys(save_data.character.equipment).forEach(function(key){
             if(save_data.character.equipment[key] != null) {
-                if(item_templates[save_data.character.equipment[key].name]) {
-                    save_data.character.equipment[key].value = item_templates[save_data.character.equipment[key].name].value;
-                    save_data.character.equipment[key].equip_effect = item_templates[save_data.character.equipment[key].name].equip_effect;
-                    equip_item(save_data.character.equipment[key]); 
-                } else {
-                    console.warn(`Equipped item "${item_templates[save_data.character.equipment[key].name]}" couldn't be found`);
-                    return;
+                try{
+
+                    if(key === "weapon") {
+                        const {head, handle, quality, equip_slot} = save_data.character.equipment[key];
+                        if(!item_templates[head]){
+                            console.warn(`Skipped item: weapon head component ${head} couldn't be found!`);
+                        } else if(!item_templates[handle]) {
+                            console.warn(`Skipped item: weapon handle component ${handle} couldn't be found!`);
+                        } else {
+                            const item = getItem({head, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                            equip_item(item);
+                        }
+                    } else if(key === "off-hand") {
+                        const {shield_base, handle, quality, equip_slot} = save_data.character.equipment[key];
+                        if(!item_templates[shield_base]){
+                            console.warn(`Skipped item: shield base component ${shield_base} couldn't be found!`);
+                        } else if(!item_templates[handle]) {
+                            console.warn(`Skipped item: shield handle ${handle} couldn't be found!`);
+                        } else {
+                            const item = getItem({shield_base, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                            equip_item(item);
+                        }
+                    } else {
+                        const {internal, external, quality, equip_slot} = save_data.character.equipment[key];
+                        if(!item_templates[internal]){
+                            console.warn(`Skipped item: internal armor component ${internal} couldn't be found!`);
+                        } else if(external && !item_templates[external]) {
+                            console.warn(`Skipped item: external armor component ${external} couldn't be found!`);
+                        } else {
+                            const item = getItem({internal, external, quality, equip_slot, item_type: "EQUIPPABLE"});
+                            equip_item(item);
+                        }
+                    }
+                } catch (error) {
+                    console.error(error);
                 }
             }
         }); //equip proper items
@@ -2362,29 +2525,53 @@ function load(save_data) {
         const item_list = [];
 
         Object.keys(save_data.character.inventory).forEach(function(key){
-            if(Array.isArray(save_data.character.inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
+            if(Array.isArray(save_data.character.inventory[key])) { //is a list of unstackable items (equippables), needs to be added 1 by 1
                 for(let i = 0; i < save_data.character.inventory[key].length; i++) {
-                    if(item_templates[key]) {
-                        save_data.character.inventory[key][i].value = item_templates[key].value;
-                        if(item_templates[key].item_type = "EQUIPPABLE") {
-                            save_data.character.inventory[key][i].equip_effect = item_templates[key].equip_effect;
+                    try{
+                        if(save_data.character.inventory[key][i].equip_slot === "weapon") {
+                            const {head, handle, quality, equip_slot} = save_data.character.inventory[key][i];
+                            if(!item_templates[head]){
+                                console.warn(`Skipped item: weapon head component ${head} couldn't be found!`);
+                            } else if(!item_templates[handle]) {
+                                console.warn(`Skipped item: weapon handle component ${handle} couldn't be found!`);
+                            } else {
+                                const item = getItem({head, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                item_list.push({item, count: 1});
+                            }
+                        } else if(save_data.character.inventory[key][i].equip_slot === "off-hand") {
+                            const {shield_base, handle, quality, equip_slot} = save_data.character.inventory[key][i];
+                            if(!item_templates[shield_base]){
+                                console.warn(`Skipped item: shield base component "${shield_base}" couldn't be found!`);
+                            } else if(!item_templates[handle]) {
+                                console.warn(`Skipped item: shield handle "${handle}" couldn't be found!`);
+                            } else {
+                                const item = getItem({shield_base, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                item_list.push({item, count: 1});
+                            }
+                        } else {
+                            const {internal, external, quality, equip_slot} = save_data.character.inventory[key][i];
+                            if(!item_templates[internal]){
+                                console.warn(`Skipped item: internal armor component "${internal}" couldn't be found!`);
+                            } else if(external && !item_templates[external]) {
+                                console.warn(`Skipped item: external armor component "${external}" couldn't be found!`);
+                            } else {
+                                const item = getItem({internal, external, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                item_list.push({item, count: 1});
+                            }
                         }
-                        item_list.push({item: save_data.character.inventory[key][i], count: 1});
-                    } else {
-                        console.warn(`Inventory item "${key}" couldn't be found!`);
-                        return;
+                    } catch (error) {
+                        console.error(error);
                     }
                 }
             }
-            else {
+            else { //is stackable 
                 if(item_templates[key]) {
                     save_data.character.inventory[key].item.value = item_templates[key].value;
-                    if(item_templates[key].item_type === "EQUIPPABLE") {
-                        save_data.character.inventory[key].item.equip_effect = item_templates[key].equip_effect;
-                    } else if(item_templates[key].item_type === "USABLE") {
+                    save_data.character.inventory[key].item.description = item_templates[key].description;
+                    if(item_templates[key].item_type === "USABLE") {
                         save_data.character.inventory[key].item.use_effect = item_templates[key].use_effect;
                     }
-                    item_list.push({item: save_data.character.inventory[key].item, count: save_data.character.inventory[key].count});
+                    item_list.push({item: getItem(save_data.character.inventory[key].item), count: save_data.character.inventory[key].count});
                 } else {
                     console.warn(`Inventory item "${key}" couldn't be found!`);
                     return;
@@ -2438,13 +2625,43 @@ function load(save_data) {
             let trader_item_list = [];
             if(traders[trader]){
                 Object.keys(save_data.traders[trader].inventory).forEach(function(key){
-                    if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list [of unstackable item], needs to be added 1 by 1
+                    if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list of unstackable (equippable) item, needs to be added 1 by 1
                         for(let i = 0; i < save_data.traders[trader].inventory[key].length; i++) {
-                            save_data.traders[trader].inventory[key][i].value = item_templates[key].value;
-                            if(item_templates[key].item_type = "EQUIPPABLE") {
-                                save_data.traders[trader].inventory[key][i].equip_effect = item_templates[key].equip_effect;
+                            try{
+                                if(save_data.traders[trader].inventory[key][i].equip_slot === "weapon") {
+                                    const {head, handle, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
+                                    if(!item_templates[head]){
+                                        console.warn(`Skipped item: weapon head component ${head} couldn't be found!`);
+                                    } else if(!item_templates[handle]) {
+                                        console.warn(`Skipped item: weapon handle component ${handle} couldn't be found!`);
+                                    } else {
+                                        const item = getItem({head, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                        trader_item_list.push({item, count: 1});
+                                    }
+                                } else if( save_data.traders[trader].inventory[key][i].equip_slot === "off-hand") {
+                                    const {shield_base, handle, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
+                                    if(!item_templates[shield_base]){
+                                        console.warn(`Skipped item: shield base component "${shield_base}" couldn't be found!`);
+                                    } else if(!item_templates[handle]) {
+                                        console.warn(`Skipped item: shield handle "${handle}" couldn't be found!`);
+                                    } else {
+                                        const item = getItem({shield_base, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                        trader_item_list.push({item, count: 1});
+                                    }
+                                } else {
+                                    const {internal, external, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
+                                    if(!item_templates[internal]){
+                                        console.warn(`Skipped item: internal armor component "${internal}" couldn't be found!`);
+                                    } else if(external && !item_templates[external]) {
+                                        console.warn(`Skipped item: external armor component "${external}" couldn't be found!`);
+                                    } else {
+                                        const item = getItem({internal, external, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                        trader_item_list.push({item, count: 1});
+                                    }
+                                }
+                            } catch (error) {
+                                console.error(error);
                             }
-                            trader_item_list.push({item: save_data.traders[trader].inventory[key][i], count: 1});
                         }
                     }
                     else {
@@ -2454,7 +2671,7 @@ function load(save_data) {
                         } else if(item_templates[key].item_type === "USABLE") {
                             save_data.traders[trader].inventory[key].item.use_effect = item_templates[key].use_effect;
                         }
-                        trader_item_list.push({item: save_data.traders[trader].inventory[key].item, count: save_data.traders[trader].inventory[key].count});
+                        trader_item_list.push({item: getItem(save_data.traders[trader].inventory[key].item), count: save_data.traders[trader].inventory[key].count});
                     }
                 });
 
@@ -2639,7 +2856,7 @@ function update() {
 
 
         if("parent_location" in current_location){ //if it's a combat_zone
-            do_combat();
+            //nothing here i guess?
         } else { //everything other than combat
             if(is_sleeping) {
                 do_sleeping();
@@ -2694,14 +2911,13 @@ function update() {
                             divs[i].classList.remove("start_activity");
                             divs[i].classList.add("activity_unavailable");
                         }
-                        //TODO: instead make it grayed out and change cursor style
-                        //and show a tooltip with hours when job is available
                         
                     }
                 }
             }
         }
 
+        //regenerate hp
         if(active_effects.health_regeneration) {
             if(character.full_stats.health < character.full_stats.max_health) {
                 character.full_stats.health += active_effects.health_regeneration.flat;
@@ -2717,10 +2933,26 @@ function update() {
                 delete active_effects.health_regeneration;
                 update_displayed_effects();
             }
-            else {
-                update_displayed_effect_durations();
+        }
+
+        //regenerate stamina
+        if(active_effects.stamina_regeneration) {
+            if(character.full_stats.stamina < character.full_stats.max_stamina) {
+                character.full_stats.stamina += active_effects.stamina_regeneration.flat;
+
+                if(character.full_stats.stamina > character.full_stats.max_stamina) {
+                    character.full_stats.stamina = character.full_stats.max_stamina
+                }
+
+                update_displayed_stamina();
+            }
+            active_effects.stamina_regeneration.duration -= 1;
+            if(active_effects.stamina_regeneration.duration <= 0) {
+                delete active_effects.stamina_regeneration;
+                update_displayed_effects();
             }
         }
+        update_displayed_effect_durations();
 
         save_counter += 1;
         if(save_counter >= save_period) {
@@ -2814,19 +3046,19 @@ if("save data" in localStorage) {
     update_combat_stats();
 }
 else {
-    add_to_inventory("character", [{item: new Item(item_templates["Long stick"])}, 
-                                   {item: new Item(item_templates["Raggy leather pants"])},
-                                   {item: new Item(item_templates["Stale bread"]), count: 5}]);
-    equip_item_from_inventory({name: "Long stick", id: 0});
-    equip_item_from_inventory({name: "Raggy leather pants", id: 0});
+    add_to_inventory("character", [{item: getItem({...item_templates["Cheap iron sword"], quality: 0.4})}, 
+                                   {item: getItem({...item_templates["Cheap leather pants"], quality: 0.4})},
+                                   {item: getItem(item_templates["Stale bread"]), count: 5}]);
+
+    equip_item_from_inventory({name: "Cheap iron spear", id: 0});
+    equip_item_from_inventory({name: "Cheap leather pants", id: 0});
     add_xp_to_character(0);
-    character.money = 10;
+    character.money = 100;
     update_displayed_money();
-    update_displayed_stats();
+    update_character_stats();
 }
+
 //checks if there's an existing save file, otherwise just sets up some initial equipment
-
-
-
 update_displayed_equipment();
 run();
+

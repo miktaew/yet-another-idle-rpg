@@ -1,7 +1,7 @@
-import { item_templates, Item } from "./items.js";
+import {item_templates, getItem} from "./items.js";
 
 var enemy_templates = {};
-//enemy templates; locations then create new enemies based on them
+//enemy templates; locations create new enemies based on them
 
 function Enemy(enemy_data) {
     this.name = enemy_data.name;
@@ -29,7 +29,7 @@ function Enemy(enemy_data) {
                     // calculates how much drops (from range min-max, both inclusive)
                 } 
 
-                loot.push({"item": new Item(item_templates[item.item_name]), "count": item_count});
+                loot.push({"item": getItem(item_templates[item.item_name]), "count": item_count});
             }
         }
 

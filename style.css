@@ -1,15 +1,15 @@
 :root {
-	--equipment_display: initial;
-	--consumables_display: initial;
-	--other_display: initial;
+	--equipment_display: inline-block;
+	--consumables_display: inline-block;
+	--other_display: inline-block;
 
-	--trader_equipment_display: block;
-	--trader_consumables_display: block;
-	--trader_other_display: block;
+	--trader_equipment_display: inline-block;
+	--trader_consumable_display: inline-block;
+	--trader_other_display: inline-block;
 
 	--trade_ammount_button_display: none;
 	--item_use_button_display: inline-block;
-	--item_other_width: 340px;
+	--item_other_width: 287px; /* modified in index.html on trade start/end to fit the buttons */
 
 	--item_tooltip_top: 0px;
 	--item_tooltip_left: 0px;
@@ -131,17 +131,17 @@ body {
 	padding: 5px;
  }
 
- .activity_unavailable {
+.activity_unavailable {
 	text-align: center;
 	 font-size: 20;
 	 color: gray;
 	 border-bottom: 1px solid white;
 	 cursor: not-allowed;
 	 padding: 5px;
- }
+}
 
- .action_travel:hover, .start_dialogue:hover, .start_activity:hover,
- .dialogue_textline:hover, .end_dialogue_button:hover, .dialogue_trade:hover {
+.action_travel:hover, .start_dialogue:hover, .start_activity:hover,
+.dialogue_textline:hover, .end_dialogue_button:hover, .dialogue_trade:hover {
 	background-color: #2c3953;
 }
 .dialogue_textline {
@@ -154,40 +154,31 @@ body {
 	padding: 5px;
 }
 
- .inventory_item, .trader_item {
+.inventory_item, .trader_item {
 	 color: white;
-	 font-size: 15;
+	 font-size: 14;
 	 display: inline-block;
-	 width: 325px;
- }
+}
 
- .character_item {
-	 width: 325px;
- }
-
- .equipped_item_control {
+.equipped_item_control {
 	color: gold;
-	
-	font-size: 15;
-}
- .inventory_equipped_item {
-	display: inline-block;
-	width: 273px;
-	font-weight: bold;
-	height: 19px;
+	font-size: 14;
 	background-color: rgba(255, 236, 128, 0.3);
+	padding-bottom: 2px;
+	padding-top: 2px;
 }
-.unequip_item_button {
-	width: 64;
-	padding-right: 3px;
-	font-weight: bold;
-	display: inline-block;
-	cursor: pointer;
-	height: 19px;
-	background-color: rgba(255, 236, 128, 0.3);
- }
 
- .item_tooltip, .job_tooltip {
+.inventory_equipped_item {
+	display: inline-block;
+	width: 227px; 
+	font-weight: bold;
+}
+
+.inventory_item_control {
+	border-bottom: 1px dotted white;
+}
+
+.item_tooltip, .job_tooltip {
 	 display: none;
 	 text-align: left;
 	 color: white;
@@ -202,25 +193,25 @@ body {
 	 max-width: 300px;
 	 width: fit-content;
 	 height: auto;
- }
+}
 
- .item_tooltip {
+.item_tooltip {
 	top: var(--item_tooltip_top);
 	left: var(--item_tooltip_left);
- }
- .job_tooltip {
+}
+.job_tooltip {
 	top: var(--job_tooltip_top);
 	left: var(--job_tooltip_left);
 	font-size: 16;
 }
 
- .equipment_slot_div:hover .item_tooltip, .trader_item_control:hover .item_tooltip, .inventory_item_control:hover .item_tooltip, 
- .equipped_item_control:hover .item_tooltip, .start_activity:hover .job_tooltip, .activity_unavailable:hover .job_tooltip, 
- .effects_div:hover .effects_tooltip{
+.equipment_slot_div:hover .item_tooltip, .trader_item_control:hover .item_tooltip, .inventory_item_control:hover .item_tooltip, 
+.equipped_item_control:hover .item_tooltip, .start_activity:hover .job_tooltip, .activity_unavailable:hover .job_tooltip, 
+.effects_div:hover .effects_tooltip{
 	display: block;
 }
 
- .stat_tooltip {
+.stat_tooltip {
 	display: none;
 	background-color: rgba(120, 120, 120, 0.8);
 	border-radius: 10px;
@@ -231,13 +222,13 @@ body {
 	max-width: 300px;
 	width: fit-content;
 	height: auto;
- }
+}
 
- .stat_slot_div:hover .stat_tooltip {
+.stat_slot_div:hover .stat_tooltip {
 	 display: block;
- }
+}
 
- .skill_tooltip {
+.skill_tooltip {
 	display: none;
 	background-color: rgba(120, 120, 120, 0.9);
 	color: white;
@@ -251,37 +242,100 @@ body {
 	height: auto;
 	top: var(--skill_tooltip_top);
 	left: var(--skill_tooltip_left);
- }
+}
 
- .skill_tooltip_next_milestone {
+.skill_tooltip_next_milestone {
 	 color: rgb(206, 206, 206);
- }
+}
 
- .skill_bar_max:hover .skill_tooltip {
+.skill_bar_max:hover .skill_tooltip {
 	 display: block;
- }
+}
 
- .equip_item_button {
-	 color: white;
-	 font-size: 15;
-	 font-weight: bold;
-	 display: inline-block;
+.item_slot {
+	color: rgb(149, 255, 190);
+}
+
+.equip_item_button {
 	 cursor: pointer;
-	 width: 50px;
-	 padding-right: 4px;
- }
+	 font-weight: bold;
+	 font-size: 14;
+	 display: inline-block;
+	 width: 48px;
+}
 
- .inventory_control_button {
+.unequip_item_button {
+	font-weight: bold;
+	cursor: pointer;
+	width: 60px;
+	display: inline-block;
+}
+
+.item_use_button {
+	display: var(--item_use_button_display);
+	width: 34px;
+	font-weight: bold;
+	cursor: pointer;
+	color: white;
+	font-size: 14;
+}
+
+.item_controls {
+	color: white;
+	display: inline-block;
+}
+
+.item_value {
+	text-align: right;
+	font-size: 14;
+	width: 62px;
+	border-left: 1px solid white;
+	margin-left: 4px;
+	padding-left: 4px;
+}
+
+.inventory_control_button {
 	float:left;
 	padding: 3px;
-	min-width: 74px;
+	min-width: 80.7px; /* ouch */
 	text-align: center;
 	outline: 1px solid white;
 	margin: 1px;
 	cursor: pointer;
- }
+}
 
- .character_control_button {
+.item_stackable {
+	width: 253px;
+}
+
+.item_equippable {
+	width: 239px;
+}
+.trade_item_equippable {
+	width: 287px;
+}
+
+.character_item_control.item_to_trade {
+	background-color: rgba(0, 128, 0, 0.4);
+}
+
+.item_stackable.item_other {
+	width: var(--item_other_width);
+}
+
+.character_item_equippable {
+	display: var(--equipment_display);
+}
+
+.character_item_usable {
+	display: var(--consumables_display);
+}
+
+.character_item_other {
+	display: var(--other_display);
+}
+
+.character_control_button {
 	float:left;
 	padding: 6px;
 	min-width: 186px;
@@ -290,19 +344,7 @@ body {
 	margin: 1px;
 	outline: 1px solid white;
 	cursor: pointer;
- }
-
- .character_item_equippable {
-	display: var(--equipment_display);
- }
-
- .character_item_usable {
-	display: var(--consumables_display);
- }
-
- .character_item_other {
-	display: var(--other_display);
- }
+}
 
 .message_border { 
 	border-bottom: 1px solid #47465f;
@@ -347,14 +389,12 @@ body {
 }
 
 .stat_slot_div {
-	font-size: 15;
 	width: 100%;
-	height: 17px;
-	margin-bottom: 3px;
-	padding-top: 1px;
-	padding-bottom: 1px;
 	color: white;
-	border: 1px solid white;
+	height: 20px;
+	padding-top: 2px;
+	margin-left: 1px;
+	outline: 1px solid white;
 }
 
 .stat_value {
@@ -371,14 +411,14 @@ body {
 
 .actions_div {
 	height: 370px;
-	width: 450;
+	width: 100%;
 	overflow-y: scroll;
 }
 
 .action_selection_button {
 	float:left;
 	padding: 3px;
-	width: 142px;
+	width: 135.3px;
 	text-align: center;
 	outline: 1px solid white;
 	margin: 1px;
@@ -439,7 +479,7 @@ body {
 .trader_category_button {
 	float:left;
 	padding: 3px 0px 3px 0px;
-	width: 110.5px;
+	width: 105.5px;
 	text-align: center;
 	color: white;
 	outline: 1px solid white;
@@ -449,7 +489,7 @@ body {
 
 .character_sorting_button {
     float:left;
-	width: 173;
+	width: 183px;
 	text-align: center;
 	outline: 1px solid white;
 	cursor: pointer;
@@ -467,47 +507,23 @@ body {
 
 .trader_item_control.item_to_trade {
 	background-color: rgba(255, 0, 0, 0.4);
-
-}
-
-.character_item_control.item_to_trade {
-	background-color: rgba(0, 128, 0, 0.4);
-	display:block;
 }
 
 .trade_ammount_button {
 	display: var(--trade_ammount_button_display);
-}
-
-.trade_ammount_button, .item_use_button {
 	color: white;
-	padding-left: 2px;
-	padding-right: 2px;
-	margin-left: 5px;
 	cursor: pointer;
-}
-
-.item_use_button {
-	display: var(--item_use_button_display);
-	width: 40px;
 	font-weight: bold;
-	padding-left: 6px;
-}
-
-.item_stackable {
-	width: 287px;
-}
-
-.item_equippable {
-	width: 286px;
-}
-
-.item_stackable.item_other {
-	width: var(--item_other_width);
+	font-size: 14;
+	width: 17px;
 }
 
 .trader_item_control  .item_stackable {
-	width: 391px;
+	width: 313px;
+}
+
+.trader_item {
+	width: 347px;
 }
 
 .trader_item_other {
@@ -526,7 +542,7 @@ body {
 
 #accept_trade_button, #cancel_trade_button, .trader_sorting_button {
     float:left;
-	width: 223;
+	width: 213;
 	text-align: center;
 	outline: 1px solid white;
 	margin: -1px 1px;
@@ -573,9 +589,9 @@ body {
 }
 
 #action_selection_div {
-	width: 450px;
+	width: 430px;
 	height: 400px;
-	left: 360px;
+	left: 380px;
 	top: 360px;
 }
 
@@ -636,12 +652,11 @@ body {
 }
 
 #character_healthbar_max {
-	outline: 2px solid red;
+	outline: 2px solid rgb(199, 0, 0);
 	background-color: rgba(255, 46, 46, 0.3);
 	margin: auto;
-	margin-bottom:10px;
 	width: 85%;
-	height: 18px;
+	height: 14px;
 }
 #character_healthbar_current {
 	background-color: rgb(255, 46, 46);
@@ -659,29 +674,89 @@ body {
 #character_health_value {
 	position: absolute;
 	width: 400px;
-	top: 26px;
+	top: 24px;
+	font-size: 15;
 }
-#character_health_text, #character_level_div {
+#character_health_text {
 	text-align: left; margin-left: 28px;
+}
+
+#character_level_div {
+	text-align: center;
+	outline: 1px solid white;
+	padding-top: 1px;
+	padding-bottom: 1px;
+	width: 350px;
+	margin-left: 26px;
+	font-weight: bold;
+}
+
+#character_mana_bar_max {
+	outline: 2px solid rgb(0, 0, 127);
+	margin: auto;
+	width: 85%;
+	margin-top: 10px;
+	height: 15px;
+	background-color: rgba(0, 0, 255, 0.3);
+}
+
+#character_mana_bar_current {
+	height: 15px;
+	width: 0%;
+	background-color: rgb(15, 15, 255);
+}
+
+#character_mana_value {
+	position: absolute;
+	font-size: 15;
+	width: 400px;
+	top: 72px;
+	text-align: center;
+	color: white;
+}
+
+#character_stamina_bar_max {
+	outline: 2px solid rgb(0, 127, 0);
+	margin: auto;
+	width: 85%;
+	margin-top: 10px;
+	height: 15px;
+	background-color: rgba(0, 255, 0, 0.3);
+}
+
+#character_stamina_bar_current {
+	height: 15px;
+	background-color: rgb(0, 196, 0);
+}
+
+#character_stamina_value {
+	position: absolute;
+	width: 400px;
+	top: 48px;
+	text-align: center;
+	font-size: 15;
+	color: white;
 }
 
 #character_xp_bar_max {
 	outline: 2px solid rgb(255, 126, 0);
 	margin: auto;
+	margin-top: 10px;
 	width: 85%;
-	height: 18px;
+	height: 15px;
 	background-color: rgba(255, 165, 0, 0.3);
 }
 
 #character_xp_bar_current {
-	height: 18px;
+	height: 15px;
 	background-color: orange;
 }
 
 #character_xp_value {
 	position: absolute;
+	font-size: 15;
 	width: 400px;
-	top: 72px;
+	top: 98px;
 	text-align: center;
 }
 
@@ -720,7 +795,7 @@ body {
 	padding-left: 4px;
 	width: 200px;
 	left: 100px;
-	top: 160px;
+	top: 165px;
 	position: absolute;
 	z-index: 1;
 }
@@ -822,7 +897,7 @@ body {
 }
 
 #inventory_div {
-	width: 350px;
+	width: 370px;
 	height: 400px;
 	top: 360;
 }
@@ -959,14 +1034,14 @@ body {
 	color: white;
 	outline: 1px solid white;
 	padding: 2px 1px 2px 1px;
-	width: 292px;
+	width: 281px;
 	float: left;
 	margin: 1px;
 	
 }
 
 #trader_cost_mult {
-	width: 150px;
+	width: 141px;
 	color: white;
 	outline: 1px solid white;
 	padding: 2px 1px 2px 1px;
@@ -977,13 +1052,13 @@ body {
 }
 
 #trader_cost_mult_text {
-	width: 75px;
+	width: 70px;
 	float: left;
 	padding-left: 5px;
 }
 
 #trader_cost_mult_value {
-	width: 65px;
+	width: 60px;
 	float: left;
 	text-align: right;
 	padding-right: 5px;
@@ -997,7 +1072,7 @@ body {
 }
 
 #trade_price_value {
-	width: 195px;
+	width: 185px;
 	display: inline-block;
 	text-align: right;
 	padding-right: 5px;

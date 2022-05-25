@@ -37,10 +37,26 @@
                     <div id = "character_health_value">
                     </div>
                 </div>
-                <div id = "character_xp_div">
-                    <div id = "character_level_div">
-                        Lvl: 0
+                <div id = "character_stamina_div">
+                    <div id ="character_stamina_bar_max">
+                        <div id = "character_stamina_bar_current">
+                        </div>
                     </div>
+                    <div id = "character_stamina_value">
+                        
+                    </div>
+                </div>
+                <div id = "character_mana_div">
+                    <div id ="character_mana_bar_max">
+                        <div id = "character_mana_bar_current">
+                        </div>
+                    </div>
+                    <div id = "character_mana_value">
+                        0/0 mana
+                    </div>
+                </div>
+
+                <div id = "character_xp_div">
                     <div id ="character_xp_bar_max">
                         <div id = "character_xp_bar_current">
                             
@@ -52,6 +68,9 @@
             </div>
             <!-- character stats and equipment-->
             <div id = "character_div" class = "box_div"> 
+                <div id = "character_level_div">
+                    Lvl: 0
+                </div>
                 <div id = "character_stats_div"> 
                     <div class = "grid_container">
                         <div class = "stat_slot_div"> 
@@ -203,7 +222,7 @@
 
                 <div id = "inventory_sorting_div">
                     <div id = "inventory_sort_by_name" class = "character_sorting_button active_selection_button" onclick='sortCharacterInventory("name")'> Sort by name </div>
-                    <div id = "inventory_sort_by_price" class = "character_sorting_button" onclick='sortCharacterInventory("price")'> Sort by price </div>
+                    <div id = "inventory_sort_by_price" class = "character_sorting_button" onclick='sortCharacterInventory("price")'> Sort by value </div>
                 </div>
                 <div id = "inventory_control_div">
                     <div id = "inventory_show_all" class = "inventory_control_button active_selection_button" onclick = "showAllItems()"> All </div>
@@ -311,46 +330,46 @@
         <script>
             
             function showAllItems() {
-                document.documentElement.style.setProperty('--equipment_display', 'initial');
-                document.documentElement.style.setProperty('--consumables_display', 'initial');
-                document.documentElement.style.setProperty('--other_display', 'initial');
+                document.documentElement.style.setProperty('--equipment_display', 'inline-block');
+                document.documentElement.style.setProperty('--consumables_display', 'inline-block');
+                document.documentElement.style.setProperty('--other_display', 'inline-block');
             }
             function showOnlyEquipment() {
-                document.documentElement.style.setProperty('--equipment_display', 'initial');
+                document.documentElement.style.setProperty('--equipment_display', 'inline-block');
                 document.documentElement.style.setProperty('--consumables_display', 'none');
                 document.documentElement.style.setProperty('--other_display', 'none');
             }
             function showOnlyConsumables() {
                 document.documentElement.style.setProperty('--equipment_display', 'none');
-                document.documentElement.style.setProperty('--consumables_display', 'initial');
+                document.documentElement.style.setProperty('--consumables_display', 'inline-block');
                 document.documentElement.style.setProperty('--other_display', 'none');
 
             }
             function showOnlyOther() {
                 document.documentElement.style.setProperty('--equipment_display', 'none');
                 document.documentElement.style.setProperty('--consumables_display', 'none');
-                document.documentElement.style.setProperty('--other_display', 'initial');
+                document.documentElement.style.setProperty('--other_display', 'inline-block');
             }
 
             function showAllTraderItems() {
-                document.documentElement.style.setProperty('--trader_equipment_display', 'block');
-                document.documentElement.style.setProperty('--trader_consumable_display', 'block');
-                document.documentElement.style.setProperty('--trader_other_display', 'block');
+                document.documentElement.style.setProperty('--trader_equipment_display', 'inline-block');
+                document.documentElement.style.setProperty('--trader_consumable_display', 'inline-block');
+                document.documentElement.style.setProperty('--trader_other_display', 'inline-block');
             }
             function showOnlyTraderEquipment() {
-                document.documentElement.style.setProperty('--trader_equipment_display', 'block');
+                document.documentElement.style.setProperty('--trader_equipment_display', 'inline-block');
                 document.documentElement.style.setProperty('--trader_consumable_display', 'none');
                 document.documentElement.style.setProperty('--trader_other_display', 'none');
             }
             function showOnlyTraderConsumables() {
                 document.documentElement.style.setProperty('--trader_equipment_display', 'none');
-                document.documentElement.style.setProperty('--trader_consumable_display', 'block');
+                document.documentElement.style.setProperty('--trader_consumable_display', 'inline-block');
                 document.documentElement.style.setProperty('--trader_other_display', 'none');
             }
             function showOnlyTraderOther() {
                 document.documentElement.style.setProperty('--trader_equipment_display', 'none');
                 document.documentElement.style.setProperty('--trader_consumable_display', 'none');
-                document.documentElement.style.setProperty('--trader_other_display', 'block');
+                document.documentElement.style.setProperty('--trader_other_display', 'inline-block');
             }
             
 
@@ -404,9 +423,9 @@
                 in_trade = true;
                 total_price = 0;
                 trade_price_value.innerHTML = format_money(total_price);
-                document.documentElement.style.setProperty('--trade_ammount_button_display', 'inline_block');
+                document.documentElement.style.setProperty('--trade_ammount_button_display', 'inline-block');
                 document.documentElement.style.setProperty('--item_use_button_display', 'none');
-                document.documentElement.style.setProperty('--item_other_width', '291px');
+                document.documentElement.style.setProperty('--item_other_width', '253px');
                 start_trade(trader_key);
             }
             function exitTrade() {
@@ -415,7 +434,7 @@
                 trade_price_value.innerHTML = format_money(total_price);
                 document.documentElement.style.setProperty('--trade_ammount_button_display', 'none');
                 document.documentElement.style.setProperty('--item_use_button_display', 'inline-block');
-                document.documentElement.style.setProperty('--item_other_width', '340px');
+                document.documentElement.style.setProperty('--item_other_width', '287px');
 
                 const accept_button = document.getElementById("accept_trade_button");
                 accept_button.style.cursor = "pointer";
@@ -502,8 +521,6 @@
                 }
             }
 
-            
-
             function prepareGame() { //called on body loaded
                 //sets up event listeners
 
@@ -553,11 +570,13 @@
 
                     var hovered_element = event.target;
                     if(!hovered_element.classList.contains("trader_item_control")){
-                        if(hovered_element.classList.contains("trade_ammount_button") || hovered_element.classList.contains("trader_item")) {
+                        if(hovered_element.classList.contains("trade_ammount_button") 
+                        || hovered_element.classList.contains("trader_item") || hovered_element.classList.contains("item_value")) 
+                        {
                             hovered_element = hovered_element.parentNode;
                         } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip")) {
                             hovered_element = hovered_element.parentNode.parentNode;
-                        } else if(hovered_element.parentNode.classList.contains("item_tooltip")) {
+                        } else if(hovered_element.classList.contains("item_slot")) {
                             hovered_element = hovered_element.parentNode.parentNode.parentNode;
                         }
                     }
@@ -728,7 +747,7 @@
 
                     //reassignes clicked element to the one with inventory_item_control class 
                     if(!clicked_element.classList.contains("inventory_item_control")) {
-                        if(clicked_element.classList.contains("inventory_item")) {
+                        if(clicked_element.classList.contains("inventory_item") || clicked_element.classList.contains("item_value")) {
                             clicked_element = clicked_element.parentNode; 
                         } else if(clicked_element.classList.contains("inventory_item_name")) {
                             clicked_element = clicked_element.parentNode.parentNode; 
@@ -772,7 +791,7 @@
                     var number_to_move = 1;
 
                     if(!clicked_element.classList.contains("inventory_item_control")) {
-                        if(clicked_element.classList.contains("inventory_item")) {
+                        if(clicked_element.classList.contains("inventory_item") || clicked_element.classList.contains("item_value")) {
                             clicked_element = clicked_element.parentNode; 
                         } else if(clicked_element.classList.contains("inventory_item_name")) {
                             clicked_element = clicked_element.parentNode.parentNode; 

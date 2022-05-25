@@ -1,8 +1,25 @@
+import { skills } from "./skills.js";
+
 //player character
 const base_xp_cost = 10;
 const character = {name: "Hero", titles: {}, 
-                   stats: {max_health: 40, health: 40, strength: 5, agility: 5, dexterity: 5, magic: 0, attack_speed: 1, crit_rate: 0.1, crit_multiplier: 1.2, 
-                           attack_power: 0, defense: 0},
+                   stats: {
+                           max_health: 40, 
+                           health: 40, 
+                           max_stamina: 40,
+                           stamina: 40,
+                           max_mana: 0,
+                           mana: 0,
+                           strength: 5, 
+                           agility: 5, 
+                           dexterity: 5, 
+                           magic: 0, 
+                           attack_speed: 1, 
+                           crit_rate: 0.1, 
+                           crit_multiplier: 1.2, 
+                           attack_power: 0, 
+                           defense: 0
+                        },
                    // crit damage is a multiplier; defense should be only based on worn armor and/or skills (incl magic);
                    combat_stats: {hit_chance: 0, evasion_chance: 0, block_chance: 0}, //depend on stats of current enemy
                    full_stats: {}, //base stats (including skill bonuses) + bonuses from equipment, multiplied by multipliers
@@ -50,6 +67,11 @@ character.add_xp = function add_xp(xp_to_add) {
         }
 }
 
+/**
+ * gets bonuses to stats based on current level and level passed as param
+ * @param {Number} level 
+ * @returns stats bonuses from leveling
+ */
 character.get_level_bonus = function get_level_bonus(level) {
 
         var gained_hp = 0;
@@ -88,8 +110,11 @@ character.get_level_bonus = function get_level_bonus(level) {
         return gains;
 }
 
+/**
+ * adds skill bonuses to character stats
+ * @param {{stats, multipliers}} bonuses 
+ */
 character.add_bonuses = function add_bonuses(bonuses) {
-        //{stats, multipliers}
         Object.keys(bonuses.stats).forEach(function (stat) {
                 character.stats[stat] += bonuses.stats[stat];
         });
@@ -98,9 +123,14 @@ character.add_bonuses = function add_bonuses(bonuses) {
         });
 }
 
+/**
+ * adds stat bonuses from equipment and certain skills
+ */
 character.update_stats = function update_stats() {
-        const missing_health = (character.full_stats["max_health"] - character.full_stats["health"]) || 0;   
-    //to avoid fully healing character whenever this function is called
+    const missing_health = (character.full_stats["max_health"] - character.full_stats["health"]) || 0;   
+    const missing_stamina = (character.full_stats["max_stamina"] - character.full_stats["stamina"]) || 0;   
+    const missing_mana = (character.full_stats["max_mana"] - character.full_stats["mana"]) || 0;   
+    //to avoid fully restoring all whenever this function is called
 
     Object.keys(character.stats).forEach(function(stat){
         if(stat === "attack_power") {
@@ -110,37 +140,65 @@ character.update_stats = function update_stats() {
         character.full_stats[stat] = character.stats[stat];
         character.full_multipliers[stat] = character.multipliers[stat];
 
-        Object.keys(character.equipment).forEach(function(key) {
-            if(character.equipment[key]?.equip_effect[stat]?.flat_bonus) {
-                character.full_stats[stat] += character.equipment[key].equip_effect[stat].flat_bonus;
-            }
-        }); //calculate stats based on equipment
-  
+        if(stat !== "defense") {
+                Object.keys(character.equipment).forEach(function(key) {
+                        if(character.equipment[key]?.getStats()[stat]?.flat) {
+                                character.full_stats[stat] += character.equipment[key].getStats()[stat].flat;
+                        }
+                }); //calculate stats based on equipment
         
-        Object.keys(character.equipment).forEach(function(key) {
-            if(character.equipment[key]?.equip_effect[stat]?.multiplier) {
-                character.full_multipliers[stat] *= character.equipment[key].equip_effect[stat].multiplier;
-            }
-        });
-        
-        character.full_stats[stat] *= (character.full_multipliers[stat] || 1);
+                
+                Object.keys(character.equipment).forEach(function(key) {
+                        if(character.equipment[key]?.getStats()[stat]?.multiplier) {
+                                character.full_multipliers[stat] *= character.equipment[key].getStats()[stat].multiplier;
+                        }
+                });
 
-        if(stat === "health") {
-            character.full_stats["health"] = Math.max(1, character.full_stats["max_health"] - missing_health);
-        } 
+                character.full_stats[stat] *= (character.full_multipliers[stat] || 1);
+
+                if(stat === "health") {
+                        character.full_stats["health"] = Math.max(1, character.full_stats["max_health"] - missing_health);
+                } else if(stat === "stamina") {
+                        //directly add bonus from running skill
+                        character.full_stats["max_stamina"] *= skills["Running"].get_coefficient("multiplicative");
+                        character.full_stats["stamina"] = Math.max(0, character.full_stats["max_stamina"] - missing_stamina);
+                } else if(stat === "mana") {
+                        character.full_stats["mana"] = Math.max(0, character.full_stats["max_mana"] - missing_mana);
+                } 
+        } else {
+                Object.keys(character.equipment).forEach(function(key) {
+                        if(character.equipment[key]?.getDefense) {
+                                character.full_stats[stat] += character.equipment[key].getDefense();
+                        }
+                });
+        }
+        
         character.full_stats[stat] = Math.round(10*character.full_stats[stat])/10;
     });
-    //TODO: add bonuses from skills
 
     if(character.equipment.weapon != null) { 
-        character.stats.attack_power = (character.full_stats.strength/10) * character.equipment.weapon.equip_effect.attack.flat 
-                                        * (character.equipment.weapon.equip_effect.attack.multiplier || 1);
+        character.stats.attack_power = (character.full_stats.strength/10) * character.equipment.weapon.getAttack();
     } 
     else {
         character.stats.attack_power = character.full_stats.strength/10;
     }
 
     character.full_stats.attack_power = character.stats.attack_power;
+}
+
+character.get_stamina_multiplier = function get_stamina_multiplier() {
+        if(character.stamina < 1) {
+                return 0.5 + skills["Persistence"].get_coefficient("flat");
+        }
+        return 1;
+}
+
+character.get_attack_speed = function get_attack_speed() {
+        return character.full_stats.attack_speed * character.get_stamina_multiplier();
+}
+
+character.get_attack_power = function get_attack_power() {
+        return character.full_stats.attack_power * character.get_stamina_multiplier();
 }
 
 export {character};
