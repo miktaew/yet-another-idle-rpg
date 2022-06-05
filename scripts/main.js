@@ -165,26 +165,35 @@ function change_location(location_name) {
     attack_order = 0;
 
     var location = locations[location_name];
+    
 
     if(!location) {
         throw `No such location as "${location_name}"`;
     }
     var action;
     clear_action_div();
+
     if(typeof current_location !== "undefined" && current_location.name !== location.name ) { 
-        //so it's not called when initializing the location on page load or when it's called when new location is unlocked
+        //so it's not called when initializing the location on page load or on reloading current location (due to new unlocks)
         log_message(`[ Entering ${location.name} ]`, "message_travel");
     }
     
     current_location = location;
+    const previous_location = current_location;
 
     if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
         enemy_info_div.style.display = "none";
         enemy_count_div.style.display = "none";
 
         current_enemy = null;
+
+        if(typeof previous_location !== "undefined" && "parent_location" in previous_location) { // if previous was combat
+            clear_enemy_and_enemy_info();
+            update_combat_stats();
+        }
         
-        for(let i = 0; i < location.dialogues.length; i++) { //add buttons for starting dialogues (displaying their textlines on click will be in another method?)
+        //add buttons for starting dialogues
+        for(let i = 0; i < location.dialogues.length; i++) { 
             if(!dialogues[location.dialogues[i]].is_unlocked || dialogues[location.dialogues[i]].is_finished) { //skip if dialogue is not available
                 continue;
             } 
@@ -192,15 +201,16 @@ function change_location(location_name) {
             const dialogue_div = document.createElement("div");
 
             if(Object.keys(dialogues[location.dialogues[i]].textlines).length > 0) { //has any textlines
-                dialogue_div.innerHTML = dialogues[location.dialogues[i]].starting_text;
-                dialogue_div.innerHTML += dialogues[location.dialogues[i]].trader? `  <i class="fas fa-store"></i>` : `  <i class="far fa-comments"></i>`;
+                
+                dialogue_div.innerHTML = dialogues[location.dialogues[i]].trader? `<i class="fas fa-store"></i>  ` : `<i class="far fa-comments"></i>  `;
+                dialogue_div.innerHTML += dialogues[location.dialogues[i]].starting_text;
                 dialogue_div.classList.add("start_dialogue");
                 dialogue_div.setAttribute("data-dialogue", location.dialogues[i]);
                 dialogue_div.setAttribute("onclick", "start_dialogue(this.getAttribute('data-dialogue'));");
                 action_div.appendChild(dialogue_div);
             } else if(dialogues[location.dialogues[i]].trader) { //has no textlines but is a trader -> add button to directly start trading
                 const trade_div = document.createElement("div");
-                trade_div.innerHTML = traders[dialogues[location.dialogues[i]].trader].trade_text + `  <i class="fas fa-store"></i>`;
+                trade_div.innerHTML = `<i class="fas fa-store"></i>  ` + traders[dialogues[location.dialogues[i]].trader].trade_text;
                 trade_div.classList.add("dialogue_trade")
                 trade_div.setAttribute("data-trader", dialogues[location.dialogues[i]].trader);
                 trade_div.setAttribute("onclick", "startTrade(this.getAttribute('data-trader'))")
@@ -216,9 +226,9 @@ function change_location(location_name) {
 
             const activity_div = document.createElement("div");
             
-            activity_div.innerHTML = location.activities[i].starting_text;
+            
             if(activities[location.activities[i].activity].type === "JOB") {
-                activity_div.innerHTML += `  <i class="fas fa-hammer"></i>`;
+                activity_div.innerHTML = `<i class="fas fa-hammer"></i>  `;
                 activity_div.classList.add("activity_div");
                 activity_div.setAttribute("data-activity", i);
                 activity_div.setAttribute("onclick", `start_activity({id: ${i}});`);
@@ -243,7 +253,7 @@ function change_location(location_name) {
                 activity_div.appendChild(job_tooltip);
             }
             else if(activities[location.activities[i].activity].type === "TRAINING") {
-                activity_div.innerHTML += `  <i class="fas fa-dumbbell"></i>`;
+                activity_div.innerHTML = `<i class="fas fa-dumbbell"></i>  `;
                 activity_div.classList.add("activity_div");
                 activity_div.setAttribute("data-activity", i);
                 activity_div.setAttribute("onclick", `start_activity({id: ${i}});`);
@@ -252,20 +262,23 @@ function change_location(location_name) {
 
             }
 
+            activity_div.innerHTML += location.activities[i].starting_text;
             action_div.appendChild(activity_div);
         }
         
-        if(location.sleeping) { //add button to go to sleep
+        //add button to go to sleep
+        if(location.sleeping) { 
             const start_sleeping_div = document.createElement("div");
             
-            start_sleeping_div.innerHTML = location.sleeping.text + '  <i class="fas fa-bed"></i>';
+            start_sleeping_div.innerHTML = '<i class="fas fa-bed"></i>  ' + location.sleeping.text;
             start_sleeping_div.id = "start_sleeping_div";
             start_sleeping_div.setAttribute('onclick', 'start_sleeping()');
 
             action_div.appendChild(start_sleeping_div);
         }
         
-        for(let i = 0; i < location.connected_locations.length; i++) { //add butttons to change location
+        //add butttons to change location
+        for(let i = 0; i < location.connected_locations.length; i++) { 
 
             if(location.connected_locations[i].location.is_unlocked == false) { //skip if not unlocked
                 continue;
@@ -276,18 +289,18 @@ function change_location(location_name) {
             if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
                 action.classList.add("travel_normal");
                 if("custom_text" in location.connected_locations[i]) {
-                    action.innerHTML = location.connected_locations[i].custom_text + `  <i class="fas fa-map-signs"></i>`;
+                    action.innerHTML = `<i class="fas fa-map-signs"></i>  ` + location.connected_locations[i].custom_text;
                 }
                 else {
-                    action.innerHTML = "Go to " + location.connected_locations[i].location.name + `  <i class="fas fa-map-signs"></i>`;
+                    action.innerHTML = `<i class="fas fa-map-signs"></i>  ` + "Go to " + location.connected_locations[i].location.name;
                 }
             } else {
                 action.classList.add("travel_combat");
                 if("custom_text" in location.connected_locations[i]) {
-                    action.innerHTML = location.connected_locations[i].custom_text + `  <i class="fas fa-skull"></i>`;
+                    action.innerHTML = `<i class="fas fa-skull"></i>  ` + location.connected_locations[i].custom_text;
                 }
                 else {
-                    action.innerHTML = "Enter the " + location.connected_locations[i].location.name + `  <i class="fas fa-skull"></i>`;
+                    action.innerHTML = `<i class="fas fa-skull"></i>  ` + "Enter the " + location.connected_locations[i].location.name;
                 }
             }
             action.classList.add("action_travel");
@@ -295,11 +308,6 @@ function change_location(location_name) {
             action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
 
             action_div.appendChild(action);
-
-            if(typeof current_location !== "undefined" && "parent_location" in current_location) { // if previous was combat and new is normal
-                clear_enemy_and_enemy_info();
-                update_combat_stats();
-            }
         }
 
     } else { //so if entering combat zone
@@ -310,9 +318,9 @@ function change_location(location_name) {
         action = document.createElement("div");
         action.classList.add("travel_normal", "action_travel");
         if(location.leave_text) {
-            action.innerHTML = location.leave_text + `  <i class="fas fa-map-signs"></i>`;
+            action.innerHTML = `<i class="fas fa-map-signs"></i>  ` + location.leave_text;
         } else {
-            action.innerHTML = "Go back to " + location.parent_location.name + `  <i class="fas fa-map-signs"></i>`;
+            action.innerHTML = `<i class="fas fa-map-signs"></i>  ` + "Go back to " + location.parent_location.name;
         }
         action.setAttribute("data-travel", location.parent_location.name);
         action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
@@ -620,7 +628,7 @@ function start_dialogue(dialogue_key) {
 
     if(dialogue.trader) {
         const trade_div = document.createElement("div");
-        trade_div.innerHTML = traders[dialogue.trader].trade_text + `  <i class="fas fa-store"></i>`;
+        trade_div.innerHTML = `<i class="fas fa-store"></i>  ` + traders[dialogue.trader].trade_text;
         trade_div.classList.add("dialogue_trade")
         trade_div.setAttribute("data-trader", dialogue.trader);
         trade_div.setAttribute("onclick", "startTrade(this.getAttribute('data-trader'))")
@@ -655,6 +663,14 @@ function start_textline(textline_key){
 
     log_message(`> > ${textline.name}`, "dialogue_question")
     log_message(textline.text, "dialogue_answer");
+
+    for(let i = 0; i < textline.unlocks.dialogues.length; i++) { //unlocking dialogues
+        const dialogue = dialogues[textline.unlocks.dialogues[i]]
+        if(!dialogue.is_unlocked) {
+            dialogue.is_unlocked = true;
+            log_message(`Can now talk with ${dialogue.name} in ${dialogue.location_name}`, "activity_unlocked");
+        }
+    }
 
     for(let i = 0; i < textline.unlocks.textlines.length; i++) { //unlocking textlines
         const dialogue_name = textline.unlocks.textlines[i].dialogue;
@@ -731,13 +747,14 @@ function accept_trade() {
             //remove from trader inventory
 
             const item = to_buy.items.pop();
+            const actual_item = traders[current_trader].inventory[item.item.split(' #')[0]][item.item.split(' #')[1]];
 
-            add_to_inventory("character", [{item: getItem(item_templates[item.item.split(" #")[0]]), 
-                                            count: item.count}])
+            add_to_inventory("character", [{item: actual_item, 
+                                            count: item.item.count}])
             
-            remove_from_inventory("trader", {name: item.item.split(" #")[0], 
-                                            count: item.count,
-                                            id: item.item.split(" #")[1]});
+            remove_from_inventory("trader", {item_name: item.item.split(" #")[0], 
+                                             item_count: item.count,
+                                             item_id: item.item.split(" #")[1]});
 
         }
         while(to_sell.items.length > 0) {
@@ -745,13 +762,14 @@ function accept_trade() {
             //add to trader inventory
 
             const item = to_sell.items.pop();
+            const actual_item = character.inventory[item.item.split(' #')[0]][item.item.split(' #')[1]];
             
-            remove_from_inventory("character", {name: item.item.split(" #")[0], 
-                count: item.count,
-                id: item.item.split(" #")[1]});
+            remove_from_inventory("character", {item_name: item.item.split(" #")[0], 
+                                                item_count: item.count,
+                                                item_id: item.item.split(" #")[1]});
 
-            add_to_inventory("trader", [{item: getItem(item_templates[item.item.split(" #")[0]]), 
-                count: item.count}])
+            add_to_inventory("trader", [{item: actual_item, 
+                                         count: item.count}])
         }
     }
 
@@ -1259,21 +1277,16 @@ function do_combat() {
 
 
         if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
-            if(character.equipment["off-hand"].getShieldStrength() >= damage_dealt) {
-                if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
-                    add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
+            if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
+                add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
+                if(character.equipment["off-hand"].getShieldStrength() >= damage_dealt) {
                     log_message(character.name + " has blocked the attack");
-                    return; //damage fully blocked, nothing more can happen
-                 }
-            }
-            else { 
-                if(character.combat_stats.block_chance - 0.3 > Math.random()) { //PARTIALLY BLOCKED THE ATTACK
-                    add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
+                    return; //damage fully blocked, nothing more can happen 
+                } else {
                     damage_dealt -= character.equipment["off-hand"].getShieldStrength();
                     partially_blocked = true;
-                    //no return here
                 }
-            }
+             }
         }
         else { // HAS NO SHIELD
 
@@ -1285,35 +1298,36 @@ function do_combat() {
                 return; //damage fully evaded, nothing more can happen
             }
         }
-                
+        
+        let critted = false;
         if(enemy_crit_chance > Math.random())
         {
             damage_dealt *= enemy_crit_damage;
-            damage_dealt = Math.round(10*Math.max(damage_dealt - character.full_stats.defense, 1))/10;
-            character.full_stats.health -= damage_dealt;
+            critted = true;
+        }
+
+        let {damage_taken, fainted} = character.take_damage({damage_value: damage_dealt});
+
+        if(critted)
+        {
             if(partially_blocked) {
-                log_message(character.name + " partially blocked the attack, but was critically hit for " + damage_dealt + " dmg", "hero_attacked_critically");
+                log_message(character.name + " partially blocked the attack, but was critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
             } 
             else {
-                log_message(character.name + " was critically hit for " + damage_dealt + " dmg", "hero_attacked_critically");
+                log_message(character.name + " was critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
             }
         } else {
-            damage_dealt = Math.round(10*Math.max(damage_dealt - character.full_stats.defense, 1))/10;
-            character.full_stats.health -= damage_dealt;
             if(partially_blocked) {
-                log_message(character.name + " partially blocked the attack and was hit for " + damage_dealt + " dmg", "hero_attacked");
+                log_message(character.name + " partially blocked the attack and was hit for " + damage_taken + " dmg", "hero_attacked");
             }
             else {
-                log_message(character.name + " was hit for " + damage_dealt + " dmg", "hero_attacked");
+                log_message(character.name + " was hit for " + damage_taken + " dmg", "hero_attacked");
             }
         }
 
-        if(character.full_stats.health <= 0) {
+        if(fainted) {
             log_message(character.name + " has lost consciousness", "hero_defeat");
 
-            if(character.full_stats.health < 0) {
-                character.full_stats.health = 0;
-            }
             update_displayed_health();
             current_enemy = null;
             change_location(current_location.parent_location.name);
@@ -1495,7 +1509,7 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
  * @param {Number} xp_to_add 
  * @param {Boolean} should_info 
  */
-function add_xp_to_character(xp_to_add, should_info) {
+function add_xp_to_character(xp_to_add, should_info = true) {
     const level_up = character.add_xp(xp_to_add * (global_xp_bonus || 1));
 
     /*
@@ -1508,8 +1522,7 @@ function add_xp_to_character(xp_to_add, should_info) {
     character_xp_div.children[1].innerText = `${character.xp.current_xp}/${character.xp.xp_to_next_lvl} xp`;
     
     if(level_up) {
-        if((typeof should_info === "undefined" || should_info)) {
-            
+        if(should_info) {
             log_message(level_up);
         }
         
@@ -1528,15 +1541,20 @@ function add_xp_to_character(xp_to_add, should_info) {
 function get_location_rewards(location) {
     if(location.enemies_killed == location.enemy_count) { //first clear
         change_location(current_location.parent_location.name); //go back to parent location, only on first clear
+
+        if(location.rewards.xp && typeof location.rewards.xp === "number") {
+            add_xp_to_character(location.rewards.xp);
+            log_message(`Obtained ${location.rewards.xp}xp for clearing ${location.name} for the first time`);
+        }
     }
 
 
     //all clears, so that if something gets added after location was cleared, it will still be unlockable
-    for(let i = 0; i < location.rewards.locations.length; i++) { //unlock locations
+    for(let i = 0; i < location.rewards.locations?.length; i++) { //unlock locations
         unlock_location(location.rewards.locations[i])
     }
 
-    for(let i = 0; i < location.rewards.textlines.length; i++) { //unlock textlines and dialogues
+    for(let i = 0; i < location.rewards.textlines?.length; i++) { //unlock textlines and dialogues
         var any_unlocked = false;
         for(let j = 0; j < location.rewards.textlines[i].lines.length; j++) {
             if(dialogues[location.rewards.textlines[i].dialogue].textlines[location.rewards.textlines[i].lines[j]].is_unlocked == false) {
@@ -1729,10 +1747,9 @@ function add_to_inventory(who, items) {
 /**
  * 
  * @param {String} who  either "character" or "trader"
- * @param {*} item_info item to remove: {name, count, id} 
  */
-function remove_from_inventory(who, item_info) {
-    //item info -> {name: X, count: X, id: X}, with either count or id, depending on if item is stackable or not
+function remove_from_inventory(who, {item_name, item_count, item_id}) {
+    //either count or id, depending on if item is stackable or not
 
     let target;
     if(who === "character") {
@@ -1741,33 +1758,33 @@ function remove_from_inventory(who, item_info) {
         target = traders[current_trader];
     }
 
-    if(target.inventory.hasOwnProperty(item_info.name)) { //check if its in inventory, just in case, probably not needed
+    if(target.inventory.hasOwnProperty(item_name)) { //check if its in inventory, just in case, probably not needed
+        console.log("yes");
+        if(target.inventory[item_name].hasOwnProperty("item")) { //stackable
 
-        if(target.inventory[item_info.name].hasOwnProperty("item")) { //stackable
-
-            if(typeof item_info.count === "number" && Number.isInteger(item_info.count) && item_info.count >= 1) 
+            if(typeof item_count === "number" && Number.isInteger(item_count) && item_count >= 1) 
             {
-                target.inventory[item_info.name].count -= item_info.count;
+                target.inventory[item_name].count -= item_count;
             } 
             else 
             {
-                target.inventory[item_info.name].count -= 1;
+                target.inventory[item_name].count -= 1;
             }
 
-            if(target.inventory[item_info.name].count == 0) //less than 0 shouldn't happen so no need to check
+            if(target.inventory[item_name].count == 0) //less than 0 shouldn't happen so no need to check
             {
-                delete target.inventory[item_info.name];
+                delete target.inventory[item_name];
                 //removes item from inventory if it's county is less than 1
             }
         }
         else { //unstackable
-            target.inventory[item_info.name].splice(item_info.id, 1);
+            target.inventory[item_name].splice(item_id, 1);
             //removes item from the array
             //dont need to check if .id even exists, as splice by default uses 0 (even when undefined is passed)
 
-            if(target.inventory[item_info.name].length == 0) 
+            if(target.inventory[item_name].length == 0) 
             {
-                delete target.inventory[item_info.name];
+                delete target.inventory[item_name];
                 //removes item array from inventory if its empty
             } 
         }
@@ -1781,13 +1798,10 @@ function remove_from_inventory(who, item_info) {
 }
 
 /**
- * 
- * @param {*} item_info item to dismantle: {name, id}
+ * TODO
  */
-function dismantle_item(item_info) {
-    dismantle(character.inventory[item_info.name]);
-
-    remove_from_inventory("character", item_info);
+function dismantle_item() {
+    //TODO
 }
 
 function use_item(item_name) { 
@@ -2060,12 +2074,12 @@ function update_displayed_inventory() {
  * equips item and removes it from inventory
  * @param item_info {name, id}
  */
-function equip_item_from_inventory(item_info) {
-    if(character.inventory.hasOwnProperty(item_info.name)) { //check if its in inventory, just in case
+function equip_item_from_inventory({item_name, item_id}) {
+    if(character.inventory.hasOwnProperty(item_name)) { //check if its in inventory, just in case
         //add specific item to equipment slot
         // -> id and name tell which exactly item it is, then also check slot in item object and thats all whats needed
-        equip_item(character.inventory[item_info.name][item_info.id]);
-        remove_from_inventory("character", item_info); //put this outside if() when equipping gets implemented for stackables as well
+        equip_item(character.inventory[item_name][item_id]);
+        remove_from_inventory("character", {item_name, item_id});
     }
 }
 
@@ -2110,7 +2124,7 @@ function create_item_tooltip(item, options) {
         //if a shield
         if(item.offhand_type === "shield") {
             item_tooltip.innerHTML += 
-            `<br><br><b>[shield]</b><br><br>Can fully block attacks not stronger than: ${item.getShieldStrength()}`;
+            `<br><br><b>[shield]</b><br><br>Can block up to ${item.getShieldStrength()} damage`;
         }
         else if(item.equip_slot === "weapon") {
             item_tooltip.innerHTML += `<br><br>Type: <b>${item.weapon_type}</b>`;
@@ -2255,13 +2269,8 @@ function update_displayed_combat_stats() {
     if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
 
         other_combat_divs.defensive_action.innerHTML = "Block:";
+        other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.block_chance*100).toFixed(1)}%`;
 
-        if(current_enemy != null && character.equipment["off-hand"].getShieldStrength() < current_enemy.stats.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
-            other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.block_chance*100-30).toFixed(1)}%`;
-        } 
-        else {
-            other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.block_chance*100).toFixed(1)}%`;
-        }
     }
     else {
         other_combat_divs.defensive_action.innerHTML = "Evasion:";

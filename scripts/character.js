@@ -1,5 +1,12 @@
 import { skills } from "./skills.js";
 
+/*
+TODO:
+        - method for taking damage, return something like is_fainted (bool),
+        params: value, type, can_faint (true by default)
+        would also call another method to level skill with resistance for proper damage type
+*/
+
 //player character
 const base_xp_cost = 10;
 const character = {name: "Hero", titles: {}, 
@@ -114,12 +121,12 @@ character.get_level_bonus = function get_level_bonus(level) {
  * adds skill bonuses to character stats
  * @param {{stats, multipliers}} bonuses 
  */
-character.add_bonuses = function add_bonuses(bonuses) {
-        Object.keys(bonuses.stats).forEach(function (stat) {
-                character.stats[stat] += bonuses.stats[stat];
+character.add_bonuses = function add_bonuses({stats = {}, multipliers = {}}) {
+        Object.keys(stats).forEach(function (stat) {
+                character.stats[stat] += stats[stat];
         });
-        Object.keys(bonuses.multipliers).forEach(function (multiplier) {
-                character.multipliers[multiplier] = (bonuses.multipliers[multiplier] * (character.multipliers[multiplier] || 1));
+        Object.keys(multipliers).forEach(function (multiplier) {
+                character.multipliers[multiplier] = (bmultipliers[multiplier] * (character.multipliers[multiplier] || 1)) || 1;
         });
 }
 
@@ -138,7 +145,7 @@ character.update_stats = function update_stats() {
         }
 
         character.full_stats[stat] = character.stats[stat];
-        character.full_multipliers[stat] = character.multipliers[stat];
+        character.full_multipliers[stat] = character.multipliers[stat] || 1;
 
         if(stat !== "defense") {
                 Object.keys(character.equipment).forEach(function(key) {
@@ -199,6 +206,43 @@ character.get_attack_speed = function get_attack_speed() {
 
 character.get_attack_power = function get_attack_power() {
         return character.full_stats.attack_power * character.get_stamina_multiplier();
+}
+
+/**
+ * 
+ * @param {*}
+ * @returns [actual damage taken, if character should faint] 
+ */
+character.take_damage = function take_damage({damage_value, damage_type = "physical", damage_element, can_faint = true, give_skill_xp = true}) {
+        /*
+        damage types: "physical", "elemental", "magic"
+        each with it's own defense on equipment (and potentially spells)
+        */
+
+        /*
+        TODO:
+                - damage types
+                - damage elements (for elemental damage type)
+                - resistance skills
+        */
+        let fainted;
+
+        const damage_taken = Math.round(10*Math.max(damage_value - character.full_stats.defense, 1))/10;
+
+        character.full_stats.health -= damage_taken;
+
+        if(character.full_stats.health <= 0 && can_faint) {
+                fainted = true;
+                character.full_stats.health = 0;
+        } else {
+                fainted = false;
+        }
+
+        if(give_skill_xp) {
+                //TODO
+        }
+
+        return {damage_taken, fainted};
 }
 
 export {character};

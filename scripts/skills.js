@@ -3,194 +3,220 @@ const skill_groups = {};
 
 import { character } from "./character.js";
 
-function Skill(skill_data) {
-    this.skill_id = skill_data.skill_id;
-    this.names = skill_data.names; // put only {0: name} to have skill always named the same, no matter the level
-    this.description = skill_data.description;
-    this.current_level = 0; //initial lvl
-    this.max_level = skill_data.max_level || 60; //max possible lvl, dont make it too high
-    this.max_level_coefficient = skill_data.max_level_coefficient; //multiplicative bonus for levels
-    this.max_level_bonus = skill_data.max_level_bonus; //other type bonus for levels
-    this.current_xp = 0; // how much of xp_to_next_lvl there is currently
-    this.total_xp = 0; // total collected xp, on loading calculate lvl based on this (so to not break skills if scaling ever changes)
-    this.base_xp_cost = skill_data.base_xp_cost || 40; //xp to go from lvl 1 to lvl 2
-    this.xp_to_next_lvl = this.base_xp_cost; //for display only
-    this.total_xp_to_next_lvl = this.base_xp_cost; //total xp needed to lvl up
-    this.get_effect_description = skill_data.get_effect_description;
+/*    
+TODO:
+    - nightvision skill (lessening penalty in dark areas / at night)
+    - elemental resistances for:
+        - lessening environmental penalties (mostly affecting stamina maybe?)
+        - lessening elemental dmg (first need to implement damage types)
+    - skill for fighting in open areas 
+    (maybe give bonus block/evasion chance on basis of character becoming more aware of their surroundings)
+    - skill for fighting in tight areas (lessening penalty for such areas + some agility and dexterity bonuses)
 
-    this.skill_group = skill_data.skill_group;
-    this.rewards = skill_data.rewards; //leveling rewards (and levels on which they are given)
-    /*
-    if skill_group is defined, rewards will be based on it and setting them here will have no effect
+*/
 
-    as most of skills will provide some bonus anyway, there's no need to give stat reward at every single level
-    and might instead give them, let's say, every 5 levels
-    */
+class Skill {
+    constructor({ skill_id, 
+                  names, 
+                  description, 
+                  max_level = 60, 
+                  max_level_coefficient = 1, 
+                  max_level_bonus = 0, 
+                  base_xp_cost = 40, 
+                  get_effect_description = () => { return ''; }, 
+                  skill_group = null, 
+                  rewards, 
+                  xp_scaling = 1.6,
+                }) 
+    {
+        this.skill_id = skill_id;
+        this.names = names; // put only {0: name} to have skill always named the same, no matter the level
+        this.description = description;
+        this.current_level = 0; //initial lvl
+        this.max_level = max_level; //max possible lvl, dont make it too high
+        this.max_level_coefficient = max_level_coefficient; //multiplicative bonus for levels
+        this.max_level_bonus = max_level_bonus; //other type bonus for levels
+        this.current_xp = 0; // how much of xp_to_next_lvl there is currently
+        this.total_xp = 0; // total collected xp, on loading calculate lvl based on this (so to not break skills if scaling ever changes)
+        this.base_xp_cost = base_xp_cost; //xp to go from lvl 1 to lvl 2
+        this.xp_to_next_lvl = base_xp_cost; //for display only
+        this.total_xp_to_next_lvl = base_xp_cost; //total xp needed to lvl up
+        this.get_effect_description = get_effect_description;
+        this.skill_group = skill_group;
+        this.rewards = rewards; //leveling rewards (and levels on which they are given)
 
-    this.xp_scaling = typeof skill_data.xp_scaling !== "undefined" && skill_data.xp_scaling > 1? skill_data.xp_scaling : 1.6;
-    //how many times more xp needed for next level
+        /*
+        if skill_group is defined, rewards will be based on it and setting them here will have no effect
+    
+        as most of skills will provide some bonus anyway, there's no need to give stat reward at every single level
+        and might instead give them, let's say, every 5 levels
+        */
+        this.xp_scaling = xp_scaling > 1 ? xp_scaling : 1.6;
+        //how many times more xp needed for next level
+    }
 
-    this.name = function() { // returns rank name of skill, based on current level
-        const keys = Object.keys(skill_data.names);
-        if(keys.length == 1) {
-            return(this.names[keys[0]]);
+    name() {
+        const keys = Object.keys(this.names);
+        if (keys.length == 1) {
+            return (this.names[keys[0]]);
         }
         else {
             var rank_name;
-            for(var i = 0; i <= keys.length; i++)
-            {
-                if(this.current_level >= parseInt(keys[i])) {
+            for (var i = 0; i <= keys.length; i++) {
+                if (this.current_level >= parseInt(keys[i])) {
                     rank_name = this.names[keys[i]];
                 }
-                else { 
-                     break;
+                else {
+                    break;
                 }
             }
             return rank_name;
         }
-    }
+    };
 
-    this.add_xp = function(xp_to_add) { //for use when loading game saves, in cases scaling on something is changed
+    add_xp(xp_to_add) {
         this.total_xp += xp_to_add;
 
-        if(this.current_level < this.max_level) { //not max lvl
+        if (this.current_level < this.max_level) { //not max lvl
 
-            if(xp_to_add + this.current_xp < this.xp_to_next_lvl) { // no levelup
+            if (xp_to_add + this.current_xp < this.xp_to_next_lvl) { // no levelup
                 this.current_xp += xp_to_add;
             }
             else { //levelup
                 var level_after_xp = 0;
 
-                while(this.total_xp >= this.total_xp_to_next_lvl) {
+                while (this.total_xp >= this.total_xp_to_next_lvl) {
 
                     level_after_xp += 1;
-                    this.total_xp_to_next_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** (level_after_xp + 1))/(1 - this.xp_scaling));
+                    this.total_xp_to_next_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** (level_after_xp + 1)) / (1 - this.xp_scaling));
                 } //calculates lvl reached after adding xp
+
+
+
                 //probably could be done much more efficiently, but it shouldn't be a problem anyway
-                
-
-                var total_xp_to_previous_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** level_after_xp)/(1 - this.xp_scaling));
+                var total_xp_to_previous_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** level_after_xp) / (1 - this.xp_scaling));
                 //xp needed for current lvl, same formula but for n-1
-
                 var gains;
-                if(level_after_xp < this.max_level ) { //wont reach max lvl
+                if (level_after_xp < this.max_level) { //wont reach max lvl
                     gains = this.get_bonus_stats(level_after_xp);
                     this.xp_to_next_lvl = this.total_xp_to_next_lvl - total_xp_to_previous_lvl;
                     this.current_level = level_after_xp;
                     this.current_xp = this.total_xp - total_xp_to_previous_lvl;
-                }		
+                }
                 else { //will reach max lvl
                     gains = this.get_bonus_stats(this.max_level);
                     this.current_level = this.max_level;
                     this.total_xp_to_next_lvl = "Already reached max lvl";
                     this.current_xp = "Max";
                     this.xp_to_next_lvl = "Max";
-                }		
-                
+                }
+
                 var message = `${this.name()} has reached level ${this.current_level}`;
 
-                if(!Object.keys(gains.stats).length == 0) {
-                    if(this.skill_group) {
+                if (!Object.keys(gains.stats).length == 0) {
+                    if (this.skill_group) {
                         message += `<br><br> Thanks to [${this.skill_group}] reaching new milestone, ${character.name} gained: `;
                     } else {
                         message += `<br><br> Thanks to ${this.name()} reaching new milestone, ${character.name} gained: `;
                     }
 
-                    if(gains.stats) {
-                        Object.keys(gains.stats).forEach(function(stat) {
+                    if (gains.stats) {
+                        Object.keys(gains.stats).forEach(function (stat) {
                             message += `<br> +${gains.stats[stat]} ${stat_names[stat]}`;
                         });
                     }
-                    if(gains.multipliers) {
-                        Object.keys(gains.multipliers).forEach(function(multiplier) {
+                    if (gains.multipliers) {
+                        Object.keys(gains.multipliers).forEach(function (multiplier) {
                             message += `<br> x${gains.multipliers[multiplier]} ${stat_names[multiplier]}`;
                         });
                     }
                 }
                 return message;
             }
-        } 
-    }
+        }
+    };
 
-    this.get_bonus_stats = function(level) { 
+    get_bonus_stats(level) {
         //add stats to character
         //returns all the stats so they can be logged in message_log 
-        const gains = {stats: {}, multipliers: {}};
+        const gains = { stats: {}, multipliers: {} };
         var stats;
         var multipliers;
 
-        if(this.skill_group) { //only skill_group rewards
-            for(let i = skill_groups[this.skill_group].highest_level + 1; i <= level; i++) {
-                if(skill_groups[this.skill_group].rewards.milestones[i]) {
+        if (this.skill_group) { //only skill_group rewards
+            for (let i = skill_groups[this.skill_group].highest_level + 1; i <= level; i++) {
+                if (skill_groups[this.skill_group].rewards.milestones[i]) {
                     stats = skill_groups[this.skill_group].rewards.milestones[i].stats;
                     multipliers = skill_groups[this.skill_group].rewards.milestones[i].multipliers;
-                    if(stats) {
-                        Object.keys(stats).forEach(function(stat) {
-                            gains.stats[stat] = (gains.stats[stat] + stats[stat]) || stats[stat]; 
+                    if (stats) {
+                        Object.keys(stats).forEach(function (stat) {
+                            gains.stats[stat] = (gains.stats[stat] + stats[stat]) || stats[stat];
                         });
                     }
-                    if(multipliers){
-                        Object.keys(multipliers).forEach(function(multiplier) {
-                            gains.multipliers[multiplier] = (gains.multipliers[multiplier] * multipliers[multiplier]) || multipliers[multiplier]; 
+                    if (multipliers) {
+                        Object.keys(multipliers).forEach(function (multiplier) {
+                            gains.multipliers[multiplier] = (gains.multipliers[multiplier] * multipliers[multiplier]) || multipliers[multiplier];
                         });
                     }
                 }
 
                 skill_groups[this.skill_group].highest_level++;
             }
-            
+
         } else { //only normal 
-            for(let i = this.current_level + 1; i <= level; i++) {
-                if(this.rewards?.milestones[i]) {
+            for (let i = this.current_level + 1; i <= level; i++) {
+                if (this.rewards?.milestones[i]) {
                     stats = this.rewards.milestones[i].stats;
                     multipliers = this.rewards.milestones[i].multipliers;
-                    if(stats) {
-                        Object.keys(stats).forEach(function(stat) {
-                            gains.stats[stat] = (gains.stats[stat] + stats[stat]) || stats[stat]; 
+                    if (stats) {
+                        Object.keys(stats).forEach(function (stat) {
+                            gains.stats[stat] = (gains.stats[stat] + stats[stat]) || stats[stat];
                         });
                     }
-                    if(multipliers) {
-                        Object.keys(multipliers).forEach(function(multiplier) {
-                            gains.multipliers[multiplier] = (gains.multipliers[multiplier] * multipliers[multiplier]) || multipliers[multiplier]; 
-                        }); 
+                    if (multipliers) {
+                        Object.keys(multipliers).forEach(function (multiplier) {
+                            gains.multipliers[multiplier] = (gains.multipliers[multiplier] * multipliers[multiplier]) || multipliers[multiplier];
+                        });
                     }
                 }
-            }         
+            }
         }
 
-        if(gains.multipliers) {
+        if (gains.multipliers) {
             Object.keys(gains.multipliers).forEach((multiplier) => {
-                gains.multipliers[multiplier] = Math.round(100*gains.multipliers[multiplier])/100;
+                gains.multipliers[multiplier] = Math.round(100 * gains.multipliers[multiplier]) / 100;
             });
         }
 
         character.add_bonuses(gains);
 
         return gains;
-    }
+    };
 
-    this.get_coefficient = function(scaling_type) { //get multiplier from skill based on max possible multiplier and current skill level
+    get_coefficient(scaling_type) {
         //maybe lvl as param, with current lvl being used if it's undefined?
 
-        switch(scaling_type) {
+        switch (scaling_type) {
             case "flat":
-                return 1 + Math.round((this.max_level_coefficient - 1) * this.current_level/this.max_level * 1000)/1000;
-            case "multiplicative": 
-                return Math.round(Math.pow(this.max_level_coefficient, this.current_level/this.max_level)*1000)/1000;
+                return 1 + Math.round((this.max_level_coefficient - 1) * this.current_level / this.max_level * 1000) / 1000;
+            case "multiplicative":
+                return Math.round(Math.pow(this.max_level_coefficient, this.current_level / this.max_level) * 1000) / 1000;
                 break;
-            default:  //same as on multiplicative
-                return Math.round(Math.pow(this.max_level_coefficient, this.current_level/this.max_level)*1000)/1000;
+            default: //same as on multiplicative
+                return Math.round(Math.pow(this.max_level_coefficient, this.current_level / this.max_level) * 1000) / 1000;
                 break;
         }
-    } 
-    this.get_level_bonus = function() { //other bonus type from skill level (e.g additive)
-        return this.max_level_bonus * this.current_level/this.max_level;
-    }
+    };
+    get_level_bonus() {
+        return this.max_level_bonus * this.current_level / this.max_level;
+    };
 }
 
-function SkillGroup(skill_group_data) {
-    this.rewards = skill_group_data.rewards;
-    this.highest_level  = 0;
+class SkillGroup {
+    constructor({ rewards }) {
+        this.rewards = rewards;
+        this.highest_level = 0;
+    }
 }
 
 const stat_names = {"strength": "str",

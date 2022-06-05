@@ -4,6 +4,15 @@ import { activities } from "./activities.js";
 const locations = {};
 //will contain all the locations
 
+/*
+TODO:
+    - additional property, an object with all "properties" that the area has 
+    (keys as "dark", "narrow", "cold" and their values simply as boolean)
+    only for combat zones maybe?
+    for some kind of nightvision skill, "dark" and "bright" would mean it's like that all the time, while lack of them both
+    would indicate it follows the day-night cycle
+
+*/
 
 class Location {
     constructor(location_data) {
@@ -26,37 +35,39 @@ class Location {
 }
 
 class Combat_zone {
-    constructor(location_data) {
+    constructor({name, 
+                 description, 
+                 is_unlocked = true, 
+                 enemies_list, 
+                 enemy_count = 30,
+                 repeatable_rewards = true, 
+                 parent_location, 
+                 leave_text,
+                 rewards = {},
+                 required_skills = [],
+                 gained_skills = [],
+                }) {
         /*
         after clearing, maybe permanently unlock a single, harder zone (meaning also more xp/loot), from where the only way is back;
         */
-        this.name = location_data.name;
-        this.description = location_data.description;
-        this.is_unlocked = typeof location_data.is_unlocked !== "undefined" ? location_data.is_unlocked : true;
-        this.enemies_list = location_data.enemies_list;
-        this.enemy_count = location_data.enemy_count || 30;
+        this.name = name;
+        this.description = description;
+        this.is_unlocked = is_unlocked;
+        this.enemies_list = enemies_list;
+        this.enemy_count = enemy_count;
         this.enemies_killed = 0;
-        this.repeatable_rewards = typeof location_data.repeatable_rewards !== "undefined" ? location_data.repeatable_rewards : true; //if rewards can be obtained on subsequent clearings
-        this.parent_location = location_data.parent_location;
-        this.leave_text = location_data.leave_text;
-        if (location_data.rewards) {
-            this.rewards = location_data.rewards;
-            this.rewards.dialogues = location_data.rewards.dialogues || [];
-            this.rewards.textlines = location_data.rewards.textlines || [];
-            this.rewards.locations = location_data.rewards.locations || [];
-        }
-        else {
-            this.rewards = { dialogues: [], textlines: [], locations: [] };
-        }
-
-        this.required_skills = location_data.required_skills || [];
+        this.repeatable_rewards = repeatable_rewards; //if rewards can be obtained on subsequent clearings
+        this.parent_location = parent_location;
+        this.leave_text = leave_text; //text on option to leave
+        this.rewards = rewards;
+        this.required_skills = required_skills;
         /*
         skills required to fight with full efficiency
         [{skill_name, skill_coefficient needed, item needed to prevent debuf, affected stats}]
         e.g.
         [{skill: nightvision, coefficient: 2, item_to_prevent: light_source, affected_stats: ["agility", "dexterity"]}]
         */
-        this.gained_skills = location_data.gained_skills || [];
+        this.gained_skills = gained_skills;
         /*
         skills that will raise by themselves when fighting in some locations
         e.g. due to environment, i.e. night vision skill in dark areas
@@ -117,6 +128,7 @@ class Combat_zone {
         parent_location: locations["Village"],
         rewards: {
             textlines: [{dialogue: "village elder", lines: ["cleared field"]}],
+            xp: 20,
         }
     });
     locations["Village"].connected_locations.push({location: locations["Infested field"]});
