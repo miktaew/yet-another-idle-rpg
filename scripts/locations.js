@@ -40,10 +40,10 @@ class Combat_zone {
                  is_unlocked = true, 
                  enemies_list, 
                  enemy_count = 30,
-                 repeatable_rewards = true, 
                  parent_location, 
                  leave_text,
-                 rewards = {},
+                 first_reward = {},
+                 repeatable_reward = {}, 
                  required_skills = [],
                  gained_skills = [],
                 }) {
@@ -56,10 +56,10 @@ class Combat_zone {
         this.enemies_list = enemies_list;
         this.enemy_count = enemy_count;
         this.enemies_killed = 0;
-        this.repeatable_rewards = repeatable_rewards; //if rewards can be obtained on subsequent clearings
         this.parent_location = parent_location;
         this.leave_text = leave_text; //text on option to leave
-        this.rewards = rewards;
+        this.first_reward = first_reward; //reward for first clear
+        this.repeatable_reward = repeatable_reward; //reward for each clear, including first; all unlocks should be in this, just in case
         this.required_skills = required_skills;
         /*
         skills required to fight with full efficiency
@@ -126,9 +126,12 @@ class Combat_zone {
         is_unlocked: false, 
         name: "Infested field", 
         parent_location: locations["Village"],
-        rewards: {
+        first_reward: {
+            xp: 10,
+        },
+        repeatable_reward: {
             textlines: [{dialogue: "village elder", lines: ["cleared field"]}],
-            xp: 20,
+            xp: 5,
         }
     });
     locations["Village"].connected_locations.push({location: locations["Infested field"]});
@@ -151,7 +154,7 @@ class Combat_zone {
         name: "Cave depths", 
         leave_text: "Climb out",
         parent_location: locations["Nearby cave"],
-        rewards: {
+        repeatable_reward: {
             textlines: [{dialogue: "village elder", lines: ["cleared cave"]}],
         }
     });
@@ -171,7 +174,7 @@ class Combat_zone {
         enemy_count: 30, 
         name: "Forest", 
         parent_location: locations["Forest road"],
-        rewards: {},
+        repeatable_reward: {},
     });
     locations["Forest road"].connected_locations.push({location: locations["Forest"], custom_text: "Leave the safe path"});
 
@@ -182,11 +185,11 @@ class Combat_zone {
         is_unlocked: false,
         name: "Deep forest", 
         parent_location: locations["Forest road"],
-        rewards: {},
+        repeatable_reward: {},
         
     });
     locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture deeper into the woods"});
-    locations["Forest"].rewards.locations = [locations["Deep forest"]];
+    locations["Forest"].repeatable_reward.locations = [locations["Deep forest"]];
 })();
 
 //add activities

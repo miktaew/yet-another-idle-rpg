@@ -907,7 +907,6 @@ function add_to_selling_list(selected_item) {
 }
 
 function remove_from_selling_list(selected_item) {
-    console.log(to_sell);
     const is_stackable = !Array.isArray(character.inventory[selected_item.item.split(' #')[0]]);
     var actual_number_to_remove = selected_item.count;
 
@@ -1542,28 +1541,33 @@ function get_location_rewards(location) {
     if(location.enemies_killed == location.enemy_count) { //first clear
         change_location(current_location.parent_location.name); //go back to parent location, only on first clear
 
-        if(location.rewards.xp && typeof location.rewards.xp === "number") {
-            add_xp_to_character(location.rewards.xp);
-            log_message(`Obtained ${location.rewards.xp}xp for clearing ${location.name} for the first time`);
+        if(location.first_reward.xp && typeof location.first_reward.xp === "number") {
+            add_xp_to_character(location.first_reward.xp);
+            log_message(`Obtained ${location.first_reward.xp}xp for clearing ${location.name} for the first time`);
         }
+    }
+
+    if(location.repeatable_reward.xp && typeof location.repeatable_reward.xp === "number") {
+        add_xp_to_character(location.repeatable_reward.xp);
+        log_message(`Obtained additional ${location.repeatable_reward.xp}xp for clearing ${location.name}`);
     }
 
 
     //all clears, so that if something gets added after location was cleared, it will still be unlockable
-    for(let i = 0; i < location.rewards.locations?.length; i++) { //unlock locations
-        unlock_location(location.rewards.locations[i])
+    for(let i = 0; i < location.repeatable_reward.locations?.length; i++) { //unlock locations
+        unlock_location(location.repeatable_reward.locations[i])
     }
 
-    for(let i = 0; i < location.rewards.textlines?.length; i++) { //unlock textlines and dialogues
+    for(let i = 0; i < location.repeatable_reward.textlines?.length; i++) { //unlock textlines and dialogues
         var any_unlocked = false;
-        for(let j = 0; j < location.rewards.textlines[i].lines.length; j++) {
-            if(dialogues[location.rewards.textlines[i].dialogue].textlines[location.rewards.textlines[i].lines[j]].is_unlocked == false) {
+        for(let j = 0; j < location.repeatable_reward.textlines[i].lines.length; j++) {
+            if(dialogues[location.repeatable_reward.textlines[i].dialogue].textlines[location.repeatable_reward.textlines[i].lines[j]].is_unlocked == false) {
                 any_unlocked = true;
-                dialogues[location.rewards.textlines[i].dialogue].textlines[location.rewards.textlines[i].lines[j]].is_unlocked = true;
+                dialogues[location.repeatable_reward.textlines[i].dialogue].textlines[location.repeatable_reward.textlines[i].lines[j]].is_unlocked = true;
             }
         }
         if(any_unlocked) {
-            log_message(`Maybe you should check on ${location.rewards.textlines[i].dialogue}...`);
+            log_message(`Maybe you should check on ${location.repeatable_reward.textlines[i].dialogue}...`);
             //maybe do this only when there's just 1 dialogue with changes?
         }
     }
@@ -1759,7 +1763,6 @@ function remove_from_inventory(who, {item_name, item_count, item_id}) {
     }
 
     if(target.inventory.hasOwnProperty(item_name)) { //check if its in inventory, just in case, probably not needed
-        console.log("yes");
         if(target.inventory[item_name].hasOwnProperty("item")) { //stackable
 
             if(typeof item_count === "number" && Number.isInteger(item_count) && item_count >= 1) 
@@ -1827,7 +1830,7 @@ function use_item(item_name) {
     });
     if(used) {
         update_displayed_effects();
-        remove_from_inventory("character", {name: item_name, count: 1});
+        remove_from_inventory("character", {item_name, item_count: 1});
     }
 }
 
