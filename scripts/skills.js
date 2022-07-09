@@ -413,6 +413,22 @@ skill_groups["weapon skills"] = new SkillGroup({
                                 get_effect_description: ()=> {
                                     return `Multiplies hit chance by ${Math.round(skills["Combat"].get_coefficient("multiplicative")*1000)/1000}`;
                                 }});
+    
+    skills["Pest killer"] = new Skill({skill_id: "Pest killer", 
+                                names: {0: "Pest killer"}, 
+                                description: "Ability to fight against much smaller opponents. It's not that easy to hit them!", 
+                                max_level_coefficient: 2,
+                                get_effect_description: ()=> {
+                                    return `Multiplies hit chance against small-type enemies by ${Math.round(skills["Pest killer"].get_coefficient("multiplicative")*1000)/1000}`;
+                                }});    
+                                
+    skills["Giant slayer"] = new Skill({skill_id: "Giant slayer", 
+                                names: {0: "Giant slayer"}, 
+                                description: "Ability to fight against much bigger opponents. Just don't get hit and you should be fine!", 
+                                max_level_coefficient: 2,
+                                get_effect_description: ()=> {
+                                    return `Multiplies evasion against large-type enemies by ${Math.round(skills["Giant slayer"].get_coefficient("multiplicative")*1000)/1000}`;
+                                }});
 
     skills["Evasion"] = new Skill({skill_id: "Evasion", 
                                 names: {0: "Evasion"},                                
@@ -809,5 +825,20 @@ skill_groups["crafting skills"] = new SkillGroup({
     
 })();
 
+//miscellaneous skills
+(function(){
+    skills["Haggling"] = new Skill({
+        skill_id: "Haggling",
+        names: {0: "Haggling"},
+        description: "The art of the deal",
+        base_xp_cost: 100,
+        max_level: 25,
+        get_effect_description: ()=> {
+            return `Lowers trader cost multiplier to ${Math.round((1 - skills["Haggling"].get_level_bonus())*100)}% of original value`;
+        },
+        max_level_bonus: 0.5
+    });
+    
+})();
 
 export {skills, skill_groups, get_unlocked_skill_rewards, get_next_skill_milestone};

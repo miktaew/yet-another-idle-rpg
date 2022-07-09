@@ -1,12 +1,5 @@
 import { skills } from "./skills.js";
 
-/*
-TODO:
-        - method for taking damage, return something like is_fainted (bool),
-        params: value, type, can_faint (true by default)
-        would also call another method to level skill with resistance for proper damage type
-*/
-
 //player character
 const base_xp_cost = 10;
 const character = {name: "Hero", titles: {}, 
@@ -17,9 +10,10 @@ const character = {name: "Hero", titles: {},
                            stamina: 40,
                            max_mana: 0,
                            mana: 0,
-                           strength: 5, 
-                           agility: 5, 
-                           dexterity: 5, 
+                           strength: 4, 
+                           agility: 4, 
+                           dexterity: 4, 
+                           intuition: 4,
                            magic: 0, 
                            attack_speed: 1, 
                            crit_rate: 0.1, 
@@ -85,16 +79,19 @@ character.get_level_bonus = function get_level_bonus(level) {
         var gained_str = 0;
         var gained_agi = 0;
         var gained_dex = 0;
+        var gained_int = 0;
 
         for(let i = character.xp.current_level + 1; i <= level; i++) {
                 if(i % 2 == 1) {
                         gained_str += Math.floor(1+(i/10));
                         gained_agi += Math.floor(1+(i/10));
                         gained_dex += Math.floor(1+(i/10));
+                        gained_int += Math.floor(1+(i/10));
 
                         character.stats.strength += Math.floor(1+(i/10));
                         character.stats.agility += Math.floor(1+(i/10));
                         character.stats.dexterity += Math.floor(1+(i/10));
+                        character.stats.intuition += 1;
                 }
                 gained_hp += 10 * Math.floor(1+(i/10));
 
@@ -113,7 +110,10 @@ character.get_level_bonus = function get_level_bonus(level) {
         if(gained_dex > 0) {
                 gains += `<br>Dexterity increased by ${gained_dex}`;
         }
-
+        if(gained_int > 0) {
+                gains += `<br>Intuition increased by ${gained_int}`;
+        }
+        
         return gains;
 }
 
@@ -194,8 +194,8 @@ character.update_stats = function update_stats() {
 }
 
 character.get_stamina_multiplier = function get_stamina_multiplier() {
-        if(character.stamina < 1) {
-                return 0.5 + skills["Persistence"].get_coefficient("flat");
+        if(character.full_stats.stamina < 1) {
+                return 0.5 + skills["Persistence"].get_level_bonus();
         }
         return 1;
 }

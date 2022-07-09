@@ -3,38 +3,44 @@ import {item_templates, getItem} from "./items.js";
 var enemy_templates = {};
 //enemy templates; locations create new enemies based on them
 
-function Enemy(enemy_data) {
-    this.name = enemy_data.name;
-    this.description = enemy_data.description; //try to keep it short
-    this.xp_value = enemy_data.xp_value;
-    this.stats = enemy_data.stats;
-    //only magic & defense can be 0 in stats
-    this.stats.max_health = enemy_data.stats.health;
+class Enemy {
+    constructor({ name, description, xp_value = 1, stats, loot_list = [], size = "small"}) {
+        this.name = name;
+        this.description = description; //try to keep it short
+        this.xp_value = xp_value;
+        this.stats = stats;
+        //only magic & defense can be 0 in stats
+        this.stats.max_health = stats.health;
+        this.loot_list = loot_list;
 
-    this.loot_list = enemy_data.loot_list;
+        if(size !== "small" && size !== "medium" && size !== "large") {
+            throw new Error(`No such enemy size option as "size"!`);
+        } else {
+            this.size = size;
+        }
 
-    this.get_loot = function() {
+    }
+    get_loot() {
         // goes through items and calculates drops
         // result is in form [{item: Item, count: item_count}, {...}, {...}]
-
-        var loot = []
+        var loot = [];
         var item;
         for (var i = 0; i < this.loot_list.length; i++) {
             item = this.loot_list[i];
-            if(item["chance"] >= Math.random()) {
+            if (item["chance"] >= Math.random()) {
                 // checks if it should drop
                 var item_count = 1;
-                if("count" in item) {
+                if ("count" in item) {
                     item_count = Math.round(Math.random() * (item["count"]["max"] - item["count"]["min"]) + item["count"]["min"]);
                     // calculates how much drops (from range min-max, both inclusive)
-                } 
+                }
 
-                loot.push({"item": getItem(item_templates[item.item_name]), "count": item_count});
+                loot.push({ "item": getItem(item_templates[item.item_name]), "count": item_count });
             }
         }
 
         return loot;
-    }
+    };
 }
 
 (function(){

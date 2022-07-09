@@ -91,10 +91,25 @@
                             <span class = "stat_tooltip"> Your dexterity. It affects your chance to hit target </span>
                         </div>
                         <div class = "stat_slot_div"> 
-                            <div class = "stat_name"> Atk spd: </div>
-                            <div class = "stat_value" id = "attack_speed_slot"></div> 
-                            <span class = "stat_tooltip"> Your attack speed. If it's higher than your enemy's, you will sometimes attack more than once per turn </span>
+                            <div class = "stat_name"> Intuition </div>
+                            <div class = "stat_value" id = "intuition_slot"></div> 
+                            <span class = "stat_tooltip"> Your intuition. It's necessary for magic, while also providing slight bonus to hit chance and evasion </span>
                         </div>
+                        
+                    </div>
+                    
+                    <div class = "grid_container">
+                        <div class = "stat_slot_div"> 
+                            <div class = "stat_name"> Defense: </div>
+                            <div class = "stat_value" id = "defense_slot"></div> 
+                            <span class = "stat_tooltip"> Your defense. Based on worn equipment, lowers damage taken </span>
+                        </div>
+                        <div class = "stat_slot_div"> 
+                            <div class = "stat_name"> Magic: </div>
+                            <div class = "stat_value" id = "magic_slot"></div> 
+                            <span class = "stat_tooltip"> Your magic power. It affects damage of magic attacks </span>
+                        </div>
+                        
                     </div>
                     <div class = "grid_container">
                         <div class = "stat_slot_div"> 
@@ -103,23 +118,12 @@
                             <span class = "stat_tooltip"> Attack power. Based on weapon statistics, strength and/or magic </span>
                         </div>
                         <div class = "stat_slot_div"> 
-                            <div class = "stat_name"> Defense: </div>
-                            <div class = "stat_value" id = "defense_slot"></div> 
-                            <span class = "stat_tooltip"> Your defense. Based on worn equipment, lowers damage taken </span>
+                            <div class = "stat_name"> Atk spd: </div>
+                            <div class = "stat_value" id = "attack_speed_slot"></div> 
+                            <span class = "stat_tooltip"> Your attack speed. If it's higher than your enemy's, you will sometimes attack more than once per turn </span>
                         </div>
                         
-                    </div>
-                    <div class = "grid_container">
-                        <div class = "stat_slot_div"> 
-                            <div class = "stat_name"> Magic: </div>
-                            <div class = "stat_value" id = "magic_slot"></div> 
-                            <span class = "stat_tooltip"> Your magic power. It affects damage of magic attacks </span>
-                        </div>
-                        <div class = "stat_slot_div" id ="unused_stat_div"> 
-                            <div class = "stat_name">  </div>
-                            <div class = "stat_value" id = "unusued_slot"></div> 
-                            <span class = "stat_tooltip"> Maybe something will be here </span>
-                        </div>
+                        
                     </div>
                     <div class = "grid_container">
                         <div class = "stat_slot_div"> 
@@ -247,7 +251,7 @@
                                 Sort by name
                             </div>
                             <div id = "trader_sort_by_price" class = "trader_sorting_button" onclick='sortTraderInventory("price")'>
-                                Sort by price
+                                Sort by value
                             </div>
                         </div>
                         <div id = "trader_category_buttons">

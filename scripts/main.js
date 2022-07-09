@@ -19,7 +19,8 @@ const equipment_slots_divs = {head: document.getElementById("head_slot"), torso:
                               };		
                             
 const stats_divs = {strength: document.getElementById("strength_slot"), agility: document.getElementById("agility_slot"),
-                    dexterity: document.getElementById("dexterity_slot"), magic: document.getElementById("magic_slot"), 
+                    dexterity: document.getElementById("dexterity_slot"), intuition: document.getElementById("intuition_slot"),
+                    magic: document.getElementById("magic_slot"), 
                     attack_speed: document.getElementById("attack_speed_slot"), attack_power: document.getElementById("attack_power_slot"), 
                     defense: document.getElementById("defense_slot"), crit_rate: document.getElementById("crit_rate_slot"), 
                     crit_multiplier: document.getElementById("crit_multiplier_slot")
@@ -500,6 +501,18 @@ function do_sleeping() {
         } 
         update_displayed_health();
     }
+
+    if(character.full_stats.stamina < character.full_stats.max_stamina)
+    {
+        const sleeping_stamina_ammount = Math.round(Math.max(character.full_stats.max_stamina/30, 1)); 
+        //todo: scale it with skill as well
+
+        character.full_stats.stamina += (sleeping_stamina_ammount);
+        if(character.full_stats.stamina > character.full_stats.max_stamina) {
+            character.full_stats.stamina = character.full_stats.max_stamina;
+        } 
+        update_displayed_stamina();
+    }
 }
 
 function start_sleeping() {
@@ -716,7 +729,7 @@ function start_trade(trader_key) {
     trade_div.style.display = "inherit";
 
     current_trader = trader_key;
-    document.getElementById("trader_cost_mult_value").textContent = `${100*traders[current_trader].profit_margin}%`
+    document.getElementById("trader_cost_mult_value").textContent = `${Math.round(100 * (1 + (traders[current_trader].profit_margin - 1) * (1 - skills["Haggling"].get_level_bonus())))}%`
     update_displayed_trader_inventory();
 }
 
@@ -747,31 +760,60 @@ function accept_trade() {
             //remove from trader inventory
 
             const item = to_buy.items.pop();
-            const actual_item = traders[current_trader].inventory[item.item.split(' #')[0]][item.item.split(' #')[1]];
+            const [item_name, item_id] = item.item.split(' #');
+            let actual_item;
+            if(item_id) {
+                actual_item = traders[current_trader].inventory[item_name][item_id];
 
-            add_to_inventory("character", [{item: actual_item, 
-                                            count: item.item.count}])
+                remove_from_inventory("trader", {item_name, 
+                                                item_count: 1,
+                                                item_id});
+
+                add_to_inventory("character", [{item: actual_item, 
+                                                count: 1}]);                              
+            } else {
+
+                actual_item = traders[current_trader].inventory[item_name].item;
+                
+                remove_from_inventory("trader", {item_name, 
+                                                 item_count: item.count});
+
+                add_to_inventory("character", [{item: actual_item, 
+                                                count: item.count}]);
+            }
+
             
-            remove_from_inventory("trader", {item_name: item.item.split(" #")[0], 
-                                             item_count: item.count,
-                                             item_id: item.item.split(" #")[1]});
-
         }
         while(to_sell.items.length > 0) {
             //remove from character inventory
             //add to trader inventory
-
-            const item = to_sell.items.pop();
-            const actual_item = character.inventory[item.item.split(' #')[0]][item.item.split(' #')[1]];
             
-            remove_from_inventory("character", {item_name: item.item.split(" #")[0], 
-                                                item_count: item.count,
-                                                item_id: item.item.split(" #")[1]});
+            const item = to_sell.items.pop();
+            const [item_name, item_id] = item.item.split(' #');
+            let actual_item;
+            if(item_id) {
+                actual_item = character.inventory[item_name][item_id];
+                
+                remove_from_inventory("character", {item_name, 
+                                                    item_count: 1,
+                                                    item_id});
 
-            add_to_inventory("trader", [{item: actual_item, 
-                                         count: item.count}])
+                add_to_inventory("trader", [{item: actual_item, 
+                                             count: 1}]);
+            } else {
+                actual_item = character.inventory[item_name].item;
+                remove_from_inventory("character", {item_name, 
+                                                    item_count: item.count});
+
+                add_to_inventory("trader", [{item: actual_item, 
+                                             count: item.count}]);
+            }
+
+            
         }
     }
+
+    add_xp_to_skill(skills["Haggling"], to_sell.value + to_buy.value);
 
     to_buy.value = 0;
     to_sell.value = 0;
@@ -824,19 +866,16 @@ function add_to_buying_list(selected_item) {
             to_buy.items.push(selected_item);
         }
 
-        const value = Math.ceil(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue()) * selected_item.count;
-
+        const value = get_item_value(selected_item, true);
         to_buy.value += value;
         return -value;
 
     } else {
 
         to_buy.items.push(selected_item);
-        const actual_item = traders[current_trader].inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
 
-        const value = Math.ceil(traders[current_trader].profit_margin * actual_item.getValue());
-        to_buy.value += value
-
+        const value = get_item_value(selected_item, false);
+        to_buy.value += value;
         return -value;
     }
 }
@@ -854,16 +893,14 @@ function remove_from_buying_list(selected_item) {
             to_buy.items.splice(to_buy.items.indexOf(present_item),1);
         }
 
-        const value = Math.ceil(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue()) * actual_number_to_remove;
+        const value = get_item_value(selected_item, true);
         to_buy.value -= value;
         return value;
+
     } else { //unstackable item, so always just 1
         //find index of item and remove it
         to_buy.items.splice(to_buy.items.map(item => item.item).indexOf(selected_item.item),1);
-
-        const actual_item = traders[current_trader].inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
-        const value = Math.ceil(traders[current_trader].profit_margin * actual_item.getValue());
-
+        const value = get_item_value(selected_item, false);
         to_buy.value -= value;
         return value;
     }
@@ -931,6 +968,17 @@ function remove_from_selling_list(selected_item) {
         return -value;
     }
 
+}
+
+function get_item_value(selected_item, is_stackable) {
+
+    const profit_margin = 1 + (traders[current_trader].profit_margin - 1) * (1 - skills["Haggling"].get_level_bonus());
+    if(is_stackable) {
+        return Math.ceil(profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue()) * selected_item.count;
+    } else {
+        const actual_item = traders[current_trader].inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
+        return Math.ceil(profit_margin * actual_item.getValue());
+    }
 }
 
 function update_displayed_trader_inventory(sorting_param) {
@@ -1115,14 +1163,18 @@ function update_displayed_trader_inventory(sorting_param) {
     sort_displayed_inventory({sort_by: sorting_param || "name", target: "trader"});
 }
 
-function sort_displayed_inventory(options) {
+function sort_displayed_inventory({sort_by, target = "character", direction = "asc"}) {
 
-    const target = options.target === "trader" ? trader_inventory_div : inventory_div;
-    /*
-    seems terribly overcomplicated
-    can't think of better solution for now
-    
-    */
+    if(target === "trader") {
+        target = trader_inventory_div;
+    } else if(target === "character") {
+        target = inventory_div;
+    }
+    else {
+        console.warn(`Something went wrong, no such inventory as '${target}'`);
+        return;
+    }
+
     [...target.children].sort((a,b) => {
         //equipped items on top
         if(a.classList.contains("equipped_item_control") && !b.classList.contains("equipped_item_control")) {
@@ -1136,24 +1188,32 @@ function sort_displayed_inventory(options) {
         } else if(!a.classList.contains("item_to_trade") && b.classList.contains("item_to_trade")) {
             return -1;
         }
-        //other items by either name or otherwise by value
-        else if(options.sort_by === "name") {
-            
-            //if they are equippable, take in account the [slot] value displayed in front of item in inventory
-            const item_a = item_templates[(a.getAttribute("data-character_item") || a.getAttribute("data-trader_item")).split(" #")[0]];
-            const name_a = (item_a.equip_slot || '') + item_a.name;
-            const item_b = item_templates[(b.getAttribute("data-character_item") || b.getAttribute("data-trader_item")).split(" #")[0]];
-            const name_b = (item_b.equip_slot || '') + item_b.name;
 
-            if(name_a > name_b) {
+        //other items by either name or otherwise by value
+
+        else if(sort_by === "name") {
+            //if they are equippable, take in account the [slot] value displayed in front of item in inventory
+            const name_a = a.children[0].innerText.toLowerCase();
+            const name_b = b.children[0].innerText.toLowerCase();
+
+            //priotize displaying equipment below stackable items
+            if(name_a[0] === '[' && name_b[0] !== '[') {
+                return 1;
+            } else if(name_a[0] !== '[' && name_b[0] === '[') {
+                return -1;
+            }
+            else if(name_a > name_b) {
                 return 1;
             } else {
                 return -1;
             }
 
-        } else if(options.sort_by === "price") {
-            if(item_templates[(a.getAttribute("data-character_item") || a.getAttribute("data-trader_item")).split(" #")[0]].value 
-                    > item_templates[(b.getAttribute("data-character_item") || b.getAttribute("data-trader_item")).split(" #")[0]].value) {
+        } else if(sort_by === "price") {
+            
+            let value_a = Number(a.lastElementChild.innerText.replace(/[ GSC]/g, ''));
+            let value_b = Number(b.lastElementChild.innerText.replace(/[ GSC]/g, ''));
+            
+            if(value_a > value_b) {
                 return 1;
             } else {
                 return -1;
@@ -1207,8 +1267,15 @@ function do_combat() {
         attack_order -= current_enemy.stats.attack_speed;
         use_stamina();
 
+        add_xp_to_skill(skills["Combat"], current_enemy.xp_value, true);
+        if(current_enemy.size === "small") {
+            add_xp_to_skill(skills["Pest killer"], current_enemy.xp_value, true);
+        } else if(current_enemy.size === "large") {
+            add_xp_to_skill(skills["Giant slayer"], current_enemy.xp_value, true);
+        }
+
         if(character.combat_stats.hit_chance > Math.random()) {//hero's attack hits
-            add_xp_to_skill(skills["Combat"], current_enemy.xp_value, true);
+
             if(character.equipment.weapon != null) {
                 damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) 
                                             * skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient())/10;
@@ -1357,9 +1424,10 @@ function use_stamina(num) {
 
     if(character.full_stats.stamina < 1) {
         add_xp_to_skill(skills["Persistence"], num || 1);
+        update_displayed_stats();
     }
 
-    update_displayed_stamina();
+        update_displayed_stamina();
 }
 
 /**
@@ -1576,7 +1644,6 @@ function get_location_rewards(location) {
     
     /*
     TODO: give more rewards on all clears
-    - bonus xp for character
     - some xp for location-related skills? (i.e. if location is dark, then for "night vision" or whatever it will be called)
     - items/money?
     */
@@ -1707,11 +1774,13 @@ function clear_enemy_and_enemy_info() {
  * @param {String} who either "character" or "trader"
  * @param {*} items list of items to add
  */
-function add_to_inventory(who, items) {
+function add_to_inventory(who, items, trader_key) {
     //items  -> [{item: some item object, count: X}]
     let target;
     if(who === "character") {
         target = character;
+    } else if(who === "trader" && trader_key) {
+        target = traders[trader_key];
     } else if(who === "trader") {
         target = traders[current_trader];
     }
@@ -1743,7 +1812,7 @@ function add_to_inventory(who, items) {
     }
     if(who === "character") {
         update_displayed_inventory();
-    } else if(who === "trader") {
+    } else if(who === "trader" && !trader_key) {
         update_displayed_trader_inventory();
     }
 }
@@ -2070,7 +2139,7 @@ function update_displayed_inventory() {
     }
 
 
-    sort_displayed_inventory("character");
+    sort_displayed_inventory({target: "character"});
 }
 
 /**
@@ -2224,10 +2293,16 @@ function update_displayed_stats() { //updates displayed stats
 
     Object.keys(stats_divs).forEach(function(key){
         if(key === "crit_rate" || key === "crit_multiplier") {
-            stats_divs[key].innerHTML = `${(character.full_stats[key]*100).toFixed(1)}%`
+            stats_divs[key].innerHTML = `${(character.full_stats[key]*100).toFixed(1)}%`;
         } 
+        else if(key === "attack_speed") {
+            stats_divs[key].innerHTML = `${(character.get_attack_speed()).toFixed(1)}`;
+        }
+        else if(key === "attack_power") {
+            stats_divs[key].innerHTML = `${(character.get_attack_power()).toFixed(1)}`;
+        }
         else {
-            stats_divs[key].innerHTML = `${(character.full_stats[key]).toFixed(1)}`
+            stats_divs[key].innerHTML = `${(character.full_stats[key]).toFixed(1)}`;
         }
     });
 }
@@ -2242,15 +2317,25 @@ function update_combat_stats() { //chances to hit and evade/block
 
     if(current_enemy != null) { //IN COMBAT
 
-        character.combat_stats.hit_chance = Math.min(0.99, Math.max(0.1, Math.sqrt(character.full_stats.dexterity/current_enemy.stats.agility) 
-                                            * 0.5 * skills["Combat"].get_coefficient("multiplicative")));
+        let hit_bonus;
+        let evasion_bonus;
+        if(current_enemy.size === "small") {
+            hit_bonus = skills["Pest killer"].get_coefficient("multiplicative");
+        } else if(current_enemy.size === "large") {
+            evasion_bonus = skills["Giant slayer"].get_coefficient("multiplicative");
+        }
 
-        //so 99% if at least four times more dexterity, 50% if same, and never less than 10%
+        character.combat_stats.hit_chance = Math.min(1, Math.sqrt(character.full_stats.intuition) * character.full_stats.dexterity/current_enemy.stats.agility 
+                                            * 0.25 * skills["Combat"].get_coefficient("multiplicative") * (hit_bonus || 1));
+
+        //so 100% if at least four times more dexterity, 50% if same, can go down almost to 0%
 
         if(character.equipment["off-hand"] == null || character.equipment["off-hand"].offhand_type !== "shield") {
             const power = character.full_stats.agility > current_enemy.stats.dexterity ? 2/3 : 1
-            character.combat_stats.evasion_chance = Math.min(0.99, Math.pow(character.full_stats.agility/current_enemy.stats.dexterity, power) * 0.25 * skills["Evasion"].get_coefficient("multiplicative"));
-            //so up to 99% if at least eight times more agility, 25% if same, can go down almost to 0%
+            character.combat_stats.evasion_chance = Math.min(1, Math.pow(0.25*character.full_stats.agility/current_enemy.stats.dexterity, power) * Math.sqrt(character.full_stats.intuition)
+                                                    * 0.25 * skills["Evasion"].get_coefficient("multiplicative") * (evasion_bonus || 1));
+
+            //so up to 100% if at least eight times more agility, 25% if same, can go down almost to 0%
         }
     } 
     else {
@@ -2371,7 +2456,8 @@ function create_save() {
                                 xp: {
                                     total_xp: character.xp.total_xp,
                                 },
-                                hp_to_full: character.full_stats.max_health - character.full_stats.health};
+                                hp_to_full: character.full_stats.max_health - character.full_stats.health,
+                                stamina_to_full: character.full_stats.max_stamina - character.full_stats.stamina};
         //no need to save all stats; on loading, base stats will be taken from code and then additional stuff will be calculated again (in case anything changed)
 
         save_data["skills"] = {};
@@ -2686,10 +2772,9 @@ function load(save_data) {
                     }
                 });
 
-                start_trade(trader);
+                traders[trader].refresh(); 
                 traders[trader].inventory = {};
-                add_to_inventory("trader", trader_item_list);
-                exit_trade();
+                add_to_inventory("trader", trader_item_list, trader);
 
                 traders[trader].last_refresh = save_data.traders[trader].last_refresh; 
             }
@@ -2733,15 +2818,23 @@ function load(save_data) {
             active_effects[effect] = save_data.active_effects[effect];
         });
 
-        update_character_stats();
+        
         if(save_data.character.hp_to_full == null || save_data.character.hp_to_full >= character.full_stats.max_health) {
             character.full_stats.health = 1;
         } else {
             character.full_stats.health = character.full_stats.max_health - save_data.character.hp_to_full;
         }
-        //if missing hp is null (save got corrupted) or its more than max_health, set health to 0
+        //if missing hp is null (save got corrupted) or its more than max_health, set health to minimum allowed (which is 1)
         //otherwise just do simple substraction
+        //then same with stamina below
+        if(save_data.character.stamina_to_full == null || save_data.character.stamina_to_full >= character.full_stats.max_stamina) {
+            character.full_stats.stamina = 0;
+        } else {
+            character.full_stats.stamina = character.full_stats.max_stamina - save_data.character.stamina_to_full;
+        }
         
+        update_character_stats();
+
         update_displayed_health();
         //load current health
         
