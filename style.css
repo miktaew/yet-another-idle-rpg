@@ -1,7 +1,12 @@
+
 :root {
+	--background_gradient: linear-gradient(to bottom right, #232f47, #15152d);
+
 	--equipment_display: inline-block;
 	--consumables_display: inline-block;
 	--other_display: inline-block;
+
+	--inventory_div_display: none;
 
 	--trader_equipment_display: inline-block;
 	--trader_consumable_display: inline-block;
@@ -9,7 +14,10 @@
 
 	--trade_ammount_button_display: none;
 	--item_use_button_display: inline-block;
-	--item_other_width: 287px; /* modified in index.html on trade start/end to fit the buttons */
+	 
+	--item_other_width_default: 319px; /* value for out of trade */
+	--item_other_width_trade: 285px; /* value for in trade */
+	--item_other_width: var(--item_other_width_default); /* modified in index.html on trade start/end to fit the buttons */
 
 	--item_tooltip_top: 0px;
 	--item_tooltip_left: 0px;
@@ -25,10 +33,11 @@ body {
 	background-color: #05040f;
 	font-family: sans-serif;
 	cursor: default;
+	color: white;
 }
 
 .box_div {
-	background-image: linear-gradient(to bottom right, #232f47, #15152d);
+	background-image: var(--background_gradient);
 	border: 3px solid #797691;
 	position: absolute;
 }
@@ -37,20 +46,6 @@ body {
 	background-color: inherit;
 	position: absolute;
 	width: 100%;
-}
-
-.main_controller_button {
-    width: fit-content;
-    min-width: 388px;
-    padding: 10px;
-	height: fit-content;
-    font-weight: bold;
-    font-size: 20;
-	background-color: #15152d; 
-	color: white;
-	cursor: pointer;
-	text-align: center;
-	display: inline-block;
 }
 
 .message_common { 
@@ -66,7 +61,9 @@ body {
 }
 
 .message_default {
+	/*
 	color: white;
+	*/
  }
 
  .message_items_obtained {
@@ -102,7 +99,6 @@ body {
 
  .message_travel {
 	 font-weight: bold;
-	 color: white;
  }
 
  .message_dialogue_question {
@@ -114,18 +110,18 @@ body {
  }
 
  .message_dialogue_answer, .message_dialogue_question {
-	color: white;
+
  }
 
  .message_location_unlocked {
 	 font-weight: bold;
-	 color: silver;
+
  }
 
  .action_travel, .start_dialogue, .dialogue_trade, .start_activity, #action_status_div, #action_end_div {
 	text-align: left;
 	font-size: 20;
-	color: white;
+
 	border-bottom: 1px solid white;
 	cursor: pointer;
 	padding: 5px;
@@ -134,7 +130,7 @@ body {
  .end_dialogue_button {
 	text-align: center;
 	font-size: 20;
-	color: white;
+
 	border-bottom: 1px solid white;
 	cursor: pointer;
 	padding: 5px;
@@ -143,7 +139,7 @@ body {
  #action_status_div, #action_end_div {
 	text-align: center;
 	font-size: 20;
-	color: white;
+
 	border-bottom: 1px solid white;
 	cursor: pointer;
 	padding: 5px;
@@ -170,14 +166,13 @@ body {
 	text-align: center;
 	font-size: 16;
 	font-style: italic;
-	color: white;
+
 	border-bottom: 1px solid white;
 	cursor: pointer;
 	padding: 5px;
 }
 
 .inventory_item, .trader_item {
-	 color: white;
 	 font-size: 14;
 	 display: inline-block;
 }
@@ -192,7 +187,7 @@ body {
 
 .inventory_equipped_item {
 	display: inline-block;
-	width: 227px; 
+	width: 259px; 
 	font-weight: bold;
 }
 
@@ -215,6 +210,7 @@ body {
 	 max-width: 300px;
 	 width: fit-content;
 	 height: auto;
+	 pointer-events: none;
 }
 
 .item_tooltip {
@@ -244,6 +240,7 @@ body {
 	max-width: 300px;
 	width: fit-content;
 	height: auto;
+	pointer-events: none;
 }
 
 .stat_slot_div:hover .stat_tooltip {
@@ -253,9 +250,7 @@ body {
 .skill_tooltip {
 	display: none;
 	background-color: rgba(120, 120, 120, 0.9);
-	color: white;
 	border-radius: 10px;
-	margin-left: 30px;
 	padding: 5px;
 	position: absolute;
 	z-index: 1000;
@@ -264,15 +259,15 @@ body {
 	height: auto;
 	top: var(--skill_tooltip_top);
 	left: var(--skill_tooltip_left);
+	pointer-events: none;
 }
+		.skill_tooltip_next_milestone {
+			color: rgb(206, 206, 206);
+		}
 
-.skill_tooltip_next_milestone {
-	 color: rgb(206, 206, 206);
-}
-
-.skill_bar_max:hover .skill_tooltip {
-	 display: block;
-}
+		.skill_bar_max:hover .skill_tooltip {
+			display: block;
+		}
 
 .item_slot {
 	color: rgb(149, 255, 190);
@@ -298,19 +293,17 @@ body {
 	width: 34px;
 	font-weight: bold;
 	cursor: pointer;
-	color: white;
 	font-size: 14;
 }
 
 .item_controls {
-	color: white;
 	display: inline-block;
 }
 
 .item_value {
 	text-align: right;
 	font-size: 14;
-	width: 62px;
+	width: 61px;
 	border-left: 1px solid white;
 	margin-left: 4px;
 	padding-left: 4px;
@@ -319,7 +312,9 @@ body {
 .inventory_control_button {
 	float:left;
 	padding: 3px;
-	min-width: 80.7px; /* ouch */
+	padding-left: 5px;
+	padding-right: 5px;
+	min-width: 85.4px; /* ouch */
 	text-align: center;
 	outline: 1px solid white;
 	margin: 1px;
@@ -327,11 +322,11 @@ body {
 }
 
 .item_stackable {
-	width: 253px;
+	width: 303px;
 }
 
 .item_equippable {
-	width: 239px;
+	width: 271px;
 }
 .trade_item_equippable {
 	width: 287px;
@@ -385,7 +380,6 @@ body {
 	margin-bottom: 1px;
 	padding-top: 1px;
 	padding-bottom: 1px;
-	color: white;
 	border: 1px solid white;
 	padding-top: auto;
 }
@@ -412,7 +406,6 @@ body {
 
 .stat_slot_div {
 	width: 100%;
-	color: white;
 	height: 20px;
 	padding-top: 2px;
 	margin-left: 1px;
@@ -435,18 +428,6 @@ body {
 	height: 370px;
 	width: 100%;
 	overflow-y: scroll;
-}
-
-.action_selection_button {
-	float:left;
-	padding: 3px;
-	width: 135.3px;
-	text-align: center;
-	outline: 1px solid white;
-	margin: 1px;
-	cursor: pointer;
-	font-size: 20;
-	color: white;
 }
 
 .skill_bar_max {
@@ -501,29 +482,27 @@ body {
 .trader_category_button {
 	float:left;
 	padding: 3px 0px 3px 0px;
-	width: 105.5px;
+	width: 98px;
 	text-align: center;
-	color: white;
 	outline: 1px solid white;
 	margin: 2px 1px;
 	cursor: pointer;
 }
 
 .character_sorting_button {
-    float:left;
-	width: 183px;
+    float: left;
+	width: 198px;
 	text-align: center;
 	outline: 1px solid white;
 	cursor: pointer;
 	margin: 1px;
 	font-size: 16;
-	color: white;
 }
 
 
-.character_control_button:hover, .inventory_control_button:hover, .action_selection_button:hover, 
+.character_control_button:hover, .inventory_control_button:hover, 
 .trader_category_button:hover, .trader_sorting_button:hover, .active_selection_button, .character_sorting_button:hover {
-	background-color: #435270;
+	background-color: #435270 !important;
 	background-image: none;
 }
 
@@ -533,7 +512,6 @@ body {
 
 .trade_ammount_button {
 	display: var(--trade_ammount_button_display);
-	color: white;
 	cursor: pointer;
 	font-weight: bold;
 	font-size: 14;
@@ -541,11 +519,11 @@ body {
 }
 
 .trader_item_control  .item_stackable {
-	width: 313px;
+	width: 285px;
 }
 
 .trader_item {
-	width: 347px;
+	width: 319px;
 }
 
 .trader_item_other {
@@ -558,19 +536,42 @@ body {
 	display: var(--trader_consumable_display);
 }
 
-.effects_div {
-	display: inline-block;
+.page_selection_button {
+	width: 250px;
+	font-size: 20;
+	font-weight: bold;
+	text-align: center;
+	position: relative;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	background-color: #202044;
+	float: left;
+	cursor: pointer;
+}
+
+#page_selection {
+	position: absolute;
+}
+
+#area_page {
+	position: absolute;
+	top: 20px;
+}
+
+#character_page {
+	position: absolute;
+	top: 20px;
+	display: none;
 }
 
 #accept_trade_button, #cancel_trade_button, .trader_sorting_button {
     float:left;
-	width: 213;
+	width: 198;
 	text-align: center;
 	outline: 1px solid white;
 	margin: -1px 1px;
 	cursor: pointer;
 	font-size: 16;
-	color: white;
 }
 #accept_trade_button {
 	background-color: green;
@@ -610,22 +611,18 @@ body {
 	background-color: red;
 }
 
-#action_selection_div {
-	width: 430px;
+#location_related_div {
+	width: 400px;
 	height: 400px;
-	left: 380px;
+	left: 410px;
 	top: 360px;
-}
-
-#action_control_div {
-	position: absolute;
-	bottom: 0;
 }
 
 #basic_character_info_div {
     width: 400px;
     height: 120px;
     z-index: 100;
+	top: 20px;
 }
 
 #bottom_panel_div {
@@ -638,13 +635,12 @@ body {
 	bottom: 0;
 	left: 0;
 }
-
-@media only screen and (max-height: 830px) {
-	#bottom_panel_div {
-		position: absolute;
-		top: 780px;
-	}
-}
+		@media only screen and (max-height: 853px) {
+			#bottom_panel_div {
+				position: absolute;
+				top: 797px;
+			}
+		}
 
 #character_div {
     width: 400px;
@@ -705,11 +701,10 @@ body {
 
 #character_level_div {
 	text-align: center;
-	outline: 1px solid white;
+	border: 1px solid white;
 	padding-top: 1px;
 	padding-bottom: 1px;
 	width: 350px;
-	margin-left: 26px;
 	font-weight: bold;
 }
 
@@ -734,7 +729,6 @@ body {
 	width: 400px;
 	top: 72px;
 	text-align: center;
-	color: white;
 }
 
 #character_stamina_bar_max {
@@ -757,7 +751,6 @@ body {
 	top: 48px;
 	text-align: center;
 	font-size: 15;
-	color: white;
 }
 
 #character_xp_bar_max {
@@ -793,11 +786,12 @@ body {
 #character_equipment_div { 
 	margin: auto;
 	width: 350px;
+	position: relative;
+	top: 5px;
 	display: none;
 }
 
 #character_stats_div {
-	display: grid;
 	width: 350px;
 	margin: auto;
 }
@@ -809,17 +803,34 @@ body {
 }
 
 #effects_div {
-	background-color: #232f47;
 	font-size: 16;
-	color: white;
 	padding-top: 4px;
 	padding-bottom: 4px;
 	padding-left: 4px;
 	width: 200px;
-	left: 100px;
-	top: 165px;
-	position: absolute;
-	z-index: 1;
+	position: relative;
+	background-color: #232f47;
+}
+		#character_effects_character_page {
+			position: absolute;
+			top: 166px;
+			left: 100px;
+		}
+		#character_effects_area_page {
+			position: absolute;
+			top: 126px;
+			left: 0px;
+			width: 390px;
+			border-top: 0px;
+			padding: 5px;
+		}
+				#character_effects_area_page div {
+					margin: auto;
+				}
+
+
+#effects_div div{
+	display: inline-block;
 }
 
 #effects_tooltip {
@@ -839,7 +850,7 @@ body {
 
 #exit_trade_button {
 	float:left;
-	width: 448;
+	width: 398;
 	text-align: center;
 	border: 1px solid white;
 	border-top: none;
@@ -847,7 +858,6 @@ body {
 	cursor: pointer;
 	font-size: 20;
 	padding: 1px 0px 1px 0px;
-	color: white;
 }
 
 #enemy_healthbar_max {
@@ -912,21 +922,43 @@ body {
 }
 
 #inventory_control_div {
-	color: white;
 	font-size: 20;
 	position: absolute;
 	top: 369px;
 }
 
 #inventory_div {
-	width: 370px;
+	width: 400px;
 	height: 400px;
-	top: 360;
+	top: 380;
+	display: var(--inventory_div_display);
 }
 
-#journal_div {
-	display: none;
+#skill_list_div {
+	position: absolute;
+	left: 410px;
+	top: 360px;
+	width: 400px;
+	height: 400px;
 }
+		#skill_list {
+			overflow-y: scroll;
+			height: 377px;
+		}
+
+#journal_div {
+	position: absolute;
+	top: 73px;
+	width: 400px;
+	left: 410px;
+	height: 277px;
+}
+
+	#journal_header, #skill_list_header {
+		width: 100%;
+		text-align: center;
+		padding-top: 5px;
+	}
 
 #location_actions_div {
 	display: block;
@@ -934,26 +966,39 @@ body {
 
 #location_div {
 	width: 400px;
-	height: 350px;
-	margin-bottom: 5px;
+	height: 287px;
 	left: 410px;
+	top: 66px;
+	border-top: 0px;
 }
 
-#location_data_div {
-	top: 285px;
-	position: absolute;
-	color: white;
-	text-align: center;
-}
+		#location_description_div {
+			border-bottom: 4px solid gray;
+			height: 113px;
+			font-style: italic;
+			color: rgb(224, 224, 224);
+			padding: 5px;
+		}
 
-#location_name_div {
-	font-size: 20;
-	border-top: 1px solid white;
-	border-bottom: 1px solid white;
-	padding-top: 5px;
-	padding-bottom: 5px;
+		#location_picture_div {
+			height: 160px;
+		}
+
+#time_and_location {
+	top: 20px;
+	left: 410px;
 	width: 400px;
+	font-size: 20;
 }
+		#location_name_div {
+			border-top: 1px solid white;
+			padding: 4px;
+		}
+
+		#time_div {
+			padding: 4px;
+			text-align: right;
+		}
 
 #location_name_div:hover #location_description_tooltip {
 	display: block;
@@ -963,7 +1008,6 @@ body {
 	font-style: italic;
 	display: none;
 	background-color: rgba(120, 120, 120, 0.9);
-	color: white;
 	border-radius: 10px;
 	margin-left: 30px;
 	padding: 5px;
@@ -985,13 +1029,18 @@ body {
 }
 
 #main_content {
-    position: relative;
+    position: absolute;
+	top: 15px;
+	background-image: var(--background_gradient);
+
+
 }
 
 #message_log_div {
 	width: 400px;
 	height: 760px;
 	left: 820px;
+	top: 20px;
 	overflow-y: scroll;
 	overflow-x: hidden;
 	padding-right: 15px;
@@ -1009,14 +1058,9 @@ body {
 	display: none;
 }
 
-#skill_list_div {
-	display: none;
-}
-
 #start_sleeping_div{
 	text-align: left;
 	font-size: 20;
-	color: white;
 	border-bottom: 1px solid white;
 	cursor: pointer;
 	padding: 5px;
@@ -1024,16 +1068,6 @@ body {
 
 #start_sleeping_div:hover, #action_end_div:hover, #end_sleeping_div:hover {
 	background-color: #2c3953;
-}
-
-#time_div {
-	font-size: 20;
-	color: white;
-
-	text-align: right;
-	top: 325px;
-	position: absolute;
-	width: 390px;
 }
 
 #test_button {
@@ -1049,21 +1083,21 @@ body {
 }
 
 #trader_inventory_div {
-    height: 262px;
+    height: 291px;
 }
 
 #trade_price_div {
 	color: white;
 	outline: 1px solid white;
 	padding: 2px 1px 2px 1px;
-	width: 281px;
+	width: 261px;
 	float: left;
 	margin: 1px;
 	
 }
 
 #trader_cost_mult {
-	width: 141px;
+	width: 131px;
 	color: white;
 	outline: 1px solid white;
 	padding: 2px 1px 2px 1px;
@@ -1074,7 +1108,7 @@ body {
 }
 
 #trader_cost_mult_text {
-	width: 70px;
+	width: 60px;
 	float: left;
 	padding-left: 5px;
 }
@@ -1094,20 +1128,16 @@ body {
 }
 
 #trade_price_value {
-	width: 185px;
+	width: 164px;
 	display: inline-block;
 	text-align: right;
 	padding-right: 5px;
 }
 
-#unused_stat_div {
-	background-image: linear-gradient(to bottom right, rgba(70, 70, 70, 0.9), rgba(0, 0, 0, 0.9));
-}
-
-
 /* scrollbar */
 ::-webkit-scrollbar {
 	width: 10px;
+	height: 10px;;
   }
 
 ::-webkit-scrollbar-track {

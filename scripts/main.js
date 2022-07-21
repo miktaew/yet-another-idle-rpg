@@ -111,7 +111,7 @@ const name_field = document.getElementById("character_name_field");
 name_field.value = character.name;
 
 //skills
-const skill_list = document.getElementById("skill_list_div");
+const skill_list = document.getElementById("skill_list");
 
 const message_log = document.getElementById("message_log_div");
 const time_field = document.getElementById("time_div");
@@ -332,10 +332,8 @@ function change_location(location_name) {
     }
 
     location_name_div.innerText = current_location.name;
-    const location_description_tooltip = document.createElement("div");
-    location_description_tooltip.id = "location_description_tooltip";
-    location_description_tooltip.innerText = current_location.description;
-    location_name_div.appendChild(location_description_tooltip);
+    
+    document.getElementById("location_description_div").innerText = current_location.description;
 }
 
 /**
@@ -833,6 +831,10 @@ function exit_trade() {
     to_sell.value = 0;
 
     update_displayed_inventory();
+}
+
+function is_in_trade() {
+    return Boolean(current_trader);
 }
 
 function get_character_money() {
@@ -1495,9 +1497,9 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
             log_message(`Learned new skill: ${skill.name()}`);
         }
 
-        [...skill_list_div.children]
+        [...skill_list.children]
         .sort((a,b)=>a.getAttribute("data-skill")>b.getAttribute("data-skill")?1:-1)
-        .forEach(node=>skill_list_div.appendChild(node));
+        .forEach(node=>skill_list.appendChild(node));
     //sorts inventory_div alphabetically
     } 
 
@@ -1721,7 +1723,7 @@ function log_message(message_to_add, message_type) {
     message.innerHTML = message_to_add + "<div class='message_border'> </>";
 
 
-    if(message_log.children.length > 60) 
+    if(message_log.children.length > 80) 
     {
         message_log.removeChild(message_log.children[0]);
     } //removes first position if there's too many messages
@@ -2904,9 +2906,8 @@ function load_from_file(save_string) {
 
         exit_trade();
 
-        const skill_list_div = document.getElementById("skill_list_div");
-        while(skill_list_div.firstChild) {
-            skill_list_div.removeChild(skill_list_div.lastChild);
+        while(skill_list.firstChild) {
+            skill_list.removeChild(skill_list.lastChild);
         } //remove skill bars from display
 
         try {
@@ -3132,6 +3133,7 @@ window.add_to_selling_list = add_to_selling_list;
 window.remove_from_selling_list = remove_from_selling_list;
 window.cancel_trade = cancel_trade;
 window.accept_trade = accept_trade;
+window.is_in_trade = is_in_trade;
 
 window.format_money = format_money;
 window.get_character_money = get_character_money;

@@ -48,7 +48,7 @@ class Enemy {
         name: "Starving wolf rat", 
         description: "Rat with size of a dog, starved and weakened", 
         xp_value: 1, 
-        stats: {health: 8, strength: 3, agility: 4, dexterity: 4, magic: 0, attack_speed: 0.8, defense: 0}, 
+        stats: {health: 16, strength: 4, agility: 8, dexterity: 8, magic: 0, attack_speed: 0.8, defense: 2}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.02},
             {item_name: "Rat fang", chance: 0.02},
@@ -60,7 +60,7 @@ class Enemy {
         name: "Wolf rat", 
         description: "Rat with size of a dog",
         xp_value: 1, 
-        stats: {health: 12, strength: 4, agility: 5, dexterity: 4, magic: 0, attack_speed: 1, defense: 0}, 
+        stats: {health: 25, strength: 6, agility: 10, dexterity: 8, magic: 0, attack_speed: 1, defense: 2}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.02},
             {item_name: "Rat fang", chance: 0.02},
@@ -72,7 +72,7 @@ class Enemy {
         name: "Group of rats", 
         description: "Maybe they are a family?", 
         xp_value: 3, 
-        stats: {health: 40, strength: 8, agility: 6, dexterity: 12, magic: 0, attack_speed: 1.3, defense: 0}, 
+        stats: {health: 80, strength: 10, agility: 12, dexterity: 24, magic: 0, attack_speed: 1.3, defense: 2}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.02},
             {item_name: "Rat fang", chance: 0.02},
@@ -84,7 +84,7 @@ class Enemy {
         name: "Horde of rats", 
         description: "How many is there?",
         xp_value: 4, 
-        stats: {health: 60, strength: 10, agility: 6, dexterity: 15, magic: 0, attack_speed: 1.6, defense: 0}, 
+        stats: {health: 120, strength: 12, agility: 12, dexterity: 30, magic: 0, attack_speed: 1.6, defense: 2}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.02},
             {item_name: "Rat fang", chance: 0.02},
@@ -95,7 +95,7 @@ class Enemy {
     enemy_templates["Starving wolf"] = new Enemy({
         name: "Starving wolf", description: "A large, wild and hungry canine", 
         xp_value: 7, 
-        stats: {health: 60, strength: 13, agility: 15, dexterity: 15, magic: 0, attack_speed: 1, defense: 2}, 
+        stats: {health: 120, strength: 20, agility: 30, dexterity: 30, magic: 0, attack_speed: 1, defense: 8}, 
         loot_list: [/* //those items were removed, so let's keep it in comment for a while
             {item_name: "Wolf tooth", chance: 0.02, count: {min: 1, max: 2}},
             {item_name: "Wolf pelt", chance: 0.01}*/
@@ -106,7 +106,7 @@ class Enemy {
         name: "Young wolf", 
         description: "A small, wild canine", 
         xp_value: 7, 
-        stats: {health: 50, strength: 11, agility: 17, dexterity: 12, magic: 0, attack_speed: 1.2, defense: 0}, 
+        stats: {health: 100, strength: 22, agility: 34, dexterity: 24, magic: 0, attack_speed: 1.2, defense: 3}, 
         loot_list: [/*
             {item_name: "Wolf tooth", chance: 0.02},
             {item_name: "Wolf pelt", chance: 0.01}*/
@@ -117,7 +117,7 @@ class Enemy {
         name: "Wolf", 
         description: "A large, wild canine", 
         xp_value: 10, 
-        stats: {health: 70, strength: 16, agility: 17, dexterity: 20, magic: 0, attack_speed: 1.1, defense: 3}, 
+        stats: {health: 140, strength: 30, agility: 34, dexterity: 40, magic: 0, attack_speed: 1.1, defense: 15}, 
         loot_list: [/*
             {item_name: "Wolf tooth", chance: 0.02, count: {min: 1, max: 3}},
             {item_name: "Wolf pelt", chance: 0.01}*/
