@@ -42,12 +42,6 @@ body {
 	position: absolute;
 }
 
-.text_div {
-	background-color: inherit;
-	position: absolute;
-	width: 100%;
-}
-
 .message_common { 
 	text-align: center;
 	width: inherit;
@@ -615,14 +609,13 @@ body {
 	width: 400px;
 	height: 400px;
 	left: 410px;
-	top: 360px;
+	top: 340px;
 }
 
 #basic_character_info_div {
     width: 400px;
     height: 120px;
     z-index: 100;
-	top: 20px;
 }
 
 #bottom_panel_div {
@@ -644,7 +637,7 @@ body {
 
 #character_div {
     width: 400px;
-    top: 126px;
+    top: 106px;
     padding-top: 7px;
     height: 220px;
 	max-width: 400px;
@@ -666,7 +659,7 @@ body {
 }
 
 #character_health_div {
-	padding-top: 20px;
+	padding-top: 25px;
 }
 
 #character_healthbar_max {
@@ -775,14 +768,6 @@ body {
 	text-align: center;
 }
 
-#character_title_div {
-	margin-top:5px;
-	color: white;
-	width: 100%;
-	text-align: center;
-	font-style: italic;
-}
-
 #character_equipment_div { 
 	margin: auto;
 	width: 350px;
@@ -808,7 +793,6 @@ body {
 	padding-bottom: 4px;
 	padding-left: 4px;
 	width: 200px;
-	position: relative;
 	background-color: #232f47;
 }
 		#character_effects_character_page {
@@ -818,7 +802,7 @@ body {
 		}
 		#character_effects_area_page {
 			position: absolute;
-			top: 126px;
+			top: 106px;
 			left: 0px;
 			width: 390px;
 			border-top: 0px;
@@ -930,14 +914,14 @@ body {
 #inventory_div {
 	width: 400px;
 	height: 400px;
-	top: 380;
+	top: 360;
 	display: var(--inventory_div_display);
 }
 
 #skill_list_div {
 	position: absolute;
 	left: 410px;
-	top: 360px;
+	top: 340px;
 	width: 400px;
 	height: 400px;
 }
@@ -948,7 +932,7 @@ body {
 
 #journal_div {
 	position: absolute;
-	top: 73px;
+	top: 53px;
 	width: 400px;
 	left: 410px;
 	height: 277px;
@@ -968,7 +952,7 @@ body {
 	width: 400px;
 	height: 287px;
 	left: 410px;
-	top: 66px;
+	top: 46px;
 	border-top: 0px;
 }
 
@@ -985,7 +969,6 @@ body {
 		}
 
 #time_and_location {
-	top: 20px;
 	left: 410px;
 	width: 400px;
 	font-size: 20;
@@ -1030,17 +1013,21 @@ body {
 
 #main_content {
     position: absolute;
-	top: 15px;
+	top: 35px;
 	background-image: var(--background_gradient);
 
-
+	/*
+	kinda necessary to set size, just for background piece to render properly,
+	as all childs are set to position: absolute so they are not in the flow
+	*/
+	width: 1241px;
+	height: 766px;
 }
 
 #message_log_div {
 	width: 400px;
 	height: 760px;
 	left: 820px;
-	top: 20px;
 	overflow-y: scroll;
 	overflow-x: hidden;
 	padding-right: 15px;
