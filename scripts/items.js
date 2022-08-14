@@ -573,7 +573,7 @@ function getItem(item_data) {
         value: 8,
         name_prefix: "Cheap iron",
         component_tier: 1,
-        attack_value: 6,
+        attack_value: 7,
         stats: {
             attack_speed: {
                 multiplier: 1.10,

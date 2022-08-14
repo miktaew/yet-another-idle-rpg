@@ -19,25 +19,27 @@ const equipment_slots_divs = {head: document.getElementById("head_slot"), torso:
                               };		
                             
 const stats_divs = {strength: document.getElementById("strength_slot"), agility: document.getElementById("agility_slot"),
-                    dexterity: document.getElementById("dexterity_slot"), magic: document.getElementById("magic_slot"), 
+                    dexterity: document.getElementById("dexterity_slot"), intuition: document.getElementById("intuition_slot"),
+                    magic: document.getElementById("magic_slot"), 
                     attack_speed: document.getElementById("attack_speed_slot"), attack_power: document.getElementById("attack_power_slot"), 
                     defense: document.getElementById("defense_slot"), crit_rate: document.getElementById("crit_rate_slot"), 
                     crit_multiplier: document.getElementById("crit_multiplier_slot")
                     };
 
-const other_combat_divs = {hit_chance: document.getElementById("hit_chance_slot"), defensive_action: document.getElementById("defensive_action_slot"),
-                           defensive_action_chance: document.getElementById("defensive_action_chance_slot")
+const other_combat_divs = {offensive_points: document.getElementById("hit_chance_slot"), defensive_action: document.getElementById("defensive_action_slot"),
+                           defensive_points: document.getElementById("defensive_action_chance_slot")
                           };
 
 const skill_bar_divs = {};
 
 //current enemy
-var current_enemy = null;
-//attacks for combat
-let attack_order = 0;
+var current_enemies = null;
+
 //current location
 var current_location;
-let current_combat;
+let current_combat; 
+
+const character_attack_bar = document.getElementById("character_attack_bar");
 
 var current_activity;
 var activity_anim; //small "animation" for activity text
@@ -92,13 +94,9 @@ const current_stamina_bar = document.getElementById("character_stamina_bar_curre
 const character_xp_div = document.getElementById("character_xp_div");
 const character_level_div = document.getElementById("character_level_div");
 
-//enemy health display
-const current_enemy_health_value_div = document.getElementById("enemy_health_value");
-const current_enemy_health_bar = document.getElementById("enemy_healthbar_current");
 //enemy info
-const enemy_info_div = document.getElementById("enemy_info_div");
-const enemy_stats_div = document.getElementById("enemy_stats_div");
-const enemy_name_div = document.getElementById("enemy_name_div");
+const combat_div = document.getElementById("combat_div");
+const enemies_div = document.getElementById("enemies_div");
 
 const enemy_count_div = document.getElementById("enemy_count_div");
 
@@ -110,7 +108,7 @@ const name_field = document.getElementById("character_name_field");
 name_field.value = character.name;
 
 //skills
-const skill_list = document.getElementById("skill_list_div");
+const skill_list = document.getElementById("skill_list");
 
 const message_log = document.getElementById("message_log_div");
 const time_field = document.getElementById("time_div");
@@ -162,29 +160,41 @@ function change_location(location_name) {
 
     clearInterval(current_combat);
     current_combat = null;
-    attack_order = 0;
 
     var location = locations[location_name];
+    
 
     if(!location) {
         throw `No such location as "${location_name}"`;
     }
     var action;
     clear_action_div();
+
     if(typeof current_location !== "undefined" && current_location.name !== location.name ) { 
-        //so it's not called when initializing the location on page load or when it's called when new location is unlocked
+        //so it's not called when initializing the location on page load or on reloading current location (due to new unlocks)
         log_message(`[ Entering ${location.name} ]`, "message_travel");
     }
     
     current_location = location;
+    const previous_location = current_location;
 
     if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
-        enemy_info_div.style.display = "none";
+        combat_div.style.display = "none";
         enemy_count_div.style.display = "none";
 
-        current_enemy = null;
+        document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_default'));
+        document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_default'));
+        character_attack_bar.parentNode.style.display = "none";
+
+        current_enemies = null;
+
+        if(typeof previous_location !== "undefined" && "parent_location" in previous_location) { // if previous was combat
+            clear_enemy();
+            update_combat_stats();
+        }
         
-        for(let i = 0; i < location.dialogues.length; i++) { //add buttons for starting dialogues (displaying their textlines on click will be in another method?)
+        //add buttons for starting dialogues
+        for(let i = 0; i < location.dialogues.length; i++) { 
             if(!dialogues[location.dialogues[i]].is_unlocked || dialogues[location.dialogues[i]].is_finished) { //skip if dialogue is not available
                 continue;
             } 
@@ -192,15 +202,16 @@ function change_location(location_name) {
             const dialogue_div = document.createElement("div");
 
             if(Object.keys(dialogues[location.dialogues[i]].textlines).length > 0) { //has any textlines
-                dialogue_div.innerHTML = dialogues[location.dialogues[i]].starting_text;
-                dialogue_div.innerHTML += dialogues[location.dialogues[i]].trader? `  <i class="fas fa-store"></i>` : `  <i class="far fa-comments"></i>`;
+                
+                dialogue_div.innerHTML = dialogues[location.dialogues[i]].trader? `<i class="fas fa-store"></i>  ` : `<i class="far fa-comments"></i>  `;
+                dialogue_div.innerHTML += dialogues[location.dialogues[i]].starting_text;
                 dialogue_div.classList.add("start_dialogue");
                 dialogue_div.setAttribute("data-dialogue", location.dialogues[i]);
                 dialogue_div.setAttribute("onclick", "start_dialogue(this.getAttribute('data-dialogue'));");
                 action_div.appendChild(dialogue_div);
             } else if(dialogues[location.dialogues[i]].trader) { //has no textlines but is a trader -> add button to directly start trading
                 const trade_div = document.createElement("div");
-                trade_div.innerHTML = traders[dialogues[location.dialogues[i]].trader].trade_text + `  <i class="fas fa-store"></i>`;
+                trade_div.innerHTML = `<i class="fas fa-store"></i>  ` + traders[dialogues[location.dialogues[i]].trader].trade_text;
                 trade_div.classList.add("dialogue_trade")
                 trade_div.setAttribute("data-trader", dialogues[location.dialogues[i]].trader);
                 trade_div.setAttribute("onclick", "startTrade(this.getAttribute('data-trader'))")
@@ -216,9 +227,9 @@ function change_location(location_name) {
 
             const activity_div = document.createElement("div");
             
-            activity_div.innerHTML = location.activities[i].starting_text;
+            
             if(activities[location.activities[i].activity].type === "JOB") {
-                activity_div.innerHTML += `  <i class="fas fa-hammer"></i>`;
+                activity_div.innerHTML = `<i class="fas fa-hammer"></i>  `;
                 activity_div.classList.add("activity_div");
                 activity_div.setAttribute("data-activity", i);
                 activity_div.setAttribute("onclick", `start_activity({id: ${i}});`);
@@ -243,7 +254,7 @@ function change_location(location_name) {
                 activity_div.appendChild(job_tooltip);
             }
             else if(activities[location.activities[i].activity].type === "TRAINING") {
-                activity_div.innerHTML += `  <i class="fas fa-dumbbell"></i>`;
+                activity_div.innerHTML = `<i class="fas fa-dumbbell"></i>  `;
                 activity_div.classList.add("activity_div");
                 activity_div.setAttribute("data-activity", i);
                 activity_div.setAttribute("onclick", `start_activity({id: ${i}});`);
@@ -252,20 +263,23 @@ function change_location(location_name) {
 
             }
 
+            activity_div.innerHTML += location.activities[i].starting_text;
             action_div.appendChild(activity_div);
         }
         
-        if(location.sleeping) { //add button to go to sleep
+        //add button to go to sleep
+        if(location.sleeping) { 
             const start_sleeping_div = document.createElement("div");
             
-            start_sleeping_div.innerHTML = location.sleeping.text + '  <i class="fas fa-bed"></i>';
+            start_sleeping_div.innerHTML = '<i class="fas fa-bed"></i>  ' + location.sleeping.text;
             start_sleeping_div.id = "start_sleeping_div";
             start_sleeping_div.setAttribute('onclick', 'start_sleeping()');
 
             action_div.appendChild(start_sleeping_div);
         }
         
-        for(let i = 0; i < location.connected_locations.length; i++) { //add butttons to change location
+        //add butttons to change location
+        for(let i = 0; i < location.connected_locations.length; i++) { 
 
             if(location.connected_locations[i].location.is_unlocked == false) { //skip if not unlocked
                 continue;
@@ -276,18 +290,18 @@ function change_location(location_name) {
             if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
                 action.classList.add("travel_normal");
                 if("custom_text" in location.connected_locations[i]) {
-                    action.innerHTML = location.connected_locations[i].custom_text + `  <i class="fas fa-map-signs"></i>`;
+                    action.innerHTML = `<i class="fas fa-map-signs"></i>  ` + location.connected_locations[i].custom_text;
                 }
                 else {
-                    action.innerHTML = "Go to " + location.connected_locations[i].location.name + `  <i class="fas fa-map-signs"></i>`;
+                    action.innerHTML = `<i class="fas fa-map-signs"></i>  ` + "Go to " + location.connected_locations[i].location.name;
                 }
             } else {
                 action.classList.add("travel_combat");
                 if("custom_text" in location.connected_locations[i]) {
-                    action.innerHTML = location.connected_locations[i].custom_text + `  <i class="fas fa-skull"></i>`;
+                    action.innerHTML = `<i class="fas fa-skull"></i>  ` + location.connected_locations[i].custom_text;
                 }
                 else {
-                    action.innerHTML = "Enter the " + location.connected_locations[i].location.name + `  <i class="fas fa-skull"></i>`;
+                    action.innerHTML = `<i class="fas fa-skull"></i>  ` + "Enter the " + location.connected_locations[i].location.name;
                 }
             }
             action.classList.add("action_travel");
@@ -295,38 +309,37 @@ function change_location(location_name) {
             action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
 
             action_div.appendChild(action);
-
-            if(typeof current_location !== "undefined" && "parent_location" in current_location) { // if previous was combat and new is normal
-                clear_enemy_and_enemy_info();
-                update_combat_stats();
-            }
         }
 
     } else { //so if entering combat zone
         enemy_count_div.style.display = "block";
-        enemy_info_div.style.display = "block";
+        combat_div.style.display = "block";
+        character_attack_bar.parentNode.style.display = "block";
+
+        document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_combat'));
+        document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_combat'));
+
+
         enemy_count_div.children[0].children[1].innerHTML = location.enemy_count - location.enemies_killed % location.enemy_count;
 
         action = document.createElement("div");
         action.classList.add("travel_normal", "action_travel");
         if(location.leave_text) {
-            action.innerHTML = location.leave_text + `  <i class="fas fa-map-signs"></i>`;
+            action.innerHTML = `<i class="fas fa-map-signs"></i>  ` + location.leave_text;
         } else {
-            action.innerHTML = "Go back to " + location.parent_location.name + `  <i class="fas fa-map-signs"></i>`;
+            action.innerHTML = `<i class="fas fa-map-signs"></i>  ` + "Go back to " + location.parent_location.name;
         }
         action.setAttribute("data-travel", location.parent_location.name);
         action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
 
         action_div.appendChild(action);
 
-        current_combat = setInterval(do_combat, 500/tickrate);
+        start_combat();
     }
 
     location_name_div.innerText = current_location.name;
-    const location_description_tooltip = document.createElement("div");
-    location_description_tooltip.id = "location_description_tooltip";
-    location_description_tooltip.innerText = current_location.description;
-    location_name_div.appendChild(location_description_tooltip);
+    
+    document.getElementById("location_description_div").innerText = current_location.description;
 }
 
 /**
@@ -492,6 +505,18 @@ function do_sleeping() {
         } 
         update_displayed_health();
     }
+
+    if(character.full_stats.stamina < character.full_stats.max_stamina)
+    {
+        const sleeping_stamina_ammount = Math.round(Math.max(character.full_stats.max_stamina/30, 1)); 
+        //todo: scale it with skill as well
+
+        character.full_stats.stamina += (sleeping_stamina_ammount);
+        if(character.full_stats.stamina > character.full_stats.max_stamina) {
+            character.full_stats.stamina = character.full_stats.max_stamina;
+        } 
+        update_displayed_stamina();
+    }
 }
 
 function start_sleeping() {
@@ -620,7 +645,7 @@ function start_dialogue(dialogue_key) {
 
     if(dialogue.trader) {
         const trade_div = document.createElement("div");
-        trade_div.innerHTML = traders[dialogue.trader].trade_text + `  <i class="fas fa-store"></i>`;
+        trade_div.innerHTML = `<i class="fas fa-store"></i>  ` + traders[dialogue.trader].trade_text;
         trade_div.classList.add("dialogue_trade")
         trade_div.setAttribute("data-trader", dialogue.trader);
         trade_div.setAttribute("onclick", "startTrade(this.getAttribute('data-trader'))")
@@ -655,6 +680,14 @@ function start_textline(textline_key){
 
     log_message(`> > ${textline.name}`, "dialogue_question")
     log_message(textline.text, "dialogue_answer");
+
+    for(let i = 0; i < textline.unlocks.dialogues.length; i++) { //unlocking dialogues
+        const dialogue = dialogues[textline.unlocks.dialogues[i]]
+        if(!dialogue.is_unlocked) {
+            dialogue.is_unlocked = true;
+            log_message(`Can now talk with ${dialogue.name} in ${dialogue.location_name}`, "activity_unlocked");
+        }
+    }
 
     for(let i = 0; i < textline.unlocks.textlines.length; i++) { //unlocking textlines
         const dialogue_name = textline.unlocks.textlines[i].dialogue;
@@ -700,7 +733,7 @@ function start_trade(trader_key) {
     trade_div.style.display = "inherit";
 
     current_trader = trader_key;
-    document.getElementById("trader_cost_mult_value").textContent = `${100*traders[current_trader].profit_margin}%`
+    document.getElementById("trader_cost_mult_value").textContent = `${Math.round(100 * (1 + (traders[current_trader].profit_margin - 1) * (1 - skills["Haggling"].get_level_bonus())))}%`
     update_displayed_trader_inventory();
 }
 
@@ -731,29 +764,60 @@ function accept_trade() {
             //remove from trader inventory
 
             const item = to_buy.items.pop();
+            const [item_name, item_id] = item.item.split(' #');
+            let actual_item;
+            if(item_id) {
+                actual_item = traders[current_trader].inventory[item_name][item_id];
 
-            add_to_inventory("character", [{item: getItem(item_templates[item.item.split(" #")[0]]), 
-                                            count: item.count}])
+                remove_from_inventory("trader", {item_name, 
+                                                item_count: 1,
+                                                item_id});
+
+                add_to_inventory("character", [{item: actual_item, 
+                                                count: 1}]);                              
+            } else {
+
+                actual_item = traders[current_trader].inventory[item_name].item;
+                
+                remove_from_inventory("trader", {item_name, 
+                                                 item_count: item.count});
+
+                add_to_inventory("character", [{item: actual_item, 
+                                                count: item.count}]);
+            }
+
             
-            remove_from_inventory("trader", {name: item.item.split(" #")[0], 
-                                            count: item.count,
-                                            id: item.item.split(" #")[1]});
-
         }
         while(to_sell.items.length > 0) {
             //remove from character inventory
             //add to trader inventory
-
-            const item = to_sell.items.pop();
             
-            remove_from_inventory("character", {name: item.item.split(" #")[0], 
-                count: item.count,
-                id: item.item.split(" #")[1]});
+            const item = to_sell.items.pop();
+            const [item_name, item_id] = item.item.split(' #');
+            let actual_item;
+            if(item_id) {
+                actual_item = character.inventory[item_name][item_id];
+                
+                remove_from_inventory("character", {item_name, 
+                                                    item_count: 1,
+                                                    item_id});
 
-            add_to_inventory("trader", [{item: getItem(item_templates[item.item.split(" #")[0]]), 
-                count: item.count}])
+                add_to_inventory("trader", [{item: actual_item, 
+                                             count: 1}]);
+            } else {
+                actual_item = character.inventory[item_name].item;
+                remove_from_inventory("character", {item_name, 
+                                                    item_count: item.count});
+
+                add_to_inventory("trader", [{item: actual_item, 
+                                             count: item.count}]);
+            }
+
+            
         }
     }
+
+    add_xp_to_skill(skills["Haggling"], to_sell.value + to_buy.value);
 
     to_buy.value = 0;
     to_sell.value = 0;
@@ -773,6 +837,10 @@ function exit_trade() {
     to_sell.value = 0;
 
     update_displayed_inventory();
+}
+
+function is_in_trade() {
+    return Boolean(current_trader);
 }
 
 function get_character_money() {
@@ -806,19 +874,16 @@ function add_to_buying_list(selected_item) {
             to_buy.items.push(selected_item);
         }
 
-        const value = Math.ceil(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue()) * selected_item.count;
-
+        const value = get_item_value(selected_item, true);
         to_buy.value += value;
         return -value;
 
     } else {
 
         to_buy.items.push(selected_item);
-        const actual_item = traders[current_trader].inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
 
-        const value = Math.ceil(traders[current_trader].profit_margin * actual_item.getValue());
-        to_buy.value += value
-
+        const value = get_item_value(selected_item, false);
+        to_buy.value += value;
         return -value;
     }
 }
@@ -836,16 +901,14 @@ function remove_from_buying_list(selected_item) {
             to_buy.items.splice(to_buy.items.indexOf(present_item),1);
         }
 
-        const value = Math.ceil(traders[current_trader].profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue()) * actual_number_to_remove;
+        const value = get_item_value(selected_item, true);
         to_buy.value -= value;
         return value;
+
     } else { //unstackable item, so always just 1
         //find index of item and remove it
         to_buy.items.splice(to_buy.items.map(item => item.item).indexOf(selected_item.item),1);
-
-        const actual_item = traders[current_trader].inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
-        const value = Math.ceil(traders[current_trader].profit_margin * actual_item.getValue());
-
+        const value = get_item_value(selected_item, false);
         to_buy.value -= value;
         return value;
     }
@@ -889,7 +952,6 @@ function add_to_selling_list(selected_item) {
 }
 
 function remove_from_selling_list(selected_item) {
-    console.log(to_sell);
     const is_stackable = !Array.isArray(character.inventory[selected_item.item.split(' #')[0]]);
     var actual_number_to_remove = selected_item.count;
 
@@ -914,6 +976,17 @@ function remove_from_selling_list(selected_item) {
         return -value;
     }
 
+}
+
+function get_item_value(selected_item, is_stackable) {
+
+    const profit_margin = 1 + (traders[current_trader].profit_margin - 1) * (1 - skills["Haggling"].get_level_bonus());
+    if(is_stackable) {
+        return Math.ceil(profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue()) * selected_item.count;
+    } else {
+        const actual_item = traders[current_trader].inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
+        return Math.ceil(profit_margin * actual_item.getValue());
+    }
 }
 
 function update_displayed_trader_inventory(sorting_param) {
@@ -1098,14 +1171,18 @@ function update_displayed_trader_inventory(sorting_param) {
     sort_displayed_inventory({sort_by: sorting_param || "name", target: "trader"});
 }
 
-function sort_displayed_inventory(options) {
+function sort_displayed_inventory({sort_by, target = "character", direction = "asc"}) {
 
-    const target = options.target === "trader" ? trader_inventory_div : inventory_div;
-    /*
-    seems terribly overcomplicated
-    can't think of better solution for now
-    
-    */
+    if(target === "trader") {
+        target = trader_inventory_div;
+    } else if(target === "character") {
+        target = inventory_div;
+    }
+    else {
+        console.warn(`Something went wrong, no such inventory as '${target}'`);
+        return;
+    }
+
     [...target.children].sort((a,b) => {
         //equipped items on top
         if(a.classList.contains("equipped_item_control") && !b.classList.contains("equipped_item_control")) {
@@ -1119,24 +1196,32 @@ function sort_displayed_inventory(options) {
         } else if(!a.classList.contains("item_to_trade") && b.classList.contains("item_to_trade")) {
             return -1;
         }
-        //other items by either name or otherwise by value
-        else if(options.sort_by === "name") {
-            
-            //if they are equippable, take in account the [slot] value displayed in front of item in inventory
-            const item_a = item_templates[(a.getAttribute("data-character_item") || a.getAttribute("data-trader_item")).split(" #")[0]];
-            const name_a = (item_a.equip_slot || '') + item_a.name;
-            const item_b = item_templates[(b.getAttribute("data-character_item") || b.getAttribute("data-trader_item")).split(" #")[0]];
-            const name_b = (item_b.equip_slot || '') + item_b.name;
 
-            if(name_a > name_b) {
+        //other items by either name or otherwise by value
+
+        else if(sort_by === "name") {
+            //if they are equippable, take in account the [slot] value displayed in front of item in inventory
+            const name_a = a.children[0].innerText.toLowerCase();
+            const name_b = b.children[0].innerText.toLowerCase();
+
+            //priotize displaying equipment below stackable items
+            if(name_a[0] === '[' && name_b[0] !== '[') {
+                return 1;
+            } else if(name_a[0] !== '[' && name_b[0] === '[') {
+                return -1;
+            }
+            else if(name_a > name_b) {
                 return 1;
             } else {
                 return -1;
             }
 
-        } else if(options.sort_by === "price") {
-            if(item_templates[(a.getAttribute("data-character_item") || a.getAttribute("data-trader_item")).split(" #")[0]].value 
-                    > item_templates[(b.getAttribute("data-character_item") || b.getAttribute("data-trader_item")).split(" #")[0]].value) {
+        } else if(sort_by === "price") {
+            
+            let value_a = Number(a.lastElementChild.innerText.replace(/[ GSC]/g, ''));
+            let value_b = Number(b.lastElementChild.innerText.replace(/[ GSC]/g, ''));
+            
+            if(value_a > value_b) {
                 return 1;
             } else {
                 return -1;
@@ -1152,187 +1237,280 @@ function clear_action_div() {
     }
 }
 
-function get_new_enemy(enemy) {
-    current_enemy = enemy || current_location.get_next_enemy();
-    enemy_stats_div.innerHTML = `Atk: ${current_enemy.stats.strength} | Agl: ${current_enemy.stats.agility} 
-    | Dex: ${current_enemy.stats.dexterity} | Def: ${current_enemy.stats.defense} 
-    | Atk speed: ${current_enemy.stats.attack_speed.toFixed(1)}`
+function get_new_enemies(enemies) {
+    current_enemies = enemies || current_location.get_next_enemies();
 
-    enemy_name_div.innerHTML = current_enemy.name;
 
-    update_displayed_enemy_health();
+    /*
+    for character use max attack speed (without stamina penalty), then modify the speed if stamina falls too low
+    add a small boolean to skip animationiteration event on speed change
 
-    //also show magic if not 0?
+    */
+    let character_attack_cooldown = 1/character.full_stats.attack_speed;
+    let enemy_attack_cooldowns = [...current_enemies.map(x => 1/x.stats.attack_speed)];
+
+    let fastest_cooldown = [character_attack_cooldown, ...enemy_attack_cooldowns].sort((a,b) => a - b)[0];
+
+    //scale all attacks to be not faster than 1 per second
+    if(fastest_cooldown < 1) {
+        const cooldown_multiplier = 1/fastest_cooldown;
+        
+        character_attack_cooldown *= cooldown_multiplier;
+        for(let i = 0; i < current_enemies.length; i++) {
+            enemy_attack_cooldowns[i] *= cooldown_multiplier;
+
+        }
+    }
+
+    //attach animations
+    for(let i = 0; i < current_enemies.length; i++) {
+        const attack_bar =  enemies_div.children[i].querySelector(".enemy_attack_bar");
+
+        attack_bar.style["animation-duration"] = enemy_attack_cooldowns[i] != Infinity? `${enemy_attack_cooldowns[i]}s` : `0`;
+        //disabled if attack speed was 0
+       
+        attack_bar.style["animation-name"] = "attack_bar_animation";
+    }
+
+    
+    character_attack_bar.style["animation-duration"] = `${character_attack_cooldown}s`;
+    character_attack_bar.style["animation-name"] = "attack_bar_animation";
+
+    update_displayed_enemies();
 }
 
-//single tick of fight
-function do_combat() {
-    if(current_enemy == null) {
-        get_new_enemy();
+/**
+ * sets visibility of divs for enemies (based on how many there are in current combat),
+ * and enemies' AP / DP
+ * 
+ * called when new enemies get loaded
+ */
+function update_displayed_enemies() {
+    for(let i = 0; i < 8; i++) { //go to max enemy count
+        if(i < current_enemies.length) {
+            enemies_div.children[i].children[0].style.display = null;
+            enemies_div.children[i].children[0].children[0].innerHTML = current_enemies[i].name;
+
+            const ap = current_enemies[i].stats.dexterity * Math.sqrt(current_enemies[i].stats.intuition || 1);
+            const dp = current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition || 1);
+            enemies_div.children[i].children[0].children[1].innerHTML = `AP : ${Math.round(ap)} | DP : ${Math.round(dp)}`;
+
+        } else {
+            enemies_div.children[i].children[0].style.display = "none"; //just hide it
+        }     
+    }
+
+    update_displayed_health_of_enemies();
+}
+
+/**
+ * updates displayed health and healthbars of enemies
+ */
+function update_displayed_health_of_enemies() {
+    for(let i = 0; i < current_enemies.length; i++) {
+        if(current_enemies[i].is_alive) {
+            enemies_div.children[i].children[0].style.filter = "brightness(100%)";
+        } else {
+            enemies_div.children[i].children[0].style.filter = "brightness(30%)";
+        }
+
+        //update size of health bar
+        enemies_div.children[i].children[0].children[2].children[0].children[0].style.width = 
+            Math.max(0, 100*current_enemies[i].stats.health/current_enemies[i].stats.max_health) + "%";
+
+            enemies_div.children[i].children[0].children[2].children[1].innerText = `${Math.round(current_enemies[i].stats.health)}/${Math.round(current_enemies[i].stats.max_health)} hp`;
+
+    }
+}
+
+function start_combat() {
+    if(current_enemies == null) {
+        get_new_enemies();
         update_combat_stats();
-        attack_order = 0;
+    }
+}
+
+/**
+ * performs a single combat action (that is attack, as there isn't really any other kind for now),
+ * called when attack cooldown finishes
+ * 
+ * @param attacker combatant performing the action
+*/ 
+function do_enemy_combat_action(enemy_id) {
+    const attacker = current_enemies[enemy_id];
+
+    const enemy_base_damage = attacker.stats.attack;
+
+    let damage_dealt;
+
+    let critted = false;
+
+    let partially_blocked = false; //only used for combat info in message log
+
+    damage_dealt = enemy_base_damage * (1.2 - Math.random() * 0.4); //basic 20% deviation for damage
+
+
+    if(character.equipment["off-hand"]?.offhand_type === "shield") { //HAS SHIELD
+        if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
+            add_xp_to_skill(skills["Shield blocking"], attacker.xp_value, true);
+            if(character.equipment["off-hand"].getShieldStrength() >= damage_dealt) {
+                log_message(character.name + " blocked an attack");
+                return; //damage fully blocked, nothing more can happen 
+            } else {
+                damage_dealt -= character.equipment["off-hand"].getShieldStrength();
+                partially_blocked = true;
+            }
+         }
+    } else { // HAS NO SHIELD
+        const evasion_chance = character.combat_stats.evasion_points / (attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1) * 4);
+
+        if(evasion_chance > Math.random()) { //EVADED ATTACK
+            add_xp_to_skill(skills["Evasion"], attacker.xp_value, true);
+            log_message(character.name + " evaded an attack");
+            return; //damage fully evaded, nothing more can happen
+        }
+    }
+
+    if(enemy_crit_chance > Math.random())
+    {
+        damage_dealt *= enemy_crit_damage;
+        critted = true;
+    }
+
+    let {damage_taken, fainted} = character.take_damage({damage_value: damage_dealt});
+
+    if(critted)
+    {
+        if(partially_blocked) {
+            log_message(character.name + " partially blocked, critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
+        } 
+        else {
+            log_message(character.name + " critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
+        }
+    } else {
+        if(partially_blocked) {
+            log_message(character.name + " partially blocked, hit for " + damage_taken + " dmg", "hero_attacked");
+        }
+        else {
+            log_message(character.name + " hit for " + damage_taken + " dmg", "hero_attacked");
+        }
+    }
+
+    if(fainted) {
+        log_message(character.name + " has lost consciousness", "hero_defeat");
+
+        update_displayed_health();
+        current_enemies = null;
+        change_location(current_location.parent_location.name);
         return;
     }
 
-    //todo: separate formulas for physical and magical weapons?
-    //and also need magic weapons before that...
+    update_displayed_health();
+}
 
-    var hero_base_damage = character.get_attack_power();
-    var enemy_base_damage = current_enemy.stats.strength;
+function do_character_combat_action() {
 
-    var damage_dealt;
+    //todo: attack types with different stamina costs
 
-    var critted;
+    use_stamina(); //use it before action
+    const hero_base_damage = character.get_attack_power();
 
-    var partially_blocked;
-    
-    if(attack_order > 0 || attack_order == 0 && character.get_attack_speed() > current_enemy.stats.attack_speed) { //the hero attacks the enemy
-        attack_order -= current_enemy.stats.attack_speed;
-        use_stamina();
+    let damage_dealt;
 
-        if(character.combat_stats.hit_chance > Math.random()) {//hero's attack hits
-            add_xp_to_skill(skills["Combat"], current_enemy.xp_value, true);
-            if(character.equipment.weapon != null) {
-                damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) 
-                                            * skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient())/10;
+    let critted = false;
 
 
-                add_xp_to_skill(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`], current_enemy.xp_value, true); 
-            } else {
-                damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) * skills['Unarmed'].get_coefficient())/10;
-                add_xp_to_skill(skills['Unarmed'], current_enemy.xp_value, true);
-            }
-            //small randomization by up to 20%, then bonus from skill
-            
-            if(character.full_stats.crit_rate > Math.random()) {
-                damage_dealt = Math.round(10*damage_dealt * character.full_stats.crit_multiplier)/10;
-                critted = true;
-            }
-            else {
-                critted = false;
-            }
-            
-            damage_dealt = Math.max(Math.round(10*(damage_dealt - current_enemy.stats.defense))/10, 1);
+    //TODO: when multi-target attacks are added, calculate this in a loop, separetely for each enemy that can be hit
 
-            current_enemy.stats.health -= damage_dealt;
-            if(critted) {
-                log_message(current_enemy.name + " was critically hit for " + damage_dealt + " dmg", "enemy_attacked_critically");
-            }
-            else {
-                log_message(current_enemy.name + " was hit for " + damage_dealt + " dmg", "enemy_attacked");
-            }
+    const target = current_enemies.filter(enemy => enemy.is_alive).slice(-1).pop(); //get bottom-most of alive enemies
+    const hit_chance = character.combat_stats.attack_points / (target.stats.agility * Math.sqrt(target.stats.intuition ?? 1) * 2);
 
-            if(current_enemy.stats.health <= 0) {
-                current_enemy.stats.health = 0; 
-                update_displayed_enemy_health();
-                //just to not go negative on displayed health
-
-                log_message(character.name + " has defeated " + current_enemy.name, "enemy_defeated");
-                add_xp_to_character(current_enemy.xp_value, true);
-
-                var loot = current_enemy.get_loot();
-                if(loot.length > 0) {
-                    log_loot(loot);
-                    add_to_inventory("character", loot);
-                }
-                current_location.enemies_killed += 1;
-                if(current_location.enemies_killed > 0 && current_location.enemies_killed % current_location.enemy_count == 0) {
-                    get_location_rewards(current_location);
-                } 
-
-                enemy_count_div.children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemies_killed % current_location.enemy_count;
-
-                current_enemy = null;
-                attack_order = 0;
-                return;
-            }
-
-            update_displayed_enemy_health();
-        } else {
-            log_message(character.name + " has missed");
-        }
-    } else { //the enemy attacks the hero
-        attack_order += character.get_attack_speed();
-
-        damage_dealt = enemy_base_damage * (1.2 - Math.random() * 0.4);
-        partially_blocked = false;
-
-
-        if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
-            if(character.equipment["off-hand"].getShieldStrength() >= damage_dealt) {
-                if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
-                    add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
-                    log_message(character.name + " has blocked the attack");
-                    return; //damage fully blocked, nothing more can happen
-                 }
-            }
-            else { 
-                if(character.combat_stats.block_chance - 0.3 > Math.random()) { //PARTIALLY BLOCKED THE ATTACK
-                    add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
-                    damage_dealt -= character.equipment["off-hand"].getShieldStrength();
-                    partially_blocked = true;
-                    //no return here
-                }
-            }
-        }
-        else { // HAS NO SHIELD
-
-            use_stamina()
-            
-            if(character.combat_stats.evasion_chance > Math.random()) { //EVADED ATTACK
-                add_xp_to_skill(skills["Evasion"], current_enemy.xp_value, true);
-                log_message(character.name + " has evaded the attack");
-                return; //damage fully evaded, nothing more can happen
-            }
-        }
-                
-        if(enemy_crit_chance > Math.random())
-        {
-            damage_dealt *= enemy_crit_damage;
-            damage_dealt = Math.round(10*Math.max(damage_dealt - character.full_stats.defense, 1))/10;
-            character.full_stats.health -= damage_dealt;
-            if(partially_blocked) {
-                log_message(character.name + " partially blocked the attack, but was critically hit for " + damage_dealt + " dmg", "hero_attacked_critically");
-            } 
-            else {
-                log_message(character.name + " was critically hit for " + damage_dealt + " dmg", "hero_attacked_critically");
-            }
-        } else {
-            damage_dealt = Math.round(10*Math.max(damage_dealt - character.full_stats.defense, 1))/10;
-            character.full_stats.health -= damage_dealt;
-            if(partially_blocked) {
-                log_message(character.name + " partially blocked the attack and was hit for " + damage_dealt + " dmg", "hero_attacked");
-            }
-            else {
-                log_message(character.name + " was hit for " + damage_dealt + " dmg", "hero_attacked");
-            }
-        }
-
-        if(character.full_stats.health <= 0) {
-            log_message(character.name + " has lost consciousness", "hero_defeat");
-
-            if(character.full_stats.health < 0) {
-                character.full_stats.health = 0;
-            }
-            update_displayed_health();
-            current_enemy = null;
-            change_location(current_location.parent_location.name);
-            return;
-        }
-        update_displayed_health();
+    add_xp_to_skill(skills["Combat"], target.xp_value, true);
+    if(target.size === "small") {
+        add_xp_to_skill(skills["Pest killer"], target.xp_value, true);
+    } else if(target.size === "large") {
+        add_xp_to_skill(skills["Giant slayer"], target.xp_value, true);
     }
 
-    /* 
-     enemy is in a global variable
-     if killed, uses method of Location object to assign a random new enemy (of ones in Location) to that variable;
-    
-     attack dmg either based on strength + weapon stat, or some magic stuff?
-     maybe some weapons will be str based and will get some small bonus from magic if player has proper skill unlocked
-     (something like "weapon aura"), while others (wands and staffs) will be based purely on magic
-     single stat "magic" + multiple related skills?
-     also should offer a bit better scaling than strength, so worse at beginning but later on gets better?
-     also a magic resistance skill for player
-     */
+    if(hit_chance > Math.random()) {//hero's attack hits
+
+        if(character.equipment.weapon != null) {
+            damage_dealt = Math.round(
+                                        10 * hero_base_damage * (1.2 - Math.random() * 0.4) 
+                                        * skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient()
+                                     )/10;
+
+
+            add_xp_to_skill(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`], target.xp_value, true); 
+
+        } else {
+            damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) * skills['Unarmed'].get_coefficient())/10;
+            add_xp_to_skill(skills['Unarmed'], target.xp_value, true);
+        }
+        //small randomization by up to 20%, then bonus from skill
+        
+        if(character.full_stats.crit_rate > Math.random()) {
+            damage_dealt = Math.round(10*damage_dealt * character.full_stats.crit_multiplier)/10;
+            critted = true;
+        }
+        else {
+            critted = false;
+        }
+        
+        damage_dealt = Math.max(Math.round(10*(damage_dealt - target.stats.defense))/10, 1);
+
+        target.stats.health -= damage_dealt;
+        if(critted) {
+            log_message(target.name + " critically hit for " + damage_dealt + " dmg", "enemy_attacked_critically");
+        }
+        else {
+            log_message(target.name + " hit for " + damage_dealt + " dmg", "enemy_attacked");
+        }
+
+        if(target.stats.health <= 0) {
+            target.stats.health = 0; //to not go negative on displayed value
+
+            log_message(target.name + " was defeated", "enemy_defeated");
+            add_xp_to_character(target.xp_value, true);
+
+            var loot = target.get_loot();
+            if(loot.length > 0) {
+                log_loot(loot);
+                add_to_inventory("character", loot);
+            }
+            
+            const finished_group = kill_enemy(target);
+            if(finished_group) {
+
+                current_location.enemies_killed += 1;
+
+                if(current_location.enemies_killed > 0 && current_location.enemies_killed % current_location.enemy_count == 0) {
+                    get_location_rewards(current_location);
+
+                } 
+                enemy_count_div.children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemies_killed % current_location.enemy_count;
+                get_new_enemies();
+                return;
+            }
+        }
+
+        update_displayed_health_of_enemies();
+    } else {
+        log_message(character.name + " has missed");
+    }
+}
+
+/**
+ * sets enemy to dead, disabled their attack, checks if that was the last enemy in group
+ * @param {Enemy} enemy 
+ * @return {Boolean} if that was the last of an enemy group
+ */
+function kill_enemy(target) {
+    target.is_alive = false;
+    const enemy_id = current_enemies.findIndex(enemy => enemy===target);
+    combat_div.children[0].children[enemy_id].querySelector(".enemy_attack_bar").style["animation-duration"] = "0s";
+
+    return current_enemies.filter(enemy => enemy.is_alive).length == 0; 
 }
 
 function use_stamina(num) {
@@ -1344,9 +1522,10 @@ function use_stamina(num) {
 
     if(character.full_stats.stamina < 1) {
         add_xp_to_skill(skills["Persistence"], num || 1);
+        update_displayed_stats();
     }
 
-    update_displayed_stamina();
+        update_displayed_stamina();
 }
 
 /**
@@ -1414,9 +1593,9 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
             log_message(`Learned new skill: ${skill.name()}`);
         }
 
-        [...skill_list_div.children]
+        [...skill_list.children]
         .sort((a,b)=>a.getAttribute("data-skill")>b.getAttribute("data-skill")?1:-1)
-        .forEach(node=>skill_list_div.appendChild(node));
+        .forEach(node=>skill_list.appendChild(node));
     //sorts inventory_div alphabetically
     } 
 
@@ -1495,7 +1674,7 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
  * @param {Number} xp_to_add 
  * @param {Boolean} should_info 
  */
-function add_xp_to_character(xp_to_add, should_info) {
+function add_xp_to_character(xp_to_add, should_info = true) {
     const level_up = character.add_xp(xp_to_add * (global_xp_bonus || 1));
 
     /*
@@ -1508,8 +1687,7 @@ function add_xp_to_character(xp_to_add, should_info) {
     character_xp_div.children[1].innerText = `${character.xp.current_xp}/${character.xp.xp_to_next_lvl} xp`;
     
     if(level_up) {
-        if((typeof should_info === "undefined" || should_info)) {
-            
+        if(should_info) {
             log_message(level_up);
         }
         
@@ -1528,24 +1706,34 @@ function add_xp_to_character(xp_to_add, should_info) {
 function get_location_rewards(location) {
     if(location.enemies_killed == location.enemy_count) { //first clear
         change_location(current_location.parent_location.name); //go back to parent location, only on first clear
+
+        if(location.first_reward.xp && typeof location.first_reward.xp === "number") {
+            add_xp_to_character(location.first_reward.xp);
+            log_message(`Obtained ${location.first_reward.xp}xp for clearing ${location.name} for the first time`);
+        }
+    }
+
+    if(location.repeatable_reward.xp && typeof location.repeatable_reward.xp === "number") {
+        add_xp_to_character(location.repeatable_reward.xp);
+        log_message(`Obtained additional ${location.repeatable_reward.xp}xp for clearing ${location.name}`);
     }
 
 
     //all clears, so that if something gets added after location was cleared, it will still be unlockable
-    for(let i = 0; i < location.rewards.locations.length; i++) { //unlock locations
-        unlock_location(location.rewards.locations[i])
+    for(let i = 0; i < location.repeatable_reward.locations?.length; i++) { //unlock locations
+        unlock_location(location.repeatable_reward.locations[i])
     }
 
-    for(let i = 0; i < location.rewards.textlines.length; i++) { //unlock textlines and dialogues
+    for(let i = 0; i < location.repeatable_reward.textlines?.length; i++) { //unlock textlines and dialogues
         var any_unlocked = false;
-        for(let j = 0; j < location.rewards.textlines[i].lines.length; j++) {
-            if(dialogues[location.rewards.textlines[i].dialogue].textlines[location.rewards.textlines[i].lines[j]].is_unlocked == false) {
+        for(let j = 0; j < location.repeatable_reward.textlines[i].lines.length; j++) {
+            if(dialogues[location.repeatable_reward.textlines[i].dialogue].textlines[location.repeatable_reward.textlines[i].lines[j]].is_unlocked == false) {
                 any_unlocked = true;
-                dialogues[location.rewards.textlines[i].dialogue].textlines[location.rewards.textlines[i].lines[j]].is_unlocked = true;
+                dialogues[location.repeatable_reward.textlines[i].dialogue].textlines[location.repeatable_reward.textlines[i].lines[j]].is_unlocked = true;
             }
         }
         if(any_unlocked) {
-            log_message(`Maybe you should check on ${location.rewards.textlines[i].dialogue}...`);
+            log_message(`Maybe you should check on ${location.repeatable_reward.textlines[i].dialogue}...`);
             //maybe do this only when there's just 1 dialogue with changes?
         }
     }
@@ -1554,7 +1742,6 @@ function get_location_rewards(location) {
     
     /*
     TODO: give more rewards on all clears
-    - bonus xp for character
     - some xp for location-related skills? (i.e. if location is dark, then for "night vision" or whatever it will be called)
     - items/money?
     */
@@ -1632,7 +1819,7 @@ function log_message(message_to_add, message_type) {
     message.innerHTML = message_to_add + "<div class='message_border'> </>";
 
 
-    if(message_log.children.length > 60) 
+    if(message_log.children.length > 80) 
     {
         message_log.removeChild(message_log.children[0]);
     } //removes first position if there's too many messages
@@ -1667,17 +1854,8 @@ function update_displayed_stamina() { //call it when eating, resting or fighting
     current_stamina_bar.style.width = (character.full_stats.stamina*100/character.full_stats.max_stamina).toString() +"%";
 }
 
-function update_displayed_enemy_health() { //call it when getting new enemy and when enemy gets hit
-    current_enemy_health_value_div.innerHTML = (Math.round(current_enemy.stats.health*10)/10) + "/" + current_enemy.stats.max_health + " hp";
-    current_enemy_health_bar.style.width =  (current_enemy.stats.health*100/current_enemy.stats.max_health).toString() +"%";
-}
-
-function clear_enemy_and_enemy_info() {
-    current_enemy = null;
-    current_enemy_health_value_div.innerHTML = "0";
-    current_enemy_health_bar.style.width = "100%";
-    enemy_stats_div.innerHTML = `Str: 0 | Agl: 0 | Dex: 0 | Def: 0 | Magic: 0 | Atk speed: 0;`
-    enemy_name_div.innerHTML = "None";
+function clear_enemy() {
+    current_enemies = null;
 }
 
 /**
@@ -1685,11 +1863,13 @@ function clear_enemy_and_enemy_info() {
  * @param {String} who either "character" or "trader"
  * @param {*} items list of items to add
  */
-function add_to_inventory(who, items) {
+function add_to_inventory(who, items, trader_key) {
     //items  -> [{item: some item object, count: X}]
     let target;
     if(who === "character") {
         target = character;
+    } else if(who === "trader" && trader_key) {
+        target = traders[trader_key];
     } else if(who === "trader") {
         target = traders[current_trader];
     }
@@ -1721,7 +1901,7 @@ function add_to_inventory(who, items) {
     }
     if(who === "character") {
         update_displayed_inventory();
-    } else if(who === "trader") {
+    } else if(who === "trader" && !trader_key) {
         update_displayed_trader_inventory();
     }
 }
@@ -1729,10 +1909,9 @@ function add_to_inventory(who, items) {
 /**
  * 
  * @param {String} who  either "character" or "trader"
- * @param {*} item_info item to remove: {name, count, id} 
  */
-function remove_from_inventory(who, item_info) {
-    //item info -> {name: X, count: X, id: X}, with either count or id, depending on if item is stackable or not
+function remove_from_inventory(who, {item_name, item_count, item_id}) {
+    //either count or id, depending on if item is stackable or not
 
     let target;
     if(who === "character") {
@@ -1741,33 +1920,32 @@ function remove_from_inventory(who, item_info) {
         target = traders[current_trader];
     }
 
-    if(target.inventory.hasOwnProperty(item_info.name)) { //check if its in inventory, just in case, probably not needed
+    if(target.inventory.hasOwnProperty(item_name)) { //check if its in inventory, just in case, probably not needed
+        if(target.inventory[item_name].hasOwnProperty("item")) { //stackable
 
-        if(target.inventory[item_info.name].hasOwnProperty("item")) { //stackable
-
-            if(typeof item_info.count === "number" && Number.isInteger(item_info.count) && item_info.count >= 1) 
+            if(typeof item_count === "number" && Number.isInteger(item_count) && item_count >= 1) 
             {
-                target.inventory[item_info.name].count -= item_info.count;
+                target.inventory[item_name].count -= item_count;
             } 
             else 
             {
-                target.inventory[item_info.name].count -= 1;
+                target.inventory[item_name].count -= 1;
             }
 
-            if(target.inventory[item_info.name].count == 0) //less than 0 shouldn't happen so no need to check
+            if(target.inventory[item_name].count == 0) //less than 0 shouldn't happen so no need to check
             {
-                delete target.inventory[item_info.name];
+                delete target.inventory[item_name];
                 //removes item from inventory if it's county is less than 1
             }
         }
         else { //unstackable
-            target.inventory[item_info.name].splice(item_info.id, 1);
+            target.inventory[item_name].splice(item_id, 1);
             //removes item from the array
             //dont need to check if .id even exists, as splice by default uses 0 (even when undefined is passed)
 
-            if(target.inventory[item_info.name].length == 0) 
+            if(target.inventory[item_name].length == 0) 
             {
-                delete target.inventory[item_info.name];
+                delete target.inventory[item_name];
                 //removes item array from inventory if its empty
             } 
         }
@@ -1781,13 +1959,10 @@ function remove_from_inventory(who, item_info) {
 }
 
 /**
- * 
- * @param {*} item_info item to dismantle: {name, id}
+ * TODO
  */
-function dismantle_item(item_info) {
-    dismantle(character.inventory[item_info.name]);
-
-    remove_from_inventory("character", item_info);
+function dismantle_item() {
+    //TODO
 }
 
 function use_item(item_name) { 
@@ -1813,7 +1988,7 @@ function use_item(item_name) {
     });
     if(used) {
         update_displayed_effects();
-        remove_from_inventory("character", {name: item_name, count: 1});
+        remove_from_inventory("character", {item_name, item_count: 1});
     }
 }
 
@@ -2053,19 +2228,19 @@ function update_displayed_inventory() {
     }
 
 
-    sort_displayed_inventory("character");
+    sort_displayed_inventory({target: "character"});
 }
 
 /**
  * equips item and removes it from inventory
  * @param item_info {name, id}
  */
-function equip_item_from_inventory(item_info) {
-    if(character.inventory.hasOwnProperty(item_info.name)) { //check if its in inventory, just in case
+function equip_item_from_inventory({item_name, item_id}) {
+    if(character.inventory.hasOwnProperty(item_name)) { //check if its in inventory, just in case
         //add specific item to equipment slot
         // -> id and name tell which exactly item it is, then also check slot in item object and thats all whats needed
-        equip_item(character.inventory[item_info.name][item_info.id]);
-        remove_from_inventory("character", item_info); //put this outside if() when equipping gets implemented for stackables as well
+        equip_item(character.inventory[item_name][item_id]);
+        remove_from_inventory("character", {item_name, item_id});
     }
 }
 
@@ -2110,7 +2285,7 @@ function create_item_tooltip(item, options) {
         //if a shield
         if(item.offhand_type === "shield") {
             item_tooltip.innerHTML += 
-            `<br><br><b>[shield]</b><br><br>Can fully block attacks not stronger than: ${item.getShieldStrength()}`;
+            `<br><br><b>[shield]</b><br><br>Can block up to ${item.getShieldStrength()} damage`;
         }
         else if(item.equip_slot === "weapon") {
             item_tooltip.innerHTML += `<br><br>Type: <b>${item.weapon_type}</b>`;
@@ -2207,70 +2382,49 @@ function update_displayed_stats() { //updates displayed stats
 
     Object.keys(stats_divs).forEach(function(key){
         if(key === "crit_rate" || key === "crit_multiplier") {
-            stats_divs[key].innerHTML = `${(character.full_stats[key]*100).toFixed(1)}%`
+            stats_divs[key].innerHTML = `${(character.full_stats[key]*100).toFixed(1)}%`;
         } 
+        else if(key === "attack_speed") {
+            stats_divs[key].innerHTML = `${(character.get_attack_speed()).toFixed(1)}`;
+        }
+        else if(key === "attack_power") {
+            stats_divs[key].innerHTML = `${(character.get_attack_power()).toFixed(1)}`;
+        }
         else {
-            stats_divs[key].innerHTML = `${(character.full_stats[key]).toFixed(1)}`
+            stats_divs[key].innerHTML = `${(character.full_stats[key]).toFixed(1)}`;
         }
     });
 }
 /**
- * updates character stats that depend on enemy, so hit chance and evasion/block
+ * updates character stats related to combat
  */
-function update_combat_stats() { //chances to hit and evade/block
+function update_combat_stats() {
     if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
-        character.combat_stats.evasion_chance = null;
+        character.combat_stats.evasion_points = null;
         character.combat_stats.block_chance = Math.round(0.4 * skills["Shield blocking"].get_coefficient("flat") * 10000)/10000;
     }
 
-    if(current_enemy != null) { //IN COMBAT
+    character.combat_stats.attack_points = Math.sqrt(character.full_stats.intuition) * character.full_stats.dexterity * skills["Combat"].get_coefficient("multiplicative");
 
-        character.combat_stats.hit_chance = Math.min(0.99, Math.max(0.1, Math.sqrt(character.full_stats.dexterity/current_enemy.stats.agility) 
-                                            * 0.5 * skills["Combat"].get_coefficient("multiplicative")));
+    if(character.equipment["off-hand"] == null || character.equipment["off-hand"].offhand_type !== "shield") {
+        character.combat_stats.evasion_points = character.full_stats.agility * Math.sqrt(character.full_stats.intuition) * skills["Evasion"].get_coefficient("multiplicative");
 
-        //so 99% if at least four times more dexterity, 50% if same, and never less than 10%
-
-        if(character.equipment["off-hand"] == null || character.equipment["off-hand"].offhand_type !== "shield") {
-            const power = character.full_stats.agility > current_enemy.stats.dexterity ? 2/3 : 1
-            character.combat_stats.evasion_chance = Math.min(0.99, Math.pow(character.full_stats.agility/current_enemy.stats.dexterity, power) * 0.25 * skills["Evasion"].get_coefficient("multiplicative"));
-            //so up to 99% if at least eight times more agility, 25% if same, can go down almost to 0%
-        }
-    } 
-    else {
-        character.combat_stats.hit_chance = null;
-        character.combat_stats.evasion_chance = null;
     }
 
     update_displayed_combat_stats();
 }
 
 function update_displayed_combat_stats() {
-    if(current_enemy != null) {
-        other_combat_divs.hit_chance.innerHTML = `${(character.combat_stats.hit_chance*100).toFixed(1)}%`;
-    }
-    else {
-        other_combat_divs.hit_chance.innerHTML = "";
-    }
+
+    other_combat_divs.offensive_points.innerHTML = `${Math.round(character.combat_stats.attack_points)}`;
 
     if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
-
-        other_combat_divs.defensive_action.innerHTML = "Block:";
-
-        if(current_enemy != null && character.equipment["off-hand"].getShieldStrength() < current_enemy.stats.strength) { //IN COMBAT && SHIELD WEAKER THAN AVERAGE NON-CRIT ATTACK
-            other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.block_chance*100-30).toFixed(1)}%`;
-        } 
-        else {
-            other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.block_chance*100).toFixed(1)}%`;
-        }
+        other_combat_divs.defensive_action.innerHTML = "Block :";
+        other_combat_divs.defensive_points.innerHTML = `${(character.combat_stats.block_chance*100).toFixed(1)}%`;
     }
-    else {
-        other_combat_divs.defensive_action.innerHTML = "Evasion:";
-        if(current_enemy != null) {
-            other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.evasion_chance*100).toFixed(1)}%`;
-        }
-        else {
-            other_combat_divs.defensive_action_chance.innerHTML = "";
-        }
+    else { //NO SHIELD
+        other_combat_divs.defensive_action.innerHTML = "EP : ";
+        other_combat_divs.defensive_points.innerHTML = `${Math.round(character.combat_stats.evasion_points)}`;
     }
 }
 
@@ -2359,7 +2513,8 @@ function create_save() {
                                 xp: {
                                     total_xp: character.xp.total_xp,
                                 },
-                                hp_to_full: character.full_stats.max_health - character.full_stats.health};
+                                hp_to_full: character.full_stats.max_health - character.full_stats.health,
+                                stamina_to_full: character.full_stats.max_stamina - character.full_stats.stamina};
         //no need to save all stats; on loading, base stats will be taken from code and then additional stuff will be calculated again (in case anything changed)
 
         save_data["skills"] = {};
@@ -2368,14 +2523,6 @@ function create_save() {
         }); //only save total xp of each skill, again in case of any changes
         
         save_data["current location"] = current_location.name;
-
-        if(current_enemy == null) {
-            save_data["current enemy"] = null;
-        } 
-        else {
-            save_data["current enemy"] = {name: current_enemy.name, stats: current_enemy.stats}; 
-            //no need to save everything, just name + stats -> get enemy from template and change stats to those saved
-        }
 
         save_data["locations"] = {};
         Object.keys(locations).forEach(function(key) { 
@@ -2464,6 +2611,8 @@ function save_to_localStorage(is_manual) {
 
 function load(save_data) {
     //single loading method
+    
+    //current enemies are not saved
 
     //TODO: some loading screen
     try{
@@ -2473,12 +2622,6 @@ function load(save_data) {
 
         name_field.value = save_data.character.name;
         character.name = save_data.character.name;
-
-        if(save_data["current enemy"] != null) { 
-            current_enemy = new Enemy(enemy_templates[save_data["current enemy"].name]);
-            current_enemy.stats = save_data["current enemy"].stats; 
-            get_new_enemy(current_enemy);
-        } //load enemy
 
         Object.keys(save_data.character.equipment).forEach(function(key){
             if(save_data.character.equipment[key] != null) {
@@ -2674,10 +2817,9 @@ function load(save_data) {
                     }
                 });
 
-                start_trade(trader);
+                traders[trader].refresh(); 
                 traders[trader].inventory = {};
-                add_to_inventory("trader", trader_item_list);
-                exit_trade();
+                add_to_inventory("trader", trader_item_list, trader);
 
                 traders[trader].last_refresh = save_data.traders[trader].last_refresh; 
             }
@@ -2721,15 +2863,23 @@ function load(save_data) {
             active_effects[effect] = save_data.active_effects[effect];
         });
 
-        update_character_stats();
+        
         if(save_data.character.hp_to_full == null || save_data.character.hp_to_full >= character.full_stats.max_health) {
             character.full_stats.health = 1;
         } else {
             character.full_stats.health = character.full_stats.max_health - save_data.character.hp_to_full;
         }
-        //if missing hp is null (save got corrupted) or its more than max_health, set health to 0
+        //if missing hp is null (save got corrupted) or its more than max_health, set health to minimum allowed (which is 1)
         //otherwise just do simple substraction
+        //then same with stamina below
+        if(save_data.character.stamina_to_full == null || save_data.character.stamina_to_full >= character.full_stats.max_stamina) {
+            character.full_stats.stamina = 0;
+        } else {
+            character.full_stats.stamina = character.full_stats.max_stamina - save_data.character.stamina_to_full;
+        }
         
+        update_character_stats();
+
         update_displayed_health();
         //load current health
         
@@ -2799,9 +2949,8 @@ function load_from_file(save_string) {
 
         exit_trade();
 
-        const skill_list_div = document.getElementById("skill_list_div");
-        while(skill_list_div.firstChild) {
-            skill_list_div.removeChild(skill_list_div.lastChild);
+        while(skill_list.firstChild) {
+            skill_list.removeChild(skill_list.lastChild);
         } //remove skill bars from display
 
         try {
@@ -3027,11 +3176,15 @@ window.add_to_selling_list = add_to_selling_list;
 window.remove_from_selling_list = remove_from_selling_list;
 window.cancel_trade = cancel_trade;
 window.accept_trade = accept_trade;
+window.is_in_trade = is_in_trade;
 
 window.format_money = format_money;
 window.get_character_money = get_character_money;
 
 window.use_item = use_item;
+
+window.do_enemy_combat_action = do_enemy_combat_action;
+window.do_character_combat_action = do_character_combat_action;
 
 window.sort_displayed_inventory = sort_displayed_inventory;
 window.update_displayed_inventory = update_displayed_inventory;

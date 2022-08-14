@@ -14,230 +14,335 @@
     </head>
 
     <body onload = "prepareGame()">
-        <!-- tooltip for active character effects, couldnt make it to display on top when placed where it should be, so it's here instead-->
+
+        <!-- tooltip for active character effects-->
         <div id = "effects_tooltip"> 
             No active effects            
         </div>
 
+
         <div id = "main_content">
-            <!-- basic character info (name, title, hp)-->
-            <div id = "basic_character_info_div" class = "box_div">
-                <div id = "character_name_div"> 
-                    <input type = "text" id = "character_name_field"> 
-                </div>
-                <div id = "character_title_div">
-                    <!-- placeholder for future -->
-                </div>
+            
 
-                <div id = "character_health_div"> 
-                    <div id = "character_healthbar_max"> 
-                        <div id = "character_healthbar_current">
-                        </div>
-                    </div>
-                    <div id = "character_health_value">
-                    </div>
-                </div>
-                <div id = "character_stamina_div">
-                    <div id ="character_stamina_bar_max">
-                        <div id = "character_stamina_bar_current">
-                        </div>
-                    </div>
-                    <div id = "character_stamina_value">
-                        
-                    </div>
-                </div>
-                <div id = "character_mana_div">
-                    <div id ="character_mana_bar_max">
-                        <div id = "character_mana_bar_current">
-                        </div>
-                    </div>
-                    <div id = "character_mana_value">
-                        0/0 mana
-                    </div>
-                </div>
-
-                <div id = "character_xp_div">
-                    <div id ="character_xp_bar_max">
-                        <div id = "character_xp_bar_current">
-                            
-                        </div>
-                    </div>
-                    <div id = "character_xp_value">
-                    </div>
-                </div>
-            </div>
-            <!-- character stats and equipment-->
-            <div id = "character_div" class = "box_div"> 
-                <div id = "character_level_div">
-                    Lvl: 0
-                </div>
-                <div id = "character_stats_div"> 
-                    <div class = "grid_container">
-                        <div class = "stat_slot_div"> 
-                            <div class = "stat_name"> Strength: </div>
-                            <div class = "stat_value" id = "strength_slot"></div> 
-                            <span class = "stat_tooltip"> Your strength. It affects power of physical attacks </span>
-                        </div>
-                        <div class = "stat_slot_div"> 
-                            <div class = "stat_name"> Agility: </div>
-                            <div class = "stat_value" id = "agility_slot"></div> 
-                            <span class = "stat_tooltip"> Your agility. It affects your evasion chance </span>
-                        </div>
-                    </div>
-                    <div class = "grid_container">
-                        <div class = "stat_slot_div"> 
-                            <div class = "stat_name"> Dexterity: </div>
-                            <div class = "stat_value" id = "dexterity_slot"></div> 
-                            <span class = "stat_tooltip"> Your dexterity. It affects your chance to hit target </span>
-                        </div>
-                        <div class = "stat_slot_div"> 
-                            <div class = "stat_name"> Atk spd: </div>
-                            <div class = "stat_value" id = "attack_speed_slot"></div> 
-                            <span class = "stat_tooltip"> Your attack speed. If it's higher than your enemy's, you will sometimes attack more than once per turn </span>
-                        </div>
-                    </div>
-                    <div class = "grid_container">
-                        <div class = "stat_slot_div"> 
-                            <div class = "stat_name"> Atk power: </div>
-                            <div class = "stat_value" id = "attack_power_slot"></div> 
-                            <span class = "stat_tooltip"> Attack power. Based on weapon statistics, strength and/or magic </span>
-                        </div>
-                        <div class = "stat_slot_div"> 
-                            <div class = "stat_name"> Defense: </div>
-                            <div class = "stat_value" id = "defense_slot"></div> 
-                            <span class = "stat_tooltip"> Your defense. Based on worn equipment, lowers damage taken </span>
-                        </div>
-                        
-                    </div>
-                    <div class = "grid_container">
-                        <div class = "stat_slot_div"> 
-                            <div class = "stat_name"> Magic: </div>
-                            <div class = "stat_value" id = "magic_slot"></div> 
-                            <span class = "stat_tooltip"> Your magic power. It affects damage of magic attacks </span>
-                        </div>
-                        <div class = "stat_slot_div" id ="unused_stat_div"> 
-                            <div class = "stat_name">  </div>
-                            <div class = "stat_value" id = "unusued_slot"></div> 
-                            <span class = "stat_tooltip"> Maybe something will be here </span>
-                        </div>
-                    </div>
-                    <div class = "grid_container">
-                        <div class = "stat_slot_div"> 
-                            <div class = "stat_name"> Crit rate: </div>
-                            <div class = "stat_value" id = "crit_rate_slot"></div> 
-                            <span class = "stat_tooltip"> Your chance for critical attack </span>
-                        </div>
-                        <div class = "stat_slot_div"> 
-                            <div class = "stat_name"> Crit mult: </div>
-                            <div class = "stat_value" id = "crit_multiplier_slot"></div> 
-                            <span class = "stat_tooltip"> Damage of your critical attacks </span>
-                        </div>
-                    </div>
-                    <div class = "grid_container">
-                        <div class = "stat_slot_div"> 
-                            <div class = "stat_name"> Hit chance: </div>
-                            <div class = "stat_value" id = "hit_chance_slot"></div> 
-                            <span class = "stat_tooltip"> Your chance to hit opponent. Based on yours and opponent's agility </span>
-                        </div>
-                        <div class = "stat_slot_div" id = "defensive_action_chance"> 
-                            <div class = "stat_name" id = "defensive_action_slot"> </div>
-                            <div class = "stat_value" id = "defensive_action_chance_slot"></div> 
-                            <span class = "stat_tooltip"> Your chance for defensive action </span>
-                        </div>
+            <div id = "global_content"> <!-- stuff that needs to be available in both area page and character page-->
+                <!-- basic character info (name, title, hp)-->
+                <div id = "basic_character_info_div" class = "box_div">
+                    <div id = "character_name_div"> 
+                        <input type = "text" id = "character_name_field"> 
                     </div>
 
-                    <div id = "effects_div">
-                        <div class = "effects_div"> Active effects: </div>
-                        <div class = "effects_div" id = "active_effect_count"> 0 </div>
-                    </div>
-                </div>
-
-                <div id = "character_equipment_div"> 
-                    <div class = "grid_container">
-                        <div class = "equipment_slot_div" id = "head_slot"> head </div>
-                        <div class = "equipment_slot_div" id = "torso_slot"> torso </div>
-                    </div>
-                    <div class = "grid_container">
-                        <div class = "equipment_slot_div" id = "arms_slot"> arms </div>
-                        <div class = "equipment_slot_div" id = "ring_slot"> ring </div>
-                    </div>
-                    <div class = "grid_container">
-                        <div class = "equipment_slot_div" id = "weapon_slot"> weapon </div>
-                        <div class = "equipment_slot_div" id = "offhand_slot"> off-hand </div>
-                    </div>
-                    <div class = "grid_container">
-                        <div class = "equipment_slot_div" id = "legs_slot"> legs </div>
-                        <div class = "equipment_slot_div" id = "feet_slot"> feet </div>
-                    </div>
-                    <div class = "equipment_slot_div amulet_slot_div" id = "amulet_slot"> amulet </div>
-                </div>
-
-                <div id = "character_control_div">
-                    <div id = "character_show_stats" class = "character_control_button active_selection_button" onclick = "showCharacterStats()"> Stats </div>
-                    <div id = "character_show_equipment" class = "character_control_button" onclick = "showCharacterEquipment()"> Equipment </div>
-                </div>
-            </div>
-                
-            <!-- location info (name, type[safe/combat], weather, time, etc?)-->
-            <div id = "location_div" class = "box_div"> 
-                
-
-                <div id = "enemy_info_div">
-                    <div id = "enemy_name_div">
-                    </div>
-                    <div id = "enemy_health_div"> 
-                        <div id = "enemy_healthbar_max"> 
-                            <div id = "enemy_healthbar_current">
+                    <div id = "character_health_div"> 
+                        <div id = "character_healthbar_max"> 
+                            <div id = "character_healthbar_current">
                             </div>
                         </div>
-                        <div id = "enemy_health_value">
-                        </div>
-                        <div id = "enemy_stats_div">
+                        <div id = "character_health_value">
                         </div>
                     </div>
-                </div>
-                <div id = "enemy_count_div">
-                    <div id = "enemy_count_content">
-                        <div style = "display:inline-block;"> 
-                            Enemies left: 
+                    <div id = "character_stamina_div">
+                        <div id ="character_stamina_bar_max">
+                            <div id = "character_stamina_bar_current">
+                            </div>
                         </div>
-                        <div id = "enemies_left_div">
+                        <div id = "character_stamina_value">
                             
                         </div>
                     </div>
-                </div>
-                <div id = "location_data_div" >
-                    <div id = "location_name_div">
-                        <div id = "location_description_tooltip"></div>	
+                    <div id = "character_mana_div">
+                        <div id ="character_mana_bar_max">
+                            <div id = "character_mana_bar_current">
+                            </div>
+                        </div>
+                        <div id = "character_mana_value">
+                            0/0 mana
+                        </div>
+                    </div>
+
+                    <div id = "character_xp_div">
+                        <div id ="character_xp_bar_max">
+                            <div id = "character_xp_bar_current">
+                                
+                            </div>
+                        </div>
+                        <div id = "character_xp_value">
+                        </div>
                     </div>
                 </div>
-                <div id = "time_div"> </div>
-                
+
+                <!-- inventory list -->
+                <div id = "inventory_div" class = "box_div"> 
+                    <div id = "money_div">  </div>
+                    <div id = "inventory_content_div"> </div>
+
+                    <div id = "inventory_sorting_div">
+                        <div id = "inventory_sort_by_name" class = "character_sorting_button active_selection_button" onclick='sortCharacterInventory("name")'> Sort by name </div>
+                        <div id = "inventory_sort_by_price" class = "character_sorting_button" onclick='sortCharacterInventory("price")'> Sort by value </div>
+                    </div>
+                    <div id = "inventory_control_div">
+                        <div id = "inventory_show_all" class = "inventory_control_button active_selection_button" onclick = "showAllItems()"> All </div>
+                        <div id = "inventory_show_equipment" class = "inventory_control_button" onclick = "showOnlyEquipment()"> Equipment </div>
+                        <div id = "inventory_show_consumable" class = "inventory_control_button" onclick = "showOnlyConsumables()"> Usable </div>
+                        <div id = "inventory_show_other" class = "inventory_control_button" onclick = "showOnlyOther()"> Other </div> 
+                    </div>
+                </div>
+
+                <div id = "time_and_location" class = "box_div">
+                    <div id = "time_div"> </div>
+                    
+                    <div id = "location_name_div">
+                        
+                    </div>
+                </div>
+
             </div>
 
-            <!-- inventory list -->
-            <div id = "inventory_div" class = "box_div"> 
-                <div id = "money_div">  </div>
-                <div id = "inventory_content_div"> </div>
+            <div id = "area_page">
 
-                <div id = "inventory_sorting_div">
-                    <div id = "inventory_sort_by_name" class = "character_sorting_button active_selection_button" onclick='sortCharacterInventory("name")'> Sort by name </div>
-                    <div id = "inventory_sort_by_price" class = "character_sorting_button" onclick='sortCharacterInventory("price")'> Sort by value </div>
+                <div id = "character_effects_area_page" class = "box_div">
+                    <div id = "effects_div">
+                        <div> Active effects: </div>
+                        <div id = "active_effect_count"> 0 </div>
+                    </div>
                 </div>
-                <div id = "inventory_control_div">
-                    <div id = "inventory_show_all" class = "inventory_control_button active_selection_button" onclick = "showAllItems()"> All </div>
-                    <div id = "inventory_show_equipment" class = "inventory_control_button" onclick = "showOnlyEquipment()"> Equipment </div>
-                    <div id = "inventory_show_consumable" class = "inventory_control_button" onclick = "showOnlyConsumables()"> Usable </div>
-                    <div id = "inventory_show_other" class = "inventory_control_button" onclick = "showOnlyOther()"> Other </div> 
+
+                <div id = "character_combat_management" class = "box_div">
+                    <div id = "character_attack_name">
+                        normal attack
+                    </div>
+                    <div id = "character_attack_bar">
+
+                    </div>
                 </div>
-            </div>
+                <!-- location info (name, type[safe/combat], weather, time, etc?)-->
+                <div id = "location_div" class = "box_div"> 
+                    <div id = "location_description_div">
+                        
+                    </div>
+                    <div id = "location_picture_div" >
+                        
+                    </div>
+                </div>
 
+                <div id = "combat_div" class = "box_div">
+                    <div id = "enemies_div">
+                        <div id = "enemy_0_div" class = "enemy_div">
+                            <div>
+                                <div class = "enemy_name">
+                                    idk sum name
+                                </div>
+                                <div class = "enemy_stats">
+                                    idk sum stats
+                                </div>
+                                <div class = "enemy_health_div">
+                                    <div class = "enemy_healthbar_max">
+                                        <div class = "enemy_healthbar_current">
 
+                                        </div>
+                                    </div>
+                                    <div class = "enemy_health_value">
+                                            100/100 hp
+                                    </div>
+
+                                </div>
+                                
+                                <div class = "enemy_attack_bar">
+
+                                </div>
+                            </div>
+                        </div>
+                        <div id = "enemy_1_div" class = "enemy_div">
+                            <div>
+                                <div class = "enemy_name">
+
+                                </div>
+                                <div class = "enemy_stats">
+
+                                </div>
+                                <div class = "enemy_health_div">
+                                    <div class = "enemy_healthbar_max">
+                                        <div class = "enemy_healthbar_current">
+
+                                        </div>
+                                    </div>
+                                    <div class = "enemy_health_value">
+                                        
+                                    </div>
+
+                                </div>
+                                
+                                <div class = "enemy_attack_bar">
+
+                                </div>
+                            </div>
+                        </div>
+                        <div id = "enemy_2_div" class = "enemy_div">
+                            <div>
+                                <div class = "enemy_name">
+
+                                </div>
+                                <div class = "enemy_stats">
+
+                                </div>
+                                <div class = "enemy_health_div">
+                                    <div class = "enemy_healthbar_max">
+                                        <div class = "enemy_healthbar_current">
+
+                                        </div>
+                                    </div>
+                                    <div class = "enemy_health_value">
+                                        
+                                    </div>
+
+                                </div>
+                                
+                                <div class = "enemy_attack_bar">
+
+                                </div>
+                            </div>
+                        </div>
+                        <div id = "enemy_3_div" class = "enemy_div">
+                            <div>
+                                <div class = "enemy_name">
+
+                                </div>
+                                <div class = "enemy_stats">
+
+                                </div>
+                                <div class = "enemy_health_div">
+                                    <div class = "enemy_healthbar_max">
+                                        <div class = "enemy_healthbar_current">
+
+                                        </div>
+                                    </div>
+                                    <div class = "enemy_health_value">
+                                        
+                                    </div>
+
+                                </div>
+                                
+                                <div class = "enemy_attack_bar">
+
+                                </div>
+                            </div>
+                        </div>
+                        <div id = "enemy_4_div" class = "enemy_div">
+                            <div>
+                                <div class = "enemy_name">
+
+                                </div>
+                                <div class = "enemy_stats">
+
+                                </div>
+                                <div class = "enemy_health_div">
+                                    <div class = "enemy_healthbar_max">
+                                        <div class = "enemy_healthbar_current">
+
+                                        </div>
+                                    </div>
+                                    <div class = "enemy_health_value">
+                                        
+                                    </div>
+
+                                </div>
+                                
+                                <div class = "enemy_attack_bar">
+
+                                </div>
+                            </div>
+                        </div>
+                        <div id = "enemy_5_div" class = "enemy_div">
+                            <div>
+                                <div class = "enemy_name">
+
+                                </div>
+                                <div class = "enemy_stats">
+
+                                </div>
+                                <div class = "enemy_health_div">
+                                    <div class = "enemy_healthbar_max">
+                                        <div class = "enemy_healthbar_current">
+
+                                        </div>
+                                    </div>
+                                    <div class = "enemy_health_value">
+                                        
+                                    </div>
+
+                                </div>
+                                
+                                <div class = "enemy_attack_bar">
+
+                                </div>
+                            </div>
+                        </div>
+                        <div id = "enemy_6_div" class = "enemy_div">
+                            <div>
+                                <div class = "enemy_name">
+
+                                </div>
+                                <div class = "enemy_stats">
+
+                                </div>
+                                
+                                <div class = "enemy_health_div">
+                                    <div class = "enemy_healthbar_max">
+                                        <div class = "enemy_healthbar_current">
+
+                                        </div>
+                                    </div>
+                                    <div class = "enemy_health_value">
+                                        
+                                    </div>
+
+                                </div>
+
+                                
+                                <div class = "enemy_attack_bar">
+
+                                </div>
+                            </div>
+                        </div>
+                        <div id = "enemy_7_div" class = "enemy_div">
+                            <div>
+                                <div class = "enemy_name">
+
+                                </div>
+                                <div class = "enemy_stats">
+
+                                </div>
+                                <div class = "enemy_health_div">
+                                    <div class = "enemy_healthbar_max">
+                                        <div class = "enemy_healthbar_current">
+
+                                        </div>
+                                    </div>
+                                    <div class = "enemy_health_value">
+                                        
+                                    </div>
+
+                                </div>
+                                
+                                <div class = "enemy_attack_bar">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id = "enemy_count_div">
+                        <div id = "enemy_count_content">
+                            <div style = "display:inline-block;"> 
+                                Enemy groups left: 
+                            </div>
+                            <div id = "enemies_left_div">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
-            <!-- actions and stuff-->
-            <div id = "action_selection_div" class = "box_div">
-                <div id = "location_related_div">
-                    <div id = "location_actions_div" class = "actions_div">	
+                <!-- actions and stuff-->
+                <div id = "location_related_div" class = "box_div">
+                    <div id = "location_actions_div">	
                         
                     </div>
 
@@ -247,7 +352,7 @@
                                 Sort by name
                             </div>
                             <div id = "trader_sort_by_price" class = "trader_sorting_button" onclick='sortTraderInventory("price")'>
-                                Sort by price
+                                Sort by value
                             </div>
                         </div>
                         <div id = "trader_category_buttons">
@@ -266,7 +371,7 @@
                         </div>
 
 
-                        <div id = "trader_inventory_div" class = "actions_div">
+                        <div id = "trader_inventory_div">
 
                         </div>
                         <div id = "trade_control_div">
@@ -292,26 +397,160 @@
                             </div>
                         </div>
                     </div>
-                 </div>
-
-                <div id = "skill_list_div" class = "actions_div">
-                    
                 </div>
-
-                <div id = "journal_div" class = "actions_div">
-                    Here will be journal (maybe?)
-                </div>
-
-                <div id = "action_control_div">
-                    <div id = "show_location_actions_div" class = "action_selection_button active_selection_button" onclick = "showLocationActions()"> Location </div>
-                    <div id = "show_skills_div" class = "action_selection_button" onclick = "showSkills()"> Skills </div>
-                    <div id = "show_journal_div" class = "action_selection_button" onclick = "showJournal()"> Journal </div>
-                </div>
+            
             </div>
+
+            <div id = "character_page">
+                
+                <!-- character stats and equipment-->
+                <div id = "character_div" class = "box_div"> 
+                    <div id = "character_stats_div"> 
+                        <div id = "character_level_div">
+                            Lvl: 0
+                        </div>
+                        <div class = "grid_container">
+                            <div class = "stat_slot_div"> 
+                                <div class = "stat_name"> Strength: </div>
+                                <div class = "stat_value" id = "strength_slot"></div> 
+                                <span class = "stat_tooltip"> Your strength. It affects power of physical attacks </span>
+                            </div>
+                            <div class = "stat_slot_div"> 
+                                <div class = "stat_name"> Agility: </div>
+                                <div class = "stat_value" id = "agility_slot"></div> 
+                                <span class = "stat_tooltip"> Your agility. It affects your evasion chance </span>
+                            </div>
+                        </div>
+                        <div class = "grid_container">
+                            <div class = "stat_slot_div"> 
+                                <div class = "stat_name"> Dexterity: </div>
+                                <div class = "stat_value" id = "dexterity_slot"></div> 
+                                <span class = "stat_tooltip"> Your dexterity. It affects your chance to hit target </span>
+                            </div>
+                            <div class = "stat_slot_div"> 
+                                <div class = "stat_name"> Intuition </div>
+                                <div class = "stat_value" id = "intuition_slot"></div> 
+                                <span class = "stat_tooltip"> Your intuition. It's necessary for magic, while also providing slight bonus to hit chance and evasion </span>
+                            </div>
+                            
+                        </div>
+                        
+                        <div class = "grid_container">
+                            <div class = "stat_slot_div"> 
+                                <div class = "stat_name"> Defense: </div>
+                                <div class = "stat_value" id = "defense_slot"></div> 
+                                <span class = "stat_tooltip"> Your defense. Based on worn equipment, lowers damage taken </span>
+                            </div>
+                            <div class = "stat_slot_div"> 
+                                <div class = "stat_name"> Magic: </div>
+                                <div class = "stat_value" id = "magic_slot"></div> 
+                                <span class = "stat_tooltip"> Your magic power. It affects damage of magic attacks </span>
+                            </div>
+                            
+                        </div>
+                        <div class = "grid_container">
+                            <div class = "stat_slot_div"> 
+                                <div class = "stat_name"> Atk power: </div>
+                                <div class = "stat_value" id = "attack_power_slot"></div> 
+                                <span class = "stat_tooltip"> Attack power. Based on weapon statistics, strength and/or magic </span>
+                            </div>
+                            <div class = "stat_slot_div"> 
+                                <div class = "stat_name"> Atk spd: </div>
+                                <div class = "stat_value" id = "attack_speed_slot"></div> 
+                                <span class = "stat_tooltip"> Attack speed. Directly affects the attack frequency </span>
+                            </div>
+                            
+                            
+                        </div>
+                        <div class = "grid_container">
+                            <div class = "stat_slot_div"> 
+                                <div class = "stat_name"> Crit rate: </div>
+                                <div class = "stat_value" id = "crit_rate_slot"></div> 
+                                <span class = "stat_tooltip"> Your chance for critical attack </span>
+                            </div>
+                            <div class = "stat_slot_div"> 
+                                <div class = "stat_name"> Crit mult: </div>
+                                <div class = "stat_value" id = "crit_multiplier_slot"></div> 
+                                <span class = "stat_tooltip"> Damage of your critical attacks </span>
+                            </div>
+                        </div>
+                        <div class = "grid_container">
+                            <div class = "stat_slot_div"> 
+                                <div class = "stat_name"> AP: </div>
+                                <div class = "stat_value" id = "hit_chance_slot"></div> 
+                                <span class = "stat_tooltip"> Attack points, based on your dexterity and intuition. Chance to hit is based on them. </span>
+                            </div>
+                            <div class = "stat_slot_div" id = "defensive_action_chance"> 
+                                <div class = "stat_name" id = "defensive_action_slot"> </div>
+                                <div class = "stat_value" id = "defensive_action_chance_slot"></div> 
+                                <span class = "stat_tooltip"> Defensive action points </span>
+                            </div>
+                        </div>
+
+                        <div id = "character_effects_character_page">
+
+                        </div>
+
+                    </div>
+
+                    
+                    <div id = "character_equipment_div"> 
+                        <div class = "grid_container">
+                            <div class = "equipment_slot_div" id = "head_slot"> head </div>
+                            <div class = "equipment_slot_div" id = "torso_slot"> torso </div>
+                        </div>
+                        <div class = "grid_container">
+                            <div class = "equipment_slot_div" id = "arms_slot"> arms </div>
+                            <div class = "equipment_slot_div" id = "ring_slot"> ring </div>
+                        </div>
+                        <div class = "grid_container">
+                            <div class = "equipment_slot_div" id = "weapon_slot"> weapon </div>
+                            <div class = "equipment_slot_div" id = "offhand_slot"> off-hand </div>
+                        </div>
+                        <div class = "grid_container">
+                            <div class = "equipment_slot_div" id = "legs_slot"> legs </div>
+                            <div class = "equipment_slot_div" id = "feet_slot"> feet </div>
+                        </div>
+                        <div class = "equipment_slot_div amulet_slot_div" id = "amulet_slot"> amulet </div>
+                    </div>
+
+                    <div id = "character_control_div">
+                        <div id = "character_show_stats" class = "character_control_button active_selection_button" onclick = "showCharacterStats()"> Stats </div>
+                        <div id = "character_show_equipment" class = "character_control_button" onclick = "showCharacterEquipment()"> Equipment </div>
+                    </div>
+                </div>
+
+                <div id = "skill_list_div" class = "box_div">
+                        <div id = "skill_list_header">
+                            = Skills =
+                        </div>
+                        <div id = "skill_list">
+
+                        </div>
+                </div>
+
+                <div id = "journal_div" class = "box_div">
+                    <div id = "journal_header"> 
+                        = Journal = 
+                    </div>
+                </div>
+
+            </div>
+
             
 
             <!-- message log -->
             <div id = "message_log_div" class = "box_div">
+            
+            </div>
+        </div>
+
+        <div id = "page_selection">
+            <div id = "area_page_button" class = "page_selection_button active_selection_button" onclick = "showAreaPage()">
+                Area / Combat
+            </div>
+            <div id = "character_page_button" class = "page_selection_button" onclick = "showCharacterPage()">
+                Character
             </div>
         </div>
 
@@ -373,29 +612,32 @@
             }
             
 
+            function showAreaPage() {
+                document.getElementById("character_page").style.display = "none";
+                document.getElementById("area_page").style.display = "initial";
+                document.getElementById("character_effects_area_page").appendChild(document.getElementById("effects_div"));
+                
+                if(!is_in_trade()) {
+                    document.documentElement.style.setProperty('--inventory_div_display', 'none');
+                }
+            }
+
+            function showCharacterPage() {
+                document.getElementById("character_page").style.display = "initial";
+                document.getElementById("area_page").style.display = "none";
+                document.getElementById("character_effects_character_page").appendChild(document.getElementById("effects_div"));
+                document.documentElement.style.setProperty('--inventory_div_display', 'block'); //just make sure it's always visible on this page
+            }
+
             function showCharacterStats() {
                 document.getElementById("character_equipment_div").style.display = "none";
-                document.getElementById("character_stats_div").style.display = "grid";
+                document.getElementById("character_stats_div").style.display = '';
+
             }
             function showCharacterEquipment() {
                 document.getElementById("character_equipment_div").style.display = "grid";
                 document.getElementById("character_stats_div").style.display = "none";
-            }
 
-            function showLocationActions() {
-                document.getElementById("location_related_div").style.display = "block";
-                document.getElementById("skill_list_div").style.display = "none";
-                document.getElementById("journal_div").style.display = "none";
-            }
-            function showSkills() {
-                document.getElementById("location_related_div").style.display = "none";
-                document.getElementById("skill_list_div").style.display = "block";
-                document.getElementById("journal_div").style.display = "none";
-            }
-            function showJournal() {
-                document.getElementById("location_related_div").style.display = "none";
-                document.getElementById("skill_list_div").style.display = "none";
-                document.getElementById("journal_div").style.display = "block";
             }
 
             var in_trade = false;
@@ -425,7 +667,9 @@
                 trade_price_value.innerHTML = format_money(total_price);
                 document.documentElement.style.setProperty('--trade_ammount_button_display', 'inline-block');
                 document.documentElement.style.setProperty('--item_use_button_display', 'none');
-                document.documentElement.style.setProperty('--item_other_width', '253px');
+                document.documentElement.style.setProperty('--item_other_width', getComputedStyle(document.body).getPropertyValue('--item_other_width_trade'));
+                document.documentElement.style.setProperty('--inventory_div_display', 'block');
+
                 start_trade(trader_key);
             }
             function exitTrade() {
@@ -434,7 +678,9 @@
                 trade_price_value.innerHTML = format_money(total_price);
                 document.documentElement.style.setProperty('--trade_ammount_button_display', 'none');
                 document.documentElement.style.setProperty('--item_use_button_display', 'inline-block');
-                document.documentElement.style.setProperty('--item_other_width', '287px');
+                document.documentElement.style.setProperty('--item_other_width', getComputedStyle(document.body).getPropertyValue('--item_other_width_default'));
+                
+                document.documentElement.style.setProperty('--inventory_div_display', 'none');
 
                 const accept_button = document.getElementById("accept_trade_button");
                 accept_button.style.cursor = "pointer";
@@ -524,6 +770,20 @@
             function prepareGame() { //called on body loaded
                 //sets up event listeners
 
+                //perform enemy combat action
+                const enemies_div = document.getElementById("enemies_div");
+                enemies_div.addEventListener("animationiteration", perform_enemy_combat_action)
+                function perform_enemy_combat_action(event) {
+                    do_enemy_combat_action(event.target.parentNode.parentNode.id[6]);
+                }
+
+                const character_combat_management = document.getElementById("character_combat_management");
+                character_combat_management.addEventListener("animationiteration", perform_character_combat_action);
+                function perform_character_combat_action(event) {
+                    do_character_combat_action();
+                }
+
+                /////////////////////
                 //(un)equipping items:
                 const inventory_div = document.getElementById("inventory_div");
                 inventory_div.onclick = function(event) {
@@ -532,8 +792,8 @@
                         var last_index = clicked_element.parentNode.getAttribute("data-character_item").lastIndexOf(" #"); 
                         //always ends with " #number", so this will get index of that whitespace before "#"
 
-                        equip_item({name: clicked_element.parentNode.getAttribute("data-character_item").substr(0, last_index), 
-                                    id: clicked_element.parentNode.getAttribute("data-character_item").substr(last_index+2)
+                        equip_item({item_name: clicked_element.parentNode.getAttribute("data-character_item").substr(0, last_index), 
+                                    item_id: clicked_element.parentNode.getAttribute("data-character_item").substr(last_index+2)
                         });
                     }
                     else if(clicked_element.classList.contains("unequip_item_button")) {
@@ -544,18 +804,20 @@
                     }
                 }
 
-                const tooltip_margin = Number(getComputedStyle(document.querySelector('.item_tooltip'))["margin-left"].replace("px",""));
-                //margin-left of tooltip elements
-
+                ///////////////
                 //item tooltips
                 inventory_div.addEventListener('mousemove', move_item_tooltip, false);
                 function move_item_tooltip(event) {
                     document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 370}px`);
                     document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX}px`);
-                    
                 }
                 
+                //////////////////////
                 //trader item tooltips
+
+                const item_tooltip_margin = Number(getComputedStyle(document.querySelector('.item_tooltip'))["margin-left"].replace("px",""));
+                //margin-left of tooltip elements
+
                 var trader_inventory_div = document.getElementById("trader_inventory_div");
                 trader_inventory_div.addEventListener('mousemove', move_trader_item_tooltip, false);
                 function move_trader_item_tooltip(event) {
@@ -582,7 +844,7 @@
                     }
                     const tooltip_width = hovered_element.children[0].children[1].offsetWidth;
                     
-                    const edge_position = window.innerWidth - tooltip_width - tooltip_margin + window.scrollX;
+                    const edge_position = window.innerWidth - tooltip_width - item_tooltip_margin - 45 + window.scrollX;
 
                     if(event.pageX > edge_position) {
                         document.documentElement.style.setProperty('--item_tooltip_left', `${edge_position - 370}px`);
@@ -608,6 +870,15 @@
                     }
                 }
 
+                //stats tooltips
+                var stats_div = document.getElementById("character_stats_div");
+                stats_div.addEventListener('mousemove', move_stat_tooltip, false);
+                function move_stat_tooltip(event) {
+
+                    document.documentElement.style.setProperty('--stat_tooltip_top', `${event.pageY - 110}px`);
+                    document.documentElement.style.setProperty('--stat_tooltip_left', `${event.pageX}px`);
+                }
+
                 //unequip item
                 equipment_div.onclick = function(event) {
                     var clicked_element = event.target;
@@ -617,50 +888,6 @@
 
                         clicked_element.children[0].style.left = event.pageX + "px";
                         clicked_element.children[0].style.top = event.pageY + "px";
-                    }
-                }
-
-                //stats tooltips
-                var stats_div = document.getElementById("character_stats_div");
-                stats_div.addEventListener('mousemove', move_stat_tooltip, false);
-                function move_stat_tooltip(event) {
-                    var hovered_element = event.target;
-                    if(hovered_element.classList.contains("stat_slot_div")) {
-                        hovered_element.children[2].style.left = event.pageX + "px";
-                        hovered_element.children[2].style.top = event.pageY - 110 + "px";
-                    }
-                    else {
-                        if(hovered_element.classList.contains("stat_name") || hovered_element.classList.contains("stat_value")) {
-                            hovered_element.parentNode.children[2].style.left = event.pageX + "px";
-                            hovered_element.parentNode.children[2].style.top = event.pageY - 110 + "px";
-                        }
-                    }
-                }
-
-
-                //location description tooltip
-                const location_div = document.getElementById("location_div");
-                location_div.addEventListener('mousemove', move_location_description_tooltip, false);
-                function move_location_description_tooltip(event) {
-                    location_description_tooltip.style.top = event.pageY - 270 + "px";
-
-                    var hovered_element = event.target;
-                    if(event.target.id !== "location_data_div") {
-                        if(event.target.id === "location_name_div") {
-                            hovered_element = event.target.parentNode;
-                        } else {
-                            return;
-                        }
-                    }
-
-                    const tooltip_width = hovered_element.children[0].offsetWidth;
-                    
-                    const edge_position = window.innerWidth - tooltip_width + window.scrollX;
-
-                    if(event.pageX > edge_position) {
-                        location_description_tooltip.style.left = edge_position - 420 + "px";
-                    } else {
-                        location_description_tooltip.style.left = event.pageX - 420 + "px";
                     }
                 }
 
@@ -690,17 +917,31 @@
                             return;
                         }
                     } 
-                    
-                    document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 340}px`)
 
-                    const tooltip_width = hovered_element.children[0].children[2].offsetWidth;
+                    const tooltip_width = hovered_element.children[0].children[2].scrollWidth;
+                    const tooltip_height = hovered_element.children[0].children[2].scrollHeight;
                     
-                    const edge_position = window.innerWidth - tooltip_width - tooltip_margin + window.scrollX;
+                    const body = document.getElementsByTagName("body")[0];
+                    const scrollbar_Y_visible = (body.scrollHeight - body.clientHeight) > 0;
+                    const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
 
-                    if(event.pageX > edge_position) {
-                        document.documentElement.style.setProperty('--skill_tooltip_left', `${edge_position - 360}px`);
+                    const right_edge_position = 
+                        window.innerWidth - tooltip_width -  23 + window.scrollX - (scrollbar_Y_visible?10:0);
+                    const bottom_edge_position = 
+                        window.innerHeight - tooltip_height + window.scrollY - 23 - (scrollbar_X_visible?10:0);
+                    
+                    //size of window - size of tooltip + scrolling position - 23 (not sure where it comes from) - 10 (for scrollbar if its visible)
+
+                    if(event.pageX > right_edge_position) {
+                        document.documentElement.style.setProperty('--skill_tooltip_left', `${right_edge_position - 400}px`);
                     } else {
-                        document.documentElement.style.setProperty('--skill_tooltip_left', `${event.pageX - 360}px`);
+                        document.documentElement.style.setProperty('--skill_tooltip_left', `${event.pageX - 400}px`);
+                    }
+
+                    if(event.pageY > bottom_edge_position) {
+                        document.documentElement.style.setProperty('--skill_tooltip_top', `${bottom_edge_position - 370}px`);
+                    } else {
+                        document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 370}px`);
                     }
 
                 }
@@ -712,10 +953,11 @@
                 function move_effects_tooltip(event) {
                     const hovered_element = event.target;
                     effects_tooltip.style.display = "block";
-                    if(hovered_element.id === "effects_div" || hovered_element.classList.contains("effects_div")) {
+                    if(hovered_element.id === "effects_div" || hovered_element.parentNode.id === "effects_div") {
                         effects_tooltip.style.left = event.pageX + "px";
                         effects_tooltip.style.top = event.pageY + 30 + "px";
-                    }
+                    } 
+                    
                 }
 
                 active_effects_div.addEventListener('mouseout', end_effects_tooltip, false);
@@ -823,11 +1065,11 @@
                 //set colors for active selection buttons
                 document.getElementById("inventory_control_div").addEventListener("click", set_active_button);
                 document.getElementById("character_control_div").addEventListener("click", set_active_button);
-                document.getElementById("action_control_div").addEventListener("click", set_active_button);
                 document.getElementById("trader_sort_by_name").addEventListener("click", set_active_button);
                 document.getElementById("trader_sort_by_price").addEventListener("click", set_active_button);
                 document.getElementById("inventory_sorting_div").addEventListener("click", set_active_button);
                 document.getElementById("trader_category_buttons").addEventListener("click", set_active_button);
+                document.getElementById("page_selection").addEventListener("click", set_active_button);
                 function set_active_button(event) {
                     //based on assumption none of them has child elements
                     //alternatively just give all control buttons some attribute that could be then checked for

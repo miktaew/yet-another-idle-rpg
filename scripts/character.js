@@ -10,9 +10,10 @@ const character = {name: "Hero", titles: {},
                            stamina: 40,
                            max_mana: 0,
                            mana: 0,
-                           strength: 5, 
-                           agility: 5, 
-                           dexterity: 5, 
+                           strength: 8, 
+                           agility: 8, 
+                           dexterity: 8, 
+                           intuition: 8,
                            magic: 0, 
                            attack_speed: 1, 
                            crit_rate: 0.1, 
@@ -21,7 +22,7 @@ const character = {name: "Hero", titles: {},
                            defense: 0
                         },
                    // crit damage is a multiplier; defense should be only based on worn armor and/or skills (incl magic);
-                   combat_stats: {hit_chance: 0, evasion_chance: 0, block_chance: 0}, //depend on stats of current enemy
+                   combat_stats: {attack_points: 0, evasion_points: 0, block_chance: 0},
                    full_stats: {}, //base stats (including skill bonuses) + bonuses from equipment, multiplied by multipliers
                    multipliers: {}, //multipliers based on skills
                    full_multipliers: {}, //multipliers based on skills * multipliers from equipment
@@ -78,16 +79,19 @@ character.get_level_bonus = function get_level_bonus(level) {
         var gained_str = 0;
         var gained_agi = 0;
         var gained_dex = 0;
+        var gained_int = 0;
 
         for(let i = character.xp.current_level + 1; i <= level; i++) {
                 if(i % 2 == 1) {
                         gained_str += Math.floor(1+(i/10));
                         gained_agi += Math.floor(1+(i/10));
                         gained_dex += Math.floor(1+(i/10));
+                        gained_int += Math.floor(1+(i/10));
 
                         character.stats.strength += Math.floor(1+(i/10));
                         character.stats.agility += Math.floor(1+(i/10));
                         character.stats.dexterity += Math.floor(1+(i/10));
+                        character.stats.intuition += 1;
                 }
                 gained_hp += 10 * Math.floor(1+(i/10));
 
@@ -106,7 +110,10 @@ character.get_level_bonus = function get_level_bonus(level) {
         if(gained_dex > 0) {
                 gains += `<br>Dexterity increased by ${gained_dex}`;
         }
-
+        if(gained_int > 0) {
+                gains += `<br>Intuition increased by ${gained_int}`;
+        }
+        
         return gains;
 }
 
@@ -114,12 +121,12 @@ character.get_level_bonus = function get_level_bonus(level) {
  * adds skill bonuses to character stats
  * @param {{stats, multipliers}} bonuses 
  */
-character.add_bonuses = function add_bonuses(bonuses) {
-        Object.keys(bonuses.stats).forEach(function (stat) {
-                character.stats[stat] += bonuses.stats[stat];
+character.add_bonuses = function add_bonuses({stats = {}, multipliers = {}}) {
+        Object.keys(stats).forEach(function (stat) {
+                character.stats[stat] += stats[stat];
         });
-        Object.keys(bonuses.multipliers).forEach(function (multiplier) {
-                character.multipliers[multiplier] = (bonuses.multipliers[multiplier] * (character.multipliers[multiplier] || 1));
+        Object.keys(multipliers).forEach(function (multiplier) {
+                character.multipliers[multiplier] = (bmultipliers[multiplier] * (character.multipliers[multiplier] || 1)) || 1;
         });
 }
 
@@ -138,7 +145,7 @@ character.update_stats = function update_stats() {
         }
 
         character.full_stats[stat] = character.stats[stat];
-        character.full_multipliers[stat] = character.multipliers[stat];
+        character.full_multipliers[stat] = character.multipliers[stat] || 1;
 
         if(stat !== "defense") {
                 Object.keys(character.equipment).forEach(function(key) {
@@ -187,8 +194,8 @@ character.update_stats = function update_stats() {
 }
 
 character.get_stamina_multiplier = function get_stamina_multiplier() {
-        if(character.stamina < 1) {
-                return 0.5 + skills["Persistence"].get_coefficient("flat");
+        if(character.full_stats.stamina < 10) {
+                return 0.5 + skills["Persistence"].get_level_bonus();
         }
         return 1;
 }
@@ -199,6 +206,43 @@ character.get_attack_speed = function get_attack_speed() {
 
 character.get_attack_power = function get_attack_power() {
         return character.full_stats.attack_power * character.get_stamina_multiplier();
+}
+
+/**
+ * 
+ * @param {*}
+ * @returns [actual damage taken, if character should faint] 
+ */
+character.take_damage = function take_damage({damage_value, damage_type = "physical", damage_element, can_faint = true, give_skill_xp = true}) {
+        /*
+        damage types: "physical", "elemental", "magic"
+        each with it's own defense on equipment (and potentially spells)
+        */
+
+        /*
+        TODO:
+                - damage types
+                - damage elements (for elemental damage type)
+                - resistance skills
+        */
+        let fainted;
+
+        const damage_taken = Math.round(10*Math.max(damage_value - character.full_stats.defense, 1))/10;
+
+        character.full_stats.health -= damage_taken;
+
+        if(character.full_stats.health <= 0 && can_faint) {
+                fainted = true;
+                character.full_stats.health = 0;
+        } else {
+                fainted = false;
+        }
+
+        if(give_skill_xp) {
+                //TODO
+        }
+
+        return {damage_taken, fainted};
 }
 
 export {character};
