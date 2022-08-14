@@ -22,7 +22,7 @@ const character = {name: "Hero", titles: {},
                            defense: 0
                         },
                    // crit damage is a multiplier; defense should be only based on worn armor and/or skills (incl magic);
-                   combat_stats: {hit_chance: 0, evasion_chance: 0, block_chance: 0}, //depend on stats of current enemy
+                   combat_stats: {attack_points: 0, evasion_points: 0, block_chance: 0},
                    full_stats: {}, //base stats (including skill bonuses) + bonuses from equipment, multiplied by multipliers
                    multipliers: {}, //multipliers based on skills
                    full_multipliers: {}, //multipliers based on skills * multipliers from equipment
@@ -194,7 +194,7 @@ character.update_stats = function update_stats() {
 }
 
 character.get_stamina_multiplier = function get_stamina_multiplier() {
-        if(character.full_stats.stamina < 1) {
+        if(character.full_stats.stamina < 10) {
                 return 0.5 + skills["Persistence"].get_level_bonus();
         }
         return 1;

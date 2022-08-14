@@ -27,6 +27,19 @@
 
 	--skill_tooltip_top: 0px;
 	--skill_tooltip_left: 0px;
+	--enemy_div_display: block;
+
+	--stat_tooltip_top: 0px;
+	--stat_tooltip_left: 0px;
+
+
+	/* for #location_related_div */
+	--actions_div_height_default: 400px;
+	--actions_div_height_combat: 100px;
+	--actions_div_height: var(--actions_div_height_default);
+	--actions_div_top_default: 340px;
+	--actions_div_top_combat: 640px;
+	--actions_div_top: var(--actions_div_top_default);
 }
 
 body {
@@ -169,6 +182,7 @@ body {
 .inventory_item, .trader_item {
 	 font-size: 14;
 	 display: inline-block;
+	 float: left;
 }
 
 .equipped_item_control {
@@ -183,6 +197,7 @@ body {
 	display: inline-block;
 	width: 259px; 
 	font-weight: bold;
+	float: left;
 }
 
 .inventory_item_control {
@@ -201,9 +216,7 @@ body {
 	 padding: 5px;
 	 position: absolute;
 	 z-index: 1000;
-	 max-width: 300px;
-	 width: fit-content;
-	 height: auto;
+	 width: 200px;
 	 pointer-events: none;
 }
 
@@ -227,14 +240,13 @@ body {
 	display: none;
 	background-color: rgba(120, 120, 120, 0.8);
 	border-radius: 10px;
-	margin-left: 30px;
 	padding: 5px;
 	position: absolute;
-	z-index: 1000;
-	max-width: 300px;
-	width: fit-content;
-	height: auto;
+	z-index: 10;
+	width: 200px;
 	pointer-events: none;
+	top: var(--stat_tooltip_top);
+	left: var(--stat_tooltip_left);
 }
 
 .stat_slot_div:hover .stat_tooltip {
@@ -248,9 +260,7 @@ body {
 	padding: 5px;
 	position: absolute;
 	z-index: 1000;
-	max-width: 300px;
-	width: fit-content;
-	height: auto;
+	width: 300px;
 	top: var(--skill_tooltip_top);
 	left: var(--skill_tooltip_left);
 	pointer-events: none;
@@ -316,14 +326,18 @@ body {
 }
 
 .item_stackable {
-	width: 303px;
+	width: 285px;
 }
 
 .item_equippable {
 	width: 271px;
 }
 .trade_item_equippable {
-	width: 287px;
+	width: 319px;
+}
+
+.character_item_control, .equipped_item_control {
+	width: 100%;
 }
 
 .character_item_control.item_to_trade {
@@ -416,12 +430,6 @@ body {
 	display: inline-block;
 	width: 98px;
 	padding-left: 4px;
-}
-
-.actions_div {
-	height: 370px;
-	width: 100%;
-	overflow-y: scroll;
 }
 
 .skill_bar_max {
@@ -531,20 +539,22 @@ body {
 }
 
 .page_selection_button {
-	width: 250px;
+	width: 50%;
 	font-size: 20;
 	font-weight: bold;
 	text-align: center;
 	position: relative;
-	padding-top: 2px;
-	padding-bottom: 2px;
+	padding-top: 6px;
+	padding-bottom: 6px;
 	background-color: #202044;
-	float: left;
 	cursor: pointer;
+	float: left;
 }
 
 #page_selection {
 	position: absolute;
+	top: 775px;
+	width: 1241px;
 }
 
 #area_page {
@@ -607,9 +617,9 @@ body {
 
 #location_related_div {
 	width: 400px;
-	height: 400px;
+	height: var(--actions_div_height);
 	left: 410px;
-	top: 340px;
+	top: var(--actions_div_top);
 }
 
 #basic_character_info_div {
@@ -628,10 +638,15 @@ body {
 	bottom: 0;
 	left: 0;
 }
-		@media only screen and (max-height: 853px) {
+		@media only screen and (max-height: 857px) {
 			#bottom_panel_div {
 				position: absolute;
-				top: 797px;
+				top: 810px;
+			}
+		}
+		@media only screen and (max-width: 1241px) {
+			#bottom_panel_div {
+				width: 1250px;
 			}
 		}
 
@@ -844,49 +859,89 @@ body {
 	padding: 1px 0px 1px 0px;
 }
 
-#enemy_healthbar_max {
-	outline: 2px solid red;
-	background-color: rgba(255, 46, 46, 0.3);
-	margin: auto;
-	margin-top: 3px;
-	width: 85%;
-	height: 18px;
+#combat_div {
+	width: 400px;
+	height: 585px;
+	position: relative;
+	left: 410px;
+	top: 45px;
 }
+		.enemy_div {
+			color: white;
+			display: var(--enemy_div_display);
+			font-size: 14;
+			height: 66px;
+			outline: 3px solid silver;
+			width: 100%;
+		}
+				.enemy_name, .enemy_stats {
+					height: 18px;
+					text-align: right;
+					padding-right: 30px;
+				}
 
-#enemy_healthbar_current {
-	background-color: rgb(255, 46, 46);
-	height: 100%;
-}
+				.enemy_health_div {
+					margin-bottom: 0px;
+					height: 18px;
+				}
+					.enemy_healthbar_max {
+						border: 2px solid rgb(199, 0, 0);
+						background-color: rgba(255, 46, 46, 0.3);
+						height: 16px;
+					}
+						.enemy_healthbar_current {
+							background-color: red;
+							width: 100%;
+							height: 100%;
+							margin-left: auto;
+						}
 
-#enemy_name_div {
-	padding-top: 4px;
-}
+					.enemy_health_value {
+						position: relative;
+						top: -18px;
+						width: 100%;
+						text-align: center;
+					}
+				.enemy_attack_bar {
+					background-color: rgb(156, 0, 156);
+					height: 10px;
+					animation-iteration-count: infinite;
+					animation-timing-function: linear;
+					margin-left: auto;
+				}
 
-#enemy_health_value, #enemy_stats_div, #enemy_name_div {
-	color: white;
-	width: 100%;
-	text-align: center;
-	height: 18px;
+	#character_combat_management {
+		width: 400px;
+		top: 150px;
+	}
+		#character_attack_name {
+			padding: 5px;
+			text-align: center;
+		}
+		#character_attack_bar {
+			background-color: rgb(156, 0, 156);
+			height: 20px;
+			animation-iteration-count: infinite;
+			animation-timing-function: linear;
+
+		}					
+
+@keyframes attack_bar_animation {
+	from {width: 0px;}
+	to {width: 100%;}
 }
 
 #enemy_count_div { 
 	width: 100%;
 	padding-top: 2px;
-	border-bottom: 1px solid white;
-}
-
-#enemy_health_value {
+	bottom: 0px;
 	position: absolute;
-	top: 27px;
-}
-
-#enemy_stats_div {
-	padding: 5px;
 }
 
 #enemy_count_content {
 	color: white;
-	width: 140px;
+	width: 50%;
+	font-size: 17;
 	padding-right: 5;
 	margin-left: auto;
 	text-align: right;
@@ -919,7 +974,6 @@ body {
 }
 
 #skill_list_div {
-	position: absolute;
 	left: 410px;
 	top: 340px;
 	width: 400px;
@@ -946,6 +1000,9 @@ body {
 
 #location_actions_div {
 	display: block;
+	width: 100%;
+	height: 100%;
+	overflow-y: scroll;
 }
 
 #location_div {
@@ -1013,7 +1070,6 @@ body {
 
 #main_content {
     position: absolute;
-	top: 35px;
 	background-image: var(--background_gradient);
 
 	/*
@@ -1071,6 +1127,8 @@ body {
 
 #trader_inventory_div {
     height: 291px;
+	width: 100%;
+	overflow-y: scroll;
 }
 
 #trade_price_div {

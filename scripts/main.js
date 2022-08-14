@@ -26,19 +26,20 @@ const stats_divs = {strength: document.getElementById("strength_slot"), agility:
                     crit_multiplier: document.getElementById("crit_multiplier_slot")
                     };
 
-const other_combat_divs = {hit_chance: document.getElementById("hit_chance_slot"), defensive_action: document.getElementById("defensive_action_slot"),
-                           defensive_action_chance: document.getElementById("defensive_action_chance_slot")
+const other_combat_divs = {offensive_points: document.getElementById("hit_chance_slot"), defensive_action: document.getElementById("defensive_action_slot"),
+                           defensive_points: document.getElementById("defensive_action_chance_slot")
                           };
 
 const skill_bar_divs = {};
 
 //current enemy
-var current_enemy = null;
-//attacks for combat
-let attack_order = 0;
+var current_enemies = null;
+
 //current location
 var current_location;
-let current_combat;
+let current_combat; 
+
+const character_attack_bar = document.getElementById("character_attack_bar");
 
 var current_activity;
 var activity_anim; //small "animation" for activity text
@@ -93,13 +94,9 @@ const current_stamina_bar = document.getElementById("character_stamina_bar_curre
 const character_xp_div = document.getElementById("character_xp_div");
 const character_level_div = document.getElementById("character_level_div");
 
-//enemy health display
-const current_enemy_health_value_div = document.getElementById("enemy_health_value");
-const current_enemy_health_bar = document.getElementById("enemy_healthbar_current");
 //enemy info
-const enemy_info_div = document.getElementById("enemy_info_div");
-const enemy_stats_div = document.getElementById("enemy_stats_div");
-const enemy_name_div = document.getElementById("enemy_name_div");
+const combat_div = document.getElementById("combat_div");
+const enemies_div = document.getElementById("enemies_div");
 
 const enemy_count_div = document.getElementById("enemy_count_div");
 
@@ -163,7 +160,6 @@ function change_location(location_name) {
 
     clearInterval(current_combat);
     current_combat = null;
-    attack_order = 0;
 
     var location = locations[location_name];
     
@@ -183,13 +179,17 @@ function change_location(location_name) {
     const previous_location = current_location;
 
     if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
-        enemy_info_div.style.display = "none";
+        combat_div.style.display = "none";
         enemy_count_div.style.display = "none";
 
-        current_enemy = null;
+        document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_default'));
+        document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_default'));
+        character_attack_bar.parentNode.style.display = "none";
+
+        current_enemies = null;
 
         if(typeof previous_location !== "undefined" && "parent_location" in previous_location) { // if previous was combat
-            clear_enemy_and_enemy_info();
+            clear_enemy();
             update_combat_stats();
         }
         
@@ -313,7 +313,13 @@ function change_location(location_name) {
 
     } else { //so if entering combat zone
         enemy_count_div.style.display = "block";
-        enemy_info_div.style.display = "block";
+        combat_div.style.display = "block";
+        character_attack_bar.parentNode.style.display = "block";
+
+        document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_combat'));
+        document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_combat'));
+
+
         enemy_count_div.children[0].children[1].innerHTML = location.enemy_count - location.enemies_killed % location.enemy_count;
 
         action = document.createElement("div");
@@ -328,7 +334,7 @@ function change_location(location_name) {
 
         action_div.appendChild(action);
 
-        current_combat = setInterval(do_combat, 500/tickrate);
+        start_combat();
     }
 
     location_name_div.innerText = current_location.name;
@@ -1231,190 +1237,280 @@ function clear_action_div() {
     }
 }
 
-function get_new_enemy(enemy) {
-    current_enemy = enemy || current_location.get_next_enemy();
-    enemy_stats_div.innerHTML = `Atk: ${current_enemy.stats.strength} | Agl: ${current_enemy.stats.agility} 
-    | Dex: ${current_enemy.stats.dexterity} | Def: ${current_enemy.stats.defense} 
-    | Atk speed: ${current_enemy.stats.attack_speed.toFixed(1)}`
+function get_new_enemies(enemies) {
+    current_enemies = enemies || current_location.get_next_enemies();
 
-    enemy_name_div.innerHTML = current_enemy.name;
 
-    update_displayed_enemy_health();
+    /*
+    for character use max attack speed (without stamina penalty), then modify the speed if stamina falls too low
+    add a small boolean to skip animationiteration event on speed change
 
-    //also show magic if not 0?
+    */
+    let character_attack_cooldown = 1/character.full_stats.attack_speed;
+    let enemy_attack_cooldowns = [...current_enemies.map(x => 1/x.stats.attack_speed)];
+
+    let fastest_cooldown = [character_attack_cooldown, ...enemy_attack_cooldowns].sort((a,b) => a - b)[0];
+
+    //scale all attacks to be not faster than 1 per second
+    if(fastest_cooldown < 1) {
+        const cooldown_multiplier = 1/fastest_cooldown;
+        
+        character_attack_cooldown *= cooldown_multiplier;
+        for(let i = 0; i < current_enemies.length; i++) {
+            enemy_attack_cooldowns[i] *= cooldown_multiplier;
+
+        }
+    }
+
+    //attach animations
+    for(let i = 0; i < current_enemies.length; i++) {
+        const attack_bar =  enemies_div.children[i].querySelector(".enemy_attack_bar");
+
+        attack_bar.style["animation-duration"] = enemy_attack_cooldowns[i] != Infinity? `${enemy_attack_cooldowns[i]}s` : `0`;
+        //disabled if attack speed was 0
+       
+        attack_bar.style["animation-name"] = "attack_bar_animation";
+    }
+
+    
+    character_attack_bar.style["animation-duration"] = `${character_attack_cooldown}s`;
+    character_attack_bar.style["animation-name"] = "attack_bar_animation";
+
+    update_displayed_enemies();
 }
 
-//single tick of fight
-function do_combat() {
-    if(current_enemy == null) {
-        get_new_enemy();
+/**
+ * sets visibility of divs for enemies (based on how many there are in current combat),
+ * and enemies' AP / DP
+ * 
+ * called when new enemies get loaded
+ */
+function update_displayed_enemies() {
+    for(let i = 0; i < 8; i++) { //go to max enemy count
+        if(i < current_enemies.length) {
+            enemies_div.children[i].children[0].style.display = null;
+            enemies_div.children[i].children[0].children[0].innerHTML = current_enemies[i].name;
+
+            const ap = current_enemies[i].stats.dexterity * Math.sqrt(current_enemies[i].stats.intuition || 1);
+            const dp = current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition || 1);
+            enemies_div.children[i].children[0].children[1].innerHTML = `AP : ${Math.round(ap)} | DP : ${Math.round(dp)}`;
+
+        } else {
+            enemies_div.children[i].children[0].style.display = "none"; //just hide it
+        }     
+    }
+
+    update_displayed_health_of_enemies();
+}
+
+/**
+ * updates displayed health and healthbars of enemies
+ */
+function update_displayed_health_of_enemies() {
+    for(let i = 0; i < current_enemies.length; i++) {
+        if(current_enemies[i].is_alive) {
+            enemies_div.children[i].children[0].style.filter = "brightness(100%)";
+        } else {
+            enemies_div.children[i].children[0].style.filter = "brightness(30%)";
+        }
+
+        //update size of health bar
+        enemies_div.children[i].children[0].children[2].children[0].children[0].style.width = 
+            Math.max(0, 100*current_enemies[i].stats.health/current_enemies[i].stats.max_health) + "%";
+
+            enemies_div.children[i].children[0].children[2].children[1].innerText = `${Math.round(current_enemies[i].stats.health)}/${Math.round(current_enemies[i].stats.max_health)} hp`;
+
+    }
+}
+
+function start_combat() {
+    if(current_enemies == null) {
+        get_new_enemies();
         update_combat_stats();
-        attack_order = 0;
+    }
+}
+
+/**
+ * performs a single combat action (that is attack, as there isn't really any other kind for now),
+ * called when attack cooldown finishes
+ * 
+ * @param attacker combatant performing the action
+*/ 
+function do_enemy_combat_action(enemy_id) {
+    const attacker = current_enemies[enemy_id];
+
+    const enemy_base_damage = attacker.stats.attack;
+
+    let damage_dealt;
+
+    let critted = false;
+
+    let partially_blocked = false; //only used for combat info in message log
+
+    damage_dealt = enemy_base_damage * (1.2 - Math.random() * 0.4); //basic 20% deviation for damage
+
+
+    if(character.equipment["off-hand"]?.offhand_type === "shield") { //HAS SHIELD
+        if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
+            add_xp_to_skill(skills["Shield blocking"], attacker.xp_value, true);
+            if(character.equipment["off-hand"].getShieldStrength() >= damage_dealt) {
+                log_message(character.name + " blocked an attack");
+                return; //damage fully blocked, nothing more can happen 
+            } else {
+                damage_dealt -= character.equipment["off-hand"].getShieldStrength();
+                partially_blocked = true;
+            }
+         }
+    } else { // HAS NO SHIELD
+        const evasion_chance = character.combat_stats.evasion_points / (attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1) * 4);
+
+        if(evasion_chance > Math.random()) { //EVADED ATTACK
+            add_xp_to_skill(skills["Evasion"], attacker.xp_value, true);
+            log_message(character.name + " evaded an attack");
+            return; //damage fully evaded, nothing more can happen
+        }
+    }
+
+    if(enemy_crit_chance > Math.random())
+    {
+        damage_dealt *= enemy_crit_damage;
+        critted = true;
+    }
+
+    let {damage_taken, fainted} = character.take_damage({damage_value: damage_dealt});
+
+    if(critted)
+    {
+        if(partially_blocked) {
+            log_message(character.name + " partially blocked, critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
+        } 
+        else {
+            log_message(character.name + " critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
+        }
+    } else {
+        if(partially_blocked) {
+            log_message(character.name + " partially blocked, hit for " + damage_taken + " dmg", "hero_attacked");
+        }
+        else {
+            log_message(character.name + " hit for " + damage_taken + " dmg", "hero_attacked");
+        }
+    }
+
+    if(fainted) {
+        log_message(character.name + " has lost consciousness", "hero_defeat");
+
+        update_displayed_health();
+        current_enemies = null;
+        change_location(current_location.parent_location.name);
         return;
     }
 
-    //todo: separate formulas for physical and magical weapons?
-    //and also need magic weapons before that...
+    update_displayed_health();
+}
 
-    var hero_base_damage = character.get_attack_power();
-    var enemy_base_damage = current_enemy.stats.strength;
+function do_character_combat_action() {
 
-    var damage_dealt;
+    //todo: attack types with different stamina costs
 
-    var critted;
+    use_stamina(); //use it before action
+    const hero_base_damage = character.get_attack_power();
 
-    var partially_blocked;
-    
-    if(attack_order > 0 || attack_order == 0 && character.get_attack_speed() > current_enemy.stats.attack_speed) { //the hero attacks the enemy
-        attack_order -= current_enemy.stats.attack_speed;
-        use_stamina();
+    let damage_dealt;
 
-        add_xp_to_skill(skills["Combat"], current_enemy.xp_value, true);
-        if(current_enemy.size === "small") {
-            add_xp_to_skill(skills["Pest killer"], current_enemy.xp_value, true);
-        } else if(current_enemy.size === "large") {
-            add_xp_to_skill(skills["Giant slayer"], current_enemy.xp_value, true);
-        }
-
-        if(character.combat_stats.hit_chance > Math.random()) {//hero's attack hits
-
-            if(character.equipment.weapon != null) {
-                damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) 
-                                            * skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient())/10;
+    let critted = false;
 
 
-                add_xp_to_skill(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`], current_enemy.xp_value, true); 
-            } else {
-                damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) * skills['Unarmed'].get_coefficient())/10;
-                add_xp_to_skill(skills['Unarmed'], current_enemy.xp_value, true);
-            }
-            //small randomization by up to 20%, then bonus from skill
-            
-            if(character.full_stats.crit_rate > Math.random()) {
-                damage_dealt = Math.round(10*damage_dealt * character.full_stats.crit_multiplier)/10;
-                critted = true;
-            }
-            else {
-                critted = false;
-            }
-            
-            damage_dealt = Math.max(Math.round(10*(damage_dealt - current_enemy.stats.defense))/10, 1);
+    //TODO: when multi-target attacks are added, calculate this in a loop, separetely for each enemy that can be hit
 
-            current_enemy.stats.health -= damage_dealt;
-            if(critted) {
-                log_message(current_enemy.name + " was critically hit for " + damage_dealt + " dmg", "enemy_attacked_critically");
-            }
-            else {
-                log_message(current_enemy.name + " was hit for " + damage_dealt + " dmg", "enemy_attacked");
-            }
+    const target = current_enemies.filter(enemy => enemy.is_alive).slice(-1).pop(); //get bottom-most of alive enemies
+    const hit_chance = character.combat_stats.attack_points / (target.stats.agility * Math.sqrt(target.stats.intuition ?? 1) * 2);
 
-            if(current_enemy.stats.health <= 0) {
-                current_enemy.stats.health = 0; 
-                update_displayed_enemy_health();
-                //just to not go negative on displayed health
-
-                log_message(character.name + " has defeated " + current_enemy.name, "enemy_defeated");
-                add_xp_to_character(current_enemy.xp_value, true);
-
-                var loot = current_enemy.get_loot();
-                if(loot.length > 0) {
-                    log_loot(loot);
-                    add_to_inventory("character", loot);
-                }
-                current_location.enemies_killed += 1;
-                if(current_location.enemies_killed > 0 && current_location.enemies_killed % current_location.enemy_count == 0) {
-                    get_location_rewards(current_location);
-                } 
-
-                enemy_count_div.children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemies_killed % current_location.enemy_count;
-
-                current_enemy = null;
-                attack_order = 0;
-                return;
-            }
-
-            update_displayed_enemy_health();
-        } else {
-            log_message(character.name + " has missed");
-        }
-    } else { //the enemy attacks the hero
-        attack_order += character.get_attack_speed();
-
-        damage_dealt = enemy_base_damage * (1.2 - Math.random() * 0.4);
-        partially_blocked = false;
-
-
-        if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
-            if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
-                add_xp_to_skill(skills["Shield blocking"], current_enemy.xp_value, true);
-                if(character.equipment["off-hand"].getShieldStrength() >= damage_dealt) {
-                    log_message(character.name + " has blocked the attack");
-                    return; //damage fully blocked, nothing more can happen 
-                } else {
-                    damage_dealt -= character.equipment["off-hand"].getShieldStrength();
-                    partially_blocked = true;
-                }
-             }
-        }
-        else { // HAS NO SHIELD
-
-            use_stamina()
-            
-            if(character.combat_stats.evasion_chance > Math.random()) { //EVADED ATTACK
-                add_xp_to_skill(skills["Evasion"], current_enemy.xp_value, true);
-                log_message(character.name + " has evaded the attack");
-                return; //damage fully evaded, nothing more can happen
-            }
-        }
-        
-        let critted = false;
-        if(enemy_crit_chance > Math.random())
-        {
-            damage_dealt *= enemy_crit_damage;
-            critted = true;
-        }
-
-        let {damage_taken, fainted} = character.take_damage({damage_value: damage_dealt});
-
-        if(critted)
-        {
-            if(partially_blocked) {
-                log_message(character.name + " partially blocked the attack, but was critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
-            } 
-            else {
-                log_message(character.name + " was critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
-            }
-        } else {
-            if(partially_blocked) {
-                log_message(character.name + " partially blocked the attack and was hit for " + damage_taken + " dmg", "hero_attacked");
-            }
-            else {
-                log_message(character.name + " was hit for " + damage_taken + " dmg", "hero_attacked");
-            }
-        }
-
-        if(fainted) {
-            log_message(character.name + " has lost consciousness", "hero_defeat");
-
-            update_displayed_health();
-            current_enemy = null;
-            change_location(current_location.parent_location.name);
-            return;
-        }
-        update_displayed_health();
+    add_xp_to_skill(skills["Combat"], target.xp_value, true);
+    if(target.size === "small") {
+        add_xp_to_skill(skills["Pest killer"], target.xp_value, true);
+    } else if(target.size === "large") {
+        add_xp_to_skill(skills["Giant slayer"], target.xp_value, true);
     }
 
-    /* 
-     enemy is in a global variable
-     if killed, uses method of Location object to assign a random new enemy (of ones in Location) to that variable;
-    
-     attack dmg either based on strength + weapon stat, or some magic stuff?
-     maybe some weapons will be str based and will get some small bonus from magic if player has proper skill unlocked
-     (something like "weapon aura"), while others (wands and staffs) will be based purely on magic
-     single stat "magic" + multiple related skills?
-     also should offer a bit better scaling than strength, so worse at beginning but later on gets better?
-     also a magic resistance skill for player
-     */
+    if(hit_chance > Math.random()) {//hero's attack hits
+
+        if(character.equipment.weapon != null) {
+            damage_dealt = Math.round(
+                                        10 * hero_base_damage * (1.2 - Math.random() * 0.4) 
+                                        * skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient()
+                                     )/10;
+
+
+            add_xp_to_skill(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`], target.xp_value, true); 
+
+        } else {
+            damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) * skills['Unarmed'].get_coefficient())/10;
+            add_xp_to_skill(skills['Unarmed'], target.xp_value, true);
+        }
+        //small randomization by up to 20%, then bonus from skill
+        
+        if(character.full_stats.crit_rate > Math.random()) {
+            damage_dealt = Math.round(10*damage_dealt * character.full_stats.crit_multiplier)/10;
+            critted = true;
+        }
+        else {
+            critted = false;
+        }
+        
+        damage_dealt = Math.max(Math.round(10*(damage_dealt - target.stats.defense))/10, 1);
+
+        target.stats.health -= damage_dealt;
+        if(critted) {
+            log_message(target.name + " critically hit for " + damage_dealt + " dmg", "enemy_attacked_critically");
+        }
+        else {
+            log_message(target.name + " hit for " + damage_dealt + " dmg", "enemy_attacked");
+        }
+
+        if(target.stats.health <= 0) {
+            target.stats.health = 0; //to not go negative on displayed value
+
+            log_message(target.name + " was defeated", "enemy_defeated");
+            add_xp_to_character(target.xp_value, true);
+
+            var loot = target.get_loot();
+            if(loot.length > 0) {
+                log_loot(loot);
+                add_to_inventory("character", loot);
+            }
+            
+            const finished_group = kill_enemy(target);
+            if(finished_group) {
+
+                current_location.enemies_killed += 1;
+
+                if(current_location.enemies_killed > 0 && current_location.enemies_killed % current_location.enemy_count == 0) {
+                    get_location_rewards(current_location);
+
+                } 
+                enemy_count_div.children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemies_killed % current_location.enemy_count;
+                get_new_enemies();
+                return;
+            }
+        }
+
+        update_displayed_health_of_enemies();
+    } else {
+        log_message(character.name + " has missed");
+    }
+}
+
+/**
+ * sets enemy to dead, disabled their attack, checks if that was the last enemy in group
+ * @param {Enemy} enemy 
+ * @return {Boolean} if that was the last of an enemy group
+ */
+function kill_enemy(target) {
+    target.is_alive = false;
+    const enemy_id = current_enemies.findIndex(enemy => enemy===target);
+    combat_div.children[0].children[enemy_id].querySelector(".enemy_attack_bar").style["animation-duration"] = "0s";
+
+    return current_enemies.filter(enemy => enemy.is_alive).length == 0; 
 }
 
 function use_stamina(num) {
@@ -1758,17 +1854,8 @@ function update_displayed_stamina() { //call it when eating, resting or fighting
     current_stamina_bar.style.width = (character.full_stats.stamina*100/character.full_stats.max_stamina).toString() +"%";
 }
 
-function update_displayed_enemy_health() { //call it when getting new enemy and when enemy gets hit
-    current_enemy_health_value_div.innerHTML = (Math.round(current_enemy.stats.health*10)/10) + "/" + current_enemy.stats.max_health + " hp";
-    current_enemy_health_bar.style.width =  (current_enemy.stats.health*100/current_enemy.stats.max_health).toString() +"%";
-}
-
-function clear_enemy_and_enemy_info() {
-    current_enemy = null;
-    current_enemy_health_value_div.innerHTML = "0";
-    current_enemy_health_bar.style.width = "100%";
-    enemy_stats_div.innerHTML = `Str: 0 | Agl: 0 | Dex: 0 | Def: 0 | Magic: 0 | Atk speed: 0;`
-    enemy_name_div.innerHTML = "None";
+function clear_enemy() {
+    current_enemies = null;
 }
 
 /**
@@ -2309,67 +2396,35 @@ function update_displayed_stats() { //updates displayed stats
     });
 }
 /**
- * updates character stats that depend on enemy, so hit chance and evasion/block
+ * updates character stats related to combat
  */
-function update_combat_stats() { //chances to hit and evade/block
+function update_combat_stats() {
     if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
-        character.combat_stats.evasion_chance = null;
+        character.combat_stats.evasion_points = null;
         character.combat_stats.block_chance = Math.round(0.4 * skills["Shield blocking"].get_coefficient("flat") * 10000)/10000;
     }
 
-    if(current_enemy != null) { //IN COMBAT
+    character.combat_stats.attack_points = Math.sqrt(character.full_stats.intuition) * character.full_stats.dexterity * skills["Combat"].get_coefficient("multiplicative");
 
-        let hit_bonus;
-        let evasion_bonus;
-        if(current_enemy.size === "small") {
-            hit_bonus = skills["Pest killer"].get_coefficient("multiplicative");
-        } else if(current_enemy.size === "large") {
-            evasion_bonus = skills["Giant slayer"].get_coefficient("multiplicative");
-        }
+    if(character.equipment["off-hand"] == null || character.equipment["off-hand"].offhand_type !== "shield") {
+        character.combat_stats.evasion_points = character.full_stats.agility * Math.sqrt(character.full_stats.intuition) * skills["Evasion"].get_coefficient("multiplicative");
 
-        character.combat_stats.hit_chance = Math.min(1, Math.sqrt(character.full_stats.intuition) * character.full_stats.dexterity/current_enemy.stats.agility 
-                                            * 0.25 * skills["Combat"].get_coefficient("multiplicative") * (hit_bonus || 1));
-
-        //so 100% if at least four times more dexterity, 50% if same, can go down almost to 0%
-
-        if(character.equipment["off-hand"] == null || character.equipment["off-hand"].offhand_type !== "shield") {
-            const power = character.full_stats.agility > current_enemy.stats.dexterity ? 2/3 : 1
-            character.combat_stats.evasion_chance = Math.min(1, Math.pow(0.25*character.full_stats.agility/current_enemy.stats.dexterity, power) * Math.sqrt(character.full_stats.intuition)
-                                                    * 0.25 * skills["Evasion"].get_coefficient("multiplicative") * (evasion_bonus || 1));
-
-            //so up to 100% if at least eight times more agility, 25% if same, can go down almost to 0%
-        }
-    } 
-    else {
-        character.combat_stats.hit_chance = null;
-        character.combat_stats.evasion_chance = null;
     }
 
     update_displayed_combat_stats();
 }
 
 function update_displayed_combat_stats() {
-    if(current_enemy != null) {
-        other_combat_divs.hit_chance.innerHTML = `${(character.combat_stats.hit_chance*100).toFixed(1)}%`;
-    }
-    else {
-        other_combat_divs.hit_chance.innerHTML = "";
-    }
+
+    other_combat_divs.offensive_points.innerHTML = `${Math.round(character.combat_stats.attack_points)}`;
 
     if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
-
-        other_combat_divs.defensive_action.innerHTML = "Block:";
-        other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.block_chance*100).toFixed(1)}%`;
-
+        other_combat_divs.defensive_action.innerHTML = "Block :";
+        other_combat_divs.defensive_points.innerHTML = `${(character.combat_stats.block_chance*100).toFixed(1)}%`;
     }
-    else {
-        other_combat_divs.defensive_action.innerHTML = "Evasion:";
-        if(current_enemy != null) {
-            other_combat_divs.defensive_action_chance.innerHTML = `${(character.combat_stats.evasion_chance*100).toFixed(1)}%`;
-        }
-        else {
-            other_combat_divs.defensive_action_chance.innerHTML = "";
-        }
+    else { //NO SHIELD
+        other_combat_divs.defensive_action.innerHTML = "EP : ";
+        other_combat_divs.defensive_points.innerHTML = `${Math.round(character.combat_stats.evasion_points)}`;
     }
 }
 
@@ -2469,14 +2524,6 @@ function create_save() {
         
         save_data["current location"] = current_location.name;
 
-        if(current_enemy == null) {
-            save_data["current enemy"] = null;
-        } 
-        else {
-            save_data["current enemy"] = {name: current_enemy.name, stats: current_enemy.stats}; 
-            //no need to save everything, just name + stats -> get enemy from template and change stats to those saved
-        }
-
         save_data["locations"] = {};
         Object.keys(locations).forEach(function(key) { 
             save_data["locations"][key] = {};
@@ -2564,6 +2611,8 @@ function save_to_localStorage(is_manual) {
 
 function load(save_data) {
     //single loading method
+    
+    //current enemies are not saved
 
     //TODO: some loading screen
     try{
@@ -2573,12 +2622,6 @@ function load(save_data) {
 
         name_field.value = save_data.character.name;
         character.name = save_data.character.name;
-
-        if(save_data["current enemy"] != null) { 
-            current_enemy = new Enemy(enemy_templates[save_data["current enemy"].name]);
-            current_enemy.stats = save_data["current enemy"].stats; 
-            get_new_enemy(current_enemy);
-        } //load enemy
 
         Object.keys(save_data.character.equipment).forEach(function(key){
             if(save_data.character.equipment[key] != null) {
@@ -3139,6 +3182,9 @@ window.format_money = format_money;
 window.get_character_money = get_character_money;
 
 window.use_item = use_item;
+
+window.do_enemy_combat_action = do_enemy_combat_action;
+window.do_character_combat_action = do_character_combat_action;
 
 window.sort_displayed_inventory = sort_displayed_inventory;
 window.update_displayed_inventory = update_displayed_inventory;
