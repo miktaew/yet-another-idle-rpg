@@ -624,7 +624,7 @@ body {
 
 #basic_character_info_div {
     width: 400px;
-    height: 120px;
+    height: 130px;
     z-index: 100;
 }
 
@@ -673,16 +673,13 @@ body {
 	left: 140px;
 }
 
-#character_health_div {
-	padding-top: 25px;
-}
-
 #character_healthbar_max {
 	outline: 2px solid rgb(199, 0, 0);
 	background-color: rgba(255, 46, 46, 0.3);
 	margin: auto;
 	width: 85%;
-	height: 14px;
+	height: 16px;
+	margin-top: 10px;
 }
 #character_healthbar_current {
 	background-color: rgb(255, 46, 46);
@@ -700,8 +697,8 @@ body {
 #character_health_value {
 	position: absolute;
 	width: 400px;
-	top: 24px;
-	font-size: 15;
+	top: 102px;
+	font-size: 18;
 }
 #character_health_text {
 	text-align: left; margin-left: 28px;
@@ -720,7 +717,7 @@ body {
 	outline: 2px solid rgb(0, 0, 127);
 	margin: auto;
 	width: 85%;
-	margin-top: 10px;
+	margin-top: 9px;
 	height: 15px;
 	background-color: rgba(0, 0, 255, 0.3);
 }
@@ -735,7 +732,7 @@ body {
 	position: absolute;
 	font-size: 15;
 	width: 400px;
-	top: 72px;
+	top: 77px;
 	text-align: center;
 }
 
@@ -743,7 +740,7 @@ body {
 	outline: 2px solid rgb(0, 127, 0);
 	margin: auto;
 	width: 85%;
-	margin-top: 10px;
+	margin-top: 9px;
 	height: 15px;
 	background-color: rgba(0, 255, 0, 0.3);
 }
@@ -756,7 +753,7 @@ body {
 #character_stamina_value {
 	position: absolute;
 	width: 400px;
-	top: 48px;
+	top: 53px;
 	text-align: center;
 	font-size: 15;
 }
@@ -764,7 +761,7 @@ body {
 #character_xp_bar_max {
 	outline: 2px solid rgb(255, 126, 0);
 	margin: auto;
-	margin-top: 10px;
+	margin-top: 30px;
 	width: 85%;
 	height: 15px;
 	background-color: rgba(255, 165, 0, 0.3);
@@ -779,7 +776,7 @@ body {
 	position: absolute;
 	font-size: 15;
 	width: 400px;
-	top: 98px;
+	top: 29px;
 	text-align: center;
 }
 
@@ -812,16 +809,16 @@ body {
 }
 		#character_effects_character_page {
 			position: absolute;
-			top: 166px;
+			top: 168px;
 			left: 100px;
 		}
 		#character_effects_area_page {
 			position: absolute;
-			top: 106px;
+			top: 115px;
 			left: 0px;
-			width: 390px;
+			width: 396px;
 			border-top: 0px;
-			padding: 5px;
+			padding: 2px;
 		}
 				#character_effects_area_page div {
 					margin: auto;

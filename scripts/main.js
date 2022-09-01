@@ -1339,6 +1339,14 @@ function start_combat() {
 function do_enemy_combat_action(enemy_id) {
     const attacker = current_enemies[enemy_id];
 
+    let evasion_chance_modifier = current_enemies.length**(-1/3); //down to .5 if there's full 8 enemies (multiple attackers make it harder to evade attacks)
+    if(attacker.size === "small") {
+        add_xp_to_skill(skills["Pest killer"], attacker.xp_value, true);
+    } else if(attacker.size === "large") {
+        add_xp_to_skill(skills["Giant slayer"], attacker.xp_value, true);
+        evasion_chance_modifier *= skills["Giant slayer"].get_coefficient("multiplicative");
+    }
+
     const enemy_base_damage = attacker.stats.attack;
 
     let damage_dealt;
@@ -1362,7 +1370,7 @@ function do_enemy_combat_action(enemy_id) {
             }
          }
     } else { // HAS NO SHIELD
-        const evasion_chance = character.combat_stats.evasion_points / (attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1) * 4);
+        const evasion_chance = (character.combat_stats.evasion_points / (attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1) * 4)) * evasion_chance_modifier;
 
         if(evasion_chance > Math.random()) { //EVADED ATTACK
             add_xp_to_skill(skills["Evasion"], attacker.xp_value, true);
@@ -1421,16 +1429,22 @@ function do_character_combat_action() {
 
 
     //TODO: when multi-target attacks are added, calculate this in a loop, separetely for each enemy that can be hit
+    //TODO: when single-target attack kills target, deal the remaining dmg (basically the remaining negative hp that the target has) to next target
+
 
     const target = current_enemies.filter(enemy => enemy.is_alive).slice(-1).pop(); //get bottom-most of alive enemies
-    const hit_chance = character.combat_stats.attack_points / (target.stats.agility * Math.sqrt(target.stats.intuition ?? 1) * 2);
+    
 
+    let hit_chance_modifier = 1;
     add_xp_to_skill(skills["Combat"], target.xp_value, true);
     if(target.size === "small") {
         add_xp_to_skill(skills["Pest killer"], target.xp_value, true);
+        hit_chance_modifier = skills["Pest killer"].get_coefficient("multiplicative");
     } else if(target.size === "large") {
         add_xp_to_skill(skills["Giant slayer"], target.xp_value, true);
     }
+
+    const hit_chance = (character.combat_stats.attack_points / (target.stats.agility * Math.sqrt(target.stats.intuition ?? 1) * 2)) * hit_chance_modifier;
 
     if(hit_chance > Math.random()) {//hero's attack hits
 
