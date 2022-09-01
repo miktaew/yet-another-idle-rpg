@@ -416,7 +416,7 @@ skill_groups["weapon skills"] = new SkillGroup({
     
     skills["Pest killer"] = new Skill({skill_id: "Pest killer", 
                                 names: {0: "Pest killer"}, 
-                                description: "Ability to fight against much smaller opponents. It's not that easy to hit them!", 
+                                description: "Small enemies might not seem very dangerous, but it's not that easy to hit them!", 
                                 max_level_coefficient: 2,
                                 get_effect_description: ()=> {
                                     return `Multiplies hit chance against small-type enemies by ${Math.round(skills["Pest killer"].get_coefficient("multiplicative")*1000)/1000}`;
@@ -424,7 +424,7 @@ skill_groups["weapon skills"] = new SkillGroup({
                                 
     skills["Giant slayer"] = new Skill({skill_id: "Giant slayer", 
                                 names: {0: "Giant slayer"}, 
-                                description: "Ability to fight against much bigger opponents. Just don't get hit and you should be fine!", 
+                                description: "Large opponents might seem scary, but just don't get hit and you should be fine!", 
                                 max_level_coefficient: 2,
                                 get_effect_description: ()=> {
                                     return `Multiplies evasion against large-type enemies by ${Math.round(skills["Giant slayer"].get_coefficient("multiplicative")*1000)/1000}`;
