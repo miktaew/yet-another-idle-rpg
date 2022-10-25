@@ -122,7 +122,6 @@ body {
 
  .message_location_unlocked {
 	 font-weight: bold;
-
  }
 
  .action_travel, .start_dialogue, .dialogue_trade, .start_activity, #action_status_div, #action_end_div {
@@ -243,7 +242,7 @@ body {
 	padding: 5px;
 	position: absolute;
 	z-index: 10;
-	width: 200px;
+	width: 300px;
 	pointer-events: none;
 	top: var(--stat_tooltip_top);
 	left: var(--stat_tooltip_left);
@@ -481,6 +480,27 @@ body {
 	background-color: #2c3953;
 }
 
+.game_info a{
+	width: fit-content;
+	padding: 10px 10px;
+	height: 20px;
+	background-image: linear-gradient(to left, #232f47, #15152d);
+	color: white;
+	cursor: pointer;
+	text-align: center;
+	display: inline-block;
+	text-decoration: none;
+
+}
+
+i {
+	vertical-align: -4px;
+} 
+
+#bottom_panel_div i{
+	margin-top: -3px;
+}
+
 .trader_category_button {
 	float:left;
 	padding: 3px 0px 3px 0px;
@@ -553,7 +573,7 @@ body {
 
 #page_selection {
 	position: absolute;
-	top: 775px;
+	top: 5px;
 	width: 1241px;
 }
 
@@ -920,7 +940,6 @@ body {
 			height: 20px;
 			animation-iteration-count: infinite;
 			animation-timing-function: linear;
-
 		}					
 
 @keyframes attack_bar_animation {
@@ -1057,7 +1076,6 @@ body {
 }
 
 #main_controller {
-	height: 40px;
     margin-bottom: 5px;
     display: flex;
 	height: 40px;
@@ -1068,10 +1086,11 @@ body {
 #main_content {
     position: absolute;
 	background-image: var(--background_gradient);
+	top: 40px;
 
 	/*
-	kinda necessary to set size, just for background piece to render properly,
-	as all childs are set to position: absolute so they are not in the flow
+	kinda necessary to set size, just for background gradient to render properly,
+	as all childs are set to `position: absolute` so they are not in the flow (so they dont affect the size)
 	*/
 	width: 1241px;
 	height: 766px;
@@ -1108,14 +1127,6 @@ body {
 
 #start_sleeping_div:hover, #action_end_div:hover, #end_sleeping_div:hover {
 	background-color: #2c3953;
-}
-
-#test_button {
-	position: absolute;
-	width: 60px;
-	height: 60px;
-	background-color: silver;
-	bottom: 50px;
 }
 
 #trade_div {

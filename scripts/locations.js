@@ -1,13 +1,12 @@
-import {enemy_templates, Enemy} from "./enemies.js";
+import { enemy_templates, Enemy } from "./enemies.js";
 import { dialogues } from "./dialogues.js";
-import { activities } from "./activities.js";
 const locations = {};
-//will contain all the locations
+//contains all the created locations
 
 /*
 TODO:
     - additional property, an object with all "properties" that the area has 
-    (keys as "dark", "narrow", "cold" and their values simply as boolean)
+    (stuff like "dark", "narrow", "cold")
     only for combat zones maybe?
     for some kind of nightvision skill, "dark" and "bright" would mean it's like that all the time, while lack of them both
     would indicate it follows the day-night cycle
@@ -62,19 +61,19 @@ class Combat_zone {
         if(!this.enemy_groups_list){
             if(this.enemy_group_size[0] < 1) {
                 this.enemy_group_size[0] = 1;
-                console.warn(`Minimum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[0]} and was corrected to lowest value possible of 1`);
+                console.error(`Minimum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[0]} and was corrected to lowest value possible of 1`);
             }
             if(this.enemy_group_size[0] > 6) {
                 this.enemy_group_size[0] = 6;
-                console.warn(`Minimum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[0]} and was corrected to highest value possible of 6`);
+                console.error(`Minimum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[0]} and was corrected to highest value possible of 6`);
             }
             if(this.enemy_group_size[1] < 1) {
                 this.enemy_group_size[1] = 1;
-                console.warn(`Maximum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[1]} and was corrected to lowest value possible of 1`);
+                console.error(`Maximum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[1]} and was corrected to lowest value possible of 1`);
             }
             if(this.enemy_group_size[1] < 1) {
                 this.enemy_group_size[1] = 1;
-                console.warn(`Maximum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[1]} and was corrected to highest value possible of 6`);
+                console.error(`Maximum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[1]} and was corrected to highest value possible of 6`);
             }
         }
         this.enemy_count = enemy_count; //how many enemy groups need to be killed for the clearing reward
@@ -88,7 +87,7 @@ class Combat_zone {
         this.enemy_stat_variation = enemy_stat_variation; // e.g. 0.1 means each stat can go 10% up/down from base value; random for each enemy in group
         if(this.enemy_stat_variation < 0) {
             this.enemy_stat_variation = 0;
-            console.warn(`Stat variation for enemies in zone "${this.name}" is set to unallowed value and was corrected to a default 0`);
+            console.error(`Stat variation for enemies in zone "${this.name}" is set to unallowed value and was corrected to a default 0`);
         }
 
         this.parent_location = parent_location;
@@ -112,57 +111,116 @@ class Combat_zone {
         e.g. due to environment, i.e. night vision skill in dark areas
         [{skill_name, xp gained}]
         */
-
-        this.get_next_enemies = function () {
-
-            const enemies = [];
-            let enemy_group = [];
-
-            if(this.enemy_groups_list.length > 0) { // PREDEFINED GROUPS EXIST
-
-                const index = Math.floor(Math.random() * this.enemy_groups_list.length);
-                enemy_group = this.enemy_groups_list[index]; //names
-
-            } else {  // PREDEFINED GROUPS DON'T EXIST
-
-                const group_size = this.enemy_group_size[0] + Math.floor(Math.random() * (this.enemy_group_size[1] - this.enemy_group_size[0]));
-                for(let i = 0; i < group_size; i++) {
-                    enemy_group.push(this.enemies_list[Math.floor(Math.random() * this.enemies_list.length)]);
-                }
-            }
-                
-            for(let i = 0; i < enemy_group.length; i++) {
-                const enemy = enemy_templates[enemy_group[i]];
-                let newEnemy;
-                if(this.enemy_stat_variation != 0) {
-
-                    const variation = Math.random() * this.enemy_stat_variation;
-
-                    const base = 1 + variation;
-                    const vary = 2 * variation;
-                    newEnemy = new Enemy({name: enemy.name, description: enemy.description, xp_value: enemy.xp_value,
-                                                stats: {
-                                                    health: Math.round(enemy.stats.health * (base - Math.random() * vary)),
-                                                    attack: Math.round(enemy.stats.attack * (base - Math.random() * vary)),
-                                                    agility: Math.round(enemy.stats.agility * (base - Math.random() * vary)),
-                                                    dexterity: Math.round(enemy.stats.dexterity * (base - Math.random() * vary)),
-                                                    magic: Math.round(enemy.stats.magic * (base - Math.random() * vary)),
-                                                    intuition: Math.round(enemy.stats.intuition * (base - Math.random() * vary)),
-                                                    attack_speed: Math.round(enemy.stats.attack_speed * (base - Math.random() * vary) * 100) / 100,
-                                                    defense: Math.round(enemy.stats.defense * (base - Math.random() * vary))
-                                                },
-                                                loot_list: enemy.loot_list,
-                                            });
-
-                } else {
-                    newEnemy = structuredClone(enemy);
-                }
-                newEnemy.is_alive = true;
-                enemies.push(newEnemy); 
-            }
-            return enemies;
-        };
     }
+
+    get_next_enemies() {
+
+        const enemies = [];
+        let enemy_group = [];
+
+        if(this.enemy_groups_list.length > 0) { // PREDEFINED GROUPS EXIST
+
+            const index = Math.floor(Math.random() * this.enemy_groups_list.length);
+            enemy_group = this.enemy_groups_list[index]; //names
+
+        } else {  // PREDEFINED GROUPS DON'T EXIST
+
+            const group_size = this.enemy_group_size[0] + Math.floor(Math.random() * (this.enemy_group_size[1] - this.enemy_group_size[0]));
+            for(let i = 0; i < group_size; i++) {
+                enemy_group.push(this.enemies_list[Math.floor(Math.random() * this.enemies_list.length)]);
+            }
+        }
+ 
+        for(let i = 0; i < enemy_group.length; i++) {
+            const enemy = enemy_templates[enemy_group[i]];
+            let newEnemy;
+            if(this.enemy_stat_variation != 0) {
+
+                const variation = Math.random() * this.enemy_stat_variation;
+
+                const base = 1 + variation;
+                const vary = 2 * variation;
+                newEnemy = new Enemy({name: enemy.name, description: enemy.description, xp_value: enemy.xp_value,
+                                            stats: {
+                                                health: Math.round(enemy.stats.health * (base - Math.random() * vary)),
+                                                attack: Math.round(enemy.stats.attack * (base - Math.random() * vary)),
+                                                agility: Math.round(enemy.stats.agility * (base - Math.random() * vary)),
+                                                dexterity: Math.round(enemy.stats.dexterity * (base - Math.random() * vary)),
+                                                magic: Math.round(enemy.stats.magic * (base - Math.random() * vary)),
+                                                intuition: Math.round(enemy.stats.intuition * (base - Math.random() * vary)),
+                                                attack_speed: Math.round(enemy.stats.attack_speed * (base - Math.random() * vary) * 100) / 100,
+                                                defense: Math.round(enemy.stats.defense * (base - Math.random() * vary))
+                                            },
+                                            loot_list: enemy.loot_list,
+                                        });
+
+            } else {
+                newEnemy = new Enemy({name: enemy.name, description: enemy.description, xp_value: enemy.xp_value,
+                    stats: {
+                        health: enemy.stats.health,
+                        attack: enemy.stats.attack,
+                        agility: enemy.stats.agility,
+                        dexterity: enemy.stats.dexterity,
+                        magic: enemy.stats.magic,
+                        intuition: enemy.stats.intuition,
+                        attack_speed: enemy.stats.attack_speed,
+                        defense: enemy.stats.defense
+                    },
+                    loot_list: enemy.loot_list,
+                });
+            }
+            newEnemy.is_alive = true;
+            enemies.push(newEnemy); 
+        }
+        return enemies;
+    }
+}
+
+class LocationActivity{
+    constructor({activity, 
+                 starting_text, 
+                 payment = {min: 1, max: 1}, 
+                 is_unlocked = true, 
+                 working_period = 60,
+                 infinite = false,
+                 availability_time,
+                 skill_xp_per_tick = 1,
+                 skill_affects = "PAYMENT"
+                 }) 
+    {
+        this.activity = activity; //name of activity from activities.js
+        this.starting_text = starting_text; //text displayed on button to start action
+
+        if(payment?.min < 0) {
+            this.payment.min = 0;
+            console.error("Minimum job payment cannot be less than 0 and was corrected to 0");
+        }
+        if(this.payment?.max <= 0) {
+            this.payment.max = 1;
+            console.error("Maximum job payment needs to be more than 0 and was corrected to 1")
+        }
+        this.payment = payment; // if exists -> min and max possible payment
+        this.is_unlocked = is_unlocked;
+        this.working_period = working_period; //if exists -> time that needs to be worked to earn anything; only for jobs
+        this.infinite = infinite; //if true -> can be done 24/7, otherwise requires availability time
+        if(this.infinite && availability_time) {
+            console.error("Activity is set to be available all the time, so availability_time value will be ignored!");
+        }
+        if(!this.infinite && !availability_time) {
+            throw new Error("LocationActivities that are not infinitely available, require a specified time of availability!");
+        }
+        this.availability_time = availability_time; //if not infinite -> hours between which it's available
+        
+        this.skill_xp_per_tick = skill_xp_per_tick; //skill xp gained per game tick (default -> 1 in-game minute)
+
+        //skill_affects => what's affected by related skill; currently only earnings
+        if(skill_affects && skill_affects !== "PAYMENT")
+        {
+            console.error(`LocationActivity cannot currently have skill affect the "${skill_affects}"!`);
+        } else {
+            this.skill_affects = skill_affects; 
+        }
+        }
 }
 
 //create locations and zones
@@ -220,6 +278,7 @@ class Combat_zone {
         enemy_count: 30, 
         enemies_list: ["Starving wolf rat", "Wolf rat"],
         enemy_group_size: [5,8],
+        enemy_stat_variation: 0.2,
         is_unlocked: true, 
         name: "Cave depths", 
         leave_text: "Climb out",
@@ -265,31 +324,28 @@ class Combat_zone {
 //add activities
 (function(){
     locations["Village"].activities = [
-        {
+        new LocationActivity({
             activity: "plowing the fields",
             starting_text: "Work on the fields",
-            payment: 1, 
+            payment: {min: 1, max: 3},
             is_unlocked: false,
             working_period: 60*2,
-            max_working_time: 60*12, //both are ticks, so 2 and 12 in-game hours
-            //with both the same, getting money requires working full time
-            //otherwise, money will be accumulated per each finished period
-            availability_time: {start: 6, end: 20}, //in-game hours of when job is available
+            availability_time: {start: 6, end: 20},
             skill_xp_per_tick: 1, 
             skill_affects: "PAYMENT",
-        },
-        {
+        }),
+        new LocationActivity({
             activity: "running",
+            infinite: true,
             starting_text: "Go for a run around the village",
             skill_xp_per_tick: 1,
             is_unlocked: true,
-        }
+        })
     ];
 })();
 
 
 export {locations};
-
 
 /*
 TODO:

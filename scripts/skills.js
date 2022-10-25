@@ -13,6 +13,10 @@ TODO:
     (maybe give bonus block/evasion chance on basis of character becoming more aware of their surroundings)
     - skill for fighting in tight areas (lessening penalty for such areas + some agility and dexterity bonuses)
 
+    - hidden_until -> xp needed for skill to officialy be unlocked (still gains xp when hidden)
+    - locked -> skill needs another action to unlock (doesnt gain xp)
+
+
 */
 
 class Skill {
@@ -75,6 +79,10 @@ class Skill {
     };
 
     add_xp(xp_to_add) {
+        if(xp_to_add == 0) {
+            return;
+        }
+
         this.total_xp += xp_to_add;
 
         if (this.current_level < this.max_level) { //not max lvl
@@ -83,6 +91,7 @@ class Skill {
                 this.current_xp += xp_to_add;
             }
             else { //levelup
+                
                 var level_after_xp = 0;
 
                 while (this.total_xp >= this.total_xp_to_next_lvl) {
@@ -90,8 +99,6 @@ class Skill {
                     level_after_xp += 1;
                     this.total_xp_to_next_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** (level_after_xp + 1)) / (1 - this.xp_scaling));
                 } //calculates lvl reached after adding xp
-
-
 
                 //probably could be done much more efficiently, but it shouldn't be a problem anyway
                 var total_xp_to_previous_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** level_after_xp) / (1 - this.xp_scaling));
@@ -111,10 +118,14 @@ class Skill {
                     this.xp_to_next_lvl = "Max";
                 }
 
+                if(this.skill_group && level_after_xp > skill_groups[this.skill_group].highest_level) { //if highest level of skill group was surpassed, increase it
+                    skill_groups[this.skill_group].highest_level = level_after_xp;
+                }
+
                 var message = `${this.name()} has reached level ${this.current_level}`;
 
-                if (!Object.keys(gains.stats).length == 0) {
-                    if (this.skill_group) {
+                if (!Object.keys(gains.stats).length == 0) { 
+                    if (this.skill_group) { 
                         message += `<br><br> Thanks to [${this.skill_group}] reaching new milestone, ${character.name} gained: `;
                     } else {
                         message += `<br><br> Thanks to ${this.name()} reaching new milestone, ${character.name} gained: `;
@@ -136,6 +147,11 @@ class Skill {
         }
     };
 
+    /**
+     * @description only called on leveling
+     * @param {*} level 
+     * @returns 
+     */
     get_bonus_stats(level) {
         //add stats to character
         //returns all the stats so they can be logged in message_log 
@@ -159,8 +175,6 @@ class Skill {
                         });
                     }
                 }
-
-                skill_groups[this.skill_group].highest_level++;
             }
 
         } else { //only normal 
@@ -748,8 +762,10 @@ skill_groups["weapon skills"] = new SkillGroup({
                                     let value = skills["Running"].get_coefficient("multiplicative");
                                     if(value >= 100) {
                                         value = Math.round(value);
+                                    } else if(value >= 10 && value < 100) {
+                                        value = Math.round(value*10)/10; 
                                     } else {
-                                        value = Math.round(value*10)/10;
+                                        value = Math.round(value*100)/100;
                                     }
                                     return `Multiplies max stamina by ${value}`;
                                   },

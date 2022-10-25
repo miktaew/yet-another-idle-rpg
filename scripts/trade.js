@@ -1,116 +1,294 @@
-import { current_game_time } from "./game_time.js";
-import {item_templates, getItem} from "./items.js";
+import { traders } from "./traders.js";
+import { 
+    update_displayed_trader, update_displayed_trader_inventory, update_displayed_character_inventory, exit_displayed_trade, update_displayed_money } from "./display.js";
+import { add_to_character_inventory, remove_from_character_inventory } from "./character.js";
+import { skills } from "./skills.js";
+import { item_templates } from "./items.js";
+import { character } from "./character.js";
+import { add_xp_to_skill } from "./main.js";
 
-var traders = {};
-var inventory_templates = {};
+var current_trader = null;
+const to_sell = {value: 0, items: []};
+const to_buy = {value: 0, items: []};
 
-function Trader(trader_data) {
-    this.trade_text = trader_data.trade_text || "Let's trade";
-    this.last_refresh = -1; //just the day_count from game_time at which trader was supposedly last refreshed
-    this.refresh_time = trader_data.refresh_time || 7;
-    //7 would mean it's refreshed every 7 days (with shift at 0 it's every monday)
+function set_current_trader(trader_key) {
+    current_trader = trader_key;
+}
 
-    this.refresh_shift = trader_data.refresh_shift || 0;
-    //shift refreshing days, e.g. time 7 + shift 2 would be wednesday, shift 4 would push it to fridays
-    //pretty much pointless if refresh time is not 7 (or it's multiple)
+/**
+ * 
+ * @param {String} trader_key 
+ */
+function start_trade(trader_key) {
+    traders[trader_key].refresh();
+    current_trader = trader_key;
+    
+    update_displayed_trader();
+}
 
-    this.inventory_template = trader_data.inventory_template;
-    this.inventory = []; //items and their counts
+function cancel_trade() {
+    
+    to_buy.items = [];
+    to_buy.value = 0;
+    to_sell.items = [];
+    to_sell.value = 0;
 
-    this.profit_margin = trader_data.profit_margin || 2;
-    //how much more expensive are the trader's items than their actual value, with default being 2 (so 2x more)
+    update_displayed_inventory();
+    update_displayed_trader_inventory();
+}
 
-    this.refresh = function() {
-        if(this.can_refresh()) { 
-            //refresh inventory
-            this.inventory = this.get_inventory_from_template();
+function accept_trade() {
+    
+    //button shouldn't be clickable if trade is not affordable, so this is just in case
+    const new_balance = character.money + to_sell.value - to_buy.value
+    if(new_balance < 0) {
+        throw "Trying to make a trade that can't be afforded"
+    } else {
 
-            this.last_refresh = (current_game_time.day_count + 1 - current_game_time.day_count % this.refresh_time);
-            return true;
-        } 
-        //otherwise do nothing
-        return false;
-    }
+        character.money = new_balance;
 
-    this.can_refresh = function() {
-        return (this.last_refresh < 0 || current_game_time.day_count - (this.last_refresh + this.refresh_shift) >= this.refresh_time);
-                    //if enough time passed since last refresh
-    }
+        while(to_buy.items.length > 0) {
+            //add to character inventory
+            //remove from trader inventory
 
-    this.get_inventory_from_template = function() {
-        const inventory = {};
-        const inventory_template = inventory_templates[this.inventory_template]; 
+            const item = to_buy.items.pop();
+            const [item_name, item_id] = item.item.split(' #');
+            let actual_item;
+            if(item_id) {
+                actual_item = traders[current_trader].inventory[item_name][item_id];
 
-        for(let i = 0; i < inventory_template.length; i++) {
-            if(inventory_template[i].chance >= Math.random()) {
-                var item_count = inventory_template[i].count.length == 1? 
-                        inventory_template[i].count[0] : Math.round(Math.random() * 
-                        (inventory_template[i].count[1] - inventory_template[i].count[0]) + inventory_template[i].count[0]);
+                remove_from_trader_inventory(current_trader, {item_name, item_count: 1, item_id});
 
-                if(item_templates[inventory_template[i].item_name].stackable) { //stackable, so add one object with item_count
-                    inventory[inventory_template[i].item_name] = {item: getItem(item_templates[inventory_template[i].item_name]), count: item_count}; 
-                }
-                else { //unstackable, so add array of n items, each with random quality
-                    inventory[inventory_template[i].item_name] = inventory[inventory_template[i].item_name] || []; 
-                    for(let j = 0; j < item_count; j++) {
-                        let item = getItem(item_templates[inventory_template[i].item_name]);
-                        item.quality = Math.round(100 * (Math.random() * 
-                            (inventory_template[i].quality[1] - inventory_template[i].quality[0]) + inventory_template[i].quality[0]))/100;
+                add_to_character_inventory([{item: actual_item, count: 1}]);                              
+            } else {
 
-                        inventory[inventory_template[i].item_name].push(item);
-                    }
-                }
+                actual_item = traders[current_trader].inventory[item_name].item;
+                
+                remove_from_trader_inventory(current_trader, {item_name, item_count: item.count});
+
+                add_to_character_inventory([{item: actual_item, count: item.count}]);
+            }
+
+            
+        }
+        while(to_sell.items.length > 0) {
+            //remove from character inventory
+            //add to trader inventory
+            
+            const item = to_sell.items.pop();
+            const [item_name, item_id] = item.item.split(' #');
+            let actual_item;
+            if(item_id) {
+                actual_item = character.inventory[item_name][item_id];
+                
+                remove_from_character_inventory({item_name, item_count: 1, item_id});
+
+                add_to_trader_inventory(current_trader, [{item: actual_item, count: 1}]);
+            } else {
+                actual_item = character.inventory[item_name].item;
+                remove_from_character_inventory({item_name, item_count: item.count});
+
+                add_to_trader_inventory(current_trader, [{item: actual_item, count: item.count}]);
             }
         }
+    }
+
+    add_xp_to_skill(skills["Haggling"], to_sell.value + to_buy.value);
+
+    to_buy.value = 0;
+    to_sell.value = 0;
+
+    update_displayed_character_inventory();
+    update_displayed_trader_inventory();
+    update_displayed_money();
+}
+
+function exit_trade() {
+    current_trader = null;
+    to_buy.items = [];
+    to_buy.value = 0;
+    to_sell.items = [];
+    to_sell.value = 0;
+    exit_displayed_trade();
+    update_displayed_character_inventory();
+}
+
+/**
+ * @param {} selected_item 
+ * {item: {string with value of data- attribute}, count: Number, id: Number (position in inventory)}
+ * @returns {Number} change of trade value
+ */
+function add_to_buying_list(selected_item) {
+    const is_stackable = !Array.isArray(traders[current_trader].inventory[selected_item.item.split(' #')[0]]);
+    if(is_stackable) {
+        const present_item = to_buy.items.find(a => a.item === selected_item.item);
         
-        //just add items based on their chances and counts in inventory_template
-        return inventory;
+        if(present_item) { //there's already some in inventory
+            if(traders[current_trader].inventory[selected_item.item.split(' #')[0]].count < selected_item.count + present_item.count) {
+                //trader has not enough when items already added make the total be too much, so just put all in the list
+                present_item.count = traders[current_trader].inventory[selected_item.item.split(' #')[0]].count;
+            } else {
+                present_item.count += selected_item.count;
+            }
+
+        } else { 
+            if(traders[current_trader].inventory[selected_item.item.split(' #')[0]].count < selected_item.count) { 
+                //trader has not enough: buy all available
+                selected_item.count = traders[current_trader].inventory[selected_item.item.split(' #')[0]].count;
+            }
+
+            to_buy.items.push(selected_item);
+        }
+
+        const value = get_item_value(selected_item, true);
+        to_buy.value += value;
+        return -value;
+
+    } else { //unstackable item, so always 1
+
+        to_buy.items.push(selected_item);
+
+        const value = get_item_value(selected_item, false);
+        to_buy.value += value;
+        return -value;
     }
 }
 
-function Trade_item(trade_item_data) {
-    this.item_name = trade_item_data.item_name;
-    this.chance = typeof trade_item_data.chance !== "undefined"? trade_item_data.chance : 1; //chance for item to appear, 1 is 100%
-    this.count = typeof trade_item_data.count !== "undefined"? trade_item_data.count : [1]; 
-    //how many can appear, will randomly choose something between min and max
-    this.quality = typeof trade_item_data.quality !== "undefined"? trade_item_data.quality : [0.2, 0.8]; 
-    //min and max quality of item
+/**
+ * @param {} selected_item 
+ * {item: {string with value of data- attribute}, count: Number, id: Number (position in inventory)}
+ * @returns {Number} change of trade value
+ */
+function remove_from_buying_list(selected_item) {
+    const is_stackable = !Array.isArray(traders[current_trader].inventory[selected_item.item.split(' #')[0]]);
+
+    if(is_stackable) { //stackable, so "count" may be more than 1
+        const present_item = to_buy.items.find(a => a.item === selected_item.item);
+        if(present_item?.count > selected_item.count) { //there's enough
+            present_item.count -= selected_item.count;
+        } else { //there's not enough, remove them all
+            selected_item.count = present_item.count;
+            to_buy.items.splice(to_buy.items.indexOf(present_item),1);
+        }
+
+        const value = get_item_value(selected_item, true);
+        to_buy.value -= value;
+        return value;
+
+    } else { //unstackable item, so always just 1
+        //find index of item and remove it
+        to_buy.items.splice(to_buy.items.map(item => item.item).indexOf(selected_item.item),1);
+        const value = get_item_value(selected_item, false);
+        to_buy.value -= value;
+        return value;
+    }
+}
+
+
+function is_in_trade() {
+    return Boolean(current_trader);
+}
+
+function add_to_selling_list(selected_item) {
+    const is_stackable = !Array.isArray(character.inventory[selected_item.item.split(' #')[0]]);
+
+    if(is_stackable) {
+
+        const present_item = to_sell.items.find(a => a.item === selected_item.item);
+
+        if(present_item) {
+            if(character.inventory[selected_item.item.split(' #')[0]].count < selected_item.count + present_item.count) {
+                //character has not enough when items already added make the total be too much, so just put all in the list
+                present_item.count = character.inventory[selected_item.item.split(' #')[0]].count;
+            } else {
+                present_item.count += selected_item.count;
+            }
+
+        } else { 
+            if(character.inventory[selected_item.item.split(' #')[0]].count < selected_item.count) { 
+                //character has not enough: sell all available
+                selected_item.count = character.inventory[selected_item.item.split(' #')[0]].count;
+            }
+            to_sell.items.push(selected_item);
+            
+        }
+        const value = item_templates[selected_item.item.split(' #')[0]].getValue() * selected_item.count;
+        to_sell.value += value;
+        return value;
+
+    } else {
+        to_sell.items.push(selected_item);
+
+        const actual_item = character.inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
+        const value = actual_item.getValue();
+        to_sell.value += value;
+        return value;
+    }
+}
+
+function remove_from_selling_list(selected_item) {
+    const is_stackable = !Array.isArray(character.inventory[selected_item.item.split(' #')[0]]);
+    var actual_number_to_remove = selected_item.count;
+
+    if(is_stackable) { //stackable, so "count" may be more than 1
+        const present_item = to_sell.items.find(a => a.item === selected_item.item);
+        if(present_item?.count > selected_item.count) {
+            present_item.count -= selected_item.count;
+        } else {
+            actual_number_to_remove = present_item.count;
+            to_sell.items.splice(to_sell.items.indexOf(present_item), 1);
+        }
+        const value = item_templates[selected_item.item.split(' #')[0]].getValue() * actual_number_to_remove;
+        to_sell.value -= value;
+        return -value;
+    } else { //unstackable item
+        //find index of item and remove it
+        to_sell.items.splice(to_sell.items.map(item => item.item).indexOf(selected_item.item),1);
+
+        const actual_item = character.inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
+        const value = actual_item.getValue();
+        to_sell.value -= value;
+        return -value;
+    }
 
 }
 
-traders["village trader"] = new Trader({
-    trade_text: "Trade with village trader",
-    inventory_template: "Basic",
-});
+function add_to_trader_inventory(trader_key, items) {
+    traders[trader_key].add_to_inventory(items);
 
-inventory_templates["Basic"] = 
-[
-        new Trade_item({item_name: "Cheap iron spear", count: [1], quality: [0.4, 0.9]}),
-        new Trade_item({item_name: "Cheap iron dagger", count: [1], quality: [0.4, 0.9]}),
-        new Trade_item({item_name: "Cheap iron sword", count: [1], quality: [0.4, 0.9]}),
-        new Trade_item({item_name: "Cheap iron axe", count: [1], quality: [0.4, 0.9]}),
-        new Trade_item({item_name: "Cheap iron battle hammer", count: [1], quality: [0.4, 0.9]}),
+    if(current_trader === trader_key) {
+        update_displayed_trader_inventory();
+    }
+}
 
-        new Trade_item({item_name: "Cheap iron spear", count: [1], quality: [0.91, 1.2], chance: 0.5}),
-        new Trade_item({item_name: "Cheap iron dagger", count: [1], quality: [0.91, 1.2], chance: 0.5}),
-        new Trade_item({item_name: "Cheap iron sword", count: [1], quality: [0.91, 1.2], chance: 0.5}),
-        new Trade_item({item_name: "Cheap iron axe", count: [1], quality: [0.91, 1.2], chance: 0.5}),
-        new Trade_item({item_name: "Cheap iron battle hammer", count: [1], quality: [0.91, 1.2], chance: 0.5}),
+function remove_from_trader_inventory(trader_key, item_data) {
+    traders[trader_key].remove_from_inventory(item_data);
+    
+    if(current_trader === trader_key) {
+        update_displayed_trader_inventory();
+    }
+}
 
-        new Trade_item({item_name: "Cheap wooden shield", count: [1], quality: [0.4, 0.9]}),
-        new Trade_item({item_name: "Cheap wooden shield", count: [1], chance: 0.5, quality: [0.91, 1.2]}),
-        new Trade_item({item_name: "Crude wooden shield", count: [1], chance: 0.4, quality: [0.4, 0.9]}),
-        new Trade_item({item_name: "Crude wooden shield", count: [1], chance: 0.3, quality: [0.91, 1.2]}),
+/**
+ * @description for buying only !!
+ * @param {*} selected_item {item, count}
+ * @param {Boolean} is_stackable
+ * @returns total value of items, including character haggling skill and trader profit margin
+ */
+function get_item_value(selected_item, is_stackable) {
 
-        new Trade_item({item_name: "Cheap leather vest", count: [1], quality: [0.4, 0.9]}),
-        new Trade_item({item_name: "Cheap leather vest", count: [1], chance: 0.5, quality: [0.91, 1.2]}),
-        new Trade_item({item_name: "Cheap leather pants", count: [1], quality: [0.4, 0.9]}),
-        new Trade_item({item_name: "Cheap leather pants", count: [1], chance: 0.5, quality: [0.91, 1.2]}),
+    const profit_margin = 1 + (traders[current_trader].profit_margin - 1) * (1 - skills["Haggling"].get_level_bonus());
+    if(is_stackable) {
+        return Math.ceil(profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue()) * selected_item.count;
+    } else {
+        const actual_item = traders[current_trader].inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
+        return Math.ceil(profit_margin * actual_item.getValue());
+    }
+}
 
-        new Trade_item({item_name: "Stale bread", count: [4,10]}),
-        new Trade_item({item_name: "Fresh bread", count: [2,5]}),
-        new Trade_item({item_name: "Weak healing powder", count: [2,5]}),
-
-];
-
-export {traders};
+export {to_buy, to_sell, set_current_trader, current_trader, 
+        start_trade, cancel_trade, accept_trade, exit_trade, 
+        add_to_trader_inventory, remove_from_trader_inventory,
+        add_to_buying_list, remove_from_buying_list,
+        add_to_selling_list, remove_from_selling_list,
+        is_in_trade};

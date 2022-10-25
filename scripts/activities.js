@@ -1,5 +1,10 @@
-
 const activities = {};
+
+/*
+    A bit complicated with activities defined both here and in locations, but:
+    - multiple locations can have "same" activity available, though with different xp/money gains
+    - activity can be overall unlocked, but not yet available in specific location
+*/
 
 class Activity {
     constructor(activity_data) {
@@ -41,7 +46,7 @@ class Job extends Activity {
 (function(){
     activities["plowing the fields"] = new Job({
         name: "plowing the fields",
-        action_text: "Working on the fields...",
+        action_text: "Working on the fields",
         description: "It's tiring and doesn't pay much, but it's better than doing nothing",
         base_skills_names: ["Farming"],
         is_unlocked: true,
@@ -52,7 +57,7 @@ class Job extends Activity {
 (function(){
     activities["running"] = new Training({
         name: "running",
-        action_text: "Just running around...",
+        action_text: "Just running around",
         description: "One of the most basic exercises",
         base_skills_names: ["Running"],
         is_unlocked: true,
