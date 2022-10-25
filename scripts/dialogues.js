@@ -1,7 +1,3 @@
-import { enemy_templates } from "./enemies.js";
-import { locations } from "./locations.js";
-import { traders } from "./trade.js";
-
 var dialogues = {};
 
 function Dialogue(dialogue_data) {

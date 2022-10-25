@@ -1,0 +1,9 @@
+v0.0.2
+    - fixed all the bugs I managed to find; 
+    fighting against groups now should work without any issues (other than balance)
+
+    - restructured a lot of code, mostly moved stuff to new locations,
+    but also created some new methods for updating the display
+
+    - moved the page selection buttons to the top
+    - switched from fontawesome to google icons

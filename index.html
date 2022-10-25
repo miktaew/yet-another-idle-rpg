@@ -4,7 +4,7 @@
         <script type="module" src = "scripts/main.js"> </script>
 
         <!--Icons-->
-        <script src="https://kit.fontawesome.com/7c8e6b68aa.js" crossorigin="anonymous"></script>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
         <!--favicon-->
         <link rel="icon" href="favicon.ico" type="image/x-icon">
@@ -479,12 +479,15 @@
                             <div class = "stat_slot_div"> 
                                 <div class = "stat_name"> AP: </div>
                                 <div class = "stat_value" id = "hit_chance_slot"></div> 
-                                <span class = "stat_tooltip"> Attack points, based on your dexterity and intuition. Chance to hit is based on them. </span>
+                                <span class = "stat_tooltip"> 
+                                    Attack points, a total value of everything that contributes to the chance to hit an enemy, except for some situational skills and modifiers. </span>
                             </div>
                             <div class = "stat_slot_div" id = "defensive_action_chance"> 
                                 <div class = "stat_name" id = "defensive_action_slot"> </div>
                                 <div class = "stat_value" id = "defensive_action_chance_slot"></div> 
-                                <span class = "stat_tooltip"> Defensive action points </span>
+
+                                <!-- tooltip content is set in display.js-->
+                                <span class = "stat_tooltip"> </span>
                             </div>
                         </div>
 
@@ -561,14 +564,14 @@
             <label id = "load_from_file_button" class = "sl_button" for = "saved_file_input"> Import </label> 
             <input id = "saved_file_input" type='file' accept = 'text/plain' onchange = 'loadProgress(event)'>	
             <div id = "hard_reset_button" class = "sl_button" onclick = "hardReset()"> Hard reset </div>
+
+            <div id = "changelog_button" class = "game_info"><a href="changelog.txt" target="_blank"></a></div>
+            <div id = "help_button" class = "game_info"><a href="help.html" target="_blank"><i class="material-icons">help_outline</i></a></div>
+
             
         </div>
 
-        <button id = "test_button">click me</button>
-
-
         <script>
-            
             function showAllItems() {
                 document.documentElement.style.setProperty('--equipment_display', 'inline-block');
                 document.documentElement.style.setProperty('--consumables_display', 'inline-block');
@@ -769,7 +772,9 @@
             }
 
             function prepareGame() { //called on body loaded
-                //sets up event listeners
+                document.getElementById("changelog_button").children[0].innerHTML = get_game_version();
+
+                //mostly sets up event listeners
 
                 //perform enemy combat action
                 const enemies_div = document.getElementById("enemies_div");
@@ -929,7 +934,7 @@
                     const right_edge_position = 
                         window.innerWidth - tooltip_width -  23 + window.scrollX - (scrollbar_Y_visible?10:0);
                     const bottom_edge_position = 
-                        window.innerHeight - tooltip_height + window.scrollY - 23 - (scrollbar_X_visible?10:0);
+                        window.innerHeight - tooltip_height + window.scrollY - 33 - (scrollbar_X_visible?10:0);
                     
                     //size of window - size of tooltip + scrolling position - 23 (not sure where it comes from) - 10 (for scrollbar if its visible)
 
@@ -975,7 +980,7 @@
                     }
 
                     use_item(clicked_element.parentNode.getAttribute("data-character_item"));
-                    update_displayed_inventory(character_sorting);
+                    update_displayed_character_inventory(character_sorting);
                 }
 
                 //move clicked items to proper list
@@ -1018,7 +1023,7 @@
                     }
 
                     update_displayed_trader_inventory(trader_sorting);
-                    update_displayed_inventory(character_sorting);
+                    update_displayed_character_inventory(character_sorting);
 
                     trade_price_value.innerHTML = format_money(total_price);
                     check_trade_cost();
@@ -1057,7 +1062,7 @@
                     }
 
                     update_displayed_trader_inventory(trader_sorting);
-                    update_displayed_inventory(character_sorting);
+                    update_displayed_character_inventory(character_sorting);
 
                     trade_price_value.innerHTML = format_money(total_price);
                     check_trade_cost();
