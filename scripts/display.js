@@ -246,6 +246,12 @@ function end_activity_animation() {
     message_log.scrollTop = message_log.scrollHeight;
 }
 
+function clear_message_log() {
+    while(message_log.firstChild) {
+        message_log.removeChild(message_log.lastChild);
+    }
+}
+
 function log_loot(loot_list) {
     
     if(loot_list.length == 0) {
@@ -265,19 +271,10 @@ function log_loot(loot_list) {
 function start_activity_animation() {
     activity_anim = setInterval(() => { //sets a tiny little "animation" for activity text
         const action_status_div = document.getElementById("action_status_div");
-        /*
-        if(action_status_div.innerText[action_status_div.innerText.length - 4] === ' ') {
-            action_status_div.innerText = action_status_div.innerText.slice(0, action_status_div.innerText.length - 4) 
-                                         + action_status_div.innerText.slice(action_status_div.innerText.length - 3);
-        } else {
-            action_status_div.innerText = action_status_div.innerText.slice(0, action_status_div.innerText.length - 3) 
-                                         + " " + action_status_div.innerText.slice(action_status_div.innerText.length - 3);
-        }
-        */
-        if(action_status_div.innerText.endsWith("...")) {
-            action_status_div.innerText = action_status_div.innerText.substring(0, action_status_div.innerText.length - 3);
+        if(action_status_div.innerHTML.endsWith("...")) {
+            action_status_div.innerHTML = action_status_div.innerHTML.substring(0, action_status_div.innerHTML.length - 3);
         } else{
-            action_status_div.innerText += ".";
+            action_status_div.innerHTML += ".";
         }
      }, 600);
 }
@@ -844,6 +841,7 @@ function update_displayed_normal_location(location) {
     var action;
 
     combat_div.style.display = "none";
+
     enemy_count_div.style.display = "none";
     document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_default'));
     document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_default'));
@@ -1177,7 +1175,6 @@ function exit_displayed_trade() {
 
 function start_activity_display(current_activity) {
     clear_action_div();
-
     const action_status_div = document.createElement("div");
     action_status_div.innerText = current_activity.activity.action_text;
     action_status_div.id = "action_status_div";
@@ -1378,22 +1375,12 @@ function clear_skill_list(){
 
 }
 
-function set_enemy_attack_animation(enemy_id, cooldown) {
-    const attack_bar =  enemies_div.children[enemy_id].querySelector(".enemy_attack_bar");
-
-    attack_bar.style["animation-duration"] = cooldown != Infinity? `${cooldown}s` : `0`;
-    //disabled if attack speed was 0
-    
-    attack_bar.style["animation-name"] = "attack_bar_animation";
+function update_enemy_attack_bar(enemy_id, num) {
+    enemies_div.children[enemy_id].querySelector(".enemy_attack_bar").style.width = `${num*2.5}%`;
 }
 
-function clear_enemy_attack_animation(enemy_id) {
-    combat_div.children[0].children[enemy_id].querySelector(".enemy_attack_bar").style["animation-duration"] = "0s";
-}
-
-function set_character_attack_animation(cooldown) {
-    character_attack_bar.style["animation-duration"] = `${cooldown}s`;
-    character_attack_bar.style["animation-name"] = "attack_bar_animation";
+function update_character_attack_bar(num) {
+    character_attack_bar.style.width = `${num*2.5}%`;
 }
 
 export {
@@ -1431,7 +1418,7 @@ export {
     clear_skill_bars,
     update_displayed_ongoing_activity,
     clear_skill_list,
-    set_enemy_attack_animation,
-    clear_enemy_attack_animation,
-    set_character_attack_animation
+    update_character_attack_bar,
+    clear_message_log,
+    update_enemy_attack_bar
 }
