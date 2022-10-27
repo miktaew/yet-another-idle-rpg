@@ -27,14 +27,18 @@ import { end_activity_animation,
          start_activity_display, start_sleeping_display,
          create_new_skill_bar, update_displayed_skill_bar, update_displayed_skill_description, clear_skill_bars,
          update_displayed_ongoing_activity, clear_skill_list,
-         set_enemy_attack_animation, clear_enemy_attack_animation,
-         set_character_attack_animation
+         clear_message_log,
+         update_enemy_attack_bar, update_character_attack_bar
         } from "./display.js";
 
-const game_version = "v0.0.2";
+const game_version = "v0.2.1";
 
 //current enemy
 var current_enemies = null;
+
+const enemy_attack_loops = {};
+
+let character_attack_loop;
 
 //current location
 var current_location;
@@ -84,7 +88,10 @@ const global_xp_bonus = 1;
 
 function change_location(location_name) {
     var location = locations[location_name];
-    
+    clear_all_enemy_attack_loops();
+    clear_character_attack_loop();
+    clear_enemies();
+
     if(!location) {
         throw `No such location as "${location_name}"`;
     }
@@ -95,16 +102,8 @@ function change_location(location_name) {
     }
     
     current_location = location;
-    const previous_location = current_location;
 
     if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
-        current_enemies = null;
-
-        if(typeof previous_location !== "undefined" && "parent_location" in previous_location) { // if previous was combat
-            clear_enemies();
-            update_combat_stats();
-        }
-
         update_displayed_normal_location(location);
 
     } else { //so if entering combat zone
@@ -380,7 +379,6 @@ function start_textline(textline_key){
 
 function get_new_enemies(enemies) {
     current_enemies = enemies || current_location.get_next_enemies();
-
     /*
     TODO:
     for character use max attack speed (without stamina penalty), then modify the speed if stamina falls too low
@@ -388,6 +386,7 @@ function get_new_enemies(enemies) {
     add a small boolean to skip animationiteration event on speed change?
 
     */
+    
     let character_attack_cooldown = 1/character.full_stats.attack_speed;
     let enemy_attack_cooldowns = [...current_enemies.map(x => 1/x.stats.attack_speed)];
 
@@ -406,12 +405,59 @@ function get_new_enemies(enemies) {
 
     //attach animations
     for(let i = 0; i < current_enemies.length; i++) {
-        set_enemy_attack_animation(i, enemy_attack_cooldowns[i]);
+        //set_enemy_attack_animation(i, enemy_attack_cooldowns[i]);
+        set_enemy_attack_loop(i, enemy_attack_cooldowns[i]);
     }
 
-    set_character_attack_animation(character_attack_cooldown);
+    set_character_attack_loop(character_attack_cooldown);
     
     update_displayed_enemies();
+}
+
+/**
+ * @description Creates an Interval responsible for performing the attack loop of enemy and updating their attack_bar progress
+ * @param {*} enemy_id 
+ * @param {*} cooldown 
+ */
+function set_enemy_attack_loop(enemy_id, cooldown) {
+    let count = 0;
+
+    enemy_attack_loops[enemy_id] = setInterval(() => {
+        update_enemy_attack_bar(enemy_id, count);
+        count++;
+        if(count == 40) {
+            count = 0;
+            do_enemy_combat_action(enemy_id);
+        }
+    }, cooldown*1000/40);
+}
+
+function clear_enemy_attack_loop(enemy_id) {
+    clearInterval(enemy_attack_loops[enemy_id]);
+}
+
+function set_character_attack_loop(cooldown) {
+    clear_character_attack_loop();
+    let count = 0;
+
+    character_attack_loop = setInterval(() => {
+        update_character_attack_bar(count);
+        count++;
+        if(count == 40) {
+            count = 0;
+            do_character_combat_action();
+        }
+    }, cooldown*1000/40);
+}
+
+function clear_character_attack_loop() {
+    clearInterval(character_attack_loop);
+}
+
+function clear_all_enemy_attack_loops() {
+    Object.keys(enemy_attack_loops).forEach((key) => {
+        clearInterval(enemy_attack_loops[key]);
+    })
 }
 
 function start_combat() {
@@ -531,7 +577,6 @@ function do_character_combat_action() {
     //TODO: when multi-target attacks are added, calculate this in a loop, separetely for each enemy that can be hit
     //TODO: when single-target attack kills target, deal the remaining dmg (basically the remaining negative hp that the target has) to next target
 
-
     const target = current_enemies.filter(enemy => enemy.is_alive).slice(-1).pop(); //get bottom-most of alive enemies
     
 
@@ -594,9 +639,10 @@ function do_character_combat_action() {
                 add_to_character_inventory(loot);
             }
             
-            const finished_group = kill_enemy(target);
+            kill_enemy(target);
+            const finished_group = current_enemies.filter(enemy => enemy.is_alive).length == 0;
+
             if(finished_group) {
-                
                 get_new_enemies();
 
                 if(current_location.enemies_killed > 0 && current_location.enemies_killed % current_location.enemy_count == 0) {
@@ -623,9 +669,7 @@ function do_character_combat_action() {
 function kill_enemy(target) {
     target.is_alive = false;
     const enemy_id = current_enemies.findIndex(enemy => enemy===target);
-    clear_enemy_attack_animation(enemy_id);
-
-    return current_enemies.filter(enemy => enemy.is_alive).length == 0; 
+    clear_enemy_attack_loop(enemy_id);
 }
 
 function use_stamina(num) {
@@ -715,12 +759,10 @@ function get_location_rewards(location) {
         if(location.first_reward.xp && typeof location.first_reward.xp === "number") {
             log_message(`Obtained ${location.first_reward.xp}xp for clearing ${location.name} for the first time`);
             add_xp_to_character(location.first_reward.xp);
-            
         }
     } else if(location.repeatable_reward.xp && typeof location.repeatable_reward.xp === "number") {
         log_message(`Obtained additional ${location.repeatable_reward.xp}xp for clearing ${location.name}`);
         add_xp_to_character(location.repeatable_reward.xp);
-        
     }
 
 
@@ -1247,13 +1289,15 @@ function load_from_file(save_string) {
                 skills[key].xp_to_next_lvl = skills[key].base_xp_cost;
                 skills[key].total_xp_to_next_lvl = skills[key].base_xp_cost;
             }
-        }); //clear all skill progress from display
+        });
 
         clear_skill_bars();
 
         exit_trade();
 
         clear_skill_list();
+
+        clear_message_log();
         
         try {
             load(JSON.parse(atob(save_string)));

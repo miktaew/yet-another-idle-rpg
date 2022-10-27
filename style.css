@@ -585,7 +585,7 @@ i {
 #character_page {
 	position: absolute;
 	top: 20px;
-	display: none;
+	visibility: hidden;
 }
 
 #accept_trade_button, #cancel_trade_button, .trader_sorting_button {
@@ -938,15 +938,8 @@ i {
 		#character_attack_bar {
 			background-color: rgb(156, 0, 156);
 			height: 20px;
-			animation-iteration-count: infinite;
-			animation-timing-function: linear;
+
 		}					
-
-@keyframes attack_bar_animation {
-	from {width: 0px;}
-	to {width: 100%;}
-}
-
 #enemy_count_div { 
 	width: 100%;
 	padding-top: 2px;

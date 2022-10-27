@@ -2,13 +2,13 @@
     <head>
         <link rel = "stylesheet" href = "style.css">
         <script type="module" src = "scripts/main.js"> </script>
-
         <!--Icons-->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
         <!--favicon-->
         <link rel="icon" href="favicon.ico" type="image/x-icon">
-        
+
+        <script src="https://miktaew.github.io/HackTimer/HackTimer.min.js"></script>
         
         <Title>Yet Another Idle RPG</Title>
     </head>
@@ -617,8 +617,8 @@
             
 
             function showAreaPage() {
-                document.getElementById("character_page").style.display = "none";
-                document.getElementById("area_page").style.display = "initial";
+                document.getElementById("character_page").style.visibility = "hidden";
+                document.getElementById("area_page").style.visibility = "visible";
                 document.getElementById("character_effects_area_page").appendChild(document.getElementById("effects_div"));
                 
                 if(!is_in_trade()) {
@@ -627,8 +627,8 @@
             }
 
             function showCharacterPage() {
-                document.getElementById("character_page").style.display = "initial";
-                document.getElementById("area_page").style.display = "none";
+                document.getElementById("character_page").style.visibility = "visible";
+                document.getElementById("area_page").style.visibility = "hidden";
                 document.getElementById("character_effects_character_page").appendChild(document.getElementById("effects_div"));
                 document.documentElement.style.setProperty('--inventory_div_display', 'block'); //just make sure it's always visible on this page
             }
@@ -749,13 +749,16 @@
             }
 
             function loadProgress(event) {
-                    var input = event.target;
+                    var file = event.target.files[0];
                     var reader = new FileReader();
 
                     reader.onload = function() {
                         load_progress(reader.result);
                     };
-                    reader.readAsText(input.files[0]);
+
+                    reader.readAsText(file);
+
+                    event.target.value = ""; //necessary to allow loading same file more than once in a row without refreshing
             };
 
             function hardReset() {
@@ -775,13 +778,6 @@
                 document.getElementById("changelog_button").children[0].innerHTML = get_game_version();
 
                 //mostly sets up event listeners
-
-                //perform enemy combat action
-                const enemies_div = document.getElementById("enemies_div");
-                enemies_div.addEventListener("animationiteration", perform_enemy_combat_action)
-                function perform_enemy_combat_action(event) {
-                    do_enemy_combat_action(event.target.parentNode.parentNode.id[6]);
-                }
 
                 const character_combat_management = document.getElementById("character_combat_management");
                 character_combat_management.addEventListener("animationiteration", perform_character_combat_action);

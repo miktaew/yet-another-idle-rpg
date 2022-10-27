@@ -1,8 +1,13 @@
-v0.0.2
+v0.2.1
+    - fixed two small problems when importing file
+    - fixed issue with combat being paused when area page is hidden
+    - rewrote the combat loops, made it work properly when tab is not focused
+
+v0.2.0
     - fixed all the bugs I managed to find; 
     fighting against groups now should work without any issues (other than balance)
 
-    - restructured a lot of code, mostly moved stuff to new locations,
+    - restructured a lot of code, mostly moved stuff to new places,
     but also created some new methods for updating the display
 
     - moved the page selection buttons to the top
