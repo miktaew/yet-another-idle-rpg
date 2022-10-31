@@ -118,7 +118,7 @@ function change_location(location_name) {
  * @param {Object} selected_activity - {id} of activity in Location's activities list
  */
 function start_activity(selected_activity) {
-    current_activity = Object.assign({},current_location.activities[selected_activity.id]);
+    current_activity = Object.assign({},current_location.activities[selected_activity.activity]);
     current_activity.name = current_activity.activity;
     current_activity.activity = activities[current_activity.activity];
 
@@ -165,7 +165,7 @@ function end_activity() {
 
 /**
  * 
- * @param {Object} activity_data {activity, location.name}
+ * @param {Object} activity_data {activity, location_name}
  */
  function unlock_activity(activity_data) {
     if(!activity_data.activity.is_unlocked){
@@ -359,34 +359,22 @@ function start_textline(textline_key){
     }
 
     if(textline.unlocks.activities) { //unlocking activities
-        for(let i = 0; i < textline.unlocks.activities.length; i++) { 
-            for(let j = 0; j < locations[textline.unlocks.activities[i].location].activities.length; j++) {
-                if(locations[textline.unlocks.activities[i].location].activities[j].activity === textline.unlocks.activities[i].activity) {
-
-                    unlock_activity({location: locations[textline.unlocks.activities[i].location].name, 
-                                     activity: locations[textline.unlocks.activities[i].location].activities[j]});
-
-                    if(current_location.name === textline.unlocks.activities[i].location) {
-                        change_location(current_location.name);
-                    }
-                    break;
-                }
-            }
+        for(let i = 0; i < textline.unlocks.activities.length; i++) { //unlock 
+            unlock_activity({location: locations[textline.unlocks.activities[i].location].name, 
+                             activity: locations[textline.unlocks.activities[i].location].activities[textline.unlocks.activities[i].activity]});
         }
     }
     start_dialogue(current_dialogue);
 }
 
-function get_new_enemies(enemies) {
+/**
+ * @description sets attack cooldowns and new enemies, either from provided list or from current location
+ * @param {List<Enemy>} enemies 
+ */
+function set_new_combat(enemies) {
     current_enemies = enemies || current_location.get_next_enemies();
-    /*
-    TODO:
-    for character use max attack speed (without stamina penalty), then modify the speed if stamina falls too low
-    it should be checked after each attack, readjusting the speed, so do it in do_character_combat_action
-    add a small boolean to skip animationiteration event on speed change?
+    clear_all_enemy_attack_loops();
 
-    */
-    
     let character_attack_cooldown = 1/character.full_stats.attack_speed;
     let enemy_attack_cooldowns = [...current_enemies.map(x => 1/x.stats.attack_speed)];
 
@@ -436,18 +424,37 @@ function clear_enemy_attack_loop(enemy_id) {
     clearInterval(enemy_attack_loops[enemy_id]);
 }
 
-function set_character_attack_loop(cooldown) {
+/**
+ * 
+ * @param {Number} base_cooldown basic cooldown based on attack speeds of enemies and character (ignoring stamina penalty) 
+ * @param {String} attack_type type of attack, not yet implemented
+ */
+function set_character_attack_loop(base_cooldown, attack_type = "normal") {
     clear_character_attack_loop();
-    let count = 0;
 
+    let stamina_cost = 1; 
+    //TODO: set it depending on attack type when they are added
+
+    use_stamina(stamina_cost);
+    let actual_cooldown = base_cooldown * character.get_stamina_multiplier();
+    let attack_power = character.get_attack_power();
+    do_character_attack_loop(base_cooldown, actual_cooldown, attack_power, attack_type);
+}
+
+function do_character_attack_loop(base_cooldown, actual_cooldown, attack_power, attack_type) {
+    let count = 0;
     character_attack_loop = setInterval(() => {
+        
         update_character_attack_bar(count);
         count++;
         if(count == 40) {
             count = 0;
-            do_character_combat_action();
+            let done = do_character_combat_action(attack_power, attack_type);
+            if(!done) { //set next loop if there's still an enemy left
+                set_character_attack_loop(base_cooldown, attack_type);
+            }
         }
-    }, cooldown*1000/40);
+    }, 1000/(40*actual_cooldown));
 }
 
 function clear_character_attack_loop() {
@@ -462,7 +469,7 @@ function clear_all_enemy_attack_loops() {
 
 function start_combat() {
     if(current_enemies == null) {
-        get_new_enemies();
+        set_new_combat();
         update_combat_stats();
     }
 }
@@ -486,7 +493,7 @@ function do_enemy_combat_action(enemy_id) {
     
     const attacker = current_enemies[enemy_id];
 
-    let evasion_chance_modifier = current_enemies.length**(-1/3); //down to .5 if there's full 8 enemies (multiple attackers make it harder to evade attacks)
+    let evasion_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/3); //down to .5 if there's full 8 enemies (multiple attackers make it harder to evade attacks)
     if(attacker.size === "small") {
         add_xp_to_skill(skills["Pest killer"], attacker.xp_value, true);
     } else if(attacker.size === "large") {
@@ -517,7 +524,8 @@ function do_enemy_combat_action(enemy_id) {
             }
          }
     } else { // HAS NO SHIELD
-        const evasion_chance = (character.combat_stats.evasion_points / (attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1) * 4)) * evasion_chance_modifier;
+        //character EP div by enemy_AP * 3
+        const evasion_chance = (character.combat_stats.evasion_points / (attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1) * 3)) * evasion_chance_modifier;
 
         if(evasion_chance > Math.random()) { //EVADED ATTACK
             add_xp_to_skill(skills["Evasion"], attacker.xp_value, true);
@@ -562,33 +570,31 @@ function do_enemy_combat_action(enemy_id) {
     update_displayed_health();
 }
 
-function do_character_combat_action() {
-
+function do_character_combat_action(attack_power, attack_type = "normal") {
+    
     //todo: attack types with different stamina costs
-
-    use_stamina(); //use it before action
-    const hero_base_damage = character.get_attack_power();
-
-    let damage_dealt;
-
-    let critted = false;
-
-
     //TODO: when multi-target attacks are added, calculate this in a loop, separetely for each enemy that can be hit
     //TODO: when single-target attack kills target, deal the remaining dmg (basically the remaining negative hp that the target has) to next target
 
+    const hero_base_damage = attack_power;
+
+    let damage_dealt;
+    
+    let critted = false;
+
     const target = current_enemies.filter(enemy => enemy.is_alive).slice(-1).pop(); //get bottom-most of alive enemies
     
-
-    let hit_chance_modifier = 1;
+    let hit_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/4); // down to ~ 60% if there's full 8 enemies
+    
     add_xp_to_skill(skills["Combat"], target.xp_value, true);
     if(target.size === "small") {
         add_xp_to_skill(skills["Pest killer"], target.xp_value, true);
-        hit_chance_modifier = skills["Pest killer"].get_coefficient("multiplicative");
+        hit_chance_modifier *= skills["Pest killer"].get_coefficient("multiplicative");
     } else if(target.size === "large") {
         add_xp_to_skill(skills["Giant slayer"], target.xp_value, true);
     }
 
+    //character AP div by 2*enemy_DP 
     const hit_chance = (character.combat_stats.attack_points / (target.stats.agility * Math.sqrt(target.stats.intuition ?? 1) * 2)) * hit_chance_modifier;
 
     if(hit_chance > Math.random()) {//hero's attack hits
@@ -630,8 +636,11 @@ function do_character_combat_action() {
             target.stats.health = 0; //to not go negative on displayed value
 
             log_message(target.name + " was defeated", "enemy_defeated");
-            add_xp_to_character(target.xp_value, true);
-            current_location.enemies_killed += 1;
+
+            //gained xp multiplied by square root of TOTAL size of enemy group
+            let xp_reward = target.xp_value * (current_enemies.length**0.5);
+            add_xp_to_character(xp_reward, true);
+            
 
             var loot = target.get_loot();
             if(loot.length > 0) {
@@ -643,15 +652,16 @@ function do_character_combat_action() {
             const finished_group = current_enemies.filter(enemy => enemy.is_alive).length == 0;
 
             if(finished_group) {
-                get_new_enemies();
+                current_location.enemy_groups_killed += 1;
+                set_new_combat();
 
-                if(current_location.enemies_killed > 0 && current_location.enemies_killed % current_location.enemy_count == 0) {
+                if(current_location.enemy_groups_killed > 0 && current_location.enemy_groups_killed % current_location.enemy_count == 0) {
                     get_location_rewards(current_location);
 
                 }
-                enemy_count_div.children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemies_killed % current_location.enemy_count;
+                enemy_count_div.children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemy_groups_killed % current_location.enemy_count;
                 
-                return;
+                return true;
             }
         }
 
@@ -672,15 +682,15 @@ function kill_enemy(target) {
     clear_enemy_attack_loop(enemy_id);
 }
 
-function use_stamina(num) {
-    character.full_stats.stamina -= (num || 1);
+function use_stamina(num = 1) {
+    character.full_stats.stamina -= num;
 
     if(character.full_stats.stamina < 0)  {
         character.full_stats.stamina = 0;
     };
 
     if(character.full_stats.stamina < 1) {
-        add_xp_to_skill(skills["Persistence"], num || 1);
+        add_xp_to_skill(skills["Persistence"], num );
         update_displayed_stats();
     }
 
@@ -748,12 +758,12 @@ function add_xp_to_character(xp_to_add, should_info = true) {
 }
 
 /**
- * 
- * @param location game location object 
+ * @param {Location} location game Location object
+ * @description handles all the rewards for clearing location (both first and subsequent clears), adding xp and unlocking stuff
  */
 function get_location_rewards(location) {
 
-    if(location.enemies_killed == location.enemy_count) { //first clear
+    if(location.enemy_groups_killed == location.enemy_count) { //first clear
         change_location(current_location.parent_location.name); //go back to parent location, only on first clear
 
         if(location.first_reward.xp && typeof location.first_reward.xp === "number") {
@@ -766,9 +776,10 @@ function get_location_rewards(location) {
     }
 
 
-    //all clears, so that if something gets added after location was cleared, it will still be unlockable
+    //all below: on each clear, so that if something gets added after location was cleared, it will still be unlockable
+
     for(let i = 0; i < location.repeatable_reward.locations?.length; i++) { //unlock locations
-        unlock_location(location.repeatable_reward.locations[i])
+        unlock_location(location.repeatable_reward.locations[i]);
     }
 
     for(let i = 0; i < location.repeatable_reward.textlines?.length; i++) { //unlock textlines and dialogues
@@ -814,6 +825,19 @@ function clear_enemies() {
  */
 function dismantle_item() {
     //TODO
+}
+
+function character_equip_item(item_info) {
+    if(current_enemies) {
+        set_new_combat(current_enemies);
+    }
+    equip_item_from_inventory(item_info);
+}
+function character_unequip_item(item_info) {
+    if(current_enemies) {
+        set_new_combat(current_enemies);
+    }
+    unequip_item(item_info);
 }
 
 function use_item(item_name) { 
@@ -879,16 +903,16 @@ function create_save() {
             }
 
             if("parent_location" in locations[key]) { //combat zone
-                save_data["locations"][key]["enemies_killed"] = locations[key].enemies_killed;
+                save_data["locations"][key]["enemy_groups_killed"] = locations[key].enemy_groups_killed;
             }
 
             if(locations[key].activities) {
                 save_data["locations"][key]["unlocked_activities"] = []
-                for(let i = 0; i < locations[key].activities.length; i++) {
-                    if(locations[key].activities[i].is_unlocked) {
-                        save_data["locations"][key]["unlocked_activities"].push(locations[key].activities[i].activity);
+                Object.keys(locations[key].activities).forEach(activity_key => {
+                    if(locations[key].activities[activity_key].is_unlocked) {
+                        save_data["locations"][key]["unlocked_activities"].push(locations[key].activities[activity_key].activity);
                     }
-                }
+                });
             }
         }); //save locations' (and their activities') unlocked status and their killcounts
 
@@ -1183,13 +1207,13 @@ function load(save_data) {
                     locations[key].is_unlocked = true;
                 }
                 if("parent_location" in locations[key]) { // if combat zone
-                    locations[key].enemies_killed = save_data.locations[key].enemies_killed;
+                    locations[key].enemy_groups_killed = save_data.locations[key].enemy_groups_killed || 0;   
                 }
+
+                //unlock activities
                 if(save_data.locations[key].unlocked_activities) {
-                    for(let i = 0; i < locations[key].activities.length; i++) {
-                        if(save_data.locations[key].unlocked_activities.includes(locations[key].activities[i].activity)) {
-                            locations[key].activities[i].is_unlocked = true;
-                        }
+                    for(let i = 0; i < save_data.locations[key].unlocked_activities.length; i++) {
+                        locations[key].activities[save_data.locations[key].unlocked_activities[i]].is_unlocked = true;
                     }
                 }
             } else {
@@ -1272,7 +1296,7 @@ function load_from_file(save_string) {
     try{
         Object.keys(character.equipment).forEach(function(key){
             if(character.equipment[key] != null) {
-                unequip_item(key);
+                character_unequip_item(key);
             }
         }); //remove equipment
         character.inventory = {}; //reset inventory to not duplicate items
@@ -1498,8 +1522,8 @@ function run() {
     update();   
 }
 
-window.equip_item = equip_item_from_inventory;
-window.unequip_item = unequip_item;
+window.equip_item = character_equip_item;
+window.unequip_item = character_unequip_item;
 
 window.change_location = change_location;
 
@@ -1529,7 +1553,6 @@ window.get_character_money = character.get_character_money;
 window.use_item = use_item;
 
 window.do_enemy_combat_action = do_enemy_combat_action;
-window.do_character_combat_action = do_character_combat_action;
 
 window.sort_displayed_inventory = sort_displayed_inventory;
 window.update_displayed_character_inventory = update_displayed_character_inventory;

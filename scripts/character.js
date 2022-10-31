@@ -24,10 +24,10 @@ character.stats = {
         stamina: 40,
         max_mana: 0,
         mana: 0,
-        strength: 8, 
-        agility: 8, 
-        dexterity: 8, 
-        intuition: 8,
+        strength: 10, 
+        agility: 10, 
+        dexterity: 10, 
+        intuition: 10,
         magic: 0, 
         attack_speed: 1, 
         crit_rate: 0.1, 
@@ -49,7 +49,7 @@ character.equipment = {
 character.money = 0;
 character.xp = {
         current_level: 0, total_xp: 0, current_xp: 0, xp_to_next_lvl: base_xp_cost, 
-        total_xp_to_next_lvl: base_xp_cost, base_xp_cost: base_xp_cost, xp_scaling: 1.7
+        total_xp_to_next_lvl: base_xp_cost, base_xp_cost: base_xp_cost, xp_scaling: 1.9
 };
 
 character.base_stats = character.stats;
@@ -162,6 +162,7 @@ character.update_stats = function () {
         character.full_stats[stat] = character.stats[stat];
         character.full_multipliers[stat] = character.multipliers[stat] || 1;
 
+        
         if(stat !== "defense") {
                 Object.keys(character.equipment).forEach(function(key) {
                         if(character.equipment[key]?.getStats()[stat]?.flat) {
@@ -185,7 +186,9 @@ character.update_stats = function () {
                         character.full_stats["max_stamina"] *= skills["Running"].get_coefficient("multiplicative");
                 } else if(stat === "mana") {
                         //character.full_stats["mana"] = Math.max(0, character.full_stats["max_mana"] - missing_mana); //done a bit later
-                } 
+                } else if(stat === "strength") {
+                        character.full_stats["strength"] *= skills["Weightlifting"].get_coefficient("multiplicative");
+                }
         } else {
                 Object.keys(character.equipment).forEach(function(key) {
                         if(character.equipment[key]?.getDefense) {
@@ -223,7 +226,7 @@ character.update_stats = function () {
 }
 
 character.get_stamina_multiplier = function () {
-        if(character.full_stats.stamina < 10) {
+        if(character.full_stats.stamina == 0) {
                 return 0.5 + skills["Persistence"].get_level_bonus();
         }
         return 1;
@@ -268,7 +271,7 @@ character.take_damage = function ({damage_value, damage_type = "physical", damag
         }
 
         if(give_skill_xp) {
-                //TODO
+                //TODO give skill xp when taking damge
         }
 
         return {damage_taken, fainted};

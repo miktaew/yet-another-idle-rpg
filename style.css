@@ -811,6 +811,7 @@ i {
 #character_stats_div {
 	width: 350px;
 	margin: auto;
+	margin-top: 4px;
 }
 
 #character_control_div {
@@ -888,14 +889,26 @@ i {
 			display: var(--enemy_div_display);
 			font-size: 14;
 			height: 66px;
-			outline: 3px solid silver;
+			outline: 2px solid silver;
 			width: 100%;
 		}
-				.enemy_name, .enemy_stats {
+				
+				.enemy_name, .enemy_stats, #attack_stats  {
 					height: 18px;
 					text-align: right;
-					padding-right: 30px;
+					width: 390px;
 				}
+					.enemy_stat, .attack_stat {
+						display: inline-block;
+						text-align: left;
+						font-size: 12;
+					}
+					.enemy_stat_short, .attack_stat_short {
+						width: 45px;
+					}
+					.enemy_stat_long, .attack_stat_long {
+						width: 85px;
+					}
 
 				.enemy_health_div {
 					margin-bottom: 0px;
@@ -927,9 +940,18 @@ i {
 					margin-left: auto;
 				}
 
-	#character_combat_management {
+	#character_combat_stats {
 		width: 400px;
 		top: 150px;
+	}
+
+	#def_stat {
+		width: 100px;
+		top: 150px;
+	}
+	#character_combat_management{
+		width: 400px;
+		top: 177px;
 	}
 		#character_attack_name {
 			padding: 5px;
@@ -938,8 +960,11 @@ i {
 		#character_attack_bar {
 			background-color: rgb(156, 0, 156);
 			height: 20px;
+		}			
+		#attack_stats {
+			text-align: left;
+		}		
 
-		}					
 #enemy_count_div { 
 	width: 100%;
 	padding-top: 2px;

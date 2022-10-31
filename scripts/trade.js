@@ -33,7 +33,7 @@ function cancel_trade() {
     to_sell.items = [];
     to_sell.value = 0;
 
-    update_displayed_inventory();
+    update_displayed_character_inventory();
     update_displayed_trader_inventory();
 }
 

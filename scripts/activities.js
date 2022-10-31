@@ -61,6 +61,13 @@ class Job extends Activity {
         description: "One of the most basic exercises",
         base_skills_names: ["Running"],
         is_unlocked: true,
+    });
+    activities["weightlifting"] = new Training({
+        name: "weightlifting",
+        action_text: "Carring heavy things",
+        description: "One of the most basic exercises",
+        base_skills_names: ["Weightlifting"],
+        is_unlocked: true,
     })
 })();
 

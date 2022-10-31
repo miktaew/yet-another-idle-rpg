@@ -23,7 +23,7 @@ class Location {
         this.connected_locations = location_data.connected_locations; //a list
         this.is_unlocked = typeof location_data.is_unlocked !== "undefined" ? location_data.is_unlocked : true;
         this.dialogues = location_data.dialogues || [];
-        this.activities = [];
+        this.activities = {};
         this.sleeping = location_data.sleeping || null; // {text to start, xp per tick}
         for (let i = 0; i < this.dialogues.length; i++) {
             if (!dialogues[this.dialogues[i]]) {
@@ -82,7 +82,7 @@ class Combat_zone {
             throw new Error(`No enemies provided for zone "${this.name}"`);
         }
 
-        this.enemies_killed = 0; //killcount for clearing
+        this.enemy_groups_killed = 0; //killcount for clearing
 
         this.enemy_stat_variation = enemy_stat_variation; // e.g. 0.1 means each stat can go 10% up/down from base value; random for each enemy in group
         if(this.enemy_stat_variation < 0) {
@@ -285,6 +285,7 @@ class LocationActivity{
         parent_location: locations["Nearby cave"],
         repeatable_reward: {
             textlines: [{dialogue: "village elder", lines: ["cleared cave"]}],
+            xp: 20,
         }
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Cave depths"]});
@@ -323,8 +324,8 @@ class LocationActivity{
 
 //add activities
 (function(){
-    locations["Village"].activities = [
-        new LocationActivity({
+    locations["Village"].activities = {
+        "plowing the fields": new LocationActivity({
             activity: "plowing the fields",
             starting_text: "Work on the fields",
             payment: {min: 1, max: 3},
@@ -334,14 +335,21 @@ class LocationActivity{
             skill_xp_per_tick: 1, 
             skill_affects: "PAYMENT",
         }),
-        new LocationActivity({
+        "running": new LocationActivity({
             activity: "running",
             infinite: true,
             starting_text: "Go for a run around the village",
             skill_xp_per_tick: 1,
-            is_unlocked: true,
+            is_unlocked: false,
+        }),
+        "weightlifting": new LocationActivity({
+            activity: "weightlifting",
+            infinite: true,
+            starting_text: "Try to carry some bags of grain",
+            skill_xp_per_tick: 1,
+            is_unlocked: false,
         })
-    ];
+    };
 })();
 
 

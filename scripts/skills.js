@@ -30,7 +30,7 @@ class Skill {
                   get_effect_description = () => { return ''; }, 
                   skill_group = null, 
                   rewards, 
-                  xp_scaling = 1.6,
+                  xp_scaling = 1.7,
                 }) 
     {
         this.skill_id = skill_id;
@@ -720,7 +720,7 @@ skill_groups["weapon skills"] = new SkillGroup({
                                   names: {0: "Running"},
                                   max_level: 50,
                                   max_level_coefficient: 4,
-                                  base_xp_cost: 200,
+                                  base_xp_cost: 50,
                                   rewards: {
                                     milestones: {
                                         1: {
@@ -771,6 +771,62 @@ skill_groups["weapon skills"] = new SkillGroup({
                                   },
                                   
                                 });
+    skills["Weightlifting"] = new Skill({skill_id: "Weightlifting",
+    description: "No better way to get stronger than by lifting heavy things",
+    names: {0: "Weightlifting"},
+    max_level: 50,
+    max_level_coefficient: 4,
+    base_xp_cost: 50,
+    rewards: {
+      milestones: {
+          1: {
+              stats: {
+                  strength: 1,
+              },
+          },
+          3: {
+              stats: {
+                  strength: 1,
+              }
+          },
+          5: {
+              stats: {
+                  strength: 1,
+              },
+              multipliers: {
+                  strength: 1.1,
+                  max_stamina: 1.05,
+              }
+          },
+          7: {
+              stats: {
+                  strength: 2,
+              },
+          },
+          10: {
+              stats: {
+                  strength: 2,
+              },
+              multipliers: {
+                  strength: 1.1,
+                  max_stamina: 1.05,
+              }
+          }
+      }
+    },
+    get_effect_description: ()=> {
+      let value = skills["Weightlifting"].get_coefficient("multiplicative");
+      if(value >= 100) {
+          value = Math.round(value);
+      } else if(value >= 10 && value < 100) {
+          value = Math.round(value*10)/10; 
+      } else {
+          value = Math.round(value*100)/100;
+      }
+      return `Multiplies strength by ${value}`;
+    },
+    
+  });
 })();
 
 //crafting skills
@@ -834,7 +890,7 @@ skill_groups["crafting skills"] = new SkillGroup({
         base_xp_cost: 60,
         max_level: 30,
         get_effect_description: ()=> {
-            return `Reduces low stamina penalty by ${Math.round(skills["Persistence"].get_level_bonus()*1000)/100000}`;
+            return `Reduces low stamina penalty by ${Math.round(skills["Persistence"].get_level_bonus()*100000)/1000} percentage points`;
         },
         max_level_bonus: 0.3
     });

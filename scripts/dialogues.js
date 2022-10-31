@@ -75,12 +75,13 @@ function Textline(textline_data) {
             }),
             "need to": new Textline({
                 name: "But I need to leave",
-                text: `What you need is to recover. Well, you know what? Killing a few wolf rats could be a good exercise. 
+                text: `What you need is to recover, to get some rest and maybe also training, as you seem rather frail... Well, you know what? Killing a few wolf rats could be a good exercise. 
     You could help us clear some field of them, how about that?`,
                 is_unlocked: false,
                 unlocks: {
                     textlines: [{dialogue: "village elder", lines: ["rats", "ask to leave 2", "equipment"]}],
                     locations: ["Infested field"],
+                    activities: [{location:"Village", activity:"weightlifting"}, {location:"Village",activity:"running"}],
                 },
                 locks_lines: ["need to"],
             }),
