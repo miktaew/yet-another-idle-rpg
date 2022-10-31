@@ -350,6 +350,14 @@ class LocationActivity{
             is_unlocked: false,
         })
     };
+    locations["Forest road"].activities = {
+        "running": new LocationActivity({
+            activity: "running",
+            infinite: true,
+            starting_text: "Go for a run through the forest",
+            skill_xp_per_tick: 3,
+        }),
+    }
 })();
 
 

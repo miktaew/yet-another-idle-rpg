@@ -31,7 +31,7 @@ import { end_activity_animation,
          update_enemy_attack_bar, update_character_attack_bar
         } from "./display.js";
 
-const game_version = "v0.2.1";
+const game_version = "v0.2.2";
 
 //current enemy
 var current_enemies = null;
