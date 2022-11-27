@@ -30,7 +30,7 @@ class Skill {
                   get_effect_description = () => { return ''; }, 
                   skill_group = null, 
                   rewards, 
-                  xp_scaling = 1.6,
+                  xp_scaling = 1.7,
                 }) 
     {
         this.skill_id = skill_id;
@@ -542,6 +542,36 @@ skill_groups["weapon skills"] = new SkillGroup({
                                     }});                                
 })();
 
+//environment related skills
+(function(){
+    skills["Spatial awareness"] = new Skill({
+                                            skill_id: "Spatial awareness", 
+                                            names: {0: "Spatial awareness"}, 
+                                            description: "Understanding where you are in relation to other creatures and objects", 
+                                            get_effect_description: ()=> {
+                                                return `Reduces environmental penalty in certain areas by ${skills["Spatial awareness"].current_level*100/skills["Spatial awareness"].max_level}%`;
+                                            }});
+    skills["Tight maneuvers"] = new Skill({
+                                        skill_id: "Tight maneuvers", 
+                                        names: {0: "Tight maneuvers"}, 
+                                        description: "Learn how to fight in narrow environment, where there's not much space for dodging attacks", 
+                                        get_effect_description: ()=> {
+                                            return `Reduces environmental penalty in certain areas by ${skills["Tight maneuvers"].current_level*100/skills["Tight maneuvers"].max_level}%`;
+                                        }});
+    skills["Night vision"] = new Skill({
+                                    skill_id: "Night vision",
+                                    names: {0: "Night vision"},
+                                    description: "Ability to see in darkness",
+                                    base_xp_cost: 60,
+                                    xp_scaling: 1.4,
+                                    max_level: 20,
+                                    get_effect_description: () => {
+                                        return `Reduces environmental penalty in certain areas by ${skills["Night vision"].current_level*100/skills["Night vision"].max_level}%`;
+                                    }
+
+    });
+})();
+
 //weapon skills
 (function(){
     skills["Swords"] = new Skill({skill_id: "Swords", 
@@ -720,7 +750,7 @@ skill_groups["weapon skills"] = new SkillGroup({
                                   names: {0: "Running"},
                                   max_level: 50,
                                   max_level_coefficient: 4,
-                                  base_xp_cost: 200,
+                                  base_xp_cost: 50,
                                   rewards: {
                                     milestones: {
                                         1: {
@@ -771,6 +801,62 @@ skill_groups["weapon skills"] = new SkillGroup({
                                   },
                                   
                                 });
+    skills["Weightlifting"] = new Skill({skill_id: "Weightlifting",
+    description: "No better way to get stronger than by lifting heavy things",
+    names: {0: "Weightlifting"},
+    max_level: 50,
+    max_level_coefficient: 4,
+    base_xp_cost: 50,
+    rewards: {
+      milestones: {
+          1: {
+              stats: {
+                  strength: 1,
+              },
+          },
+          3: {
+              stats: {
+                  strength: 1,
+              }
+          },
+          5: {
+              stats: {
+                  strength: 1,
+              },
+              multipliers: {
+                  strength: 1.1,
+                  max_stamina: 1.05,
+              }
+          },
+          7: {
+              stats: {
+                  strength: 2,
+              },
+          },
+          10: {
+              stats: {
+                  strength: 2,
+              },
+              multipliers: {
+                  strength: 1.1,
+                  max_stamina: 1.05,
+              }
+          }
+      }
+    },
+    get_effect_description: ()=> {
+      let value = skills["Weightlifting"].get_coefficient("multiplicative");
+      if(value >= 100) {
+          value = Math.round(value);
+      } else if(value >= 10 && value < 100) {
+          value = Math.round(value*10)/10; 
+      } else {
+          value = Math.round(value*100)/100;
+      }
+      return `Multiplies strength by ${value}`;
+    },
+    
+  });
 })();
 
 //crafting skills
@@ -825,7 +911,7 @@ skill_groups["crafting skills"] = new SkillGroup({
     });
 })();
 
-//character related skills
+//character skills and resistances
 (function(){
     skills["Persistence"] = new Skill({
         skill_id: "Persistence",
@@ -834,9 +920,29 @@ skill_groups["crafting skills"] = new SkillGroup({
         base_xp_cost: 60,
         max_level: 30,
         get_effect_description: ()=> {
-            return `Reduces low stamina penalty by ${Math.round(skills["Persistence"].get_level_bonus()*1000)/100000}`;
+            return `Reduces low stamina penalty by ${Math.round(skills["Persistence"].get_level_bonus()*100000)/1000} percentage points`;
         },
         max_level_bonus: 0.3
+    });
+    skills["Perception"] = new Skill({
+        skill_id: "Perception", 
+        names: {0: "Perception"}, 
+        description: "Better grasp on your senses allows you to notice small and hidden things", 
+        max_level_coefficient: 2,
+        get_effect_description: ()=> {
+            return `(not implemented) Increase crit rate and chance to find items when foraging`;
+        }});
+
+    skills["Dazzle resistance"] = new Skill({
+        skill_id: "Dazzle resistance",
+        names: {0: "Dazzle resistance"},
+        description: "Don't look at the sun, it's bad for your eyes",
+        base_xp_cost: 60,
+        max_level: 30,
+        get_effect_description: ()=> {
+            return `(not yet implemented) Reduces hit and evasion penalty in super bright areas`;
+        },
+        max_level_bonus: 0.5
     });
     
 })();

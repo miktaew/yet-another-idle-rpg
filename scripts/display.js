@@ -61,6 +61,7 @@ const other_combat_divs = {offensive_points: document.getElementById("hit_chance
                            defensive_points: document.getElementById("defensive_action_chance_slot")
                           };
 
+const character_attack_bar = document.getElementById("character_attack_bar");
 
 //equipment slots
 const equipment_slots_divs = {head: document.getElementById("head_slot"), torso: document.getElementById("torso_slot"),
@@ -793,7 +794,7 @@ function update_displayed_equipment() {
 
 /**
  * sets visibility of divs for enemies (based on how many there are in current combat),
- * and enemies' AP / DP
+ * and enemies' AP / DE
  * 
  * called when new enemies get loaded
  */
@@ -804,8 +805,24 @@ function update_displayed_equipment() {
             enemies_div.children[i].children[0].children[0].innerHTML = current_enemies[i].name;
 
             const ap = current_enemies[i].stats.dexterity * Math.sqrt(current_enemies[i].stats.intuition || 1);
-            const dp = current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition || 1);
-            enemies_div.children[i].children[0].children[1].innerHTML = `AP : ${Math.round(ap)} | DP : ${Math.round(dp)}`;
+            const ep = current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition || 1);
+
+            let disp_speed;
+            if(current_enemies[i].stats.attack_speed > 20) {
+                disp_speed = Math.round(current_enemies[i].stats.attack_speed);
+            } else if (current_enemies[i].stats.attack_speed > 2) {
+                disp_speed = Math.round(current_enemies[i].stats.attack_speed*10)/10;
+            } else {
+                disp_speed = Math.round(current_enemies[i].stats.attack_speed*100)/100;
+            }
+
+            //enemies_div.children[i].children[0].children[1].innerHTML = `AP : ${Math.round(ap)} | EP : ${Math.round(ep)}`;
+            enemies_div.children[i].children[0].children[1].children[0].innerHTML = `Atk power: ${current_enemies[i].stats.attack}`;
+            enemies_div.children[i].children[0].children[1].children[1].innerHTML = `Atk speed: ${disp_speed}`;
+            enemies_div.children[i].children[0].children[1].children[2].innerHTML = `AP : ${Math.round(ap)}`;
+            enemies_div.children[i].children[0].children[1].children[3].innerHTML = `EP : ${Math.round(ep)} `;
+            enemies_div.children[i].children[0].children[1].children[4].innerHTML = `Def : ${current_enemies[i].stats.defense} `;
+
 
         } else {
             enemies_div.children[i].children[0].style.display = "none"; //just hide it
@@ -846,6 +863,7 @@ function update_displayed_normal_location(location) {
     document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_default'));
     document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_default'));
     character_attack_bar.parentNode.style.display = "none";
+    document.getElementById("def_stat").style.display = "none";
     
     //add buttons for starting dialogues
     for(let i = 0; i < location.dialogues.length; i++) { 
@@ -874,20 +892,19 @@ function update_displayed_normal_location(location) {
     }
 
     //add buttons to start activities
-    for(let i = 0; i < location.activities.length; i++) {
-        if(!activities[location.activities[i].activity]?.is_unlocked || !location.activities[i]?.is_unlocked) {
-            continue;
+    Object.keys(location.activities).forEach(key => {
+        if(!activities[location.activities[key].activity]?.is_unlocked || !location.activities[key]?.is_unlocked) {
+            return;
         }
 
         const activity_div = document.createElement("div");
-        
-        if(activities[location.activities[i].activity].type === "JOB") {
+        if(activities[location.activities[key].activity].type === "JOB") {
             activity_div.innerHTML = `<i class="material-icons">construction</i>  `;
             activity_div.classList.add("activity_div");
-            activity_div.setAttribute("data-activity", i);
-            activity_div.setAttribute("onclick", `start_activity({id: ${i}});`);
+            activity_div.setAttribute("data-activity", key);
+            activity_div.setAttribute("onclick", `start_activity({activity: "${key}"});`);
 
-            if(can_work(location.activities[i])) {
+            if(can_work(location.activities[key])) {
                 activity_div.classList.add("start_activity");
             } else {
                 activity_div.classList.add("activity_unavailable");
@@ -895,28 +912,30 @@ function update_displayed_normal_location(location) {
 
             const job_tooltip = document.createElement("div");
             job_tooltip.classList.add("job_tooltip");
-            job_tooltip.innerHTML = `Available from ${location.activities[i].availability_time.start} to ${location.activities[i].availability_time.end} <br>`;
-            job_tooltip.innerHTML += `Pays ${format_money(location.activities[i].payment.min)} per every ` +  
-                    `${format_time({time: {minutes: location.activities[i].working_period}})} worked`;
+            if(!location.activities[key].infinite){
+                job_tooltip.innerHTML = `Available from ${location.activities[key].availability_time.start} to ${location.activities[key].availability_time.end} <br>`;
+            }
+            job_tooltip.innerHTML += `Pays ${format_money(location.activities[key].payment.min)} per every ` +  
+                    `${format_time({time: {minutes: location.activities[key].working_period}})} worked`;
             
 
 
             activity_div.appendChild(job_tooltip);
         }
-        else if(activities[location.activities[i].activity].type === "TRAINING") {
+        else if(activities[location.activities[key].activity].type === "TRAINING") {
             activity_div.innerHTML = `<i class="material-icons">fitness_center</i>  `;
             activity_div.classList.add("activity_div");
-            activity_div.setAttribute("data-activity", i);
-            activity_div.setAttribute("onclick", `start_activity({id: ${i}});`);
+            activity_div.setAttribute("data-activity", key);
+            activity_div.setAttribute("onclick", `start_activity({activity: "${key}"});`);
 
             activity_div.classList.add("start_activity");
 
         }
 
-        activity_div.innerHTML += location.activities[i].starting_text;
+        activity_div.innerHTML += location.activities[key].starting_text;
         action_div.appendChild(activity_div);
-    }
-    
+    });
+
     //add button to go to sleep
     if(location.sleeping) { 
         const start_sleeping_div = document.createElement("div");
@@ -973,12 +992,13 @@ function update_displayed_combat_location(location) {
     enemy_count_div.style.display = "block";
     combat_div.style.display = "block";
     character_attack_bar.parentNode.style.display = "block";
+    document.getElementById("def_stat").style.display = "block";
 
     document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_combat'));
     document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_combat'));
 
 
-    enemy_count_div.children[0].children[1].innerHTML = location.enemy_count - location.enemies_killed % location.enemy_count;
+    enemy_count_div.children[0].children[1].innerHTML = location.enemy_count - location.enemy_groups_killed % location.enemy_count;
 
     action = document.createElement("div");
     action.classList.add("travel_normal", "action_travel");
@@ -1025,24 +1045,35 @@ function update_displayed_stats() { //updates displayed stats
 }
 
 function update_displayed_combat_stats() {
+    const attack_stats = document.getElementById("attack_stats");
 
-    other_combat_divs.offensive_points.innerHTML = `${Math.round(character.combat_stats.attack_points)}`;
+    const ap = Math.round(character.combat_stats.attack_points);
+    other_combat_divs.offensive_points.innerHTML = `${ap}`;
 
     if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
+        const dp = (character.combat_stats.block_chance*100).toFixed(1)
         other_combat_divs.defensive_action.innerHTML = "Block :";
-        other_combat_divs.defensive_points.innerHTML = `${(character.combat_stats.block_chance*100).toFixed(1)}%`;
+        other_combat_divs.defensive_points.innerHTML = `${dp}%`;
         other_combat_divs.defensive_points.parentNode.children[2].innerHTML = "Chance to block an attack";
+
+        attack_stats.children[3].innerHTML = `Block : ${Math.round(dp)} `;
     }
     else { //NO SHIELD
+        const ep = Math.round(character.combat_stats.evasion_points);
         other_combat_divs.defensive_action.innerHTML = "EP : ";
-        other_combat_divs.defensive_points.innerHTML = `${Math.round(character.combat_stats.evasion_points)}`;
-        
+        other_combat_divs.defensive_points.innerHTML = `${ep}`;
         other_combat_divs.defensive_points.parentNode.children[2].innerHTML = 
         "Evasion points, a total value of everything that contributes to the evasion chance, except for some situational skills and modifiers";
-        
-    }
-}
 
+        attack_stats.children[3].innerHTML = `EP : ${Math.round(ep)} `;
+    }
+
+    attack_stats.children[0].innerHTML = `Atk power: ${character.get_attack_power()}`;
+    attack_stats.children[1].innerHTML = `Atk speed: ${character.get_attack_speed()}`;
+    attack_stats.children[2].innerHTML = `AP : ${Math.round(ap)}`;
+    
+    document.getElementById("def_stat").innerHTML = `Def : ${character.stats.defense} `;
+}
 
 function update_displayed_effects() {
     const effect_count = Object.keys(active_effects).length;
@@ -1126,7 +1157,7 @@ function update_displayed_character_xp(did_level = false) {
         charaxter_xp_value
     */
     character_xp_div.children[0].children[0].style.width = `${100*character.xp.current_xp/character.xp.xp_to_next_lvl}%`;
-    character_xp_div.children[1].innerText = `${character.xp.current_xp}/${character.xp.xp_to_next_lvl} xp`;
+    character_xp_div.children[1].innerText = `${Math.round(character.xp.current_xp)}/${Math.round(character.xp.xp_to_next_lvl)} xp`;
 
     if(did_level) {
         character_level_div.innerText = `Level: ${character.xp.current_level}`;
@@ -1180,7 +1211,12 @@ function start_activity_display(current_activity) {
     action_status_div.id = "action_status_div";
 
     const action_xp_div = document.createElement("div");
-    action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${current_activity.activity.base_skills_names.toString().replace(",", ", ")}`;
+    if(current_activity.activity.base_skills_names) {
+        action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${current_activity.activity.base_skills_names.toString().replace(",", ", ")}`;
+    }
+    else {
+        console.warn(`Activity "${current_activity.activity.name}" has no skills assigned!`);
+    }
     action_xp_div.id = "action_xp_div";
 
     const action_end_div = document.createElement("div");
@@ -1382,6 +1418,8 @@ function update_enemy_attack_bar(enemy_id, num) {
 function update_character_attack_bar(num) {
     character_attack_bar.style.width = `${num*2.5}%`;
 }
+
+
 
 export {
     start_activity_animation,
