@@ -1366,7 +1366,6 @@ function get_game_version() {
 }
 
 function update() {
-
     setTimeout(function()
     {
         end_date = Date.now(); 

@@ -21,7 +21,7 @@ class Location {
                 description, 
                 connected_locations, 
                 is_unlocked = true, 
-                location_dialogues = [], 
+                dialogues = [], 
                 types = [], //{type, xp per tick}
                 sleeping = null, //{text to start, xp per tick},
                 light_level = "normal",
@@ -33,7 +33,7 @@ class Location {
         this.description = description;
         this.connected_locations = connected_locations; //a list
         this.is_unlocked = is_unlocked;
-        this.dialogues = location_dialogues;
+        this.dialogues = dialogues;
         this.activities = {};
         this.types = types;
         this.sleeping = sleeping;
