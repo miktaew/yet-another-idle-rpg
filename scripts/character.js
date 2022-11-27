@@ -356,10 +356,12 @@ function unequip_item(item_slot) {
                         effects = current_location.get_total_effect().hero_penalty.multipliers;
                 }
 
-                if(current_location.light_level === " dark" || current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 4)) {
+                if(current_location.light_level === "dark" || current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 4)) {
                         light_modifier = 0.5 + 0.5*skills["Night vision"].current_level/skills["Night vision"].max_level;
                 }
         }
+
+        
 
         if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
             character.combat_stats.evasion_points = null;
