@@ -117,7 +117,7 @@ function change_location(location_name) {
 
 /**
  * 
- * @param {Object} selected_activity - {id} of activity in Location's activities list
+ * @param {Object} selected_activity - {id} of activity in Location's activities list??
  */
 function start_activity(selected_activity) {
     current_activity = Object.assign({},current_location.activities[selected_activity.activity]);
@@ -1268,11 +1268,11 @@ function load(save_data) {
         //set activity if any saved
         if(save_data.current_activity) {
             //search for it in location from save_data
-            const activity_id = locations[save_data["current location"]].activities.findIndex(activity => activity.activity ===  save_data.current_activity.activity);
+            const activity_id = save_data.current_activity.activity;
 
-            if(typeof activity_id !== "undefined") {
-                start_activity({id: activity_id});
-                if(activities[current_activity.activity.name].type === "JOB") {
+            if(typeof activity_id !== "undefined" && current_location.activities[activity_id]) {
+                start_activity({activity: activity_id});
+                if(activities[activity_id].type === "JOB") {
                     current_activity.working_time = save_data.current_activity.working_time;
                     current_activity.earnings = save_data.current_activity.earnings;
                     document.getElementById("action_end_earnings").innerText = `(earnings: ${format_money(current_activity.earnings)})`;
@@ -1486,7 +1486,7 @@ function update() {
             save_to_localStorage();
         } //save every X/60 minutes
 
-        if(current_location && 
+        if(!is_sleeping && current_location && 
                 (current_location.light_level === " dark" || current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 4))) 
         {
             add_xp_to_skill(skills["Night vision"], 1);
