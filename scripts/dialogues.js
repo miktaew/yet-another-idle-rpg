@@ -168,6 +168,7 @@ Before that, maybe get some sleep? Some folks prepared that shack over there for
 
     dialogues["village guard"] = new Dialogue({
         name: "village guard",
+        is_unlocked: false,
         textlines: {
             "hello": new Textline({
                 name: "Hello?",
