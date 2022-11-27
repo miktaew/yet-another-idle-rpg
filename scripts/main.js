@@ -103,12 +103,14 @@ function change_location(location_name) {
     
     current_location = location;
 
-    if("connected_locations" in location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
-        update_displayed_normal_location(location);
+    update_combat_stats();
+
+    if("connected_locations" in current_location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
+        update_displayed_normal_location(current_location);
 
     } else { //so if entering combat zone
 
-        update_displayed_combat_location(location);
+        update_displayed_combat_location(current_location);
         start_combat();
     }
 }
@@ -245,26 +247,27 @@ function end_sleeping() {
  */
 function can_work(selected_job) {
     //if can start at all
+    if(!selected_job.infinite) {
+        if(selected_job.availability_time.end > selected_job.availability_time.start) {
+            //ends on the same day
+            if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.end*60
+                ||  //too late
+                current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
+                ) {  //too early
+                
+                return false;
+            }
+        } else {
+            //ends on the next day (i.e. working through the night)        
+            if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.start*60
+                //too late
+                ||
+                current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.end*60
+                //too early
 
-    if(selected_job.availability_time.end > selected_job.availability_time.start) {
-        //ends on the same day
-        if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.end*60
-            ||  //too late
-            current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
-            ) {  //too early
-            
-            return false;
-        }
-    } else {
-        //ends on the next day (i.e. working through the night)        
-        if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.start*60
-            //too late
-            ||
-            current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.end*60
-            //too early
-
-        ) {  
-            return false;
+            ) {  
+                return false;
+            }
         }
     }
 
@@ -277,30 +280,32 @@ function can_work(selected_job) {
  * @returns if there's enough time to earn anything
  */
 function enough_time_for_earnings(selected_job) {
-    //if enough time for at least 1 working period
-    if(selected_job.availability_time.end > selected_job.availability_time.start) {
-        //ends on the same day
-        if(current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60
-            ||  //not enough time left for another work period
-            current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
-            ) {  //too early to start (shouldn't be allowed to start and get here at all)
-            return false;
-        }
-    } else {
-        //ends on the next day (i.e. working through the night)        
-        if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.start*60
-            //timer is past the starting hour, so it's the same day as job starts
-            && 
-            current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60 + 24*60
-            //time available on this day + time available on next day are less than time needed
-            ||
-            current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
-            //timer is less than the starting hour, so it's the next day
-            &&
-            current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60
-            //time left on this day is not enough to finish
-            ) {  
-            return false;
+    if(!selected_job.infinite) {
+        //if enough time for at least 1 working period
+        if(selected_job.availability_time.end > selected_job.availability_time.start) {
+            //ends on the same day
+            if(current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60
+                ||  //not enough time left for another work period
+                current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
+                ) {  //too early to start (shouldn't be allowed to start and get here at all)
+                return false;
+            }
+        } else {
+            //ends on the next day (i.e. working through the night)        
+            if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.start*60
+                //timer is past the starting hour, so it's the same day as job starts
+                && 
+                current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60 + 24*60
+                //time available on this day + time available on next day are less than time needed
+                ||
+                current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
+                //timer is less than the starting hour, so it's the next day
+                &&
+                current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60
+                //time left on this day is not enough to finish
+                ) {  
+                return false;
+            }
         }
     }
 
@@ -705,6 +710,7 @@ function use_stamina(num = 1) {
  */
 function add_xp_to_skill(skill, xp_to_add, should_info) 
 {
+
     if(xp_to_add == 0) {
         return;
     }
@@ -1351,6 +1357,7 @@ function load_from_localstorage() {
 //update game time
 function update_timer() {
     current_game_time.go_up(is_sleeping ? 6 : 1);
+    update_combat_stats(); //yep, done every second, gotta try to optimize it at some point
     update_displayed_time();
 }
 
@@ -1395,7 +1402,7 @@ function update() {
             if(current_activity) { //in activity
 
                 //add xp to all related skills
-                for(let i = 0; i < current_activity.activity.base_skills_names.length; i++) {
+                for(let i = 0; i < current_activity.activity.base_skills_names?.length; i++) {
                     add_xp_to_skill(skills[current_activity.activity.base_skills_names[i]], current_activity.skill_xp_per_tick);
                 }
 
@@ -1480,6 +1487,19 @@ function update() {
             save_to_localStorage();
         } //save every X/60 minutes
 
+        if(current_location && 
+                (current_location.light_level === " dark" || current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 4))) 
+        {
+            add_xp_to_skill(skills["Night vision"], 1);
+        }
+
+        if("parent_location" in current_location) {
+            const skills = current_location.gained_skills;
+            for(let i = 0; i < skills.length; i++) {
+                add_xp_to_skill(current_location.gained_skills[i].skill, current_location.gained_skills[i].xp);
+            }
+        }
+
 
 
         if(time_variance_accumulator <= 100/tickrate && time_variance_accumulator >= -100/tickrate) {
@@ -1496,12 +1516,7 @@ function update() {
             }
         }
         /*
-        small correction, limiting maximum adjustment; absolutely necessary, as otherwise tabbing out would then cause problems
-        as having tab unfocused would sometimes result in ticks either being a bit longer and accumulating over time, 
-        or just almost entirely stop, and so in both cases time_variance_accumulator would keep growing and growing
-        and growing and growing to some ridiculous values, then when game tab is focused again, 
-        it would try to get rid of this "time debt" by going with max possible speed, 
-        possibly for minutes or even longer
+        small correction, limiting maximum adjustment;
         */
 
         update();

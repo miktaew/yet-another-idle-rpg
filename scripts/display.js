@@ -912,7 +912,9 @@ function update_displayed_normal_location(location) {
 
             const job_tooltip = document.createElement("div");
             job_tooltip.classList.add("job_tooltip");
-            job_tooltip.innerHTML = `Available from ${location.activities[key].availability_time.start} to ${location.activities[key].availability_time.end} <br>`;
+            if(!location.activities[key].infinite){
+                job_tooltip.innerHTML = `Available from ${location.activities[key].availability_time.start} to ${location.activities[key].availability_time.end} <br>`;
+            }
             job_tooltip.innerHTML += `Pays ${format_money(location.activities[key].payment.min)} per every ` +  
                     `${format_time({time: {minutes: location.activities[key].working_period}})} worked`;
             
@@ -1209,7 +1211,12 @@ function start_activity_display(current_activity) {
     action_status_div.id = "action_status_div";
 
     const action_xp_div = document.createElement("div");
-    action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${current_activity.activity.base_skills_names.toString().replace(",", ", ")}`;
+    if(current_activity.activity.base_skills_names) {
+        action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${current_activity.activity.base_skills_names.toString().replace(",", ", ")}`;
+    }
+    else {
+        console.warn(`Activity "${current_activity.activity.name}" has no skills assigned!`);
+    }
     action_xp_div.id = "action_xp_div";
 
     const action_end_div = document.createElement("div");

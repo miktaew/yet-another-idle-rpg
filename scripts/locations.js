@@ -1,6 +1,8 @@
 import { enemy_templates, Enemy } from "./enemies.js";
-import { dialogues } from "./dialogues.js";
+import { dialogues as dialoguesList} from "./dialogues.js";
+import { skills } from "./skills.js";
 const locations = {};
+const location_types = {};
 //contains all the created locations
 
 /*
@@ -14,22 +16,33 @@ TODO:
 */
 
 class Location {
-    constructor(location_data) {
+    constructor({
+                name, 
+                description, 
+                connected_locations, 
+                is_unlocked = true, 
+                location_dialogues = [], 
+                types = [], //{type, xp per tick}
+                sleeping = null, //{text to start, xp per tick},
+                light_level = "normal",
+            }) {
         /* always safe
     
         */
-        this.name = location_data.name;
-        this.description = location_data.description;
-        this.connected_locations = location_data.connected_locations; //a list
-        this.is_unlocked = typeof location_data.is_unlocked !== "undefined" ? location_data.is_unlocked : true;
-        this.dialogues = location_data.dialogues || [];
+        this.name = name;
+        this.description = description;
+        this.connected_locations = connected_locations; //a list
+        this.is_unlocked = is_unlocked;
+        this.dialogues = location_dialogues;
         this.activities = {};
-        this.sleeping = location_data.sleeping || null; // {text to start, xp per tick}
+        this.types = types;
+        this.sleeping = sleeping;
         for (let i = 0; i < this.dialogues.length; i++) {
-            if (!dialogues[this.dialogues[i]]) {
+            if (!dialoguesList[this.dialogues[i]]) {
                 throw new Error(`No such dialogue as "${this.dialogues[i]}"!`);
             }
         }
+        this.light_level = light_level; //not really used for this type
     }
 }
 
@@ -37,6 +50,7 @@ class Combat_zone {
     constructor({name, 
                  description, 
                  is_unlocked = true, 
+                 types = [], //{type, xp_gain}
                  enemy_groups_list = [],
                  enemies_list = [], 
                  enemy_group_size = [1,1],
@@ -46,8 +60,7 @@ class Combat_zone {
                  leave_text,
                  first_reward = {},
                  repeatable_reward = {}, 
-                 required_skills = [],
-                 gained_skills = [],
+                 light_level = "normal",
                 }) {
         /*
         after clearing, maybe permanently unlock a single, harder zone (meaning also more xp/loot), from where the only way is back;
@@ -55,6 +68,7 @@ class Combat_zone {
         this.name = name;
         this.description = description;
         this.is_unlocked = is_unlocked;
+        this.types = types; //special properties of the location, e.g. "narrow" or "dark"
         this.enemy_groups_list = enemy_groups_list; //predefined enemy teams, names only
         this.enemies_list = enemies_list; //possible enemies (to be used if there's no enemy_groups_list), names only
         this.enemy_group_size = enemy_group_size; // [min, max], used only if enemy_groups_list is not provided
@@ -98,19 +112,19 @@ class Combat_zone {
         this.leave_text = leave_text; //text on option to leave
         this.first_reward = first_reward; //reward for first clear
         this.repeatable_reward = repeatable_reward; //reward for each clear, including first; all unlocks should be in this, just in case
-        this.required_skills = required_skills;
-        /*
-        skills required to fight with full efficiency
-        [{skill_name, skill_coefficient needed, item needed to prevent debuf, affected stats}]
-        e.g.
-        [{skill: nightvision, coefficient: 2, item_to_prevent: light_source, affected_stats: ["agility", "dexterity"]}]
-        */
-        this.gained_skills = gained_skills;
-        /*
-        skills that will raise by themselves when fighting in some locations
-        e.g. due to environment, i.e. night vision skill in dark areas
-        [{skill_name, xp gained}]
-        */
+
+        //skills and their xp gain on every tick, based on location types;
+        this.gained_skills = this.types.map(type => {return {skill: skills[location_types[type.type].related_skill], xp: type.xp_gain}});
+
+        if(["dark", "normal", "bright"].includes(light_level)) {
+            //dark = always night
+            //normal = follow day-night cycle
+            //bright = always day
+            //xp gain same everywhere?
+            this.light_level = light_level;
+        } else {
+            throw new Error(`No such light level as "${light_level}" allowed!`);
+        }
     }
 
     get_next_enemies() {
@@ -174,6 +188,31 @@ class Combat_zone {
         }
         return enemies;
     }
+
+    //calculates total penalty with and without hero skills
+    get_total_effect() {
+        const effects = {multipliers: {}};
+        const hero_effects = {multipliers: {}};
+        
+        //iterate over types of location
+        for(let i = 0; i < this.types.length; i++) {
+            const type = location_types[this.types[i].type];
+            const skill = skills[type.related_skill];
+
+            //iterate over effects each type has 
+            //(ok there's really just only 3 that make sense: attack points, evasion points, strength, though maybe also attack speed? mainly the first 2 anyway)
+            //only AP and EP supported for now
+            Object.keys(type.effects.multipliers).forEach((effect) => { 
+
+                effects.multipliers[effect] = (effects.multipliers[effect] || 1) * type.effects.multipliers[effect];
+                
+                hero_effects.multipliers[effect] = (hero_effects.multipliers[effect] || 1) 
+                        * (type.effects.multipliers[effect] + (1 - type.effects.multipliers[effect])*(skill.current_level/skill.max_level));
+            })
+        }
+
+        return {base_penalty: effects, hero_penalty: hero_effects};
+    }
 }
 
 class LocationActivity{
@@ -223,12 +262,67 @@ class LocationActivity{
         }
 }
 
+class LocationType{
+    constructor({name, description, related_skill, effects = {}}) {
+        this.name = name;
+        this.description = description;
+
+        if(related_skill) {
+            if(!skills[related_skill]) {
+                throw new Error(`No such skill as "${related_skill}"`);
+            }
+            else { 
+                this.related_skill = related_skill; //one per each; skill xp defined in location/combat_zone
+            }
+        }
+        this.effects = effects; //follows same formula as gains from skill lvls, so
+        //multipliers: {stat: value}
+        //only hit chance and evasion are supported for now
+    }
+}
+
+//create location types
+(function(){
+    location_types["super bright"] = new LocationType({
+        name: "super bright",
+        description: "An extremely bright place, excessive light makes it hard to keep eyes open",
+        related_skill: "Dazzle resistance",
+        effects: {
+            multipliers: {
+                hit_chance: 0.5,
+                evasion: 0.5,
+            }
+        }
+    });
+    location_types["narrow"] = new LocationType({
+        name: "narrow",
+        description: "A very narrow and tight area where it's hard to even move properly",
+        related_skill: "Tight maneuvers",
+        effects: {
+            multipliers: {
+                evasion: 0.5,
+            }
+        }
+    });
+    location_types["open"] = new LocationType({
+        name: "open",
+        description: "A completely open area where attack can come from any direction",
+        related_skill: "Spatial awareness",
+        effects: {
+            multipliers: {
+                evasion: 0.75,
+            }
+        }
+    });
+
+})();
+
 //create locations and zones
 (function(){ 
     locations["Village"] = new Location({ 
         connected_locations: [], 
         description: "Medium-sized village surrounded by many fields, some of them infested by rats. Other than that, there's nothing interesting around.", 
-        dialogues: ["village elder", "village trader"],
+        dialogues: ["village elder", "village trader", "village guard"],
         name: "Village", 
     });
 
@@ -249,6 +343,7 @@ class LocationActivity{
         description: "Field infested with rats.", 
         enemy_count: 15, 
         enemies_list: ["Starving wolf rat", "Wolf rat"],
+        types: [{type: "open", xp_gain: 1}],
         enemy_stat_variation: 0.1,
         is_unlocked: false, 
         name: "Infested field", 
@@ -276,12 +371,14 @@ class LocationActivity{
     locations["Cave depths"] = new Combat_zone({
         description: "It's dark. And full of rats.", 
         enemy_count: 30, 
+        types: [{type: "narrow", xp_gain: 3}],
         enemies_list: ["Starving wolf rat", "Wolf rat"],
         enemy_group_size: [5,8],
         enemy_stat_variation: 0.2,
         is_unlocked: true, 
         name: "Cave depths", 
         leave_text: "Climb out",
+        light_level: "dark",
         parent_location: locations["Nearby cave"],
         repeatable_reward: {
             textlines: [{dialogue: "village elder", lines: ["cleared cave"]}],
@@ -348,6 +445,15 @@ class LocationActivity{
             starting_text: "Try to carry some bags of grain",
             skill_xp_per_tick: 1,
             is_unlocked: false,
+        }),
+        "patrolling": new LocationActivity({
+            activity: "patrolling",
+            starting_text: "Go on a patrol around the village.",
+            payment: {min: 4},
+            is_unlocked: false,
+            infinite: true,
+            working_period: 60*2,
+            skill_xp_per_tick: 1
         })
     };
     locations["Forest road"].activities = {

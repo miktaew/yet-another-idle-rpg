@@ -3,6 +3,8 @@ import { skills } from "./skills.js";
 import { update_displayed_character_inventory, update_displayed_equipment, 
          update_displayed_stats, update_displayed_combat_stats,
          update_displayed_health, update_displayed_stamina } from "./display.js";
+import { current_location } from "./main.js";
+import { current_game_time } from "./game_time.js";
 
 //player character
 const base_xp_cost = 10;
@@ -345,16 +347,34 @@ function unequip_item(item_slot) {
  * updates character stats related to combat
  */
  function update_combat_stats() {
+
+        let effects = {};
+        let light_modifier = 1;
+        
+        if(current_location) {
+                if(!("connected_locations" in current_location)) {
+                        effects = current_location.get_total_effect().hero_penalty.multipliers;
+                }
+
+                if(current_location.light_level === " dark" || current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 4)) {
+                        light_modifier = 0.5 + 0.5*skills["Night vision"].current_level/skills["Night vision"].max_level;
+                }
+        }
+
         if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
             character.combat_stats.evasion_points = null;
             character.combat_stats.block_chance = Math.round(0.4 * skills["Shield blocking"].get_coefficient("flat") * 10000)/10000;
         }
+
     
-        character.combat_stats.attack_points = Math.sqrt(character.full_stats.intuition) * character.full_stats.dexterity * skills["Combat"].get_coefficient("multiplicative");
+        character.combat_stats.attack_points = 
+                Math.sqrt(character.full_stats.intuition) * character.full_stats.dexterity 
+                        * skills["Combat"].get_coefficient("multiplicative") * (effects?.hit_chance || 1) * light_modifier;
     
         if(character.equipment["off-hand"] == null || character.equipment["off-hand"].offhand_type !== "shield") {
-            character.combat_stats.evasion_points = character.full_stats.agility * Math.sqrt(character.full_stats.intuition) * skills["Evasion"].get_coefficient("multiplicative");
-    
+            character.combat_stats.evasion_points = 
+                character.full_stats.agility * Math.sqrt(character.full_stats.intuition) 
+                        * skills["Evasion"].get_coefficient("multiplicative") * (effects?.evasion || 1) * light_modifier;
         }
     
         update_displayed_combat_stats();

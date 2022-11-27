@@ -138,11 +138,12 @@ Before that, maybe get some sleep? Some folks prepared that shack over there for
             }),
             "cleared cave": new Textline({
                 name: "I cleared the cave. Most of it, at least",
-                text: `Then I can't call you "too weak" anymore, can I? You can leave whenever you want, but still, be careful.`,
+                text: `Then I can't call you "too weak" anymore, can I? You can leave whenever you want, but still, be careful. You might also want to ask the guard for some tips about the outside.`,
                 is_unlocked: false,
                 unlocks: {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 4"]}],
                     locations: ["Forest road", "Infested field", "Nearby cave"],
+                    dialogues: ["village guard"],
                 },
                 locks_lines: ["ask to leave 3", "rats", "cleared cave"],
             }),
@@ -152,6 +153,7 @@ Before that, maybe get some sleep? Some folks prepared that shack over there for
                 is_unlocked: false,
                 unlocks: {
                     locations: ["Forest road", "Infested field", "Nearby cave"],
+                    dialogues: ["village guard"],
                 },
             }),
         }
@@ -162,6 +164,35 @@ Before that, maybe get some sleep? Some folks prepared that shack over there for
         trader: "village trader",
         is_unlocked: false,
         location_name: "Village",
+    });
+
+    dialogues["village guard"] = new Dialogue({
+        name: "village guard",
+        textlines: {
+            "hello": new Textline({
+                name: "Hello?",
+                text: "Hello. I see you are finally leaving, huh?",
+                unlocks: {
+                    textlines: [{dialogue: "village guard", lines: ["tips", "job"]}],
+                },
+                locks_lines: ["hello"],
+            }),
+            "tips": new Textline({
+                name: "Can you give me any tips for the journey?",
+                is_unlocked: false,
+                text: `First and foremost, don't rush. It's fine to spend some more time here, to better prepare yourself. 
+                There's a lot of dangerous animals out there, much stronger than those damn rats, and in worst case you might even run into some bandits.`,
+            }),
+            "job": new Textline({
+                name: "Do you maybe have any jobs for me?",
+                is_unlocked: false,
+                text: "You are somewhat combat capable now, so how about you help me and the boys on patrolling? Not much happens, but it pays better than working on fields",
+                unlocks: {
+                    activities: [{location:"Village", activity:"patrolling"}],
+                },
+                locks_lines: ["job"],
+            }),
+        }
     });
 })();
 
