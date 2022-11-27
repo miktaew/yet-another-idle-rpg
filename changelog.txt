@@ -1,3 +1,6 @@
+v0.2.4
+    - introduced location types (for combat zones), that bring some additional penalties to hit/evasion chance
+    - added a new job, unlocked after clearing 2nd combat zone
 v0.2.2
     - fixed issue where multi-enemy locations required killing X enemies, instead of killing X enemy groups
     - implemented stamina effects on character's attack speed and attack power
