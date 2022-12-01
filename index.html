@@ -974,7 +974,16 @@
                 //character item tooltips
                 inventory_div.addEventListener('mousemove', move_item_tooltip, false);
                 function move_item_tooltip(event) {
-                    if(event.target.id==="inventory_content_div" || event.target.id ==="money_div" || event.target.id === "inventory_div") {
+                    var hovered_element = event.target;
+                    
+                    if( !( hovered_element.classList.contains("inventory_item_control") 
+                        || hovered_element.classList.contains("trade_ammount_button")
+                        || hovered_element.classList.contains("inventory_item") 
+                        || hovered_element.classList.contains("item_controls") 
+                        || hovered_element.classList.contains("item_use_button") 
+                        || hovered_element.classList.contains("inventory_item_name") 
+                        || hovered_element.classList.contains("item_tooltip")
+                        )) {
                         return;
                     }
 
@@ -982,8 +991,6 @@
                     document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX}px`);
 
                     //calculate vertical position so it doesnt go under bottom edge
-                    
-                    var hovered_element = event.target;
                     
                     if(!hovered_element.classList.contains("inventory_item_control")){
                         if(hovered_element.classList.contains("trade_ammount_button") 
