@@ -549,24 +549,24 @@ skill_groups["weapon skills"] = new SkillGroup({
                                             names: {0: "Spatial awareness"}, 
                                             description: "Understanding where you are in relation to other creatures and objects", 
                                             get_effect_description: ()=> {
-                                                return `Reduces environmental penalty in certain areas by ${skills["Spatial awareness"].current_level*100/skills["Spatial awareness"].max_level}%`;
+                                                return `Reduces environmental penalty in open areas by ${skills["Spatial awareness"].current_level*100/skills["Spatial awareness"].max_level}%`;
                                             }});
     skills["Tight maneuvers"] = new Skill({
                                         skill_id: "Tight maneuvers", 
                                         names: {0: "Tight maneuvers"}, 
                                         description: "Learn how to fight in narrow environment, where there's not much space for dodging attacks", 
                                         get_effect_description: ()=> {
-                                            return `Reduces environmental penalty in certain areas by ${skills["Tight maneuvers"].current_level*100/skills["Tight maneuvers"].max_level}%`;
+                                            return `Reduces environmental penalty in narrow areas by ${skills["Tight maneuvers"].current_level*100/skills["Tight maneuvers"].max_level}%`;
                                         }});
     skills["Night vision"] = new Skill({
                                     skill_id: "Night vision",
                                     names: {0: "Night vision"},
                                     description: "Ability to see in darkness",
-                                    base_xp_cost: 60,
-                                    xp_scaling: 1.4,
-                                    max_level: 20,
+                                    base_xp_cost: 300,
+                                    xp_scaling: 1.8,
+                                    max_level: 10,
                                     get_effect_description: () => {
-                                        return `Reduces environmental penalty in certain areas by ${skills["Night vision"].current_level*100/skills["Night vision"].max_level}%`;
+                                        return `Reduces darkness penalty by ${skills["Night vision"].current_level*100/skills["Night vision"].max_level}%`;
                                     }
 
     });

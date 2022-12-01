@@ -1068,11 +1068,11 @@ function update_displayed_combat_stats() {
         attack_stats.children[3].innerHTML = `EP : ${Math.round(ep)} `;
     }
 
-    attack_stats.children[0].innerHTML = `Atk power: ${character.get_attack_power()}`;
-    attack_stats.children[1].innerHTML = `Atk speed: ${character.get_attack_speed()}`;
+    attack_stats.children[0].innerHTML = `Atk power: ${Math.round(character.get_attack_power()*10)/10}`;
+    attack_stats.children[1].innerHTML = `Atk speed: ${Math.round(character.get_attack_speed()*10)/10}`;
     attack_stats.children[2].innerHTML = `AP : ${Math.round(ap)}`;
     
-    document.getElementById("def_stat").innerHTML = `Def : ${character.stats.defense} `;
+    document.getElementById("def_stat").innerHTML = `Def : ${Math.round(character.stats.defense)} `;
 }
 
 function update_displayed_effects() {

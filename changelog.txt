@@ -1,3 +1,8 @@
+v0.2.5
+    - modified tooltip positioning so that they don't leave the screen
+    - rounded some displayed numbers
+    - slightly weakened first enemy type
+    - some minor bugfixes
 v0.2.4
     - introduced location types (for combat zones), that bring some additional penalties to hit/evasion chance
     - added a new job, unlocked after clearing 2nd combat zone
