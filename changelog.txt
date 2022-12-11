@@ -1,3 +1,18 @@
+v0.2.5
+    - modified tooltip positioning so that they don't leave the screen
+    - rounded some displayed numbers
+    - slightly weakened first enemy type
+    - some minor bugfixes
+v0.2.4
+    - introduced location types (for combat zones), that bring some additional penalties to hit/evasion chance
+    - added a new job, unlocked after clearing 2nd combat zone
+v0.2.2
+    - fixed issue where multi-enemy locations required killing X enemies, instead of killing X enemy groups
+    - implemented stamina effects on character's attack speed and attack power
+    - number of [alive] enemies now has negative impact on character's hit chance
+    - number of enemies multiplies gained character xp by sqrt of group size
+    - new training activity
+
 v0.2.1
     - fixed two small problems when importing file
     - fixed issue with combat being paused when area page is hidden
