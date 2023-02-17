@@ -1,3 +1,7 @@
+v0.2.7
+    - reworked the location type system
+    - payments for some jobs are now affected by related skill
+    - moved dialogue answers to dialouge box (instead of message log)
 v0.2.5
     - modified tooltip positioning so that they don't leave the screen
     - rounded some displayed numbers

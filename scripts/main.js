@@ -32,7 +32,7 @@ import { end_activity_animation,
          update_enemy_attack_bar, update_character_attack_bar
         } from "./display.js";
 
-const game_version = "v0.2.5";
+const game_version = "v0.2.7";
 
 //current enemy
 var current_enemies = null;
@@ -549,17 +549,17 @@ function do_enemy_combat_action(enemy_id) {
     if(critted)
     {
         if(partially_blocked) {
-            log_message(character.name + " partially blocked, critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
+            log_message(character.name + " partially blocked, critically was hit for " + damage_taken + " dmg", "hero_attacked_critically");
         } 
         else {
-            log_message(character.name + " critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
+            log_message(character.name + " critically was hit for " + damage_taken + " dmg", "hero_attacked_critically");
         }
     } else {
         if(partially_blocked) {
-            log_message(character.name + " partially blocked, hit for " + damage_taken + " dmg", "hero_attacked");
+            log_message(character.name + " partially blocked, was hit for " + damage_taken + " dmg", "hero_attacked");
         }
         else {
-            log_message(character.name + " hit for " + damage_taken + " dmg", "hero_attacked");
+            log_message(character.name + " was hit for " + damage_taken + " dmg", "hero_attacked");
         }
     }
 
@@ -630,10 +630,10 @@ function do_character_combat_action(attack_power, attack_type = "normal") {
 
         target.stats.health -= damage_dealt;
         if(critted) {
-            log_message(target.name + " critically hit for " + damage_dealt + " dmg", "enemy_attacked_critically");
+            log_message(target.name + " was critically hit for " + damage_dealt + " dmg", "enemy_attacked_critically");
         }
         else {
-            log_message(target.name + " hit for " + damage_dealt + " dmg", "enemy_attacked");
+            log_message(target.name + " was hit for " + damage_dealt + " dmg", "enemy_attacked");
         }
 
         if(target.stats.health <= 0) {
