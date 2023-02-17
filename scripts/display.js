@@ -222,12 +222,6 @@ function end_activity_animation() {
         case "message_travel":
             class_to_add = "message_travel";
             break;
-        case "dialogue_question":
-            class_to_add = "message_dialogue_question";
-            break;
-        case "dialogue_answer":
-            class_to_add = "message_dialogue_answer";
-            break;
         case "activity_unlocked": 
             //currently uses default
             break;
@@ -1191,6 +1185,9 @@ function update_displayed_dialogue(dialogue_key) {
     
     clear_action_div();
     
+    const dialogue_answer_div = document.createElement("div");
+    dialogue_answer_div.id = "dialogue_answer_div";
+    action_div.appendChild(dialogue_answer_div);
     Object.keys(dialogue.textlines).forEach(function(key) { //add buttons for textlines
             if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished) { //do only if text_line is not unavailable
                 const textline_div = document.createElement("div");
@@ -1218,6 +1215,11 @@ function update_displayed_dialogue(dialogue_key) {
     end_dialogue_div.setAttribute("onclick", "end_dialogue()");
 
     action_div.appendChild(end_dialogue_div);
+}
+
+function update_displayed_textline_answer(text) {
+    document.getElementById("dialogue_answer_div").innerText = text;
+    document.getElementById("dialogue_answer_div").style.padding = "10px";
 }
 
 function exit_displayed_trade() {
@@ -1469,6 +1471,7 @@ export {
     update_displayed_time,
     update_displayed_character_xp,
     update_displayed_dialogue,
+    update_displayed_textline_answer,
     exit_displayed_trade,
     start_activity_display,
     start_sleeping_display,

@@ -23,7 +23,8 @@ import { end_activity_animation,
          update_displayed_health, update_displayed_stamina,
          format_money, update_displayed_stats,
          update_displayed_effects, update_displayed_effect_durations,
-         update_displayed_time, update_displayed_character_xp, update_displayed_dialogue,
+         update_displayed_time, update_displayed_character_xp, 
+         update_displayed_dialogue, update_displayed_textline_answer,
          start_activity_display, start_sleeping_display,
          create_new_skill_bar, update_displayed_skill_bar, update_displayed_skill_description, clear_skill_bars,
          update_displayed_ongoing_activity, clear_skill_list,
@@ -337,9 +338,6 @@ function start_textline(textline_key){
     const dialogue = dialogues[current_dialogue];
     const textline = dialogue.textlines[textline_key];
 
-    log_message(`> > ${textline.name}`, "dialogue_question")
-    log_message(textline.text, "dialogue_answer");
-
     for(let i = 0; i < textline.unlocks.dialogues.length; i++) { //unlocking dialogues
         const dialogue = dialogues[textline.unlocks.dialogues[i]]
         if(!dialogue.is_unlocked) {
@@ -370,6 +368,7 @@ function start_textline(textline_key){
         }
     }
     start_dialogue(current_dialogue);
+    update_displayed_textline_answer(textline.text);
 }
 
 /**

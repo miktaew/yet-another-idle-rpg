@@ -116,18 +116,6 @@ body {
 	 font-weight: bold;
  }
 
- .message_dialogue_question {
-	text-align: left;
- }
-
- .message_dialogue_answer {
-	font-style: italic;
- }
-
- .message_dialogue_answer, .message_dialogue_question {
-
- }
-
  .message_location_unlocked {
 	 font-weight: bold;
  }
@@ -179,12 +167,21 @@ body {
 .dialogue_textline {
 	text-align: center;
 	font-size: 16;
-	font-style: italic;
 
 	border-bottom: 1px solid white;
 	cursor: pointer;
 	padding: 5px;
 }
+	#dialogue_answer_div {
+		border-bottom: 1px solid white;
+		font-style: italic;
+		text-align: center;
+		background-color: #15152d;
+		font-size: 16;
+		/*
+			padding set to 5 through code
+		*/
+	}
 
 .inventory_item, .trader_item {
 	 font-size: 14;
