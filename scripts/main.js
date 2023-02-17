@@ -23,7 +23,8 @@ import { end_activity_animation,
          update_displayed_health, update_displayed_stamina,
          format_money, update_displayed_stats,
          update_displayed_effects, update_displayed_effect_durations,
-         update_displayed_time, update_displayed_character_xp, update_displayed_dialogue,
+         update_displayed_time, update_displayed_character_xp, 
+         update_displayed_dialogue, update_displayed_textline_answer,
          start_activity_display, start_sleeping_display,
          create_new_skill_bar, update_displayed_skill_bar, update_displayed_skill_description, clear_skill_bars,
          update_displayed_ongoing_activity, clear_skill_list,
@@ -31,7 +32,7 @@ import { end_activity_animation,
          update_enemy_attack_bar, update_character_attack_bar
         } from "./display.js";
 
-const game_version = "v0.2.5";
+const game_version = "v0.2.7";
 
 //current enemy
 var current_enemies = null;
@@ -337,9 +338,6 @@ function start_textline(textline_key){
     const dialogue = dialogues[current_dialogue];
     const textline = dialogue.textlines[textline_key];
 
-    log_message(`> > ${textline.name}`, "dialogue_question")
-    log_message(textline.text, "dialogue_answer");
-
     for(let i = 0; i < textline.unlocks.dialogues.length; i++) { //unlocking dialogues
         const dialogue = dialogues[textline.unlocks.dialogues[i]]
         if(!dialogue.is_unlocked) {
@@ -370,6 +368,7 @@ function start_textline(textline_key){
         }
     }
     start_dialogue(current_dialogue);
+    update_displayed_textline_answer(textline.text);
 }
 
 /**
@@ -550,17 +549,17 @@ function do_enemy_combat_action(enemy_id) {
     if(critted)
     {
         if(partially_blocked) {
-            log_message(character.name + " partially blocked, critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
+            log_message(character.name + " partially blocked, critically was hit for " + damage_taken + " dmg", "hero_attacked_critically");
         } 
         else {
-            log_message(character.name + " critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
+            log_message(character.name + " critically was hit for " + damage_taken + " dmg", "hero_attacked_critically");
         }
     } else {
         if(partially_blocked) {
-            log_message(character.name + " partially blocked, hit for " + damage_taken + " dmg", "hero_attacked");
+            log_message(character.name + " partially blocked, was hit for " + damage_taken + " dmg", "hero_attacked");
         }
         else {
-            log_message(character.name + " hit for " + damage_taken + " dmg", "hero_attacked");
+            log_message(character.name + " was hit for " + damage_taken + " dmg", "hero_attacked");
         }
     }
 
@@ -631,10 +630,10 @@ function do_character_combat_action(attack_power, attack_type = "normal") {
 
         target.stats.health -= damage_dealt;
         if(critted) {
-            log_message(target.name + " critically hit for " + damage_dealt + " dmg", "enemy_attacked_critically");
+            log_message(target.name + " was critically hit for " + damage_dealt + " dmg", "enemy_attacked_critically");
         }
         else {
-            log_message(target.name + " hit for " + damage_dealt + " dmg", "enemy_attacked");
+            log_message(target.name + " was hit for " + damage_dealt + " dmg", "enemy_attacked");
         }
 
         if(target.stats.health <= 0) {
@@ -710,7 +709,6 @@ function use_stamina(num = 1) {
  */
 function add_xp_to_skill(skill, xp_to_add, should_info) 
 {
-
     if(xp_to_add == 0) {
         return;
     }
@@ -1412,7 +1410,7 @@ function update() {
                     if(current_activity.working_time % current_activity.working_period == 0) { 
                         //finished working period, add money, then check if there's enough time left for another
 
-                        current_activity.earnings += current_activity.payment.min;
+                        current_activity.earnings += current_activity.get_payment();
 
                         update_displayed_ongoing_activity(current_activity);
                     }
@@ -1486,20 +1484,18 @@ function update() {
             save_to_localStorage();
         } //save every X/60 minutes
 
-        if(!is_sleeping && current_location && 
-                (current_location.light_level === " dark" || current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 4))) 
+        if(!is_sleeping && current_location && current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 4)) 
         {
             add_xp_to_skill(skills["Night vision"], 1);
         }
 
-        if("parent_location" in current_location) {
+        //add xp to proper skills based on location types
+        if(current_location) {
             const skills = current_location.gained_skills;
-            for(let i = 0; i < skills.length; i++) {
+            for(let i = 0; i < skills?.length; i++) {
                 add_xp_to_skill(current_location.gained_skills[i].skill, current_location.gained_skills[i].xp);
             }
         }
-
-
 
         if(time_variance_accumulator <= 100/tickrate && time_variance_accumulator >= -100/tickrate) {
             time_adjustment = time_variance_accumulator;

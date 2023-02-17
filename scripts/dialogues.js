@@ -120,7 +120,7 @@ function Textline(textline_data) {
             "cleared field": new Textline({ //will be unlocked on clearing infested field combat_zone
                 name: "I cleared the field, just as you asked me to",
                 text: `You did? That's good. How about a stronger target? Nearby cave is just full of this vermin.
-Before that, maybe get some sleep? Some folks prepared that shack over there for you. It's clean, it's dry and it will give you some privacy.`,
+Before that, maybe get some sleep? Some folks prepared that shack over there for you. It's clean, it's dry, and it will give you some privacy.`,
                 is_unlocked: false,
                 unlocks: {
                     locations: ["Nearby cave", "Infested field", "Shack"],

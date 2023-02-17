@@ -32,6 +32,8 @@
 	--stat_tooltip_top: 0px;
 	--stat_tooltip_left: 0px;
 
+	--location_type_tooltip_top: 0px;
+	--location_type_tooltip_left: 0px;
 
 	/* for #location_related_div */
 	--actions_div_height_default: 400px;
@@ -114,18 +116,6 @@ body {
 	 font-weight: bold;
  }
 
- .message_dialogue_question {
-	text-align: left;
- }
-
- .message_dialogue_answer {
-	font-style: italic;
- }
-
- .message_dialogue_answer, .message_dialogue_question {
-
- }
-
  .message_location_unlocked {
 	 font-weight: bold;
  }
@@ -177,12 +167,21 @@ body {
 .dialogue_textline {
 	text-align: center;
 	font-size: 16;
-	font-style: italic;
 
 	border-bottom: 1px solid white;
 	cursor: pointer;
 	padding: 5px;
 }
+	#dialogue_answer_div {
+		border-bottom: 1px solid white;
+		font-style: italic;
+		text-align: center;
+		background-color: #15152d;
+		font-size: 16;
+		/*
+			padding set to 5 through code
+		*/
+	}
 
 .inventory_item, .trader_item {
 	 font-size: 14;
@@ -1071,13 +1070,47 @@ i {
 	font-size: 20;
 }
 		#location_name_div {
-			border-top: 1px solid white;
 			padding: 4px;
+			width: 250px;
+			float: left;
 		}
+
+		#location_types_div {
+			left: 292px;
+			width: 100px;
+			height: 23px;
+			padding: 2px;
+			position: absolute;
+			text-align: right;
+			font-size: 12;
+		}
+			.location_type_div {
+				float: left;
+				width: 50px;
+			}
+
+				.location_type_tooltip {
+					display: none;
+					background-color: rgba(120, 120, 120, 0.9);
+					border-radius: 10px;
+					padding: 5px;
+					position: absolute;
+					z-index: 1000;
+					width: 200px;
+					top: var(--location_type_tooltip_top);
+					left: var(--location_type_tooltip_left);
+					pointer-events: none;
+					text-align: left;
+				}
+
+					.location_type_div:hover .location_type_tooltip {
+						display: block;
+					}
 
 		#time_div {
 			padding: 4px;
 			text-align: right;
+			border-bottom: 1px solid white;
 		}
 
 #location_name_div:hover #location_description_tooltip {

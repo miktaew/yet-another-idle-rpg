@@ -570,6 +570,28 @@ skill_groups["weapon skills"] = new SkillGroup({
                                     }
 
     });
+    skills["Heat resistance"] = new Skill({
+        skill_id: "Heat resistance",
+        names: {0: "Heat resistance"},
+        description: "Ability to survive and function in high temperatures",
+        base_xp_cost: 100,
+        xp_scaling: 1.8,
+        max_level: 40,
+        get_effect_description: () => {
+            return `Reduces penalty from hot locations`;
+        }
+    });
+    skills["Cold resistance"] = new Skill({
+        skill_id: "Cold resistance",
+        names: {0: "Cold resistance"},
+        description: "Ability to survive and function in low temperatures",
+        base_xp_cost: 100,
+        xp_scaling: 1.8,
+        max_level: 40,
+        get_effect_description: () => {
+            return `Reduces penalty from cold locations`;
+        }
+    });
 })();
 
 //weapon skills
