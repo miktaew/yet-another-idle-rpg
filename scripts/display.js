@@ -7,6 +7,7 @@ import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time } from "./game_time.js";
 import { item_templates } from "./items.js";
+import { location_types } from "./locations.js";
 
 var activity_anim; //for the activity animation interval
 
@@ -15,6 +16,7 @@ const action_div = document.getElementById("location_actions_div");
 const trade_div = document.getElementById("trade_div");
 
 const location_name_div = document.getElementById("location_name_div");
+const location_types_div = document.getElementById("location_types_div");
 
 //inventory display
 const inventory_div = document.getElementById("inventory_content_div");
@@ -855,6 +857,7 @@ function update_displayed_health_of_enemies() {
 function update_displayed_normal_location(location) {
     
     clear_action_div();
+    location_types_div.innerHTML = "";
     var action;
 
     combat_div.style.display = "none";
@@ -915,7 +918,7 @@ function update_displayed_normal_location(location) {
             if(!location.activities[key].infinite){
                 job_tooltip.innerHTML = `Available from ${location.activities[key].availability_time.start} to ${location.activities[key].availability_time.end} <br>`;
             }
-            job_tooltip.innerHTML += `Pays ${format_money(location.activities[key].payment.min)} per every ` +  
+            job_tooltip.innerHTML += `Pays ${format_money(location.activities[key].get_payment())} per every ` +  
                     `${format_time({time: {minutes: location.activities[key].working_period}})} worked`;
             
 
@@ -987,6 +990,7 @@ function update_displayed_normal_location(location) {
 function update_displayed_combat_location(location) {
 
     clear_action_div();
+    location_types_div.innerHTML = "";
     var action;
 
     enemy_count_div.style.display = "block";
@@ -1014,6 +1018,23 @@ function update_displayed_combat_location(location) {
 
 
     location_name_div.innerText = current_location.name;
+
+    //add location types to display
+
+    for(let i = 0; i < current_location.types?.length; i++) {
+        const type_div = document.createElement("div");
+        type_div.innerHTML = current_location.types[i].type;
+        type_div.classList.add("location_type_div");
+
+        const type_tooltip = document.createElement("div");
+        type_tooltip.innerHTML = location_types[current_location.types[i].type].stages[current_location.types[i].stage].description;
+        type_tooltip.classList.add("location_type_tooltip");
+
+        type_div.appendChild(type_tooltip);
+        location_types_div.appendChild(type_div);
+
+    }
+
     document.getElementById("location_description_div").innerText = current_location.description;
 }
 
@@ -1297,7 +1318,6 @@ function create_new_skill_bar(skill) {
     const tooltip_milestones = document.createElement("div");
     const tooltip_next = document.createElement("div");
     
-
     skill_bar_max.classList.add("skill_bar_max");
     skill_bar_current.classList.add("skill_bar_current");
     skill_bar_text.classList.add("skill_bar_text");

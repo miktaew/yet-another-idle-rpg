@@ -710,7 +710,6 @@ function use_stamina(num = 1) {
  */
 function add_xp_to_skill(skill, xp_to_add, should_info) 
 {
-
     if(xp_to_add == 0) {
         return;
     }
@@ -1412,7 +1411,7 @@ function update() {
                     if(current_activity.working_time % current_activity.working_period == 0) { 
                         //finished working period, add money, then check if there's enough time left for another
 
-                        current_activity.earnings += current_activity.payment.min;
+                        current_activity.earnings += current_activity.get_payment();
 
                         update_displayed_ongoing_activity(current_activity);
                     }
@@ -1486,20 +1485,18 @@ function update() {
             save_to_localStorage();
         } //save every X/60 minutes
 
-        if(!is_sleeping && current_location && 
-                (current_location.light_level === " dark" || current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 4))) 
+        if(!is_sleeping && current_location && current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 4)) 
         {
             add_xp_to_skill(skills["Night vision"], 1);
         }
 
-        if("parent_location" in current_location) {
+        //add xp to proper skills based on location types
+        if(current_location) {
             const skills = current_location.gained_skills;
-            for(let i = 0; i < skills.length; i++) {
+            for(let i = 0; i < skills?.length; i++) {
                 add_xp_to_skill(current_location.gained_skills[i].skill, current_location.gained_skills[i].xp);
             }
         }
-
-
 
         if(time_variance_accumulator <= 100/tickrate && time_variance_accumulator >= -100/tickrate) {
             time_adjustment = time_variance_accumulator;

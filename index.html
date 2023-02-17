@@ -93,6 +93,9 @@
                     <div id = "location_name_div">
                         
                     </div>
+                    <div id = "location_types_div">
+                        
+                    </div>
                 </div>
 
             </div>
@@ -892,7 +895,6 @@
                 sort_displayed_inventory({sort_by: option, target: "character"})
             }
 
-            
             function saveToFile() {
                 var a = window.document.createElement('a');
                 a.href = window.URL.createObjectURL(new Blob([save_to_file()], {type: 'text/plain'}));
@@ -1158,8 +1160,34 @@
                     } else {
                         document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 370}px`);
                     }
-
                 }
+
+                
+                var location_types_div = document.getElementById("location_types_div");
+                location_types_div.addEventListener('mousemove', move_location_type_tooltip, false);
+                function move_location_type_tooltip(event) {
+                    var hovered_element = event.target;
+
+                    if(!hovered_element.classList.contains("location_type_div")) {
+                        return;
+                    } 
+                    const tooltip_width = hovered_element.children[0].scrollWidth;
+                    
+                    const body = document.getElementsByTagName("body")[0];
+                    const scrollbar_Y_visible = (body.scrollHeight - body.clientHeight) > 0;
+
+                    const right_edge_position = 
+                        window.innerWidth - tooltip_width - 23 - 40 + window.scrollX - (scrollbar_Y_visible?10:0);
+
+                    if(event.pageX > right_edge_position) {
+                        document.documentElement.style.setProperty('--location_type_tooltip_left', `${right_edge_position - 650}px`);
+                    } else {
+                        document.documentElement.style.setProperty('--location_type_tooltip_left', `${event.pageX - 650}px`);
+                    }
+
+                    document.documentElement.style.setProperty('--location_type_tooltip_top', `${event.pageY - 100}px`);
+                }
+                
 
                 //active effects tooltip
                 const active_effects_div = document.getElementById("effects_div");
