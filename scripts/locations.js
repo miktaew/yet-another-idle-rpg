@@ -186,10 +186,9 @@ class Combat_zone {
         
         //iterate over types of location
         for(let i = 0; i < this.types.length; i++) {
-
             const type = location_types[this.types[i].type].stages[this.types[i].stage];
 
-            if(!type.related_skill) { 
+            if(!type.related_skill || !type.effects) { 
                 continue; 
             }
 
