@@ -712,11 +712,27 @@
 
             </div>
 
-            
-
             <!-- message log -->
             <div id = "message_log_div" class = "box_div">
-            
+                <div id = "message_box_div">
+
+                </div>
+                <div id = "message_controls">
+
+                    <div id = "message_show_unlocks" class = "message_control_button active_selection_button" onclick = "showUnlocksMessages()">
+                        Levels and unlocks
+                    </div>
+                    <div id = "message_show_events" class = "message_control_button active_selection_button" onclick = "showEventsMessages()">
+                        Events
+                    </div>
+                    <div id = "message_show_combat" class = "message_control_button active_selection_button" onclick = "showCombatMessages()">
+                        Combat
+                    </div>
+                    <div id = "message_show_loot" class = "message_control_button active_selection_button" onclick = "showLootMessages()">
+                        Loot
+                    </div>
+                    
+                </div>
             </div>
         </div>
 
@@ -784,6 +800,38 @@
                 document.documentElement.style.setProperty('--trader_equipment_display', 'none');
                 document.documentElement.style.setProperty('--trader_consumable_display', 'none');
                 document.documentElement.style.setProperty('--trader_other_display', 'inline-block');
+            }
+
+            function showCombatMessages() {
+                if(document.documentElement.style.getPropertyValue('--message_combat_display') !== "none") {
+                    document.documentElement.style.setProperty('--message_combat_display', 'none');
+                } else {
+                    document.documentElement.style.setProperty('--message_combat_display', 'inline-block');
+                }
+            }
+
+            function showUnlocksMessages() {
+                if(document.documentElement.style.getPropertyValue('--message_unlocks_display') !== "none") {
+                    document.documentElement.style.setProperty('--message_unlocks_display', 'none');
+                } else {
+                    document.documentElement.style.setProperty('--message_unlocks_display', 'inline-block');
+                }
+            }
+
+            function showLootMessages() {
+                if(document.documentElement.style.getPropertyValue('--message_loot_display') !== "none") {
+                    document.documentElement.style.setProperty('--message_loot_display', 'none');
+                } else {
+                    document.documentElement.style.setProperty('--message_loot_display', 'inline-block');
+                }
+            }
+
+            function showEventsMessages() {
+                if(document.documentElement.style.getPropertyValue('--message_events_display') !== "none") {
+                    document.documentElement.style.setProperty('--message_events_display', 'none');
+                } else {
+                    document.documentElement.style.setProperty('--message_events_display', 'inline-block');
+                }
             }
             
 
@@ -991,7 +1039,7 @@
                     }
 
                     //set horizontal position
-                    document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX}px`);
+                    document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX - 20}px`);
 
                     //calculate vertical position so it doesnt go under bottom edge
                     
@@ -1016,9 +1064,9 @@
                         window.innerHeight - tooltip_height - item_tooltip_margin + window.scrollY - 25 - (scrollbar_X_visible?10:0);
                     
                     if(event.pageY > bottom_edge_position) {
-                        document.documentElement.style.setProperty('--item_tooltip_top', `${bottom_edge_position - 370}px`);
+                        document.documentElement.style.setProperty('--item_tooltip_top', `${bottom_edge_position - 400}px`);
                     } else {
-                        document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 370}px`);
+                        document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 400}px`);
                     }
                     
                 }
@@ -1058,15 +1106,15 @@
                         window.innerHeight - tooltip_height - item_tooltip_margin + window.scrollY - 25 - (scrollbar_X_visible?10:0);
                 
                     if(event.pageX > right_edge_position) {
-                        document.documentElement.style.setProperty('--item_tooltip_left', `${right_edge_position - 370}px`);
+                        document.documentElement.style.setProperty('--item_tooltip_left', `${right_edge_position - 420}px`);
                     } else {
-                        document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX - 370}px`);
+                        document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX - 420}px`);
                     }
                     
                     if(event.pageY > bottom_edge_position) {
-                        document.documentElement.style.setProperty('--item_tooltip_top', `${bottom_edge_position - 370}px`);
+                        document.documentElement.style.setProperty('--item_tooltip_top', `${bottom_edge_position - 400}px`);
                     } else {
-                        document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 370}px`);
+                        document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 400}px`);
                     }
                     
                 }
@@ -1093,7 +1141,7 @@
                 stats_div.addEventListener('mousemove', move_stat_tooltip, false);
                 function move_stat_tooltip(event) {
 
-                    document.documentElement.style.setProperty('--stat_tooltip_top', `${event.pageY - 110}px`);
+                    document.documentElement.style.setProperty('--stat_tooltip_top', `${event.pageY - 140}px`);
                     document.documentElement.style.setProperty('--stat_tooltip_left', `${event.pageX}px`);
                 }
 
@@ -1113,8 +1161,8 @@
                 const location_actions_div = document.getElementById("location_actions_div");
                 location_actions_div.addEventListener('mousemove', move_activity_tooltip, false);
                 function move_activity_tooltip(event) {
-                    document.documentElement.style.setProperty('--job_tooltip_top', `${event.pageY - 370}px`);
-                    document.documentElement.style.setProperty('--job_tooltip_left', `${event.pageX - 370}px`);
+                    document.documentElement.style.setProperty('--job_tooltip_top', `${event.pageY - 410}px`);
+                    document.documentElement.style.setProperty('--job_tooltip_left', `${event.pageX - 420}px`);
                 }
 
 
@@ -1307,6 +1355,7 @@
                 }
 
                 //set colors for active selection buttons
+                //for stuff where only 1 can be active
                 document.getElementById("inventory_control_div").addEventListener("click", set_active_button);
                 document.getElementById("character_control_div").addEventListener("click", set_active_button);
                 document.getElementById("trader_sort_by_name").addEventListener("click", set_active_button);
@@ -1323,6 +1372,20 @@
                             clicked_element.parentNode.children[i].classList.remove("active_selection_button");
                         }
                         clicked_element.classList.add("active_selection_button");
+                    }
+                }
+
+                //set colors for active selection buttons
+                //for stuff where any number can be active
+                document.getElementById("message_controls").addEventListener("click", manage_active_buttons);
+                function manage_active_buttons(event) {
+                    var clicked_element = event.target;
+                    if(clicked_element.children.length == 0) {
+                        if(clicked_element.classList.contains("active_selection_button")) {
+                            clicked_element.classList.remove("active_selection_button");
+                        } else {
+                            clicked_element.classList.add("active_selection_button");
+                        }
                     }
                 }
             }
