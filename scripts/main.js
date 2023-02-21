@@ -33,7 +33,7 @@ import { end_activity_animation,
          update_displayed_location_choices
         } from "./display.js";
 
-const game_version = "v0.2.7";
+const game_version = "v0.2.8";
 
 //current enemy
 var current_enemies = null;

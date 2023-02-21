@@ -1,3 +1,8 @@
+v0.2.8
+    - message log can now be filtered for stuff related to combat/levelups&unlocks/events/loot
+    - now if there's more than 1 option in any category (work, train, travel, talk, trade), 
+      it's available via separate list of choices instead of all being crammed together
+    - rounded displayed values for some skill effects
 v0.2.7
     - reworked the location type system
     - payments for some jobs are now affected by related skill
