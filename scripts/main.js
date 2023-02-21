@@ -819,7 +819,7 @@ function get_location_rewards(location) {
     
     /*
     TODO: give more rewards on all clears
-    - some xp for location-related skills? (i.e. if location is dark, then for "night vision" or whatever it will be called)
+    - some xp for location-related skills?
     - items/money?
     */
 }

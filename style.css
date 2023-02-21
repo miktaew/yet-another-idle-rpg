@@ -156,7 +156,7 @@ body {
 	 padding: 5px;
 }
 
-.action_travel:hover, .start_dialogue:hover,start_trade:hover, .start_activity:hover, .location_choices:hover,
+.action_travel:hover, .start_dialogue:hover, .start_trade:hover, .start_activity:hover, .location_choices:hover,
 .dialogue_textline:hover, .end_dialogue_button:hover, .dialogue_trade:hover, .choices_return_button:hover {
 	background-color: #2c3953;
 }

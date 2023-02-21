@@ -566,7 +566,7 @@ skill_groups["weapon skills"] = new SkillGroup({
                                     xp_scaling: 1.8,
                                     max_level: 10,
                                     get_effect_description: () => {
-                                        return `Reduces darkness penalty by ${Math.round(10*skills["Night vision"].current_level*100/skills["Night vision"].max_level)}%`;
+                                        return `Reduces darkness penalty by ${Math.round(10*skills["Night vision"].current_level*100/skills["Night vision"].max_level)/10}%`;
                                     }
 
     });
