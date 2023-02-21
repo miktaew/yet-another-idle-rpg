@@ -12,6 +12,7 @@ class Location {
                 connected_locations, 
                 is_unlocked = true, 
                 dialogues = [], 
+                traders = [],
                 types = [], //{type, xp per tick}
                 sleeping = null, //{text to start, xp per tick},
                 light_level = "normal",
@@ -24,6 +25,7 @@ class Location {
         this.connected_locations = connected_locations; //a list
         this.is_unlocked = is_unlocked;
         this.dialogues = dialogues;
+        this.traders = traders;
         this.activities = {};
         this.types = types;
         this.sleeping = sleeping;
@@ -430,7 +432,8 @@ class LocationType{
     locations["Village"] = new Location({ 
         connected_locations: [], 
         description: "Medium-sized village surrounded by many fields, some of them infested by rats. Other than that, there's nothing interesting around.", 
-        dialogues: ["village elder", "village trader", "village guard"],
+        dialogues: ["village elder", "village guard"],
+        traders: ["village trader"],
         name: "Village", 
     });
 

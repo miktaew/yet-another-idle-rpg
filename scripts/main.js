@@ -29,7 +29,8 @@ import { end_activity_animation,
          create_new_skill_bar, update_displayed_skill_bar, update_displayed_skill_description, clear_skill_bars,
          update_displayed_ongoing_activity, clear_skill_list,
          clear_message_log,
-         update_enemy_attack_bar, update_character_attack_bar
+         update_enemy_attack_bar, update_character_attack_bar,
+         update_displayed_location_choices
         } from "./display.js";
 
 const game_version = "v0.2.7";
@@ -121,7 +122,7 @@ function change_location(location_name) {
  * @param {Object} selected_activity - {id} of activity in Location's activities list??
  */
 function start_activity(selected_activity) {
-    current_activity = Object.assign({},current_location.activities[selected_activity.activity]);
+    current_activity = Object.assign({},current_location.activities[selected_activity]);
     current_activity.name = current_activity.activity;
     current_activity.activity = activities[current_activity.activity];
 
@@ -147,18 +148,16 @@ function start_activity(selected_activity) {
         } 
     }
 
-
     start_activity_display(current_activity);
-    
 }
 
 function end_activity() {
     
-    log_message(`${character.name} finished ${current_activity.name}`);
+    log_message(`${character.name} finished ${current_activity.name}`, "activity_finished");
     
     if(current_activity.earnings) {
         character.money += current_activity.earnings;
-        log_message(`${character.name} earned ${format_money(current_activity.earnings)}`);
+        log_message(`${character.name} earned ${format_money(current_activity.earnings)}`, "activity_money");
         update_displayed_money();
     }
     end_activity_animation(); //clears the "animation"
@@ -325,9 +324,10 @@ function start_dialogue(dialogue_key) {
 
 function end_dialogue() {
     current_dialogue = null;
-
+    reload_normal_location();
+}
+function reload_normal_location() {
     update_displayed_normal_location(current_location);
-    //called method does exactly what's needed, no point in making a separate one just for ending dialogue
 }
 
 /**
@@ -342,7 +342,15 @@ function start_textline(textline_key){
         const dialogue = dialogues[textline.unlocks.dialogues[i]]
         if(!dialogue.is_unlocked) {
             dialogue.is_unlocked = true;
-            log_message(`Can now talk with ${dialogue.name} in ${dialogue.location_name}`, "activity_unlocked");
+            log_message(`Can now talk with ${dialogue.name}`, "activity_unlocked");
+        }
+    }
+
+    for(let i = 0; i < textline.unlocks.traders.length; i++) { //unlocking traders
+        const trader = traders[textline.unlocks.traders[i]];
+        if(!trader.is_unlocked) {
+            trader.is_unlocked = true;
+            log_message(`Can now trade with ${trader.name}`, "activity_unlocked");
         }
     }
 
@@ -372,7 +380,7 @@ function start_textline(textline_key){
 }
 
 /**
- * @description sets attack cooldowns and new enemies, either from provided list or from current location
+ * @description sets attack cooldowns and new enemies, either from provided list or from current location, called whenever a new enemy group starts
  * @param {List<Enemy>} enemies 
  */
 function set_new_combat(enemies) {
@@ -445,6 +453,13 @@ function set_character_attack_loop(base_cooldown, attack_type = "normal") {
     do_character_attack_loop(base_cooldown, actual_cooldown, attack_power, attack_type);
 }
 
+/**
+ * @description updates character's attack bar, performs combat action when it reaches full
+ * @param {*} base_cooldown 
+ * @param {*} actual_cooldown 
+ * @param {*} attack_power 
+ * @param {*} attack_type 
+ */
 function do_character_attack_loop(base_cooldown, actual_cooldown, attack_power, attack_type) {
     let count = 0;
     character_attack_loop = setInterval(() => {
@@ -520,7 +535,7 @@ function do_enemy_combat_action(enemy_id) {
         if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
             add_xp_to_skill(skills["Shield blocking"], attacker.xp_value, true);
             if(character.equipment["off-hand"].getShieldStrength() >= damage_dealt) {
-                log_message(character.name + " blocked an attack");
+                log_message(character.name + " blocked an attack", "hero_blocked");
                 return; //damage fully blocked, nothing more can happen 
             } else {
                 damage_dealt -= character.equipment["off-hand"].getShieldStrength();
@@ -533,7 +548,7 @@ function do_enemy_combat_action(enemy_id) {
 
         if(evasion_chance > Math.random()) { //EVADED ATTACK
             add_xp_to_skill(skills["Evasion"], attacker.xp_value, true);
-            log_message(character.name + " evaded an attack");
+            log_message(character.name + " evaded an attack", "enemy_missed");
             return; //damage fully evaded, nothing more can happen
         }
     }
@@ -671,7 +686,7 @@ function do_character_combat_action(attack_power, attack_type = "normal") {
 
         update_displayed_health_of_enemies();
     } else {
-        log_message(character.name + " has missed");
+        log_message(character.name + " has missed", "hero_missed");
     }
 }
 
@@ -718,7 +733,7 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
         create_new_skill_bar(skill);
         
         if(typeof should_info === "undefined" || should_info) {
-            log_message(`Learned new skill: ${skill.name()}`);
+            log_message(`Learned new skill: ${skill.name()}`, "skill_raised");
         }
     } 
 
@@ -730,7 +745,7 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
     //character stats currently get added in character.add_bonuses() method, called in skill.get_bonus_stats() method, called in skill.add_xp() when levelup happens
         if(typeof should_info === "undefined" || should_info)
         {
-            log_message(level_up, "message_skill_leveled_up");
+            log_message(level_up, "skill_raised");
             update_character_stats();
         }
 
@@ -751,7 +766,7 @@ function add_xp_to_character(xp_to_add, should_info = true) {
     
     if(level_up) {
         if(should_info) {
-            log_message(level_up);
+            log_message(level_up, "level_up");
         }
         
         character.full_stats.health = character.full_stats.max_health; //free healing on level up, because it's a nice thing to have
@@ -771,11 +786,11 @@ function get_location_rewards(location) {
         change_location(current_location.parent_location.name); //go back to parent location, only on first clear
 
         if(location.first_reward.xp && typeof location.first_reward.xp === "number") {
-            log_message(`Obtained ${location.first_reward.xp}xp for clearing ${location.name} for the first time`);
+            log_message(`Obtained ${location.first_reward.xp}xp for clearing ${location.name} for the first time`, "location_reward");
             add_xp_to_character(location.first_reward.xp);
         }
     } else if(location.repeatable_reward.xp && typeof location.repeatable_reward.xp === "number") {
-        log_message(`Obtained additional ${location.repeatable_reward.xp}xp for clearing ${location.name}`);
+        log_message(`Obtained additional ${location.repeatable_reward.xp}xp for clearing ${location.name}`, "location_reward");
         add_xp_to_character(location.repeatable_reward.xp);
     }
 
@@ -795,7 +810,7 @@ function get_location_rewards(location) {
             }
         }
         if(any_unlocked) {
-            log_message(`Maybe you should check on ${location.repeatable_reward.textlines[i].dialogue}...`);
+            log_message(`Maybe you should check on ${location.repeatable_reward.textlines[i].dialogue}...`, "dialogue_unlocked");
             //maybe do this only when there's just 1 dialogue with changes?
         }
     }
@@ -946,11 +961,17 @@ function create_save() {
 
         save_data["traders"] = {};
         Object.keys(traders).forEach(function(trader) {
-            if(traders[trader].last_refresh == -1 || traders[trader].can_refresh()) {
-                //no need to save, as trader would be anyway refreshed on any visit
-                return;
-            } else {
-                save_data["traders"][trader] = {inventory: traders[trader].inventory, last_refresh: traders[trader].last_refresh};
+            if(traders[trader].is_unlocked) {
+                if(traders[trader].last_refresh == -1 || traders[trader].can_refresh()) {
+                    //no need to save inventory, as trader would be anyway refreshed on any visit
+                    save_data["traders"][trader] = {last_refresh: -1,
+                                                    is_unlocked: traders[trader].is_unlocked};
+                } else {
+                    save_data["traders"][trader] = {inventory: traders[trader].inventory, 
+                                                    last_refresh: traders[trader].last_refresh, 
+                                                    is_unlocked: traders[trader].is_unlocked
+                                                };
+                }
             }
         });
 
@@ -1141,57 +1162,62 @@ function load(save_data) {
         Object.keys(save_data.traders).forEach(function(trader) { 
             let trader_item_list = [];
             if(traders[trader]){
-                Object.keys(save_data.traders[trader].inventory).forEach(function(key){
-                    if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list of unstackable (equippable) item, needs to be added 1 by 1
-                        for(let i = 0; i < save_data.traders[trader].inventory[key].length; i++) {
-                            try{
-                                if(save_data.traders[trader].inventory[key][i].equip_slot === "weapon") {
-                                    const {head, handle, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
-                                    if(!item_templates[head]){
-                                        console.warn(`Skipped item: weapon head component "${head}" couldn't be found!`);
-                                    } else if(!item_templates[handle]) {
-                                        console.warn(`Skipped item: weapon handle component "${handle}" couldn't be found!`);
+
+                //set as unlocked (it must have been unlocked to be saved, so no need to check the actual value)
+                traders[trader].is_unlocked = true;
+
+                if(save_data.traders[trader].inventory) {
+                    Object.keys(save_data.traders[trader].inventory).forEach(function(key){
+                        if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list of unstackable (equippable) item, needs to be added 1 by 1
+                            for(let i = 0; i < save_data.traders[trader].inventory[key].length; i++) {
+                                try{
+                                    if(save_data.traders[trader].inventory[key][i].equip_slot === "weapon") {
+                                        const {head, handle, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
+                                        if(!item_templates[head]){
+                                            console.warn(`Skipped item: weapon head component "${head}" couldn't be found!`);
+                                        } else if(!item_templates[handle]) {
+                                            console.warn(`Skipped item: weapon handle component "${handle}" couldn't be found!`);
+                                        } else {
+                                            const item = getItem({head, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                            trader_item_list.push({item, count: 1});
+                                        }
+                                    } else if( save_data.traders[trader].inventory[key][i].equip_slot === "off-hand") {
+                                        const {shield_base, handle, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
+                                        if(!item_templates[shield_base]){
+                                            console.warn(`Skipped item: shield base component "${shield_base}" couldn't be found!`);
+                                        } else if(!item_templates[handle]) {
+                                            console.warn(`Skipped item: shield handle "${handle}" couldn't be found!`);
+                                        } else {
+                                            const item = getItem({shield_base, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                            trader_item_list.push({item, count: 1});
+                                        }
                                     } else {
-                                        const item = getItem({head, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
-                                        trader_item_list.push({item, count: 1});
+                                        const {internal, external, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
+                                        if(!item_templates[internal]){
+                                            console.warn(`Skipped item: internal armor component "${internal}" couldn't be found!`);
+                                        } else if(external && !item_templates[external]) {
+                                            console.warn(`Skipped item: external armor component "${external}" couldn't be found!`);
+                                        } else {
+                                            const item = getItem({internal, external, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                            trader_item_list.push({item, count: 1});
+                                        }
                                     }
-                                } else if( save_data.traders[trader].inventory[key][i].equip_slot === "off-hand") {
-                                    const {shield_base, handle, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
-                                    if(!item_templates[shield_base]){
-                                        console.warn(`Skipped item: shield base component "${shield_base}" couldn't be found!`);
-                                    } else if(!item_templates[handle]) {
-                                        console.warn(`Skipped item: shield handle "${handle}" couldn't be found!`);
-                                    } else {
-                                        const item = getItem({shield_base, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
-                                        trader_item_list.push({item, count: 1});
-                                    }
-                                } else {
-                                    const {internal, external, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
-                                    if(!item_templates[internal]){
-                                        console.warn(`Skipped item: internal armor component "${internal}" couldn't be found!`);
-                                    } else if(external && !item_templates[external]) {
-                                        console.warn(`Skipped item: external armor component "${external}" couldn't be found!`);
-                                    } else {
-                                        const item = getItem({internal, external, quality, equip_slot, item_type: "EQUIPPABLE"});
-                                        trader_item_list.push({item, count: 1});
-                                    }
+                                } catch (error) {
+                                    console.error(error);
                                 }
-                            } catch (error) {
-                                console.error(error);
                             }
                         }
-                    }
-                    else {
-                        save_data.traders[trader].inventory[key].item.value = item_templates[key].value;
-                        if(item_templates[key].item_type === "EQUIPPABLE") {
-                            save_data.traders[trader].inventory[key].item.equip_effect = item_templates[key].equip_effect;
-                        } else if(item_templates[key].item_type === "USABLE") {
-                            save_data.traders[trader].inventory[key].item.use_effect = item_templates[key].use_effect;
+                        else {
+                            save_data.traders[trader].inventory[key].item.value = item_templates[key].value;
+                            if(item_templates[key].item_type === "EQUIPPABLE") {
+                                save_data.traders[trader].inventory[key].item.equip_effect = item_templates[key].equip_effect;
+                            } else if(item_templates[key].item_type === "USABLE") {
+                                save_data.traders[trader].inventory[key].item.use_effect = item_templates[key].use_effect;
+                            }
+                            trader_item_list.push({item: getItem(save_data.traders[trader].inventory[key].item), count: save_data.traders[trader].inventory[key].count});
                         }
-                        trader_item_list.push({item: getItem(save_data.traders[trader].inventory[key].item), count: save_data.traders[trader].inventory[key].count});
-                    }
-                });
-
+                    });
+                }
                 traders[trader].refresh(); 
                 traders[trader].inventory = {};
                 add_to_trader_inventory(trader, trader_item_list);
@@ -1269,7 +1295,7 @@ function load(save_data) {
             const activity_id = save_data.current_activity.activity;
 
             if(typeof activity_id !== "undefined" && current_location.activities[activity_id]) {
-                start_activity({activity: activity_id});
+                start_activity(activity_id);
                 if(activities[activity_id].type === "JOB") {
                     current_activity.working_time = save_data.current_activity.working_time;
                     current_activity.earnings = save_data.current_activity.earnings;
@@ -1536,10 +1562,13 @@ window.equip_item = character_equip_item;
 window.unequip_item = character_unequip_item;
 
 window.change_location = change_location;
+window.reload_normal_location = reload_normal_location;
 
 window.start_dialogue = start_dialogue;
 window.end_dialogue = end_dialogue;
 window.start_textline = start_textline;
+
+window.update_displayed_location_choices = update_displayed_location_choices;
 
 window.start_activity = start_activity;
 window.end_activity = end_activity;

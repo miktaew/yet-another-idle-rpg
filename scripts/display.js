@@ -7,7 +7,7 @@ import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time } from "./game_time.js";
 import { item_templates } from "./items.js";
-import { location_types } from "./locations.js";
+import { location_types, locations } from "./locations.js";
 
 var activity_anim; //for the activity animation interval
 
@@ -23,7 +23,7 @@ const inventory_div = document.getElementById("inventory_content_div");
 const trader_inventory_div = document.getElementById("trader_inventory_div");
 
 //message log
-const message_log = document.getElementById("message_log_div");
+const message_log = document.getElementById("message_box_div");
 
 //enemy info
 const combat_div = document.getElementById("combat_div");
@@ -50,6 +50,13 @@ const active_effect_count = document.getElementById("active_effect_count");
 const time_field = document.getElementById("time_div");
 
 const skill_bar_divs = {};
+
+const message_count = {
+    message_combat: 0,
+    message_unlocks: 0,
+    message_loot: 0,
+    message_events: 0
+};
 
 const stats_divs = {strength: document.getElementById("strength_slot"), agility: document.getElementById("agility_slot"),
                     dexterity: document.getElementById("dexterity_slot"), intuition: document.getElementById("intuition_slot"),
@@ -191,53 +198,115 @@ function end_activity_animation() {
     message.classList.add("message_common");
 
     var class_to_add = "message_default";
+    var group_to_add = "unlocks";
 
     //selects proper class to add based on argument
-    //totally could have just passed class name as argument and use it instead of making this switch
     switch(message_type) {
         case "enemy_defeated":
             class_to_add = "message_victory";
+            group_to_add = "message_combat";
+            message_count.message_combat += 1;
             break;
         case "hero_defeat":
             class_to_add = "message_hero_defeated";
+            group_to_add = "message_combat";
+            message_count.message_combat += 1;
             break;
         case "enemy_attacked":
             class_to_add = "message_enemy_attacked";
+            group_to_add = "message_combat";
+            message_count.message_combat += 1;
             break;
         case "enemy_attacked_critically":
             class_to_add = "message_enemy_attacked_critically";
+            group_to_add = "message_combat";
+            message_count.message_combat += 1;
             break;
         case "hero_attacked":
             class_to_add = "message_hero_attacked";
+            group_to_add = "message_combat";
+            message_count.message_combat += 1;
             break;
+        case "hero_missed":
+            group_to_add = "message_combat";
+            message_count.message_combat += 1;
+            break;
+        case "hero_blocked":
+            group_to_add = "message_combat";
+            message_count.message_combat += 1;
+            break;    
+        case "enemy_missed":
+            group_to_add = "message_combat";
+            message_count.message_combat += 1;
+            break;    
         case "hero_attacked_critically":
             class_to_add = "message_hero_attacked_critically";
+            group_to_add = "message_combat";
+            message_count.message_combat += 1;
             break;
+
         case "combat_loot":
             class_to_add = "message_items_obtained";
+            group_to_add = "message_loot";
+            message_count.message_loot += 1;
             break;
+        case "location_reward":
+            group_to_add = "message_loot";
+            message_count.message_loot += 1;
+            break;
+
         case "skill_raised":
             class_to_add = "message_skill_leveled_up";
-            break;	
-        case "message_travel":
-            class_to_add = "message_travel";
+            group_to_add = "message_unlocks";
+            message_count.message_unlocks += 1;
+            break;
+        case "level_up":
+            group_to_add = "message_unlocks";
+            message_count.message_unlocks += 1;
             break;
         case "activity_unlocked": 
-            //currently uses default
+            //currently uses default style class
+            group_to_add = "message_unlocks";
+            message_count.message_unlocks += 1;
             break;
         case "location_unlocked":
             class_to_add = "message_location_unlocked";
+            group_to_add = "message_unlocks";
+            message_count.message_unlocks += 1;
+            break;
+        case "dialogue_unlocked":
+            group_to_add = "message_unlocks";
+            message_count.message_unlocks += 1;
+            break;
+
+        case "message_travel":
+            class_to_add = "message_travel";
+            group_to_add = "message_events";
+            message_count.message_events +1;
+            break;
+        case "activity_finished":
+            group_to_add = "message_events";
+            message_count.message_events +1;
+            break;
+        case "activity_money":
+            group_to_add = "message_events";
+            message_count.message_events +1;
+            break;
     }
 
-    message.classList.add(class_to_add);
+    if(group_to_add === "message_combat" && message_count.message_combat > 80
+    || group_to_add === "message_loot" && message_count.message_loot > 20
+    || group_to_add === "message_unlocks" && message_count.message_unlocks > 40
+    || group_to_add === "message_events" && message_count.message_events > 20
+    ) {
+        // find first child with specified group
+        // delete it
+        message_log.removeChild(message_log.getElementsByClassName(group_to_add)[0]);
+    }
+
+    message.classList.add(class_to_add, group_to_add);
 
     message.innerHTML = message_to_add + "<div class='message_border'> </>";
-
-
-    if(message_log.children.length > 80) 
-    {
-        message_log.removeChild(message_log.children[0]);
-    } //removes first position if there's too many messages
 
     message_log.appendChild(message);
     message_log.scrollTop = message_log.scrollHeight;
@@ -764,7 +833,6 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
     sort_displayed_inventory({target: "character"});
 }
 
-
 function update_displayed_equipment() {
     Object.keys(equipment_slots_divs).forEach(function(key) {
         var eq_tooltip; 
@@ -786,7 +854,6 @@ function update_displayed_equipment() {
         equipment_slots_divs[key].appendChild(eq_tooltip);
     });
 }
-
 
 /**
  * sets visibility of divs for enemies (based on how many there are in current combat),
@@ -852,8 +919,6 @@ function update_displayed_normal_location(location) {
     
     clear_action_div();
     location_types_div.innerHTML = "";
-    var action;
-
     combat_div.style.display = "none";
 
     enemy_count_div.style.display = "none";
@@ -862,44 +927,166 @@ function update_displayed_normal_location(location) {
     character_attack_bar.parentNode.style.display = "none";
     document.getElementById("def_stat").style.display = "none";
     
+    ////////////////////////////////////
     //add buttons for starting dialogues
-    for(let i = 0; i < location.dialogues.length; i++) { 
-        if(!dialogues[location.dialogues[i]].is_unlocked || dialogues[location.dialogues[i]].is_finished) { //skip if dialogue is not available
-            continue;
-        } 
-        
-        const dialogue_div = document.createElement("div");
 
-        if(Object.keys(dialogues[location.dialogues[i]].textlines).length > 0) { //has any textlines
+    const available_dialogues = location.dialogues.filter(dialogue => dialogues[dialogue].is_unlocked && !dialogues[dialogue].is_finished);
+
+    if(available_dialogues.length > 1) {
+        //there's multiple -> add a choice to location actions that will show all available dialogues        
+        const dialogues_button = document.createElement("div");
+        dialogues_button.setAttribute("data-location", location.name);
+        dialogues_button.classList.add("location_choices");
+        dialogues_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "talk")');
+        dialogues_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Talk to someone';
+        action_div.appendChild(dialogues_button);
+    } else if (available_dialogues.length == 1) {
+        //there's only 1 -> put it in overall location choice list
+        action_div.appendChild(create_location_choices(location, "talk", true)[0]);
+    }
+
+    /////////////////////////
+    //add buttons for trading
+
+    const available_traders = location.traders.filter(trader => traders[trader].is_unlocked);
+
+    if(available_traders.length > 1) {     
+        const traders_button = document.createElement("div");
+        traders_button.setAttribute("data-location", location.name);
+        traders_button.classList.add("location_choices");
+        traders_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "trade")');
+        traders_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Visit a merchant';
+        action_div.appendChild(traders_button);
+    } else if (available_traders.length == 1) {
+        action_div.appendChild(create_location_choices(location, "trade")[0]);
+    }
+
+    ///////////////////////////
+    //add buttons to start jobs
+
+    const available_jobs = Object.values(location.activities).filter(activity => activities[activity.activity].type === "JOB" 
+                                                                    && activities[activity.activity].is_unlocked
+                                                                    && activity.is_unlocked);
+
+    if(available_jobs.length > 1) {     
+        const jobs_button = document.createElement("div");
+        jobs_button.setAttribute("data-location", location.name);
+        jobs_button.classList.add("location_choices");
+        jobs_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "work")');
+        jobs_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Find some work';
+        action_div.appendChild(jobs_button);
+    } else if (available_jobs.length == 1) {
+        action_div.appendChild(create_location_choices(location, "work")[0]);
+    }
+
+    ///////////////////////////////
+    //add buttons to start training
+
+    const available_trainings = Object.values(location.activities).filter(activity => activities[activity.activity].type === "TRAINING" 
+                                                                    && activities[activity.activity].is_unlocked
+                                                                    && activity.is_unlocked);
+    if(available_trainings.length > 1) {     
+        const trainings_button = document.createElement("div");
+        trainings_button.setAttribute("data-location", location.name);
+        trainings_button.classList.add("location_choices");
+        trainings_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "train")');
+        trainings_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Train for a bit';
+        action_div.appendChild(trainings_button);
+    } else if (available_trainings.length == 1) {
+        action_div.appendChild(create_location_choices(location, "train")[0]);
+    }
+
+    ///////////////////////////
+    //add button to go to sleep
+
+    if(location.sleeping) { 
+        const start_sleeping_div = document.createElement("div");
+        
+        start_sleeping_div.innerHTML = '<i class="material-icons">bed</i>  ' + location.sleeping.text;
+        start_sleeping_div.id = "start_sleeping_div";
+        start_sleeping_div.setAttribute('onclick', 'start_sleeping()');
+
+        action_div.appendChild(start_sleeping_div);
+    }
+    
+    /////////////////////////////////
+    //add butttons to change location
+
+    const available_locations = location.connected_locations.filter(location => location.location.is_unlocked);
+
+    if(available_locations.length > 1) {
+        const locations_button = document.createElement("div");
+        locations_button.setAttribute("data-location", location.name);
+        locations_button.classList.add("location_choices");
+        locations_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "travel")');
+        locations_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Move somewhere else';
+        action_div.appendChild(locations_button);
+    } else if (available_locations.length == 1) {
+        action_div.appendChild(create_location_choices(location, "travel")[0]);
+    }
+
+    
+    location_name_div.innerText = current_location.name;
+    document.getElementById("location_description_div").innerText = current_location.description;
+}
+
+/**
+ * 
+ * @param {*} location 
+ * @param {*} category 
+ * @return {Array} an array of html nodes
+ */
+function create_location_choices(location, category, add_icons = true) {
+    const choice_list = [];
+    
+    if(category === "talk") {
+        for(let i = 0; i < location.dialogues.length; i++) { 
+            if(!dialogues[location.dialogues[i]].is_unlocked || dialogues[location.dialogues[i]].is_finished) { //skip if dialogue is not available
+                continue;
+            } 
             
-            dialogue_div.innerHTML = dialogues[location.dialogues[i]].trader? `<i class="material-icons">storefront</i>  ` : `<i class="material-icons">question_answer</i>  `;
+            const dialogue_div = document.createElement("div");
+    
+            //if(Object.keys(dialogues[location.dialogues[i]].textlines).length > 0) { //has any textlines
+                
+            dialogue_div.innerHTML = add_icons ? `<i class="material-icons">question_answer</i>  ` : "";
             dialogue_div.innerHTML += dialogues[location.dialogues[i]].starting_text;
             dialogue_div.classList.add("start_dialogue");
             dialogue_div.setAttribute("data-dialogue", location.dialogues[i]);
             dialogue_div.setAttribute("onclick", "start_dialogue(this.getAttribute('data-dialogue'));");
-            action_div.appendChild(dialogue_div);
-        } else if(dialogues[location.dialogues[i]].trader) { //has no textlines but is a trader -> add button to directly start trading
-            const trade_div = document.createElement("div");
-            trade_div.innerHTML = `<i class="material-icons">storefront</i>  ` + traders[dialogues[location.dialogues[i]].trader].trade_text;
-            trade_div.classList.add("dialogue_trade")
-            trade_div.setAttribute("data-trader", dialogues[location.dialogues[i]].trader);
-            trade_div.setAttribute("onclick", "startTrade(this.getAttribute('data-trader'))")
-            action_div.appendChild(trade_div);
+            choice_list.push(dialogue_div);
+            //}
         }
-    }
+    } else if (category === "trade") {
+        for(let i = 0; i < location.traders.length; i++) { 
+            if(!traders[location.traders[i]].is_unlocked) { //skip if trader is not available
+                continue;
+            } 
+            
+            const trader_div = document.createElement("div");  
 
-    //add buttons to start activities
-    Object.keys(location.activities).forEach(key => {
-        if(!activities[location.activities[key].activity]?.is_unlocked || !location.activities[key]?.is_unlocked) {
-            return;
+            trader_div.innerHTML = add_icons ? `<i class="material-icons">storefront</i>   ` : "";
+            trader_div.innerHTML += traders[location.traders[i]].trade_text;
+            trader_div.classList.add("start_trade");
+            trader_div.setAttribute("data-trader", location.traders[i]);
+            trader_div.setAttribute("onclick", "startTrade(this.getAttribute('data-trader'));");
+            choice_list.push(trader_div);
         }
+    } else if (category === "work") {
+        Object.keys(location.activities).forEach(key => {
+            if(!activities[location.activities[key].activity]?.is_unlocked 
+                || !location.activities[key]?.is_unlocked 
+                || activities[location.activities[key].activity].type === "TRAINING") 
+            {
+                return;
+            }
+            
+            const activity_div = document.createElement("div");
 
-        const activity_div = document.createElement("div");
-        if(activities[location.activities[key].activity].type === "JOB") {
             activity_div.innerHTML = `<i class="material-icons">construction</i>  `;
             activity_div.classList.add("activity_div");
             activity_div.setAttribute("data-activity", key);
-            activity_div.setAttribute("onclick", `start_activity({activity: "${key}"});`);
+            activity_div.setAttribute("onclick", "start_activity(this.getAttribute('data-activity'));");
 
             if(can_work(location.activities[key])) {
                 activity_div.classList.add("start_activity");
@@ -918,67 +1105,77 @@ function update_displayed_normal_location(location) {
 
 
             activity_div.appendChild(job_tooltip);
-        }
-        else if(activities[location.activities[key].activity].type === "TRAINING") {
-            activity_div.innerHTML = `<i class="material-icons">fitness_center</i>  `;
-            activity_div.classList.add("activity_div");
-            activity_div.setAttribute("data-activity", key);
-            activity_div.setAttribute("onclick", `start_activity({activity: "${key}"});`);
-
-            activity_div.classList.add("start_activity");
-
-        }
-
-        activity_div.innerHTML += location.activities[key].starting_text;
-        action_div.appendChild(activity_div);
-    });
-
-    //add button to go to sleep
-    if(location.sleeping) { 
-        const start_sleeping_div = document.createElement("div");
-        
-        start_sleeping_div.innerHTML = '<i class="material-icons">bed</i>  ' + location.sleeping.text;
-        start_sleeping_div.id = "start_sleeping_div";
-        start_sleeping_div.setAttribute('onclick', 'start_sleeping()');
-
-        action_div.appendChild(start_sleeping_div);
-    }
     
-    //add butttons to change location
-    for(let i = 0; i < location.connected_locations.length; i++) { 
+            activity_div.innerHTML += location.activities[key].starting_text;
+            choice_list.push(activity_div);
+        });
+    } else if (category === "train") {
+        Object.keys(location.activities).forEach(key => {
+            if(!activities[location.activities[key].activity]?.is_unlocked 
+                || !location.activities[key]?.is_unlocked 
+                || activities[location.activities[key].activity].type === "JOB") 
+            {
+                return;
+            }
 
-        if(location.connected_locations[i].location.is_unlocked == false) { //skip if not unlocked
-            continue;
+            
+            
+            const activity_div = document.createElement("div");
+
+            activity_div.innerHTML = `<i class="material-icons">fitness_center</i>  `;
+            activity_div.classList.add("activity_div", "start_activity");
+            activity_div.setAttribute("data-activity", key);
+            activity_div.setAttribute("onclick", "start_activity(this.getAttribute('data-activity'));");
+    
+            activity_div.innerHTML += location.activities[key].starting_text;
+            choice_list.push(activity_div);
+        });
+    } else if (category === "travel") {
+        for(let i = 0; i < location.connected_locations.length; i++) { 
+
+            if(location.connected_locations[i].location.is_unlocked == false) { //skip if not unlocked
+                continue;
+            }
+
+            
+    
+            const action = document.createElement("div");
+            
+            if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
+                action.classList.add("travel_normal");
+                if("custom_text" in location.connected_locations[i]) {
+                    action.innerHTML = `<i class="material-icons">directions</i>  ` + location.connected_locations[i].custom_text;
+                }
+                else {
+                    action.innerHTML = `<i class="material-icons">directions</i>  ` + "Go to " + location.connected_locations[i].location.name;
+                }
+            } else {
+                action.classList.add("travel_combat");
+                if("custom_text" in location.connected_locations[i]) {
+                    action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + location.connected_locations[i].custom_text;
+                }
+                else {
+                    action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + "Enter the " + location.connected_locations[i].location.name;
+                }
+            }
+            action.classList.add("action_travel");
+            action.setAttribute("data-travel", location.connected_locations[i].location.name);
+            action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
+    
+            choice_list.push(action);
         }
-
-        action = document.createElement("div");
-        
-        if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
-            action.classList.add("travel_normal");
-            if("custom_text" in location.connected_locations[i]) {
-                action.innerHTML = `<i class="material-icons">directions</i>  ` + location.connected_locations[i].custom_text;
-            }
-            else {
-                action.innerHTML = `<i class="material-icons">directions</i>  ` + "Go to " + location.connected_locations[i].location.name;
-            }
-        } else {
-            action.classList.add("travel_combat");
-            if("custom_text" in location.connected_locations[i]) {
-                action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + location.connected_locations[i].custom_text;
-            }
-            else {
-                action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + "Enter the " + location.connected_locations[i].location.name;
-            }
-        }
-        action.classList.add("action_travel");
-        action.setAttribute("data-travel", location.connected_locations[i].location.name);
-        action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
-
-        action_div.appendChild(action);
     }
+   
+    return choice_list;
+}
 
-    location_name_div.innerText = current_location.name;
-    document.getElementById("location_description_div").innerText = current_location.description;
+function update_displayed_location_choices(location_name, category) {
+    action_div.replaceChildren(...create_location_choices(locations[location_name], category));
+    const return_button = document.createElement("div");
+    return_button.innerHTML = "<i class='material-icons'>arrow_back</i> Return";
+    return_button.setAttribute("onclick", "reload_normal_location()");
+    return_button.classList.add("choices_return_button");
+    action_div.appendChild(return_button);
 }
 
 function update_displayed_combat_location(location) {
@@ -1210,7 +1407,7 @@ function update_displayed_dialogue(dialogue_key) {
 
     const end_dialogue_div = document.createElement("div");
 
-    end_dialogue_div.innerHTML = dialogue.ending_text;
+    end_dialogue_div.innerHTML = "<i class='material-icons'>arrow_back</i> " + dialogue.ending_text;
     end_dialogue_div.classList.add("end_dialogue_button");
     end_dialogue_div.setAttribute("onclick", "end_dialogue()");
 
@@ -1357,6 +1554,8 @@ function create_new_skill_bar(skill) {
     //sorts skill_list div alphabetically
     [...skill_list.children].sort((a,b)=>a.getAttribute("data-skill")>b.getAttribute("data-skill")?1:-1)
                             .forEach(node=>skill_list.appendChild(node));
+
+
 }
 
 function update_displayed_skill_bar(skill) {
@@ -1441,8 +1640,6 @@ function update_character_attack_bar(num) {
     character_attack_bar.style.width = `${num*2.5}%`;
 }
 
-
-
 export {
     start_activity_animation,
     end_activity_animation,
@@ -1481,5 +1678,6 @@ export {
     clear_skill_list,
     update_character_attack_bar,
     clear_message_log,
-    update_enemy_attack_bar
+    update_enemy_attack_bar,
+    update_displayed_location_choices
 }

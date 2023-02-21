@@ -9,7 +9,9 @@ var inventory_templates = {};
 class Trader extends InventoryHaver {
     constructor(trader_data) {
         super();
-        this.trade_text = trader_data.trade_text || "Let's trade";
+        this.trade_text = trader_data.trade_text || `Trade with ${trader_data.name}`;
+        this.name = trader_data.name;
+        this.location_name = trader_data.location_name;
         this.last_refresh = -1; //just the day_count from game_time at which trader was supposedly last refreshed
         this.refresh_time = trader_data.refresh_time || 7;
         //7 would mean it's refreshed every 7 days (with shift at 0 it's every monday)
@@ -85,10 +87,11 @@ function TradeItem(trade_item_data) {
 }
 
 traders["village trader"] = new Trader({
-    trade_text: "Trade with village trader",
+    name: "village trader",
     inventory_template: "Basic",
+    is_unlocked: false,
+    location_name: "Village",
 });
-
 inventory_templates["Basic"] = 
 [
         new TradeItem({item_name: "Cheap iron spear", count: [1], quality: [0.4, 0.9]}),
