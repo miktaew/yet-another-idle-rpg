@@ -549,14 +549,14 @@ skill_groups["weapon skills"] = new SkillGroup({
                                             names: {0: "Spatial awareness"}, 
                                             description: "Understanding where you are in relation to other creatures and objects", 
                                             get_effect_description: ()=> {
-                                                return `Reduces environmental penalty in open areas by ${skills["Spatial awareness"].current_level*100/skills["Spatial awareness"].max_level}%`;
+                                                return `Reduces environmental penalty in open areas by ${Math.round(10*skills["Spatial awareness"].current_level*100/skills["Spatial awareness"].max_level)/10}%`;
                                             }});
     skills["Tight maneuvers"] = new Skill({
                                         skill_id: "Tight maneuvers", 
                                         names: {0: "Tight maneuvers"}, 
                                         description: "Learn how to fight in narrow environment, where there's not much space for dodging attacks", 
                                         get_effect_description: ()=> {
-                                            return `Reduces environmental penalty in narrow areas by ${skills["Tight maneuvers"].current_level*100/skills["Tight maneuvers"].max_level}%`;
+                                            return `Reduces environmental penalty in narrow areas by ${Math.round(10*skills["Tight maneuvers"].current_level*100/skills["Tight maneuvers"].max_level)/10}%`;
                                         }});
     skills["Night vision"] = new Skill({
                                     skill_id: "Night vision",
@@ -566,9 +566,43 @@ skill_groups["weapon skills"] = new SkillGroup({
                                     xp_scaling: 1.8,
                                     max_level: 10,
                                     get_effect_description: () => {
-                                        return `Reduces darkness penalty by ${skills["Night vision"].current_level*100/skills["Night vision"].max_level}%`;
+                                        return `Reduces darkness penalty by ${Math.round(10*skills["Night vision"].current_level*100/skills["Night vision"].max_level)/10}%`;
                                     }
 
+    });
+    skills["Heat resistance"] = new Skill({
+        skill_id: "Heat resistance",
+        names: {0: "Heat resistance"},
+        description: "Ability to survive and function in high temperatures",
+        base_xp_cost: 100,
+        xp_scaling: 1.8,
+        max_level: 40,
+        get_effect_description: () => {
+            return `Reduces penalty from hot locations`;
+        }
+    });
+    skills["Cold resistance"] = new Skill({
+        skill_id: "Cold resistance",
+        names: {0: "Cold resistance"},
+        description: "Ability to survive and function in low temperatures",
+        base_xp_cost: 100,
+        xp_scaling: 1.8,
+        max_level: 40,
+        get_effect_description: () => {
+            return `Reduces penalty from cold locations`;
+        }
+    });
+
+    skills["Dazzle resistance"] = new Skill({
+        skill_id: "Dazzle resistance",
+        names: {0: "Dazzle resistance"},
+        description: "Don't look at the sun, it's bad for your eyes",
+        base_xp_cost: 60,
+        max_level: 30,
+        get_effect_description: ()=> {
+            return `Reduces hit and evasion penalty in super bright areas`;
+        },
+        max_level_bonus: 0.5
     });
 })();
 
@@ -930,21 +964,8 @@ skill_groups["crafting skills"] = new SkillGroup({
         description: "Better grasp on your senses allows you to notice small and hidden things", 
         max_level_coefficient: 2,
         get_effect_description: ()=> {
-            return `(not implemented) Increase crit rate and chance to find items when foraging`;
-        }});
-
-    skills["Dazzle resistance"] = new Skill({
-        skill_id: "Dazzle resistance",
-        names: {0: "Dazzle resistance"},
-        description: "Don't look at the sun, it's bad for your eyes",
-        base_xp_cost: 60,
-        max_level: 30,
-        get_effect_description: ()=> {
-            return `(not yet implemented) Reduces hit and evasion penalty in super bright areas`;
-        },
-        max_level_bonus: 0.5
-    });
-    
+            return `Increase crit rate and chance to find items when foraging`;
+        }});    
 })();
 
 //miscellaneous skills

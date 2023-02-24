@@ -5,16 +5,6 @@ const locations = {};
 const location_types = {};
 //contains all the created locations
 
-/*
-TODO:
-    - additional property, an object with all "properties" that the area has 
-    (stuff like "dark", "narrow", "cold")
-    only for combat zones maybe?
-    for some kind of nightvision skill, "dark" and "bright" would mean it's like that all the time, while lack of them both
-    would indicate it follows the day-night cycle
-
-*/
-
 class Location {
     constructor({
                 name, 
@@ -22,6 +12,7 @@ class Location {
                 connected_locations, 
                 is_unlocked = true, 
                 dialogues = [], 
+                traders = [],
                 types = [], //{type, xp per tick}
                 sleeping = null, //{text to start, xp per tick},
                 light_level = "normal",
@@ -34,6 +25,7 @@ class Location {
         this.connected_locations = connected_locations; //a list
         this.is_unlocked = is_unlocked;
         this.dialogues = dialogues;
+        this.traders = traders;
         this.activities = {};
         this.types = types;
         this.sleeping = sleeping;
@@ -60,7 +52,6 @@ class Combat_zone {
                  leave_text,
                  first_reward = {},
                  repeatable_reward = {}, 
-                 light_level = "normal",
                 }) {
         /*
         after clearing, maybe permanently unlock a single, harder zone (meaning also more xp/loot), from where the only way is back;
@@ -114,16 +105,16 @@ class Combat_zone {
         this.repeatable_reward = repeatable_reward; //reward for each clear, including first; all unlocks should be in this, just in case
 
         //skills and their xp gain on every tick, based on location types;
-        this.gained_skills = this.types.map(type => {return {skill: skills[location_types[type.type].related_skill], xp: type.xp_gain}});
-
-        if(["dark", "normal", "bright"].includes(light_level)) {
-            //dark = always night
-            //normal = follow day-night cycle
-            //bright = always day
-            //xp gain same everywhere?
-            this.light_level = light_level;
+        this.gained_skills = this.types?.map(type => {return {skill: skills[location_types[type.type].stages[type.stage || 1].related_skill], xp: type.xp_gain}});
+       
+        const temp_types = this.types.map(type => type.type);
+        if(temp_types.includes("bright")) {
+            this.light_level = "bright";
+        }
+        else if(temp_types.includes("dark")) {
+            this.light_level = "dark";
         } else {
-            throw new Error(`No such light level as "${light_level}" allowed!`);
+            this.light_level = "normal";
         }
     }
 
@@ -190,13 +181,20 @@ class Combat_zone {
     }
 
     //calculates total penalty with and without hero skills
+    //launches on every combat action
     get_total_effect() {
         const effects = {multipliers: {}};
         const hero_effects = {multipliers: {}};
         
         //iterate over types of location
         for(let i = 0; i < this.types.length; i++) {
-            const type = location_types[this.types[i].type];
+            const type = location_types[this.types[i].type].stages[this.types[i].stage];
+
+            if(!type.related_skill || !type.effects) { 
+                continue; 
+            }
+
+            
             const skill = skills[type.related_skill];
 
             //iterate over effects each type has 
@@ -211,6 +209,8 @@ class Combat_zone {
             })
         }
 
+        
+
         return {base_penalty: effects, hero_penalty: hero_effects};
     }
 }
@@ -218,27 +218,18 @@ class Combat_zone {
 class LocationActivity{
     constructor({activity, 
                  starting_text, 
-                 payment = {min: 1, max: 1}, 
+                 get_payment = ()=>{return 1},
                  is_unlocked = true, 
                  working_period = 60,
                  infinite = false,
                  availability_time,
                  skill_xp_per_tick = 1,
-                 skill_affects = "PAYMENT"
                  }) 
     {
         this.activity = activity; //name of activity from activities.js
         this.starting_text = starting_text; //text displayed on button to start action
 
-        if(payment?.min < 0) {
-            this.payment.min = 0;
-            console.error("Minimum job payment cannot be less than 0 and was corrected to 0");
-        }
-        if(this.payment?.max <= 0) {
-            this.payment.max = 1;
-            console.error("Maximum job payment needs to be more than 0 and was corrected to 1")
-        }
-        this.payment = payment; // if exists -> min and max possible payment
+        this.get_payment = get_payment;
         this.is_unlocked = is_unlocked;
         this.working_period = working_period; //if exists -> time that needs to be worked to earn anything; only for jobs
         this.infinite = infinite; //if true -> can be done 24/7, otherwise requires availability time
@@ -252,20 +243,12 @@ class LocationActivity{
         
         this.skill_xp_per_tick = skill_xp_per_tick; //skill xp gained per game tick (default -> 1 in-game minute)
 
-        //skill_affects => what's affected by related skill; currently only earnings
-        if(skill_affects && skill_affects !== "PAYMENT")
-        {
-            console.error(`LocationActivity cannot currently have skill affect the "${skill_affects}"!`);
-        } else {
-            this.skill_affects = skill_affects; 
-        }
         }
 }
 
 class LocationType{
-    constructor({name, description, related_skill, effects = {}}) {
+    constructor({name, related_skill, stages = {}}) {
         this.name = name;
-        this.description = description;
 
         if(related_skill) {
             if(!skills[related_skill]) {
@@ -275,46 +258,173 @@ class LocationType{
                 this.related_skill = related_skill; //one per each; skill xp defined in location/combat_zone
             }
         }
-        this.effects = effects; //follows same formula as gains from skill lvls, so
-        //multipliers: {stat: value}
-        //only hit chance and evasion are supported for now
+        this.stages = stages; //up to 3
+        /* 
+        >number<: {
+            description,
+            related_skill,
+            effects
+        }
+
+        */
     }
 }
 
 //create location types
 (function(){
-    location_types["super bright"] = new LocationType({
-        name: "super bright",
-        description: "An extremely bright place, excessive light makes it hard to keep eyes open",
-        related_skill: "Dazzle resistance",
-        effects: {
-            multipliers: {
-                hit_chance: 0.5,
-                evasion: 0.5,
+    
+    location_types["bright"] = new LocationType({
+        name: "bright",
+        stages: {
+            1: {
+                description: "A place where it's always as bright as during the day",
+            },
+            2: {
+                description: "An extremely bright place, excessive light makes it hard to keep eyes open",
+                related_skill: "Dazzle resistance",
+                effects: {
+                    multipliers: {
+                        hit_chance: 0.5,
+                        evasion: 0.5,
+                    }
+                }
+            },
+            3: {
+                description: "A place with so much light that an average person would go blind in an instant",
+                related_skill: "Dazzle resistance",
+                effects: {
+                    multipliers: {
+                        hit_chance: 0.1,
+                        evasion: 0.1,
+                    }
+                }
+            }
+        }
+    });
+    location_types["dark"] = new LocationType({
+        name: "dark",
+        stages: {
+            1: {
+                description: "A place where it's always as dark as during the night",
+                related_skill: "Night vision"
+            },
+            2: {
+                description: "An extremely dark place, darker than any night",
+                //TODO: use some other skill for seeing in places with no light whatsoever
+                related_skill: "Night vision",
+                effects: {
+                    multipliers: {
+                        hit_chance: 0.5,
+                        evasion: 0.5,
+                    }
+                }
             }
         }
     });
     location_types["narrow"] = new LocationType({
         name: "narrow",
-        description: "A very narrow and tight area where it's hard to even move properly",
-        related_skill: "Tight maneuvers",
-        effects: {
-            multipliers: {
-                evasion: 0.5,
+        stages: {
+            1: {
+                description: "A very narrow and tight area where there's not much place for manouvering",
+                related_skill: "Tight maneuvers",
+                effects: {
+                    multipliers: {
+                                evasion: 0.5,
+                                }
+                        }
+                }
             }
-        }
     });
     location_types["open"] = new LocationType({
         name: "open",
-        description: "A completely open area where attack can come from any direction",
-        related_skill: "Spatial awareness",
-        effects: {
-            multipliers: {
-                evasion: 0.75,
+        stages: {
+            1: {
+                description: "A completely open area where attack can come from any direction",
+                related_skill: "Spatial awareness",
+                effects: {
+                    multipliers: {
+                        evasion: 0.75,
+                    }
+                }
             }
         }
     });
-
+    location_types["hot"] = new LocationType({
+        name: "hot",
+        stages: {
+            1: {
+                description: "High temperature makes it hard to breath",
+                related_skill: "Heat resistance",
+                effects: {
+                    multipliers: {
+                        hit_chance: 0.5,
+                        evasion: 0.5,
+                        stamina: 0.8,
+                    }
+                }
+            },
+            2: {
+                description: "It's so hot that just being here is painful",
+                related_skill: "Heat resistance",
+                effects: {
+                    multipliers: {
+                        hit_chance: 0.3,
+                        evasion: 0.3,
+                        stamina: 0.5,
+                    }
+                }
+            },
+            3: {
+                description: "Temperature so high that wood ignites by itself",
+                related_skill: "Heat resistance",
+                //TODO: environmental damage if resistance is too low
+                effects: {
+                    multipliers: {
+                        hit_chance: 0.1,
+                        evasion: 0.1,
+                        stamina: 0.3,
+                    }
+                }
+            }
+        }
+    });
+    location_types["cold"] = new LocationType({
+        name: "cold",
+        stages: {
+            1: {
+                description: "Cold makes your energy seep out...",
+                related_skill: "Cold resistance",
+                effects: {
+                    multipliers: {
+                        stamina: 0.5,
+                    }
+                }
+            },
+            2: {
+                description: "So cold...",
+                related_skill: "Cold resistance",
+                effects: {
+                    multipliers: {
+                        hit_chance: 0.7,
+                        evasion: 0.7,
+                        stamina: 0.2,
+                    }
+                }
+            },
+            3: {
+                description: "Place so cold that lesser beings would freeze in less than a minute",
+                related_skill: "Cold resistance",
+                //TODO: environmental damage if resistance is too low (to both hp and stamina?)
+                effects: {
+                    multipliers: {
+                        hit_chance: 0.5,
+                        evasion: 0.5,
+                        stamina: 0.1,
+                    }
+                }
+            }
+        }
+    });
 })();
 
 //create locations and zones
@@ -322,7 +432,8 @@ class LocationType{
     locations["Village"] = new Location({ 
         connected_locations: [], 
         description: "Medium-sized village surrounded by many fields, some of them infested by rats. Other than that, there's nothing interesting around.", 
-        dialogues: ["village elder", "village trader", "village guard"],
+        dialogues: ["village elder", "village guard"],
+        traders: ["village trader"],
         name: "Village", 
     });
 
@@ -343,7 +454,7 @@ class LocationType{
         description: "Field infested with rats.", 
         enemy_count: 15, 
         enemies_list: ["Starving wolf rat", "Wolf rat"],
-        types: [{type: "open", xp_gain: 1}],
+        types: [{type: "open", stage: 1, xp_gain: 1}],
         enemy_stat_variation: 0.1,
         is_unlocked: false, 
         name: "Infested field", 
@@ -361,7 +472,7 @@ class LocationType{
 
     locations["Nearby cave"] = new Location({ 
         connected_locations: [{location: locations["Village"], custom_text: "Go outside and to the village"}], 
-        description: "Cave near the village. You can hear sounds of rats somewhere deeper...", 
+        description: "Cave near the village. Groups of fluorescent mushrooms cover the walls, providing a dim light. You can hear sounds of rats somewhere deeper.", 
         name: "Nearby cave",
         is_unlocked: false,
     });
@@ -371,14 +482,13 @@ class LocationType{
     locations["Cave depths"] = new Combat_zone({
         description: "It's dark. And full of rats.", 
         enemy_count: 30, 
-        types: [{type: "narrow", xp_gain: 3}],
+        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 1, xp_gain: 2}],
         enemies_list: ["Starving wolf rat", "Wolf rat"],
         enemy_group_size: [5,8],
         enemy_stat_variation: 0.2,
         is_unlocked: true, 
         name: "Cave depths", 
         leave_text: "Climb out",
-        light_level: "dark",
         parent_location: locations["Nearby cave"],
         repeatable_reward: {
             textlines: [{dialogue: "village elder", lines: ["cleared cave"]}],
@@ -425,12 +535,13 @@ class LocationType{
         "plowing the fields": new LocationActivity({
             activity: "plowing the fields",
             starting_text: "Work on the fields",
-            payment: {min: 1, max: 3},
+            get_payment: () => {
+                return 1 + Math.round(2 * skills["Farming"].current_level/skills["Farming"].max_level);
+            },
             is_unlocked: false,
             working_period: 60*2,
             availability_time: {start: 6, end: 20},
             skill_xp_per_tick: 1, 
-            skill_affects: "PAYMENT",
         }),
         "running": new LocationActivity({
             activity: "running",
@@ -449,7 +560,7 @@ class LocationType{
         "patrolling": new LocationActivity({
             activity: "patrolling",
             starting_text: "Go on a patrol around the village.",
-            payment: {min: 4},
+            get_payment: () => {return 4},
             is_unlocked: false,
             infinite: true,
             working_period: 60*2,
@@ -467,7 +578,7 @@ class LocationType{
 })();
 
 
-export {locations};
+export {locations, location_types};
 
 /*
 TODO:

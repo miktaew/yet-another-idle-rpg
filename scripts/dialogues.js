@@ -3,11 +3,10 @@ var dialogues = {};
 function Dialogue(dialogue_data) {
     this.name = dialogue_data.name; // displayed name, e.g. "Village elder"
     this.starting_text = typeof dialogue_data.starting_text !== "undefined"? dialogue_data.starting_text : `Talk to the ${this.name}`;
-    this.ending_text = typeof dialogue_data.ending_text !== "undefined"? dialogue_data.ending_text : `> Go back <`; //text shown on option to finish talking
+    this.ending_text = typeof dialogue_data.ending_text !== "undefined"? dialogue_data.ending_text : `Go back`; //text shown on option to finish talking
     this.is_unlocked = typeof dialogue_data.is_unlocked !== "undefined"? dialogue_data.is_unlocked : true;
     this.is_finished = typeof dialogue_data.is_finished !== "undefined"? dialogue_data.is_finished : false; 
     //separate bool to remove dialogue option if it's finished
-    this.trader = typeof dialogue_data.trader !== "undefined"? dialogue_data.trader : null;
 
     this.textlines = dialogue_data.textlines || {};  //all the lines in dialogue
     
@@ -25,9 +24,10 @@ function Textline(textline_data) {
         this.unlocks.textlines = typeof textline_data.unlocks.textlines !== "undefined"? textline_data.unlocks.textlines : [];
         this.unlocks.locations = typeof textline_data.unlocks.locations !== "undefined"? textline_data.unlocks.locations : [];
         this.unlocks.dialogues = typeof textline_data.unlocks.dialogues !== "undefined"? textline_data.unlocks.dialogues : [];
+        this.unlocks.traders = typeof textline_data.unlocks.traders !== "undefined"? textline_data.unlocks.traders : [];
     }
     else {
-        this.unlocks = {dialogues: [], textlines: [], locations: []};
+        this.unlocks = {dialogues: [], textlines: [], locations: [], traders: []};
     }
 
     this.locks_lines = typeof textline_data.locks_lines !== "undefined"? textline_data.locks_lines : {}; 
@@ -93,7 +93,7 @@ function Textline(textline_data) {
                 locks_lines: ["equipment"],
                 unlocks: {
                     textlines: [{dialogue: "village elder", lines: ["money"]}],
-                    dialogues: ["village trader"]
+                    traders: ["village trader"]
                 }
             }),
             "money": new Textline({
@@ -120,7 +120,7 @@ function Textline(textline_data) {
             "cleared field": new Textline({ //will be unlocked on clearing infested field combat_zone
                 name: "I cleared the field, just as you asked me to",
                 text: `You did? That's good. How about a stronger target? Nearby cave is just full of this vermin.
-Before that, maybe get some sleep? Some folks prepared that shack over there for you. It's clean, it's dry and it will give you some privacy.`,
+Before that, maybe get some sleep? Some folks prepared that shack over there for you. It's clean, it's dry, and it will give you some privacy.`,
                 is_unlocked: false,
                 unlocks: {
                     locations: ["Nearby cave", "Infested field", "Shack"],
@@ -157,13 +157,6 @@ Before that, maybe get some sleep? Some folks prepared that shack over there for
                 },
             }),
         }
-    });
-
-    dialogues["village trader"] = new Dialogue({
-        name: "trader",
-        trader: "village trader",
-        is_unlocked: false,
-        location_name: "Village",
     });
 
     dialogues["village guard"] = new Dialogue({

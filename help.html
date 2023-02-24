@@ -37,10 +37,39 @@ Some basic concepts:
         Area types and day-night:
         <ul>
             <li>
-                Some areas are have certain properties, resulting in penalties to some stats. E.g. area being very narrow can make it hard to evade attacks
+                Some combat areas have special properties, which result in penalties to certain stats. E.g. some areas might not offer enough movement space to properly dodge or make a good swing with weapon
+                <br>
+                They usually have a corresponding skill that lowers the penalty and is usually leveled by simply being in such place
             </li>
             <li>
-                During night (20 to 4) in normal areas, and whole time in dark areas (e.g. caves), character receives additional penalties to hit/evasion chance
+                During night (20 to 4) in normal areas, and whole time in dark areas (e.g. caves), character receives additional penalties to hit/evasion chance.
+                <br>
+            </li>
+        </ul>
+    </li>
+    <li>
+        Items:
+        <ul>
+            <li>
+                Equipment quality 
+                <ul>
+                    <li>
+                        All equippable items come with "quality" parameter. It directly multiplies item's basic bonus (attack for weapons, defense for armors, max block for shields) and value.
+                        <br>
+                        On top of that, higher quality ranks (starting at uncommon, which begins at 100%) provide another multiplier (based solely on rank) to not only basic bonus, but also to all other stats it has.
+                        <br>
+                        <pre>
+
+quality     rarity         color      additional multiplier
+0-49%       trash          gray       x1
+50-99%      common         white      x1
+100-129%    uncommon       green      x1.1
+130-159%    rare           blue       x1.3
+160-199%    epic           purple     x1.6
+200-250%    legendary      orange     x2
+                        </pre>
+                    </li>
+                </ul>
             </li>
         </ul>
     </li>
