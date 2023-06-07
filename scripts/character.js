@@ -273,7 +273,7 @@ character.take_damage = function ({damage_value, damage_type = "physical", damag
         }
 
         if(give_skill_xp) {
-                //TODO give skill xp when taking damge
+                //TODO give xp to resistance skills when taking damge
         }
 
         return {damage_taken, fainted};

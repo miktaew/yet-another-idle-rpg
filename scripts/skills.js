@@ -27,6 +27,7 @@ class Skill {
                   max_level_coefficient = 1, 
                   max_level_bonus = 0, 
                   base_xp_cost = 40, 
+                  visibility_treshold = 10,
                   get_effect_description = () => { return ''; }, 
                   skill_group = null, 
                   rewards, 
@@ -43,6 +44,8 @@ class Skill {
         this.current_xp = 0; // how much of xp_to_next_lvl there is currently
         this.total_xp = 0; // total collected xp, on loading calculate lvl based on this (so to not break skills if scaling ever changes)
         this.base_xp_cost = base_xp_cost; //xp to go from lvl 1 to lvl 2
+        this.visibility_treshold = visibility_treshold < base_xp_cost ? visibility_treshold : base_xp_cost; 
+        //xp needed for skill to become visible and to get "unlock" message; try to keep it less than xp needed for lvl
         this.xp_to_next_lvl = base_xp_cost; //for display only
         this.total_xp_to_next_lvl = base_xp_cost; //total xp needed to lvl up
         this.get_effect_description = get_effect_description;
@@ -55,6 +58,7 @@ class Skill {
         as most of skills will provide some bonus anyway, there's no need to give stat reward at every single level
         and might instead give them, let's say, every 5 levels
         */
+
         this.xp_scaling = xp_scaling > 1 ? xp_scaling : 1.6;
         //how many times more xp needed for next level
     }

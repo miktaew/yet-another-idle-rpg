@@ -728,30 +728,35 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
         return;
     }
     
-    if(skill.total_xp == 0) 
+    const was_hidden = skill.visibility_treshold > skill.total_xp;
+    const level_up = skill.add_xp(xp_to_add * (global_xp_bonus || 1));
+    const is_visible = skill.visibility_treshold <= skill.total_xp;
+
+    if(was_hidden && is_visible) 
     {
         create_new_skill_bar(skill);
         
         if(typeof should_info === "undefined" || should_info) {
-            log_message(`Learned new skill: ${skill.name()}`, "skill_raised");
+            log_message(`Unlocked new skill: ${skill.name()}`, "skill_raised");
         }
     } 
 
-    const level_up = skill.add_xp(xp_to_add * (global_xp_bonus || 1));
-
-    update_displayed_skill_bar(skill);
+    if(is_visible) 
+    {
+        update_displayed_skill_bar(skill);
     
-    if(typeof level_up !== "undefined"){ //not undefined => levelup happened and levelup message was returned
-    //character stats currently get added in character.add_bonuses() method, called in skill.get_bonus_stats() method, called in skill.add_xp() when levelup happens
-        if(typeof should_info === "undefined" || should_info)
-        {
-            log_message(level_up, "skill_raised");
-            update_character_stats();
-        }
+        if(typeof level_up !== "undefined"){ //not undefined => levelup happened and levelup message was returned
+        //character stats currently get added in character.add_bonuses() method, called in skill.get_bonus_stats() method, called in skill.add_xp() when levelup happens
+            if(typeof should_info === "undefined" || should_info)
+            {
+                log_message(level_up, "skill_raised");
+                update_character_stats();
+            }
 
-        if(typeof skill.get_effect_description !== "undefined")
-        {
-            update_displayed_skill_description(skill);
+            if(typeof skill.get_effect_description !== "undefined")
+            {
+                update_displayed_skill_description(skill);
+            }
         }
     }
 }
