@@ -9,14 +9,21 @@ const activities = {};
 */
 
 class Activity {
-    constructor(activity_data) {
-        this.name = activity_data.name;
-        this.description = activity_data.description; //description on job
-        this.action_text = activity_data.action_text; //text displayed in action div, e.g. "Working the fields"
-        this.base_skills_names = activity_data.base_skills_names;
-        this.is_unlocked = activity_data.is_unlocked || false;
+    constructor({ name,
+                  description,
+                  action_text,
+                  base_skills_names,
+                  is_unlocked = false,
+        }) 
+    {
+        this.name = name;
+        this.description = description; //description on job
+        this.action_text = action_text; //text displayed in action div, e.g. "Working the fields"
+        this.base_skills_names = base_skills_names;
         //skills that affect efficiency of an activity and are raised when performing it
         //some will have only 1 (e.g. "foraging", "mining") and some multiple
+
+        this.is_unlocked = is_unlocked;
     }
 }
 

@@ -33,7 +33,7 @@ import { end_activity_animation,
          update_displayed_location_choices
         } from "./display.js";
 
-const game_version = "v0.2.9";
+const game_version = "v0.2.8";
 
 //current enemy
 var current_enemies = null;
@@ -87,6 +87,34 @@ time_field.innerHTML = current_game_time.toString();
 
 //just a small multiplier for xp, mostly for testing I guess
 const global_xp_bonus = 1;
+
+function get_hit_chance(attack_points, evasion_points) {
+    let result = attack_points/(attack_points+evasion_points);
+
+    //ugly, stupid and inconsistent
+    if(result >= 0.80) {
+        result = 0.971+(result-0.8)**1.4;
+    } else if(result >= 0.70) {
+        result = 0.846+(result-0.7)**0.9;
+    } else if(result >= 0.6) {
+        result = 0.688+(result-0.6)**0.8;
+    } else if(result >= 0.50) {
+        result = 0.53+(result-0.5)**0.8;
+    } else if(result >= 0.40) {
+        result = 0.331+(result-0.4)**0.7;
+    } else if(result >= 0.3) {
+        result = 0.173 + (result-0.3)**0.8;
+    } else if(result >= 0.20) {
+        result = 0.073 + (result-0.2);
+    } else if(result >= 0.10) {
+        result = 0.01 + (result-0.1)**1.2;
+    } else {
+        result = result**1.92;
+    }
+    
+    console.log(result);
+    return result;
+}
 
 function change_location(location_name) {
     var location = locations[location_name];
@@ -544,9 +572,9 @@ function do_enemy_combat_action(enemy_id) {
          }
     } else { // HAS NO SHIELD
         //character EP div by enemy_AP * 3
-        const evasion_chance = (character.combat_stats.evasion_points / (attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1) * 3)) * evasion_chance_modifier;
+        const hit_chance = get_hit_chance(attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1), character.combat_stats.evasion_points * evasion_chance_modifier);
 
-        if(evasion_chance > Math.random()) { //EVADED ATTACK
+        if(hit_chance < Math.random()) { //EVADED ATTACK
             const xp_to_add = character.wears_armor() ? attacker.xp_value : attacker.xp_value * 1.5; 
             //50% more evasion xp if going without armor
             add_xp_to_skill(skills["Evasion"], xp_to_add, true);
@@ -626,8 +654,8 @@ function do_character_combat_action(attack_power, attack_type = "normal") {
         add_xp_to_skill(skills["Giant slayer"], target.xp_value, true);
     }
 
-    //character AP div by 2*enemy_DP 
-    const hit_chance = (character.combat_stats.attack_points / (target.stats.agility * Math.sqrt(target.stats.intuition ?? 1) * 2)) * hit_chance_modifier;
+    
+    const hit_chance = get_hit_chance(character.combat_stats.attack_points * hit_chance_modifier, target.stats.agility * Math.sqrt(target.stats.intuition ?? 1));
 
     if(hit_chance > Math.random()) {//hero's attack hits
 
