@@ -547,7 +547,9 @@ function do_enemy_combat_action(enemy_id) {
         const evasion_chance = (character.combat_stats.evasion_points / (attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1) * 3)) * evasion_chance_modifier;
 
         if(evasion_chance > Math.random()) { //EVADED ATTACK
-            add_xp_to_skill(skills["Evasion"], attacker.xp_value, true);
+            const xp_to_add = character.wears_armor() ? attacker.xp_value : attacker.xp_value * 1.5; 
+            //50% more evasion xp if going without armor
+            add_xp_to_skill(skills["Evasion"], xp_to_add, true);
             log_message(character.name + " evaded an attack", "enemy_missed");
             return; //damage fully evaded, nothing more can happen
         }
@@ -565,13 +567,7 @@ function do_enemy_combat_action(enemy_id) {
         legs: null, feet: null, 
         amulet: null
     */
-    if(
-        (!character.equipment.head || character.equipment.head.getDefense() == 0) &&
-        (!character.equipment.torso || character.equipment.torso.getDefense() == 0) &&
-        (!character.equipment.arms || character.equipment.arms.getDefense() == 0) &&
-        (!character.equipment.legs || character.equipment.legs.getDefense() == 0) &&
-        (!character.equipment.feet || character.equipment.feet.getDefense() == 0)
-    )
+    if(!character.wears_armor())
     {
         add_xp_to_skill(skills["Iron skin"], attacker.xp_value, true);
     }
