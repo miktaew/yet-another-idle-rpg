@@ -1,3 +1,7 @@
+v0.2.9
+    - added "iron skin" skill that provides a tiny bit of def, xp is gained for fighting with no armour equipped
+    - evasion xp is increased by 50% when fighting with no armor equipped (let's call it an adrenaline bonus)
+    
 v0.2.8
     - message log can now be filtered for stuff related to combat/levelups&unlocks/events/loot
     - now if there's more than 1 option in any category (work, train, travel, talk, trade), 

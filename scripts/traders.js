@@ -1,3 +1,5 @@
+"use strict";
+
 import { current_game_time } from "./game_time.js";
 import { InventoryHaver } from "./inventory.js";
 import { item_templates, getItem } from "./items.js";

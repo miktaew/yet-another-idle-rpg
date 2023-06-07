@@ -1,3 +1,5 @@
+"use strict";
+
 const skills = {};
 const skill_groups = {};
 

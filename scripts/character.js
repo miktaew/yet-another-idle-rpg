@@ -1,3 +1,5 @@
+"use strict";
+
 import { InventoryHaver } from "./inventory.js";
 import { skills } from "./skills.js";
 import { update_displayed_character_inventory, update_displayed_equipment, 

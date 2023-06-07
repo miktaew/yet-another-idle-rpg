@@ -1,3 +1,5 @@
+"use strict";
+
 var dialogues = {};
 
 function Dialogue(dialogue_data) {

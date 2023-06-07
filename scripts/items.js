@@ -1,3 +1,5 @@
+"use strict";
+
 /*
     item_templates contain some predefined equipment for easier access (instead of having to create them with proper components each time)
 

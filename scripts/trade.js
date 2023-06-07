@@ -1,3 +1,5 @@
+"use strict";
+
 import { traders } from "./traders.js";
 import { 
     update_displayed_trader, update_displayed_trader_inventory, update_displayed_character_inventory, exit_displayed_trade, update_displayed_money } from "./display.js";

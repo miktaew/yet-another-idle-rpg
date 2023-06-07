@@ -1,3 +1,5 @@
+"use strict";
+
 import {item_templates, getItem} from "./items.js";
 
 var enemy_templates = {};
