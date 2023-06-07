@@ -558,16 +558,33 @@ function do_enemy_combat_action(enemy_id) {
         damage_dealt *= enemy_crit_damage;
         critted = true;
     }
+    /*
+    head: null, torso: null, 
+        arms: null, ring: null, 
+        weapon: null, "off-hand": null,
+        legs: null, feet: null, 
+        amulet: null
+    */
+    if(
+        (!character.equipment.head || character.equipment.head.getDefense() == 0) &&
+        (!character.equipment.torso || character.equipment.torso.getDefense() == 0) &&
+        (!character.equipment.arms || character.equipment.arms.getDefense() == 0) &&
+        (!character.equipment.legs || character.equipment.legs.getDefense() == 0) &&
+        (!character.equipment.feet || character.equipment.feet.getDefense() == 0)
+    )
+    {
+        add_xp_to_skill(skills["Iron skin"], attacker.xp_value, true);
+    }
 
     let {damage_taken, fainted} = character.take_damage({damage_value: damage_dealt});
 
     if(critted)
     {
         if(partially_blocked) {
-            log_message(character.name + " partially blocked, critically was hit for " + damage_taken + " dmg", "hero_attacked_critically");
+            log_message(character.name + " partially blocked, was critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
         } 
         else {
-            log_message(character.name + " critically was hit for " + damage_taken + " dmg", "hero_attacked_critically");
+            log_message(character.name + " was critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
         }
     } else {
         if(partially_blocked) {
@@ -890,7 +907,6 @@ function use_item(item_name) {
         remove_from_character_inventory({item_name, item_count: 1});
     }
 }
-
 
 /**
  * puts all important stuff into a string

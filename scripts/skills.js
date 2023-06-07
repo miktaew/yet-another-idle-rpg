@@ -949,6 +949,45 @@ skill_groups["crafting skills"] = new SkillGroup({
     });
 })();
 
+//defensive skills
+(function(){
+    skills["Iron skin"] = new Skill({
+        skill_id: "Iron skin",
+        names: {0: "Tough skin", 5: "Wooden skin", 10: "Iron skin"},
+        description: "As it gets damaged, your skin regenerates to be tougher and tougher",
+        base_xp_cost: 80,
+        max_level: 30,
+        max_level_bonus: 30,
+        get_effect_description: ()=> {
+            return `Increases base defense by ${Math.round(skills["Iron skin"].get_level_bonus())}`;
+        },
+        rewards: {
+            milestones: {
+                3: {
+                    multipliers: {
+                        max_health: 1.01,
+                    }
+                },
+                5: {
+                    multipliers: {
+                        max_health: 1.03,
+                    }
+                },
+                7: {
+                    multipliers: {
+                        max_health: 1.01,
+                    }
+                },
+                10: {
+                    multipliers: {
+                        max_health: 1.05,
+                    }
+                }
+            }
+        }
+    }); 
+})();
+
 //character skills and resistances
 (function(){
     skills["Persistence"] = new Skill({
@@ -969,7 +1008,7 @@ skill_groups["crafting skills"] = new SkillGroup({
         max_level_coefficient: 2,
         get_effect_description: ()=> {
             return `Increase crit rate and chance to find items when foraging`;
-        }});    
+        }}); 
 })();
 
 //miscellaneous skills
