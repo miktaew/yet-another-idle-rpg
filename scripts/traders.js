@@ -19,6 +19,7 @@ class Trader extends InventoryHaver {
                 }) 
     {
         super();
+        this.name = name;
         this.trade_text = trade_text;
         this.location_name = location_name;
         this.last_refresh = -1;  
