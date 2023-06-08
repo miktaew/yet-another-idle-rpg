@@ -1,3 +1,5 @@
+"use strict";
+
 /*
     item_templates contain some predefined equipment for easier access (instead of having to create them with proper components each time)
 
@@ -57,14 +59,16 @@ const item_templates = {};
 
 
 class Item {
-    constructor(item_data) {
-        this.name = item_data.name; 
-        this.description = item_data.description;
+    constructor({name,
+                description,
+                value = 0}) {
+        this.name = name; 
+        this.description = description;
 
         /**
          * Use .getValue() instead of this
          */
-        this.value = item_data.value || 0;
+        this.value = value;
     }
 
     getValue() {

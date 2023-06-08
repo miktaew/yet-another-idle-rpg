@@ -1,3 +1,5 @@
+"use strict";
+
 import { current_game_time } from "./game_time.js";
 import { InventoryHaver } from "./inventory.js";
 import { item_templates, getItem } from "./items.js";
@@ -7,21 +9,34 @@ var inventory_templates = {};
 
 
 class Trader extends InventoryHaver {
-    constructor(trader_data) {
+    constructor({name,
+                 trade_text = `Trade with ${name}`,
+                 location_name,
+                 refresh_time = 7,
+                 refresh_shift = 0,
+                 inventory_template,
+                 profit_margin = 2
+                }) 
+    {
         super();
-        this.trade_text = trader_data.trade_text || `Trade with ${trader_data.name}`;
-        this.name = trader_data.name;
-        this.location_name = trader_data.location_name;
-        this.last_refresh = -1; //just the day_count from game_time at which trader was supposedly last refreshed
-        this.refresh_time = trader_data.refresh_time || 7;
-        //7 would mean it's refreshed every 7 days (with shift at 0 it's every monday)
-        this.refresh_shift = trader_data.refresh_shift || 0;
-        //shift refreshing days, e.g. time 7 + shift 2 would be wednesday, shift 4 would push it to fridays
-        //pretty much pointless if refresh time is not 7 (or it's multiple)
-        this.inventory_template = trader_data.inventory_template;
+        this.trade_text = trade_text;
+        this.location_name = location_name;
+        this.last_refresh = -1;  
+        //just the day_count from game_time at which trader was supposedly last refreshed
 
+        this.refresh_time = refresh_time; 
+        //7 would mean it's refreshed every 7 days (with shift at 0 it's every monday)
+        
+        this.refresh_shift = refresh_shift; 
+        //shift refreshing days, e.g. time 7 + shift 2 would be every wednesday, shift 4 would push it to every friday
+        //pretty much pointless if refresh time is not N*7
+        
+        this.inventory_template = inventory_template;
+        //a template for the trader to use, so multiple traders can have same predefined item selection (but still separate and with certain randomness)
+
+        this.profit_margin = profit_margin;
         //how much more expensive are the trader's items than their actual value, with default being 2 (so 2x more)
-        this.profit_margin = trader_data.profit_margin || 2;
+        //don't make it too low to prevent easy xp grinding for the haggling skill
     }
     
     /**
@@ -40,11 +55,18 @@ class Trader extends InventoryHaver {
         return false;
     };
 
+    /**
+     * checks if enough time passed since last refresh
+     * @returns {Boolean}
+     */
     can_refresh() {
         return (this.last_refresh < 0 || current_game_time.day_count - (this.last_refresh + this.refresh_shift) >= this.refresh_time);
-        //if enough time passed since last refresh
     };
 
+    /**
+     * creates new choice of items for the trader, based on assigned inventory template
+     * @returns {null}
+     */
     get_inventory_from_template() {
         const inventory = {};
         const inventory_template = inventory_templates[this.inventory_template];
@@ -55,10 +77,12 @@ class Trader extends InventoryHaver {
                     inventory_template[i].count[0] : Math.round(Math.random() *
                         (inventory_template[i].count[1] - inventory_template[i].count[0]) + inventory_template[i].count[0]);
 
-                if (item_templates[inventory_template[i].item_name].stackable) { //stackable, so add one object with item_count
+                if (item_templates[inventory_template[i].item_name].stackable) { 
+                    //stackable, so add one object with item_count
                     inventory[inventory_template[i].item_name] = { item: getItem(item_templates[inventory_template[i].item_name]), count: item_count };
                 }
-                else { //unstackable, so add array of n items, each with random quality
+                else { 
+                    //unstackable, so add array of n items, each with random quality
                     inventory[inventory_template[i].item_name] = inventory[inventory_template[i].item_name] || [];
                     for (let j = 0; j < item_count; j++) {
                         let item = getItem(item_templates[inventory_template[i].item_name]);
@@ -76,14 +100,20 @@ class Trader extends InventoryHaver {
     };
 }
 
-function TradeItem(trade_item_data) {
-    this.item_name = trade_item_data.item_name;
-    this.chance = typeof trade_item_data.chance !== "undefined"? trade_item_data.chance : 1; //chance for item to appear, 1 is 100%
-    this.count = typeof trade_item_data.count !== "undefined"? trade_item_data.count : [1]; 
-    //how many can appear, will randomly choose something between min and max
-    this.quality = typeof trade_item_data.quality !== "undefined"? trade_item_data.quality : [0.2, 0.8]; 
-    //min and max quality of item
-
+class TradeItem {
+    constructor({ item_name,
+                  chance = 1,
+                  count = [1],
+                  quality = [0.2, 0.8]
+                }) 
+    {
+        this.item_name = item_name;
+        this.chance = chance; //chance for item to appear, 1 is 100%
+        this.count = count; 
+        //how many can appear, will randomly choose something between min and max if specificed, otherwise will go with specific ammount
+        
+        this.quality = quality; //min and max quality of item
+    }
 }
 
 traders["village trader"] = new Trader({

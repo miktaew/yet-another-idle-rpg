@@ -1,3 +1,5 @@
+"use strict";
+
 function Game_time(new_time) {
     this.year = new_time.year;
     this.month = new_time.month;

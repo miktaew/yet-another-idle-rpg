@@ -1,3 +1,5 @@
+"use strict";
+
 import {item_templates, getItem} from "./items.js";
 
 var enemy_templates = {};
@@ -16,7 +18,7 @@ class Enemy {
         this.description = description; //try to keep it short
         this.xp_value = xp_value;
         this.stats = stats;
-        //only magic & defense can be 0 in stats
+        //only magic & defense can be 0 in stats, other things will cause issues
         this.stats.max_health = stats.health;
         this.loot_list = loot_list;
 

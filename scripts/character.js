@@ -1,3 +1,5 @@
+"use strict";
+
 import { InventoryHaver } from "./inventory.js";
 import { skills } from "./skills.js";
 import { update_displayed_character_inventory, update_displayed_equipment, 
@@ -242,6 +244,21 @@ character.get_attack_power = function () {
         return character.full_stats.attack_power * character.get_stamina_multiplier();
 }
 
+character.wears_armor = () => {
+        if(
+                (!character.equipment.head || character.equipment.head.getDefense() == 0) &&
+                (!character.equipment.torso || character.equipment.torso.getDefense() == 0) &&
+                (!character.equipment.arms || character.equipment.arms.getDefense() == 0) &&
+                (!character.equipment.legs || character.equipment.legs.getDefense() == 0) &&
+                (!character.equipment.feet || character.equipment.feet.getDefense() == 0)
+            )
+        {
+                return false;
+        } else {
+                return true;
+        }
+}
+
 /**
  * 
  * @param {*}
@@ -273,7 +290,7 @@ character.take_damage = function ({damage_value, damage_type = "physical", damag
         }
 
         if(give_skill_xp) {
-                //TODO give skill xp when taking damge
+                //TODO give xp to resistance skills when taking damge
         }
 
         return {damage_taken, fainted};

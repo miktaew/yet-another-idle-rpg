@@ -1,3 +1,5 @@
+"use strict";
+
 import { enemy_templates, Enemy } from "./enemies.js";
 import { dialogues as dialoguesList} from "./dialogues.js";
 import { skills } from "./skills.js";

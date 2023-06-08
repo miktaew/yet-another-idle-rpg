@@ -1,3 +1,5 @@
+"use strict";
+
 import { item_templates, Weapon } from "./items.js";
 
 /*
