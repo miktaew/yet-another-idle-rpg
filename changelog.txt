@@ -1,3 +1,6 @@
+v0.2.9b
+    - "iron skin" now works
+    - minor fixes to some formulas
 v0.2.9
     - added "iron skin" skill that provides a tiny bit of def, xp is gained for fighting with no armour equipped
     - evasion xp is increased by 50% when fighting with no armor equipped (let's call it an adrenaline bonus)

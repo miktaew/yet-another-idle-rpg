@@ -835,6 +835,9 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
     sort_displayed_inventory({target: "character"});
 }
 
+/**
+ * updates the displayed worn items + attaches tooltips
+ */
 function update_displayed_equipment() {
     Object.keys(equipment_slots_divs).forEach(function(key) {
         var eq_tooltip; 
@@ -859,7 +862,7 @@ function update_displayed_equipment() {
 
 /**
  * sets visibility of divs for enemies (based on how many there are in current combat),
- * and enemies' AP / DE
+ * and enemies' AP / EP
  * 
  * called when new enemies get loaded
  */
@@ -912,7 +915,7 @@ function update_displayed_health_of_enemies() {
         enemies_div.children[i].children[0].children[2].children[0].children[0].style.width = 
             Math.max(0, 100*current_enemies[i].stats.health/current_enemies[i].stats.max_health) + "%";
 
-            enemies_div.children[i].children[0].children[2].children[1].innerText = `${Math.round(current_enemies[i].stats.health)}/${Math.round(current_enemies[i].stats.max_health)} hp`;
+            enemies_div.children[i].children[0].children[2].children[1].innerText = `${Math.ceil(current_enemies[i].stats.health)}/${Math.ceil(current_enemies[i].stats.max_health)} hp`;
 
     }
 }
@@ -1016,18 +1019,17 @@ function update_displayed_normal_location(location) {
 
     const available_locations = location.connected_locations.filter(location => location.location.is_unlocked);
 
-    if(available_locations.length > 1) {
+    if(available_locations.length > 2) {
         const locations_button = document.createElement("div");
         locations_button.setAttribute("data-location", location.name);
         locations_button.classList.add("location_choices");
         locations_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "travel")');
         locations_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Move somewhere else';
         action_div.appendChild(locations_button);
-    } else if (available_locations.length == 1) {
-        action_div.appendChild(create_location_choices(location, "travel")[0]);
+    } else if (available_locations.length <= 2) {
+        action_div.append(...create_location_choices(location, "travel"));
     }
 
-    
     location_name_div.innerText = current_location.name;
     document.getElementById("location_description_div").innerText = current_location.description;
 }
@@ -1036,7 +1038,7 @@ function update_displayed_normal_location(location) {
  * 
  * @param {*} location 
  * @param {*} category 
- * @return {Array} an array of html nodes
+ * @return {Array} an array of html nodes presenting the available choices
  */
 function create_location_choices(location, category, add_icons = true) {
     const choice_list = [];
@@ -1286,7 +1288,7 @@ function update_displayed_combat_stats() {
     attack_stats.children[1].innerHTML = `Atk speed: ${Math.round(character.get_attack_speed()*10)/10}`;
     attack_stats.children[2].innerHTML = `AP : ${Math.round(ap)}`;
     
-    document.getElementById("def_stat").innerHTML = `Def : ${Math.round(character.stats.defense)} `;
+    document.getElementById("def_stat").innerHTML = `Def : ${Math.round(character.full_stats.defense)} `;
 }
 
 function update_displayed_effects() {

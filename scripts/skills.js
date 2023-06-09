@@ -682,7 +682,7 @@ skill_groups["weapon skills"] = new SkillGroup({
 (function(){
     skills["Farming"] = new Skill({skill_id: "Farming", 
                                 names: {0: "Farming"}, 
-                                description: "Even a simple action of plowing some fields, can be done better with skills and experience",
+                                description: "Even a simple action of plowing some fields, can be performed better with skills and experience",
                                 base_xp_cost: 40,
                                 max_level: 10,
                                 max_level_coefficient: 2,
