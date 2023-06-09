@@ -193,9 +193,11 @@ character.update_stats = function () {
                 } else if(stat === "strength") {
                         character.full_stats["strength"] *= skills["Weightlifting"].get_coefficient("multiplicative");
                 }
-        } else {
+        } else { //its defense
+                character.full_stats[stat] += skills["Iron skin"].get_level_bonus();
                 Object.keys(character.equipment).forEach(function(key) {
-                        if(character.equipment[key]?.getDefense) {
+                        if(character.equipment[key]?.getDefense) { 
+                                //checks for presence of the method (to know if there's something equipped), not for its result
                                 character.full_stats[stat] += character.equipment[key].getDefense();
                         }
                 });
@@ -262,17 +264,13 @@ character.wears_armor = () => {
 /**
  * 
  * @param {*}
- * @returns [actual damage taken, if character should faint] 
+ * @returns [actual damage taken; Boolean if character should faint] 
  */
 character.take_damage = function ({damage_value, damage_type = "physical", damage_element, can_faint = true, give_skill_xp = true}) {
         /*
-        damage types: "physical", "elemental", "magic"
-        each with it's own defense on equipment (and potentially spells)
-        */
-
-        /*
         TODO:
-                - damage types
+                - damage types: "physical", "elemental", "magic"
+                - each with it's own defense on equipment (and potentially spells)
                 - damage elements (for elemental damage type)
                 - resistance skills
         */

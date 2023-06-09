@@ -33,7 +33,7 @@ import { end_activity_animation,
          update_displayed_location_choices
         } from "./display.js";
 
-const game_version = "v0.2.9";
+const game_version = "v0.2.9b";
 
 //current enemy
 var current_enemies = null;
@@ -91,7 +91,6 @@ const global_xp_bonus = 1;
 function get_hit_chance(attack_points, evasion_points) {
     let result = attack_points/(attack_points+evasion_points);
 
-    //ugly, stupid and inconsistent
     if(result >= 0.80) {
         result = 0.971+(result-0.8)**1.4;
     } else if(result >= 0.70) {
@@ -112,7 +111,6 @@ function get_hit_chance(attack_points, evasion_points) {
         result = result**1.92;
     }
     
-    console.log(result);
     return result;
 }
 
@@ -572,7 +570,7 @@ function do_enemy_combat_action(enemy_id) {
          }
     } else { // HAS NO SHIELD
         //character EP div by enemy_AP * 3
-        const hit_chance = get_hit_chance(attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1), character.combat_stats.evasion_points * evasion_chance_modifier);
+        const hit_chance = get_hit_chance(attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1), character.combat_stats.evasion_points)/evasion_chance_modifier;
 
         if(hit_chance < Math.random()) { //EVADED ATTACK
             const xp_to_add = character.wears_armor() ? attacker.xp_value : attacker.xp_value * 1.5; 
@@ -655,7 +653,7 @@ function do_character_combat_action(attack_power, attack_type = "normal") {
     }
 
     
-    const hit_chance = get_hit_chance(character.combat_stats.attack_points * hit_chance_modifier, target.stats.agility * Math.sqrt(target.stats.intuition ?? 1));
+    const hit_chance = get_hit_chance(character.combat_stats.attack_points, target.stats.agility * Math.sqrt(target.stats.intuition ?? 1)) * hit_chance_modifier;
 
     if(hit_chance > Math.random()) {//hero's attack hits
 
