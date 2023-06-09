@@ -897,7 +897,7 @@ i {
 				.enemy_name, .enemy_stats, #attack_stats  {
 					height: 18px;
 					text-align: right;
-					width: 390px;
+					width: 400px;
 				}
 					.enemy_stat, .attack_stat {
 						display: inline-block;
@@ -905,10 +905,10 @@ i {
 						font-size: 12;
 					}
 					.enemy_stat_short, .attack_stat_short {
-						width: 45px;
+						width: 55px;
 					}
 					.enemy_stat_long, .attack_stat_long {
-						width: 85px;
+						width: 80px;
 					}
 
 				.enemy_health_div {

@@ -885,11 +885,11 @@ function update_displayed_equipment() {
             }
 
             //enemies_div.children[i].children[0].children[1].innerHTML = `AP : ${Math.round(ap)} | EP : ${Math.round(ep)}`;
-            enemies_div.children[i].children[0].children[1].children[0].innerHTML = `Atk power: ${current_enemies[i].stats.attack}`;
-            enemies_div.children[i].children[0].children[1].children[1].innerHTML = `Atk speed: ${disp_speed}`;
-            enemies_div.children[i].children[0].children[1].children[2].innerHTML = `AP : ${Math.round(ap)}`;
-            enemies_div.children[i].children[0].children[1].children[3].innerHTML = `EP : ${Math.round(ep)} `;
-            enemies_div.children[i].children[0].children[1].children[4].innerHTML = `Def : ${current_enemies[i].stats.defense} `;
+            enemies_div.children[i].children[0].children[1].children[0].innerHTML = `Atk pwr: ${current_enemies[i].stats.attack}`;
+            enemies_div.children[i].children[0].children[1].children[1].innerHTML = `Atk spd: ${disp_speed}`;
+            enemies_div.children[i].children[0].children[1].children[2].innerHTML = `AP: ${Math.round(ap)}`;
+            enemies_div.children[i].children[0].children[1].children[3].innerHTML = `EP: ${Math.round(ep)} `;
+            enemies_div.children[i].children[0].children[1].children[4].innerHTML = `Def: ${current_enemies[i].stats.defense} `;
 
 
         } else {
@@ -1281,14 +1281,14 @@ function update_displayed_combat_stats() {
         other_combat_divs.defensive_points.parentNode.children[2].innerHTML = 
         "Evasion points, a total value of everything that contributes to the evasion chance, except for some situational skills and modifiers";
 
-        attack_stats.children[3].innerHTML = `EP : ${Math.round(ep)} `;
+        attack_stats.children[3].innerHTML = `EP: ${Math.round(ep)} `;
     }
 
-    attack_stats.children[0].innerHTML = `Atk power: ${Math.round(character.get_attack_power()*10)/10}`;
-    attack_stats.children[1].innerHTML = `Atk speed: ${Math.round(character.get_attack_speed()*10)/10}`;
-    attack_stats.children[2].innerHTML = `AP : ${Math.round(ap)}`;
+    attack_stats.children[0].innerHTML = `Atk pwr: ${Math.round(character.get_attack_power()*10)/10}`;
+    attack_stats.children[1].innerHTML = `Atk spd: ${Math.round(character.get_attack_speed()*10)/10}`;
+    attack_stats.children[2].innerHTML = `AP  ${Math.round(ap)}`;
     
-    document.getElementById("def_stat").innerHTML = `Def : ${Math.round(character.full_stats.defense)} `;
+    document.getElementById("def_stat").innerHTML = `Def: ${Math.round(character.full_stats.defense)} `;
 }
 
 function update_displayed_effects() {
