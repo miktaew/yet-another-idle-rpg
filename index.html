@@ -1247,8 +1247,8 @@
                         document.documentElement.style.setProperty('--skill_tooltip_left', `${event.pageX - 400}px`);
                     }
 
-                    if(event.pageY > bottom_edge_position) {
-                        document.documentElement.style.setProperty('--skill_tooltip_top', `${bottom_edge_position - 370}px`);
+                    if(event.pageY > bottom_edge_position - 22) {
+                        document.documentElement.style.setProperty('--skill_tooltip_top', `${bottom_edge_position - 392}px`);
                     } else {
                         document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 370}px`);
                     }

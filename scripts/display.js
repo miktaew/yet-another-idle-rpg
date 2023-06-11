@@ -1819,7 +1819,6 @@ function update_bestiary_entry(enemy_name) {
     for(let i = 2; i < loot_divs.length; i++) {
         loot_divs[i].children[1].children[0].innerHTML = `${Math.round(10000*enemy.loot_list[i-2].chance*enemy.get_droprate_modifier())/10000}%`;
     }
-    //TODO: update dropchances too
 
     update_bestiary_entry_description(enemy_name);
 }
