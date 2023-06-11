@@ -1743,7 +1743,7 @@ function create_new_bestiary_entry(enemy_name) {
 
     const tooltip_drops = document.createElement("div"); //enemy drops
     tooltip_drops.innerHTML = "<br>Loot list:";
-    
+
     if(enemy.loot_list) {
         const loot_line = document.createElement("div");
         const loot_name = document.createElement("div");
@@ -1803,7 +1803,7 @@ function create_new_bestiary_entry(enemy_name) {
     bestiary_entry_divs[enemy_name].classList.add("bestiary_entry_div");
     bestiary_list.appendChild(bestiary_entry_divs[enemy_name]);
 
-    //sorts skill_list div by enemy rank
+    //sorts bestiary_list div by enemy rank
     [...bestiary_list.children].sort((a,b)=>parseInt(a.getAttribute("data-bestiary")) - parseInt(b.getAttribute("data-bestiary")))
                                 .forEach(node=>bestiary_list.appendChild(node));
 }
@@ -1813,7 +1813,12 @@ function create_new_bestiary_entry(enemy_name) {
  * @param {String} enemy_name 
  */
 function update_bestiary_entry(enemy_name) {
+    const enemy = enemy_templates[enemy_name];
     bestiary_entry_divs[enemy_name].children[1].innerHTML = enemy_killcount[enemy_name];
+    const loot_divs = bestiary_entry_divs[enemy_name].children[2].children[3].children;
+    for(let i = 2; i < loot_divs.length; i++) {
+        loot_divs[i].children[1].children[0].innerHTML = `${Math.round(10000*enemy.loot_list[i-2].chance*enemy.get_droprate_modifier())/10000}%`;
+    }
     //TODO: update dropchances too
 
     update_bestiary_entry_description(enemy_name);
