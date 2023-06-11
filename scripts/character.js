@@ -246,14 +246,14 @@ character.get_attack_power = function () {
         return character.full_stats.attack_power * character.get_stamina_multiplier();
 }
 
-character.wears_armor = () => {
+character.wears_armor = function () {
         if(
                 (!character.equipment.head || character.equipment.head.getDefense() == 0) &&
                 (!character.equipment.torso || character.equipment.torso.getDefense() == 0) &&
                 (!character.equipment.arms || character.equipment.arms.getDefense() == 0) &&
                 (!character.equipment.legs || character.equipment.legs.getDefense() == 0) &&
                 (!character.equipment.feet || character.equipment.feet.getDefense() == 0)
-            )
+        )
         {
                 return false;
         } else {

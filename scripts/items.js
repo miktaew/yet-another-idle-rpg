@@ -545,7 +545,7 @@ function getItem(item_data) {
 (function(){
     item_templates["Basic spare parts"] = new ItemComponent({
         name: "Basic spare parts", description: "Some cheap and simple spare parts, like bindings and screws, necessary for crafting equipment",
-        value: 2, 
+        value: 3, 
         component_tier: 1,
     });
 }());
@@ -555,7 +555,7 @@ function getItem(item_data) {
     item_templates["Cheap short iron blade"] = new WeaponComponent({
         name: "Cheap short iron blade", description: "Crude blade made of iron. Perfect length for a dagger, but could be also used for a spear",
         component_type: "short blade",
-        value: 6,
+        value: 9,
         component_tier: 1,
         name_prefix: "Cheap iron",
         attack_value: 5,
@@ -574,7 +574,7 @@ function getItem(item_data) {
     item_templates["Cheap long iron blade"] = new WeaponComponent({
         name: "Cheap long iron blade", description: "Crude blade made of iron, with a perfect length for a sword",
         component_type: "long blade",
-        value: 8,
+        value: 12,
         name_prefix: "Cheap iron",
         component_tier: 1,
         attack_value: 7,
@@ -587,7 +587,7 @@ function getItem(item_data) {
     item_templates["Cheap iron axe head"] = new WeaponComponent({
         name: "Cheap iron axe head", description: "A heavy axe head made of low quality iron",
         component_type: "axe head",
-        value: 8,
+        value: 12,
         name_prefix: "Cheap iron",
         component_tier: 1,
         attack_value: 8,
@@ -600,7 +600,7 @@ function getItem(item_data) {
     item_templates["Cheap iron hammer head"] = new WeaponComponent({
         name: "Cheap iron hammer head", description: "A crude ball made of low quality iron, with a small hole for the handle",
         component_type: "hammer head",
-        value: 8,
+        value: 12,
         name_prefix: "Cheap iron",
         component_tier: 1,
         attack_value: 9,
@@ -614,14 +614,14 @@ function getItem(item_data) {
     item_templates["Simple short wooden hilt"] = new WeaponComponent({
         name: "Simple short wooden hilt", description: "A short handle for a sword or maybe a dagger",
         component_type: "short handle",
-        value: 3,
+        value: 5,
         component_tier: 1,
     });
 
     item_templates["Simple medium wooden handle"] = new WeaponComponent({
         name: "Simple medium wooden handle", description: "A medium handle for an axe or a hammer",
         component_type: "medium handle",
-        value: 4,
+        value: 6,
         component_tier: 1,
         stats: {
             attack_speed: {
@@ -633,7 +633,7 @@ function getItem(item_data) {
     item_templates["Simple long wooden shaft"] = new WeaponComponent({
         name: "Simple long wooden shaft", description: "A long shaft for a spear, somewhat uneven",
         component_type: "long handle",
-        value: 5,
+        value: 8,
         component_tier: 1,
         attack_multiplier: 1.5,
         stats: {
@@ -682,7 +682,7 @@ function getItem(item_data) {
 (function(){
     item_templates["Cheap leather vest [component]"] = new ArmorComponent({
         name: "Cheap leather vest [component]", description: "Vest providing very low protection. Better not to know what's it made from", 
-        value: 15,
+        value: 20,
         armor_name: "Cheap leather vest",
         equip_slot: "torso",
         component_type: "internal",
@@ -691,7 +691,7 @@ function getItem(item_data) {
     });
 
     item_templates["Cheap leather pants [component]"] = new ArmorComponent({
-        name: "Cheap leather pants [component]", description: "Pants of made of unknown leather. Uncomfortable.", value: 15,
+        name: "Cheap leather pants [component]", description: "Pants of made of unknown leather. Uncomfortable.", value: 20,
         armor_name: "Cheap leather pants",
         equip_slot: "legs",
         component_type: "internal",
@@ -739,7 +739,7 @@ function getItem(item_data) {
     });
     item_templates["Basic shield handle"] = new ShieldComponent({
         name: "Wooden shield base", description: "A simple handle for holding the shield", 
-        value: 5,
+        value: 8,
         component_tier: 1,
         component_type: "shield handle"
     });

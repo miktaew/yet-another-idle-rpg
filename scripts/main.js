@@ -5,7 +5,7 @@ import { item_templates, getItem} from "./items.js";
 import { locations } from "./locations.js";
 import { skills } from "./skills.js";
 import { dialogues } from "./dialogues.js";
-import { Enemy} from "./enemies.js";
+import { Enemy, enemy_killcount } from "./enemies.js";
 import { traders } from "./traders.js";
 import { is_in_trade, start_trade, cancel_trade, accept_trade, exit_trade, add_to_trader_inventory,
          add_to_buying_list, remove_from_buying_list, add_to_selling_list, remove_from_selling_list} from "./trade.js";
@@ -28,12 +28,14 @@ import { end_activity_animation,
          start_activity_display, start_sleeping_display,
          create_new_skill_bar, update_displayed_skill_bar, update_displayed_skill_description, clear_skill_bars,
          update_displayed_ongoing_activity, clear_skill_list,
-         clear_message_log,
+         clear_message_log, clear_bestiary,
          update_enemy_attack_bar, update_character_attack_bar,
-         update_displayed_location_choices
+         update_displayed_location_choices,
+         create_new_bestiary_entry,
+         update_bestiary_entry
         } from "./display.js";
 
-const game_version = "v0.2.9b";
+const game_version = "v0.3";
 
 //current enemy
 var current_enemies = null;
@@ -368,7 +370,7 @@ function start_textline(textline_key){
         const dialogue = dialogues[textline.unlocks.dialogues[i]]
         if(!dialogue.is_unlocked) {
             dialogue.is_unlocked = true;
-            log_message(`Can now talk with ${dialogue.name}`, "activity_unlocked");
+            log_message(`You can now talk with ${dialogue.name}`, "activity_unlocked");
         }
     }
 
@@ -376,7 +378,7 @@ function start_textline(textline_key){
         const trader = traders[textline.unlocks.traders[i]];
         if(!trader.is_unlocked) {
             trader.is_unlocked = true;
-            log_message(`Can now trade with ${trader.name}`, "activity_unlocked");
+            log_message(`You can now trade with ${trader.name}`, "activity_unlocked");
         }
     }
 
@@ -736,6 +738,13 @@ function do_character_combat_action(attack_power, attack_type = "normal") {
  */
 function kill_enemy(target) {
     target.is_alive = false;
+    if(enemy_killcount[target.name]) {
+        enemy_killcount[target.name] += 1;
+        update_bestiary_entry(target.name);
+    } else {
+        enemy_killcount[target.name] = 1;
+        create_new_bestiary_entry(target.name);
+    }
     const enemy_id = current_enemies.findIndex(enemy => enemy===target);
     clear_enemy_attack_loop(enemy_id);
 }
@@ -845,7 +854,7 @@ function get_location_rewards(location) {
         unlock_location(location.repeatable_reward.locations[i]);
     }
 
-    for(let i = 0; i < location.repeatable_reward.textlines?.length; i++) { //unlock textlines and dialogues
+    for(let i = 0; i < location.repeatable_reward.textlines?.length; i++) { //unlock textlines
         var any_unlocked = false;
         for(let j = 0; j < location.repeatable_reward.textlines[i].lines.length; j++) {
             if(dialogues[location.repeatable_reward.textlines[i].dialogue].textlines[location.repeatable_reward.textlines[i].lines[j]].is_unlocked == false) {
@@ -858,13 +867,19 @@ function get_location_rewards(location) {
             //maybe do this only when there's just 1 dialogue with changes?
         }
     }
-    //TODO: unlocking full dialogues and not just textlines
 
-    
+    for(let i = 0; i < location.repeatable_reward.dialogues?.length; i++) { //unlocking dialogues
+        const dialogue = dialogues[location.repeatable_reward.dialogues[i]]
+        if(!dialogue.is_unlocked) {
+            dialogue.is_unlocked = true;
+            log_message(`You can now talk with ${dialogue.name}`, "activity_unlocked");
+        }
+    }
+
     /*
     TODO: give more rewards on all clears
     - some xp for location-related skills?
-    - items/money?
+    - items/money -> random chance?
     */
 }
 
@@ -1021,6 +1036,8 @@ function create_save() {
         save_data["is_sleeping"] = is_sleeping;
 
         save_data["active_effects"] = active_effects;
+
+        save_data["enemy_killcount"] = enemy_killcount;
 
         return JSON.stringify(save_data);
     } catch(error) {
@@ -1321,6 +1338,13 @@ function load(save_data) {
         } else {
             character.full_stats.stamina = character.full_stats.max_stamina - save_data.character.stamina_to_full;
         }
+
+        if(save_data["enemy_killcount"]) {
+            Object.keys(save_data["enemy_killcount"]).forEach(enemy_name => {
+                enemy_killcount[enemy_name] = save_data["enemy_killcount"][enemy_name];
+                create_new_bestiary_entry(enemy_name);
+            });
+        }
         
         update_character_stats();
 
@@ -1353,7 +1377,7 @@ function load(save_data) {
         if(save_data.is_sleeping) {
             start_sleeping();
         }
-        
+
     } catch(error) {
         throw error; //let other loading methods (from_file and from_localstorage) take care of it
     }
@@ -1389,6 +1413,8 @@ function load_from_file(save_string) {
         });
 
         clear_skill_bars();
+
+        clear_bestiary();
 
         exit_trade();
 
@@ -1441,8 +1467,6 @@ function update() {
         time_variance_accumulator += ((end_date - start_date) - 1000/tickrate);
         //duration of previous tick, minus time it was supposed to take
         //important to keep it between setting end_date and start_date, so they are 2 completely separate values
-
-        //console.log((end_date - start_date).toString() + " : " + time_variance_accumulator.toString());
 
         start_date = Date.now();
         /*

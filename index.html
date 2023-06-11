@@ -705,8 +705,35 @@
                 </div>
 
                 <div id = "journal_div" class = "box_div">
-                    <div id = "journal_header"> 
-                        = Journal = 
+                    <div id = "story_box_div">
+                        <div id="story_header">
+                            = Story =
+                        </div>
+                        <div id = "story_list">
+ 
+                        </div>
+                    </div>
+                    <div id = "quests_box_div">
+                        <div id = "quests_header">
+                            = Quests =
+                        </div>
+                        <div id = "quest_list">
+
+                        </div>
+                    </div>
+                    <div id = "bestiary_box_div">
+                        <div id="bestiary_header">
+                            = Bestiary =
+                        </div>
+                        <div id = "bestiary_list">
+
+                        </div>
+                        
+                    </div>
+                    <div id = "journal_control_div">
+                        <div id = "journal_show_story" class = "journal_control_button active_selection_button" onclick = "showStory()"> Story </div>
+                        <div id = "journal_show_quests" class = "journal_control_button" onclick = "showQuests()"> Quests </div>
+                        <div id = "journal_show_bestiary" class = "journal_control_button" onclick = "showBestiary()"> Bestiary </div>
                     </div>
                 </div>
 
@@ -834,6 +861,22 @@
                 }
             }
             
+            function showStory() {
+                document.getElementById("story_box_div").style.display = "block";
+                document.getElementById("quests_box_div").style.display = "none";
+                document.getElementById("bestiary_box_div").style.display = "none";
+            }
+            function showQuests() {
+                document.getElementById("story_box_div").style.display = "none";
+                document.getElementById("quests_box_div").style.display = "block";
+                document.getElementById("bestiary_box_div").style.display = "none";
+            }
+            function showBestiary() {
+                document.getElementById("story_box_div").style.display = "none";
+                document.getElementById("quests_box_div").style.display = "none";
+                document.getElementById("bestiary_box_div").style.display = "block";
+            }
+
 
             function showAreaPage() {
                 document.getElementById("character_page").style.visibility = "hidden";
@@ -1211,7 +1254,7 @@
                     }
                 }
 
-                
+                //location type tooltips
                 var location_types_div = document.getElementById("location_types_div");
                 location_types_div.addEventListener('mousemove', move_location_type_tooltip, false);
                 function move_location_type_tooltip(event) {
@@ -1236,7 +1279,46 @@
 
                     document.documentElement.style.setProperty('--location_type_tooltip_top', `${event.pageY - 100}px`);
                 }
-                
+
+                //bestiary entry tooltips
+                const bestiary_box_div = document.getElementById("bestiary_box_div");
+                bestiary_box_div.addEventListener('mousemove', move_bestiary_entry_tooltip, false);
+                function move_bestiary_entry_tooltip(event) {
+                    var hovered_element = event.target;
+
+                    if(!hovered_element.classList.contains("bestiary_entry_div")) {
+                        if(hovered_element.classList.contains("bestiary_entry_name") || hovered_element.classList.contains("bestiary_entry_kill_count")) {
+                            hovered_element = hovered_element.parentNode;
+                        } else {
+                            return;
+                        }
+                    } 
+                    const tooltip_width = hovered_element.children[0].scrollWidth;
+                    const tooltip_height = hovered_element.children[0].scrollHeight;
+                    
+                    const body = document.getElementsByTagName("body")[0];
+                    const scrollbar_Y_visible = (body.scrollHeight - body.clientHeight) > 0;
+                    const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
+
+                    const right_edge_position = 
+                        window.innerWidth - tooltip_width -  23 + window.scrollX - (scrollbar_Y_visible?10:0);
+                    const bottom_edge_position = 
+                        window.innerHeight - tooltip_height + window.scrollY - 33 - (scrollbar_X_visible?10:0);
+                    
+                    //size of window - size of tooltip + scrolling position - 23 (not sure where it comes from) - 10 (for scrollbar if its visible)
+
+                    if(event.pageX > right_edge_position - 10) {
+                        document.documentElement.style.setProperty('--bestiary_entry_tooltip_left', `${right_edge_position - 410}px`);
+                    } else {
+                        document.documentElement.style.setProperty('--bestiary_entry_tooltip_left', `${event.pageX - 400}px`);
+                    }
+
+                    if(event.pageY > bottom_edge_position) {
+                        document.documentElement.style.setProperty('--bestiary_entry_tooltip_top', `${bottom_edge_position - 100}px`);
+                    } else {
+                        document.documentElement.style.setProperty('--bestiary_entry_tooltip_top', `${event.pageY - 100}px`);
+                    }
+                }
 
                 //active effects tooltip
                 const active_effects_div = document.getElementById("effects_div");
@@ -1363,6 +1445,7 @@
                 document.getElementById("inventory_sorting_div").addEventListener("click", set_active_button);
                 document.getElementById("trader_category_buttons").addEventListener("click", set_active_button);
                 document.getElementById("page_selection").addEventListener("click", set_active_button);
+                document.getElementById("journal_control_div").addEventListener("click", set_active_button);
                 function set_active_button(event) {
                     //based on assumption none of them has child elements
                     //alternatively just give all control buttons some attribute that could be then checked for

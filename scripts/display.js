@@ -10,6 +10,7 @@ import { activities } from "./activities.js";
 import { format_time, current_game_time } from "./game_time.js";
 import { item_templates } from "./items.js";
 import { location_types, locations } from "./locations.js";
+import { enemy_killcount, enemy_templates } from "./enemies.js";
 
 var activity_anim; //for the activity animation interval
 
@@ -52,6 +53,10 @@ const active_effect_count = document.getElementById("active_effect_count");
 const time_field = document.getElementById("time_div");
 
 const skill_bar_divs = {};
+const skill_list = document.getElementById("skill_list");
+
+const bestiary_entry_divs = {};
+const bestiary_list = document.getElementById("bestiary_list");
 
 const message_count = {
     message_combat: 0,
@@ -937,7 +942,7 @@ function update_displayed_normal_location(location) {
 
     const available_dialogues = location.dialogues.filter(dialogue => dialogues[dialogue].is_unlocked && !dialogues[dialogue].is_finished);
 
-    if(available_dialogues.length > 1) {
+    if(available_dialogues.length > 2) {
         //there's multiple -> add a choice to location actions that will show all available dialogues        
         const dialogues_button = document.createElement("div");
         dialogues_button.setAttribute("data-location", location.name);
@@ -945,9 +950,9 @@ function update_displayed_normal_location(location) {
         dialogues_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "talk")');
         dialogues_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Talk to someone';
         action_div.appendChild(dialogues_button);
-    } else if (available_dialogues.length == 1) {
+    } else if (available_dialogues.length <= 2) {
         //there's only 1 -> put it in overall location choice list
-        action_div.appendChild(create_location_choices(location, "talk", true)[0]);
+        action_div.append(...create_location_choices(location, "talk", true));
     }
 
     /////////////////////////
@@ -955,15 +960,15 @@ function update_displayed_normal_location(location) {
 
     const available_traders = location.traders.filter(trader => traders[trader].is_unlocked);
 
-    if(available_traders.length > 1) {     
+    if(available_traders.length > 2) {     
         const traders_button = document.createElement("div");
         traders_button.setAttribute("data-location", location.name);
         traders_button.classList.add("location_choices");
         traders_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "trade")');
         traders_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Visit a merchant';
         action_div.appendChild(traders_button);
-    } else if (available_traders.length == 1) {
-        action_div.appendChild(create_location_choices(location, "trade")[0]);
+    } else if (available_traders.length <= 2) {
+        action_div.append(...create_location_choices(location, "trade"));
     }
 
     ///////////////////////////
@@ -973,15 +978,15 @@ function update_displayed_normal_location(location) {
                                                                     && activities[activity.activity].is_unlocked
                                                                     && activity.is_unlocked);
 
-    if(available_jobs.length > 1) {     
+    if(available_jobs.length > 2) {     
         const jobs_button = document.createElement("div");
         jobs_button.setAttribute("data-location", location.name);
         jobs_button.classList.add("location_choices");
         jobs_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "work")');
         jobs_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Find some work';
         action_div.appendChild(jobs_button);
-    } else if (available_jobs.length == 1) {
-        action_div.appendChild(create_location_choices(location, "work")[0]);
+    } else if (available_jobs.length <= 2) {
+        action_div.append(...create_location_choices(location, "work"));
     }
 
     ///////////////////////////////
@@ -990,15 +995,15 @@ function update_displayed_normal_location(location) {
     const available_trainings = Object.values(location.activities).filter(activity => activities[activity.activity].type === "TRAINING" 
                                                                     && activities[activity.activity].is_unlocked
                                                                     && activity.is_unlocked);
-    if(available_trainings.length > 1) {     
+    if(available_trainings.length > 2) {     
         const trainings_button = document.createElement("div");
         trainings_button.setAttribute("data-location", location.name);
         trainings_button.classList.add("location_choices");
         trainings_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "train")');
         trainings_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Train for a bit';
         action_div.appendChild(trainings_button);
-    } else if (available_trainings.length == 1) {
-        action_div.appendChild(create_location_choices(location, "train")[0]);
+    } else if (available_trainings.length <= 2) {
+        action_div.append(...create_location_choices(location, "train"));
     }
 
     ///////////////////////////
@@ -1558,8 +1563,6 @@ function create_new_skill_bar(skill) {
     //sorts skill_list div alphabetically
     [...skill_list.children].sort((a,b)=>a.getAttribute("data-skill")>b.getAttribute("data-skill")?1:-1)
                             .forEach(node=>skill_list.appendChild(node));
-
-
 }
 
 function update_displayed_skill_bar(skill) {
@@ -1617,6 +1620,218 @@ function update_displayed_skill_bar(skill) {
 
 function update_displayed_skill_description(skill) {
     skill_bar_divs[skill.skill_id].children[0].children[2].children[2].innerHTML = `${skill.get_effect_description()}`;
+}
+
+/**
+ * creates a new bestiary entry;
+ * called when a new enemy is killed (or, you know, loading a save)
+ * @param {String} enemy_name 
+ */
+function create_new_bestiary_entry(enemy_name) {
+    bestiary_entry_divs[enemy_name] = document.createElement("div");
+    
+    const enemy = enemy_templates[enemy_name];
+
+    const name_div = document.createElement("div");
+    name_div.innerHTML = enemy_name;
+    name_div.classList.add("bestiary_entry_name");
+    const kill_counter = document.createElement("div");
+    kill_counter.innerHTML = enemy_killcount[enemy_name];
+    kill_counter.classList.add("bestiary_entry_kill_count");
+    
+
+    const bestiary_tooltip = document.createElement("div");
+    const tooltip_xp = document.createElement("div"); //base xp enemy gives
+    tooltip_xp.innerHTML = `<br>Base xp value: ${enemy.xp_value} <br><br>`;
+    const tooltip_desc = document.createElement("div"); //enemy description
+    tooltip_desc.innerHTML = enemy.description;
+
+    const tooltip_stats = document.createElement("div"); //base enemy stats
+    tooltip_stats.innerHTML = "Stats: <br>"
+
+    const stat_line_0 = document.createElement("div");
+    stat_line_0.classList.add("grid_container");
+
+    const stat_0 = document.createElement("div");
+    const stat_0_name = document.createElement("div");
+    const stat_0_value = document.createElement("div");
+
+    stat_0.classList.add("stat_slot_div");
+    stat_0_name.classList.add("stat_name");
+    stat_0_value.classList.add("stat_value");
+
+    stat_0_name.innerHTML = "Health:";
+    stat_0_value.innerHTML = `${enemy.stats.health}`;
+    stat_0.append(stat_0_name, stat_0_value);
+
+    const stat_1 = document.createElement("div");
+    const stat_1_name = document.createElement("div");
+    const stat_1_value = document.createElement("div");
+
+    stat_1.classList.add("stat_slot_div");
+    stat_1_name.classList.add("stat_name");
+    stat_1_value.classList.add("stat_value");
+
+    stat_1_name.innerHTML = `Defense:`;
+    stat_1_value.innerHTML = `${enemy.stats.defense}`;
+    stat_1.append(stat_1_name, stat_1_value);
+
+    stat_line_0.append(stat_0, stat_1);
+
+
+    const stat_line_2 = document.createElement("div");
+    stat_line_2.classList.add("grid_container");
+
+    const stat_2 = document.createElement("div");
+    const stat_2_name = document.createElement("div");
+    const stat_2_value = document.createElement("div");
+
+    stat_2.classList.add("stat_slot_div");
+    stat_2_name.classList.add("stat_name");
+    stat_2_value.classList.add("stat_value");
+
+    stat_2_name.innerHTML = "Attack power:";
+    stat_2_value.innerHTML = `${enemy.stats.attack}`;
+    stat_2.append(stat_2_name, stat_2_value);
+
+    const stat_3 = document.createElement("div");
+    const stat_3_name = document.createElement("div");
+    const stat_3_value = document.createElement("div");
+
+    stat_3.classList.add("stat_slot_div");
+    stat_3_name.classList.add("stat_name");
+    stat_3_value.classList.add("stat_value");
+
+    stat_3_name.innerHTML = `Attack speed:`;
+    stat_3_value.innerHTML = `${enemy.stats.attack_speed}`;
+    stat_3.append(stat_3_name, stat_3_value);
+
+    stat_line_2.append(stat_2, stat_3);
+
+    const stat_line_4 = document.createElement("div");
+    stat_line_4.classList.add("grid_container");
+
+    const stat_4 = document.createElement("div");
+    const stat_4_name = document.createElement("div");
+    const stat_4_value = document.createElement("div");
+
+    stat_4.classList.add("stat_slot_div");
+    stat_4_name.classList.add("stat_name");
+    stat_4_value.classList.add("stat_value");
+
+    stat_4_name.innerHTML = "AP:";
+    stat_4_value.innerHTML = `${Math.round(enemy.stats.dexterity * Math.sqrt(enemy.stats.intuition || 1))}`;
+    stat_4.append(stat_4_name, stat_4_value);
+
+    const stat_5 = document.createElement("div");
+    const stat_5_name = document.createElement("div");
+    const stat_5_value = document.createElement("div");
+
+    stat_5.classList.add("stat_slot_div");
+    stat_5_name.classList.add("stat_name");
+    stat_5_value.classList.add("stat_value");
+
+    stat_5_name.innerHTML = "EP:";
+    stat_5_value.innerHTML = `${Math.round(enemy.stats.agility * Math.sqrt(enemy.stats.intuition || 1))}`;
+    stat_5.append(stat_5_name, stat_5_value);
+    stat_line_4.append(stat_4, stat_5);
+
+    
+    tooltip_stats.appendChild(stat_line_0);
+    tooltip_stats.appendChild(stat_line_2);
+    tooltip_stats.appendChild(stat_line_4);
+
+    const tooltip_drops = document.createElement("div"); //enemy drops
+    tooltip_drops.innerHTML = "<br>Loot list:";
+    
+    if(enemy.loot_list) {
+        const loot_line = document.createElement("div");
+        const loot_name = document.createElement("div");
+        const loot_chance = document.createElement("div");
+        const loot_chance_base = document.createElement("div");
+        const loot_chance_current = document.createElement("div");
+
+        loot_line.classList.add("loot_slot_div");
+        loot_name.classList.add("loot_name");
+        loot_chance.classList.add("loot_chance");
+        loot_chance_base.classList.add("loot_chance_base");
+        loot_chance_current.classList.add("loot_chance_current");
+
+        loot_name.innerHTML = `Item name`;
+        loot_chance_base.innerHTML = `base %`;
+        loot_chance_current.innerHTML = `current %`;
+        loot_chance.append(loot_chance_current, loot_chance_base);
+        loot_line.append(loot_name, loot_chance);
+
+        tooltip_drops.appendChild(loot_line);
+    }
+
+    for(let i = 0; i < enemy.loot_list.length; i++) {
+        const loot_line = document.createElement("div");
+        const loot_name = document.createElement("div");
+        const loot_chance = document.createElement("div");
+        const loot_chance_base = document.createElement("div");
+        const loot_chance_current = document.createElement("div");
+
+        loot_line.classList.add("loot_slot_div");
+        loot_name.classList.add("loot_name");
+        loot_chance.classList.add("loot_chance");
+        loot_chance_base.classList.add("loot_chance_base");
+        loot_chance_current.classList.add("loot_chance_current");
+
+        loot_name.innerHTML = `${enemy.loot_list[i].item_name}`;
+        loot_chance_base.innerHTML = `[${enemy.loot_list[i].chance}%]`;
+        loot_chance_current.innerHTML = `${Math.round(10000*enemy.loot_list[i].chance*enemy.get_droprate_modifier())/10000}%`;
+        loot_chance.append(loot_chance_current, loot_chance_base);
+        loot_line.append(loot_name, loot_chance);
+
+        tooltip_drops.appendChild(loot_line);
+    }
+
+    bestiary_tooltip.classList.add("bestiary_entry_tooltip");
+    
+    bestiary_tooltip.appendChild(tooltip_desc);
+    bestiary_tooltip.appendChild(tooltip_xp);
+    bestiary_tooltip.appendChild(tooltip_stats);
+    bestiary_tooltip.appendChild(tooltip_drops);
+
+    bestiary_entry_divs[enemy_name].appendChild(name_div);
+    bestiary_entry_divs[enemy_name].appendChild(kill_counter);
+    bestiary_entry_divs[enemy_name].appendChild(bestiary_tooltip);
+
+    bestiary_entry_divs[enemy_name].setAttribute("data-bestiary", enemy.rank);
+    bestiary_entry_divs[enemy_name].classList.add("bestiary_entry_div");
+    bestiary_list.appendChild(bestiary_entry_divs[enemy_name]);
+
+    //sorts skill_list div by enemy rank
+    [...bestiary_list.children].sort((a,b)=>parseInt(a.getAttribute("data-bestiary")) - parseInt(b.getAttribute("data-bestiary")))
+                                .forEach(node=>bestiary_list.appendChild(node));
+}
+
+/**
+ * updates the bestiary entry of an enemy, that is killcount and on-hover droprates
+ * @param {String} enemy_name 
+ */
+function update_bestiary_entry(enemy_name) {
+    bestiary_entry_divs[enemy_name].children[1].innerHTML = enemy_killcount[enemy_name];
+    //TODO: update dropchances too
+
+    update_bestiary_entry_description(enemy_name);
+}
+
+/**
+ * updates tooltip of an enemy in bestiary; called in the full update of an entry,;
+ * dont call it directly
+ * @param {String} enemy_name 
+ */
+function update_bestiary_entry_description(enemy_name) {
+
+}
+
+function clear_bestiary() {
+    Object.keys(bestiary_entry_divs).forEach((enemy) => {
+        delete bestiary_entry_divs[enemy];
+    });
 }
 
 function update_displayed_ongoing_activity(current_activity){
@@ -1683,5 +1898,8 @@ export {
     update_character_attack_bar,
     clear_message_log,
     update_enemy_attack_bar,
-    update_displayed_location_choices
+    update_displayed_location_choices,
+    create_new_bestiary_entry,
+    update_bestiary_entry,
+    clear_bestiary
 }

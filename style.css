@@ -47,6 +47,9 @@
 	--actions_div_top_default: 340px;
 	--actions_div_top_combat: 640px;
 	--actions_div_top: var(--actions_div_top_default);
+
+	--bestiary_entry_tooltip_top: 0px;
+	--bestiary_entry_tooltip_left: 0px;
 }
 
 body {
@@ -332,6 +335,7 @@ body {
 .item_equippable {
 	width: 271px;
 }
+
 .trade_item_equippable {
 	width: 319px;
 }
@@ -412,7 +416,7 @@ body {
 	grid-template-columns: 1fr 1fr;
 }
 
-.stat_slot_div {
+.stat_slot_div, .loot_slot_div {
 	width: 100%;
 	height: 20px;
 	padding-top: 2px;
@@ -420,17 +424,37 @@ body {
 	outline: 1px solid white;
 }
 
-.stat_value {
-	text-align: right;
-	display: inline-block;
-	width: 65px;
-}
+	.stat_value {
+		text-align: right;
+		display: inline-block;
+		width: 65px;
+	}
 
-.stat_name {
-	display: inline-block;
-	width: 98px;
-	padding-left: 4px;
-}
+	.stat_name {
+		display: inline-block;
+		width: 98px;
+		padding-left: 4px;
+	}
+	.loot_name {
+		display: inline-block;
+		width: 200px;
+		padding-left: 4px;
+	}
+
+	.loot_name, .loot_chance_current {
+		float:left;
+	}
+
+	.loot_chance_base {
+		text-align: right;
+		padding-left:2px;
+		padding-right:2px;
+	}
+	.loot_chance_current{
+		padding-left:2px;
+		padding-right:2px;
+	}
+	
 
 .skill_bar_max {
 	border: 2px solid rgb(3, 255, 36);
@@ -1008,30 +1032,95 @@ i {
 	display: var(--inventory_div_display);
 }
 
-#skill_list_div {
-	left: 410px;
-	top: 340px;
-	width: 400px;
-	height: 400px;
-}
-		#skill_list {
-			overflow-y: scroll;
-			height: 377px;
-		}
-
 #journal_div {
-	position: absolute;
 	top: 53px;
 	width: 400px;
 	left: 410px;
-	height: 277px;
+	height: 300px;
 }
 
-	#journal_header, #skill_list_header {
+	#story_header, #bestiary_header, #quests_header, #skill_list_header {
 		width: 100%;
 		text-align: center;
 		padding-top: 5px;
+		margin-bottom: 5px;
 	}
+	#journal_control_div {
+		font-size: 20;
+		position: absolute;
+		top: 277px;
+	}
+		.journal_control_button{
+			float: left;
+			width: 131.3px;
+			text-align: center;
+			outline: 1px solid white;
+			cursor: pointer;
+			margin: 1px;
+			font-size: 18;
+		}
+			#story_box_div {
+				width:100%;
+				height: 277px;
+			}
+			#quests_box_div {
+				width:100%;
+				height: 277px;
+				display: none;
+			}
+
+			#bestiary_box_div {
+				width: 100%;
+				height: 277px;
+				display: none;
+				overflow-y: scroll;
+				overflow-x: visible;
+			}
+				.bestiary_entry_div {
+					width: 390px;
+					display: flex;
+					outline: 1px solid gray;
+					margin-bottom: 1px;
+
+				}
+					.bestiary_entry_name {
+						float: left;
+						width:300px;
+						text-align: left;
+						padding-left: 5px;
+					}
+					.bestiary_entry_kill_count{
+						text-align: right;
+						width:90px;
+						padding-right: 5px;
+					}
+
+					.bestiary_entry_tooltip {
+						display: none;
+						background-color: rgba(120, 120, 120, 0.9);
+						border-radius: 10px;
+						padding: 5px;
+						position: absolute;
+						z-index: 1000;
+						width: 360px;
+						top: var(--bestiary_entry_tooltip_top);
+						left: var(--bestiary_entry_tooltip_left);
+						pointer-events: none;
+					}
+						.bestiary_entry_div:hover .bestiary_entry_tooltip {
+							display: block;
+						}
+
+#skill_list_div {
+	left: 410px;
+	top: 362px;
+	width: 400px;
+	height: 378px;
+}
+		#skill_list {
+			overflow-y: scroll;
+			height: 350px;
+		}
 
 #location_actions_div {
 	display: block;
