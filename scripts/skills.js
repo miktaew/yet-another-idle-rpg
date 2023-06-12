@@ -744,26 +744,26 @@ skill_groups["weapon skills"] = new SkillGroup({
                                         milestones: {
                                             2: {
                                                 stats: {
-                                                    "max_health": 10,
+                                                    "max_health": 20,
                                                 },
                                                 multipliers: {
-                                                    "max_health": 1.1,
+                                                    "max_health": 1.05,
                                                 }
                                             },
                                             4: {
                                                 stats: {
-                                                    "max_health": 20,
+                                                    "max_health": 40,
                                                 },
                                                 multipliers: {
-                                                    "max_health": 1.1,
+                                                    "max_health": 1.05,
                                                 }
                                             },
                                             6: {
                                                 stats: {
-                                                    "max_health": 40,
+                                                    "max_health": 60,
                                                 },
                                                 multipliers: {
-                                                    "max_health": 1.1,
+                                                    "max_health": 1.05,
                                                 }
                                             },
                                             8: {
@@ -771,15 +771,15 @@ skill_groups["weapon skills"] = new SkillGroup({
                                                     "max_health": 80,
                                                 },
                                                 multipliers: {
-                                                    "max_health": 1.1,
+                                                    "max_health": 1.05,
                                                 }
                                             },
                                             10: {
                                                 stats: {
-                                                    "max_health": 160,
+                                                    "max_health": 100,
                                                 },
                                                 multipliers: {
-                                                    "max_health": 1.1,
+                                                    "max_health": 1.05,
                                                 }
                                             }
                                         }

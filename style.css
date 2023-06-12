@@ -647,6 +647,7 @@ i {
 
 #action_end_text, #action_end_earnings {
 	display: inline;
+	font-size: 18;
 }
 
 #action_end_earnings {
