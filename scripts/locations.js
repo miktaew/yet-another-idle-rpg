@@ -529,6 +529,14 @@ class LocationType{
     });
     locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture deeper into the woods"});
     locations["Forest"].repeatable_reward.locations = [locations["Deep forest"]];
+
+    locations["Town outskirts"] = new Location({ 
+        connected_locations: [{location: locations["Forest road"]}],
+        description: "You can see a tall stone wall, surrounded by a green open field.",
+        name: "Town outskirts",
+        is_unlocked: true,
+    });
+    locations["Forest road"].connected_locations.push({location: locations["Town outskirts"], custom_text: "Leave the forest"});
 })();
 
 //add activities

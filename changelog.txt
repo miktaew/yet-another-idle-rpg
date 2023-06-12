@@ -1,3 +1,11 @@
+v0.3
+    - drop chance now scales with how many of specific enemy were killed, down to 1/10th at 999+
+    - fixed minor bugs when trading stackable items
+    - changed the starting year to 1000
+    - location choices now get foldered only when there's more than two (used to be at more than one)
+    - equipment prices increased by ~50%
+    - introduced bestiary with list of all killed enemies (killcount, description, stats, drops their chances)
+
 v0.2.9b
     - "iron skin" now works
     - minor fixes to some formulas
