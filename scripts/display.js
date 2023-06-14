@@ -316,7 +316,9 @@ function end_activity_animation() {
     message.innerHTML = message_to_add + "<div class='message_border'> </>";
 
     message_log.appendChild(message);
+    
     message_log.scrollTop = message_log.scrollHeight;
+
 }
 
 function clear_message_log() {

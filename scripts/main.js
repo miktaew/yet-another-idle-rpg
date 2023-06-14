@@ -3,7 +3,7 @@
 import { current_game_time } from "./game_time.js";
 import { item_templates, getItem} from "./items.js";
 import { locations } from "./locations.js";
-import { skills } from "./skills.js";
+import { get_next_skill_milestone, get_unlocked_skill_rewards, skills } from "./skills.js";
 import { dialogues } from "./dialogues.js";
 import { Enemy, enemy_killcount } from "./enemies.js";
 import { traders } from "./traders.js";
@@ -35,7 +35,7 @@ import { end_activity_animation,
          update_bestiary_entry
         } from "./display.js";
 
-const game_version = "v0.3";
+const game_version = "v0.3b";
 
 //current enemy
 var current_enemies = null;
@@ -557,8 +557,7 @@ function do_enemy_combat_action(enemy_id) {
     let partially_blocked = false; //only used for combat info in message log
 
     damage_dealt = enemy_base_damage * (1.2 - Math.random() * 0.4); //basic 20% deviation for damage
-
-
+    
     if(character.equipment["off-hand"]?.offhand_type === "shield") { //HAS SHIELD
         if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
             add_xp_to_skill(skills["Shield blocking"], attacker.xp_value, true);
@@ -1195,6 +1194,15 @@ function load(save_data) {
                 return;
             }
         }); //add xp to skills
+
+        //patchwork solution to have skills with skill groups have their tooltips properly display next milestone
+        Object.keys(save_data.skills).forEach(function(key){ 
+            if(skills[key]){
+                if(save_data.skills[key].total_xp > 0) {
+                    update_displayed_skill_bar(skills[key]);
+                }
+            }
+        });
 
 
         Object.keys(save_data.dialogues).forEach(function(dialogue) {
