@@ -1,3 +1,5 @@
+"use strict";
+
 import { traders } from "./traders.js";
 import { 
     update_displayed_trader, update_displayed_trader_inventory, update_displayed_character_inventory, exit_displayed_trade, update_displayed_money } from "./display.js";
@@ -123,18 +125,21 @@ function add_to_buying_list(selected_item) {
     if(is_stackable) {
         const present_item = to_buy.items.find(a => a.item === selected_item.item);
         
+        let item_count_in_trader = traders[current_trader].inventory[selected_item.item.split(' #')[0]].count;
+
         if(present_item) { //there's already some in inventory
-            if(traders[current_trader].inventory[selected_item.item.split(' #')[0]].count < selected_item.count + present_item.count) {
-                //trader has not enough when items already added make the total be too much, so just put all in the list
-                present_item.count = traders[current_trader].inventory[selected_item.item.split(' #')[0]].count;
+            if(item_count_in_trader - present_item.count < selected_item.count) {
+                //trying to buy more than trader has left, so just put all in the buy list
+                selected_item.count = item_count_in_trader - present_item.count;
+                present_item.count = item_count_in_trader;
             } else {
                 present_item.count += selected_item.count;
             }
 
         } else { 
-            if(traders[current_trader].inventory[selected_item.item.split(' #')[0]].count < selected_item.count) { 
+            if(item_count_in_trader < selected_item.count) { 
                 //trader has not enough: buy all available
-                selected_item.count = traders[current_trader].inventory[selected_item.item.split(' #')[0]].count;
+                selected_item.count = item_count_in_trader;
             }
 
             to_buy.items.push(selected_item);
@@ -193,26 +198,32 @@ function add_to_selling_list(selected_item) {
     const is_stackable = !Array.isArray(character.inventory[selected_item.item.split(' #')[0]]);
 
     if(is_stackable) {
-
         const present_item = to_sell.items.find(a => a.item === selected_item.item);
+        //find if item is already present in the sell list
+
+        let item_count_in_player = character.inventory[selected_item.item.split(' #')[0]].count;
 
         if(present_item) {
-            if(character.inventory[selected_item.item.split(' #')[0]].count < selected_item.count + present_item.count) {
-                //character has not enough when items already added make the total be too much, so just put all in the list
-                present_item.count = character.inventory[selected_item.item.split(' #')[0]].count;
+            //item present in the list -> increase its count, up to what player has in inventory
+
+            if(item_count_in_player - present_item.count < selected_item.count) {
+                //trying to sell more that remains in inventory, so just add everything
+                selected_item.count = item_count_in_player - present_item.count;
+                present_item.count = item_count_in_player;
             } else {
                 present_item.count += selected_item.count;
             }
 
         } else { 
-            if(character.inventory[selected_item.item.split(' #')[0]].count < selected_item.count) { 
+            if(item_count_in_player < selected_item.count) { 
                 //character has not enough: sell all available
-                selected_item.count = character.inventory[selected_item.item.split(' #')[0]].count;
+                selected_item.count = item_count_in_player;
             }
+
             to_sell.items.push(selected_item);
-            
         }
         const value = item_templates[selected_item.item.split(' #')[0]].getValue() * selected_item.count;
+
         to_sell.value += value;
         return value;
 

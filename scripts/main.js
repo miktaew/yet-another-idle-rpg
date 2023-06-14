@@ -3,9 +3,9 @@
 import { current_game_time } from "./game_time.js";
 import { item_templates, getItem} from "./items.js";
 import { locations } from "./locations.js";
-import { skills } from "./skills.js";
+import { get_next_skill_milestone, get_unlocked_skill_rewards, skills } from "./skills.js";
 import { dialogues } from "./dialogues.js";
-import { Enemy} from "./enemies.js";
+import { Enemy, enemy_killcount } from "./enemies.js";
 import { traders } from "./traders.js";
 import { is_in_trade, start_trade, cancel_trade, accept_trade, exit_trade, add_to_trader_inventory,
          add_to_buying_list, remove_from_buying_list, add_to_selling_list, remove_from_selling_list} from "./trade.js";
@@ -28,12 +28,14 @@ import { end_activity_animation,
          start_activity_display, start_sleeping_display,
          create_new_skill_bar, update_displayed_skill_bar, update_displayed_skill_description, clear_skill_bars,
          update_displayed_ongoing_activity, clear_skill_list,
-         clear_message_log,
+         clear_message_log, clear_bestiary,
          update_enemy_attack_bar, update_character_attack_bar,
-         update_displayed_location_choices
+         update_displayed_location_choices,
+         create_new_bestiary_entry,
+         update_bestiary_entry
         } from "./display.js";
 
-const game_version = "v0.2.8";
+const game_version = "v0.3b";
 
 //current enemy
 var current_enemies = null;
@@ -87,6 +89,32 @@ time_field.innerHTML = current_game_time.toString();
 
 //just a small multiplier for xp, mostly for testing I guess
 const global_xp_bonus = 1;
+
+function get_hit_chance(attack_points, evasion_points) {
+    let result = attack_points/(attack_points+evasion_points);
+
+    if(result >= 0.80) {
+        result = 0.971+(result-0.8)**1.4;
+    } else if(result >= 0.70) {
+        result = 0.846+(result-0.7)**0.9;
+    } else if(result >= 0.6) {
+        result = 0.688+(result-0.6)**0.8;
+    } else if(result >= 0.50) {
+        result = 0.53+(result-0.5)**0.8;
+    } else if(result >= 0.40) {
+        result = 0.331+(result-0.4)**0.7;
+    } else if(result >= 0.3) {
+        result = 0.173 + (result-0.3)**0.8;
+    } else if(result >= 0.20) {
+        result = 0.073 + (result-0.2);
+    } else if(result >= 0.10) {
+        result = 0.01 + (result-0.1)**1.2;
+    } else {
+        result = result**1.92;
+    }
+    
+    return result;
+}
 
 function change_location(location_name) {
     var location = locations[location_name];
@@ -342,7 +370,7 @@ function start_textline(textline_key){
         const dialogue = dialogues[textline.unlocks.dialogues[i]]
         if(!dialogue.is_unlocked) {
             dialogue.is_unlocked = true;
-            log_message(`Can now talk with ${dialogue.name}`, "activity_unlocked");
+            log_message(`You can now talk with ${dialogue.name}`, "activity_unlocked");
         }
     }
 
@@ -350,7 +378,7 @@ function start_textline(textline_key){
         const trader = traders[textline.unlocks.traders[i]];
         if(!trader.is_unlocked) {
             trader.is_unlocked = true;
-            log_message(`Can now trade with ${trader.name}`, "activity_unlocked");
+            log_message(`You can now trade with ${trader.name}`, "activity_unlocked");
         }
     }
 
@@ -529,8 +557,7 @@ function do_enemy_combat_action(enemy_id) {
     let partially_blocked = false; //only used for combat info in message log
 
     damage_dealt = enemy_base_damage * (1.2 - Math.random() * 0.4); //basic 20% deviation for damage
-
-
+    
     if(character.equipment["off-hand"]?.offhand_type === "shield") { //HAS SHIELD
         if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
             add_xp_to_skill(skills["Shield blocking"], attacker.xp_value, true);
@@ -544,10 +571,12 @@ function do_enemy_combat_action(enemy_id) {
          }
     } else { // HAS NO SHIELD
         //character EP div by enemy_AP * 3
-        const evasion_chance = (character.combat_stats.evasion_points / (attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1) * 3)) * evasion_chance_modifier;
+        const hit_chance = get_hit_chance(attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1), character.combat_stats.evasion_points)/evasion_chance_modifier;
 
-        if(evasion_chance > Math.random()) { //EVADED ATTACK
-            add_xp_to_skill(skills["Evasion"], attacker.xp_value, true);
+        if(hit_chance < Math.random()) { //EVADED ATTACK
+            const xp_to_add = character.wears_armor() ? attacker.xp_value : attacker.xp_value * 1.5; 
+            //50% more evasion xp if going without armor
+            add_xp_to_skill(skills["Evasion"], xp_to_add, true);
             log_message(character.name + " evaded an attack", "enemy_missed");
             return; //damage fully evaded, nothing more can happen
         }
@@ -558,16 +587,27 @@ function do_enemy_combat_action(enemy_id) {
         damage_dealt *= enemy_crit_damage;
         critted = true;
     }
+    /*
+    head: null, torso: null, 
+        arms: null, ring: null, 
+        weapon: null, "off-hand": null,
+        legs: null, feet: null, 
+        amulet: null
+    */
+    if(!character.wears_armor())
+    {
+        add_xp_to_skill(skills["Iron skin"], attacker.xp_value, true);
+    }
 
     let {damage_taken, fainted} = character.take_damage({damage_value: damage_dealt});
 
     if(critted)
     {
         if(partially_blocked) {
-            log_message(character.name + " partially blocked, critically was hit for " + damage_taken + " dmg", "hero_attacked_critically");
+            log_message(character.name + " partially blocked, was critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
         } 
         else {
-            log_message(character.name + " critically was hit for " + damage_taken + " dmg", "hero_attacked_critically");
+            log_message(character.name + " was critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
         }
     } else {
         if(partially_blocked) {
@@ -613,8 +653,8 @@ function do_character_combat_action(attack_power, attack_type = "normal") {
         add_xp_to_skill(skills["Giant slayer"], target.xp_value, true);
     }
 
-    //character AP div by 2*enemy_DP 
-    const hit_chance = (character.combat_stats.attack_points / (target.stats.agility * Math.sqrt(target.stats.intuition ?? 1) * 2)) * hit_chance_modifier;
+    
+    const hit_chance = get_hit_chance(character.combat_stats.attack_points, target.stats.agility * Math.sqrt(target.stats.intuition ?? 1)) * hit_chance_modifier;
 
     if(hit_chance > Math.random()) {//hero's attack hits
 
@@ -697,6 +737,13 @@ function do_character_combat_action(attack_power, attack_type = "normal") {
  */
 function kill_enemy(target) {
     target.is_alive = false;
+    if(enemy_killcount[target.name]) {
+        enemy_killcount[target.name] += 1;
+        update_bestiary_entry(target.name);
+    } else {
+        enemy_killcount[target.name] = 1;
+        create_new_bestiary_entry(target.name);
+    }
     const enemy_id = current_enemies.findIndex(enemy => enemy===target);
     clear_enemy_attack_loop(enemy_id);
 }
@@ -728,30 +775,35 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
         return;
     }
     
-    if(skill.total_xp == 0) 
+    const was_hidden = skill.visibility_treshold > skill.total_xp;
+    const level_up = skill.add_xp(xp_to_add * (global_xp_bonus || 1));
+    const is_visible = skill.visibility_treshold <= skill.total_xp;
+
+    if(was_hidden && is_visible) 
     {
         create_new_skill_bar(skill);
         
         if(typeof should_info === "undefined" || should_info) {
-            log_message(`Learned new skill: ${skill.name()}`, "skill_raised");
+            log_message(`Unlocked new skill: ${skill.name()}`, "skill_raised");
         }
     } 
 
-    const level_up = skill.add_xp(xp_to_add * (global_xp_bonus || 1));
-
-    update_displayed_skill_bar(skill);
+    if(is_visible) 
+    {
+        update_displayed_skill_bar(skill);
     
-    if(typeof level_up !== "undefined"){ //not undefined => levelup happened and levelup message was returned
-    //character stats currently get added in character.add_bonuses() method, called in skill.get_bonus_stats() method, called in skill.add_xp() when levelup happens
-        if(typeof should_info === "undefined" || should_info)
-        {
-            log_message(level_up, "skill_raised");
-            update_character_stats();
-        }
+        if(typeof level_up !== "undefined"){ //not undefined => levelup happened and levelup message was returned
+        //character stats currently get added in character.add_bonuses() method, called in skill.get_bonus_stats() method, called in skill.add_xp() when levelup happens
+            if(typeof should_info === "undefined" || should_info)
+            {
+                log_message(level_up, "skill_raised");
+                update_character_stats();
+            }
 
-        if(typeof skill.get_effect_description !== "undefined")
-        {
-            update_displayed_skill_description(skill);
+            if(typeof skill.get_effect_description !== "undefined")
+            {
+                update_displayed_skill_description(skill);
+            }
         }
     }
 }
@@ -801,7 +853,7 @@ function get_location_rewards(location) {
         unlock_location(location.repeatable_reward.locations[i]);
     }
 
-    for(let i = 0; i < location.repeatable_reward.textlines?.length; i++) { //unlock textlines and dialogues
+    for(let i = 0; i < location.repeatable_reward.textlines?.length; i++) { //unlock textlines
         var any_unlocked = false;
         for(let j = 0; j < location.repeatable_reward.textlines[i].lines.length; j++) {
             if(dialogues[location.repeatable_reward.textlines[i].dialogue].textlines[location.repeatable_reward.textlines[i].lines[j]].is_unlocked == false) {
@@ -814,13 +866,19 @@ function get_location_rewards(location) {
             //maybe do this only when there's just 1 dialogue with changes?
         }
     }
-    //TODO: unlocking full dialogues and not just textlines
 
-    
+    for(let i = 0; i < location.repeatable_reward.dialogues?.length; i++) { //unlocking dialogues
+        const dialogue = dialogues[location.repeatable_reward.dialogues[i]]
+        if(!dialogue.is_unlocked) {
+            dialogue.is_unlocked = true;
+            log_message(`You can now talk with ${dialogue.name}`, "activity_unlocked");
+        }
+    }
+
     /*
     TODO: give more rewards on all clears
     - some xp for location-related skills?
-    - items/money?
+    - items/money -> random chance?
     */
 }
 
@@ -885,7 +943,6 @@ function use_item(item_name) {
         remove_from_character_inventory({item_name, item_count: 1});
     }
 }
-
 
 /**
  * puts all important stuff into a string
@@ -978,6 +1035,8 @@ function create_save() {
         save_data["is_sleeping"] = is_sleeping;
 
         save_data["active_effects"] = active_effects;
+
+        save_data["enemy_killcount"] = enemy_killcount;
 
         return JSON.stringify(save_data);
     } catch(error) {
@@ -1136,6 +1195,15 @@ function load(save_data) {
             }
         }); //add xp to skills
 
+        //patchwork solution to have skills with skill groups have their tooltips properly display next milestone
+        Object.keys(save_data.skills).forEach(function(key){ 
+            if(skills[key]){
+                if(save_data.skills[key].total_xp > 0) {
+                    update_displayed_skill_bar(skills[key]);
+                }
+            }
+        });
+
 
         Object.keys(save_data.dialogues).forEach(function(dialogue) {
             if(dialogues[dialogue]) {
@@ -1278,6 +1346,13 @@ function load(save_data) {
         } else {
             character.full_stats.stamina = character.full_stats.max_stamina - save_data.character.stamina_to_full;
         }
+
+        if(save_data["enemy_killcount"]) {
+            Object.keys(save_data["enemy_killcount"]).forEach(enemy_name => {
+                enemy_killcount[enemy_name] = save_data["enemy_killcount"][enemy_name];
+                create_new_bestiary_entry(enemy_name);
+            });
+        }
         
         update_character_stats();
 
@@ -1310,7 +1385,7 @@ function load(save_data) {
         if(save_data.is_sleeping) {
             start_sleeping();
         }
-        
+
     } catch(error) {
         throw error; //let other loading methods (from_file and from_localstorage) take care of it
     }
@@ -1346,6 +1421,8 @@ function load_from_file(save_string) {
         });
 
         clear_skill_bars();
+
+        clear_bestiary();
 
         exit_trade();
 
@@ -1398,8 +1475,6 @@ function update() {
         time_variance_accumulator += ((end_date - start_date) - 1000/tickrate);
         //duration of previous tick, minus time it was supposed to take
         //important to keep it between setting end_date and start_date, so they are 2 completely separate values
-
-        //console.log((end_date - start_date).toString() + " : " + time_variance_accumulator.toString());
 
         start_date = Date.now();
         /*

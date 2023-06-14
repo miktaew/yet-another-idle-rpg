@@ -1,3 +1,5 @@
+"use strict";
+
 const skills = {};
 const skill_groups = {};
 
@@ -27,6 +29,7 @@ class Skill {
                   max_level_coefficient = 1, 
                   max_level_bonus = 0, 
                   base_xp_cost = 40, 
+                  visibility_treshold = 10,
                   get_effect_description = () => { return ''; }, 
                   skill_group = null, 
                   rewards, 
@@ -43,11 +46,13 @@ class Skill {
         this.current_xp = 0; // how much of xp_to_next_lvl there is currently
         this.total_xp = 0; // total collected xp, on loading calculate lvl based on this (so to not break skills if scaling ever changes)
         this.base_xp_cost = base_xp_cost; //xp to go from lvl 1 to lvl 2
+        this.visibility_treshold = visibility_treshold < base_xp_cost ? visibility_treshold : base_xp_cost; 
+        //xp needed for skill to become visible and to get "unlock" message; try to keep it less than xp needed for lvl
         this.xp_to_next_lvl = base_xp_cost; //for display only
         this.total_xp_to_next_lvl = base_xp_cost; //total xp needed to lvl up
         this.get_effect_description = get_effect_description;
         this.skill_group = skill_group;
-        this.rewards = rewards; //leveling rewards (and levels on which they are given)
+        this.rewards = this.skill_group? null : rewards; //leveling rewards (and levels on which they are given)
 
         /*
         if skill_group is defined, rewards will be based on it and setting them here will have no effect
@@ -55,6 +60,7 @@ class Skill {
         as most of skills will provide some bonus anyway, there's no need to give stat reward at every single level
         and might instead give them, let's say, every 5 levels
         */
+
         this.xp_scaling = xp_scaling > 1 ? xp_scaling : 1.6;
         //how many times more xp needed for next level
     }
@@ -308,14 +314,15 @@ function get_next_skill_reward(skill_id) {
  * @returns next lvl at which skill has any rewards
  */
 function get_next_skill_milestone(skill_id){
-    if(skills[skill_id].rewards){
-        return Object.keys(skills[skill_id].rewards.milestones).find(
-            level => level > skills[skill_id].current_level);
-    } else if(skills[skill_id].skill_group){
-        return Object.keys(skill_groups[skills[skill_id].skill_group].rewards.milestones).find(
+    let milestone;
+    if(skills[skill_id].skill_group){
+        milestone = Object.keys(skill_groups[skills[skill_id].skill_group].rewards.milestones).find(
             level => level > skill_groups[skills[skill_id].skill_group].highest_level);
+    } else if(skills[skill_id].rewards){
+        milestone = Object.keys(skills[skill_id].rewards.milestones).find(
+            level => level > skills[skill_id].current_level);
     }
-
+    return milestone;
 }
 
 /**
@@ -492,9 +499,9 @@ skill_groups["weapon skills"] = new SkillGroup({
                                     names: {0: "Shield blocking"}, 
                                     description: "Ability to block attacks with shield", 
                                     max_level: 20, 
-                                    max_level_coefficient: 4,
+                                    max_level_bonus: 0.5,
                                     get_effect_description: ()=> {
-                                        return `Increases block chance by flat ${Math.round(skills["Shield blocking"].get_coefficient("flat")*100)/100}%`;
+                                        return `Increases block chance by flat ${Math.round(skills["Shield blocking"].get_level_bonus()*1000)/10}%`;
                                     }});
     
      skills["Unarmed"] = new Skill({skill_id: "Unarmed", 
@@ -563,7 +570,7 @@ skill_groups["weapon skills"] = new SkillGroup({
                                     names: {0: "Night vision"},
                                     description: "Ability to see in darkness",
                                     base_xp_cost: 300,
-                                    xp_scaling: 1.8,
+                                    xp_scaling: 2,
                                     max_level: 10,
                                     get_effect_description: () => {
                                         return `Reduces darkness penalty by ${Math.round(10*skills["Night vision"].current_level*100/skills["Night vision"].max_level)/10}%`;
@@ -676,9 +683,10 @@ skill_groups["weapon skills"] = new SkillGroup({
 (function(){
     skills["Farming"] = new Skill({skill_id: "Farming", 
                                 names: {0: "Farming"}, 
-                                description: "Even a simple action of plowing some fields, can be done better with skills and experience",
+                                description: "Even a simple action of plowing some fields, can be performed better with skills and experience",
                                 base_xp_cost: 40,
                                 max_level: 10,
+                                xp_scaling: 1.6,
                                 max_level_coefficient: 2,
                                 rewards: {
                                     milestones: {
@@ -738,26 +746,26 @@ skill_groups["weapon skills"] = new SkillGroup({
                                         milestones: {
                                             2: {
                                                 stats: {
-                                                    "max_health": 10,
+                                                    "max_health": 20,
                                                 },
                                                 multipliers: {
-                                                    "max_health": 1.1,
+                                                    "max_health": 1.05,
                                                 }
                                             },
                                             4: {
                                                 stats: {
-                                                    "max_health": 20,
+                                                    "max_health": 40,
                                                 },
                                                 multipliers: {
-                                                    "max_health": 1.1,
+                                                    "max_health": 1.05,
                                                 }
                                             },
                                             6: {
                                                 stats: {
-                                                    "max_health": 40,
+                                                    "max_health": 60,
                                                 },
                                                 multipliers: {
-                                                    "max_health": 1.1,
+                                                    "max_health": 1.05,
                                                 }
                                             },
                                             8: {
@@ -765,15 +773,15 @@ skill_groups["weapon skills"] = new SkillGroup({
                                                     "max_health": 80,
                                                 },
                                                 multipliers: {
-                                                    "max_health": 1.1,
+                                                    "max_health": 1.05,
                                                 }
                                             },
                                             10: {
                                                 stats: {
-                                                    "max_health": 160,
+                                                    "max_health": 100,
                                                 },
                                                 multipliers: {
-                                                    "max_health": 1.1,
+                                                    "max_health": 1.05,
                                                 }
                                             }
                                         }
@@ -945,6 +953,45 @@ skill_groups["crafting skills"] = new SkillGroup({
     });
 })();
 
+//defensive skills
+(function(){
+    skills["Iron skin"] = new Skill({
+        skill_id: "Iron skin",
+        names: {0: "Tough skin", 5: "Wooden skin", 10: "Iron skin"},
+        description: "As it gets damaged, your skin regenerates to be tougher and tougher",
+        base_xp_cost: 80,
+        max_level: 30,
+        max_level_bonus: 30,
+        get_effect_description: ()=> {
+            return `Increases base defense by ${Math.round(skills["Iron skin"].get_level_bonus())}`;
+        },
+        rewards: {
+            milestones: {
+                3: {
+                    multipliers: {
+                        max_health: 1.01,
+                    }
+                },
+                5: {
+                    multipliers: {
+                        max_health: 1.03,
+                    }
+                },
+                7: {
+                    multipliers: {
+                        max_health: 1.01,
+                    }
+                },
+                10: {
+                    multipliers: {
+                        max_health: 1.05,
+                    }
+                }
+            }
+        }
+    }); 
+})();
+
 //character skills and resistances
 (function(){
     skills["Persistence"] = new Skill({
@@ -965,7 +1012,7 @@ skill_groups["crafting skills"] = new SkillGroup({
         max_level_coefficient: 2,
         get_effect_description: ()=> {
             return `Increase crit rate and chance to find items when foraging`;
-        }});    
+        }}); 
 })();
 
 //miscellaneous skills

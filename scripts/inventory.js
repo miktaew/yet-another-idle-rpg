@@ -1,3 +1,5 @@
+"use strict";
+
 
 //extended by character and traders, as their inventories are supposed to work the same way
 class InventoryHaver {

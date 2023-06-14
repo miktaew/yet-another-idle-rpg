@@ -1,3 +1,5 @@
+"use strict";
+
 import { InventoryHaver } from "./inventory.js";
 import { skills } from "./skills.js";
 import { update_displayed_character_inventory, update_displayed_equipment, 
@@ -5,10 +7,6 @@ import { update_displayed_character_inventory, update_displayed_equipment,
          update_displayed_health, update_displayed_stamina } from "./display.js";
 import { current_location } from "./main.js";
 import { current_game_time } from "./game_time.js";
-
-//player character
-const base_xp_cost = 10;
-
 
 class Hero extends InventoryHaver {
         constructor() {
@@ -49,6 +47,8 @@ character.equipment = {
         amulet: null
 };
 character.money = 0;
+
+const base_xp_cost = 10;
 character.xp = {
         current_level: 0, total_xp: 0, current_xp: 0, xp_to_next_lvl: base_xp_cost, 
         total_xp_to_next_lvl: base_xp_cost, base_xp_cost: base_xp_cost, xp_scaling: 1.9
@@ -191,9 +191,11 @@ character.update_stats = function () {
                 } else if(stat === "strength") {
                         character.full_stats["strength"] *= skills["Weightlifting"].get_coefficient("multiplicative");
                 }
-        } else {
+        } else { //its defense
+                character.full_stats[stat] += skills["Iron skin"].get_level_bonus();
                 Object.keys(character.equipment).forEach(function(key) {
-                        if(character.equipment[key]?.getDefense) {
+                        if(character.equipment[key]?.getDefense) { 
+                                //checks for presence of the method (to know if there's something equipped), not for its result
                                 character.full_stats[stat] += character.equipment[key].getDefense();
                         }
                 });
@@ -242,20 +244,31 @@ character.get_attack_power = function () {
         return character.full_stats.attack_power * character.get_stamina_multiplier();
 }
 
+character.wears_armor = function () {
+        if(
+                (!character.equipment.head || character.equipment.head.getDefense() == 0) &&
+                (!character.equipment.torso || character.equipment.torso.getDefense() == 0) &&
+                (!character.equipment.arms || character.equipment.arms.getDefense() == 0) &&
+                (!character.equipment.legs || character.equipment.legs.getDefense() == 0) &&
+                (!character.equipment.feet || character.equipment.feet.getDefense() == 0)
+        )
+        {
+                return false;
+        } else {
+                return true;
+        }
+}
+
 /**
  * 
  * @param {*}
- * @returns [actual damage taken, if character should faint] 
+ * @returns [actual damage taken; Boolean if character should faint] 
  */
 character.take_damage = function ({damage_value, damage_type = "physical", damage_element, can_faint = true, give_skill_xp = true}) {
         /*
-        damage types: "physical", "elemental", "magic"
-        each with it's own defense on equipment (and potentially spells)
-        */
-
-        /*
         TODO:
-                - damage types
+                - damage types: "physical", "elemental", "magic"
+                - each with it's own defense on equipment (and potentially spells)
                 - damage elements (for elemental damage type)
                 - resistance skills
         */
@@ -273,7 +286,7 @@ character.take_damage = function ({damage_value, damage_type = "physical", damag
         }
 
         if(give_skill_xp) {
-                //TODO give skill xp when taking damge
+                //TODO give xp to resistance skills when taking damge
         }
 
         return {damage_taken, fainted};
@@ -365,7 +378,7 @@ function unequip_item(item_slot) {
 
         if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
             character.combat_stats.evasion_points = null;
-            character.combat_stats.block_chance = Math.round(0.4 * skills["Shield blocking"].get_coefficient("flat") * 10000)/10000;
+            character.combat_stats.block_chance = 0.4 + Math.round(skills["Shield blocking"].get_level_bonus() * 10000)/10000;
         }
 
     

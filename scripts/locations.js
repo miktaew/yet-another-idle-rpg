@@ -1,3 +1,5 @@
+"use strict";
+
 import { enemy_templates, Enemy } from "./enemies.js";
 import { dialogues as dialoguesList} from "./dialogues.js";
 import { skills } from "./skills.js";
@@ -20,7 +22,7 @@ class Location {
         /* always safe
     
         */
-        this.name = name;
+        this.name = name; //needs to be the same as key in locations
         this.description = description;
         this.connected_locations = connected_locations; //a list
         this.is_unlocked = is_unlocked;
@@ -53,9 +55,7 @@ class Combat_zone {
                  first_reward = {},
                  repeatable_reward = {}, 
                 }) {
-        /*
-        after clearing, maybe permanently unlock a single, harder zone (meaning also more xp/loot), from where the only way is back;
-        */
+
         this.name = name;
         this.description = description;
         this.is_unlocked = is_unlocked;
@@ -499,14 +499,14 @@ class LocationType{
 
     locations["Forest road"] = new Location({ 
         connected_locations: [{location: locations["Village"]}],
-        description: "Shabby road leading through a dark forest, the only way to leave your village",
+        description: "Shabby road leading through a dark forest, the only way to leave the village",
         name: "Forest road",
         is_unlocked: false,
     });
     locations["Village"].connected_locations.push({location: locations["Forest road"], custom_text: "Leave the village"});
 
     locations["Forest"] = new Combat_zone({
-        description: "Forest surrounding your village, a dangerous place", 
+        description: "Forest surrounding the village, a dangerous place", 
         enemies_list: ["Starving wolf", "Young wolf"],
         enemy_count: 30, 
         name: "Forest", 
@@ -519,6 +519,7 @@ class LocationType{
         description: "Deeper part of the forest, a dangerous place", 
         enemies_list: ["Wolf", "Starving wolf", "Young wolf"],
         enemy_count: 50, 
+        enemy_group_size: [2,3],
         is_unlocked: false,
         name: "Deep forest", 
         parent_location: locations["Forest road"],
@@ -527,6 +528,14 @@ class LocationType{
     });
     locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture deeper into the woods"});
     locations["Forest"].repeatable_reward.locations = [locations["Deep forest"]];
+
+    locations["Town outskirts"] = new Location({ 
+        connected_locations: [{location: locations["Forest road"]}],
+        description: "You can see a tall stone wall, surrounded by a green open field.",
+        name: "Town outskirts",
+        is_unlocked: true,
+    });
+    locations["Forest road"].connected_locations.push({location: locations["Town outskirts"], custom_text: "Leave the forest"});
 })();
 
 //add activities

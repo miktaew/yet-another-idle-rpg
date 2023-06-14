@@ -1,3 +1,22 @@
+v0.3b
+    - fixed wrong milestone levels on weapon skills after loading game
+    - changed xp scaling of some skills
+    - fixed wrong calculations on shield blocking skill
+v0.3
+    - drop chance now scales with how many of specific enemy were killed, down to 1/10th at 999+
+    - fixed minor bugs when trading stackable items
+    - changed the starting year to 1000
+    - location choices now get foldered only when there's more than two (used to be at more than one)
+    - equipment prices increased by ~50%
+    - introduced bestiary with list of all killed enemies (killcount, description, stats, drops their chances)
+    - rebalanced "sleeping" skill rewards
+v0.2.9b
+    - "iron skin" now works
+    - minor fixes to some formulas
+v0.2.9
+    - added "iron skin" skill that provides a tiny bit of def, xp is gained for fighting with no armour equipped
+    - evasion xp is increased by 50% when fighting with no armor equipped (let's call it an adrenaline bonus)
+    - changed the hit-chance formula to non-linear
 v0.2.8
     - message log can now be filtered for stuff related to combat/levelups&unlocks/events/loot
     - now if there's more than 1 option in any category (work, train, travel, talk, trade), 

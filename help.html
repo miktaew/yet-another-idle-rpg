@@ -3,16 +3,24 @@
 <body>
 
 <h2>Remember to export!</h2>
-
 <br>
+<h4>Found a bug? Let me know</h4>
+<br>
+<br>
+As of v0.3, content basically ends after leaving the village. 
+You can try fighting the wolves, but they are not expected to be beatable at this stage.
+<br><br>
 Some basic concepts:
 <ul>
     <li>AP / EP:
         <ul>
-            <li>summary of stats and skills that affect the chance to hit/evade. It doesn't include situational modifiers (e.g. from skills based on the type of an enemy), but does include environmental modifiers (e.g. lower EP in "narrow" areas) </li>
-            <li>AP equal to enemy EP, results in 50% chance to hit an enemy. </li>
-            <li>EP equal to enemy AP, results in 33% chance to dodge an enemy attack. </li>
-            <li>Scaling is linear, so for 100%, excluding other bonuses and penalties, you need 2x and 3x more than enemy has. </li>
+            <li>Summary of stats and skills that affect the chance to hit/evade. It doesn't include situational modifiers (e.g. from skills based on the type of an enemy), but does include environmental modifiers (e.g. lower EP in "narrow" areas) </li>
+            <li>Scaling is non-linear.</li>
+            <li>AP equal to 5 times the enemy EP, results in ~98% chance to hit the target. </li>
+            <li>AP equal to twice the enemy EP, results in ~80% chance to hit the target. </li>
+            <li>AP equal to enemy EP, results in a bit over 50% chance to hit the target. </li>
+            <li>AP equal to half of the enemy EP, results in ~24% chance to hit the target. </li>
+            <li>AP equal to 1/5 of the enemy EP, results in ~5% chance to hit the target. </li>
         </ul> 
     </li>
     <li>Stamina:
@@ -44,6 +52,8 @@ Some basic concepts:
             <li>
                 During night (20 to 4) in normal areas, and whole time in dark areas (e.g. caves), character receives additional penalties to hit/evasion chance.
                 <br>
+                This penalty can be reduced with "Night  vision" skill, which gains xp passively just for being in such place
+                <br>
             </li>
         </ul>
     </li>
@@ -68,6 +78,9 @@ quality     rarity         color      additional multiplier
 160-199%    epic           purple     x1.6
 200-250%    legendary      orange     x2
                         </pre>
+                    </li>
+                    <li>
+                        <strong>As of version v0.3, highest obtainable item quality is 120%</strong>
                     </li>
                 </ul>
             </li>

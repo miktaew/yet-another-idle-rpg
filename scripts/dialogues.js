@@ -1,40 +1,59 @@
+"use strict";
+
 var dialogues = {};
 
-function Dialogue(dialogue_data) {
-    this.name = dialogue_data.name; // displayed name, e.g. "Village elder"
-    this.starting_text = typeof dialogue_data.starting_text !== "undefined"? dialogue_data.starting_text : `Talk to the ${this.name}`;
-    this.ending_text = typeof dialogue_data.ending_text !== "undefined"? dialogue_data.ending_text : `Go back`; //text shown on option to finish talking
-    this.is_unlocked = typeof dialogue_data.is_unlocked !== "undefined"? dialogue_data.is_unlocked : true;
-    this.is_finished = typeof dialogue_data.is_finished !== "undefined"? dialogue_data.is_finished : false; 
-    //separate bool to remove dialogue option if it's finished
+class Dialogue {
+    constructor({ name, 
+                  starting_text = `Talk to the ${name}`, 
+                  ending_text = `Go back`, 
+                  is_unlocked = true, 
+                  is_finished = false, 
+                  textlines = {}, 
+                  location_name
+    }) 
+    {
+        this.name = name; //displayed name, e.g. "Village elder"
+        this.starting_text = starting_text;
+        this.ending_text = ending_text; //text shown on option to finish talking
+        this.is_unlocked = is_unlocked;
+        this.is_finished = is_finished;
+        //separate bool to remove dialogue option if it's finished
+        this.textlines = textlines; //all the lines in dialogue
 
-    this.textlines = dialogue_data.textlines || {};  //all the lines in dialogue
-    
-    this.location_name = dialogue_data.location_name; //this is purely informative and wrong value shouldn't cause any actual issues
+        this.location_name = location_name; //this is purely informative and wrong value shouldn't cause any actual issues
+    }
 }
 
-function Textline(textline_data) {
-    this.name = textline_data.name; // displayed option to click, don't make it too long
-    this.text = textline_data.text; // what's shown after clicking
-    this.is_unlocked = typeof textline_data.is_unlocked !== "undefined"? textline_data.is_unlocked : true;
-    this.is_finished = typeof textline_data.is_finished !== "undefined"? textline_data.is_finished : false;
-
-    if(typeof textline_data.unlocks !== "undefined") { 
-        this.unlocks = textline_data.unlocks;
-        this.unlocks.textlines = typeof textline_data.unlocks.textlines !== "undefined"? textline_data.unlocks.textlines : [];
-        this.unlocks.locations = typeof textline_data.unlocks.locations !== "undefined"? textline_data.unlocks.locations : [];
-        this.unlocks.dialogues = typeof textline_data.unlocks.dialogues !== "undefined"? textline_data.unlocks.dialogues : [];
-        this.unlocks.traders = typeof textline_data.unlocks.traders !== "undefined"? textline_data.unlocks.traders : [];
+class Textline {
+    constructor({name,
+                 text,
+                 is_unlocked = true,
+                 is_finished = false,
+                 unlocks = {textlines: [],
+                            locations: [],
+                            dialogues: [],
+                            traders: [],
+                            },
+                locks_lines = {},
+            }) 
+    {
+        this.name = name; // displayed option to click, don't make it too long
+        this.text = text; // what's shown after clicking
+        this.is_unlocked = is_unlocked;
+        this.is_finished = is_finished;
+        this.unlocks = unlocks;
+        
+        this.unlocks.textlines = typeof unlocks.textlines !== "undefined" ? unlocks.textlines : [];
+        this.unlocks.locations = typeof unlocks.locations !== "undefined" ? unlocks.locations : [];
+        this.unlocks.dialogues = typeof unlocks.dialogues !== "undefined" ? unlocks.dialogues : [];
+        this.unlocks.traders = typeof unlocks.traders !== "undefined" ? unlocks.traders : [];
+        
+        this.locks_lines = locks_lines;
+        //related text lines that get locked; might be itself, might be some previous line 
+        //e.g. line finishing quest would also lock line like "remind me what I was supposed to do"
+        //should be alright if it's limited only to lines in same Dialogue
+        //just make sure there won't be Dialogues with ALL lines unavailable
     }
-    else {
-        this.unlocks = {dialogues: [], textlines: [], locations: [], traders: []};
-    }
-
-    this.locks_lines = typeof textline_data.locks_lines !== "undefined"? textline_data.locks_lines : {}; 
-    //related text lines that get locked; might be itself, might be some previous line 
-    //e.g. line finishing quest would also lock line like "remind me what I was supposed to do"
-    //should be alright if it's limited only to lines in same Dialogue
-    //just make sure there won't be Dialogues with ALL lines unavailable
 }
 
 (function(){
