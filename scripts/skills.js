@@ -52,7 +52,7 @@ class Skill {
         this.total_xp_to_next_lvl = base_xp_cost; //total xp needed to lvl up
         this.get_effect_description = get_effect_description;
         this.skill_group = skill_group;
-        this.rewards = rewards; //leveling rewards (and levels on which they are given)
+        this.rewards = this.skill_group? null : rewards; //leveling rewards (and levels on which they are given)
 
         /*
         if skill_group is defined, rewards will be based on it and setting them here will have no effect
@@ -314,14 +314,15 @@ function get_next_skill_reward(skill_id) {
  * @returns next lvl at which skill has any rewards
  */
 function get_next_skill_milestone(skill_id){
-    if(skills[skill_id].rewards){
-        return Object.keys(skills[skill_id].rewards.milestones).find(
-            level => level > skills[skill_id].current_level);
-    } else if(skills[skill_id].skill_group){
-        return Object.keys(skill_groups[skills[skill_id].skill_group].rewards.milestones).find(
+    let milestone;
+    if(skills[skill_id].skill_group){
+        milestone = Object.keys(skill_groups[skills[skill_id].skill_group].rewards.milestones).find(
             level => level > skill_groups[skills[skill_id].skill_group].highest_level);
+    } else if(skills[skill_id].rewards){
+        milestone = Object.keys(skills[skill_id].rewards.milestones).find(
+            level => level > skills[skill_id].current_level);
     }
-
+    return milestone;
 }
 
 /**
@@ -498,9 +499,9 @@ skill_groups["weapon skills"] = new SkillGroup({
                                     names: {0: "Shield blocking"}, 
                                     description: "Ability to block attacks with shield", 
                                     max_level: 20, 
-                                    max_level_coefficient: 4,
+                                    max_level_bonus: 0.5,
                                     get_effect_description: ()=> {
-                                        return `Increases block chance by flat ${Math.round(skills["Shield blocking"].get_coefficient("flat")*100)/100}%`;
+                                        return `Increases block chance by flat ${Math.round(skills["Shield blocking"].get_level_bonus()*1000)/10}%`;
                                     }});
     
      skills["Unarmed"] = new Skill({skill_id: "Unarmed", 
@@ -569,7 +570,7 @@ skill_groups["weapon skills"] = new SkillGroup({
                                     names: {0: "Night vision"},
                                     description: "Ability to see in darkness",
                                     base_xp_cost: 300,
-                                    xp_scaling: 1.8,
+                                    xp_scaling: 2,
                                     max_level: 10,
                                     get_effect_description: () => {
                                         return `Reduces darkness penalty by ${Math.round(10*skills["Night vision"].current_level*100/skills["Night vision"].max_level)/10}%`;
@@ -685,6 +686,7 @@ skill_groups["weapon skills"] = new SkillGroup({
                                 description: "Even a simple action of plowing some fields, can be performed better with skills and experience",
                                 base_xp_cost: 40,
                                 max_level: 10,
+                                xp_scaling: 1.6,
                                 max_level_coefficient: 2,
                                 rewards: {
                                     milestones: {

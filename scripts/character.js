@@ -8,10 +8,6 @@ import { update_displayed_character_inventory, update_displayed_equipment,
 import { current_location } from "./main.js";
 import { current_game_time } from "./game_time.js";
 
-//player character
-const base_xp_cost = 10;
-
-
 class Hero extends InventoryHaver {
         constructor() {
                 super();
@@ -51,6 +47,8 @@ character.equipment = {
         amulet: null
 };
 character.money = 0;
+
+const base_xp_cost = 10;
 character.xp = {
         current_level: 0, total_xp: 0, current_xp: 0, xp_to_next_lvl: base_xp_cost, 
         total_xp_to_next_lvl: base_xp_cost, base_xp_cost: base_xp_cost, xp_scaling: 1.9
@@ -380,7 +378,7 @@ function unequip_item(item_slot) {
 
         if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
             character.combat_stats.evasion_points = null;
-            character.combat_stats.block_chance = Math.round(0.4 * skills["Shield blocking"].get_coefficient("flat") * 10000)/10000;
+            character.combat_stats.block_chance = 0.4 + Math.round(skills["Shield blocking"].get_level_bonus() * 10000)/10000;
         }
 
     
