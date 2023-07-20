@@ -1,3 +1,5 @@
+v0.3c
+    - fixed a minor error when loading save with any skill having less xp than needed to be visible
 v0.3b
     - fixed wrong milestone levels on weapon skills after loading game
     - changed xp scaling of some skills
