@@ -35,7 +35,8 @@ import { end_activity_animation,
          update_bestiary_entry
         } from "./display.js";
 
-const game_version = "v0.3b";
+const save_key = "save data";
+const game_version = "v0.3c";
 
 //current enemy
 var current_enemies = null;
@@ -1058,7 +1059,7 @@ function save_to_file() {
  * @param {Boolean} is_manual 
  */
 function save_to_localStorage(is_manual) {
-    localStorage.setItem("save data", create_save());
+    localStorage.setItem(save_key, create_save());
     if(is_manual) {
         log_message("Saved the game manually");
     }
@@ -1195,10 +1196,14 @@ function load(save_data) {
             }
         }); //add xp to skills
 
-        //patchwork solution to have skills with skill groups have their tooltips properly display next milestone
+        /*
+        patchwork solution to have skills with skill groups have their tooltips properly display next milestone,
+        as otherwise it would only go up to the value of the highest loaded skill, so if next skill has higher level, 
+        their tooltips will be different
+        */
         Object.keys(save_data.skills).forEach(function(key){ 
             if(skills[key]){
-                if(save_data.skills[key].total_xp > 0) {
+                if(save_data.skills[key].total_xp > 0 && save_data.skills.skill_group) {
                     update_displayed_skill_bar(skills[key]);
                 }
             }
@@ -1448,7 +1453,7 @@ function load_from_file(save_string) {
  */
 function load_from_localstorage() {
     try{
-        load(JSON.parse(localStorage.getItem("save data")));
+        load(JSON.parse(localStorage.getItem(save_key)));
     } catch(error) {
         console.error("Something went wrong on loading from localStorage!");
         console.error(error);
