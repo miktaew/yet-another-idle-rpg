@@ -1197,13 +1197,14 @@ function load(save_data) {
         }); //add xp to skills
 
         /*
-        patchwork solution to have skills with skill groups have their tooltips properly display next milestone,
+        necessary for skills with skill groups to have their tooltips properly display next milestone,
         as otherwise it would only go up to the value of the highest loaded skill, so if next skill has higher level, 
         their tooltips will be different
         */
         Object.keys(save_data.skills).forEach(function(key){ 
             if(skills[key]){
-                if(save_data.skills[key].total_xp > 0 && save_data.skills.skill_group) {
+                if(skills[key].skill_group && save_data.skills[key].total_xp >= skills[key].visibility_treshold) {
+                    //console.log(key);
                     update_displayed_skill_bar(skills[key]);
                 }
             }
