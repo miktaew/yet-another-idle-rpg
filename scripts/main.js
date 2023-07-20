@@ -1404,43 +1404,8 @@ function load(save_data) {
  */
 function load_from_file(save_string) {
     try{
-        Object.keys(character.equipment).forEach(function(key){
-            if(character.equipment[key] != null) {
-                character_unequip_item(key);
-            }
-        }); //remove equipment
-        character.inventory = {}; //reset inventory to not duplicate items
-
-        character.stats = character.base_stats;
-        character.xp = character.starting_xp;
-        //reset stats and xp
-
-        Object.keys(skills).forEach(function(key){
-            if(skills[key].total_xp > 0) {
-                skills[key].current_xp = 0;
-                skills[key].current_lvl = 0;
-                skills[key].total_xp = 0;
-                skills[key].xp_to_next_lvl = skills[key].base_xp_cost;
-                skills[key].total_xp_to_next_lvl = skills[key].base_xp_cost;
-            }
-        });
-
-        clear_skill_bars();
-
-        clear_bestiary();
-
-        exit_trade();
-
-        clear_skill_list();
-
-        clear_message_log();
-        
-        try {
-            load(JSON.parse(atob(save_string)));
-        } catch(error) {
-            console.error("Something went wrong on loading from file!");
-            console.error(error);
-        }
+        localStorage.setItem(save_key, atob(save_string));
+        window.location.reload(false);
     } catch (error) {
         console.error("Something went wrong on preparing to load from file!");
         console.error(error);
