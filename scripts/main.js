@@ -35,7 +35,8 @@ import { end_activity_animation,
          update_bestiary_entry
         } from "./display.js";
 
-const game_version = "v0.3b";
+const save_key = "save data";
+const game_version = "v0.3c";
 
 //current enemy
 var current_enemies = null;
@@ -1058,7 +1059,7 @@ function save_to_file() {
  * @param {Boolean} is_manual 
  */
 function save_to_localStorage(is_manual) {
-    localStorage.setItem("save data", create_save());
+    localStorage.setItem(save_key, create_save());
     if(is_manual) {
         log_message("Saved the game manually");
     }
@@ -1195,10 +1196,15 @@ function load(save_data) {
             }
         }); //add xp to skills
 
-        //patchwork solution to have skills with skill groups have their tooltips properly display next milestone
+        /*
+        necessary for skills with skill groups to have their tooltips properly display next milestone,
+        as otherwise it would only go up to the value of the highest loaded skill, so if next skill has higher level, 
+        their tooltips will be different
+        */
         Object.keys(save_data.skills).forEach(function(key){ 
             if(skills[key]){
-                if(save_data.skills[key].total_xp > 0) {
+                if(skills[key].skill_group && save_data.skills[key].total_xp >= skills[key].visibility_treshold) {
+                    //console.log(key);
                     update_displayed_skill_bar(skills[key]);
                 }
             }
@@ -1399,43 +1405,8 @@ function load(save_data) {
  */
 function load_from_file(save_string) {
     try{
-        Object.keys(character.equipment).forEach(function(key){
-            if(character.equipment[key] != null) {
-                character_unequip_item(key);
-            }
-        }); //remove equipment
-        character.inventory = {}; //reset inventory to not duplicate items
-
-        character.stats = character.base_stats;
-        character.xp = character.starting_xp;
-        //reset stats and xp
-
-        Object.keys(skills).forEach(function(key){
-            if(skills[key].total_xp > 0) {
-                skills[key].current_xp = 0;
-                skills[key].current_lvl = 0;
-                skills[key].total_xp = 0;
-                skills[key].xp_to_next_lvl = skills[key].base_xp_cost;
-                skills[key].total_xp_to_next_lvl = skills[key].base_xp_cost;
-            }
-        });
-
-        clear_skill_bars();
-
-        clear_bestiary();
-
-        exit_trade();
-
-        clear_skill_list();
-
-        clear_message_log();
-        
-        try {
-            load(JSON.parse(atob(save_string)));
-        } catch(error) {
-            console.error("Something went wrong on loading from file!");
-            console.error(error);
-        }
+        localStorage.setItem(save_key, atob(save_string));
+        window.location.reload(false);
     } catch (error) {
         console.error("Something went wrong on preparing to load from file!");
         console.error(error);
@@ -1448,7 +1419,7 @@ function load_from_file(save_string) {
  */
 function load_from_localstorage() {
     try{
-        load(JSON.parse(localStorage.getItem("save data")));
+        load(JSON.parse(localStorage.getItem(save_key)));
     } catch(error) {
         console.error("Something went wrong on loading from localStorage!");
         console.error(error);
