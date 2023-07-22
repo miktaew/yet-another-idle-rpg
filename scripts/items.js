@@ -239,7 +239,7 @@ class Shield extends Equippable {
             const stats = {};
             const handle = item_templates[this.handle];
             const shield_base = item_templates[this.shield_base];
-            Object.keys(character.stats).forEach((stat) => {
+            Object.keys(character.base_stats).forEach((stat) => {
                 if(stat === "attack_power" || stat === "defense") { //skip them just in case
                     return;
                 }
@@ -351,7 +351,7 @@ class Armor extends Equippable {
             const stats = {};
             const internal = item_templates[this.internal];
             const external = item_templates[this.external] || {stats: {}};
-            Object.keys(character.stats).forEach((stat) => {
+            Object.keys(character.base_stats).forEach((stat) => {
                 if(stat === "attack_power" || stat === "defense") {
                     return;
                 }
@@ -458,7 +458,7 @@ class Weapon extends Equippable {
             const stats = {};
             const handle = item_templates[this.handle];
             const head = item_templates[this.head];
-            Object.keys(character.stats).forEach((stat) => {
+            Object.keys(character.base_stats).forEach((stat) => {
                 if(stat === "attack_power" || stat === "defense") { //skip them just in case
                     return;
                 }

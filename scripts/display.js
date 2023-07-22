@@ -1241,19 +1241,19 @@ function update_displayed_combat_location(location) {
 }
 
 function update_displayed_health() { //call it when using healing items, resting or getting hit
-    current_health_value_div.innerText = (Math.round(character.full_stats.health*10)/10) + "/" + character.full_stats.max_health + " hp";
-    current_health_bar.style.width = (character.full_stats.health*100/character.full_stats.max_health).toString() +"%";
+    current_health_value_div.innerText = (Math.round(character.stats.full.health*10)/10) + "/" + character.stats.full.max_health + " hp";
+    current_health_bar.style.width = (character.stats.full.health*100/character.stats.full.max_health).toString() +"%";
 }
 function update_displayed_stamina() { //call it when eating, resting or fighting
-    current_stamina_value_div.innerText = Math.round(character.full_stats.stamina) + "/" + Math.round(character.full_stats.max_stamina) + " stamina";
-    current_stamina_bar.style.width = (character.full_stats.stamina*100/character.full_stats.max_stamina).toString() +"%";
+    current_stamina_value_div.innerText = Math.round(character.stats.full.stamina) + "/" + Math.round(character.stats.full.max_stamina) + " stamina";
+    current_stamina_bar.style.width = (character.stats.full.stamina*100/character.stats.full.max_stamina).toString() +"%";
 }
 
 function update_displayed_stats() { //updates displayed stats
 
     Object.keys(stats_divs).forEach(function(key){
         if(key === "crit_rate" || key === "crit_multiplier") {
-            stats_divs[key].innerHTML = `${(character.full_stats[key]*100).toFixed(1)}%`;
+            stats_divs[key].innerHTML = `${(character.stats.full[key]*100).toFixed(1)}%`;
         } 
         else if(key === "attack_speed") {
             stats_divs[key].innerHTML = `${(character.get_attack_speed()).toFixed(1)}`;
@@ -1262,7 +1262,7 @@ function update_displayed_stats() { //updates displayed stats
             stats_divs[key].innerHTML = `${(character.get_attack_power()).toFixed(1)}`;
         }
         else {
-            stats_divs[key].innerHTML = `${(character.full_stats[key]).toFixed(1)}`;
+            stats_divs[key].innerHTML = `${(character.stats.full[key]).toFixed(1)}`;
         }
     });
 }
@@ -1295,7 +1295,7 @@ function update_displayed_combat_stats() {
     attack_stats.children[1].innerHTML = `Atk spd: ${Math.round(character.get_attack_speed()*10)/10}`;
     attack_stats.children[2].innerHTML = `AP  ${Math.round(ap)}`;
     
-    document.getElementById("def_stat").innerHTML = `Def: ${Math.round(character.full_stats.defense)} `;
+    document.getElementById("def_stat").innerHTML = `Def: ${Math.round(character.stats.full.defense)} `;
 }
 
 function update_displayed_effects() {

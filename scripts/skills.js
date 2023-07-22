@@ -53,13 +53,7 @@ class Skill {
         this.get_effect_description = get_effect_description;
         this.skill_group = skill_group;
         this.rewards = this.skill_group? null : rewards; //leveling rewards (and levels on which they are given)
-
-        /*
-        if skill_group is defined, rewards will be based on it and setting them here will have no effect
-    
-        as most of skills will provide some bonus anyway, there's no need to give stat reward at every single level
-        and might instead give them, let's say, every 5 levels
-        */
+        //if skill_group is defined, rewards will be based on it and setting them here will have no effect
 
         this.xp_scaling = xp_scaling > 1 ? xp_scaling : 1.6;
         //how many times more xp needed for next level
@@ -109,7 +103,7 @@ class Skill {
                 //probably could be done much more efficiently, but it shouldn't be a problem anyway
                 var total_xp_to_previous_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** level_after_xp) / (1 - this.xp_scaling));
                 //xp needed for current lvl, same formula but for n-1
-                var gains;
+                let gains;
                 if (level_after_xp < this.max_level) { //wont reach max lvl
                     gains = this.get_bonus_stats(level_after_xp);
                     this.xp_to_next_lvl = this.total_xp_to_next_lvl - total_xp_to_previous_lvl;
@@ -130,16 +124,16 @@ class Skill {
 
                 var message = `${this.name()} has reached level ${this.current_level}`;
 
-                if (!Object.keys(gains.stats).length == 0) { 
+                if (!Object.keys(gains.flats).length == 0) { 
                     if (this.skill_group) { 
                         message += `<br><br> Thanks to [${this.skill_group}] reaching new milestone, ${character.name} gained: `;
                     } else {
                         message += `<br><br> Thanks to ${this.name()} reaching new milestone, ${character.name} gained: `;
                     }
 
-                    if (gains.stats) {
-                        Object.keys(gains.stats).forEach(function (stat) {
-                            message += `<br> +${gains.stats[stat]} ${stat_names[stat]}`;
+                    if (gains.flats) {
+                        Object.keys(gains.flats).forEach(function (stat) {
+                            message += `<br> +${gains.flats[stat]} ${stat_names[stat]}`;
                         });
                     }
                     if (gains.multipliers) {
@@ -156,23 +150,23 @@ class Skill {
     /**
      * @description only called on leveling
      * @param {*} level 
-     * @returns 
+     * @returns stats from milestones
      */
     get_bonus_stats(level) {
         //add stats to character
         //returns all the stats so they can be logged in message_log 
-        const gains = { stats: {}, multipliers: {} };
-        var stats;
-        var multipliers;
+        const gains = { flats: {}, multipliers: {} };
+        let flats;
+        let multipliers;
 
         if (this.skill_group) { //only skill_group rewards
             for (let i = skill_groups[this.skill_group].highest_level + 1; i <= level; i++) {
                 if (skill_groups[this.skill_group].rewards.milestones[i]) {
-                    stats = skill_groups[this.skill_group].rewards.milestones[i].stats;
+                    flats = skill_groups[this.skill_group].rewards.milestones[i].stats;
                     multipliers = skill_groups[this.skill_group].rewards.milestones[i].multipliers;
-                    if (stats) {
-                        Object.keys(stats).forEach(function (stat) {
-                            gains.stats[stat] = (gains.stats[stat] + stats[stat]) || stats[stat];
+                    if (flats) {
+                        Object.keys(flats).forEach(function (stat) {
+                            gains.flats[stat] = (gains.flats[stat] + flats[stat]) || flats[stat];
                         });
                     }
                     if (multipliers) {
@@ -186,11 +180,11 @@ class Skill {
         } else { //only normal 
             for (let i = this.current_level + 1; i <= level; i++) {
                 if (this.rewards?.milestones[i]) {
-                    stats = this.rewards.milestones[i].stats;
+                    flats = this.rewards.milestones[i].stats;
                     multipliers = this.rewards.milestones[i].multipliers;
-                    if (stats) {
-                        Object.keys(stats).forEach(function (stat) {
-                            gains.stats[stat] = (gains.stats[stat] + stats[stat]) || stats[stat];
+                    if (flats) {
+                        Object.keys(flats).forEach(function (stat) {
+                            gains.flats[stat] = (gains.flats[stat] + flats[stat]) || flats[stat];
                         });
                     }
                     if (multipliers) {
@@ -208,12 +202,12 @@ class Skill {
             });
         }
 
-        character.add_bonuses(gains);
+        character.stats.add_skill_milestone_bonus(gains);
 
         return gains;
     };
 
-    get_coefficient(scaling_type) {
+    get_coefficient(scaling_type) { //starts from 1
         //maybe lvl as param, with current lvl being used if it's undefined?
 
         switch (scaling_type) {
@@ -227,7 +221,7 @@ class Skill {
                 break;
         }
     };
-    get_level_bonus() {
+    get_level_bonus() { //starts from 0
         return this.max_level_bonus * this.current_level / this.max_level;
     };
 }

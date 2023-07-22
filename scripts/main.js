@@ -207,52 +207,53 @@ function end_activity() {
 
 //single tick of resting
 function do_resting() {
-    if(character.full_stats.health < character.full_stats.max_health)
+    if(character.stats.full.health < character.stats.full.max_health)
     {
-        const resting_heal_ammount = Math.max(character.full_stats.max_health * 0.01,1); 
+        const resting_heal_ammount = Math.max(character.stats.full.max_health * 0.01,1); 
         //todo: scale it with skill, because why not?; maybe up to x2 bonus
 
-        character.full_stats.health += (resting_heal_ammount);
-        if(character.full_stats.health > character.full_stats.max_health) {
-            character.full_stats.health = character.full_stats.max_health;
+        character.stats.full.health += (resting_heal_ammount);
+        if(character.stats.full.health > character.stats.full.max_health) {
+            character.stats.full.health = character.stats.full.max_health;
         } 
         update_displayed_health();
     }
 
-    if(character.full_stats.stamina < character.full_stats.max_stamina)
+    if(character.stats.full.stamina < character.stats.full.max_stamina)
     {
-        const resting_stamina_ammount = Math.round(Math.max(character.full_stats.max_stamina/120, 1)); 
+        const resting_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/120, 1)); 
         //todo: scale it with skill as well
 
-        character.full_stats.stamina += (resting_stamina_ammount);
-        if(character.full_stats.stamina > character.full_stats.max_stamina) {
-            character.full_stats.stamina = character.full_stats.max_stamina;
+        character.stats.full.stamina += (resting_stamina_ammount);
+        if(character.stats.full.stamina > character.stats.full.max_stamina) {
+            character.stats.full.stamina = character.stats.full.max_stamina;
         } 
+        
         update_displayed_stamina();
     }
 }
 
 function do_sleeping() {
-    if(character.full_stats.health < character.full_stats.max_health)
+    if(character.stats.full.health < character.stats.full.max_health)
     {
-        const sleeping_heal_ammount = Math.max(character.full_stats.max_health * 0.04, 1); 
+        const sleeping_heal_ammount = Math.max(character.stats.full.max_health * 0.04, 1); 
         //todo: scale it with skill (maybe up to x2.5 bonus)
         
-        character.full_stats.health += (sleeping_heal_ammount);
-        if(character.full_stats.health > character.full_stats.max_health) {
-            character.full_stats.health = character.full_stats.max_health;
+        character.stats.full.health += (sleeping_heal_ammount);
+        if(character.stats.full.health > character.stats.full.max_health) {
+            character.stats.full.health = character.stats.full.max_health;
         } 
         update_displayed_health();
     }
 
-    if(character.full_stats.stamina < character.full_stats.max_stamina)
+    if(character.stats.full.stamina < character.stats.full.max_stamina)
     {
-        const sleeping_stamina_ammount = Math.round(Math.max(character.full_stats.max_stamina/30, 1)); 
+        const sleeping_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/30, 1)); 
         //todo: scale it with skill as well
 
-        character.full_stats.stamina += (sleeping_stamina_ammount);
-        if(character.full_stats.stamina > character.full_stats.max_stamina) {
-            character.full_stats.stamina = character.full_stats.max_stamina;
+        character.stats.full.stamina += (sleeping_stamina_ammount);
+        if(character.stats.full.stamina > character.stats.full.max_stamina) {
+            character.stats.full.stamina = character.stats.full.max_stamina;
         } 
         update_displayed_stamina();
     }
@@ -416,7 +417,7 @@ function set_new_combat(enemies) {
     current_enemies = enemies || current_location.get_next_enemies();
     clear_all_enemy_attack_loops();
 
-    let character_attack_cooldown = 1/character.full_stats.attack_speed;
+    let character_attack_cooldown = 1/character.stats.full.attack_speed;
     let enemy_attack_cooldowns = [...current_enemies.map(x => 1/x.stats.attack_speed)];
 
     let fastest_cooldown = [character_attack_cooldown, ...enemy_attack_cooldowns].sort((a,b) => a - b)[0];
@@ -674,8 +675,8 @@ function do_character_combat_action(attack_power, attack_type = "normal") {
         }
         //small randomization by up to 20%, then bonus from skill
         
-        if(character.full_stats.crit_rate > Math.random()) {
-            damage_dealt = Math.round(10*damage_dealt * character.full_stats.crit_multiplier)/10;
+        if(character.stats.full.crit_rate > Math.random()) {
+            damage_dealt = Math.round(10*damage_dealt * character.stats.full.crit_multiplier)/10;
             critted = true;
         }
         else {
@@ -750,13 +751,13 @@ function kill_enemy(target) {
 }
 
 function use_stamina(num = 1) {
-    character.full_stats.stamina -= num;
+    character.stats.full.stamina -= num;
 
-    if(character.full_stats.stamina < 0)  {
-        character.full_stats.stamina = 0;
+    if(character.stats.full.stamina < 0)  {
+        character.stats.full.stamina = 0;
     };
 
-    if(character.full_stats.stamina < 1) {
+    if(character.stats.full.stamina < 1) {
         add_xp_to_skill(skills["Persistence"], num );
         update_displayed_stats();
     }
@@ -794,11 +795,11 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
         update_displayed_skill_bar(skill);
     
         if(typeof level_up !== "undefined"){ //not undefined => levelup happened and levelup message was returned
-        //character stats currently get added in character.add_bonuses() method, called in skill.get_bonus_stats() method, called in skill.add_xp() when levelup happens
+        //character stats currently get added in character.stats.add_skill_milestone_bonus() method, called in skill.get_bonus_stats() method, called in skill.add_xp() when levelup happens
             if(typeof should_info === "undefined" || should_info)
             {
                 log_message(level_up, "skill_raised");
-                update_character_stats();
+                character.update_stats();
             }
 
             if(typeof skill.get_effect_description !== "undefined")
@@ -822,8 +823,8 @@ function add_xp_to_character(xp_to_add, should_info = true) {
             log_message(level_up, "level_up");
         }
         
-        character.full_stats.health = character.full_stats.max_health; //free healing on level up, because it's a nice thing to have
-        update_character_stats();
+        character.stats.full.health = character.stats.full.max_health; //free healing on level up, because it's a nice thing to have
+        character.update_stats();
     }
 
     update_displayed_character_xp(level_up);
@@ -960,8 +961,8 @@ function create_save() {
                                 xp: {
                                 total_xp: character.xp.total_xp,
                                 },
-                                hp_to_full: character.full_stats.max_health - character.full_stats.health,
-                                stamina_to_full: character.full_stats.max_stamina - character.full_stats.stamina
+                                hp_to_full: character.stats.full.max_health - character.stats.full.health,
+                                stamina_to_full: character.stats.full.max_stamina - character.stats.full.stamina
                             };
         //no need to save all stats; on loading, base stats will be taken from code and then additional stuff will be calculated again (in case anything changed)
 
@@ -1339,18 +1340,18 @@ function load(save_data) {
         });
 
         
-        if(save_data.character.hp_to_full == null || save_data.character.hp_to_full >= character.full_stats.max_health) {
-            character.full_stats.health = 1;
+        if(save_data.character.hp_to_full == null || save_data.character.hp_to_full >= character.stats.full.max_health) {
+            character.stats.full.health = 1;
         } else {
-            character.full_stats.health = character.full_stats.max_health - save_data.character.hp_to_full;
+            character.stats.full.health = character.stats.full.max_health - save_data.character.hp_to_full;
         }
         //if missing hp is null (save got corrupted) or its more than max_health, set health to minimum allowed (which is 1)
         //otherwise just do simple substraction
         //then same with stamina below
-        if(save_data.character.stamina_to_full == null || save_data.character.stamina_to_full >= character.full_stats.max_stamina) {
-            character.full_stats.stamina = 0;
+        if(save_data.character.stamina_to_full == null || save_data.character.stamina_to_full >= character.stats.full.max_stamina) {
+            character.stats.full.stamina = 0;
         } else {
-            character.full_stats.stamina = character.full_stats.max_stamina - save_data.character.stamina_to_full;
+            character.stats.full.stamina = character.stats.full.max_stamina - save_data.character.stamina_to_full;
         }
 
         if(save_data["enemy_killcount"]) {
@@ -1360,7 +1361,7 @@ function load(save_data) {
             });
         }
         
-        update_character_stats();
+        character.update_stats();
 
         update_displayed_health();
         //load current health
@@ -1515,11 +1516,11 @@ function update() {
 
         //regenerate hp
         if(active_effects.health_regeneration) {
-            if(character.full_stats.health < character.full_stats.max_health) {
-                character.full_stats.health += active_effects.health_regeneration.flat;
+            if(character.stats.full.health < character.stats.full.max_health) {
+                character.stats.full.health += active_effects.health_regeneration.flat;
 
-                if(character.full_stats.health > character.full_stats.max_health) {
-                    character.full_stats.health = character.full_stats.max_health
+                if(character.stats.full.health > character.stats.full.max_health) {
+                    character.stats.full.health = character.stats.full.max_health
                 }
 
                 update_displayed_health();
@@ -1533,11 +1534,11 @@ function update() {
 
         //regenerate stamina
         if(active_effects.stamina_regeneration) {
-            if(character.full_stats.stamina < character.full_stats.max_stamina) {
-                character.full_stats.stamina += active_effects.stamina_regeneration.flat;
+            if(character.stats.full.stamina < character.stats.full.max_stamina) {
+                character.stats.full.stamina += active_effects.stamina_regeneration.flat;
 
-                if(character.full_stats.stamina > character.full_stats.max_stamina) {
-                    character.full_stats.stamina = character.full_stats.max_stamina
+                if(character.stats.full.stamina > character.stats.full.max_stamina) {
+                    character.stats.full.stamina = character.stats.full.max_stamina
                 }
 
                 update_displayed_stamina();
@@ -1664,7 +1665,7 @@ else {
     add_xp_to_character(0);
     character.money = 15;
     update_displayed_money();
-    update_character_stats();
+    character.update_stats();
 }
 
 //checks if there's an existing save file, otherwise just sets up some initial equipment
