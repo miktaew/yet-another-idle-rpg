@@ -236,15 +236,15 @@ character.update_stats = function () {
         character.stats.full[stat] = (character.base_stats[stat] + stat_sum) * stat_mult;
 
         if(stat === "health") {
-                character.stats.full["health"] = Math.round(10*Math.max(1, character.stats.full["max_health"] - missing_health))/10;
-                character.stats.full["max_health"] = Math.round(10*character.stats.full["max_health"])/10;
+                character.stats.full["health"] = Math.round(Math.max(1, character.stats.full["max_health"] - missing_health));
+                character.stats.full["max_health"] = Math.round(character.stats.full["max_health"]);
         }
         else if(stat === "stamina") {
-                character.stats.full["stamina"] = Math.round(10*Math.max(0, character.stats.full["max_stamina"] - missing_stamina))/10;
-                character.stats.full["max_stamina"] = Math.round(10*character.stats.full["max_stamina"])/10;
+                character.stats.full["stamina"] = Math.round(Math.max(0, character.stats.full["max_stamina"] - missing_stamina));
+                character.stats.full["max_stamina"] = Math.round(character.stats.full["max_stamina"]);
         } else if(stat === "mana") {
-                character.stats.full["mana"] = Math.round(10*Math.max(0, character.stats.full["max_mana"] - missing_mana))/10;
-                character.stats.full["max_mana"] = Math.round(10*character.stats.full["max_mana"])/10;
+                character.stats.full["mana"] = Math.round(Math.max(0, character.stats.full["max_mana"] - missing_mana));
+                character.stats.full["max_mana"] = Math.round(character.stats.full["max_mana"]);
         }
         else if(stat === "crit_rate") {
                 character.stats.full[stat] = Math.round(1000*character.stats.full[stat])/1000;

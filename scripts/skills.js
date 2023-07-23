@@ -359,60 +359,58 @@ skill_groups["weapon skills"] = new SkillGroup({
             },
             5: {
                 stats: {
-                    "strength": 2,
-                    "dexterity": 2,
+                    "crit_rate": 0.05,
+                    "dexterity": 1,
                 },
                 multipliers: {
-                    "strength": 1.1,
-                    "dexterity": 1.1,
+                    "dexterity": 1.05,
                 }
             },
             7: {
                 stats: {
-                    "strength": 2,
-                    "dexterity": 2,
+                    "strength": 1,
+                    "dexterity": 1,
                 }
             },
             10: {
                 stats: {
-                    "strength": 3,
-                    "dexterity": 3,
+                    "strength": 1,
+                    "crit_multiplier": 0.1 
                 },
                 multipliers: {
-                    "strength": 1.1,
-                    "dexterity": 1.1,
+                    "strength": 1.05,
                 }
             },
             12: {
                 stats: {
-                    "strength": 4,
-                    "dexterity": 4,
+                    "strength": 2,
+                    "dexterity": 2,
                 }
             },
             15: {
                 stats: {
-                    "strength": 5,
-                    "dexterity": 5,
+                    "strength": 2,
+                    "dexterity": 2,
                 },
                 multipliers: {
-                    "strength": 1.1,
-                    "dexterity": 1.1,
+                    "strength": 1.05,
+                    "dexterity": 1.05,
                 }
             },
             17: {
                 stats: {
-                    "strength": 6,
-                    "dexterity": 6,
+                    "strength": 2,
+                    "dexterity": 2,
                 }
             },
             20: {
                 stats: {
-                    "strength": 8,
-                    "dexterity": 8,
+                    "strength": 2,
+                    "dexterity": 2,
                 },
                 multipliers: {
-                    "strength": 1.1,
-                    "dexterity": 1.1,
+                    "strength": 1.05,
+                    "dexterity": 1.05,
                 }
             }
         }
@@ -699,27 +697,27 @@ skill_groups["weapon skills"] = new SkillGroup({
                                         },
                                         6: {
                                             stats: {
-                                                "strength": 2,
+                                                "strength": 1,
                                                 "dexterity": 1,
                                                 max_stamina: 3,
                                             }
                                         },
                                         8: {
                                             stats: {
-                                                "strength": 3,
+                                                "strength": 2,
                                                 "dexterity": 1,
                                                 max_stamina: 3,
                                             }
                                         },
                                         10: {
                                             stats: {
-                                                "strength": 5,
-                                                "dexterity": 2,
+                                                "strength": 2,
+                                                "dexterity": 1,
                                                 max_stamina: 5,
                                             },
                                             multipliers: {
-                                                "strength": 1.2,
-                                                "dexterity": 1.1,
+                                                "strength": 1.1,
+                                                "dexterity": 1.05,
                                             }
                                         }
                                     }
@@ -804,7 +802,7 @@ skill_groups["weapon skills"] = new SkillGroup({
                                                 agility: 1,
                                             },
                                             multipliers: {
-                                                agility: 1.1,
+                                                agility: 1.05,
                                                 max_stamina: 1.05,
                                             }
                                         },
@@ -818,7 +816,7 @@ skill_groups["weapon skills"] = new SkillGroup({
                                                 agility: 2,
                                             },
                                             multipliers: {
-                                                agility: 1.1,
+                                                agility: 1.05,
                                                 max_stamina: 1.05,
                                             }
                                         }
@@ -860,21 +858,21 @@ skill_groups["weapon skills"] = new SkillGroup({
                   strength: 1,
               },
               multipliers: {
-                  strength: 1.1,
+                  strength: 1.05,
                   max_stamina: 1.05,
               }
           },
           7: {
               stats: {
-                  strength: 2,
+                  strength: 1,
               },
           },
           10: {
               stats: {
-                  strength: 2,
+                  strength: 1,
               },
               multipliers: {
-                  strength: 1.1,
+                  strength: 1.05,
                   max_stamina: 1.05,
               }
           }
@@ -968,17 +966,17 @@ skill_groups["crafting skills"] = new SkillGroup({
                 },
                 5: {
                     multipliers: {
-                        max_health: 1.03,
+                        max_health: 1.02,
                     }
                 },
                 7: {
                     multipliers: {
-                        max_health: 1.01,
+                        max_health: 1.03,
                     }
                 },
                 10: {
                     multipliers: {
-                        max_health: 1.05,
+                        max_health: 1.04,
                     }
                 }
             }
