@@ -209,7 +209,7 @@ function end_activity() {
 function do_resting() {
     if(character.stats.full.health < character.stats.full.max_health)
     {
-        const resting_heal_ammount = Math.max(character.stats.full.max_health * 0.01,1); 
+        const resting_heal_ammount = Math.max(character.stats.full.max_health * 0.01,2); 
         //todo: scale it with skill, because why not?; maybe up to x2 bonus
 
         character.stats.full.health += (resting_heal_ammount);
@@ -221,7 +221,7 @@ function do_resting() {
 
     if(character.stats.full.stamina < character.stats.full.max_stamina)
     {
-        const resting_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/120, 1)); 
+        const resting_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/120, 2)); 
         //todo: scale it with skill as well
 
         character.stats.full.stamina += (resting_stamina_ammount);
@@ -236,7 +236,7 @@ function do_resting() {
 function do_sleeping() {
     if(character.stats.full.health < character.stats.full.max_health)
     {
-        const sleeping_heal_ammount = Math.max(character.stats.full.max_health * 0.04, 1); 
+        const sleeping_heal_ammount = Math.max(character.stats.full.max_health * 0.04, 5); 
         //todo: scale it with skill (maybe up to x2.5 bonus)
         
         character.stats.full.health += (sleeping_heal_ammount);
@@ -248,7 +248,7 @@ function do_sleeping() {
 
     if(character.stats.full.stamina < character.stats.full.max_stamina)
     {
-        const sleeping_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/30, 1)); 
+        const sleeping_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/30, 5)); 
         //todo: scale it with skill as well
 
         character.stats.full.stamina += (sleeping_stamina_ammount);
@@ -771,14 +771,26 @@ function use_stamina(num = 1) {
  * @param {Number} xp_to_add 
  * @param {Boolean} should_info 
  */
-function add_xp_to_skill(skill, xp_to_add, should_info) 
+function add_xp_to_skill(skill, xp_to_add, should_info, use_bonus = false, add_to_parent = true) 
 {
+    xp_to_add *= (use_bonus?(global_xp_bonus || 1) : 1);
+
+    if(skill.parent_skill) {
+        if(use_bonus) {
+            xp_to_add *= (1.1**Math.max(0,skills[skill.parent_skill]-skill.curent_level));
+        }
+        if(add_to_parent) {
+            add_xp_to_skill(skills[skill.parent_skill], xp_to_add, should_info);
+        }
+    }
+
     if(xp_to_add == 0) {
         return;
     }
     
     const was_hidden = skill.visibility_treshold > skill.total_xp;
-    const level_up = skill.add_xp(xp_to_add * (global_xp_bonus || 1));
+    const level_up = skill.add_xp(xp_to_add);
+
     const is_visible = skill.visibility_treshold <= skill.total_xp;
 
     if(was_hidden && is_visible) 
@@ -968,7 +980,11 @@ function create_save() {
 
         save_data["skills"] = {};
         Object.keys(skills).forEach(function(key) {
-            save_data["skills"][skills[key].skill_id] = {total_xp: skills[key].total_xp}; //a bit redundant, but keep it in case key in skills is different than skill_id
+            if(!skills[key].is_parent)
+            {
+                save_data["skills"][skills[key].skill_id] = {total_xp: skills[key].total_xp}; 
+                //a bit redundant, but keep it in case key in skills is different than skill_id
+            }
         }); //only save total xp of each skill, again in case of any changes
         
         save_data["current location"] = current_location.name;
@@ -1187,30 +1203,15 @@ function load(save_data) {
         add_xp_to_character(save_data.character.xp.total_xp/(global_xp_bonus || 1), false);
 
         Object.keys(save_data.skills).forEach(function(key){ 
-            if(skills[key]){
+            if(skills[key] && !skills[key].is_parent){
                 if(save_data.skills[key].total_xp > 0) {
-                    add_xp_to_skill(skills[key], save_data.skills[key].total_xp/(global_xp_bonus || 1), false);
+                    add_xp_to_skill(skills[key], save_data.skills[key].total_xp/(global_xp_bonus || 1), false, false);
                 }
             } else {
                 console.warn(`Skill "${key}" couldn't be found!`);
                 return;
             }
         }); //add xp to skills
-
-        /*
-        necessary for skills with skill groups to have their tooltips properly display next milestone,
-        as otherwise it would only go up to the value of the highest loaded skill, so if next skill has higher level, 
-        their tooltips will be different
-        */
-        Object.keys(save_data.skills).forEach(function(key){ 
-            if(skills[key]){
-                if(skills[key].skill_group && save_data.skills[key].total_xp >= skills[key].visibility_treshold) {
-                    //console.log(key);
-                    update_displayed_skill_bar(skills[key]);
-                }
-            }
-        });
-
 
         Object.keys(save_data.dialogues).forEach(function(dialogue) {
             if(dialogues[dialogue]) {

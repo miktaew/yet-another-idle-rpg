@@ -12,7 +12,8 @@
             100-129%    uncommon       green      x1.1
             130-159%    rare           blue       x1.3
             160-199%    epic           purple     x1.6
-            200-250%    legendary      orange     x2
+            200-246%    legendary      orange     x2
+            247-250%    mythical       ????       x2.5
 
             then also special items of rarity "unique", that will really be unique
             so quality nor additional multiplier don't really matter on them
@@ -52,7 +53,8 @@ const rarity_multipliers = {
     uncommon: 1.1,
     rare: 1.3,
     epic: 1.6,
-    legendary: 2
+    legendary: 2,
+    mythical: 2.5
 };
 
 const item_templates = {};
@@ -189,7 +191,8 @@ class Equippable extends Item {
             else if(this.quality < 1.3) this.rarity = "uncommon";
             else if(this.quality < 1.6) this.rarity = "rare";
             else if(this.quality < 2.0) this.rarity = "epic";
-            else this.rarity = "legendary";
+            else if(this.quality < 2.46) this.rarity = "legendary";
+            else this.rarity = "mythical";
         }
         return this.rarity;
     }

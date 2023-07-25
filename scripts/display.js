@@ -92,8 +92,9 @@ const rarity_colors = {
     common: "white",
     uncommon: "lightgreen",
     rare: "blue",
-    epic: "purple",
-    legendary: "orange",
+    epic: "pink",
+    legendary: "purple",
+    mythical: "orange"
 }
 
 function capitalize_first_letter(some_string) {
@@ -1547,8 +1548,8 @@ function create_new_skill_bar(skill) {
 
     
 
-    if(skill.skill_group) {
-        tooltip_desc.innerHTML = `${skill.description}<br><br>Group: ${skill.skill_group}<br><br>`; 
+    if(skill.parent_skill) {
+        tooltip_desc.innerHTML = `${skill.description}<br><br>Parent skill: ${skill.parent_skill}<br><br>`; 
     } else {
         tooltip_desc.innerHTML = `${skill.description}<br><br>`; 
     }

@@ -459,13 +459,13 @@ body {
 .skill_bar_max {
 	border: 2px solid rgb(3, 255, 36);
 	margin: auto;
-	margin-top: 10px;
+	margin-top: 5px;
 	width: 90%;
 }
 
 .skill_bar_current {
 	background-color: rgb(3, 255, 36);
-	height: 15px;
+	height: 8px;
 }
 
 .skill_bar_text {
