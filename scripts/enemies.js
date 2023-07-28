@@ -72,7 +72,7 @@ class Enemy {
         description: "Rat with size of a dog, starved and weakened", 
         xp_value: 1, 
         rank: 1,
-        stats: {health: 20, attack: 4, agility: 6, dexterity: 4, magic: 0, intuition: 4, attack_speed: 0.8, defense: 2}, 
+        stats: {health: 20, attack: 4, agility: 6, dexterity: 4, magic: 0, intuition: 4, attack_speed: 0.8, defense: 1}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.02},
             {item_name: "Rat fang", chance: 0.02},

@@ -6,19 +6,21 @@ import { character } from "./character.js";
 
 /*    
 TODO:
-    - nightvision skill (lessening penalty in dark areas / at night)
     - elemental resistances for:
-        - lessening environmental penalties (mostly affecting stamina maybe?)
+        - lessening environmental penalties of other types (mostly affecting stamina maybe?)
         - lessening elemental dmg (first need to implement damage types)
-    - skill for fighting in open areas 
-    (maybe give bonus block/evasion chance on basis of character becoming more aware of their surroundings)
-    - skill for fighting in tight areas (lessening penalty for such areas + some agility and dexterity bonuses)
-
-    - hidden_until -> xp needed for skill to officialy be unlocked (still gains xp when hidden)
     - locked -> skill needs another action to unlock (doesnt gain xp)
-
-
 */
+
+const weapon_type_to_skill = {
+    "axe": "Axes",
+    "dagger": "Daggers",
+    "hammer": "Hammers",
+    "sword": "Swords",
+    "spear": "Spears",
+    "staff": "Staffs",
+    "wand": "Wands"
+};
 
 class Skill {
     constructor({ skill_id, 
@@ -35,6 +37,11 @@ class Skill {
                   xp_scaling = 1.7,
                 }) 
     {
+        if(skill_id === "all" || skill_id === "hero" || skill_id === "all_skill") {
+            //would cause problem with how xp_bonuses are implemented
+            throw new Error(`Id "${skill_id}" is not allowed for skills`);
+        }
+
         this.skill_id = skill_id;
         this.names = names; // put only {0: name} to have skill always named the same, no matter the level
         this.description = description;
@@ -86,11 +93,11 @@ class Skill {
         }
     };
 
-    add_xp(xp_to_add) {
+    add_xp({xp_to_add = 0}) {
         if(xp_to_add == 0) {
             return;
         }
-
+        
         this.total_xp += xp_to_add;
 
         if (this.current_level < this.max_level) { //not max lvl
@@ -128,17 +135,22 @@ class Skill {
 
                 var message = `${this.name()} has reached level ${this.current_level}`;
 
-                if (!Object.keys(gains.flats).length == 0) { 
+                if (Object.keys(gains.flats).length > 0 || Object.keys(gains.multipliers).length > 0 || Object.keys(gains.xp_multipliers).length > 0) { 
                     message += `<br><br> Thanks to ${this.name()} reaching new milestone, ${character.name} gained: `;
 
                     if (gains.flats) {
-                        Object.keys(gains.flats).forEach(function (stat) {
+                        Object.keys(gains.flats).forEach(stat => {
                             message += `<br> +${gains.flats[stat]} ${stat_names[stat]}`;
                         });
                     }
                     if (gains.multipliers) {
-                        Object.keys(gains.multipliers).forEach(function (multiplier) {
+                        Object.keys(gains.multipliers).forEach(multiplier => {
                             message += `<br> x${gains.multipliers[multiplier]} ${stat_names[multiplier]}`;
+                        });
+                    }
+                    if (gains.xp_multipliers) {
+                        Object.keys(gains.xp_multipliers).forEach(xp_multiplier => {
+                            message += `<br> x${gains.xp_multipliers[xp_multiplier]} ${xp_multiplier} xp gain`;
                         });
                     }
                 }
@@ -153,24 +165,32 @@ class Skill {
      * @returns stats from milestones
      */
     get_bonus_stats(level) {
+        //TODO: rename, it's not just stats anymore
         //add stats to character
         //returns all the stats so they can be logged in message_log 
-        const gains = { flats: {}, multipliers: {} };
+        const gains = { flats: {}, multipliers: {} , xp_multipliers: {}};
         let flats;
         let multipliers;
+        let xp_multipliers;
 
         for (let i = this.current_level + 1; i <= level; i++) {
             if (this.rewards?.milestones[i]) {
                 flats = this.rewards.milestones[i].stats;
                 multipliers = this.rewards.milestones[i].multipliers;
+                xp_multipliers = this.rewards.milestones[i].xp_multipliers;
                 if (flats) {
-                    Object.keys(flats).forEach(function (stat) {
-                        gains.flats[stat] = (gains.flats[stat] + flats[stat]) || flats[stat];
+                    Object.keys(flats).forEach(stat => {
+                        gains.flats[stat] = (gains.flats[stat] || 0) + flats[stat];
                     });
                 }
                 if (multipliers) {
-                    Object.keys(multipliers).forEach(function (multiplier) {
-                        gains.multipliers[multiplier] = (gains.multipliers[multiplier] * multipliers[multiplier]) || multipliers[multiplier];
+                    Object.keys(multipliers).forEach(multiplier => {
+                        gains.multipliers[multiplier] = (gains.multipliers[multiplier] || 1) * multipliers[multiplier];
+                    });
+                }
+                if(xp_multipliers) {
+                    Object.keys(xp_multipliers).forEach(multiplier => {
+                        gains.xp_multipliers[multiplier] = (gains.multipliers[multiplier] || 1) * xp_multipliers[multiplier];
                     });
                 }
             }
@@ -183,7 +203,6 @@ class Skill {
         }
 
         character.stats.add_skill_milestone_bonus(gains);
-
         return gains;
     };
 
@@ -298,6 +317,17 @@ function format_skill_rewards(milestone){
             formatted += `, x${milestone.multipliers[multipliers[i]]} ${stat_names[multipliers[i]]}`;
         }
     }
+    if(milestone.xp_multipliers) {
+        const xp_multipliers = Object.keys(milestone.xp_multipliers);
+        if(formatted) {
+            formatted += `, x${milestone.xp_multipliers[xp_multipliers[0]]} ${xp_multipliers[0]} xp gain`;
+        } else {
+            formatted = `x${milestone.xp_multipliers[xp_multipliers[0]]} ${xp_multipliers[0]} xp gain`;
+        }
+        for(let i = 1; i < xp_multipliers.length; i++) {
+            formatted += `, x${milestone.xp_multipliers[xp_multipliers[i]]} ${xp_multipliers[i]} xp gain`;
+        }
+    }
     return formatted;
 }
 
@@ -317,7 +347,35 @@ function format_skill_rewards(milestone){
                                 max_level_coefficient: 2,
                                 get_effect_description: ()=> {
                                     return `Multiplies hit chance against small-type enemies by ${Math.round(skills["Pest killer"].get_coefficient("multiplicative")*1000)/1000}`;
-                                }});    
+                                },
+                                rewards:
+                                {
+                                    milestones: {
+                                        1: {
+                                            xp_multipliers: {
+                                                Combat: 1.05,
+                                            }
+                                        },
+                                        3: {
+                                            stats: {
+                                                dexterity: 1,
+                                            },
+                                            xp_multipliers: {
+                                                Combat: 1.1,
+                                            }
+                                        },
+                                        5: {
+                                            multipliers: {
+                                                dexterity: 1.05,
+                                            },
+                                            xp_multipliers: {
+                                                Evasion: 1.1,
+                                                "Shield blocking": 1.1,
+                                            }
+                                        }
+                                    }
+                                }
+                            });    
                                 
     skills["Giant slayer"] = new Skill({skill_id: "Giant slayer", 
                                 names: {0: "Giant slayer"}, 
@@ -392,6 +450,9 @@ function format_skill_rewards(milestone){
                                             2: {
                                                 stats: {
                                                     "strength": 1,
+                                                },
+                                                xp_multipliers: {
+                                                    Weightlifting: 1.1,
                                                 }
                                             },
                                             4: {
@@ -405,6 +466,9 @@ function format_skill_rewards(milestone){
                                                     "strength": 1,
                                                     "dexterity": 1,
                                                     "agility": 1,
+                                                },
+                                                xp_multipliers: {
+                                                    Weightlifting: 1.1,
                                                 }
                                             },
                                             8: {
@@ -419,6 +483,9 @@ function format_skill_rewards(milestone){
                                                     "strength": 2,
                                                     "dexterity": 1,
                                                     "agility": 1,
+                                                },
+                                                xp_multipliers: {
+                                                    Running: 1.2,
                                                 }
                                             }
                                         }
@@ -433,14 +500,47 @@ function format_skill_rewards(milestone){
                                             description: "Understanding where you are in relation to other creatures and objects", 
                                             get_effect_description: ()=> {
                                                 return `Reduces environmental penalty in open areas by ${Math.round(10*skills["Spatial awareness"].current_level*100/skills["Spatial awareness"].max_level)/10}%`;
-                                            }});
+                                            },
+                                            rewards: {
+                                                milestones: {
+                                                    3: {
+                                                        xp_multipliers:{ 
+                                                            Evasion: 1.2,
+                                                            Blocking: 1.2,
+                                                        },
+                                                    },
+                                                    5: {
+                                                        xp_multipliers: {
+                                                            Combat: 1.2,
+                                                        }
+                                                    },
+                                                    8: {
+                                                        xp_multipliers: {
+                                                            all_skill: 1.3,
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        });
     skills["Tight maneuvers"] = new Skill({
                                         skill_id: "Tight maneuvers", 
                                         names: {0: "Tight maneuvers"}, 
                                         description: "Learn how to fight in narrow environment, where there's not much space for dodging attacks", 
                                         get_effect_description: ()=> {
                                             return `Reduces environmental penalty in narrow areas by ${Math.round(10*skills["Tight maneuvers"].current_level*100/skills["Tight maneuvers"].max_level)/10}%`;
-                                        }});
+                                        },
+                                        rewards: {
+                                            milestones: {
+                                                3: {
+                                                    Evasion: 1.2,
+                                                    Blocking: 1.2,
+                                                },
+                                                5: {
+                                                    Combat: 1.2,
+                                                },
+                                            }
+                                        }
+                                    });
     skills["Night vision"] = new Skill({
                                     skill_id: "Night vision",
                                     names: {0: "Night vision"},
@@ -452,7 +552,7 @@ function format_skill_rewards(milestone){
                                         return `Reduces darkness penalty by ${Math.round(10*skills["Night vision"].current_level*100/skills["Night vision"].max_level)/10}%`;
                                     }
 
-    });
+                            });
     skills["Heat resistance"] = new Skill({
         skill_id: "Heat resistance",
         names: {0: "Heat resistance"},
@@ -497,7 +597,7 @@ function format_skill_rewards(milestone){
                                     get_effect_description: ()=> {
                                         return `Increases xp gains of all weapon skills of level lower than this, x1.1 per level of difference`;
                                     },
-                                    });
+                                });
     skills["Swords"] = new Skill({skill_id: "Swords", 
                                   parent_skill: "Weapon mastery",
                                   names: {0: "Swordsmanship"}, 
@@ -536,7 +636,8 @@ function format_skill_rewards(milestone){
                                         }
                                     }
                                  },
-                                 max_level_coefficient: 8});
+                                 max_level_coefficient: 8
+                            });
 
     skills["Axes"] = new Skill({skill_id: "Axes", 
                                 parent_skill: "Weapon mastery",
@@ -745,6 +846,9 @@ function format_skill_rewards(milestone){
                                                 "strength": 1,
                                                 "dexterity": 1,
                                                 max_stamina: 3,
+                                            },
+                                            xp_multipliers: {
+                                                Weightlifting: 1.1,
                                             }
                                         },
                                         8: {
@@ -787,6 +891,9 @@ function format_skill_rewards(milestone){
                                                 },
                                                 multipliers: {
                                                     "max_health": 1.05,
+                                                },
+                                                xp_multipliers: {
+                                                    all: 1.2,
                                                 }
                                             },
                                             4: {
@@ -795,6 +902,9 @@ function format_skill_rewards(milestone){
                                                 },
                                                 multipliers: {
                                                     "max_health": 1.05,
+                                                },
+                                                xp_multipliers: {
+                                                    all: 1.2,
                                                 }
                                             },
                                             6: {
@@ -803,6 +913,9 @@ function format_skill_rewards(milestone){
                                                 },
                                                 multipliers: {
                                                     "max_health": 1.05,
+                                                },
+                                                xp_multipliers: {
+                                                    all: 1.2,
                                                 }
                                             },
                                             8: {
@@ -811,6 +924,9 @@ function format_skill_rewards(milestone){
                                                 },
                                                 multipliers: {
                                                     "max_health": 1.05,
+                                                },
+                                                xp_multipliers: {
+                                                    all: 1.2,
                                                 }
                                             },
                                             10: {
@@ -819,6 +935,9 @@ function format_skill_rewards(milestone){
                                                 },
                                                 multipliers: {
                                                     "max_health": 1.05,
+                                                },
+                                                xp_multipliers: {
+                                                    all: 1.2,
                                                 }
                                             }
                                         }
@@ -1018,6 +1137,34 @@ function format_skill_rewards(milestone){
         get_effect_description: ()=> {
             return `Reduces low stamina penalty by ${Math.round(skills["Persistence"].get_level_bonus()*100000)/1000} percentage points`;
         },
+        rewards: {
+            milestones: {
+                2: {
+                    stats: {
+                        max_stamina: 5,
+                    },
+                    xp_multipliers: {
+                        all_skill: 1.2,
+                    }
+                },
+                5: {
+                    stats: {
+                        max_stamina: 10,
+                    },
+                    xp_multipliers: {
+                        hero: 1.2,
+                    }
+                },
+                8: {
+                    stats: {
+                        max_stamina: 20,
+                    },
+                    xp_multipliers: {
+                        all: 1.3,
+                    }
+                },
+            }
+        },
         max_level_bonus: 0.3
     });
     skills["Perception"] = new Skill({
@@ -1027,7 +1174,13 @@ function format_skill_rewards(milestone){
         max_level_coefficient: 2,
         get_effect_description: ()=> {
             return `Increase crit rate and chance to find items when foraging`;
-        }}); 
+        },
+        rewards: {
+            milestones: {
+                //todo when skill is in use somewhere
+            }
+        }
+    }); 
 })();
 
 //miscellaneous skills
@@ -1046,4 +1199,4 @@ function format_skill_rewards(milestone){
     
 })();
 
-export {skills, get_unlocked_skill_rewards, get_next_skill_milestone};
+export {skills, get_unlocked_skill_rewards, get_next_skill_milestone, weapon_type_to_skill};

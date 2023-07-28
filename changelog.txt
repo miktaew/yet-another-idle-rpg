@@ -1,7 +1,10 @@
-v0.3.1 ?
+v0.3.3
     - rebalanced stat gains from skill milestones
     - added another combat location between infested field and cave depths, to smooth the progression
     - skill groups replaced with parent skills; now they only provide xp bonus and their child skills have their own milestones
+    - refactored calculations of stats from skills/milestones/equipment/level to a more manageable form
+    - refactored equipment stat calculations
+    - implemented xp bonuses (for now only from skill milestones)
 v0.3c
     - fixed a minor error when loading save with any skill having less xp than needed to be visible
     - changed the way savefiles are loaded to avoid a bunch of issues

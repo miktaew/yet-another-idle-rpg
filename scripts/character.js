@@ -55,6 +55,19 @@ character.stats.multiplier = {
         equipment: {}
 };
 
+character.xp_bonuses = {};
+character.xp_bonuses.total_multiplier = {
+        hero: 1,
+        all: 1,
+        all_skill: 1,
+};
+
+character.xp_bonuses.multiplier = {
+        skills: {},
+        skill_milestones: {},
+        equipment: {}
+};
+
 character.equipment = {
         head: null, torso: null, 
         arms: null, ring: null, 
@@ -67,11 +80,14 @@ character.money = 0;
 const base_xp_cost = 10;
 character.xp = {
         current_level: 0, total_xp: 0, current_xp: 0, xp_to_next_lvl: base_xp_cost, 
-        total_xp_to_next_lvl: base_xp_cost, base_xp_cost: base_xp_cost, xp_scaling: 1.9
+        total_xp_to_next_lvl: base_xp_cost, base_xp_cost: base_xp_cost, xp_scaling: 1.8
 };
 character.starting_xp = character.xp;
 
-character.add_xp = function (xp_to_add) {
+character.add_xp = function ({xp_to_add, use_bonus = true}) {
+        if(use_bonus) {
+                xp_to_add *= (character.xp_bonuses.total_multiplier.hero || 1) * (character.xp_bonuses.total_multiplier.all || 1);
+        }
         character.xp.total_xp += xp_to_add;
 
         if(xp_to_add + character.xp.current_xp < character.xp.xp_to_next_lvl) { // no levelup
@@ -152,13 +168,29 @@ character.get_level_bonus = function (level) {
  * called when a new milestone is reached
  * @param {{flats, multipliers}} bonuses 
  */
-character.stats.add_skill_milestone_bonus = function ({flats = {}, multipliers = {}}) {
+character.stats.add_skill_milestone_bonus = function ({flats = {}, multipliers = {}, xp_multipliers = {}}) {
         Object.keys(character.base_stats).forEach(stat => {
                 if(flats[stat]) {
                         character.stats.flat.skill_milestones[stat] = (character.stats.flat.skill_milestones[stat] || 0) + flats[stat];
                 }
                 if(multipliers[stat]) {
                         character.stats.multiplier.skill_milestones[stat] = (character.stats.multiplier.skill_milestones[stat] || 1) * multipliers[stat];
+                }
+        });
+
+        if(xp_multipliers?.hero) {
+                character.xp_bonuses.multiplier.skills.hero = (character.xp_bonuses.multiplier.skills.hero || 1) * xp_multipliers.hero;
+        }
+        if(xp_multipliers?.all) {
+                character.xp_bonuses.multiplier.skills.all = (character.xp_bonuses.multiplier.skills.all || 1) * xp_multipliers.all;
+        }
+        if(xp_multipliers?.all_skill) {
+                character.xp_bonuses.multiplier.skills.all_skill = (character.xp_bonuses.multiplier.skills.all_skill || 1) * xp_multipliers.all_skill;
+        }
+
+        Object.keys(skills).forEach(skill => {
+                if(xp_multipliers[skill]) {
+                        character.xp_bonuses.multiplier.skills[skill] = (character.xp_bonuses.multiplier.skills[skill] || 1) * xp_multipliers[skill];
                 }
         });
 }
@@ -168,35 +200,34 @@ character.stats.add_skill_milestone_bonus = function ({flats = {}, multipliers =
  * called on equipment changes
  */
 character.stats.add_all_equipment_bonus = function() {
-
-        //TODO: optimize to not run .getStats() for every stat for every item
-
-        Object.keys(character.base_stats).forEach(stat => {
-                character.stats.flat.equipment[stat] = 0;
-                character.stats.multiplier.equipment[stat] = 1;
-
-                Object.keys(character.equipment).forEach(slot => {
-                        if(!character.equipment[slot]) {
-                                return;
-                        }
-                        if(stat === "defense") {
-                                if(character.equipment[slot].getDefense) {
-                                        character.stats.flat.equipment.defense += character.equipment[slot].getDefense();
-                                }
-                        }
-                        else if(stat === "attack_power") {
-                                if(character.equipment[slot].getAttack) {
-                                        character.stats.multiplier.equipment.attack_power *= character.equipment[slot].getAttack();
-                                }
-                        }
         
-                        let stats = character.equipment[slot].getStats();
-                        
-                        if(stats[stat]?.flat) {
-                                character.stats.flat.equipment[stat] += character.equipment[slot].getStats()[stat].flat;
+        //reset as they will be recalculated
+        character.stats.flat.equipment = {};
+        character.stats.multiplier.equipment = {};
+
+        //iterate over slots
+        Object.keys(character.equipment).forEach(slot => {
+                if(!character.equipment[slot]) {
+                        return;
+                }
+
+                if(character.equipment[slot].getDefense) {
+                        character.stats.flat.equipment.defense = (character.stats.flat.equipment.defense || 0) + character.equipment[slot].getDefense();
+                }
+                if(character.equipment[slot].getAttack) {
+                        character.stats.multiplier.equipment.attack_power = (character.stats.multiplier.equipment.attack_power || 1) * character.equipment[slot].getAttack();
+                }
+
+                let stats = character.equipment[slot].getStats()
+
+                //iterate over stats in slotted item
+                Object.keys(stats).forEach(stat => {
+                        if(stats[stat].flat) {
+                                character.stats.flat.equipment[stat] = (character.stats.flat.equipment[stat] || 0) + stats[stat].flat;
                         }
-                        if(stats[stat]?.multiplier) {
-                                character.stats.multiplier.equipment[stat] *= character.equipment[slot].getStats()[stat].multiplier;
+
+                        if(stats[stat].multiplier) {
+                                character.stats.multiplier.equipment[stat] = (character.stats.multiplier.equipment[stat] || 1) * stats[stat].multiplier;
                         }
                 });
         });
@@ -262,7 +293,13 @@ character.update_stats = function () {
     else {
         character.stats.full.attack_power = character.stats.full.strength/10;
     }
+
+    Object.keys(character.xp_bonuses.total_multiplier).forEach(bonus_target => {
+        character.xp_bonuses.total_multiplier[bonus_target] = (character.xp_bonuses.multiplier.skills[bonus_target] || 1); 
+        //only this one source as of now
+    });
     
+    //some_method_to_update_displayed_xp_bonuses
     update_displayed_stats();
     update_displayed_health();
     update_displayed_stamina();
