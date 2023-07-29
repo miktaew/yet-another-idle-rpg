@@ -3,7 +3,7 @@
 import { current_game_time } from "./game_time.js";
 import { item_templates, getItem} from "./items.js";
 import { locations } from "./locations.js";
-import { get_next_skill_milestone, get_unlocked_skill_rewards, skills } from "./skills.js";
+import { get_next_skill_milestone, get_unlocked_skill_rewards, skills, weapon_type_to_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
 import { Enemy, enemy_killcount } from "./enemies.js";
 import { traders } from "./traders.js";
@@ -36,7 +36,7 @@ import { end_activity_animation,
         } from "./display.js";
 
 const save_key = "save data";
-const game_version = "v0.3c";
+const game_version = "v0.3.3";
 
 //current enemy
 var current_enemies = null;
@@ -88,8 +88,11 @@ name_field.addEventListener("change", () => character.name = name_field.value.to
 const time_field = document.getElementById("time_div");
 time_field.innerHTML = current_game_time.toString();
 
-//just a small multiplier for xp, mostly for testing I guess
-const global_xp_bonus = 1;
+(function setup(){
+    Object.keys(skills).forEach(skill => {
+        character.xp_bonuses.total_multiplier[skill] = 1;
+    });
+})();
 
 function get_hit_chance(attack_points, evasion_points) {
     let result = attack_points/(attack_points+evasion_points);
@@ -207,52 +210,53 @@ function end_activity() {
 
 //single tick of resting
 function do_resting() {
-    if(character.full_stats.health < character.full_stats.max_health)
+    if(character.stats.full.health < character.stats.full.max_health)
     {
-        const resting_heal_ammount = Math.max(character.full_stats.max_health * 0.01,1); 
+        const resting_heal_ammount = Math.max(character.stats.full.max_health * 0.01,2); 
         //todo: scale it with skill, because why not?; maybe up to x2 bonus
 
-        character.full_stats.health += (resting_heal_ammount);
-        if(character.full_stats.health > character.full_stats.max_health) {
-            character.full_stats.health = character.full_stats.max_health;
+        character.stats.full.health += (resting_heal_ammount);
+        if(character.stats.full.health > character.stats.full.max_health) {
+            character.stats.full.health = character.stats.full.max_health;
         } 
         update_displayed_health();
     }
 
-    if(character.full_stats.stamina < character.full_stats.max_stamina)
+    if(character.stats.full.stamina < character.stats.full.max_stamina)
     {
-        const resting_stamina_ammount = Math.round(Math.max(character.full_stats.max_stamina/120, 1)); 
+        const resting_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/120, 2)); 
         //todo: scale it with skill as well
 
-        character.full_stats.stamina += (resting_stamina_ammount);
-        if(character.full_stats.stamina > character.full_stats.max_stamina) {
-            character.full_stats.stamina = character.full_stats.max_stamina;
+        character.stats.full.stamina += (resting_stamina_ammount);
+        if(character.stats.full.stamina > character.stats.full.max_stamina) {
+            character.stats.full.stamina = character.stats.full.max_stamina;
         } 
+        
         update_displayed_stamina();
     }
 }
 
 function do_sleeping() {
-    if(character.full_stats.health < character.full_stats.max_health)
+    if(character.stats.full.health < character.stats.full.max_health)
     {
-        const sleeping_heal_ammount = Math.max(character.full_stats.max_health * 0.04, 1); 
+        const sleeping_heal_ammount = Math.max(character.stats.full.max_health * 0.04, 5); 
         //todo: scale it with skill (maybe up to x2.5 bonus)
         
-        character.full_stats.health += (sleeping_heal_ammount);
-        if(character.full_stats.health > character.full_stats.max_health) {
-            character.full_stats.health = character.full_stats.max_health;
+        character.stats.full.health += (sleeping_heal_ammount);
+        if(character.stats.full.health > character.stats.full.max_health) {
+            character.stats.full.health = character.stats.full.max_health;
         } 
         update_displayed_health();
     }
 
-    if(character.full_stats.stamina < character.full_stats.max_stamina)
+    if(character.stats.full.stamina < character.stats.full.max_stamina)
     {
-        const sleeping_stamina_ammount = Math.round(Math.max(character.full_stats.max_stamina/30, 1)); 
+        const sleeping_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/30, 5)); 
         //todo: scale it with skill as well
 
-        character.full_stats.stamina += (sleeping_stamina_ammount);
-        if(character.full_stats.stamina > character.full_stats.max_stamina) {
-            character.full_stats.stamina = character.full_stats.max_stamina;
+        character.stats.full.stamina += (sleeping_stamina_ammount);
+        if(character.stats.full.stamina > character.stats.full.max_stamina) {
+            character.stats.full.stamina = character.stats.full.max_stamina;
         } 
         update_displayed_stamina();
     }
@@ -416,7 +420,7 @@ function set_new_combat(enemies) {
     current_enemies = enemies || current_location.get_next_enemies();
     clear_all_enemy_attack_loops();
 
-    let character_attack_cooldown = 1/character.full_stats.attack_speed;
+    let character_attack_cooldown = 1/character.stats.full.attack_speed;
     let enemy_attack_cooldowns = [...current_enemies.map(x => 1/x.stats.attack_speed)];
 
     let fastest_cooldown = [character_attack_cooldown, ...enemy_attack_cooldowns].sort((a,b) => a - b)[0];
@@ -543,9 +547,9 @@ function do_enemy_combat_action(enemy_id) {
 
     let evasion_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/3); //down to .5 if there's full 8 enemies (multiple attackers make it harder to evade attacks)
     if(attacker.size === "small") {
-        add_xp_to_skill(skills["Pest killer"], attacker.xp_value, true);
+        add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: attacker.xp_value});
     } else if(attacker.size === "large") {
-        add_xp_to_skill(skills["Giant slayer"], attacker.xp_value, true);
+        add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: attacker.xp_value});
         evasion_chance_modifier *= skills["Giant slayer"].get_coefficient("multiplicative");
     }
 
@@ -561,7 +565,7 @@ function do_enemy_combat_action(enemy_id) {
     
     if(character.equipment["off-hand"]?.offhand_type === "shield") { //HAS SHIELD
         if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
-            add_xp_to_skill(skills["Shield blocking"], attacker.xp_value, true);
+            add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value});
             if(character.equipment["off-hand"].getShieldStrength() >= damage_dealt) {
                 log_message(character.name + " blocked an attack", "hero_blocked");
                 return; //damage fully blocked, nothing more can happen 
@@ -577,7 +581,7 @@ function do_enemy_combat_action(enemy_id) {
         if(hit_chance < Math.random()) { //EVADED ATTACK
             const xp_to_add = character.wears_armor() ? attacker.xp_value : attacker.xp_value * 1.5; 
             //50% more evasion xp if going without armor
-            add_xp_to_skill(skills["Evasion"], xp_to_add, true);
+            add_xp_to_skill({skill: skills["Evasion"], xp_to_add});
             log_message(character.name + " evaded an attack", "enemy_missed");
             return; //damage fully evaded, nothing more can happen
         }
@@ -597,7 +601,7 @@ function do_enemy_combat_action(enemy_id) {
     */
     if(!character.wears_armor())
     {
-        add_xp_to_skill(skills["Iron skin"], attacker.xp_value, true);
+        add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: attacker.xp_value});
     }
 
     let {damage_taken, fainted} = character.take_damage({damage_value: damage_dealt});
@@ -646,12 +650,12 @@ function do_character_combat_action(attack_power, attack_type = "normal") {
     
     let hit_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/4); // down to ~ 60% if there's full 8 enemies
     
-    add_xp_to_skill(skills["Combat"], target.xp_value, true);
+    add_xp_to_skill({skill: skills["Combat"], xp_to_add: target.xp_value});
     if(target.size === "small") {
-        add_xp_to_skill(skills["Pest killer"], target.xp_value, true);
+        add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: target.xp_value});
         hit_chance_modifier *= skills["Pest killer"].get_coefficient("multiplicative");
     } else if(target.size === "large") {
-        add_xp_to_skill(skills["Giant slayer"], target.xp_value, true);
+        add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: target.xp_value});
     }
 
     
@@ -662,20 +666,19 @@ function do_character_combat_action(attack_power, attack_type = "normal") {
         if(character.equipment.weapon != null) {
             damage_dealt = Math.round(
                                         10 * hero_base_damage * (1.2 - Math.random() * 0.4) 
-                                        * skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`].get_coefficient()
+                                        * skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]].get_coefficient()
                                      )/10;
 
-
-            add_xp_to_skill(skills[`${capitalize_first_letter(character.equipment.weapon.weapon_type)}s`], target.xp_value, true); 
+            add_xp_to_skill({skill: skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]], xp_to_add: target.xp_value}); 
 
         } else {
             damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) * skills['Unarmed'].get_coefficient())/10;
-            add_xp_to_skill(skills['Unarmed'], target.xp_value, true);
+            add_xp_to_skill({skill: skills['Unarmed'], xp_to_add: target.xp_value});
         }
         //small randomization by up to 20%, then bonus from skill
         
-        if(character.full_stats.crit_rate > Math.random()) {
-            damage_dealt = Math.round(10*damage_dealt * character.full_stats.crit_multiplier)/10;
+        if(character.stats.full.crit_rate > Math.random()) {
+            damage_dealt = Math.round(10*damage_dealt * character.stats.full.crit_multiplier)/10;
             critted = true;
         }
         else {
@@ -750,14 +753,14 @@ function kill_enemy(target) {
 }
 
 function use_stamina(num = 1) {
-    character.full_stats.stamina -= num;
+    character.stats.full.stamina -= num;
 
-    if(character.full_stats.stamina < 0)  {
-        character.full_stats.stamina = 0;
+    if(character.stats.full.stamina < 0)  {
+        character.stats.full.stamina = 0;
     };
 
-    if(character.full_stats.stamina < 1) {
-        add_xp_to_skill(skills["Persistence"], num );
+    if(character.stats.full.stamina < 1) {
+        add_xp_to_skill({skill: skills["Persistence"], xp_to_add: num});
         update_displayed_stats();
     }
 
@@ -770,14 +773,28 @@ function use_stamina(num = 1) {
  * @param {Number} xp_to_add 
  * @param {Boolean} should_info 
  */
-function add_xp_to_skill(skill, xp_to_add, should_info) 
+function add_xp_to_skill({skill, xp_to_add, should_info = true, use_bonus = true, add_to_parent = true})
 {
     if(xp_to_add == 0) {
         return;
     }
+
+    if(use_bonus) {
+        xp_to_add = (character.xp_bonuses.total_multiplier[skill.id] || 1) 
+                       * (character.xp_bonuses.total_multiplier.all || 1) * (character.xp_bonuses.total_multiplier.all_skill || 1);
+
+        if(skill.parent_skill) {
+            xp_to_add *= (1.1**Math.max(0,skills[skill.parent_skill].current_level-skill.current_level));
+        }
+    }
+
+    if(skill.parent_skill && add_to_parent) {
+        add_xp_to_skill({skill: skills[skill.parent_skill], xp_to_add, should_info, use_bonus, add_to_parent});
+    }
     
     const was_hidden = skill.visibility_treshold > skill.total_xp;
-    const level_up = skill.add_xp(xp_to_add * (global_xp_bonus || 1));
+    const level_up = skill.add_xp({xp_to_add: xp_to_add});
+
     const is_visible = skill.visibility_treshold <= skill.total_xp;
 
     if(was_hidden && is_visible) 
@@ -794,11 +811,13 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
         update_displayed_skill_bar(skill);
     
         if(typeof level_up !== "undefined"){ //not undefined => levelup happened and levelup message was returned
-        //character stats currently get added in character.add_bonuses() method, called in skill.get_bonus_stats() method, called in skill.add_xp() when levelup happens
+        //character stats currently get added in character.stats.add_skill_milestone_bonus() method, 
+        //called in skill.get_bonus_stats() method, 
+        //called in skill.add_xp() when levelup happens
             if(typeof should_info === "undefined" || should_info)
             {
                 log_message(level_up, "skill_raised");
-                update_character_stats();
+                character.update_stats();
             }
 
             if(typeof skill.get_effect_description !== "undefined")
@@ -814,16 +833,16 @@ function add_xp_to_skill(skill, xp_to_add, should_info)
  * @param {Number} xp_to_add 
  * @param {Boolean} should_info 
  */
-function add_xp_to_character(xp_to_add, should_info = true) {
-    const level_up = character.add_xp(xp_to_add * (global_xp_bonus || 1));
+function add_xp_to_character(xp_to_add, should_info = true, use_bonus) {
+    const level_up = character.add_xp({xp_to_add, use_bonus});
     
     if(level_up) {
         if(should_info) {
             log_message(level_up, "level_up");
         }
         
-        character.full_stats.health = character.full_stats.max_health; //free healing on level up, because it's a nice thing to have
-        update_character_stats();
+        character.stats.full.health = character.stats.full.max_health; //free healing on level up, because it's a nice thing to have
+        character.update_stats();
     }
 
     update_displayed_character_xp(level_up);
@@ -960,14 +979,18 @@ function create_save() {
                                 xp: {
                                 total_xp: character.xp.total_xp,
                                 },
-                                hp_to_full: character.full_stats.max_health - character.full_stats.health,
-                                stamina_to_full: character.full_stats.max_stamina - character.full_stats.stamina
+                                hp_to_full: character.stats.full.max_health - character.stats.full.health,
+                                stamina_to_full: character.stats.full.max_stamina - character.stats.full.stamina
                             };
         //no need to save all stats; on loading, base stats will be taken from code and then additional stuff will be calculated again (in case anything changed)
 
         save_data["skills"] = {};
         Object.keys(skills).forEach(function(key) {
-            save_data["skills"][skills[key].skill_id] = {total_xp: skills[key].total_xp}; //a bit redundant, but keep it in case key in skills is different than skill_id
+            if(!skills[key].is_parent)
+            {
+                save_data["skills"][skills[key].skill_id] = {total_xp: skills[key].total_xp}; 
+                //a bit redundant, but keep it in case key in skills is different than skill_id
+            }
         }); //only save total xp of each skill, again in case of any changes
         
         save_data["current location"] = current_location.name;
@@ -1062,6 +1085,7 @@ function save_to_localStorage(is_manual) {
     localStorage.setItem(save_key, create_save());
     if(is_manual) {
         log_message("Saved the game manually");
+        save_counter = 0;
     }
 }
 
@@ -1084,33 +1108,33 @@ function load(save_data) {
                 try{
 
                     if(key === "weapon") {
-                        const {head, handle, quality, equip_slot} = save_data.character.equipment[key];
-                        if(!item_templates[head]){
-                            console.warn(`Skipped item: weapon head component "${head}" couldn't be found!`);
-                        } else if(!item_templates[handle]) {
-                            console.warn(`Skipped item: weapon handle component "${handle}" couldn't be found!`);
+                        const {components, quality, equip_slot} = save_data.character.equipment[key];
+                        if(!item_templates[components.head]){
+                            console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
+                        } else if(!item_templates[components.handle]) {
+                            console.warn(`Skipped item: weapon handle component "${components.handle}" couldn't be found!`);
                         } else {
-                            const item = getItem({head, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
                             equip_item(item);
                         }
                     } else if(key === "off-hand") {
-                        const {shield_base, handle, quality, equip_slot} = save_data.character.equipment[key];
-                        if(!item_templates[shield_base]){
-                            console.warn(`Skipped item: shield base component "${shield_base}" couldn't be found!`);
-                        } else if(!item_templates[handle]) {
-                            console.warn(`Skipped item: shield handle "${handle}" couldn't be found!`);
+                        const {components, quality, equip_slot} = save_data.character.equipment[key];
+                        if(!item_templates[components.shield_base]){
+                            console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
+                        } else if(!item_templates[components.handle]) {
+                            console.warn(`Skipped item: shield handle "${components.handle}" couldn't be found!`);
                         } else {
-                            const item = getItem({shield_base, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
                             equip_item(item);
                         }
                     } else {
-                        const {internal, external, quality, equip_slot} = save_data.character.equipment[key];
-                        if(!item_templates[internal]){
-                            console.warn(`Skipped item: internal armor component "${internal}" couldn't be found!`);
-                        } else if(external && !item_templates[external]) {
-                            console.warn(`Skipped item: external armor component "${external}" couldn't be found!`);
+                        const {components, quality, equip_slot} = save_data.character.equipment[key];
+                        if(!item_templates[components.internal]){
+                            console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
+                        } else if(components.external && !item_templates[components.external]) {
+                            console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
                         } else {
-                            const item = getItem({internal, external, quality, equip_slot, item_type: "EQUIPPABLE"});
+                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
                             equip_item(item);
                         }
                     }
@@ -1127,33 +1151,33 @@ function load(save_data) {
                 for(let i = 0; i < save_data.character.inventory[key].length; i++) {
                     try{
                         if(save_data.character.inventory[key][i].equip_slot === "weapon") {
-                            const {head, handle, quality, equip_slot} = save_data.character.inventory[key][i];
-                            if(!item_templates[head]){
-                                console.warn(`Skipped item: weapon head component "${head}" couldn't be found!`);
-                            } else if(!item_templates[handle]) {
-                                console.warn(`Skipped item: weapon handle component "${handle}" couldn't be found!`);
+                            const {components, quality, equip_slot} = save_data.character.inventory[key][i];
+                            if(!item_templates[components.head]){
+                                console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
+                            } else if(!item_templates[components.handle]) {
+                                console.warn(`Skipped item: weapon handle component "${components.handle}" couldn't be found!`);
                             } else {
-                                const item = getItem({head, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
                                 item_list.push({item, count: 1});
                             }
                         } else if(save_data.character.inventory[key][i].equip_slot === "off-hand") {
                             const {shield_base, handle, quality, equip_slot} = save_data.character.inventory[key][i];
-                            if(!item_templates[shield_base]){
-                                console.warn(`Skipped item: shield base component "${shield_base}" couldn't be found!`);
-                            } else if(!item_templates[handle]) {
-                                console.warn(`Skipped item: shield handle "${handle}" couldn't be found!`);
+                            if(!item_templates[components.shield_base]){
+                                console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
+                            } else if(!item_templates[components.handle]) {
+                                console.warn(`Skipped item: shield handle "${components.handle}" couldn't be found!`);
                             } else {
-                                const item = getItem({shield_base, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
                                 item_list.push({item, count: 1});
                             }
                         } else {
-                            const {internal, external, quality, equip_slot} = save_data.character.inventory[key][i];
-                            if(!item_templates[internal]){
-                                console.warn(`Skipped item: internal armor component "${internal}" couldn't be found!`);
-                            } else if(external && !item_templates[external]) {
-                                console.warn(`Skipped item: external armor component "${external}" couldn't be found!`);
+                            const {components, quality, equip_slot} = save_data.character.inventory[key][i];
+                            if(!item_templates[components.internal]){
+                                console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
+                            } else if(components.external && !item_templates[components.external]) {
+                                console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
                             } else {
-                                const item = getItem({internal, external, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
                                 item_list.push({item, count: 1});
                             }
                         }
@@ -1183,33 +1207,20 @@ function load(save_data) {
         character.money = save_data.character.money || 0;
         update_displayed_money();
 
-        add_xp_to_character(save_data.character.xp.total_xp/(global_xp_bonus || 1), false);
+        add_xp_to_character(save_data.character.xp.total_xp, false);
 
         Object.keys(save_data.skills).forEach(function(key){ 
-            if(skills[key]){
+            if(skills[key] && !skills[key].is_parent){
                 if(save_data.skills[key].total_xp > 0) {
-                    add_xp_to_skill(skills[key], save_data.skills[key].total_xp/(global_xp_bonus || 1), false);
+                    add_xp_to_skill({skill: skills[key], xp_to_add: save_data.skills[key].total_xp, 
+                                     should_info: false, add_to_parent: true, use_bonus: false
+                                    });
                 }
             } else {
                 console.warn(`Skill "${key}" couldn't be found!`);
                 return;
             }
         }); //add xp to skills
-
-        /*
-        necessary for skills with skill groups to have their tooltips properly display next milestone,
-        as otherwise it would only go up to the value of the highest loaded skill, so if next skill has higher level, 
-        their tooltips will be different
-        */
-        Object.keys(save_data.skills).forEach(function(key){ 
-            if(skills[key]){
-                if(skills[key].skill_group && save_data.skills[key].total_xp >= skills[key].visibility_treshold) {
-                    //console.log(key);
-                    update_displayed_skill_bar(skills[key]);
-                }
-            }
-        });
-
 
         Object.keys(save_data.dialogues).forEach(function(dialogue) {
             if(dialogues[dialogue]) {
@@ -1246,33 +1257,33 @@ function load(save_data) {
                             for(let i = 0; i < save_data.traders[trader].inventory[key].length; i++) {
                                 try{
                                     if(save_data.traders[trader].inventory[key][i].equip_slot === "weapon") {
-                                        const {head, handle, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
-                                        if(!item_templates[head]){
-                                            console.warn(`Skipped item: weapon head component "${head}" couldn't be found!`);
-                                        } else if(!item_templates[handle]) {
-                                            console.warn(`Skipped item: weapon handle component "${handle}" couldn't be found!`);
+                                        const {components, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
+                                        if(!item_templates[components.head]){
+                                            console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
+                                        } else if(!item_templates[components.handle]) {
+                                            console.warn(`Skipped item: weapon handle component "${components.handle}" couldn't be found!`);
                                         } else {
-                                            const item = getItem({head, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
                                             trader_item_list.push({item, count: 1});
                                         }
                                     } else if( save_data.traders[trader].inventory[key][i].equip_slot === "off-hand") {
-                                        const {shield_base, handle, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
-                                        if(!item_templates[shield_base]){
-                                            console.warn(`Skipped item: shield base component "${shield_base}" couldn't be found!`);
-                                        } else if(!item_templates[handle]) {
-                                            console.warn(`Skipped item: shield handle "${handle}" couldn't be found!`);
+                                        const {components, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
+                                        if(!item_templates[components.shield_base]){
+                                            console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
+                                        } else if(!item_templates[components.handle]) {
+                                            console.warn(`Skipped item: shield handle "${components.handle}" couldn't be found!`);
                                         } else {
-                                            const item = getItem({shield_base, handle, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
                                             trader_item_list.push({item, count: 1});
                                         }
                                     } else {
-                                        const {internal, external, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
-                                        if(!item_templates[internal]){
-                                            console.warn(`Skipped item: internal armor component "${internal}" couldn't be found!`);
-                                        } else if(external && !item_templates[external]) {
-                                            console.warn(`Skipped item: external armor component "${external}" couldn't be found!`);
+                                        const {components, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
+                                        if(!item_templates[components.internal]){
+                                            console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
+                                        } else if(components.external && !item_templates[components.external]) {
+                                            console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
                                         } else {
-                                            const item = getItem({internal, external, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
                                             trader_item_list.push({item, count: 1});
                                         }
                                     }
@@ -1339,18 +1350,18 @@ function load(save_data) {
         });
 
         
-        if(save_data.character.hp_to_full == null || save_data.character.hp_to_full >= character.full_stats.max_health) {
-            character.full_stats.health = 1;
+        if(save_data.character.hp_to_full == null || save_data.character.hp_to_full >= character.stats.full.max_health) {
+            character.stats.full.health = 1;
         } else {
-            character.full_stats.health = character.full_stats.max_health - save_data.character.hp_to_full;
+            character.stats.full.health = character.stats.full.max_health - save_data.character.hp_to_full;
         }
         //if missing hp is null (save got corrupted) or its more than max_health, set health to minimum allowed (which is 1)
         //otherwise just do simple substraction
         //then same with stamina below
-        if(save_data.character.stamina_to_full == null || save_data.character.stamina_to_full >= character.full_stats.max_stamina) {
-            character.full_stats.stamina = 0;
+        if(save_data.character.stamina_to_full == null || save_data.character.stamina_to_full >= character.stats.full.max_stamina) {
+            character.stats.full.stamina = 0;
         } else {
-            character.full_stats.stamina = character.full_stats.max_stamina - save_data.character.stamina_to_full;
+            character.stats.full.stamina = character.stats.full.max_stamina - save_data.character.stamina_to_full;
         }
 
         if(save_data["enemy_killcount"]) {
@@ -1360,7 +1371,7 @@ function load(save_data) {
             });
         }
         
-        update_character_stats();
+        character.update_stats();
 
         update_displayed_health();
         //load current health
@@ -1462,7 +1473,7 @@ function update() {
         } else { //everything other than combat
             if(is_sleeping) {
                 do_sleeping();
-                add_xp_to_skill(skills["Sleeping"], current_location.sleeping.xp);
+                add_xp_to_skill({skill: skills["Sleeping"], xp_to_add: current_location.sleeping.xp});
             }
             else if(is_resting) {
                 do_resting();
@@ -1472,7 +1483,7 @@ function update() {
 
                 //add xp to all related skills
                 for(let i = 0; i < current_activity.activity.base_skills_names?.length; i++) {
-                    add_xp_to_skill(skills[current_activity.activity.base_skills_names[i]], current_activity.skill_xp_per_tick);
+                    add_xp_to_skill({skill: skills[current_activity.activity.base_skills_names[i]], xp_to_add: current_activity.skill_xp_per_tick});
                 }
 
                 //if job: payment
@@ -1515,11 +1526,11 @@ function update() {
 
         //regenerate hp
         if(active_effects.health_regeneration) {
-            if(character.full_stats.health < character.full_stats.max_health) {
-                character.full_stats.health += active_effects.health_regeneration.flat;
+            if(character.stats.full.health < character.stats.full.max_health) {
+                character.stats.full.health += active_effects.health_regeneration.flat;
 
-                if(character.full_stats.health > character.full_stats.max_health) {
-                    character.full_stats.health = character.full_stats.max_health
+                if(character.stats.full.health > character.stats.full.max_health) {
+                    character.stats.full.health = character.stats.full.max_health
                 }
 
                 update_displayed_health();
@@ -1533,11 +1544,11 @@ function update() {
 
         //regenerate stamina
         if(active_effects.stamina_regeneration) {
-            if(character.full_stats.stamina < character.full_stats.max_stamina) {
-                character.full_stats.stamina += active_effects.stamina_regeneration.flat;
+            if(character.stats.full.stamina < character.stats.full.max_stamina) {
+                character.stats.full.stamina += active_effects.stamina_regeneration.flat;
 
-                if(character.full_stats.stamina > character.full_stats.max_stamina) {
-                    character.full_stats.stamina = character.full_stats.max_stamina
+                if(character.stats.full.stamina > character.stats.full.max_stamina) {
+                    character.stats.full.stamina = character.stats.full.max_stamina
                 }
 
                 update_displayed_stamina();
@@ -1558,14 +1569,14 @@ function update() {
 
         if(!is_sleeping && current_location && current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 4)) 
         {
-            add_xp_to_skill(skills["Night vision"], 1);
+            add_xp_to_skill({skill: skills["Night vision"], xp_to_add: 1});
         }
 
         //add xp to proper skills based on location types
         if(current_location) {
             const skills = current_location.gained_skills;
             for(let i = 0; i < skills?.length; i++) {
-                add_xp_to_skill(current_location.gained_skills[i].skill, current_location.gained_skills[i].xp);
+                add_xp_to_skill({skill: current_location.gained_skills[i].skill, xp_to_add: current_location.gained_skills[i].xp});
             }
         }
 
@@ -1659,14 +1670,13 @@ else {
                                 {item: getItem({...item_templates["Cheap leather pants"], quality: 0.4})},
                                 {item: getItem(item_templates["Stale bread"]), count: 5}]);
 
-    equip_item_from_inventory({name: "Cheap iron spear", id: 0});
-    equip_item_from_inventory({name: "Cheap leather pants", id: 0});
+    equip_item_from_inventory({item_name: "Cheap iron sword", item_id: 0});
+    equip_item_from_inventory({item_name: "Cheap leather pants", item_id: 0});
     add_xp_to_character(0);
     character.money = 15;
     update_displayed_money();
-    update_character_stats();
+    character.update_stats();
 }
-
 //checks if there's an existing save file, otherwise just sets up some initial equipment
 update_displayed_equipment();
 run();
