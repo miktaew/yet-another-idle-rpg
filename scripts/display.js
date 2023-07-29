@@ -11,6 +11,7 @@ import { format_time, current_game_time } from "./game_time.js";
 import { item_templates } from "./items.js";
 import { location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
+import { expo } from "./misc.js"
 
 var activity_anim; //for the activity animation interval
 
@@ -1588,21 +1589,16 @@ function update_displayed_skill_bar(skill) {
     //skill_bar_name
 
     if(skill.current_xp !== "Max") {
-        skill_bar_divs[skill.skill_id].children[0].children[0].children[1].innerHTML = `${100*Math.round(skill.current_xp/skill.xp_to_next_lvl*1000)/1000}%`;
+        skill_bar_divs[skill.skill_id].children[0].children[0].children[1].innerHTML = `${expo(100*Math.round(skill.current_xp/skill.xp_to_next_lvl*1000)/1000)}%`;
+        skill_bar_divs[skill.skill_id].children[0].children[2].children[0].innerHTML = `${expo(skill.current_xp)}/${expo(skill.xp_to_next_lvl)}`;
     } else {
         skill_bar_divs[skill.skill_id].children[0].children[0].children[1].innerHTML = `Max!`;
+        skill_bar_divs[skill.skill_id].children[0].children[2].children[0].innerHTML = `Maxed out!`;
     }
-    //skill_bar_xp
+    //skill_bar_xp && tooltip_xp
 
     skill_bar_divs[skill.skill_id].children[0].children[1].style.width = `${100*skill.current_xp/skill.xp_to_next_lvl}%`;
     //skill_bar_current
-
-    if(skill.current_xp !== "Max") {
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[0].innerHTML = `${skill.current_xp}/${skill.xp_to_next_lvl}`;
-    } else {
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[0].innerHTML = `Maxed out!`;
-    }
-    //tooltip_xp
 
     if(get_unlocked_skill_rewards(skill.skill_id)) {
         skill_bar_divs[skill.skill_id].children[0].children[2].children[3].innerHTML  = `<br>${get_unlocked_skill_rewards(skill.skill_id)}`;
