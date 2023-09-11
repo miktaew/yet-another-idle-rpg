@@ -516,7 +516,7 @@ function format_skill_rewards(milestone){
                                                     },
                                                     8: {
                                                         xp_multipliers: {
-                                                            all_skill: 1.3,
+                                                            all_skill: 1.2,
                                                         }
                                                     }
                                                 }

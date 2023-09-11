@@ -752,8 +752,8 @@ function kill_enemy(target) {
     clear_enemy_attack_loop(enemy_id);
 }
 
-function use_stamina(num = 1) {
-    character.stats.full.stamina -= num;
+function use_stamina(num = 1, use_efficiency = true) {
+    character.stats.full.stamina -= num/(1 || use_efficiency * character.stats.full.stamina_efficiency);
 
     if(character.stats.full.stamina < 0)  {
         character.stats.full.stamina = 0;
@@ -764,7 +764,7 @@ function use_stamina(num = 1) {
         update_displayed_stats();
     }
 
-        update_displayed_stamina();
+    update_displayed_stamina();
 }
 
 /**
