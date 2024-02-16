@@ -36,7 +36,7 @@ import { end_activity_animation,
         } from "./display.js";
 
 const save_key = "save data";
-const game_version = "v0.3.3";
+const game_version = "v0.3.4";
 
 //current enemy
 var current_enemies = null;
@@ -637,8 +637,7 @@ function do_enemy_combat_action(enemy_id) {
 function do_character_combat_action(attack_power, attack_type = "normal") {
     
     //todo: attack types with different stamina costs
-    //TODO: when multi-target attacks are added, calculate this in a loop, separetely for each enemy that can be hit
-    //TODO: when single-target attack kills target, deal the remaining dmg (basically the remaining negative hp that the target has) to next target
+    //TODO: when multi-target attacks are added, calculate this iterating over enemies that can be hit
 
     const hero_base_damage = attack_power;
 
@@ -1147,38 +1146,41 @@ function load(save_data) {
         const item_list = [];
 
         Object.keys(save_data.character.inventory).forEach(function(key){
-            if(Array.isArray(save_data.character.inventory[key])) { //is a list of unstackable items (equippables), needs to be added 1 by 1
+            if(Array.isArray(save_data.character.inventory[key])) { //is a list of unstackable items (equippables or books), needs to be added 1 by 1
                 for(let i = 0; i < save_data.character.inventory[key].length; i++) {
                     try{
-                        if(save_data.character.inventory[key][i].equip_slot === "weapon") {
-                            const {components, quality, equip_slot} = save_data.character.inventory[key][i];
-                            if(!item_templates[components.head]){
-                                console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
-                            } else if(!item_templates[components.handle]) {
-                                console.warn(`Skipped item: weapon handle component "${components.handle}" couldn't be found!`);
+                        if(save_data.save_data.character.inventory[key][i].equip_slot.item_type === "EQUIPPABLE")
+                        {
+                            if(save_data.character.inventory[key][i].equip_slot === "weapon") {
+                                const {components, quality, equip_slot} = save_data.character.inventory[key][i];
+                                if(!item_templates[components.head]){
+                                    console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
+                                } else if(!item_templates[components.handle]) {
+                                    console.warn(`Skipped item: weapon handle component "${components.handle}" couldn't be found!`);
+                                } else {
+                                    const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                    item_list.push({item, count: 1});
+                                }
+                            } else if(save_data.character.inventory[key][i].equip_slot === "off-hand") {
+                                const {shield_base, handle, quality, equip_slot} = save_data.character.inventory[key][i];
+                                if(!item_templates[components.shield_base]){
+                                    console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
+                                } else if(!item_templates[components.handle]) {
+                                    console.warn(`Skipped item: shield handle "${components.handle}" couldn't be found!`);
+                                } else {
+                                    const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                    item_list.push({item, count: 1});
+                                }
                             } else {
-                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
-                                item_list.push({item, count: 1});
-                            }
-                        } else if(save_data.character.inventory[key][i].equip_slot === "off-hand") {
-                            const {shield_base, handle, quality, equip_slot} = save_data.character.inventory[key][i];
-                            if(!item_templates[components.shield_base]){
-                                console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
-                            } else if(!item_templates[components.handle]) {
-                                console.warn(`Skipped item: shield handle "${components.handle}" couldn't be found!`);
-                            } else {
-                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
-                                item_list.push({item, count: 1});
-                            }
-                        } else {
-                            const {components, quality, equip_slot} = save_data.character.inventory[key][i];
-                            if(!item_templates[components.internal]){
-                                console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
-                            } else if(components.external && !item_templates[components.external]) {
-                                console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
-                            } else {
-                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
-                                item_list.push({item, count: 1});
+                                const {components, quality, equip_slot} = save_data.character.inventory[key][i];
+                                if(!item_templates[components.internal]){
+                                    console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
+                                } else if(components.external && !item_templates[components.external]) {
+                                    console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
+                                } else {
+                                    const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                    item_list.push({item, count: 1});
+                                }
                             }
                         }
                     } catch (error) {
@@ -1253,39 +1255,43 @@ function load(save_data) {
 
                 if(save_data.traders[trader].inventory) {
                     Object.keys(save_data.traders[trader].inventory).forEach(function(key){
-                        if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list of unstackable (equippable) item, needs to be added 1 by 1
+                        if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list of unstackable (equippable or book) item, needs to be added 1 by 1
                             for(let i = 0; i < save_data.traders[trader].inventory[key].length; i++) {
                                 try{
-                                    if(save_data.traders[trader].inventory[key][i].equip_slot === "weapon") {
-                                        const {components, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
-                                        if(!item_templates[components.head]){
-                                            console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
-                                        } else if(!item_templates[components.handle]) {
-                                            console.warn(`Skipped item: weapon handle component "${components.handle}" couldn't be found!`);
+                                    if(save_data.traders[trader].inventory[key][i].item_type === "EQUIPPABLE"){
+                                        if(save_data.traders[trader].inventory[key][i].equip_slot === "weapon") {
+                                            const {components, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
+                                            if(!item_templates[components.head]){
+                                                console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
+                                            } else if(!item_templates[components.handle]) {
+                                                console.warn(`Skipped item: weapon handle component "${components.handle}" couldn't be found!`);
+                                            } else {
+                                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                                trader_item_list.push({item, count: 1});
+                                            }
+                                        } else if(save_data.traders[trader].inventory[key][i].equip_slot === "off-hand") {
+                                            const {components, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
+                                            if(!item_templates[components.shield_base]){
+                                                console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
+                                            } else if(!item_templates[components.handle]) {
+                                                console.warn(`Skipped item: shield handle "${components.handle}" couldn't be found!`);
+                                            } else {
+                                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                                trader_item_list.push({item, count: 1});
+                                            }
                                         } else {
-                                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
-                                            trader_item_list.push({item, count: 1});
-                                        }
-                                    } else if( save_data.traders[trader].inventory[key][i].equip_slot === "off-hand") {
-                                        const {components, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
-                                        if(!item_templates[components.shield_base]){
-                                            console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
-                                        } else if(!item_templates[components.handle]) {
-                                            console.warn(`Skipped item: shield handle "${components.handle}" couldn't be found!`);
-                                        } else {
-                                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
-                                            trader_item_list.push({item, count: 1});
+                                            const {components, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
+                                            if(!item_templates[components.internal]){
+                                                console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
+                                            } else if(components.external && !item_templates[components.external]) {
+                                                console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
+                                            } else {
+                                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                                trader_item_list.push({item, count: 1});
+                                            }
                                         }
                                     } else {
-                                        const {components, quality, equip_slot} =  save_data.traders[trader].inventory[key][i];
-                                        if(!item_templates[components.internal]){
-                                            console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
-                                        } else if(components.external && !item_templates[components.external]) {
-                                            console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
-                                        } else {
-                                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
-                                            trader_item_list.push({item, count: 1});
-                                        }
+                                        console.warn(`Skipped item, no such item type as ${0} could be found`)
                                     }
                                 } catch (error) {
                                     console.error(error);

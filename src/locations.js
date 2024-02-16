@@ -308,7 +308,8 @@ class LocationType{
         stages: {
             1: {
                 description: "A place where it's always as dark as during the night",
-                related_skill: "Night vision"
+                related_skill: "Night vision",
+                //no effects here, since in this case they are provided via the overall "night" penalty
             },
             2: {
                 description: "An extremely dark place, darker than any night",
@@ -318,6 +319,17 @@ class LocationType{
                     multipliers: {
                         hit_chance: 0.5,
                         evasion: 0.5,
+                    }
+                }
+            },
+            3: {
+                description: "Pure darkness with not even a tiniest flicker of light",
+                //TODO: use some other skill for seeing in places with no light whatsoever
+                related_skill: "Presence sensing",
+                effects: {
+                    multipliers: {
+                        hit_chance: 0.1,
+                        evasion: 0.1,
                     }
                 }
             }
@@ -414,7 +426,7 @@ class LocationType{
                 }
             },
             3: {
-                description: "Place so cold that lesser beings would freeze in less than a minute",
+                description: "This place is so cold, lesser beings would freeze in less than a minute...",
                 related_skill: "Cold resistance",
                 //TODO: environmental damage if resistance is too low (to both hp and stamina?)
                 effects: {

@@ -160,14 +160,12 @@ class Skill {
     };
 
     /**
-     * @description only called on leveling
+     * @description only called on leveling; adds bonuses to character, returns all the bonuses so they can be logged in message_log 
      * @param {*} level 
-     * @returns stats from milestones
+     * @returns bonuses from milestones
      */
     get_bonus_stats(level) {
         //TODO: rename, it's not just stats anymore
-        //add stats to character
-        //returns all the stats so they can be logged in message_log 
         const gains = { flats: {}, multipliers: {} , xp_multipliers: {}};
         let flats;
         let multipliers;
@@ -549,10 +547,20 @@ function format_skill_rewards(milestone){
                                     xp_scaling: 2,
                                     max_level: 10,
                                     get_effect_description: () => {
-                                        return `Reduces darkness penalty by ${Math.round(10*skills["Night vision"].current_level*100/skills["Night vision"].max_level)/10}%`;
+                                        return `Reduces darkness penalty (except for 'pure darkness') by ${Math.round(10*skills["Night vision"].current_level*100/skills["Night vision"].max_level)/10}%`;
                                     }
-
                             });
+    skills["Presence sensing"] = new Skill({
+                skill_id: "Presence sensing",
+                names: {0: "Presence sensing"},
+                description: "Ability to sense a presence without using your eyes",
+                base_xp_cost: 500,
+                xp_scaling: 2,
+                max_level: 10,
+                get_effect_description: () => {
+                    return `Provides a variety of combat bonuses. Reduces extreme darkness penalty by ${Math.round(10*skills["Presence sensing"].current_level*100/skills["Presence sensing"].max_level)/10}%`;
+                }
+            });
     skills["Heat resistance"] = new Skill({
         skill_id: "Heat resistance",
         names: {0: "Heat resistance"},
@@ -967,7 +975,7 @@ function format_skill_rewards(milestone){
                                             },
                                             multipliers: {
                                                 agility: 1.05,
-                                                max_stamina: 1.05,
+                                                stamina_efficiency: 1.05,
                                             }
                                         },
                                         7: {
@@ -981,7 +989,7 @@ function format_skill_rewards(milestone){
                                             },
                                             multipliers: {
                                                 agility: 1.05,
-                                                max_stamina: 1.05,
+                                                stamina_efficiency: 1.05,
                                             }
                                         }
                                     }
@@ -1144,7 +1152,7 @@ function format_skill_rewards(milestone){
                         max_stamina: 5,
                     },
                     xp_multipliers: {
-                        all_skill: 1.2,
+                        all_skill: 1.1,
                     }
                 },
                 5: {
@@ -1152,7 +1160,7 @@ function format_skill_rewards(milestone){
                         max_stamina: 10,
                     },
                     xp_multipliers: {
-                        hero: 1.2,
+                        hero: 1.1,
                     }
                 },
                 8: {
@@ -1160,7 +1168,7 @@ function format_skill_rewards(milestone){
                         max_stamina: 20,
                     },
                     xp_multipliers: {
-                        all: 1.3,
+                        all: 1.1,
                     }
                 },
             }
@@ -1178,6 +1186,22 @@ function format_skill_rewards(milestone){
         rewards: {
             milestones: {
                 //todo when skill is in use somewhere
+            }
+        }
+    }); 
+    skills["Literacy"] = new Skill({
+        skill_id: "Literacy", 
+        names: {0: "Literacy"}, 
+        description: "Ability to read and understand written text",
+        base_xp_cost: 100,
+        max_level: 10,
+        xp_scaling: 2,
+        get_effect_description: ()=> {
+            return `Allows reading harder texts`;
+        },
+        rewards: {
+            milestones: {
+                //todo: some xp buffs
             }
         }
     }); 

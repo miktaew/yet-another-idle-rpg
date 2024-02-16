@@ -185,7 +185,7 @@ body {
 .inventory_item, .trader_item {
 	 font-size: 14;
 	 display: inline-block;
-	 float: left;
+
 }
 
 .equipped_item_control {
@@ -303,6 +303,14 @@ body {
 	font-size: 14;
 }
 
+.item_read_button {
+	display: var(--item_use_button_display);
+	width: 39px;
+	font-weight: bold;
+	cursor: pointer;
+	font-size: 14;
+}
+
 .item_controls {
 	display: inline-block;
 }
@@ -330,6 +338,10 @@ body {
 
 .item_stackable {
 	width: 285px;
+}
+
+.item_book {
+	width: 280px;
 }
 
 .item_equippable {
@@ -367,7 +379,7 @@ body {
 .character_control_button {
 	float:left;
 	padding: 6px;
-	min-width: 186px;
+	min-width: 119.3px;
 	font-size: 14;
 	text-align: center;
 	margin: 1px;

@@ -8,7 +8,7 @@ import { current_enemies, can_work, current_location, active_effects, enough_tim
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time } from "./game_time.js";
-import { item_templates } from "./items.js";
+import { book_stats, item_templates } from "./items.js";
 import { location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
 import { expo } from "./misc.js"
@@ -182,6 +182,8 @@ function create_item_tooltip(item, options) {
                 item_tooltip.innerHTML += ` permanently`;
             }
         });
+    } else if(item.item_type === "BOOK") {
+        item_tooltip.innerHTML += `<br><br>Time to read: ${item.getReadingTime()} minutes`;
     }
 
     item_tooltip.innerHTML += `<br><br>Value: ${format_money(Math.ceil(item.getValue() * ((options && options.trader) ? traders[current_trader].profit_margin : 1) || 1))}`;
@@ -686,8 +688,11 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
             var item_div = document.createElement("div");
             const item_name_div = document.createElement("div");
     
-
-            item_name_div.innerHTML = `${character.inventory[key].item.name} x${item_count}`;
+            if(character.inventory[key].item.item_type === "BOOK") {
+                item_name_div.innerHTML = `"${character.inventory[key].item.name}" x${item_count}`;
+            } else {
+                item_name_div.innerHTML = `${character.inventory[key].item.name} x${item_count}`;
+            }
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
 
@@ -715,7 +720,14 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
                 item_use_button.classList.add("item_use_button");
                 item_use_button.innerText = "[use]";
                 item_control_div.appendChild(item_use_button);
-            }    
+            } else if(character.inventory[key].item.item_type === "BOOK") {
+                const item_read_button = document.createElement("div");
+                item_read_button.classList.add("item_read_button");
+                item_read_button.innerText = "[read]";
+                item_control_div.appendChild(item_read_button);
+
+                item_div.classList.add("item_book");
+            }
 
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);

@@ -2,7 +2,7 @@
 
 import { current_game_time } from "./game_time.js";
 import { InventoryHaver } from "./inventory.js";
-import { item_templates, getItem } from "./items.js";
+import { item_templates, getItem} from "./items.js";
 
 var traders = {};
 var inventory_templates = {};
@@ -83,13 +83,14 @@ class Trader extends InventoryHaver {
                     inventory[inventory_template[i].item_name] = { item: getItem(item_templates[inventory_template[i].item_name]), count: item_count };
                 }
                 else { 
-                    //unstackable, so add array of n items, each with random quality
+                    //unstackable, so add array of n items, with random quality if applicable
                     inventory[inventory_template[i].item_name] = inventory[inventory_template[i].item_name] || [];
                     for (let j = 0; j < item_count; j++) {
                         let item = getItem(item_templates[inventory_template[i].item_name]);
-                        item.quality = Math.round(100 * (Math.random() *
-                            (inventory_template[i].quality[1] - inventory_template[i].quality[0]) + inventory_template[i].quality[0])) / 100;
-
+                        if(inventory_template[i].quality) {
+                            item.quality = Math.round(100 * (Math.random() *
+                                (inventory_template[i].quality[1] - inventory_template[i].quality[0]) + inventory_template[i].quality[0])) / 100;
+                        }
                         inventory[inventory_template[i].item_name].push(item);
                     }
                 }
@@ -151,6 +152,7 @@ inventory_templates["Basic"] =
         new TradeItem({item_name: "Fresh bread", count: [2,5]}),
         new TradeItem({item_name: "Weak healing powder", count: [2,5]}),
 
+        new TradeItem({item_name: "ABC for kids", count: [1], chance: 1, quality: null}),
 ];
 
 export {traders};
