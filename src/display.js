@@ -11,7 +11,7 @@ import { format_time, current_game_time } from "./game_time.js";
 import { book_stats, item_templates } from "./items.js";
 import { location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
-import { expo } from "./misc.js"
+import { expo, format_reading_time } from "./misc.js"
 
 var activity_anim; //for the activity animation interval
 
@@ -183,7 +183,7 @@ function create_item_tooltip(item, options) {
             }
         });
     } else if(item.item_type === "BOOK") {
-        item_tooltip.innerHTML += `<br><br>Time to read: ${item.getReadingTime()} minutes`;
+        item_tooltip.innerHTML += `<br><br>Time to read: ${item.getRemainingTime()} minutes`;
     }
 
     item_tooltip.innerHTML += `<br><br>Value: ${format_money(Math.ceil(item.getValue() * ((options && options.trader) ? traders[current_trader].profit_margin : 1) || 1))}`;
@@ -347,13 +347,26 @@ function log_loot(loot_list) {
     log_message(message, "combat_loot");   
 }
 
-function start_activity_animation() {
+function start_activity_animation(settings) {
     activity_anim = setInterval(() => { //sets a tiny little "animation" for activity text
         const action_status_div = document.getElementById("action_status_div");
+        let end = "";
         if(action_status_div.innerHTML.endsWith("...")) {
-            action_status_div.innerHTML = action_status_div.innerHTML.substring(0, action_status_div.innerHTML.length - 3);
-        } else{
+            end = "...";
+        } else if(action_status_div.innerHTML.endsWith("..")) {
+            end = "..";
+        } else if(action_status_div.innerHTML.endsWith("."))
+            end = ".";
+
+        if(settings?.book_title) {
+            action_status_div.innerHTML = action_status_div.innerHTML.split(",")[0] + `, ${format_reading_time(item_templates[settings.book_title].getRemainingTime())} left`;
+            action_status_div.innerHTML += end;
+        }
+
+        if(end.length < 3){
             action_status_div.innerHTML += ".";
+        } else {
+            action_status_div.innerHTML = action_status_div.innerHTML.substring(0, action_status_div.innerHTML.length - 3);
         }
      }, 600);
 }
@@ -435,8 +448,19 @@ function update_displayed_trader_inventory(sorting_param) {
             const item_control_div = document.createElement("div");
             const item_div = document.createElement("div");
             const item_name_div = document.createElement("div");
+
+            if(trader.inventory[key].item.item_type === "BOOK") {
+                item_name_div.innerHTML = '<span class = "item_category">[Book]</span>';
+                item_name_div.classList.add("inventory_item_name");
+                item_name_div.innerHTML += `<span class = "book_name"> "${trader.inventory[key].item.name}" </span><span class="item_count">x${item_count} </span>`;
+
+                if(book_stats[trader.inventory[key].item.name].is_finished) {
+                    item_div.classList.add("book_finished");
+                }
+            } else {
+                item_name_div.innerHTML = `<span class = "item_category"></span> <span class = "item_name">${trader.inventory[key].item.name}</span> <span class="item_count">x${item_count}</span>`;
+            }
     
-            item_name_div.innerHTML = `${trader.inventory[key].item.name} x${item_count}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
 
@@ -689,9 +713,15 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
             const item_name_div = document.createElement("div");
     
             if(character.inventory[key].item.item_type === "BOOK") {
-                item_name_div.innerHTML = `"${character.inventory[key].item.name}" x${item_count}`;
+                item_name_div.innerHTML = '<span class = "item_category">[Book]</span>';
+                item_name_div.classList.add("inventory_item_name");
+                item_name_div.innerHTML += `<span class = "book_name"> "${character.inventory[key].item.name}" </span><span class="item_count">x${item_count} </span>`;
+
+                if(book_stats[character.inventory[key].item.name].is_finished) {
+                    item_div.classList.add("book_finished");
+                }
             } else {
-                item_name_div.innerHTML = `${character.inventory[key].item.name} x${item_count}`;
+                item_name_div.innerHTML = `<span class = "item_category"></span> <span class = "item_name">${character.inventory[key].item.name}</span> <span class="item_count">x${item_count}</span>`;
             }
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
@@ -720,9 +750,9 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
                 item_use_button.classList.add("item_use_button");
                 item_use_button.innerText = "[use]";
                 item_control_div.appendChild(item_use_button);
-            } else if(character.inventory[key].item.item_type === "BOOK") {
+            } else if(character.inventory[key].item.item_type === "BOOK" && !book_stats[character.inventory[key].item.name].is_finished) {
                 const item_read_button = document.createElement("div");
-                item_read_button.classList.add("item_read_button");
+                item_read_button.classList.add("item_use_button");
                 item_read_button.innerText = "[read]";
                 item_control_div.appendChild(item_read_button);
 
@@ -1522,6 +1552,29 @@ function start_sleeping_display(){
     start_activity_animation();
 }
 
+function start_reading_display(title) {
+    clear_action_div();
+
+    const action_status_div = document.createElement("div");
+    action_status_div.innerText = `Reading the book, ${format_reading_time(item_templates[title].getRemainingTime())} left`;
+    action_status_div.id = "action_status_div";
+
+    const action_end_div = document.createElement("div");
+    action_end_div.setAttribute("onclick", "end_reading()");
+    action_end_div.id = "action_end_div";
+
+
+    const action_end_text = document.createElement("div");
+    action_end_text.innerText = `Stop reading for now`;
+    action_end_text.id = "action_end_text";
+
+    action_end_div.appendChild(action_end_text);
+
+    action_div.appendChild(action_status_div);
+    action_div.appendChild(action_end_div);
+    start_activity_animation({book_title: title});
+}
+
 /**
  * //creates new skill bar
  * @param {Skill} skill 
@@ -1916,5 +1969,6 @@ export {
     update_displayed_location_choices,
     create_new_bestiary_entry,
     update_bestiary_entry,
-    clear_bestiary
+    clear_bestiary,
+    start_reading_display
 }

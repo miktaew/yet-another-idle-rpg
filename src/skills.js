@@ -543,8 +543,8 @@ function format_skill_rewards(milestone){
                                     skill_id: "Night vision",
                                     names: {0: "Night vision"},
                                     description: "Ability to see in darkness",
-                                    base_xp_cost: 300,
-                                    xp_scaling: 2,
+                                    base_xp_cost: 600,
+                                    xp_scaling: 1.8,
                                     max_level: 10,
                                     get_effect_description: () => {
                                         return `Reduces darkness penalty (except for 'pure darkness') by ${Math.round(10*skills["Night vision"].current_level*100/skills["Night vision"].max_level)/10}%`;
@@ -1193,7 +1193,7 @@ function format_skill_rewards(milestone){
         skill_id: "Literacy", 
         names: {0: "Literacy"}, 
         description: "Ability to read and understand written text",
-        base_xp_cost: 100,
+        base_xp_cost: 120,
         max_level: 10,
         xp_scaling: 2,
         get_effect_description: ()=> {

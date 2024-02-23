@@ -1070,8 +1070,12 @@
                         unequip_item(clicked_element.parentNode.getAttribute("data-character_item").substr(last_index+2));
                     } 
                     else if(clicked_element.classList.contains("item_use_button")) {
-                        use_item(clicked_element.parentNode.getAttribute("data-character_item"));
-                        update_displayed_character_inventory(character_sorting);
+                        if(clicked_element.parentNode.classList.contains("character_item_book")) {
+                            start_reading(clicked_element.parentNode.getAttribute("data-character_item"));
+                        } else {
+                            use_item(clicked_element.parentNode.getAttribute("data-character_item"));
+                            update_displayed_character_inventory(character_sorting);
+                        }
                     }
                 }
 
@@ -1089,8 +1093,10 @@
                         || hovered_element.classList.contains("inventory_item") 
                         || hovered_element.classList.contains("item_controls") 
                         || hovered_element.classList.contains("item_use_button") 
+                        || hovered_element.classList.contains("item_read_button") 
                         || hovered_element.classList.contains("inventory_item_name") 
                         || hovered_element.classList.contains("item_tooltip")
+                        || hovered_element.nodeName === "SPAN"
                         )) {
                         return;
                     }
@@ -1104,14 +1110,18 @@
                         if(hovered_element.classList.contains("trade_ammount_button") 
                             || hovered_element.classList.contains("inventory_item") 
                             || hovered_element.classList.contains("item_controls") 
-                            || hovered_element.classList.contains("item_use_button")) 
+                            || hovered_element.classList.contains("item_use_button") 
+                            || hovered_element.classList.contains("item_read_button")
+                            )
                         {
                             hovered_element = hovered_element.parentNode;
                         } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip")) {
                             hovered_element = hovered_element.parentNode.parentNode;
+                        } else if(hovered_element.nodeName === "SPAN") {
+                            hovered_element = hovered_element.parentNode.parentNode.parentNode;
                         }
                     }
-                    
+
                     const tooltip_height = hovered_element.children[0].children[1].scrollHeight;
 
                     const body = document.getElementsByTagName("body")[0];
@@ -1141,12 +1151,13 @@
                     var hovered_element = event.target;
                     if(!hovered_element.classList.contains("trader_item_control")){
                         if(hovered_element.classList.contains("trade_ammount_button") 
-                        || hovered_element.classList.contains("trader_item") || hovered_element.classList.contains("item_value")) 
+                            || hovered_element.classList.contains("trader_item") 
+                            || hovered_element.classList.contains("item_value")) 
                         {
                             hovered_element = hovered_element.parentNode;
                         } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip")) {
                             hovered_element = hovered_element.parentNode.parentNode;
-                        } else if(hovered_element.classList.contains("item_slot")) {
+                        } else if(hovered_element.classList.contains("item_slot") || hovered_element.nodeName === "SPAN") {
                             hovered_element = hovered_element.parentNode.parentNode.parentNode;
                         }
                     }

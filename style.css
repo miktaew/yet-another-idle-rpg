@@ -21,7 +21,7 @@
 	--item_use_button_display: inline-block;
 	 
 	--item_other_width_default: 319px; /* value for out of trade */
-	--item_other_width_trade: 285px; /* value for in trade */
+	--item_other_width_trade: 280px; /* value for in trade */
 	--item_other_width: var(--item_other_width_default); /* modified in index.html on trade start/end to fit the buttons */
 
 	--item_tooltip_top: 0px;
@@ -288,6 +288,19 @@ body {
 	 width: 48px;
 }
 
+.item_stackable.book_finished {
+	width: 319;
+}
+
+.book_name {
+	font-style: italic;
+}
+
+.book_finished .inventory_item_name .book_name{
+	color: silver;
+}
+
+
 .unequip_item_button {
 	font-weight: bold;
 	cursor: pointer;
@@ -297,18 +310,11 @@ body {
 
 .item_use_button {
 	display: var(--item_use_button_display);
-	width: 34px;
-	font-weight: bold;
-	cursor: pointer;
-	font-size: 14;
-}
-
-.item_read_button {
-	display: var(--item_use_button_display);
 	width: 39px;
 	font-weight: bold;
 	cursor: pointer;
 	font-size: 14;
+	text-align: right;
 }
 
 .item_controls {
@@ -337,10 +343,6 @@ body {
 }
 
 .item_stackable {
-	width: 285px;
-}
-
-.item_book {
 	width: 280px;
 }
 
@@ -368,7 +370,7 @@ body {
 	display: var(--equipment_display);
 }
 
-.character_item_usable {
+.character_item_usable, .character_item_book {
 	display: var(--consumables_display);
 }
 
@@ -574,11 +576,11 @@ i {
 	cursor: pointer;
 	font-weight: bold;
 	font-size: 14;
-	width: 17px;
+	width: 19.5px;
 }
 
 .trader_item_control  .item_stackable {
-	width: 285px;
+	width: 280px;
 }
 
 .trader_item {
@@ -591,7 +593,7 @@ i {
 .trader_item_equippable {
 	display: var(--trader_equipment_display);
 }
-.trader_item_usable {
+.trader_item_usable, .trader_item_book {
 	display: var(--trader_consumable_display);
 }
 
@@ -1049,7 +1051,7 @@ i {
 	top: 53px;
 	width: 400px;
 	left: 410px;
-	height: 300px;
+	height: 277px;
 }
 
 	#story_header, #bestiary_header, #quests_header, #skill_list_header {
@@ -1061,7 +1063,7 @@ i {
 	#journal_control_div {
 		font-size: 20;
 		position: absolute;
-		top: 277px;
+		top: 254px;
 	}
 		.journal_control_button{
 			float: left;
@@ -1074,17 +1076,17 @@ i {
 		}
 			#story_box_div {
 				width:100%;
-				height: 277px;
+				height: 255px;
 			}
 			#quests_box_div {
 				width:100%;
-				height: 277px;
+				height: 255px;
 				display: none;
 			}
 
 			#bestiary_box_div {
 				width: 100%;
-				height: 277px;
+				height: 255px;
 				display: none;
 				overflow-y: scroll;
 				overflow-x: visible;
@@ -1126,9 +1128,9 @@ i {
 
 #skill_list_div {
 	left: 410px;
-	top: 362px;
+	top: 340px;
 	width: 400px;
-	height: 378px;
+	height: 400px;
 }
 		#skill_list {
 			overflow-y: scroll;

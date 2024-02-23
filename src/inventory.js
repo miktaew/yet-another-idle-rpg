@@ -18,6 +18,9 @@ class InventoryHaver {
             {
                 if(items[i].item.stackable)
                 {
+                    if(!items[i].count) {
+                        items[i].count=1;
+                    }
                     this.inventory[items[i].item.getName()] = items[i];
                 }
                 else 
@@ -29,7 +32,7 @@ class InventoryHaver {
             {
                 if(items[i].item.stackable)
                 {
-                    this.inventory[items[i].item.getName()].count += items[i].count;
+                    this.inventory[items[i].item.getName()].count += (items[i].count || 1);
                 } 
                 else 
                 {

@@ -41,6 +41,8 @@
             short blade: +agility
 */
 
+import { character } from "./character.js";
+
 const rarity_multipliers = {
     trash: 1,
     common: 1,
@@ -426,6 +428,7 @@ class BookData{
         required_skills = {literacy: 0},
         literacy_xp_rate = 1,
         finish_reward = {},
+        rewards = {},
     }) {
         this.required_time = required_time;
         this.accumulated_time = 0;
@@ -433,6 +436,7 @@ class BookData{
         this.literacy_xp_rate = literacy_xp_rate;
         this.finish_reward = finish_reward;
         this.is_finished = false;
+        this.rewards = rewards;
     }
 }
 
@@ -446,35 +450,38 @@ class Book extends Item {
         this.name = item_data.name;
     }
 
+    /**
+     * 
+     * @returns {Number} total time needed to read the book
+     */
     getReadingTime() {
         //maybe make it go faster with literacy skill level?
         let {required_time} = book_stats[this.name];
         return required_time;
     }
 
+    /**
+     * 
+     * @returns {Number} remaining time needed to read the book (total time minus accumulated time)
+     */
+    getRemainingTime() {
+        let remaining_time = Math.max(book_stats[this.name].required_time - book_stats[this.name].accumulated_time, 0);
+        return remaining_time;
+    }
+
     addProgress(time = 1) {
         book_stats[this.name].accumulated_time += time;
         if(book_stats[this.name].accumulated_time >= book_stats[this.name].required_time) {
             this.setAsFinished();
-            //todo: increment completed book count?
         }
     }
 
     setAsFinished() {
         book_stats[this.name].is_finished = true;
+        book_stats[this.name].accumulated_time = book_stats[this.name].required_time;
+        character.stats.add_book_bonus(book_stats[this.name].rewards);
     }
 }
-
-book_stats["ABC for kids"] = new BookData({
-    required_time: 600,
-    literacy_xp_rate: 0.5,
-});
-
-item_templates["ABC for kids"] = new Book({
-    name: "ABC for kids",
-    description: "A very basic and simple book meant for learning how to read",
-    value: 10,
-});
 
 /**
  * @param {*} item_data 
@@ -508,6 +515,41 @@ function getItem(item_data) {
             throw new Error(`Wrong item type: ${item_data.item_type}`);
     }
 }
+
+//book stats
+book_stats["ABC for kids"] = new BookData({
+    required_time: 120,
+    literacy_xp_rate: 1,
+    rewards: {
+        xp_multipliers: {
+            all: 1.1,
+        }
+    },
+});
+
+book_stats["Old combat manual"] = new BookData({
+    required_time: 320,
+    literacy_xp_rate: 1,
+    rewards: {
+        xp_multipliers: {
+            combat: 1.1,
+        }
+    },
+});
+
+
+//books
+item_templates["ABC for kids"] = new Book({
+    name: "ABC for kids",
+    description: "The simplest book on the market",
+    value: 10,
+});
+
+item_templates["Old combat manual"] = new Book({
+    name: "Old combat manual",
+    description: "Old book about combat, worn and outdated, but might still contain something useful",
+    value: 20,
+});
 
 //miscellaneous:
 (function(){

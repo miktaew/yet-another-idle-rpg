@@ -118,7 +118,7 @@ function format_time(data) { //{time, long_names?}
 
 
 
-    var formatted_time = '';
+    let formatted_time = '';
     if(data.time.years > 0) {
         formatted_time += data.long_names? `${data.time.year} years` : `${data.time.year} Y`;
     }
@@ -138,6 +138,6 @@ function format_time(data) { //{time, long_names?}
     return formatted_time;
 }
 
-const current_game_time = new Game_time({year: 1000, month: 4, day: 1, hour: 8, minute: 0, day_count: 1});
+const current_game_time = new Game_time({year: 999, month: 4, day: 1, hour: 8, minute: 0, day_count: 1});
 
 export {current_game_time, format_time};

@@ -11,5 +11,17 @@ function expo(number, precision = 2)
     }
 }
 
+function format_reading_time(time) {
+    if(time >= 120) {
+        return `${time/60} hours`;
+    }
+    else if(time >= 60) {
+        return '1 hour';
+    }
+    else {
+        return `${time} minutes`;
+    }
+}
 
-export { expo };
+
+export { expo, format_reading_time };

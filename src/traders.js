@@ -152,7 +152,8 @@ inventory_templates["Basic"] =
         new TradeItem({item_name: "Fresh bread", count: [2,5]}),
         new TradeItem({item_name: "Weak healing powder", count: [2,5]}),
 
-        new TradeItem({item_name: "ABC for kids", count: [1], chance: 1, quality: null}),
+        new TradeItem({item_name: "ABC for kids", count: [1], chance: 1}),
+        new TradeItem({item_name: "Old combat manual", count: [1], chance: 0.5}),
 ];
 
 export {traders};

@@ -1,3 +1,5 @@
+v0.3.4
+    - implemented books (only 2 available for now)
 v0.3.3
     - rebalanced stat gains from skill milestones
     - added another combat location between infested field and cave depths, to smooth the progression
