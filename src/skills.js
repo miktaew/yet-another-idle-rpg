@@ -3,6 +3,7 @@
 const skills = {};
 
 import { character } from "./character.js";
+import {stat_names} from "./misc.js";
 
 /*    
 TODO:
@@ -223,16 +224,6 @@ class Skill {
     };
 }
 
-const stat_names = {"strength": "str",
-                    "health": "hp",
-                    "max_health": "hp", //same as for "health"
-                    "max_stamina": "stamina",
-                    "agility": "agl",
-                    "dexterity": "dex",
-                    "magic": "magic",
-                    "attack_speed": "atk spd",
-                    "crit_rate": "crit rate",
-                    "crit_multiplier": "crit dmg"};
 
 /**
  * @param {String} skill_id key from skills object

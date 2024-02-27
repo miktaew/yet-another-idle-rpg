@@ -23,5 +23,16 @@ function format_reading_time(time) {
     }
 }
 
+const stat_names = {"strength": "str",
+                    "health": "hp",
+                    "max_health": "hp", //same as for "health"
+                    "max_stamina": "stamina",
+                    "agility": "agl",
+                    "dexterity": "dex",
+                    "magic": "magic",
+                    "attack_speed": "atk spd",
+                    "crit_rate": "crit rate",
+                    "crit_multiplier": "crit dmg"};
 
-export { expo, format_reading_time };
+
+export { expo, format_reading_time, stat_names };

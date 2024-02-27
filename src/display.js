@@ -11,7 +11,7 @@ import { format_time, current_game_time } from "./game_time.js";
 import { book_stats, item_templates } from "./items.js";
 import { location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
-import { expo, format_reading_time } from "./misc.js"
+import { expo, format_reading_time, stat_names } from "./misc.js"
 
 var activity_anim; //for the activity animation interval
 
@@ -183,7 +183,12 @@ function create_item_tooltip(item, options) {
             }
         });
     } else if(item.item_type === "BOOK") {
-        item_tooltip.innerHTML += `<br><br>Time to read: ${item.getRemainingTime()} minutes`;
+        if(!book_stats[item.name].is_finished) {
+            item_tooltip.innerHTML += `<br><br>Time to read: ${item.getRemainingTime()} minutes`;
+        }
+        else {
+            item_tooltip.innerHTML += `<br><br>Reading it provided ${character.name} with:<br> ${format_rewards(book_stats[item.name].rewards)}`;
+        }
     }
 
     item_tooltip.innerHTML += `<br><br>Value: ${format_money(Math.ceil(item.getValue() * ((options && options.trader) ? traders[current_trader].profit_margin : 1) || 1))}`;
@@ -323,6 +328,42 @@ function end_activity_animation() {
     
     message_log.scrollTop = message_log.scrollHeight;
 
+}
+
+function format_rewards(rewards) {
+    let formatted = '';
+    if(rewards.stats) {
+        const stats = Object.keys(rewards.stats);
+        
+        formatted = `+${rewards.stats[stats[0]]} ${stat_names[stats[0]]}`;
+        for(let i = 1; i < stats.length; i++) {
+            formatted += `, +${rewards.stats[stats[i]]} ${stat_names[stats[i]]}`;
+        }
+    }
+
+    if(rewards.multipliers) {
+        const multipliers = Object.keys(rewards.multipliers);
+        if(formatted) {
+            formatted += `, x${rewards.multipliers[multipliers[0]]} ${stat_names[multipliers[0]]}`;
+        } else {
+            formatted = `x${rewards.multipliers[multipliers[0]]} ${stat_names[multipliers[0]]}`;
+        }
+        for(let i = 1; i < multipliers.length; i++) {
+            formatted += `, x${rewards.multipliers[multipliers[i]]} ${stat_names[multipliers[i]]}`;
+        }
+    }
+    if(rewards.xp_multipliers) {
+        const xp_multipliers = Object.keys(rewards.xp_multipliers);
+        if(formatted) {
+            formatted += `, x${rewards.xp_multipliers[xp_multipliers[0]]} ${xp_multipliers[0]} xp gain`;
+        } else {
+            formatted = `x${rewards.xp_multipliers[xp_multipliers[0]]} ${xp_multipliers[0]} xp gain`;
+        }
+        for(let i = 1; i < xp_multipliers.length; i++) {
+            formatted += `, x${rewards.xp_multipliers[xp_multipliers[i]]} ${xp_multipliers[i]} xp gain`;
+        }
+    }
+    return formatted;
 }
 
 function clear_message_log() {
