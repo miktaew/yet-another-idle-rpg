@@ -1660,6 +1660,7 @@ function update() {
         if(save_counter >= save_period) {
             save_counter = 0;
             save_to_localStorage();
+            console.log("Auto-saved the game!");
         } //save every X/60 minutes
 
         if(!is_sleeping && current_location && current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 4)) 

@@ -288,8 +288,8 @@ body {
 	 width: 48px;
 }
 
-.item_stackable.book_finished {
-	width: 319;
+.item_stackable.book_finished + .item_use_button {
+	visibility:hidden;
 }
 
 .book_name {
@@ -367,9 +367,11 @@ body {
 	background-color: rgba(0, 128, 0, 0.4);
 }
 
-.item_stackable.item_other {
+.item_stackable.item_other{
 	width: var(--item_other_width);
 }
+
+
 
 .character_item_equippable {
 	display: var(--equipment_display);

@@ -812,7 +812,7 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
                 item_use_button.classList.add("item_use_button");
                 item_use_button.innerText = "[use]";
                 item_control_div.appendChild(item_use_button);
-            } else if(character.inventory[key].item.item_type === "BOOK" && !book_stats[character.inventory[key].item.name].is_finished) {
+            } else if(character.inventory[key].item.item_type === "BOOK") {
                 const item_read_button = document.createElement("div");
                 item_read_button.classList.add("item_use_button");
                 item_read_button.innerText = "[read]";

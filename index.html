@@ -1384,6 +1384,8 @@
                         } else if(clicked_element.classList.contains("trade_ammount_button")) {
                             number_to_move = Number(clicked_element.getAttribute("data-trade_ammount"));
                             clicked_element = clicked_element.parentNode; 
+                        } else if(clicked_element.nodeName === "SPAN") {
+                            clicked_element = clicked_element.parentNode.parentNode.parentNode; 
                         } else {
                             return;
                         }
