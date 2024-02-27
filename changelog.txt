@@ -1,3 +1,7 @@
+v0.3.4c
+    - fixed wrong drop chance values in bestiary (shown values were 100x smaller than in reality)
+    - huge buff to shield block chance
+    - bugfix for loading
 v0.3.4b
     - added visual distinction to the book that is being read
     - fixed trade bug

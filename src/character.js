@@ -492,7 +492,7 @@ function unequip_item(item_slot) {
 
         if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
             character.combat_stats.evasion_points = null;
-            character.combat_stats.block_chance = 0.4 + Math.round(skills["Shield blocking"].get_level_bonus() * 10000)/10000;
+            character.combat_stats.block_chance = 0.8 + Math.round(skills["Shield blocking"].get_level_bonus() * 10000)/10000;
         }
 
     

@@ -1217,7 +1217,7 @@ function load(save_data) {
             if(Array.isArray(save_data.character.inventory[key])) { //is a list of unstackable items (equippables or books), needs to be added 1 by 1
                 for(let i = 0; i < save_data.character.inventory[key].length; i++) {
                     try{
-                        if(save_data.save_data.character.inventory[key][i].equip_slot.item_type === "EQUIPPABLE")
+                        if(save_data.character.inventory[key][i].equip_slot.item_type === "EQUIPPABLE")
                         {
                             if(save_data.character.inventory[key][i].equip_slot === "weapon") {
                                 const {components, quality, equip_slot} = save_data.character.inventory[key][i];

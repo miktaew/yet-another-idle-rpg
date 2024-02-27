@@ -1912,8 +1912,8 @@ function create_new_bestiary_entry(enemy_name) {
         loot_chance_current.classList.add("loot_chance_current");
 
         loot_name.innerHTML = `${enemy.loot_list[i].item_name}`;
-        loot_chance_base.innerHTML = `[${enemy.loot_list[i].chance}%]`;
-        loot_chance_current.innerHTML = `${Math.round(10000*enemy.loot_list[i].chance*enemy.get_droprate_modifier())/10000}%`;
+        loot_chance_base.innerHTML = `[${enemy.loot_list[i].chance*100}%]`;
+        loot_chance_current.innerHTML = `${Math.round(100*enemy.loot_list[i].chance*enemy.get_droprate_modifier())}%`;
         loot_chance.append(loot_chance_current, loot_chance_base);
         loot_line.append(loot_name, loot_chance);
 
@@ -1961,7 +1961,7 @@ function update_bestiary_entry_description(enemy_name) {
     const enemy = enemy_templates[enemy_name];
     const loot_divs = bestiary_entry_divs[enemy_name].children[2].children[3].children;
     for(let i = 2; i < loot_divs.length; i++) {
-        loot_divs[i].children[1].children[0].innerHTML = `${Math.round(10000*enemy.loot_list[i-2].chance*enemy.get_droprate_modifier())/10000}%`;
+        loot_divs[i].children[1].children[0].innerHTML = `${Math.round(100*enemy.loot_list[i-2].chance*enemy.get_droprate_modifier())}%`;
     }
 }
 
