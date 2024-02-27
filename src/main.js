@@ -280,33 +280,52 @@ function start_reading(title) {
     if(locations[current_location]?.parent_location) {
         return; //no reading in combat areas
     }
-    if(is_reading) {
-        return; //already reading something
+    
+    if(is_reading === title) {
+        end_reading(); //reading the same one, cancel
+        return;
     }
+    
     if(book_stats[title].is_finished) {
         return; //already read
     }
 
+    if(is_sleeping) {
+        end_sleeping();
+    }
+    if(current_activity) {
+        end_activity();
+    }
+
+
     is_reading = title;
     start_reading_display(title);
+
+    update_displayed_character_inventory();
 }
 
 function end_reading() {
     change_location(current_location.name);
     end_activity_animation();
-
-    if(book_stats[is_reading].is_finished) {
-        update_displayed_character_inventory();
-    }
+    
     is_reading = null;
+
+    update_displayed_character_inventory();
 }
 
 function do_reading() {
     item_templates[is_reading].addProgress();
+
+    update_displayed_character_inventory({item_name: is_reading});
+
     if(book_stats[is_reading].is_finished) {
         log_message(`Finished the book "${is_reading}"`);
         end_reading();
     }
+}
+
+function get_current_book() {
+    return is_reading;
 }
 
 /**
@@ -1748,6 +1767,7 @@ else {
     add_to_character_inventory([{item: getItem({...item_templates["Cheap iron sword"], quality: 0.4})}, 
                                 {item: getItem({...item_templates["Cheap leather pants"], quality: 0.4})},
                                 {item: getItem(item_templates["Stale bread"]), count: 5},
+                                //{item: getItem(item_templates["ABC for kids"]), count: 1},
                             ]);
 
     equip_item_from_inventory({item_name: "Cheap iron sword", item_id: 0});
@@ -1762,4 +1782,4 @@ update_displayed_equipment();
 run();
 
 
-export { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, add_xp_to_skill };
+export { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, add_xp_to_skill, get_current_book };

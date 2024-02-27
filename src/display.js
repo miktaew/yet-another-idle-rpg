@@ -4,7 +4,7 @@ import { traders } from "./traders.js";
 import { current_trader, to_buy, to_sell } from "./trade.js";
 import { skills, get_unlocked_skill_rewards, get_next_skill_milestone } from "./skills.js";
 import { character } from "./character.js";
-import { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings } from "./main.js";
+import { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, get_current_book } from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time } from "./game_time.js";
@@ -382,7 +382,7 @@ function update_displayed_money() {
     document.getElementById("money_div").innerHTML = `Your purse contains: ${format_money(character.money)}`;
 }
 
-function update_displayed_trader_inventory(sorting_param) {
+function update_displayed_trader_inventory({trader_sorting} = {}) {
     const trader = traders[current_trader];
     trader_inventory_div.textContent = "";
 
@@ -572,7 +572,7 @@ function update_displayed_trader_inventory(sorting_param) {
         }
     }
 
-    sort_displayed_inventory({sort_by: sorting_param || "name", target: "trader"});
+    sort_displayed_inventory({sort_by: trader_sorting || "name", target: "trader"});
 }
 
 function sort_displayed_inventory({sort_by, target = "character", direction = "asc"}) {
@@ -637,15 +637,34 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
 
 /**
  * updates displayed inventory of the character (only inventory, worn equipment is managed by separate method)
+ * if item_name is passed, it will instead only update the display of that one item
  */
- function update_displayed_character_inventory() {    
-    inventory_div.innerHTML = "";
+ function update_displayed_character_inventory({item_name, character_sorting} = {}) {    
+
+    if(item_name) {
+        //recreate only one node
+        const node = inventory_div.querySelector(`[data-character_item="${item_name}"]`);
+        if(node) {
+            node.remove();
+        } else {
+            return;
+        }
+    } else {
+        //recreate all
+        inventory_div.innerHTML = "";
+    }
 
     Object.keys(character.inventory).forEach(function(key) {
+        if(item_name) {
+            if(key !== item_name) {
+                return;
+            }
+        }
+
         if(character.inventory[key] instanceof Array) //unstackables
         { 
             for(let i = 0; i < character.inventory[key].length; i++) {
-
+                
                 let should_continue = false;
                 for(let j = 0; j < to_sell.items.length; j++) {
                     if(character.inventory[key][i].getName() === to_sell.items[j].item.split(" #")[0] && i == Number(to_sell.items[j].item.split(" #")[1])) {
@@ -719,6 +738,8 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
 
                 if(book_stats[character.inventory[key].item.name].is_finished) {
                     item_div.classList.add("book_finished");
+                } else if(get_current_book() === character.inventory[key].item.name) {
+                    item_control_div.classList.add("book_active");
                 }
             } else {
                 item_name_div.innerHTML = `<span class = "item_category"></span> <span class = "item_name">${character.inventory[key].item.name}</span> <span class="item_count">x${item_count}</span>`;
@@ -774,6 +795,11 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
 
     //equipped items
     Object.keys(character.equipment).forEach(function(key) {
+        if(item_name) {
+            if(key !== item_name) {
+                return;
+            }
+        }
         const item = character.equipment[key];
         if(item) {
             var item_control_div = document.createElement("div");
@@ -807,81 +833,83 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
         }
     });
 
-    //add items from to_buy to display
-    for(let i = 0; i < to_buy.items.length; i++) {
-        
-        const item_index = Number(to_buy.items[i].item.split(" #")[1]);
-
-        if(isNaN(item_index)) { //it's stackable, so item_count is needed
-            const item_count = to_buy.items[i].count;
-            const actual_item = traders[current_trader].inventory[to_buy.items[i].item].item;
-
-            const item_control_div = document.createElement("div");
-            const item_div = document.createElement("div");
-            const item_name_div = document.createElement("div");
     
-            item_name_div.innerHTML = `${actual_item.name} x${item_count}`;
-            item_name_div.classList.add("inventory_item_name");
-            item_div.appendChild(item_name_div);
-
-            item_div.classList.add('item_stackable', "inventory_item", 'character_item');
-
-            item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
-
-            const trade_button_5 = document.createElement("div");
-            trade_button_5.classList.add("trade_ammount_button");
-            trade_button_5.innerText = "5";
-            trade_button_5.setAttribute("data-trade_ammount", 5);
-
-            const trade_button_10 = document.createElement("div");
-            trade_button_10.classList.add("trade_ammount_button");
-            trade_button_10.innerText = "10";
-            trade_button_10.setAttribute("data-trade_ammount", 10);
-
-            item_control_div.classList.add('item_to_trade', 'character_item_control', 'inventory_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
-            item_control_div.setAttribute("data-character_item", `${actual_item.name}`);
-            item_control_div.setAttribute("data-item_count", `${item_count}`);
-            item_control_div.appendChild(item_div);
-
-            item_control_div.appendChild(trade_button_5);
-            item_control_div.appendChild(trade_button_10);
-
-            var item_value_span = document.createElement("span");
-            item_value_span.innerHTML = `${format_money(actual_item.getValue() * traders[current_trader].profit_margin, true)}`;
-            item_value_span.classList.add("item_value", "item_controls");
-            item_control_div.appendChild(item_value_span);
-
-            inventory_div.appendChild(item_control_div);
+    if(!item_name){
+    //add items from to_buy to display
+        for(let i = 0; i < to_buy.items.length; i++) {
             
-        } else { //it's unstackable, no need for item_count as it's always at 1
+            const item_index = Number(to_buy.items[i].item.split(" #")[1]);
 
-            const actual_item = traders[current_trader].inventory[to_buy.items[i].item.split(" #")[0]][item_index];
+            if(isNaN(item_index)) { //it's stackable, so item_count is needed
+                const item_count = to_buy.items[i].count;
+                const actual_item = traders[current_trader].inventory[to_buy.items[i].item].item;
 
-            const item_control_div = document.createElement("div");
-            const item_div = document.createElement("div");
-            const item_name_div = document.createElement("div");
+                const item_control_div = document.createElement("div");
+                const item_div = document.createElement("div");
+                const item_name_div = document.createElement("div");
+        
+                item_name_div.innerHTML = `${actual_item.name} x${item_count}`;
+                item_name_div.classList.add("inventory_item_name");
+                item_div.appendChild(item_name_div);
 
-            item_name_div.innerHTML = `[${item_templates[actual_item.getName()].equip_slot}] ${actual_item.getName()}`;
-            item_name_div.classList.add("inventory_item_name");
-            item_div.appendChild(item_name_div);
-            item_div.classList.add("inventory_item", "character_item", "trade_item_equippable",);       
+                item_div.classList.add('item_stackable', "inventory_item", 'character_item');
 
-            //add tooltip
-            item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
+                item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
 
-            item_control_div.classList.add('item_to_trade', 'inventory_item_control', 'character_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
-            item_control_div.setAttribute("data-character_item", `${actual_item.getName()} #${item_index}`)
-            item_control_div.appendChild(item_div);
+                const trade_button_5 = document.createElement("div");
+                trade_button_5.classList.add("trade_ammount_button");
+                trade_button_5.innerText = "5";
+                trade_button_5.setAttribute("data-trade_ammount", 5);
 
-            var item_value_span = document.createElement("span");
-            item_value_span.innerHTML = `${format_money(actual_item.getValue() * traders[current_trader].profit_margin, true)}`;
-            item_value_span.classList.add("item_value", "item_controls");
-            item_control_div.appendChild(item_value_span);
+                const trade_button_10 = document.createElement("div");
+                trade_button_10.classList.add("trade_ammount_button");
+                trade_button_10.innerText = "10";
+                trade_button_10.setAttribute("data-trade_ammount", 10);
 
-            inventory_div.appendChild(item_control_div);
+                item_control_div.classList.add('item_to_trade', 'character_item_control', 'inventory_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
+                item_control_div.setAttribute("data-character_item", `${actual_item.name}`);
+                item_control_div.setAttribute("data-item_count", `${item_count}`);
+                item_control_div.appendChild(item_div);
+
+                item_control_div.appendChild(trade_button_5);
+                item_control_div.appendChild(trade_button_10);
+
+                var item_value_span = document.createElement("span");
+                item_value_span.innerHTML = `${format_money(actual_item.getValue() * traders[current_trader].profit_margin, true)}`;
+                item_value_span.classList.add("item_value", "item_controls");
+                item_control_div.appendChild(item_value_span);
+
+                inventory_div.appendChild(item_control_div);
+                
+            } else { //it's unstackable, no need for item_count as it's always at 1
+
+                const actual_item = traders[current_trader].inventory[to_buy.items[i].item.split(" #")[0]][item_index];
+
+                const item_control_div = document.createElement("div");
+                const item_div = document.createElement("div");
+                const item_name_div = document.createElement("div");
+
+                item_name_div.innerHTML = `[${item_templates[actual_item.getName()].equip_slot}] ${actual_item.getName()}`;
+                item_name_div.classList.add("inventory_item_name");
+                item_div.appendChild(item_name_div);
+                item_div.classList.add("inventory_item", "character_item", "trade_item_equippable",);       
+
+                //add tooltip
+                item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
+
+                item_control_div.classList.add('item_to_trade', 'inventory_item_control', 'character_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
+                item_control_div.setAttribute("data-character_item", `${actual_item.getName()} #${item_index}`)
+                item_control_div.appendChild(item_div);
+
+                var item_value_span = document.createElement("span");
+                item_value_span.innerHTML = `${format_money(actual_item.getValue() * traders[current_trader].profit_margin, true)}`;
+                item_value_span.classList.add("item_value", "item_controls");
+                item_control_div.appendChild(item_value_span);
+
+                inventory_div.appendChild(item_control_div);
+            }
         }
     }
-
 
     sort_displayed_inventory({target: "character"});
 }

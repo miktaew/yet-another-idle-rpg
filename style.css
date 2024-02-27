@@ -300,6 +300,11 @@ body {
 	color: silver;
 }
 
+.book_active {
+	color: gold;
+	background-color: rgba(255, 236, 128, 0.3);
+}
+
 
 .unequip_item_button {
 	font-weight: bold;

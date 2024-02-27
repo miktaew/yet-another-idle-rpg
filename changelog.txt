@@ -1,3 +1,7 @@
+v0.3.4b
+    - added visual distinction to the book that is being read
+    - fixed trade bug
+    - modified function for inventory display so it can now not only refresh all items but also a single one
 v0.3.4
     - implemented books (only 2 available for now)
 v0.3.3

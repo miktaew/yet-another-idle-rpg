@@ -1417,8 +1417,8 @@
                         }
                     }
 
-                    update_displayed_trader_inventory(trader_sorting);
-                    update_displayed_character_inventory(character_sorting);
+                    update_displayed_trader_inventory({trader_sorting});
+                    update_displayed_character_inventory({character_sorting});
 
                     trade_price_value.innerHTML = format_money(total_price);
                     check_trade_cost();
