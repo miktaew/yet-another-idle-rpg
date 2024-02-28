@@ -951,7 +951,7 @@ i {
 						font-size: 12;
 					}
 					.enemy_stat_short, .attack_stat_short {
-						width: 55px;
+						width: 50px;
 					}
 					.enemy_stat_long, .attack_stat_long {
 						width: 80px;
@@ -992,10 +992,6 @@ i {
 		top: 150px;
 	}
 
-	#def_stat {
-		width: 100px;
-		top: 150px;
-	}
 	#character_combat_management{
 		width: 400px;
 		top: 177px;

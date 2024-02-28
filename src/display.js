@@ -1050,7 +1050,6 @@ function update_displayed_normal_location(location) {
     document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_default'));
     document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_default'));
     character_attack_bar.parentNode.style.display = "none";
-    document.getElementById("def_stat").style.display = "none";
     
     ////////////////////////////////////
     //add buttons for starting dialogues
@@ -1139,14 +1138,14 @@ function update_displayed_normal_location(location) {
 
     const available_locations = location.connected_locations.filter(location => location.location.is_unlocked);
 
-    if(available_locations.length > 2) {
+    if(available_locations.length > 2 && (location.sleeping || available_trainings.length > 0 || available_jobs.length > 0 ||  available_traders.length > 0 || available_dialogues.length > 0)) {
         const locations_button = document.createElement("div");
         locations_button.setAttribute("data-location", location.name);
         locations_button.classList.add("location_choices");
         locations_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "travel")');
         locations_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Move somewhere else';
         action_div.appendChild(locations_button);
-    } else if (available_locations.length <= 2) {
+    } else if(available_locations.length > 0) {
         action_div.append(...create_location_choices(location, "travel"));
     }
 
@@ -1261,8 +1260,6 @@ function create_location_choices(location, category, add_icons = true) {
                 continue;
             }
 
-            
-    
             const action = document.createElement("div");
             
             if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
@@ -1311,7 +1308,6 @@ function update_displayed_combat_location(location) {
     enemy_count_div.style.display = "block";
     combat_div.style.display = "block";
     character_attack_bar.parentNode.style.display = "block";
-    document.getElementById("def_stat").style.display = "block";
 
     document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_combat'));
     document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_combat'));
@@ -1407,8 +1403,7 @@ function update_displayed_combat_stats() {
     attack_stats.children[0].innerHTML = `Atk pwr: ${Math.round(character.get_attack_power()*10)/10}`;
     attack_stats.children[1].innerHTML = `Atk spd: ${Math.round(character.get_attack_speed()*10)/10}`;
     attack_stats.children[2].innerHTML = `AP  ${Math.round(ap)}`;
-    
-    document.getElementById("def_stat").innerHTML = `Def: ${Math.round(character.stats.full.defense)} `;
+    attack_stats.children[4].innerHTML = `Def: ${Math.round(character.stats.full.defense)} `;
 }
 
 function update_displayed_effects() {

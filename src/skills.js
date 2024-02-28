@@ -81,7 +81,7 @@ class Skill {
             return (this.names[keys[0]]);
         }
         else {
-            var rank_name;
+            let rank_name;
             for (var i = 0; i <= keys.length; i++) {
                 if (this.current_level >= parseInt(keys[i])) {
                     rank_name = this.names[keys[i]];
@@ -864,7 +864,7 @@ function format_skill_rewards(milestone){
                                                 max_stamina: 5,
                                             },
                                             multipliers: {
-                                                "strength": 1.1,
+                                                "strength": 1.05,
                                                 "dexterity": 1.05,
                                             }
                                         }
@@ -892,7 +892,7 @@ function format_skill_rewards(milestone){
                                                     "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
-                                                    all: 1.2,
+                                                    all: 1.05,
                                                 }
                                             },
                                             4: {
@@ -903,7 +903,7 @@ function format_skill_rewards(milestone){
                                                     "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
-                                                    all: 1.2,
+                                                    all: 1.05,
                                                 }
                                             },
                                             6: {
@@ -914,7 +914,7 @@ function format_skill_rewards(milestone){
                                                     "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
-                                                    all: 1.2,
+                                                    all: 1.1,
                                                 }
                                             },
                                             8: {
@@ -925,7 +925,7 @@ function format_skill_rewards(milestone){
                                                     "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
-                                                    all: 1.2,
+                                                    all: 1.1,
                                                 }
                                             },
                                             10: {
@@ -936,7 +936,7 @@ function format_skill_rewards(milestone){
                                                     "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
-                                                    all: 1.2,
+                                                    all: 1.1,
                                                 }
                                             }
                                         }
