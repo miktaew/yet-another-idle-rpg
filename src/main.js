@@ -36,7 +36,7 @@ import { end_activity_animation,
         } from "./display.js";
 
 const save_key = "save data";
-const game_version = "v0.3.4";
+const game_version = "v0.3.4f";
 
 //current enemy
 var current_enemies = null;
@@ -924,7 +924,7 @@ function get_location_rewards(location) {
     //all below: on each clear, so that if something gets added after location was cleared, it will still be unlockable
 
     for(let i = 0; i < location.repeatable_reward.locations?.length; i++) { //unlock locations
-        unlock_location(location.repeatable_reward.locations[i]);
+        unlock_location(locations[location.repeatable_reward.locations[i]]);
     }
 
     for(let i = 0; i < location.repeatable_reward.textlines?.length; i++) { //unlock textlines
@@ -964,6 +964,11 @@ function unlock_location(location) {
     if(!location.is_unlocked){
         location.is_unlocked = true;
         log_message(`Unlocked location ${location.name}`, "location_unlocked");
+
+        //reloads the location (assumption is that a new one was unlocked by clearing a zone)
+        if(!current_dialogue) {
+            change_location(current_location.name);
+        }
     }
 }
 
