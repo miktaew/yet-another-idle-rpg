@@ -21,7 +21,6 @@
             quality affects only attack/defense/max block, while additional multiplier affects all positive stats 
             (i.e flat bonuses over 0 and multiplicative bonuses over 1)
 
-
     basic idea for weapons:
 
         short blades (daggers/spears) are the fastest but also the weakest, +the most crit rate and crit damage
@@ -37,15 +36,12 @@
         and attack speed goes               dagger > sword > spear > axe > blunt
         which kinda makes spears very average, but they also get bonus crit so whatever
 
-
         other bonuses: 
             long handle: -agility
             short blade: +agility
-
-
 */
 
-//import { character } from "./character.js";
+import { character } from "./character.js";
 
 const rarity_multipliers = {
     trash: 1,
@@ -58,7 +54,6 @@ const rarity_multipliers = {
 };
 
 const item_templates = {};
-
 
 class Item {
     constructor({name,
@@ -250,7 +245,6 @@ class Equippable extends Item {
     
 }
 
-
 class Shield extends Equippable {
     constructor(item_data) {
         super(item_data);
@@ -425,6 +419,70 @@ class Weapon extends Equippable {
     }
 }
 
+//////////////////////////////
+//////////////////////////////
+//////////////////////////////
+class BookData{
+    constructor({
+        required_time = 1,
+        required_skills = {literacy: 0},
+        literacy_xp_rate = 1,
+        finish_reward = {},
+        rewards = {},
+    }) {
+        this.required_time = required_time;
+        this.accumulated_time = 0;
+        this.required_skills = required_skills;
+        this.literacy_xp_rate = literacy_xp_rate;
+        this.finish_reward = finish_reward;
+        this.is_finished = false;
+        this.rewards = rewards;
+    }
+}
+
+const book_stats = {};
+
+class Book extends Item {
+    constructor(item_data) {
+        super(item_data);
+        this.stackable = true;
+        this.item_type = "BOOK";
+        this.name = item_data.name;
+    }
+
+    /**
+     * 
+     * @returns {Number} total time needed to read the book
+     */
+    getReadingTime() {
+        //maybe make it go faster with literacy skill level?
+        let {required_time} = book_stats[this.name];
+        return required_time;
+    }
+
+    /**
+     * 
+     * @returns {Number} remaining time needed to read the book (total time minus accumulated time)
+     */
+    getRemainingTime() {
+        let remaining_time = Math.max(book_stats[this.name].required_time - book_stats[this.name].accumulated_time, 0);
+        return remaining_time;
+    }
+
+    addProgress(time = 1) {
+        book_stats[this.name].accumulated_time += time;
+        if(book_stats[this.name].accumulated_time >= book_stats[this.name].required_time) {
+            this.setAsFinished();
+        }
+    }
+
+    setAsFinished() {
+        book_stats[this.name].is_finished = true;
+        book_stats[this.name].accumulated_time = book_stats[this.name].required_time;
+        character.stats.add_book_bonus(book_stats[this.name].rewards);
+    }
+}
+
 /**
  * @param {*} item_data 
  * @returns item of proper type, created with item_data
@@ -442,6 +500,8 @@ function getItem(item_data) {
             }
         case "USABLE":
             return new UsableItem(item_data);
+        case "BOOK":
+            return new Book(item_data);
         case "OTHER":
             if("weapon_types" in item_data) 
                 return new WeaponComponent(item_data);
@@ -455,6 +515,41 @@ function getItem(item_data) {
             throw new Error(`Wrong item type: ${item_data.item_type}`);
     }
 }
+
+//book stats
+book_stats["ABC for kids"] = new BookData({
+    required_time: 120,
+    literacy_xp_rate: 1,
+    rewards: {
+        xp_multipliers: {
+            all: 1.1,
+        }
+    },
+});
+
+book_stats["Old combat manual"] = new BookData({
+    required_time: 320,
+    literacy_xp_rate: 1,
+    rewards: {
+        xp_multipliers: {
+            combat: 1.1,
+        }
+    },
+});
+
+
+//books
+item_templates["ABC for kids"] = new Book({
+    name: "ABC for kids",
+    description: "The simplest book on the market",
+    value: 10,
+});
+
+item_templates["Old combat manual"] = new Book({
+    name: "Old combat manual",
+    description: "Old book about combat, worn and outdated, but might still contain something useful",
+    value: 20,
+});
 
 //miscellaneous:
 (function(){
@@ -702,7 +797,6 @@ function getItem(item_data) {
     });
 })();
 
-
 //usables:
 (function(){
     item_templates["Stale bread"] = new UsableItem({
@@ -736,6 +830,4 @@ function getItem(item_data) {
     });
 })();
 
-
-
-export {item_templates, OtherItem, UsableItem, Armor, Shield, Weapon, getItem};
+export {item_templates, Item, OtherItem, UsableItem, Armor, Shield, Weapon, getItem, Book, book_stats};

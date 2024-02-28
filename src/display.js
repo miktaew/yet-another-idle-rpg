@@ -4,14 +4,14 @@ import { traders } from "./traders.js";
 import { current_trader, to_buy, to_sell } from "./trade.js";
 import { skills, get_unlocked_skill_rewards, get_next_skill_milestone } from "./skills.js";
 import { character } from "./character.js";
-import { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings } from "./main.js";
+import { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, get_current_book } from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time } from "./game_time.js";
-import { item_templates } from "./items.js";
+import { book_stats, item_templates } from "./items.js";
 import { location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
-import { expo } from "./misc.js"
+import { expo, format_reading_time, stat_names } from "./misc.js"
 
 var activity_anim; //for the activity animation interval
 
@@ -182,6 +182,13 @@ function create_item_tooltip(item, options) {
                 item_tooltip.innerHTML += ` permanently`;
             }
         });
+    } else if(item.item_type === "BOOK") {
+        if(!book_stats[item.name].is_finished) {
+            item_tooltip.innerHTML += `<br><br>Time to read: ${item.getRemainingTime()} minutes`;
+        }
+        else {
+            item_tooltip.innerHTML += `<br><br>Reading it provided ${character.name} with:<br> ${format_rewards(book_stats[item.name].rewards)}`;
+        }
     }
 
     item_tooltip.innerHTML += `<br><br>Value: ${format_money(Math.ceil(item.getValue() * ((options && options.trader) ? traders[current_trader].profit_margin : 1) || 1))}`;
@@ -323,6 +330,42 @@ function end_activity_animation() {
 
 }
 
+function format_rewards(rewards) {
+    let formatted = '';
+    if(rewards.stats) {
+        const stats = Object.keys(rewards.stats);
+        
+        formatted = `+${rewards.stats[stats[0]]} ${stat_names[stats[0]]}`;
+        for(let i = 1; i < stats.length; i++) {
+            formatted += `, +${rewards.stats[stats[i]]} ${stat_names[stats[i]]}`;
+        }
+    }
+
+    if(rewards.multipliers) {
+        const multipliers = Object.keys(rewards.multipliers);
+        if(formatted) {
+            formatted += `, x${rewards.multipliers[multipliers[0]]} ${stat_names[multipliers[0]]}`;
+        } else {
+            formatted = `x${rewards.multipliers[multipliers[0]]} ${stat_names[multipliers[0]]}`;
+        }
+        for(let i = 1; i < multipliers.length; i++) {
+            formatted += `, x${rewards.multipliers[multipliers[i]]} ${stat_names[multipliers[i]]}`;
+        }
+    }
+    if(rewards.xp_multipliers) {
+        const xp_multipliers = Object.keys(rewards.xp_multipliers);
+        if(formatted) {
+            formatted += `, x${rewards.xp_multipliers[xp_multipliers[0]]} ${xp_multipliers[0]} xp gain`;
+        } else {
+            formatted = `x${rewards.xp_multipliers[xp_multipliers[0]]} ${xp_multipliers[0]} xp gain`;
+        }
+        for(let i = 1; i < xp_multipliers.length; i++) {
+            formatted += `, x${rewards.xp_multipliers[xp_multipliers[i]]} ${xp_multipliers[i]} xp gain`;
+        }
+    }
+    return formatted;
+}
+
 function clear_message_log() {
     while(message_log.firstChild) {
         message_log.removeChild(message_log.lastChild);
@@ -345,13 +388,26 @@ function log_loot(loot_list) {
     log_message(message, "combat_loot");   
 }
 
-function start_activity_animation() {
+function start_activity_animation(settings) {
     activity_anim = setInterval(() => { //sets a tiny little "animation" for activity text
         const action_status_div = document.getElementById("action_status_div");
+        let end = "";
         if(action_status_div.innerHTML.endsWith("...")) {
-            action_status_div.innerHTML = action_status_div.innerHTML.substring(0, action_status_div.innerHTML.length - 3);
-        } else{
+            end = "...";
+        } else if(action_status_div.innerHTML.endsWith("..")) {
+            end = "..";
+        } else if(action_status_div.innerHTML.endsWith("."))
+            end = ".";
+
+        if(settings?.book_title) {
+            action_status_div.innerHTML = action_status_div.innerHTML.split(",")[0] + `, ${format_reading_time(item_templates[settings.book_title].getRemainingTime())} left`;
+            action_status_div.innerHTML += end;
+        }
+
+        if(end.length < 3){
             action_status_div.innerHTML += ".";
+        } else {
+            action_status_div.innerHTML = action_status_div.innerHTML.substring(0, action_status_div.innerHTML.length - 3);
         }
      }, 600);
 }
@@ -367,7 +423,7 @@ function update_displayed_money() {
     document.getElementById("money_div").innerHTML = `Your purse contains: ${format_money(character.money)}`;
 }
 
-function update_displayed_trader_inventory(sorting_param) {
+function update_displayed_trader_inventory({trader_sorting} = {}) {
     const trader = traders[current_trader];
     trader_inventory_div.textContent = "";
 
@@ -433,8 +489,19 @@ function update_displayed_trader_inventory(sorting_param) {
             const item_control_div = document.createElement("div");
             const item_div = document.createElement("div");
             const item_name_div = document.createElement("div");
+
+            if(trader.inventory[key].item.item_type === "BOOK") {
+                item_name_div.innerHTML = '<span class = "item_category">[Book]</span>';
+                item_name_div.classList.add("inventory_item_name");
+                item_name_div.innerHTML += `<span class = "book_name"> "${trader.inventory[key].item.name}" </span><span class="item_count">x${item_count} </span>`;
+
+                if(book_stats[trader.inventory[key].item.name].is_finished) {
+                    item_div.classList.add("book_finished");
+                }
+            } else {
+                item_name_div.innerHTML = `<span class = "item_category"></span> <span class = "item_name">${trader.inventory[key].item.name}</span> <span class="item_count">x${item_count}</span>`;
+            }
     
-            item_name_div.innerHTML = `${trader.inventory[key].item.name} x${item_count}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
 
@@ -546,7 +613,7 @@ function update_displayed_trader_inventory(sorting_param) {
         }
     }
 
-    sort_displayed_inventory({sort_by: sorting_param || "name", target: "trader"});
+    sort_displayed_inventory({sort_by: trader_sorting || "name", target: "trader"});
 }
 
 function sort_displayed_inventory({sort_by, target = "character", direction = "asc"}) {
@@ -611,15 +678,34 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
 
 /**
  * updates displayed inventory of the character (only inventory, worn equipment is managed by separate method)
+ * if item_name is passed, it will instead only update the display of that one item
  */
- function update_displayed_character_inventory() {    
-    inventory_div.innerHTML = "";
+ function update_displayed_character_inventory({item_name, character_sorting} = {}) {    
+
+    if(item_name) {
+        //recreate only one node
+        const node = inventory_div.querySelector(`[data-character_item="${item_name}"]`);
+        if(node) {
+            node.remove();
+        } else {
+            return;
+        }
+    } else {
+        //recreate all
+        inventory_div.innerHTML = "";
+    }
 
     Object.keys(character.inventory).forEach(function(key) {
+        if(item_name) {
+            if(key !== item_name) {
+                return;
+            }
+        }
+
         if(character.inventory[key] instanceof Array) //unstackables
         { 
             for(let i = 0; i < character.inventory[key].length; i++) {
-
+                
                 let should_continue = false;
                 for(let j = 0; j < to_sell.items.length; j++) {
                     if(character.inventory[key][i].getName() === to_sell.items[j].item.split(" #")[0] && i == Number(to_sell.items[j].item.split(" #")[1])) {
@@ -686,8 +772,19 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
             var item_div = document.createElement("div");
             const item_name_div = document.createElement("div");
     
+            if(character.inventory[key].item.item_type === "BOOK") {
+                item_name_div.innerHTML = '<span class = "item_category">[Book]</span>';
+                item_name_div.classList.add("inventory_item_name");
+                item_name_div.innerHTML += `<span class = "book_name"> "${character.inventory[key].item.name}" </span><span class="item_count">x${item_count} </span>`;
 
-            item_name_div.innerHTML = `${character.inventory[key].item.name} x${item_count}`;
+                if(book_stats[character.inventory[key].item.name].is_finished) {
+                    item_div.classList.add("book_finished");
+                } else if(get_current_book() === character.inventory[key].item.name) {
+                    item_control_div.classList.add("book_active");
+                }
+            } else {
+                item_name_div.innerHTML = `<span class = "item_category"></span> <span class = "item_name">${character.inventory[key].item.name}</span> <span class="item_count">x${item_count}</span>`;
+            }
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
 
@@ -715,7 +812,14 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
                 item_use_button.classList.add("item_use_button");
                 item_use_button.innerText = "[use]";
                 item_control_div.appendChild(item_use_button);
-            }    
+            } else if(character.inventory[key].item.item_type === "BOOK") {
+                const item_read_button = document.createElement("div");
+                item_read_button.classList.add("item_use_button");
+                item_read_button.innerText = "[read]";
+                item_control_div.appendChild(item_read_button);
+
+                item_div.classList.add("item_book");
+            }
 
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);
@@ -732,6 +836,11 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
 
     //equipped items
     Object.keys(character.equipment).forEach(function(key) {
+        if(item_name) {
+            if(key !== item_name) {
+                return;
+            }
+        }
         const item = character.equipment[key];
         if(item) {
             var item_control_div = document.createElement("div");
@@ -765,81 +874,83 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
         }
     });
 
-    //add items from to_buy to display
-    for(let i = 0; i < to_buy.items.length; i++) {
-        
-        const item_index = Number(to_buy.items[i].item.split(" #")[1]);
-
-        if(isNaN(item_index)) { //it's stackable, so item_count is needed
-            const item_count = to_buy.items[i].count;
-            const actual_item = traders[current_trader].inventory[to_buy.items[i].item].item;
-
-            const item_control_div = document.createElement("div");
-            const item_div = document.createElement("div");
-            const item_name_div = document.createElement("div");
     
-            item_name_div.innerHTML = `${actual_item.name} x${item_count}`;
-            item_name_div.classList.add("inventory_item_name");
-            item_div.appendChild(item_name_div);
-
-            item_div.classList.add('item_stackable', "inventory_item", 'character_item');
-
-            item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
-
-            const trade_button_5 = document.createElement("div");
-            trade_button_5.classList.add("trade_ammount_button");
-            trade_button_5.innerText = "5";
-            trade_button_5.setAttribute("data-trade_ammount", 5);
-
-            const trade_button_10 = document.createElement("div");
-            trade_button_10.classList.add("trade_ammount_button");
-            trade_button_10.innerText = "10";
-            trade_button_10.setAttribute("data-trade_ammount", 10);
-
-            item_control_div.classList.add('item_to_trade', 'character_item_control', 'inventory_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
-            item_control_div.setAttribute("data-character_item", `${actual_item.name}`);
-            item_control_div.setAttribute("data-item_count", `${item_count}`);
-            item_control_div.appendChild(item_div);
-
-            item_control_div.appendChild(trade_button_5);
-            item_control_div.appendChild(trade_button_10);
-
-            var item_value_span = document.createElement("span");
-            item_value_span.innerHTML = `${format_money(actual_item.getValue() * traders[current_trader].profit_margin, true)}`;
-            item_value_span.classList.add("item_value", "item_controls");
-            item_control_div.appendChild(item_value_span);
-
-            inventory_div.appendChild(item_control_div);
+    if(!item_name){
+    //add items from to_buy to display
+        for(let i = 0; i < to_buy.items.length; i++) {
             
-        } else { //it's unstackable, no need for item_count as it's always at 1
+            const item_index = Number(to_buy.items[i].item.split(" #")[1]);
 
-            const actual_item = traders[current_trader].inventory[to_buy.items[i].item.split(" #")[0]][item_index];
+            if(isNaN(item_index)) { //it's stackable, so item_count is needed
+                const item_count = to_buy.items[i].count;
+                const actual_item = traders[current_trader].inventory[to_buy.items[i].item].item;
 
-            const item_control_div = document.createElement("div");
-            const item_div = document.createElement("div");
-            const item_name_div = document.createElement("div");
+                const item_control_div = document.createElement("div");
+                const item_div = document.createElement("div");
+                const item_name_div = document.createElement("div");
+        
+                item_name_div.innerHTML = `${actual_item.name} x${item_count}`;
+                item_name_div.classList.add("inventory_item_name");
+                item_div.appendChild(item_name_div);
 
-            item_name_div.innerHTML = `[${item_templates[actual_item.getName()].equip_slot}] ${actual_item.getName()}`;
-            item_name_div.classList.add("inventory_item_name");
-            item_div.appendChild(item_name_div);
-            item_div.classList.add("inventory_item", "character_item", "trade_item_equippable",);       
+                item_div.classList.add('item_stackable', "inventory_item", 'character_item');
 
-            //add tooltip
-            item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
+                item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
 
-            item_control_div.classList.add('item_to_trade', 'inventory_item_control', 'character_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
-            item_control_div.setAttribute("data-character_item", `${actual_item.getName()} #${item_index}`)
-            item_control_div.appendChild(item_div);
+                const trade_button_5 = document.createElement("div");
+                trade_button_5.classList.add("trade_ammount_button");
+                trade_button_5.innerText = "5";
+                trade_button_5.setAttribute("data-trade_ammount", 5);
 
-            var item_value_span = document.createElement("span");
-            item_value_span.innerHTML = `${format_money(actual_item.getValue() * traders[current_trader].profit_margin, true)}`;
-            item_value_span.classList.add("item_value", "item_controls");
-            item_control_div.appendChild(item_value_span);
+                const trade_button_10 = document.createElement("div");
+                trade_button_10.classList.add("trade_ammount_button");
+                trade_button_10.innerText = "10";
+                trade_button_10.setAttribute("data-trade_ammount", 10);
 
-            inventory_div.appendChild(item_control_div);
+                item_control_div.classList.add('item_to_trade', 'character_item_control', 'inventory_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
+                item_control_div.setAttribute("data-character_item", `${actual_item.name}`);
+                item_control_div.setAttribute("data-item_count", `${item_count}`);
+                item_control_div.appendChild(item_div);
+
+                item_control_div.appendChild(trade_button_5);
+                item_control_div.appendChild(trade_button_10);
+
+                var item_value_span = document.createElement("span");
+                item_value_span.innerHTML = `${format_money(actual_item.getValue() * traders[current_trader].profit_margin, true)}`;
+                item_value_span.classList.add("item_value", "item_controls");
+                item_control_div.appendChild(item_value_span);
+
+                inventory_div.appendChild(item_control_div);
+                
+            } else { //it's unstackable, no need for item_count as it's always at 1
+
+                const actual_item = traders[current_trader].inventory[to_buy.items[i].item.split(" #")[0]][item_index];
+
+                const item_control_div = document.createElement("div");
+                const item_div = document.createElement("div");
+                const item_name_div = document.createElement("div");
+
+                item_name_div.innerHTML = `[${item_templates[actual_item.getName()].equip_slot}] ${actual_item.getName()}`;
+                item_name_div.classList.add("inventory_item_name");
+                item_div.appendChild(item_name_div);
+                item_div.classList.add("inventory_item", "character_item", "trade_item_equippable",);       
+
+                //add tooltip
+                item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
+
+                item_control_div.classList.add('item_to_trade', 'inventory_item_control', 'character_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
+                item_control_div.setAttribute("data-character_item", `${actual_item.getName()} #${item_index}`)
+                item_control_div.appendChild(item_div);
+
+                var item_value_span = document.createElement("span");
+                item_value_span.innerHTML = `${format_money(actual_item.getValue() * traders[current_trader].profit_margin, true)}`;
+                item_value_span.classList.add("item_value", "item_controls");
+                item_control_div.appendChild(item_value_span);
+
+                inventory_div.appendChild(item_control_div);
+            }
         }
     }
-
 
     sort_displayed_inventory({target: "character"});
 }
@@ -939,7 +1050,6 @@ function update_displayed_normal_location(location) {
     document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_default'));
     document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_default'));
     character_attack_bar.parentNode.style.display = "none";
-    document.getElementById("def_stat").style.display = "none";
     
     ////////////////////////////////////
     //add buttons for starting dialogues
@@ -1028,14 +1138,14 @@ function update_displayed_normal_location(location) {
 
     const available_locations = location.connected_locations.filter(location => location.location.is_unlocked);
 
-    if(available_locations.length > 2) {
+    if(available_locations.length > 2 && (location.sleeping || available_trainings.length > 0 || available_jobs.length > 0 ||  available_traders.length > 0 || available_dialogues.length > 0)) {
         const locations_button = document.createElement("div");
         locations_button.setAttribute("data-location", location.name);
         locations_button.classList.add("location_choices");
         locations_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "travel")');
         locations_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Move somewhere else';
         action_div.appendChild(locations_button);
-    } else if (available_locations.length <= 2) {
+    } else if(available_locations.length > 0) {
         action_div.append(...create_location_choices(location, "travel"));
     }
 
@@ -1150,8 +1260,6 @@ function create_location_choices(location, category, add_icons = true) {
                 continue;
             }
 
-            
-    
             const action = document.createElement("div");
             
             if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
@@ -1200,7 +1308,6 @@ function update_displayed_combat_location(location) {
     enemy_count_div.style.display = "block";
     combat_div.style.display = "block";
     character_attack_bar.parentNode.style.display = "block";
-    document.getElementById("def_stat").style.display = "block";
 
     document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_combat'));
     document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_combat'));
@@ -1296,8 +1403,7 @@ function update_displayed_combat_stats() {
     attack_stats.children[0].innerHTML = `Atk pwr: ${Math.round(character.get_attack_power()*10)/10}`;
     attack_stats.children[1].innerHTML = `Atk spd: ${Math.round(character.get_attack_speed()*10)/10}`;
     attack_stats.children[2].innerHTML = `AP  ${Math.round(ap)}`;
-    
-    document.getElementById("def_stat").innerHTML = `Def: ${Math.round(character.stats.full.defense)} `;
+    attack_stats.children[4].innerHTML = `Def: ${Math.round(character.stats.full.defense)} `;
 }
 
 function update_displayed_effects() {
@@ -1508,6 +1614,29 @@ function start_sleeping_display(){
     action_div.appendChild(action_status_div);
     action_div.appendChild(action_end_div);
     start_activity_animation();
+}
+
+function start_reading_display(title) {
+    clear_action_div();
+
+    const action_status_div = document.createElement("div");
+    action_status_div.innerText = `Reading the book, ${format_reading_time(item_templates[title].getRemainingTime())} left`;
+    action_status_div.id = "action_status_div";
+
+    const action_end_div = document.createElement("div");
+    action_end_div.setAttribute("onclick", "end_reading()");
+    action_end_div.id = "action_end_div";
+
+
+    const action_end_text = document.createElement("div");
+    action_end_text.innerText = `Stop reading for now`;
+    action_end_text.id = "action_end_text";
+
+    action_end_div.appendChild(action_end_text);
+
+    action_div.appendChild(action_status_div);
+    action_div.appendChild(action_end_div);
+    start_activity_animation({book_title: title});
 }
 
 /**
@@ -1778,8 +1907,8 @@ function create_new_bestiary_entry(enemy_name) {
         loot_chance_current.classList.add("loot_chance_current");
 
         loot_name.innerHTML = `${enemy.loot_list[i].item_name}`;
-        loot_chance_base.innerHTML = `[${enemy.loot_list[i].chance}%]`;
-        loot_chance_current.innerHTML = `${Math.round(10000*enemy.loot_list[i].chance*enemy.get_droprate_modifier())/10000}%`;
+        loot_chance_base.innerHTML = `[${enemy.loot_list[i].chance*100}%]`;
+        loot_chance_current.innerHTML = `${Math.round(100*enemy.loot_list[i].chance*enemy.get_droprate_modifier())}%`;
         loot_chance.append(loot_chance_current, loot_chance_base);
         loot_line.append(loot_name, loot_chance);
 
@@ -1827,7 +1956,7 @@ function update_bestiary_entry_description(enemy_name) {
     const enemy = enemy_templates[enemy_name];
     const loot_divs = bestiary_entry_divs[enemy_name].children[2].children[3].children;
     for(let i = 2; i < loot_divs.length; i++) {
-        loot_divs[i].children[1].children[0].innerHTML = `${Math.round(10000*enemy.loot_list[i-2].chance*enemy.get_droprate_modifier())/10000}%`;
+        loot_divs[i].children[1].children[0].innerHTML = `${Math.round(100*enemy.loot_list[i-2].chance*enemy.get_droprate_modifier())}%`;
     }
 }
 
@@ -1904,5 +2033,6 @@ export {
     update_displayed_location_choices,
     create_new_bestiary_entry,
     update_bestiary_entry,
-    clear_bestiary
+    clear_bestiary,
+    start_reading_display
 }

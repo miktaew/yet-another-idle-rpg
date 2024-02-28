@@ -22,8 +22,10 @@ character.base_stats = {
         health: 40, 
         max_stamina: 40,
         stamina: 40,
+        stamina_efficiency: 1,
         max_mana: 0,
         mana: 0,
+        mana_efficiency: 1,
         strength: 10, 
         agility: 10, 
         dexterity: 10, 
@@ -46,13 +48,15 @@ character.stats.flat = {
         level: {},
         skills: {},
         equipment: {},
-        skill_milestones: {}
+        skill_milestones: {},
+        books: {}
 };
 
 character.stats.multiplier = {
         skills: {},
         skill_milestones: {},
-        equipment: {}
+        equipment: {},
+        books: {}
 };
 
 character.xp_bonuses = {};
@@ -65,7 +69,8 @@ character.xp_bonuses.total_multiplier = {
 character.xp_bonuses.multiplier = {
         skills: {},
         skill_milestones: {},
-        equipment: {}
+        equipment: {},
+        books: {}
 };
 
 character.equipment = {
@@ -196,6 +201,35 @@ character.stats.add_skill_milestone_bonus = function ({flats = {}, multipliers =
 }
 
 /**
+ * adds skill milestone bonuses to character stats
+ * called when a new milestone is reached
+ * @param {{flats, multipliers}} bonuses 
+ */
+character.stats.add_book_bonus = function ({multipliers = {}, xp_multipliers = {}}) {
+        Object.keys(character.base_stats).forEach(stat => {
+                if(multipliers[stat]) {
+                        character.stats.multiplier.books[stat] = (character.stats.multiplier.books[stat] || 1) * multipliers[stat];
+                }
+        });
+
+        if(xp_multipliers?.hero) {
+                character.xp_bonuses.multiplier.skills.hero = (character.xp_bonuses.multiplier.skills.hero || 1) * xp_multipliers.hero;
+        }
+        if(xp_multipliers?.all) {
+                character.xp_bonuses.multiplier.skills.all = (character.xp_bonuses.multiplier.skills.all || 1) * xp_multipliers.all;
+        }
+        if(xp_multipliers?.all_skill) {
+                character.xp_bonuses.multiplier.skills.all_skill = (character.xp_bonuses.multiplier.skills.all_skill || 1) * xp_multipliers.all_skill;
+        }
+
+        Object.keys(skills).forEach(skill => {
+                if(xp_multipliers[skill]) {
+                        character.xp_bonuses.multiplier.skills[skill] = (character.xp_bonuses.multiplier.skills[skill] || 1) * xp_multipliers[skill];
+                }
+        });
+}
+
+/**
  * add all stat bonuses from equipment, including def/atk
  * called on equipment changes
  */
@@ -261,6 +295,7 @@ character.update_stats = function () {
         //then multiply them by all multipliers
         const stat_sum = 
                 (character.stats.flat.level[stat] || 0) + (character.stats.flat.skills[stat] || 0) + (character.stats.flat.skill_milestones[stat] || 0) + (character.stats.flat.equipment[stat] || 0);
+
         const stat_mult = 
                 (character.stats.multiplier.skills[stat] || 1) * (character.stats.multiplier.skill_milestones[stat] || 1) * (character.stats.multiplier.equipment[stat] || 1);
 
@@ -295,7 +330,7 @@ character.update_stats = function () {
     }
 
     Object.keys(character.xp_bonuses.total_multiplier).forEach(bonus_target => {
-        character.xp_bonuses.total_multiplier[bonus_target] = (character.xp_bonuses.multiplier.skills[bonus_target] || 1); 
+        character.xp_bonuses.total_multiplier[bonus_target] = (character.xp_bonuses.multiplier.skills[bonus_target] || 1) * (character.xp_bonuses.multiplier.books[bonus_target] || 1); 
         //only this one source as of now
     });
     
@@ -457,7 +492,7 @@ function unequip_item(item_slot) {
 
         if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
             character.combat_stats.evasion_points = null;
-            character.combat_stats.block_chance = 0.4 + Math.round(skills["Shield blocking"].get_level_bonus() * 10000)/10000;
+            character.combat_stats.block_chance = 0.8 + Math.round(skills["Shield blocking"].get_level_bonus() * 10000)/10000;
         }
 
     

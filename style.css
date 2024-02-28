@@ -21,7 +21,7 @@
 	--item_use_button_display: inline-block;
 	 
 	--item_other_width_default: 319px; /* value for out of trade */
-	--item_other_width_trade: 285px; /* value for in trade */
+	--item_other_width_trade: 280px; /* value for in trade */
 	--item_other_width: var(--item_other_width_default); /* modified in index.html on trade start/end to fit the buttons */
 
 	--item_tooltip_top: 0px;
@@ -185,7 +185,7 @@ body {
 .inventory_item, .trader_item {
 	 font-size: 14;
 	 display: inline-block;
-	 float: left;
+
 }
 
 .equipped_item_control {
@@ -288,6 +288,24 @@ body {
 	 width: 48px;
 }
 
+.item_stackable.book_finished + .item_use_button {
+	visibility:hidden;
+}
+
+.book_name {
+	font-style: italic;
+}
+
+.book_finished .inventory_item_name .book_name{
+	color: silver;
+}
+
+.book_active {
+	color: gold;
+	background-color: rgba(255, 236, 128, 0.3);
+}
+
+
 .unequip_item_button {
 	font-weight: bold;
 	cursor: pointer;
@@ -297,10 +315,11 @@ body {
 
 .item_use_button {
 	display: var(--item_use_button_display);
-	width: 34px;
+	width: 39px;
 	font-weight: bold;
 	cursor: pointer;
 	font-size: 14;
+	text-align: right;
 }
 
 .item_controls {
@@ -329,7 +348,7 @@ body {
 }
 
 .item_stackable {
-	width: 285px;
+	width: 280px;
 }
 
 .item_equippable {
@@ -348,15 +367,17 @@ body {
 	background-color: rgba(0, 128, 0, 0.4);
 }
 
-.item_stackable.item_other {
+.item_stackable.item_other{
 	width: var(--item_other_width);
 }
+
+
 
 .character_item_equippable {
 	display: var(--equipment_display);
 }
 
-.character_item_usable {
+.character_item_usable, .character_item_book {
 	display: var(--consumables_display);
 }
 
@@ -367,7 +388,7 @@ body {
 .character_control_button {
 	float:left;
 	padding: 6px;
-	min-width: 186px;
+	min-width: 119.3px;
 	font-size: 14;
 	text-align: center;
 	margin: 1px;
@@ -562,11 +583,11 @@ i {
 	cursor: pointer;
 	font-weight: bold;
 	font-size: 14;
-	width: 17px;
+	width: 19.5px;
 }
 
 .trader_item_control  .item_stackable {
-	width: 285px;
+	width: 280px;
 }
 
 .trader_item {
@@ -579,7 +600,7 @@ i {
 .trader_item_equippable {
 	display: var(--trader_equipment_display);
 }
-.trader_item_usable {
+.trader_item_usable, .trader_item_book {
 	display: var(--trader_consumable_display);
 }
 
@@ -930,7 +951,7 @@ i {
 						font-size: 12;
 					}
 					.enemy_stat_short, .attack_stat_short {
-						width: 55px;
+						width: 50px;
 					}
 					.enemy_stat_long, .attack_stat_long {
 						width: 80px;
@@ -971,10 +992,6 @@ i {
 		top: 150px;
 	}
 
-	#def_stat {
-		width: 100px;
-		top: 150px;
-	}
 	#character_combat_management{
 		width: 400px;
 		top: 177px;
@@ -1037,7 +1054,7 @@ i {
 	top: 53px;
 	width: 400px;
 	left: 410px;
-	height: 300px;
+	height: 277px;
 }
 
 	#story_header, #bestiary_header, #quests_header, #skill_list_header {
@@ -1049,7 +1066,7 @@ i {
 	#journal_control_div {
 		font-size: 20;
 		position: absolute;
-		top: 277px;
+		top: 254px;
 	}
 		.journal_control_button{
 			float: left;
@@ -1062,17 +1079,17 @@ i {
 		}
 			#story_box_div {
 				width:100%;
-				height: 277px;
+				height: 255px;
 			}
 			#quests_box_div {
 				width:100%;
-				height: 277px;
+				height: 255px;
 				display: none;
 			}
 
 			#bestiary_box_div {
 				width: 100%;
-				height: 277px;
+				height: 255px;
 				display: none;
 				overflow-y: scroll;
 				overflow-x: visible;
@@ -1114,9 +1131,9 @@ i {
 
 #skill_list_div {
 	left: 410px;
-	top: 362px;
+	top: 340px;
 	width: 400px;
-	height: 378px;
+	height: 400px;
 }
 		#skill_list {
 			overflow-y: scroll;

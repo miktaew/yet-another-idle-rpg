@@ -3,6 +3,7 @@
 const skills = {};
 
 import { character } from "./character.js";
+import {stat_names} from "./misc.js";
 
 /*    
 TODO:
@@ -80,7 +81,7 @@ class Skill {
             return (this.names[keys[0]]);
         }
         else {
-            var rank_name;
+            let rank_name;
             for (var i = 0; i <= keys.length; i++) {
                 if (this.current_level >= parseInt(keys[i])) {
                     rank_name = this.names[keys[i]];
@@ -160,14 +161,12 @@ class Skill {
     };
 
     /**
-     * @description only called on leveling
+     * @description only called on leveling; adds bonuses to character, returns all the bonuses so they can be logged in message_log 
      * @param {*} level 
-     * @returns stats from milestones
+     * @returns bonuses from milestones
      */
     get_bonus_stats(level) {
         //TODO: rename, it's not just stats anymore
-        //add stats to character
-        //returns all the stats so they can be logged in message_log 
         const gains = { flats: {}, multipliers: {} , xp_multipliers: {}};
         let flats;
         let multipliers;
@@ -225,16 +224,6 @@ class Skill {
     };
 }
 
-const stat_names = {"strength": "str",
-                    "health": "hp",
-                    "max_health": "hp", //same as for "health"
-                    "max_stamina": "stamina",
-                    "agility": "agl",
-                    "dexterity": "dex",
-                    "magic": "magic",
-                    "attack_speed": "atk spd",
-                    "crit_rate": "crit rate",
-                    "crit_multiplier": "crit dmg"};
 
 /**
  * @param {String} skill_id key from skills object
@@ -516,7 +505,7 @@ function format_skill_rewards(milestone){
                                                     },
                                                     8: {
                                                         xp_multipliers: {
-                                                            all_skill: 1.3,
+                                                            all_skill: 1.2,
                                                         }
                                                     }
                                                 }
@@ -545,14 +534,24 @@ function format_skill_rewards(milestone){
                                     skill_id: "Night vision",
                                     names: {0: "Night vision"},
                                     description: "Ability to see in darkness",
-                                    base_xp_cost: 300,
-                                    xp_scaling: 2,
+                                    base_xp_cost: 600,
+                                    xp_scaling: 1.8,
                                     max_level: 10,
                                     get_effect_description: () => {
-                                        return `Reduces darkness penalty by ${Math.round(10*skills["Night vision"].current_level*100/skills["Night vision"].max_level)/10}%`;
+                                        return `Reduces darkness penalty (except for 'pure darkness') by ${Math.round(10*skills["Night vision"].current_level*100/skills["Night vision"].max_level)/10}%`;
                                     }
-
                             });
+    skills["Presence sensing"] = new Skill({
+                skill_id: "Presence sensing",
+                names: {0: "Presence sensing"},
+                description: "Ability to sense a presence without using your eyes",
+                base_xp_cost: 500,
+                xp_scaling: 2,
+                max_level: 10,
+                get_effect_description: () => {
+                    return `Provides a variety of combat bonuses. Reduces extreme darkness penalty by ${Math.round(10*skills["Presence sensing"].current_level*100/skills["Presence sensing"].max_level)/10}%`;
+                }
+            });
     skills["Heat resistance"] = new Skill({
         skill_id: "Heat resistance",
         names: {0: "Heat resistance"},
@@ -865,7 +864,7 @@ function format_skill_rewards(milestone){
                                                 max_stamina: 5,
                                             },
                                             multipliers: {
-                                                "strength": 1.1,
+                                                "strength": 1.05,
                                                 "dexterity": 1.05,
                                             }
                                         }
@@ -893,7 +892,7 @@ function format_skill_rewards(milestone){
                                                     "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
-                                                    all: 1.2,
+                                                    all: 1.05,
                                                 }
                                             },
                                             4: {
@@ -904,7 +903,7 @@ function format_skill_rewards(milestone){
                                                     "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
-                                                    all: 1.2,
+                                                    all: 1.05,
                                                 }
                                             },
                                             6: {
@@ -915,7 +914,7 @@ function format_skill_rewards(milestone){
                                                     "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
-                                                    all: 1.2,
+                                                    all: 1.1,
                                                 }
                                             },
                                             8: {
@@ -926,7 +925,7 @@ function format_skill_rewards(milestone){
                                                     "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
-                                                    all: 1.2,
+                                                    all: 1.1,
                                                 }
                                             },
                                             10: {
@@ -937,7 +936,7 @@ function format_skill_rewards(milestone){
                                                     "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
-                                                    all: 1.2,
+                                                    all: 1.1,
                                                 }
                                             }
                                         }
@@ -967,7 +966,7 @@ function format_skill_rewards(milestone){
                                             },
                                             multipliers: {
                                                 agility: 1.05,
-                                                max_stamina: 1.05,
+                                                stamina_efficiency: 1.05,
                                             }
                                         },
                                         7: {
@@ -981,7 +980,7 @@ function format_skill_rewards(milestone){
                                             },
                                             multipliers: {
                                                 agility: 1.05,
-                                                max_stamina: 1.05,
+                                                stamina_efficiency: 1.05,
                                             }
                                         }
                                     }
@@ -1144,7 +1143,7 @@ function format_skill_rewards(milestone){
                         max_stamina: 5,
                     },
                     xp_multipliers: {
-                        all_skill: 1.2,
+                        all_skill: 1.1,
                     }
                 },
                 5: {
@@ -1152,7 +1151,7 @@ function format_skill_rewards(milestone){
                         max_stamina: 10,
                     },
                     xp_multipliers: {
-                        hero: 1.2,
+                        hero: 1.1,
                     }
                 },
                 8: {
@@ -1160,7 +1159,7 @@ function format_skill_rewards(milestone){
                         max_stamina: 20,
                     },
                     xp_multipliers: {
-                        all: 1.3,
+                        all: 1.1,
                     }
                 },
             }
@@ -1178,6 +1177,22 @@ function format_skill_rewards(milestone){
         rewards: {
             milestones: {
                 //todo when skill is in use somewhere
+            }
+        }
+    }); 
+    skills["Literacy"] = new Skill({
+        skill_id: "Literacy", 
+        names: {0: "Literacy"}, 
+        description: "Ability to read and understand written text",
+        base_xp_cost: 120,
+        max_level: 10,
+        xp_scaling: 2,
+        get_effect_description: ()=> {
+            return `Allows reading harder texts`;
+        },
+        rewards: {
+            milestones: {
+                //todo: some xp buffs
             }
         }
     }); 

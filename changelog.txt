@@ -1,3 +1,14 @@
+v0.3.4e
+    - huge buff to shield block chance, other balance changes
+    - bugfixes (trade, loading, wrong values in bestiary)
+    - added console message on auto save
+    - added visual distinction to the book that is being read
+    - travel options in locations now don't get grouped if there's nothing other than travel available (e.g. the cave)
+    - modified function for inventory display so it can now not only refresh all items but also a single one
+    - compatibility for saves from older versions
+    - fixed that ugly display of "def" in combat
+v0.3.4
+    - implemented books (only 2 available for now); both provide small bonuses to xp gains upon finish
 v0.3.3
     - rebalanced stat gains from skill milestones
     - added another combat location between infested field and cave depths, to smooth the progression

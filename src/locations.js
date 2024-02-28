@@ -68,17 +68,17 @@ class Combat_zone {
                 this.enemy_group_size[0] = 1;
                 console.error(`Minimum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[0]} and was corrected to lowest value possible of 1`);
             }
-            if(this.enemy_group_size[0] > 6) {
-                this.enemy_group_size[0] = 6;
-                console.error(`Minimum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[0]} and was corrected to highest value possible of 6`);
+            if(this.enemy_group_size[0] > 8) {
+                this.enemy_group_size[0] = 8;
+                console.error(`Minimum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[0]} and was corrected to highest value possible of 8`);
             }
             if(this.enemy_group_size[1] < 1) {
                 this.enemy_group_size[1] = 1;
                 console.error(`Maximum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[1]} and was corrected to lowest value possible of 1`);
             }
-            if(this.enemy_group_size[1] < 1) {
-                this.enemy_group_size[1] = 1;
-                console.error(`Maximum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[1]} and was corrected to highest value possible of 6`);
+            if(this.enemy_group_size[1] > 8) {
+                this.enemy_group_size[1] = 8;
+                console.error(`Maximum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[1]} and was corrected to highest value possible of 8`);
             }
         }
         this.enemy_count = enemy_count; //how many enemy groups need to be killed for the clearing reward
@@ -308,7 +308,8 @@ class LocationType{
         stages: {
             1: {
                 description: "A place where it's always as dark as during the night",
-                related_skill: "Night vision"
+                related_skill: "Night vision",
+                //no effects here, since in this case they are provided via the overall "night" penalty
             },
             2: {
                 description: "An extremely dark place, darker than any night",
@@ -318,6 +319,17 @@ class LocationType{
                     multipliers: {
                         hit_chance: 0.5,
                         evasion: 0.5,
+                    }
+                }
+            },
+            3: {
+                description: "Pure darkness with not even a tiniest flicker of light",
+                //TODO: use some other skill for seeing in places with no light whatsoever
+                related_skill: "Presence sensing",
+                effects: {
+                    multipliers: {
+                        hit_chance: 0.1,
+                        evasion: 0.1,
                     }
                 }
             }
@@ -414,7 +426,7 @@ class LocationType{
                 }
             },
             3: {
-                description: "Place so cold that lesser beings would freeze in less than a minute",
+                description: "This place is so cold, lesser beings would freeze in less than a minute...",
                 related_skill: "Cold resistance",
                 //TODO: environmental damage if resistance is too low (to both hp and stamina?)
                 effects: {
@@ -482,7 +494,7 @@ class LocationType{
     //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
 
     locations["Cave room"] = new Combat_zone({
-        description: "It's full of rats. At least the mushrooms provide some light.", 
+        description: "It's full of rats. At least the glowing mushrooms provide some light.", 
         enemy_count: 25, 
         types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "bright", stage:1}],
         enemies_list: ["Wolf rat"],
