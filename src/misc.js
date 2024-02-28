@@ -32,7 +32,9 @@ const stat_names = {"strength": "str",
                     "magic": "magic",
                     "attack_speed": "atk spd",
                     "crit_rate": "crit rate",
-                    "crit_multiplier": "crit dmg"};
+                    "crit_multiplier": "crit dmg",
+                    "stamina_efficiency": "stamina efficiency",
+                };
 
 
 export { expo, format_reading_time, stat_names };

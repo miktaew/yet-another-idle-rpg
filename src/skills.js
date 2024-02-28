@@ -521,11 +521,15 @@ function format_skill_rewards(milestone){
                                         rewards: {
                                             milestones: {
                                                 3: {
-                                                    Evasion: 1.2,
-                                                    Blocking: 1.2,
+                                                    xp_multipliers: {
+                                                        Evasion: 1.1,
+                                                        Blocking: 1.1,
+                                                    }
                                                 },
                                                 5: {
-                                                    Combat: 1.2,
+                                                    xp_multipliers: {
+                                                        Combat: 1.1,
+                                                    }
                                                 },
                                             }
                                         }

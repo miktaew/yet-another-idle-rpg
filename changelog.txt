@@ -1,3 +1,8 @@
+v0.3.4f
+    - fixed reward of "tight manouvers" skill
+    - fixed display of "stamina efficiency" reward
+    - fixed issue with area unlocks (didnt work if it was supposed to be unlocked by clearing some combat zone)
+    - minor balance changes
 v0.3.4e
     - huge buff to shield block chance, other balance changes
     - bugfixes (trade, loading, wrong values in bestiary)
