@@ -36,7 +36,7 @@ import { end_activity_animation,
         } from "./display.js";
 
 const save_key = "save data";
-const game_version = "v0.3.4h";
+const game_version = "v0.3.4i";
 
 //current enemy
 var current_enemies = null;
@@ -661,20 +661,21 @@ function do_enemy_combat_action(enemy_id) {
 
     let {damage_taken, fainted} = character.take_damage({damage_value: damage_dealt});
 
+    console.log(damage_taken);
     if(critted)
     {
         if(partially_blocked) {
-            log_message(character.name + " partially blocked, was critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
+            log_message(character.name + " partially blocked, was critically hit for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked_critically");
         } 
         else {
-            log_message(character.name + " was critically hit for " + damage_taken + " dmg", "hero_attacked_critically");
+            log_message(character.name + " was critically hit for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked_critically");
         }
     } else {
         if(partially_blocked) {
-            log_message(character.name + " partially blocked, was hit for " + damage_taken + " dmg", "hero_attacked");
+            log_message(character.name + " partially blocked, was hit for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked");
         }
         else {
-            log_message(character.name + " was hit for " + damage_taken + " dmg", "hero_attacked");
+            log_message(character.name + " was hit for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked");
         }
     }
 

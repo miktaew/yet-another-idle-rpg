@@ -386,7 +386,13 @@ character.take_damage = function ({damage_value, damage_type = "physical", damag
         */
         let fainted;
 
-        const damage_taken = Math.round(10*Math.max(damage_value - character.stats.full.defense, 1))/10;
+        let damage_taken;
+        if(damage_value < 1) {
+                damage_taken = Math.max(Math.ceil(10*damage_value)/10, 0);
+        }
+        else {
+                damage_taken = Math.round(10*Math.max(damage_value - character.stats.full.defense, 1))/10;
+        }
 
         character.stats.full.health -= damage_taken;
 
