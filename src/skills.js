@@ -309,14 +309,15 @@ function format_skill_rewards(milestone){
     if(milestone.xp_multipliers) {
         const xp_multipliers = Object.keys(milestone.xp_multipliers);
         if(formatted) {
-            formatted += `, x${milestone.xp_multipliers[xp_multipliers[0]]} ${xp_multipliers[0]} xp gain`;
+            formatted += `, x${milestone.xp_multipliers[xp_multipliers[0]]} ${xp_multipliers[0].replace("_"," ")} xp gain`;
         } else {
-            formatted = `x${milestone.xp_multipliers[xp_multipliers[0]]} ${xp_multipliers[0]} xp gain`;
+            formatted = `x${milestone.xp_multipliers[xp_multipliers[0]]} ${xp_multipliers[0].replace("_"," ")} xp gain`;
         }
         for(let i = 1; i < xp_multipliers.length; i++) {
-            formatted += `, x${milestone.xp_multipliers[xp_multipliers[i]]} ${xp_multipliers[i]} xp gain`;
+            formatted += `, x${milestone.xp_multipliers[xp_multipliers[i]]} ${xp_multipliers[i].replace("_"," ")} xp gain`;
         }
     }
+
     return formatted;
 }
 
@@ -441,7 +442,7 @@ function format_skill_rewards(milestone){
                                                     "strength": 1,
                                                 },
                                                 xp_multipliers: {
-                                                    Weightlifting: 1.1,
+                                                    Weightlifting: 1.05,
                                                 }
                                             },
                                             4: {
@@ -494,13 +495,13 @@ function format_skill_rewards(milestone){
                                                 milestones: {
                                                     3: {
                                                         xp_multipliers:{ 
-                                                            Evasion: 1.2,
-                                                            Blocking: 1.2,
+                                                            Evasion: 1.1,
+                                                            "Shield blocking": 1.1,
                                                         },
                                                     },
                                                     5: {
                                                         xp_multipliers: {
-                                                            Combat: 1.2,
+                                                            Combat: 1.1,
                                                         }
                                                     },
                                                     8: {
@@ -522,8 +523,8 @@ function format_skill_rewards(milestone){
                                             milestones: {
                                                 3: {
                                                     xp_multipliers: {
-                                                        Evasion: 1.1,
-                                                        Blocking: 1.1,
+                                                        Evasion: 1.05,
+                                                        "Shield blocking": 1.05,
                                                     }
                                                 },
                                                 5: {
@@ -1147,7 +1148,7 @@ function format_skill_rewards(milestone){
                         max_stamina: 5,
                     },
                     xp_multipliers: {
-                        all_skill: 1.1,
+                        all_skill: 1.05,
                     }
                 },
                 5: {
