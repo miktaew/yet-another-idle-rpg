@@ -1,3 +1,7 @@
+v0.3.4h
+    - fixed shield block chance reaching 100% way too soon
+    - fixed block chance display in combat
+    - added game version to save file, for future usage
 v0.3.4g
     - fixed wrong rounding of dropchances in bestiary
     - fixed lack of rounding in reading time

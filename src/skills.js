@@ -423,7 +423,7 @@ function format_skill_rewards(milestone){
                                     names: {0: "Shield blocking"}, 
                                     description: "Ability to block attacks with shield", 
                                     max_level: 20, 
-                                    max_level_bonus: 0.5,
+                                    max_level_bonus: 0.2,
                                     get_effect_description: ()=> {
                                         return `Increases block chance by flat ${Math.round(skills["Shield blocking"].get_level_bonus()*1000)/10}%`;
                                     }});

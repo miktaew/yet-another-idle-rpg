@@ -1009,8 +1009,7 @@ function update_displayed_equipment() {
             enemies_div.children[i].children[0].children[1].children[1].innerHTML = `Atk spd: ${disp_speed}`;
             enemies_div.children[i].children[0].children[1].children[2].innerHTML = `AP: ${Math.round(ap)}`;
             enemies_div.children[i].children[0].children[1].children[3].innerHTML = `EP: ${Math.round(ep)} `;
-            enemies_div.children[i].children[0].children[1].children[4].innerHTML = `Def: ${current_enemies[i].stats.defense} `;
-
+            enemies_div.children[i].children[0].children[1].children[4].innerHTML = `Def: ${current_enemies[i].stats.defense}`;
 
         } else {
             enemies_div.children[i].children[0].style.display = "none"; //just hide it
@@ -1388,7 +1387,7 @@ function update_displayed_combat_stats() {
         other_combat_divs.defensive_points.innerHTML = `${dp}%`;
         other_combat_divs.defensive_points.parentNode.children[2].innerHTML = "Chance to block an attack";
 
-        attack_stats.children[3].innerHTML = `Block : ${Math.round(dp)} `;
+        attack_stats.children[3].innerHTML = `Block : ${Math.round(dp)}%`;
     }
     else { //NO SHIELD
         const ep = Math.round(character.combat_stats.evasion_points);

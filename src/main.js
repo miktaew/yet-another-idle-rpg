@@ -36,7 +36,7 @@ import { end_activity_animation,
         } from "./display.js";
 
 const save_key = "save data";
-const game_version = "v0.3.4g";
+const game_version = "v0.3.4h";
 
 //current enemy
 var current_enemies = null;
@@ -1030,6 +1030,7 @@ function use_item(item_name) {
 function create_save() {
     try{
         const save_data = {};
+        save_data["game version"] = game_version;
         save_data["current time"] = current_game_time;
         save_data["character"] = {
                                 name: character.name, titles: character.titles, 
