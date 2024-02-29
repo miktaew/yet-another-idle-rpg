@@ -6,8 +6,8 @@ function expo(number, precision = 2)
         return Number.parseFloat(number).toExponential(precision).replace(/[+-]/g,"");
     } else if(number > 1) {
         return Math.round(number*10)/10;
-    } else {
-        return Math.round(number*1000)/1000;
+    } else if(number > 0.1) {
+        return Math.round(number*100)/100;
     }
 }
 

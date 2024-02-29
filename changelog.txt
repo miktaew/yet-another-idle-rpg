@@ -1,3 +1,6 @@
+v0.3.4i
+    - now can take less than 1 dmg from an attack, if using a shield
+    - rounded some dmg numbers
 v0.3.4h
     - fixed shield block chance reaching 100% way too soon
     - fixed block chance display in combat
