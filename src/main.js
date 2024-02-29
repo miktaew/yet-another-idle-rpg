@@ -36,7 +36,7 @@ import { end_activity_animation,
         } from "./display.js";
 
 const save_key = "save data";
-const game_version = "v0.3.4f";
+const game_version = "v0.3.4g";
 
 //current enemy
 var current_enemies = null;
@@ -827,14 +827,14 @@ function use_stamina(num = 1, use_efficiency = true) {
  * @param {Number} xp_to_add 
  * @param {Boolean} should_info 
  */
-function add_xp_to_skill({skill, xp_to_add, should_info = true, use_bonus = true, add_to_parent = true})
+function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = true, add_to_parent = true})
 {
     if(xp_to_add == 0) {
         return;
     }
 
     if(use_bonus) {
-        xp_to_add = (character.xp_bonuses.total_multiplier[skill.id] || 1) 
+        xp_to_add = xp_to_add * (character.xp_bonuses.total_multiplier[skill.id] || 1) 
                        * (character.xp_bonuses.total_multiplier.all || 1) * (character.xp_bonuses.total_multiplier.all_skill || 1);
 
         if(skill.parent_skill) {

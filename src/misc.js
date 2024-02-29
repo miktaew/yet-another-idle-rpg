@@ -13,7 +13,7 @@ function expo(number, precision = 2)
 
 function format_reading_time(time) {
     if(time >= 120) {
-        return `${time/60} hours`;
+        return `${Math.floor(time/60)} hours`;
     }
     else if(time >= 60) {
         return '1 hour';

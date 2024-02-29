@@ -1,3 +1,9 @@
+v0.3.4g
+    - fixed wrong rounding of dropchances in bestiary
+    - fixed lack of rounding in reading time
+    - fixed xp gains from harder areas
+    - removed underscores from some descriptions
+    - slightly nerfed some xp bonuses
 v0.3.4f
     - fixed reward of "tight manouvers" skill
     - fixed display of "stamina efficiency" reward
