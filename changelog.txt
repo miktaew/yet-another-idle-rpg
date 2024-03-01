@@ -1,3 +1,41 @@
+v0.3.4i-2
+    - minor fix to CSS
+v0.3.4i
+    - now can take less than 1 dmg from an attack, if using a shield
+    - rounded some dmg numbers
+v0.3.4h
+    - fixed shield block chance reaching 100% way too soon
+    - fixed block chance display in combat
+    - added game version to save file, for future usage
+v0.3.4g
+    - fixed wrong rounding of dropchances in bestiary
+    - fixed lack of rounding in reading time
+    - fixed xp gains from harder areas
+    - removed underscores from some descriptions
+    - slightly nerfed some xp bonuses
+v0.3.4f
+    - fixed reward of "tight manouvers" skill
+    - fixed display of "stamina efficiency" reward
+    - fixed issue with area unlocks (didnt work if it was supposed to be unlocked by clearing some combat zone)
+    - minor balance changes
+v0.3.4e
+    - huge buff to shield block chance, other balance changes
+    - bugfixes (trade, loading, wrong values in bestiary)
+    - added console message on auto save
+    - added visual distinction to the book that is being read
+    - travel options in locations now don't get grouped if there's nothing other than travel available (e.g. the cave)
+    - modified function for inventory display so it can now not only refresh all items but also a single one
+    - compatibility for saves from older versions
+    - fixed that ugly display of "def" in combat
+v0.3.4
+    - implemented books (only 2 available for now); both provide small bonuses to xp gains upon finish
+v0.3.3
+    - rebalanced stat gains from skill milestones
+    - added another combat location between infested field and cave depths, to smooth the progression
+    - skill groups replaced with parent skills; now they only provide xp bonus and their child skills have their own milestones
+    - refactored calculations of stats from skills/milestones/equipment/level to a more manageable form
+    - refactored equipment stat calculations
+    - implemented xp bonuses (for now only from skill milestones)
 v0.3c
     - fixed a minor error when loading save with any skill having less xp than needed to be visible
     - changed the way savefiles are loaded to avoid a bunch of issues

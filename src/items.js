@@ -12,14 +12,14 @@
             100-129%    uncommon       green      x1.1
             130-159%    rare           blue       x1.3
             160-199%    epic           purple     x1.6
-            200-250%    legendary      orange     x2
+            200-246%    legendary      orange     x2
+            247-250%    mythical       ????       x2.5
 
             then also special items of rarity "unique", that will really be unique
             so quality nor additional multiplier don't really matter on them
 
             quality affects only attack/defense/max block, while additional multiplier affects all positive stats 
             (i.e flat bonuses over 0 and multiplicative bonuses over 1)
-
 
     basic idea for weapons:
 
@@ -36,12 +36,9 @@
         and attack speed goes               dagger > sword > spear > axe > blunt
         which kinda makes spears very average, but they also get bonus crit so whatever
 
-
         other bonuses: 
             long handle: -agility
             short blade: +agility
-
-
 */
 
 import { character } from "./character.js";
@@ -52,11 +49,11 @@ const rarity_multipliers = {
     uncommon: 1.1,
     rare: 1.3,
     epic: 1.6,
-    legendary: 2
+    legendary: 2,
+    mythical: 2.5
 };
 
 const item_templates = {};
-
 
 class Item {
     constructor({name,
@@ -170,6 +167,7 @@ class Equippable extends Item {
         super(item_data);
         this.item_type = "EQUIPPABLE";
         this.stackable = false;
+        this.components = {};
 
         this.equip_effect = item_data.equip_effect || {};
         // stats gained by equipping, {stats: {}, stat_multipliers: {}}
@@ -189,12 +187,63 @@ class Equippable extends Item {
             else if(this.quality < 1.3) this.rarity = "uncommon";
             else if(this.quality < 1.6) this.rarity = "rare";
             else if(this.quality < 2.0) this.rarity = "epic";
-            else this.rarity = "legendary";
+            else if(this.quality < 2.46) this.rarity = "legendary";
+            else this.rarity = "mythical";
         }
         return this.rarity;
     }
-}
 
+    getStats(){
+        if(!this.stats) {
+            const stats = {};
+
+            //iterate over components
+            const components = Object.values(this.components).map(comp => item_templates[comp]).filter(comp => comp);
+            for(let i = 0; i < components.length; i++) {
+                Object.keys(components[i].stats).forEach(stat => {
+                    if(!stats[stat]) {
+                        stats[stat] = {};
+                    }
+
+                    if(stat === "attack_power" || stat === "defense") { //skip them just in case
+                        return;
+                    }
+
+                    if(components[i].stats[stat].multiplier) {
+                        stats[stat].multiplier = (stats[stat].multiplier || 1) * components[i].stats[stat].multiplier;
+                    }
+                    if(components[i].stats[stat].flat) {
+                        stats[stat].flat = (stats[stat].flat || 0) + components[i].stats[stat].flat;
+                    }
+                })
+            }
+
+            //iterate again and apply rarity bonus if possible
+            Object.keys(stats).forEach(stat => {
+                if(stats[stat].multiplier){
+                    if(stats[stat].multiplier >= 1) {
+                        stats[stat].multiplier = Math.round(100 * (1 + (stats[stat].multiplier - 1) * rarity_multipliers[this.getRarity()]))/100;
+                    } else {
+                        Math.round(100 * stats[stat].multiplier)/100;
+                    }
+                }
+
+                if(stats[stat].flat){
+                    if(stats[stat].flat > 0) {
+                        stats[stat].flat = Math.round(100 * stats[stat].flat * rarity_multipliers[this.getRarity()])/100;
+                    } else {
+                        stats[stat].flat = Math.round(100 * stats[stat].flat)/100;
+                    }
+                }
+            });
+
+            this.stats = {...stats};            
+        } 
+
+        return this.stats;
+    }
+    
+}
 
 class Shield extends Equippable {
     constructor(item_data) {
@@ -202,78 +251,36 @@ class Shield extends Equippable {
         this.equip_slot = "off-hand";
         this.offhand_type = "shield"; //not like there's any other option
 
-        if(!item_templates[item_data.shield_base]) {
-            throw new Error(`No such shield base component as: ${item_data.shield_base}`);
+        if(!item_templates[item_data.components.shield_base]) {
+            throw new Error(`No such shield base component as: ${item_data.components.shield_base}`);
         }
-        this.shield_base = item_data.shield_base; //only the name
+        this.components.shield_base = item_data.components.shield_base; //only the name
 
-        if(item_data.handle && !item_templates[item_data.handle]) {
-            throw new Error(`No such shield handle component as: ${item_data.handle}`);
+        if(item_data.components.handle && !item_templates[item_data.components.handle]) {
+            throw new Error(`No such shield handle component as: ${item_data.components.handle}`);
         }
-        this.handle = item_data.handle; //only the name
+        this.components.handle = item_data.components.handle; //only the name
     }
 
     getShieldStrength() {
         if(!this.shield_strength) {
-            this.shield_strength = Math.ceil(item_templates[this.shield_base].shield_strength * this.quality * rarity_multipliers[this.getRarity()]);
+            this.shield_strength = Math.ceil(item_templates[this.components.shield_base].shield_strength * this.quality * rarity_multipliers[this.getRarity()]);
         }
-        //console.log(this.shield_strength);
         return this.shield_strength;
     }
 
     getName() {
-        return item_templates[this.shield_base].shield_name;
+        return item_templates[this.components.shield_base].shield_name;
     }
 
     getValue() {
         if(!this.value) {
             //value of shield base + value of handle, both multiplied by quality and rarity
-            this.value = Math.ceil((item_templates[this.shield_base].value + item_templates[this.handle].value)
+            this.value = Math.ceil((item_templates[this.components.shield_base].value + item_templates[this.components.handle].value)
                                   * this.quality * rarity_multipliers[this.getRarity()]);
         }
         return this.value;
     } 
-
-    getStats(){
-        if(!this.stats) {
-            const stats = {};
-            const handle = item_templates[this.handle];
-            const shield_base = item_templates[this.shield_base];
-            Object.keys(character.stats).forEach((stat) => {
-                if(stat === "attack_power" || stat === "defense") { //skip them just in case
-                    return;
-                }
-
-                stats[stat] = {};
-                /*
-                if any has the stat:
-                    for multipliers, multiply them together, then if it's a "positive" bonus (i.e at least 1.0), get the actual bonus (i.e. for x1.5 it's 0.5) and multiply by rarity multiplier, then add 1 back
-                    for flat bonuses, add them together, then if it's a positive bonus then just multiply it by rarity multiplier
-                */
-                if(stat in handle.stats || stat in shield_base.stats) {
-                    if(handle.stats?.[stat]?.multiplier || shield_base.stats?.[stat]?.multiplier) {
-                        const multiplier = (handle.stats[stat]?.multiplier || 1) * (shield_base.stats[stat]?.multiplier || 1);
-                        if(multiplier >= 1) {
-                            stats[stat].multiplier = Math.round(100 * (1 + (multiplier - 1) * rarity_multipliers[this.getRarity()]))/100;
-                        } else {
-                            stats[stat].multiplier = Math.round(100 * multiplier)/100;
-                        }
-                    }
-                    
-                    if(handle.stats?.[stat]?.flat ||shield_base.stats?.[stat]?.flat) {
-                        const flat = (handle.stats[stat]?.flat || 0) + (shield_base.stats[stat]?.flat || 0);
-                        if(flat > 0) {
-                            stats[stat].flat = Math.round(100 * flat * rarity_multipliers[this.getRarity()])/100;
-                        } else {
-                            stats[stat].flat = Math.round(100 * flat)/100;
-                        }
-                    }
-                }
-            });
-            this.stats = {...stats};
-        } 
-        return this.stats;
-    }
 }
 
 class Armor extends Equippable {
@@ -289,23 +296,23 @@ class Armor extends Equippable {
     */
     constructor(item_data) {
         super(item_data);
-        if(!item_templates[item_data.internal]) {
-            throw new Error(`No such internal armor element as: ${item_data.internal}`);
+        if(!item_templates[item_data.components.internal]) {
+            throw new Error(`No such internal armor element as: ${item_data.components.internal}`);
         }
-        this.internal = item_data.internal; //only the name
+        this.components.internal = item_data.components.internal; //only the name
 
-        this.equip_slot = item_templates[item_data.internal].equip_slot;
+        this.equip_slot = item_templates[item_data.components.internal].equip_slot;
 
         if(item_data.external && !item_templates[item_data.external]) {
-            throw new Error(`No such external armor element as: ${item_data.external}`);
+            throw new Error(`No such external armor element as: ${item_data.components.external}`);
         }
-        this.external = item_data.external; //only the name
+        this.components.external = item_data.components.external; //only the name
     }
 
     getDefense() {
         if(!this.defense_value) {
-            this.defense_value = Math.ceil((item_templates[this.internal].defense_value + 
-                                           (item_templates[this.external]?.defense_value || 0 )) 
+            this.defense_value = Math.ceil(((item_templates[this.components.internal].defense_value || 0) + 
+                                           (item_templates[this.components.external]?.defense_value || 0 )) 
                                           * this.quality * rarity_multipliers[this.getRarity()]
             );
         }
@@ -316,8 +323,8 @@ class Armor extends Equippable {
     getValue() {
         if(!this.value) {
             //value of internal + value of external (if present), both multiplied by quality and rarity
-            this.value = Math.ceil((item_templates[this.internal].value + 
-                                   (item_templates[this.external]?.value || 0))
+            this.value = Math.ceil((item_templates[this.components.internal].value + 
+                                   (item_templates[this.components.external]?.value || 0))
                                   * this.quality * rarity_multipliers[this.getRarity()]);
         }
         return this.value;
@@ -332,59 +339,18 @@ class Armor extends Equippable {
 
         if(!this.name) {
             
-            if(!this.external) {
-                this.name = item_templates[this.internal].armor_name;
+            if(!this.components.external) {
+                this.name = item_templates[this.components.internal].armor_name;
             } else {
-                if(item_templates[this.external].full_armor_name) {
-                    this.name = item_templates[this.external].full_armor_name;
+                if(item_templates[this.components.external].full_armor_name) {
+                    this.name = item_templates[this.components.external].full_armor_name;
                 } else {
-                    this.name = (item_templates[this.external].name_prefix || '') + " " + item_templates[this.internal].armor_name.toLowerCase() + " " + (item_templates[this.external].name_suffix || '');
+                    this.name = (item_templates[this.components.external].name_prefix || '') + " " + item_templates[this.components.internal].armor_name.toLowerCase() + " " + (item_templates[this.components.external].name_suffix || '');
                 }
             }
         }
 
         return this.name;
-    }
-
-    getStats(){
-        if(!this.stats) {
-            const stats = {};
-            const internal = item_templates[this.internal];
-            const external = item_templates[this.external] || {stats: {}};
-            Object.keys(character.stats).forEach((stat) => {
-                if(stat === "attack_power" || stat === "defense") {
-                    return;
-                }
-
-                stats[stat] = {};
-                /*
-                if any has the stat:
-                    for multipliers, multiply them together, then if it's a "positive" bonus (i.e at least 1.0), get the actual bonus (i.e. for x1.5 it's 0.5) and multiply by rarity multiplier, then add 1 back
-                    for flat bonuses, add them together, then if it's a positive bonus then just multiply it by rarity multiplier
-                */
-                if(stat in internal.stats || stat in external.stats) {
-                    if(internal.stats?.[stat]?.multiplier || external.stats?.[stat]?.multiplier) {
-                        const multiplier = (internal.stats[stat]?.multiplier || 1) * (external.stats[stat]?.multiplier || 1);
-                        if(multiplier >= 1) {
-                            stats[stat].multiplier = Math.round(100 * (1 + (multiplier - 1) * rarity_multipliers[this.getRarity()]))/100;
-                        } else {
-                            stats[stat].multiplier = Math.round(100 * multiplier)/100;
-                        }
-                    }
-                    
-                    if(internal.stats?.[stat]?.flat ||external.stats?.[stat]?.flat) {
-                        const flat = (internal.stats[stat]?.flat || 0) + (external.stats[stat]?.flat || 0);
-                        if(flat > 0) {
-                            stats[stat].flat = Math.round(100 * flat * rarity_multipliers[this.getRarity()])/100;
-                        } else {
-                            stats[stat].flat = Math.round(100 * flat)/100;
-                        }
-                    }
-                }
-            });
-            this.stats = {...stats};
-        } 
-        return this.stats;
     }
 }
 
@@ -393,39 +359,38 @@ class Weapon extends Equippable {
         super(item_data);
         this.equip_slot = "weapon";
 
-        if(!item_templates[item_data.head]) {
-            throw new Error(`No such weapon head as: ${item_data.head}`);
+        if(!item_templates[item_data.components.head]) {
+            throw new Error(`No such weapon head as: ${item_data.components.head}`);
         }
-        this.head = item_data.head; //only the name
+        this.components.head = item_data.components.head; //only the name
 
-        if(!item_templates[item_data.handle]) {
-            throw new Error(`No such weapon handle as: ${item_data.handle}`);
+        if(!item_templates[item_data.components.handle]) {
+            throw new Error(`No such weapon handle as: ${item_data.components.handle}`);
         }
-        this.handle = item_data.handle; //only the name
+        this.components.handle = item_data.components.handle; //only the name
 
-        
-        if(item_templates[this.handle].component_type === "long handle" 
-        && (item_templates[this.head].component_type === "short blade" || item_templates[this.head].component_type === "long blade")) {
+        if(item_templates[this.components.handle].component_type === "long handle" 
+        && (item_templates[this.components.head].component_type === "short blade" || item_templates[this.components.head].component_type === "long blade")) {
             //long handle + short/long blade = spear
             this.weapon_type = "spear";
-        } else if(item_templates[this.handle].component_type === "medium handle" 
-        && item_templates[this.head].component_type === "axe head") {
+        } else if(item_templates[this.components.handle].component_type === "medium handle" 
+        && item_templates[this.components.head].component_type === "axe head") {
             //medium handle + axe head = axe
             this.weapon_type = "axe";
-        } else if(item_templates[this.handle].component_type === "medium handle" 
-        && item_templates[this.head].component_type === "hammer head") {
+        } else if(item_templates[this.components.handle].component_type === "medium handle" 
+        && item_templates[this.components.head].component_type === "hammer head") {
             //medium handle + hammer head = hammer
             this.weapon_type = "hammer";
-        } else if(item_templates[this.handle].component_type === "short handle" 
-        && item_templates[this.head].component_type === "short blade") {
+        } else if(item_templates[this.components.handle].component_type === "short handle" 
+        && item_templates[this.components.head].component_type === "short blade") {
             //short handle + short blade = dagger
             this.weapon_type = "dagger";
-        } else if(item_templates[this.handle].component_type === "short handle" 
-        && item_templates[this.head].component_type === "long blade") {
+        } else if(item_templates[this.components.handle].component_type === "short handle" 
+        && item_templates[this.components.head].component_type === "long blade") {
             //short handle + long blade = sword
             this.weapon_type = "sword";
         } else {
-            throw new Error(`Combination of elements of types ${item_templates[this.handle].component_type} and ${item_templates[this.head].component_type} does not exist!`);
+            throw new Error(`Combination of elements of types ${item_templates[this.components.handle].component_type} and ${item_templates[this.components.head].component_type} does not exist!`);
         }
     }
 
@@ -433,8 +398,8 @@ class Weapon extends Equippable {
         if(!this.attack_power) {
 
             this.attack_power = Math.ceil(
-                (item_templates[this.head].attack_value + item_templates[this.handle].attack_value)
-                * item_templates[this.head].attack_multiplier * item_templates[this.handle].attack_multiplier
+                (item_templates[this.components.head].attack_value + item_templates[this.components.handle].attack_value)
+                * item_templates[this.components.head].attack_multiplier * item_templates[this.components.handle].attack_multiplier
                 * this.quality * rarity_multipliers[this.getRarity()]);
 
         }
@@ -444,54 +409,77 @@ class Weapon extends Equippable {
     getValue() {
         if(!this.value) {
             //value of handle + value of head, both multiplied by quality and rarity
-            this.value = Math.ceil((item_templates[this.handle].value + item_templates[this.head].value) * this.quality * rarity_multipliers[this.getRarity()]);
+            this.value = Math.ceil((item_templates[this.components.handle].value + item_templates[this.components.head].value) * this.quality * rarity_multipliers[this.getRarity()]);
         }
         return this.value;
     } 
 
     getName() {
-        return `${item_templates[this.head].name_prefix} ${this.weapon_type === "hammer" ? "battle hammer" : this.weapon_type}`;
+        return `${item_templates[this.components.head].name_prefix} ${this.weapon_type === "hammer" ? "battle hammer" : this.weapon_type}`;
+    }
+}
+
+//////////////////////////////
+//////////////////////////////
+//////////////////////////////
+class BookData{
+    constructor({
+        required_time = 1,
+        required_skills = {literacy: 0},
+        literacy_xp_rate = 1,
+        finish_reward = {},
+        rewards = {},
+    }) {
+        this.required_time = required_time;
+        this.accumulated_time = 0;
+        this.required_skills = required_skills;
+        this.literacy_xp_rate = literacy_xp_rate;
+        this.finish_reward = finish_reward;
+        this.is_finished = false;
+        this.rewards = rewards;
+    }
+}
+
+const book_stats = {};
+
+class Book extends Item {
+    constructor(item_data) {
+        super(item_data);
+        this.stackable = true;
+        this.item_type = "BOOK";
+        this.name = item_data.name;
     }
 
-    getStats(){
-        if(!this.stats) {
-            const stats = {};
-            const handle = item_templates[this.handle];
-            const head = item_templates[this.head];
-            Object.keys(character.stats).forEach((stat) => {
-                if(stat === "attack_power" || stat === "defense") { //skip them just in case
-                    return;
-                }
+    /**
+     * 
+     * @returns {Number} total time needed to read the book
+     */
+    getReadingTime() {
+        //maybe make it go faster with literacy skill level?
+        let {required_time} = book_stats[this.name];
+        return required_time;
+    }
 
-                stats[stat] = {};
-                /*
-                if any has the stat:
-                    for multipliers, multiply them together, then if it's a "positive" bonus (i.e at least 1.0), get the actual bonus (i.e. for x1.5 it's 0.5) and multiply by rarity multiplier, then add 1 back
-                    for flat bonuses, add them together, then if it's a positive bonus then just multiply it by rarity multiplier
-                */
-                if(stat in handle.stats || stat in head.stats) {
-                    if(handle.stats?.[stat]?.multiplier || head.stats?.[stat]?.multiplier) {
-                        const multiplier = (handle.stats[stat]?.multiplier || 1) * (head.stats[stat]?.multiplier || 1);
-                        if(multiplier >= 1) {
-                            stats[stat].multiplier = Math.round(100 * (1 + (multiplier - 1) * rarity_multipliers[this.getRarity()]))/100;
-                        } else {
-                            stats[stat].multiplier = Math.round(100 * multiplier)/100;
-                        }
-                    }
-                    
-                    if(handle.stats?.[stat]?.flat ||head.stats?.[stat]?.flat) {
-                        const flat = (handle.stats[stat]?.flat || 0) + (head.stats[stat]?.flat || 0);
-                        if(flat > 0) {
-                            stats[stat].flat = Math.round(100 * flat * rarity_multipliers[this.getRarity()])/100;
-                        } else {
-                            stats[stat].flat = Math.round(100 * flat)/100;
-                        }
-                    }
-                }
-            });
-            this.stats = {...stats};
-        } 
-        return this.stats;
+    /**
+     * 
+     * @returns {Number} remaining time needed to read the book (total time minus accumulated time)
+     */
+    getRemainingTime() {
+        let remaining_time = Math.max(book_stats[this.name].required_time - book_stats[this.name].accumulated_time, 0);
+        return remaining_time;
+    }
+
+    addProgress(time = 1) {
+        book_stats[this.name].accumulated_time += time;
+        if(book_stats[this.name].accumulated_time >= book_stats[this.name].required_time) {
+            this.setAsFinished();
+        }
+    }
+
+    setAsFinished() {
+        book_stats[this.name].is_finished = true;
+        book_stats[this.name].accumulated_time = book_stats[this.name].required_time;
+        character.stats.add_book_bonus(book_stats[this.name].rewards);
     }
 }
 
@@ -512,6 +500,8 @@ function getItem(item_data) {
             }
         case "USABLE":
             return new UsableItem(item_data);
+        case "BOOK":
+            return new Book(item_data);
         case "OTHER":
             if("weapon_types" in item_data) 
                 return new WeaponComponent(item_data);
@@ -525,6 +515,41 @@ function getItem(item_data) {
             throw new Error(`Wrong item type: ${item_data.item_type}`);
     }
 }
+
+//book stats
+book_stats["ABC for kids"] = new BookData({
+    required_time: 120,
+    literacy_xp_rate: 1,
+    rewards: {
+        xp_multipliers: {
+            all: 1.1,
+        }
+    },
+});
+
+book_stats["Old combat manual"] = new BookData({
+    required_time: 320,
+    literacy_xp_rate: 1,
+    rewards: {
+        xp_multipliers: {
+            combat: 1.1,
+        }
+    },
+});
+
+
+//books
+item_templates["ABC for kids"] = new Book({
+    name: "ABC for kids",
+    description: "The simplest book on the market",
+    value: 10,
+});
+
+item_templates["Old combat manual"] = new Book({
+    name: "Old combat manual",
+    description: "Old book about combat, worn and outdated, but might still contain something useful",
+    value: 20,
+});
 
 //miscellaneous:
 (function(){
@@ -648,33 +673,38 @@ function getItem(item_data) {
 //weapons:
 (function(){
     item_templates["Cheap iron spear"] = new Weapon({
-        weapon_type: "spear",
-        head: "Cheap short iron blade",
-        handle: "Simple long wooden shaft"
+        components: {
+            head: "Cheap short iron blade",
+            handle: "Simple long wooden shaft"
+        }
     });
 
     item_templates["Cheap iron dagger"] = new Weapon({
-        weapon_type: "dagger",
-        head: "Cheap short iron blade",
-        handle: "Simple short wooden hilt",
+        components: {
+            head: "Cheap short iron blade",
+            handle: "Simple short wooden hilt",
+        }
     });
 
     item_templates["Cheap iron sword"] = new Weapon({
-        weapon_type: "sword",
-        head: "Cheap long iron blade",
-        handle: "Simple short wooden hilt",
+        components: {
+            head: "Cheap long iron blade",
+            handle: "Simple short wooden hilt",
+        }
     });
 
     item_templates["Cheap iron axe"] = new Weapon({
-        weapon_type: "axe",
-        head: "Cheap iron axe head",
-        handle: "Simple medium wooden handle",
+        components: {
+            head: "Cheap iron axe head",
+            handle: "Simple medium wooden handle",
+        }
     });
 
     item_templates["Cheap iron battle hammer"] = new Weapon({
-        weapon_type: "hammer",
-        head: "Cheap iron hammer head",
-        handle: "Simple medium wooden handle",
+        components: {
+            head: "Cheap iron hammer head",
+            handle: "Simple medium wooden handle",
+        }
     });
 })();
 
@@ -703,10 +733,14 @@ function getItem(item_data) {
 //armors:
 (function(){
     item_templates["Cheap leather vest"] = new Armor({
-        internal: "Cheap leather vest [component]",
+        components: { 
+            internal: "Cheap leather vest [component]",
+        }
     });
     item_templates["Cheap leather pants"] = new Armor({
-        internal: "Cheap leather pants [component]",
+        components: {
+            internal: "Cheap leather pants [component]",
+        }
     })
 })();
 
@@ -749,16 +783,19 @@ function getItem(item_data) {
 //shields:
 (function(){
     item_templates["Cheap wooden shield"] = new Shield({
-        shield_base: "Cheap wooden shield base",
-        handle: "Basic shield handle",
+        components: {
+            shield_base: "Cheap wooden shield base",
+            handle: "Basic shield handle",
+        }
     });
 
     item_templates["Crude wooden shield"] = new Shield({
-        shield_base: "Crude wooden shield base",
-        handle: "Basic shield handle",
+        components: {
+            shield_base: "Crude wooden shield base",
+            handle: "Basic shield handle",
+        }
     });
 })();
-
 
 //usables:
 (function(){
@@ -793,6 +830,4 @@ function getItem(item_data) {
     });
 })();
 
-
-
-export {item_templates, OtherItem, UsableItem, Armor, Shield, Weapon, getItem};
+export {item_templates, Item, OtherItem, UsableItem, Armor, Shield, Weapon, getItem, Book, book_stats};

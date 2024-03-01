@@ -68,17 +68,17 @@ class Combat_zone {
                 this.enemy_group_size[0] = 1;
                 console.error(`Minimum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[0]} and was corrected to lowest value possible of 1`);
             }
-            if(this.enemy_group_size[0] > 6) {
-                this.enemy_group_size[0] = 6;
-                console.error(`Minimum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[0]} and was corrected to highest value possible of 6`);
+            if(this.enemy_group_size[0] > 8) {
+                this.enemy_group_size[0] = 8;
+                console.error(`Minimum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[0]} and was corrected to highest value possible of 8`);
             }
             if(this.enemy_group_size[1] < 1) {
                 this.enemy_group_size[1] = 1;
                 console.error(`Maximum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[1]} and was corrected to lowest value possible of 1`);
             }
-            if(this.enemy_group_size[1] < 1) {
-                this.enemy_group_size[1] = 1;
-                console.error(`Maximum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[1]} and was corrected to highest value possible of 6`);
+            if(this.enemy_group_size[1] > 8) {
+                this.enemy_group_size[1] = 8;
+                console.error(`Maximum enemy group size in zone "${this.name}" is set to unallowed value of ${this.enemy_group_size[1]} and was corrected to highest value possible of 8`);
             }
         }
         this.enemy_count = enemy_count; //how many enemy groups need to be killed for the clearing reward
@@ -105,7 +105,9 @@ class Combat_zone {
         this.repeatable_reward = repeatable_reward; //reward for each clear, including first; all unlocks should be in this, just in case
 
         //skills and their xp gain on every tick, based on location types;
-        this.gained_skills = this.types?.map(type => {return {skill: skills[location_types[type.type].stages[type.stage || 1].related_skill], xp: type.xp_gain}});
+        this.gained_skills = this.types
+            ?.map(type => {return {skill: skills[location_types[type.type].stages[type.stage || 1].related_skill], xp: type.xp_gain}})
+            .filter(skill => skill.skill);
        
         const temp_types = this.types.map(type => type.type);
         if(temp_types.includes("bright")) {
@@ -277,7 +279,7 @@ class LocationType{
         name: "bright",
         stages: {
             1: {
-                description: "A place where it's always as bright as during the day",
+                description: "A place that's always lit, no matter the time of the day",
             },
             2: {
                 description: "An extremely bright place, excessive light makes it hard to keep eyes open",
@@ -306,7 +308,8 @@ class LocationType{
         stages: {
             1: {
                 description: "A place where it's always as dark as during the night",
-                related_skill: "Night vision"
+                related_skill: "Night vision",
+                //no effects here, since in this case they are provided via the overall "night" penalty
             },
             2: {
                 description: "An extremely dark place, darker than any night",
@@ -316,6 +319,17 @@ class LocationType{
                     multipliers: {
                         hit_chance: 0.5,
                         evasion: 0.5,
+                    }
+                }
+            },
+            3: {
+                description: "Pure darkness with not even a tiniest flicker of light",
+                //TODO: use some other skill for seeing in places with no light whatsoever
+                related_skill: "Presence sensing",
+                effects: {
+                    multipliers: {
+                        hit_chance: 0.1,
+                        evasion: 0.1,
                     }
                 }
             }
@@ -329,7 +343,7 @@ class LocationType{
                 related_skill: "Tight maneuvers",
                 effects: {
                     multipliers: {
-                                evasion: 0.5,
+                                evasion: 0.333,
                                 }
                         }
                 }
@@ -412,7 +426,7 @@ class LocationType{
                 }
             },
             3: {
-                description: "Place so cold that lesser beings would freeze in less than a minute",
+                description: "This place is so cold, lesser beings would freeze in less than a minute...",
                 related_skill: "Cold resistance",
                 //TODO: environmental damage if resistance is too low (to both hp and stamina?)
                 effects: {
@@ -472,27 +486,45 @@ class LocationType{
 
     locations["Nearby cave"] = new Location({ 
         connected_locations: [{location: locations["Village"], custom_text: "Go outside and to the village"}], 
-        description: "Cave near the village. Groups of fluorescent mushrooms cover the walls, providing a dim light. You can hear sounds of rats somewhere deeper.", 
+        description: "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. You can hear sounds of rats from.", 
         name: "Nearby cave",
         is_unlocked: false,
     });
     locations["Village"].connected_locations.push({location: locations["Nearby cave"]});
     //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
 
-    locations["Cave depths"] = new Combat_zone({
-        description: "It's dark. And full of rats.", 
-        enemy_count: 30, 
-        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 1, xp_gain: 2}],
-        enemies_list: ["Starving wolf rat", "Wolf rat"],
-        enemy_group_size: [5,8],
+    locations["Cave room"] = new Combat_zone({
+        description: "It's full of rats. At least the glowing mushrooms provide some light.", 
+        enemy_count: 25, 
+        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "bright", stage:1}],
+        enemies_list: ["Wolf rat"],
+        enemy_group_size: [2,3],
         enemy_stat_variation: 0.2,
         is_unlocked: true, 
+        name: "Cave room", 
+        leave_text: "Go back to entrence",
+        parent_location: locations["Nearby cave"],
+        repeatable_reward: {
+            locations: ["Cave depths"],
+            xp: 20,
+        }
+    });
+    locations["Nearby cave"].connected_locations.push({location: locations["Cave room"]});
+
+    locations["Cave depths"] = new Combat_zone({
+        description: "It's dark. And full of rats.", 
+        enemy_count: 50, 
+        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 1, xp_gain: 2}],
+        enemies_list: ["Wolf rat"],
+        enemy_group_size: [5,8],
+        enemy_stat_variation: 0.2,
+        is_unlocked: false, 
         name: "Cave depths", 
         leave_text: "Climb out",
         parent_location: locations["Nearby cave"],
         repeatable_reward: {
             textlines: [{dialogue: "village elder", lines: ["cleared cave"]}],
-            xp: 20,
+            xp: 40,
         }
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Cave depths"]});
