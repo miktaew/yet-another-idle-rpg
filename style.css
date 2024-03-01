@@ -198,7 +198,7 @@ body {
 
 .inventory_equipped_item {
 	display: inline-block;
-	width: 259px; 
+	width: 256px; 
 	font-weight: bold;
 	float: left;
 }
@@ -309,7 +309,7 @@ body {
 .unequip_item_button {
 	font-weight: bold;
 	cursor: pointer;
-	width: 60px;
+	width: 63px;
 	display: inline-block;
 }
 

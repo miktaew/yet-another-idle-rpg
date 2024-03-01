@@ -248,13 +248,13 @@ function get_unlocked_skill_rewards(skill_id) {
 }
 
 /**
- * get rewards for next lvl
+ * gets rewards for next lvl
  * @param {String} skill_id key used in skills object
  * @returns rewards for next level, formatted to a string
  */
 function get_next_skill_reward(skill_id) {
     if(skills[skill_id].current_level !== "Max!") {
-        var rewards = skills[skill_id].rewards.milestones[get_next_skill_milestone(skill_id)];
+        let rewards = skills[skill_id].rewards.milestones[get_next_skill_milestone(skill_id)];
         
         if(rewards) {
             return format_skill_rewards(rewards);
@@ -430,7 +430,7 @@ function format_skill_rewards(milestone){
     
      skills["Unarmed"] = new Skill({skill_id: "Unarmed", 
                                     names: {0: "Unarmed"}, 
-                                    description: "It's definitely, unquestionably, undoubtedly better to just use a weapon. But sure, why not?",
+                                    description: "It's definitely, unquestionably, undoubtedly better to just use a weapon instead of doing this. But sure, why not?",
                                     get_effect_description: ()=> {
                                         return `Multiplies damage dealt in unarmed combat by ${Math.round(skills["Unarmed"].get_coefficient("multiplicative")*1000)/1000}`;
                                     },

@@ -36,7 +36,7 @@ import { end_activity_animation,
         } from "./display.js";
 
 const save_key = "save data";
-const game_version = "v0.3.4i";
+const game_version = "v0.3.4i-2";
 
 //current enemy
 var current_enemies = null;

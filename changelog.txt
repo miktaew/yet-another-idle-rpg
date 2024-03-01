@@ -1,3 +1,5 @@
+v0.3.4i-2
+    - minor fix to CSS
 v0.3.4i
     - now can take less than 1 dmg from an attack, if using a shield
     - rounded some dmg numbers
