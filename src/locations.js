@@ -486,7 +486,7 @@ class LocationType{
 
     locations["Nearby cave"] = new Location({ 
         connected_locations: [{location: locations["Village"], custom_text: "Go outside and to the village"}], 
-        description: "Cave near the village. Groups of fluorescent mushrooms cover the walls, providing a dim light. You can hear sounds of rats somewhere deeper.", 
+        description: "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. You can hear sounds of rats from.", 
         name: "Nearby cave",
         is_unlocked: false,
     });
