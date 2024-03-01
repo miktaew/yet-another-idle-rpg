@@ -92,7 +92,8 @@
                     <div id = "time_div"> </div>
                     
                     <div id = "location_name_div">
-                        
+                        <span id = "location_name_span"></span>
+                        <span id = "location_name_tooltip"></span>
                     </div>
                     <div id = "location_types_div">
                         
@@ -786,7 +787,7 @@
 
             <div id = "changelog_button" class = "game_info"><a href="changelog.txt" target="_blank"></a></div>
             <div id = "help_button" class = "game_info"><a href="help.html" target="_blank"><i class="material-icons">help_outline</i></a></div>
-
+            <div id = "options_button" class = "game_info"><a><i class="material-icons">settings</i></a></div>
             
         </div>
 
@@ -1281,10 +1282,10 @@
                 }
 
                 //location type tooltips
-                var location_types_div = document.getElementById("location_types_div");
+                let location_types_div = document.getElementById("location_types_div");
                 location_types_div.addEventListener('mousemove', move_location_type_tooltip, false);
                 function move_location_type_tooltip(event) {
-                    var hovered_element = event.target;
+                    let hovered_element = event.target;
 
                     if(!hovered_element.classList.contains("location_type_div")) {
                         return;
@@ -1298,12 +1299,42 @@
                         window.innerWidth - tooltip_width - 23 - 40 + window.scrollX - (scrollbar_Y_visible?10:0);
 
                     if(event.pageX > right_edge_position) {
-                        document.documentElement.style.setProperty('--location_type_tooltip_left', `${right_edge_position - 650}px`);
+                        document.documentElement.style.setProperty('--location_type_tooltip_left', `${right_edge_position - 680}px`);
                     } else {
-                        document.documentElement.style.setProperty('--location_type_tooltip_left', `${event.pageX - 650}px`);
+                        document.documentElement.style.setProperty('--location_type_tooltip_left', `${event.pageX - 680}px`);
                     }
 
-                    document.documentElement.style.setProperty('--location_type_tooltip_top', `${event.pageY - 100}px`);
+                    document.documentElement.style.setProperty('--location_type_tooltip_top', `${event.pageY - 60}px`);
+                }
+
+                //location desc tooltip (for combat locations)
+                let location_name_div = document.getElementById("location_name_div");
+                location_name_div.addEventListener('mousemove', move_location_desc_tooltip, false);
+                function move_location_desc_tooltip(event) {
+                    let hovered_element = event.target;
+
+                    if(hovered_element.id === "location_name_span") {
+                        hovered_element = hovered_element.parentNode;
+                    }
+                    else if(hovered_element.id !== "location_name_div") {
+                        return;
+                    }
+                    
+                    const tooltip_width = hovered_element.children[0].scrollWidth;
+                    
+                    const body = document.getElementsByTagName("body")[0];
+                    const scrollbar_Y_visible = (body.scrollHeight - body.clientHeight) > 0;
+
+                    const right_edge_position = 
+                        window.innerWidth - tooltip_width - 23 - 40 + window.scrollX - (scrollbar_Y_visible?10:0);
+
+                    if(event.pageX > right_edge_position) {
+                        document.documentElement.style.setProperty('--location_desc_tooltip_left', `${right_edge_position - 420}px`);
+                    } else {
+                        document.documentElement.style.setProperty('--location_desc_tooltip_left', `${event.pageX - 420}px`);
+                    }
+
+                    document.documentElement.style.setProperty('--location_desc_tooltip_top', `${event.pageY - 40}px`);
                 }
 
                 //bestiary entry tooltips

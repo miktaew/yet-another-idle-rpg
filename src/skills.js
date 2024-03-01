@@ -422,10 +422,10 @@ function format_skill_rewards(milestone){
     skills["Shield blocking"] = new Skill({skill_id: "Shield blocking", 
                                     names: {0: "Shield blocking"}, 
                                     description: "Ability to block attacks with shield", 
-                                    max_level: 20, 
+                                    max_level: 30, 
                                     max_level_bonus: 0.2,
                                     get_effect_description: ()=> {
-                                        return `Increases block chance by flat ${Math.round(skills["Shield blocking"].get_level_bonus()*1000)/10}%`;
+                                        return `Increases block chance by flat ${Math.round(skills["Shield blocking"].get_level_bonus()*1000)/10}%. Increases blocked damage by ${Math.round(skills["Shield blocking"].get_level_bonus()*5000)/10}%`;
                                     }});
     
      skills["Unarmed"] = new Skill({skill_id: "Unarmed", 
@@ -624,7 +624,7 @@ function format_skill_rewards(milestone){
                                         5: {
                                             stats: {
                                                 "strength": 1,
-                                                "crit_rate": 0.05,
+                                                "crit_rate": 0.02,
                                             },
                                         },
                                         7: {
@@ -665,8 +665,10 @@ function format_skill_rewards(milestone){
                                         5: {
                                             stats: {
                                                 "dexterity": 1,
-                                                "strength": 0.05,
                                             },
+                                             multipliers: {
+                                                "strength": 1.05,
+                                             },
                                         },
                                         7: {
                                             stats: {
@@ -704,7 +706,7 @@ function format_skill_rewards(milestone){
                                         5: {
                                             stats: {
                                                 "strength": 1,
-                                                "crit_rate": 0.05,
+                                                "crit_rate": 0.02,
                                             },
                                         },
                                         7: {
@@ -784,7 +786,7 @@ function format_skill_rewards(milestone){
                                         5: {
                                             stats: {
                                                 "crit_multiplier": 0.1,
-                                                "crit_rate": 0.1,
+                                                "crit_rate": 0.02,
                                             },
                                         },
                                         7: {
@@ -794,7 +796,7 @@ function format_skill_rewards(milestone){
                                         },
                                         10: {
                                             stats: {
-                                                "crit_rate": 0.05,
+                                                "crit_rate": 0.03,
                                                 "crit_multiplier": 0.1, 
                                             },
                                         }

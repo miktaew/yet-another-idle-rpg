@@ -14,6 +14,8 @@ class Hero extends InventoryHaver {
         }
 }
 
+const base_block_chance = 0.75; //+20 from the skill
+
 const character = new Hero();
 character.name = "Hero";
 character.titles = {};
@@ -32,8 +34,8 @@ character.base_stats = {
         intuition: 10,
         magic: 0, 
         attack_speed: 1, 
-        crit_rate: 0.1, 
-        crit_multiplier: 1.2, 
+        crit_rate: 0.05, 
+        crit_multiplier: 1.4, 
         attack_power: 0, 
         defense: 0
 };
@@ -498,7 +500,7 @@ function unequip_item(item_slot) {
 
         if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
             character.combat_stats.evasion_points = null;
-            character.combat_stats.block_chance = 0.8 + Math.round(skills["Shield blocking"].get_level_bonus() * 10000)/10000;
+            character.combat_stats.block_chance = base_block_chance + Math.round(skills["Shield blocking"].get_level_bonus() * 10000)/10000;
         }
 
     

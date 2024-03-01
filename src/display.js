@@ -11,7 +11,7 @@ import { format_time, current_game_time } from "./game_time.js";
 import { book_stats, item_templates } from "./items.js";
 import { location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
-import { expo, format_reading_time, stat_names } from "./misc.js"
+import { expo, format_reading_time, stat_names, get_hit_chance } from "./misc.js"
 
 var activity_anim; //for the activity animation interval
 
@@ -19,8 +19,9 @@ var activity_anim; //for the activity animation interval
 const action_div = document.getElementById("location_actions_div");
 const trade_div = document.getElementById("trade_div");
 
-const location_name_div = document.getElementById("location_name_div");
+const location_name_span = document.getElementById("location_name_span");
 const location_types_div = document.getElementById("location_types_div");
+const location_tooltip = document.getElementById("location_name_tooltip");
 
 //inventory display
 const inventory_div = document.getElementById("inventory_content_div");
@@ -116,7 +117,7 @@ function clear_action_div() {
 
 function create_item_tooltip(item, options) {
     //create tooltip and it's content
-    var item_tooltip = document.createElement("span");
+    let item_tooltip = document.createElement("span");
     item_tooltip.classList.add(options && options.css_class || "item_tooltip");
 
     item_tooltip.innerHTML = `<b>${item.getName()}</b>`;
@@ -992,10 +993,9 @@ function update_displayed_equipment() {
             enemies_div.children[i].children[0].style.display = null;
             enemies_div.children[i].children[0].children[0].innerHTML = current_enemies[i].name;
 
-            const ap = current_enemies[i].stats.dexterity * Math.sqrt(current_enemies[i].stats.intuition || 1);
-            const ep = current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition || 1);
-
             let disp_speed;
+
+            let hit_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/4); // down to ~ 60% if there's full 8 enemies
             if(current_enemies[i].stats.attack_speed > 20) {
                 disp_speed = Math.round(current_enemies[i].stats.attack_speed);
             } else if (current_enemies[i].stats.attack_speed > 2) {
@@ -1004,11 +1004,27 @@ function update_displayed_equipment() {
                 disp_speed = Math.round(current_enemies[i].stats.attack_speed*100)/100;
             }
 
+            if(current_enemies[i].size === "small") {
+                hit_chance_modifier *= skills["Pest killer"].get_coefficient("multiplicative");
+            }
+
+            let evasion_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/3); //down to .5 if there's full 8 enemies (multiple attackers make it harder to evade attacks)
+            if(current_enemies[i].size === "large") {
+                evasion_chance_modifier *= skills["Giant slayer"].get_coefficient("multiplicative");
+            }
+        
+            const evasion_chance = get_hit_chance(character.combat_stats.attack_points, current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition ?? 1)) * hit_chance_modifier;
+            let hit_chance = get_hit_chance(current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition ?? 1), character.combat_stats.evasion_points) * evasion_chance_modifier;
+
+            if(character.equipment["off-hand"]?.offhand_type === "shield") { //has shield
+                hit_chance = 1;
+            }
+
             //enemies_div.children[i].children[0].children[1].innerHTML = `AP : ${Math.round(ap)} | EP : ${Math.round(ep)}`;
             enemies_div.children[i].children[0].children[1].children[0].innerHTML = `Atk pwr: ${current_enemies[i].stats.attack}`;
             enemies_div.children[i].children[0].children[1].children[1].innerHTML = `Atk spd: ${disp_speed}`;
-            enemies_div.children[i].children[0].children[1].children[2].innerHTML = `AP: ${Math.round(ap)}`;
-            enemies_div.children[i].children[0].children[1].children[3].innerHTML = `EP: ${Math.round(ep)} `;
+            enemies_div.children[i].children[0].children[1].children[2].innerHTML = `Hit: ${Math.round(100*hit_chance)}%`; //100% if shield!
+            enemies_div.children[i].children[0].children[1].children[3].innerHTML = `Ddg: ${Math.round(100*evasion_chance)}%`;
             enemies_div.children[i].children[0].children[1].children[4].innerHTML = `Def: ${current_enemies[i].stats.defense}`;
 
         } else {
@@ -1028,6 +1044,7 @@ function update_displayed_health_of_enemies() {
             enemies_div.children[i].children[0].style.filter = "brightness(100%)";
         } else {
             enemies_div.children[i].children[0].style.filter = "brightness(30%)";
+            //update_displayed_enemies();
         }
 
         //update size of health bar
@@ -1044,6 +1061,7 @@ function update_displayed_normal_location(location) {
     clear_action_div();
     location_types_div.innerHTML = "";
     combat_div.style.display = "none";
+    location_tooltip.innerText = "";
 
     enemy_count_div.style.display = "none";
     document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_default'));
@@ -1148,7 +1166,7 @@ function update_displayed_normal_location(location) {
         action_div.append(...create_location_choices(location, "travel"));
     }
 
-    location_name_div.innerText = current_location.name;
+    location_name_span.innerText = current_location.name;
     document.getElementById("location_description_div").innerText = current_location.description;
 }
 
@@ -1327,10 +1345,15 @@ function update_displayed_combat_location(location) {
     action_div.appendChild(action);
 
 
-    location_name_div.innerText = current_location.name;
+    location_name_span.innerText = current_location.name;
+    //ADD tooltip with description to this!
+
+    location_tooltip.innerText = current_location.description;
+    location_tooltip.classList.add("location_tooltip");
+    
+    document.getElementById("location_description_div").innerText = current_location.description;
 
     //add location types to display
-
     for(let i = 0; i < current_location.types?.length; i++) {
         const type_div = document.createElement("div");
         type_div.innerHTML = current_location.types[i].type;
@@ -1344,8 +1367,6 @@ function update_displayed_combat_location(location) {
         location_types_div.appendChild(type_div);
 
     }
-
-    document.getElementById("location_description_div").innerText = current_location.description;
 }
 
 function update_displayed_health() { //call it when using healing items, resting or getting hit

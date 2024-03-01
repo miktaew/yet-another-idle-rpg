@@ -42,6 +42,7 @@
 */
 
 import { character } from "./character.js";
+import { skills } from "./skills.js";
 
 const rarity_multipliers = {
     trash: 1,
@@ -263,10 +264,7 @@ class Shield extends Equippable {
     }
 
     getShieldStrength() {
-        if(!this.shield_strength) {
-            this.shield_strength = Math.ceil(item_templates[this.components.shield_base].shield_strength * this.quality * rarity_multipliers[this.getRarity()]);
-        }
-        return this.shield_strength;
+        return Math.round(10 * (1 + 5*skills["Shield blocking"].get_level_bonus()) * Math.ceil(item_templates[this.components.shield_base].shield_strength * this.quality * rarity_multipliers[this.getRarity()]))/10;
     }
 
     getName() {
@@ -532,7 +530,7 @@ book_stats["Old combat manual"] = new BookData({
     literacy_xp_rate: 1,
     rewards: {
         xp_multipliers: {
-            combat: 1.1,
+            combat: 1.2,
         }
     },
 });
@@ -618,7 +616,7 @@ item_templates["Old combat manual"] = new Book({
         attack_value: 8,
         stats: {
             attack_speed: {
-                multiplier: 0.95,
+                multiplier: 0.9,
             }
         }
     });
@@ -631,7 +629,7 @@ item_templates["Old combat manual"] = new Book({
         attack_value: 9,
         stats: {
             attack_speed: {
-                multiplier: 0.9,
+                multiplier: 0.8,
             }
         }
     });

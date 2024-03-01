@@ -40,6 +40,9 @@
 	--location_type_tooltip_top: 0px;
 	--location_type_tooltip_left: 0px;
 
+	--location__desc_tooltip_top: 0px;
+	--location_desc_tooltip_left: 0px;
+
 	/* for #location_related_div */
 	--actions_div_height_default: 400px;
 	--actions_div_height_combat: 100px;
@@ -207,7 +210,7 @@ body {
 	border-bottom: 1px dotted white;
 }
 
-.item_tooltip, .job_tooltip {
+.item_tooltip, .job_tooltip, .location_tooltip {
 	 display: none;
 	 text-align: left;
 	 color: white;
@@ -223,6 +226,25 @@ body {
 	 pointer-events: none;
 }
 
+.location_tooltip {
+	font-size: 16;
+	top: var(--location_desc_tooltip_top);
+	left: var(--location_desc_tooltip_left);
+	display: none;
+	 text-align: left;
+	 color: white;
+	 font-weight: normal;
+	 background-color: rgba(120, 120, 120, 0.95);
+	 border-radius: 10px;
+	 margin-left: 30px;
+	 margin-top: 20px;
+	 padding: 5px;
+	 position: absolute;
+	 z-index: 1000;
+	 width: 250px;
+	 pointer-events: none;
+}
+
 .item_tooltip {
 	top: var(--item_tooltip_top);
 	left: var(--item_tooltip_left);
@@ -235,7 +257,7 @@ body {
 
 .equipment_slot_div:hover .item_tooltip, .trader_item_control:hover .item_tooltip, .inventory_item_control:hover .item_tooltip, 
 .equipped_item_control:hover .item_tooltip, .start_activity:hover .job_tooltip, .activity_unavailable:hover .job_tooltip, 
-.effects_div:hover .effects_tooltip{
+.effects_div:hover .effects_tooltip, #location_name_div:hover .location_tooltip{
 	display: block;
 }
 

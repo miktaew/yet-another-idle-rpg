@@ -97,7 +97,7 @@ class Enemy {
         name: "Starving wolf", description: "A large, wild and hungry canine", 
         xp_value: 6, 
         rank: 3,
-        stats: {health: 120, attack: 20, agility: 34, dexterity: 34, intuition: 28, magic: 0, attack_speed: 1, defense: 8}, 
+        stats: {health: 150, attack: 24, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 8}, 
         loot_list: [
             /* //those items were removed, so let's keep it in comment for a while
             {item_name: "Wolf tooth", chance: 0.02, count: {min: 1, max: 2}},
@@ -111,7 +111,7 @@ class Enemy {
         description: "A small, wild canine", 
         xp_value: 6, 
         rank: 4,
-        stats: {health: 90, attack: 22, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.2, defense: 3}, 
+        stats: {health: 120, attack: 24, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.4, defense: 4}, 
         loot_list: [
             /*
             {item_name: "Wolf tooth", chance: 0.02},
@@ -125,7 +125,7 @@ class Enemy {
         description: "A large, wild canine", 
         xp_value: 10, 
         rank: 5,
-        stats: {health: 140, attack: 30, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.2, defense: 15}, 
+        stats: {health: 200, attack: 40, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.3, defense: 20}, 
         loot_list: [
             /*
             {item_name: "Wolf tooth", chance: 0.02, count: {min: 1, max: 3}},

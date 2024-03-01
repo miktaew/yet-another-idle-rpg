@@ -339,7 +339,7 @@ class LocationType{
         name: "narrow",
         stages: {
             1: {
-                description: "A very narrow and tight area where there's not much place for manouvering",
+                description: "A very narrow and tight area where there's not much place for maneuvering",
                 related_skill: "Tight maneuvers",
                 effects: {
                     multipliers: {
@@ -465,7 +465,7 @@ class LocationType{
     //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
 
     locations["Infested field"] = new Combat_zone({
-        description: "Field infested with rats.", 
+        description: "Field infested with wolf rats. You can see the grain stalks move as these creatures scurry around.", 
         enemy_count: 15, 
         enemies_list: ["Starving wolf rat", "Wolf rat"],
         types: [{type: "open", stage: 1, xp_gain: 1}],
@@ -504,9 +504,12 @@ class LocationType{
         name: "Cave room", 
         leave_text: "Go back to entrence",
         parent_location: locations["Nearby cave"],
+        first_reward: {
+            xp: 20,
+        },
         repeatable_reward: {
             locations: ["Cave depths"],
-            xp: 20,
+            xp: 10,
         }
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Cave room"]});
@@ -522,9 +525,12 @@ class LocationType{
         name: "Cave depths", 
         leave_text: "Climb out",
         parent_location: locations["Nearby cave"],
+        first_reward: {
+            xp: 30,
+        },
         repeatable_reward: {
             textlines: [{dialogue: "village elder", lines: ["cleared cave"]}],
-            xp: 40,
+            xp: 15,
         }
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Cave depths"]});
@@ -543,7 +549,12 @@ class LocationType{
         enemy_count: 30, 
         name: "Forest", 
         parent_location: locations["Forest road"],
-        repeatable_reward: {},
+        first_reward: {
+            xp: 40,
+        },
+        repeatable_reward: {
+            xp: 20,
+        }
     });
     locations["Forest road"].connected_locations.push({location: locations["Forest"], custom_text: "Leave the safe path"});
 
@@ -555,8 +566,12 @@ class LocationType{
         is_unlocked: false,
         name: "Deep forest", 
         parent_location: locations["Forest road"],
-        repeatable_reward: {},
-        
+        first_reward: {
+            xp: 50,
+        },
+        repeatable_reward: {
+            xp: 25,
+        }
     });
     locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture deeper into the woods"});
     locations["Forest"].repeatable_reward.locations = [locations["Deep forest"]];

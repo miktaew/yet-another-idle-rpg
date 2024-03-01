@@ -34,9 +34,10 @@ import { end_activity_animation,
          update_bestiary_entry,
          start_reading_display
         } from "./display.js";
+import { get_hit_chance } from "./misc.js";
 
 const save_key = "save data";
-const game_version = "v0.3.4i-2";
+const game_version = "v0.3.5";
 
 //current enemy
 var current_enemies = null;
@@ -96,32 +97,6 @@ time_field.innerHTML = current_game_time.toString();
         character.xp_bonuses.total_multiplier[skill] = 1;
     });
 })();
-
-function get_hit_chance(attack_points, evasion_points) {
-    let result = attack_points/(attack_points+evasion_points);
-
-    if(result >= 0.80) {
-        result = 0.971+(result-0.8)**1.4;
-    } else if(result >= 0.70) {
-        result = 0.846+(result-0.7)**0.9;
-    } else if(result >= 0.6) {
-        result = 0.688+(result-0.6)**0.8;
-    } else if(result >= 0.50) {
-        result = 0.53+(result-0.5)**0.8;
-    } else if(result >= 0.40) {
-        result = 0.331+(result-0.4)**0.7;
-    } else if(result >= 0.3) {
-        result = 0.173 + (result-0.3)**0.8;
-    } else if(result >= 0.20) {
-        result = 0.073 + (result-0.2);
-    } else if(result >= 0.10) {
-        result = 0.01 + (result-0.1)**1.2;
-    } else {
-        result = result**1.92;
-    }
-    
-    return result;
-}
 
 function change_location(location_name) {
     var location = locations[location_name];
@@ -487,11 +462,10 @@ function set_new_combat(enemies) {
         character_attack_cooldown *= cooldown_multiplier;
         for(let i = 0; i < current_enemies.length; i++) {
             enemy_attack_cooldowns[i] *= cooldown_multiplier;
-
         }
     }
 
-    //attach animations
+    //attach loops
     for(let i = 0; i < current_enemies.length; i++) {
         //set_enemy_attack_animation(i, enemy_attack_cooldowns[i]);
         set_enemy_attack_loop(i, enemy_attack_cooldowns[i]);
@@ -517,7 +491,7 @@ function set_enemy_attack_loop(enemy_id, cooldown) {
             count = 0;
             do_enemy_combat_action(enemy_id);
         }
-    }, cooldown*1000/40);
+    }, cooldown*1000/(40*tickrate));
 }
 
 function clear_enemy_attack_loop(enemy_id) {
@@ -537,6 +511,10 @@ function set_character_attack_loop(base_cooldown, attack_type = "normal") {
 
     use_stamina(stamina_cost);
     let actual_cooldown = base_cooldown * character.get_stamina_multiplier();
+    
+    //if no_weapon
+    //  actual_cooldown = actual_cooldown / unarmed_speed_bonus
+
     let attack_power = character.get_attack_power();
     do_character_attack_loop(base_cooldown, actual_cooldown, attack_power, attack_type);
 }
@@ -561,7 +539,7 @@ function do_character_attack_loop(base_cooldown, actual_cooldown, attack_power, 
                 set_character_attack_loop(base_cooldown, attack_type);
             }
         }
-    }, 1000/(40*actual_cooldown));
+    }, 1000/(40*actual_cooldown*tickrate));
 }
 
 function clear_character_attack_loop() {
@@ -661,7 +639,6 @@ function do_enemy_combat_action(enemy_id) {
 
     let {damage_taken, fainted} = character.take_damage({damage_value: damage_dealt});
 
-    console.log(damage_taken);
     if(critted)
     {
         if(partially_blocked) {

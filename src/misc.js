@@ -36,5 +36,30 @@ const stat_names = {"strength": "str",
                     "stamina_efficiency": "stamina efficiency",
                 };
 
+function get_hit_chance(attack_points, evasion_points) {
+    let result = attack_points/(attack_points+evasion_points);
 
-export { expo, format_reading_time, stat_names };
+    if(result >= 0.80) {
+        result = 0.971+(result-0.8)**1.4;
+    } else if(result >= 0.70) {
+        result = 0.846+(result-0.7)**0.9;
+    } else if(result >= 0.6) {
+        result = 0.688+(result-0.6)**0.8;
+    } else if(result >= 0.50) {
+        result = 0.53+(result-0.5)**0.8;
+    } else if(result >= 0.40) {
+        result = 0.331+(result-0.4)**0.7;
+    } else if(result >= 0.3) {
+        result = 0.173 + (result-0.3)**0.8;
+    } else if(result >= 0.20) {
+        result = 0.073 + (result-0.2);
+    } else if(result >= 0.10) {
+        result = 0.01 + (result-0.1)**1.2;
+    } else {
+        result = result**1.92;
+    }
+
+    return result;
+}
+
+export { expo, format_reading_time, stat_names, get_hit_chance};
