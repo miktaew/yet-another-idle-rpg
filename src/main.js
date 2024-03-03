@@ -1,7 +1,7 @@
 "use strict";
 
 import { current_game_time } from "./game_time.js";
-import { item_templates, getItem, book_stats} from "./items.js";
+import { item_templates, getItem, book_stats, setLootSoldCount, loot_sold_count} from "./items.js";
 import { locations } from "./locations.js";
 import { skills, weapon_type_to_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
@@ -40,38 +40,41 @@ const save_key = "save data";
 const game_version = "v0.3.5";
 
 //current enemy
-var current_enemies = null;
+let current_enemies = null;
 
 const enemy_attack_loops = {};
 
 let character_attack_loop;
 
 //current location
-var current_location;
+let current_location;
 
-var current_activity;
+let current_activity;
 
 //resting, true -> health regenerates
-var is_resting = true;
+let is_resting = true;
 
 //sleeping, true -> health regenerates, timer goes up faster
-var is_sleeping = false;
+let is_sleeping = false;
+
+let last_location_with_bed = null;
+let last_combat_location = null;
 
 //reading, either null or book name
 let is_reading = null;
 
 //ticks between saves, 60 = ~1 minute
-var save_period = 60;
-var save_counter = 0;
+let save_period = 60;
+let save_counter = 0;
 
 //accumulates deviations
-var time_variance_accumulator = 0;
+let time_variance_accumulator = 0;
 //all 3 used for calculating and adjusting tick durations
-var time_adjustment = 0;
-var start_date;
-var end_date;
+let time_adjustment = 0;
+let start_date;
+let end_date;
 
-var current_dialogue;
+let current_dialogue;
 const active_effects = {};
 //e.g. health regen from food
 
@@ -119,11 +122,15 @@ function change_location(location_name) {
 
     if("connected_locations" in current_location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
         update_displayed_normal_location(current_location);
+        if(current_location.sleeping) {
+            last_location_with_bed = current_location.name;
+        }
 
     } else { //so if entering combat zone
-
         update_displayed_combat_location(current_location);
         start_combat();
+
+        last_combat_location = current_location.name;
     }
 }
 
@@ -474,6 +481,7 @@ function set_new_combat(enemies) {
     set_character_attack_loop(character_attack_cooldown);
     
     update_displayed_enemies();
+    update_displayed_health_of_enemies();
 }
 
 /**
@@ -608,7 +616,6 @@ function do_enemy_combat_action(enemy_id) {
             }
          }
     } else { // HAS NO SHIELD
-        //character EP div by enemy_AP * 3
         const hit_chance = get_hit_chance(attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1), character.combat_stats.evasion_points)/evasion_chance_modifier;
 
         if(hit_chance < Math.random()) { //EVADED ATTACK
@@ -821,7 +828,8 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     }
 
     if(skill.parent_skill && add_to_parent) {
-        add_xp_to_skill({skill: skills[skill.parent_skill], xp_to_add, should_info, use_bonus, add_to_parent});
+        const xp_for_parent = Math.max(skill.total_xp + xp_to_add - skills[skill.parent_skill].total_xp, 0);
+        add_xp_to_skill({skill: skills[skill.parent_skill], xp_to_add: xp_for_parent, should_info, use_bonus, add_to_parent});
     }
     
     const was_hidden = skill.visibility_treshold > skill.total_xp;
@@ -1113,6 +1121,8 @@ function create_save() {
 
         save_data["enemy_killcount"] = enemy_killcount;
 
+        save_data["loot_sold_count"] = loot_sold_count;
+
         return JSON.stringify(save_data);
     } catch(error) {
         console.error("Something went wrong on saving the game!");
@@ -1153,6 +1163,8 @@ function load(save_data) {
 
         name_field.value = save_data.character.name;
         character.name = save_data.character.name;
+
+        setLootSoldCount(save_data.loot_sold_count || {});
 
         Object.keys(save_data.character.equipment).forEach(function(key){
             if(save_data.character.equipment[key] != null) {
@@ -1827,13 +1839,13 @@ else {
     add_to_character_inventory([{item: getItem({...item_templates["Cheap iron sword"], quality: 0.4})}, 
                                 {item: getItem({...item_templates["Cheap leather pants"], quality: 0.4})},
                                 {item: getItem(item_templates["Stale bread"]), count: 5},
-                                //{item: getItem(item_templates["ABC for kids"]), count: 1},
+                                {item: getItem(item_templates["ABC for kids"]), count: 1},
                             ]);
 
     equip_item_from_inventory({item_name: "Cheap iron sword", item_id: 0});
     equip_item_from_inventory({item_name: "Cheap leather pants", item_id: 0});
     add_xp_to_character(0);
-    character.money = 15;
+    character.money = 152;
     update_displayed_money();
     character.update_stats();
 }
@@ -1842,4 +1854,4 @@ update_displayed_equipment();
 run();
 
 
-export { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, add_xp_to_skill, get_current_book };
+export { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, add_xp_to_skill, get_current_book, last_location_with_bed, last_combat_location };

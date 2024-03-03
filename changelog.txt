@@ -7,7 +7,9 @@ v0.3.5
     - minor balance changes for items
     - combat areas now have their descriptions available as tooltips when hovering over their name
     - enemies in combat now display their chance to hit hero and to dodge hero's attack, instead of AP/EP
-
+    - some style fixes, styling for money
+    - fixed parent skill xp gain (now they will keep up in xp with their most leveled child)
+    - reworked economy (drop rates no longer go down, instead price of enemy loot goes down as more and more is sold)
 
 v0.3.4i-2
     - minor fix to CSS

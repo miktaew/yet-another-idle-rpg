@@ -68,6 +68,14 @@ body {
     user-select: none;
 }
 
+@-moz-document url-prefix(){
+    body {
+        scrollbar-color: silver #191928;
+		scrollbar-width: thin;
+    }
+}
+
+
 .box_div {
 	background-image: var(--background_gradient);
 	border: 3px solid #797691;
@@ -186,17 +194,20 @@ body {
 	}
 
 .inventory_item, .trader_item {
-	 font-size: 14;
+	 font-size: 13;
 	 display: inline-block;
 
 }
 
 .equipped_item_control {
-	color: gold;
-	font-size: 14;
-	background-color: rgba(255, 236, 128, 0.3);
+	font-size: 13;
+	background-color: rgba(255, 236, 128, 0.15);
 	padding-bottom: 2px;
 	padding-top: 2px;
+}
+
+.equipped_item_control .inventory_equipped_item {
+	color: gold;
 }
 
 .inventory_equipped_item {
@@ -215,7 +226,7 @@ body {
 	 text-align: left;
 	 color: white;
 	 font-weight: normal;
-	 background-color: rgba(120, 120, 120, 0.95);
+	 background-color: rgba(92, 92, 92, 0.9);
 	 border-radius: 10px;
 	 margin-left: 30px;
 	 margin-top: 20px;
@@ -234,7 +245,7 @@ body {
 	 text-align: left;
 	 color: white;
 	 font-weight: normal;
-	 background-color: rgba(120, 120, 120, 0.95);
+	 background-color: rgba(92, 92, 92, 0.9);
 	 border-radius: 10px;
 	 margin-left: 30px;
 	 margin-top: 20px;
@@ -263,7 +274,7 @@ body {
 
 .stat_tooltip {
 	display: none;
-	background-color: rgba(120, 120, 120, 0.95);
+	background-color: rgba(92, 92, 92, 0.9);
 	border-radius: 10px;
 	padding: 5px;
 	position: absolute;
@@ -280,7 +291,7 @@ body {
 
 .skill_tooltip {
 	display: none;
-	background-color: rgba(120, 120, 120, 0.9);
+	background-color: rgba(92, 92, 92, 0.9);
 	border-radius: 10px;
 	padding: 5px;
 	position: absolute;
@@ -305,9 +316,10 @@ body {
 .equip_item_button {
 	 cursor: pointer;
 	 font-weight: bold;
-	 font-size: 14;
+	 font-size: 13;
 	 display: inline-block;
 	 width: 48px;
+	 text-align: right;
 }
 
 .item_stackable.book_finished + .item_use_button {
@@ -333,6 +345,7 @@ body {
 	cursor: pointer;
 	width: 63px;
 	display: inline-block;
+	text-align: right;
 }
 
 .item_use_button {
@@ -340,7 +353,7 @@ body {
 	width: 39px;
 	font-weight: bold;
 	cursor: pointer;
-	font-size: 14;
+	font-size: 13;
 	text-align: right;
 }
 
@@ -350,8 +363,8 @@ body {
 
 .item_value {
 	text-align: right;
-	font-size: 14;
-	width: 61px;
+	font-size: 13;
+	width: 60px;
 	border-left: 1px solid white;
 	margin-left: 4px;
 	padding-left: 4px;
@@ -371,6 +384,7 @@ body {
 
 .item_stackable {
 	width: 280px;
+	display: inline-block;
 }
 
 .item_equippable {
@@ -389,7 +403,7 @@ body {
 	background-color: rgba(0, 128, 0, 0.4);
 }
 
-.item_stackable.item_other{
+.item_stackable.item_other, .item_stackable.item_loot{
 	width: var(--item_other_width);
 }
 
@@ -403,7 +417,7 @@ body {
 	display: var(--consumables_display);
 }
 
-.character_item_other {
+.character_item_other, .character_item_loot {
 	display: var(--other_display);
 }
 
@@ -616,7 +630,7 @@ i {
 	width: 319px;
 }
 
-.trader_item_other {
+.trader_item_other, .trader_item_loot {
 	display: var(--trader_other_display);
 }
 .trader_item_equippable {
@@ -637,6 +651,26 @@ i {
 	background-color: #202044;
 	cursor: pointer;
 	float: left;
+}
+
+.coin{
+	font-weight: bold;
+}
+
+.coin_wood{
+	color: rgb(136, 83, 14);
+}
+
+.coin_copper{
+	color: rgb(207, 144, 60);
+}
+
+.coin_silver{
+	color: silver;
+}
+
+.coin_gold{
+	color:gold;
 }
 
 #page_selection {
@@ -924,7 +958,7 @@ i {
 	position: absolute;
 	left: 220px;
 	z-index: 1000;
-	background-color: rgba(120, 120, 120, 0.9);
+	background-color: rgba(92, 92, 92, 0.9);
 	color: white;
 	border-radius: 10px;
 	margin-left: 30px;
@@ -1117,15 +1151,14 @@ i {
 				overflow-x: visible;
 			}
 				.bestiary_entry_div {
-					width: 390px;
+					width: 380px;
 					display: flex;
-					outline: 1px solid gray;
+					box-shadow: 0 -1px 0 gray, 0 1px 0 gray;
 					margin-bottom: 1px;
-
 				}
 					.bestiary_entry_name {
 						float: left;
-						width:300px;
+						width:295px;
 						text-align: left;
 						padding-left: 5px;
 					}
@@ -1137,7 +1170,7 @@ i {
 
 					.bestiary_entry_tooltip {
 						display: none;
-						background-color: rgba(120, 120, 120, 0.9);
+						background-color: rgba(92, 92, 92, 0.9);
 						border-radius: 10px;
 						padding: 5px;
 						position: absolute;
@@ -1216,7 +1249,7 @@ i {
 
 				.location_type_tooltip {
 					display: none;
-					background-color: rgba(120, 120, 120, 0.9);
+					background-color: rgba(92, 92, 92, 0.9);
 					border-radius: 10px;
 					padding: 5px;
 					position: absolute;
@@ -1245,7 +1278,7 @@ i {
 #location_description_tooltip {
 	font-style: italic;
 	display: none;
-	background-color: rgba(120, 120, 120, 0.9);
+	background-color: rgba(92, 92, 92, 0.9);
 	border-radius: 10px;
 	margin-left: 30px;
 	padding: 5px;

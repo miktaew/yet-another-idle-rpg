@@ -56,6 +56,31 @@ const rarity_multipliers = {
 
 const item_templates = {};
 
+let loot_sold_count = {};
+
+function setLootSoldCount(data) {
+    loot_sold_count = data;
+}
+
+
+function getLootPriceModifier(how_many_sold) {
+    let modifier = 1;
+    if(how_many_sold >= 999) {
+        modifier = 0.1;
+    } else if(how_many_sold) {
+        modifier = Math.round(10*modifier * 111/(111+how_many_sold))/10;
+    }
+    return modifier;
+}
+
+function getLootPriceModifierMultiple(start_count, how_many_to_sell) {
+    let sum = 0;
+    for(let i = start_count; i < start_count+how_many_to_sell; i++) {
+        sum += getLootPriceModifier(i);
+    }
+    return sum;
+}
+
 class Item {
     constructor({name,
                 description,
@@ -87,6 +112,21 @@ class OtherItem extends Item {
         super(item_data);
         this.item_type = "OTHER";
         this.stackable = true;
+    }
+}
+
+class LootItem extends OtherItem {
+    constructor(item_data) {
+        super(item_data);
+        this.item_type = "LOOT";
+    }
+
+    getValue() {
+        return Math.round(this.value * getLootPriceModifier((loot_sold_count[this.getName()]||0)));
+    }
+
+    getValueOfMultiple(additional_count_of_sold, count) {
+        return Math.round(this.value * getLootPriceModifierMultiple((loot_sold_count[this.getName()]||0)+additional_count_of_sold, count));
     }
 }
 
@@ -225,7 +265,7 @@ class Equippable extends Item {
                     if(stats[stat].multiplier >= 1) {
                         stats[stat].multiplier = Math.round(100 * (1 + (stats[stat].multiplier - 1) * rarity_multipliers[this.getRarity()]))/100;
                     } else {
-                        Math.round(100 * stats[stat].multiplier)/100;
+                        stats[stat].multiplier = Math.round(100 * stats[stat].multiplier)/100;
                     }
                 }
 
@@ -501,7 +541,11 @@ function getItem(item_data) {
         case "BOOK":
             return new Book(item_data);
         case "OTHER":
-            if("weapon_types" in item_data) 
+            //this first check is only for compatibility starting from v0.3.5, could technically be removed at some point in the future
+            if(item_data.name === "Rat tail" || item_data.name === "Rat fang" || item_data.name === "Rat pelt") {
+                return new LootItem(item_data);
+            }
+            else if("weapon_types" in item_data) 
                 return new WeaponComponent(item_data);
             else if(item_data.component_type == "external" || item_data.component_type == "internal") 
                 return new ArmorComponent(item_data);
@@ -509,6 +553,8 @@ function getItem(item_data) {
                 return new ShieldComponent(item_data);
             else
                 return new OtherItem(item_data);
+        case "LOOT":
+            return new LootItem(item_data);
         default:
             throw new Error(`Wrong item type: ${item_data.item_type}`);
     }
@@ -540,27 +586,27 @@ book_stats["Old combat manual"] = new BookData({
 item_templates["ABC for kids"] = new Book({
     name: "ABC for kids",
     description: "The simplest book on the market",
-    value: 10,
+    value: 100,
 });
 
 item_templates["Old combat manual"] = new Book({
     name: "Old combat manual",
     description: "Old book about combat, worn and outdated, but might still contain something useful",
-    value: 20,
+    value: 200,
 });
 
 //miscellaneous:
 (function(){
-    item_templates["Rat tail"] = new OtherItem({
-        name: "Rat tail", description: "Tail of a huge rat, basically useless", value: 1
+    item_templates["Rat tail"] = new LootItem({
+        name: "Rat tail", description: "Tail of a huge rat, basically useless", value: 10
     });
 
-    item_templates["Rat fang"] = new OtherItem({
-        name: "Rat fang", description: "Fang of a huge rat, not very sharp", value: 1
+    item_templates["Rat fang"] = new LootItem({
+        name: "Rat fang", description: "Fang of a huge rat, not very sharp", value: 10
     });
 
-    item_templates["Rat pelt"] = new OtherItem({
-        name: "Rat pelt", description: "Pelt of a huge rat, terrible quality but maybe there's some use", value: 2
+    item_templates["Rat pelt"] = new LootItem({
+        name: "Rat pelt", description: "Pelt of a huge rat, terrible quality but maybe there's some use", value: 20
     });
 })();
 
@@ -568,7 +614,7 @@ item_templates["Old combat manual"] = new Book({
 (function(){
     item_templates["Basic spare parts"] = new ItemComponent({
         name: "Basic spare parts", description: "Some cheap and simple spare parts, like bindings and screws, necessary for crafting equipment",
-        value: 3, 
+        value: 30, 
         component_tier: 1,
     });
 }());
@@ -578,7 +624,7 @@ item_templates["Old combat manual"] = new Book({
     item_templates["Cheap short iron blade"] = new WeaponComponent({
         name: "Cheap short iron blade", description: "Crude blade made of iron. Perfect length for a dagger, but could be also used for a spear",
         component_type: "short blade",
-        value: 9,
+        value: 90,
         component_tier: 1,
         name_prefix: "Cheap iron",
         attack_value: 5,
@@ -597,7 +643,7 @@ item_templates["Old combat manual"] = new Book({
     item_templates["Cheap long iron blade"] = new WeaponComponent({
         name: "Cheap long iron blade", description: "Crude blade made of iron, with a perfect length for a sword",
         component_type: "long blade",
-        value: 12,
+        value: 120,
         name_prefix: "Cheap iron",
         component_tier: 1,
         attack_value: 7,
@@ -610,7 +656,7 @@ item_templates["Old combat manual"] = new Book({
     item_templates["Cheap iron axe head"] = new WeaponComponent({
         name: "Cheap iron axe head", description: "A heavy axe head made of low quality iron",
         component_type: "axe head",
-        value: 12,
+        value: 120,
         name_prefix: "Cheap iron",
         component_tier: 1,
         attack_value: 8,
@@ -623,7 +669,7 @@ item_templates["Old combat manual"] = new Book({
     item_templates["Cheap iron hammer head"] = new WeaponComponent({
         name: "Cheap iron hammer head", description: "A crude ball made of low quality iron, with a small hole for the handle",
         component_type: "hammer head",
-        value: 12,
+        value: 120,
         name_prefix: "Cheap iron",
         component_tier: 1,
         attack_value: 9,
@@ -637,14 +683,14 @@ item_templates["Old combat manual"] = new Book({
     item_templates["Simple short wooden hilt"] = new WeaponComponent({
         name: "Simple short wooden hilt", description: "A short handle for a sword or maybe a dagger",
         component_type: "short handle",
-        value: 5,
+        value: 50,
         component_tier: 1,
     });
 
     item_templates["Simple medium wooden handle"] = new WeaponComponent({
         name: "Simple medium wooden handle", description: "A medium handle for an axe or a hammer",
         component_type: "medium handle",
-        value: 6,
+        value: 60,
         component_tier: 1,
         stats: {
             attack_speed: {
@@ -656,7 +702,7 @@ item_templates["Old combat manual"] = new Book({
     item_templates["Simple long wooden shaft"] = new WeaponComponent({
         name: "Simple long wooden shaft", description: "A long shaft for a spear, somewhat uneven",
         component_type: "long handle",
-        value: 8,
+        value: 80,
         component_tier: 1,
         attack_multiplier: 1.5,
         stats: {
@@ -710,7 +756,7 @@ item_templates["Old combat manual"] = new Book({
 (function(){
     item_templates["Cheap leather vest [component]"] = new ArmorComponent({
         name: "Cheap leather vest [component]", description: "Vest providing very low protection. Better not to know what's it made from", 
-        value: 20,
+        value: 200,
         armor_name: "Cheap leather vest",
         equip_slot: "torso",
         component_type: "internal",
@@ -719,7 +765,8 @@ item_templates["Old combat manual"] = new Book({
     });
 
     item_templates["Cheap leather pants [component]"] = new ArmorComponent({
-        name: "Cheap leather pants [component]", description: "Pants of made of unknown leather. Uncomfortable.", value: 20,
+        name: "Cheap leather pants [component]", description: "Pants of made of unknown leather. Uncomfortable.", 
+        value: 200,
         armor_name: "Cheap leather pants",
         equip_slot: "legs",
         component_type: "internal",
@@ -746,7 +793,7 @@ item_templates["Old combat manual"] = new Book({
 (function(){
     item_templates["Cheap wooden shield base"] = new ShieldComponent({
         name: "Cheap wooden shield base", description: "Cheap shield component made of wood, basically just a few planks barely holding together", 
-        value: 10, 
+        value: 100, 
         shield_strength: 3, 
         shield_name: "Cheap wooden shield",
         component_tier: 1,
@@ -755,7 +802,7 @@ item_templates["Old combat manual"] = new Book({
 
     item_templates["Crude wooden shield base"] = new ShieldComponent({
         name: "Crude wooden shield base", description: "A shield component of rather bad quality, but at least it won't fall apart by itself", 
-        value: 20,
+        value: 200,
         shield_strength: 6,
         shield_name: "Crude wooden shield",
         component_tier: 1,
@@ -763,7 +810,7 @@ item_templates["Old combat manual"] = new Book({
     });
     item_templates["Wooden shield base"] = new ShieldComponent({
         name: "Wooden shield base", description: "Proper wooden shield component, although it could use some additional reinforcement", 
-        value: 40,
+        value: 400,
         shield_strength: 10,
         shield_name: "Wooden shield",
         component_tier: 1,
@@ -771,7 +818,7 @@ item_templates["Old combat manual"] = new Book({
     });
     item_templates["Basic shield handle"] = new ShieldComponent({
         name: "Wooden shield base", description: "A simple handle for holding the shield", 
-        value: 8,
+        value: 80,
         component_tier: 1,
         component_type: "shield handle"
     });
@@ -798,7 +845,8 @@ item_templates["Old combat manual"] = new Book({
 //usables:
 (function(){
     item_templates["Stale bread"] = new UsableItem({
-        name: "Stale bread", description: "Big piece of an old bread, still edible", value: 2,
+        name: "Stale bread", description: "Big piece of an old bread, still edible", 
+        value: 20,
         use_effect: {
             stamina_regeneration: {
                 flat: 1,
@@ -808,7 +856,8 @@ item_templates["Old combat manual"] = new Book({
     });
 
     item_templates["Fresh bread"] = new UsableItem({
-        name: "Fresh bread", description: "Freshly baked bread, delicious", value: 4,
+        name: "Fresh bread", description: "Freshly baked bread, delicious", 
+        value: 40,
         use_effect: {
             stamina_regeneration: {
                 flat: 1,
@@ -818,7 +867,8 @@ item_templates["Old combat manual"] = new Book({
     });
 
     item_templates["Weak healing powder"] = new UsableItem({
-        name: "Weak healing powder", description: "Not very potent, but can still make body heal noticeably faster", value: 8,
+        name: "Weak healing powder", description: "Not very potent, but can still make body heal noticeably faster", 
+        value: 80,
         use_effect: {
             health_regeneration: {
                 flat: 1,
@@ -828,4 +878,4 @@ item_templates["Old combat manual"] = new Book({
     });
 })();
 
-export {item_templates, Item, OtherItem, UsableItem, Armor, Shield, Weapon, getItem, Book, book_stats};
+export {item_templates, Item, OtherItem, LootItem, UsableItem, Armor, Shield, Weapon, getItem, Book, book_stats, loot_sold_count, setLootSoldCount};

@@ -2,11 +2,13 @@
 
 function expo(number, precision = 2)
 {
-    if(number >= 1000 || number < 0.01) {
+    if(number == 0) {
+        return 0;
+    } else if(number >= 1000 || number < 0.01) {
         return Number.parseFloat(number).toExponential(precision).replace(/[+-]/g,"");
     } else if(number > 1) {
         return Math.round(number*10)/10;
-    } else if(number > 0.1) {
+    } else {
         return Math.round(number*100)/100;
     }
 }

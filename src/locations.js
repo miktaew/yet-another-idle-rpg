@@ -592,7 +592,7 @@ class LocationType{
             activity: "plowing the fields",
             starting_text: "Work on the fields",
             get_payment: () => {
-                return 1 + Math.round(2 * skills["Farming"].current_level/skills["Farming"].max_level);
+                return 10 + Math.round(20 * skills["Farming"].current_level/skills["Farming"].max_level);
             },
             is_unlocked: false,
             working_period: 60*2,
@@ -616,7 +616,7 @@ class LocationType{
         "patrolling": new LocationActivity({
             activity: "patrolling",
             starting_text: "Go on a patrol around the village.",
-            get_payment: () => {return 4},
+            get_payment: () => {return 30},
             is_unlocked: false,
             infinite: true,
             working_period: 60*2,

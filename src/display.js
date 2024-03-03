@@ -4,7 +4,7 @@ import { traders } from "./traders.js";
 import { current_trader, to_buy, to_sell } from "./trade.js";
 import { skills, get_unlocked_skill_rewards, get_next_skill_milestone } from "./skills.js";
 import { character } from "./character.js";
-import { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, get_current_book } from "./main.js";
+import { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, get_current_book, last_location_with_bed, last_combat_location } from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time } from "./game_time.js";
@@ -744,6 +744,7 @@ function sort_displayed_inventory({sort_by, target = "character", direction = "a
                 item_control_div.appendChild(item_equip_span);
 
                 var item_value_span = document.createElement("span");
+
                 item_value_span.innerHTML = `${format_money(character.inventory[key][i].getValue(), true)}`;
                 item_value_span.classList.add("item_value", "item_controls");
                 item_control_div.appendChild(item_value_span);
@@ -995,7 +996,6 @@ function update_displayed_equipment() {
 
             let disp_speed;
 
-            let hit_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/4); // down to ~ 60% if there's full 8 enemies
             if(current_enemies[i].stats.attack_speed > 20) {
                 disp_speed = Math.round(current_enemies[i].stats.attack_speed);
             } else if (current_enemies[i].stats.attack_speed > 2) {
@@ -1004,17 +1004,18 @@ function update_displayed_equipment() {
                 disp_speed = Math.round(current_enemies[i].stats.attack_speed*100)/100;
             }
 
+            let hero_hit_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/4); // down to ~ 60% if there's full 8 enemies
             if(current_enemies[i].size === "small") {
-                hit_chance_modifier *= skills["Pest killer"].get_coefficient("multiplicative");
+                hero_hit_chance_modifier *= skills["Pest killer"].get_coefficient("multiplicative");
             }
 
-            let evasion_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/3); //down to .5 if there's full 8 enemies (multiple attackers make it harder to evade attacks)
+            let hero_evasion_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/3); //down to .5 if there's full 8 enemies (multiple attackers make it harder to evade attacks)
             if(current_enemies[i].size === "large") {
-                evasion_chance_modifier *= skills["Giant slayer"].get_coefficient("multiplicative");
+                hero_evasion_chance_modifier *= skills["Giant slayer"].get_coefficient("multiplicative");
             }
         
-            const evasion_chance = get_hit_chance(character.combat_stats.attack_points, current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition ?? 1)) * hit_chance_modifier;
-            let hit_chance = get_hit_chance(current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition ?? 1), character.combat_stats.evasion_points) * evasion_chance_modifier;
+            const evasion_chance = 1 - get_hit_chance(character.combat_stats.attack_points, current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition ?? 1)) * hero_hit_chance_modifier;
+            let hit_chance = get_hit_chance(current_enemies[i].stats.dexterity * Math.sqrt(current_enemies[i].stats.intuition ?? 1), character.combat_stats.evasion_points) / hero_evasion_chance_modifier;
 
             if(character.equipment["off-hand"]?.offhand_type === "shield") { //has shield
                 hit_chance = 1;
@@ -1023,16 +1024,14 @@ function update_displayed_equipment() {
             //enemies_div.children[i].children[0].children[1].innerHTML = `AP : ${Math.round(ap)} | EP : ${Math.round(ep)}`;
             enemies_div.children[i].children[0].children[1].children[0].innerHTML = `Atk pwr: ${current_enemies[i].stats.attack}`;
             enemies_div.children[i].children[0].children[1].children[1].innerHTML = `Atk spd: ${disp_speed}`;
-            enemies_div.children[i].children[0].children[1].children[2].innerHTML = `Hit: ${Math.round(100*hit_chance)}%`; //100% if shield!
-            enemies_div.children[i].children[0].children[1].children[3].innerHTML = `Ddg: ${Math.round(100*evasion_chance)}%`;
+            enemies_div.children[i].children[0].children[1].children[2].innerHTML = `Hit: ${Math.min(100,Math.max(0,Math.round(100*hit_chance)))}%`; //100% if shield!
+            enemies_div.children[i].children[0].children[1].children[3].innerHTML = `Ddg: ${Math.min(100,Math.max(0,Math.round(100*evasion_chance)))}%`;
             enemies_div.children[i].children[0].children[1].children[4].innerHTML = `Def: ${current_enemies[i].stats.defense}`;
 
         } else {
             enemies_div.children[i].children[0].style.display = "none"; //just hide it
         }     
     }
-
-    update_displayed_health_of_enemies();
 }
 
 /**
@@ -1044,7 +1043,7 @@ function update_displayed_health_of_enemies() {
             enemies_div.children[i].children[0].style.filter = "brightness(100%)";
         } else {
             enemies_div.children[i].children[0].style.filter = "brightness(30%)";
-            //update_displayed_enemies();
+            update_displayed_enemies();
         }
 
         //update size of health bar
@@ -1057,7 +1056,6 @@ function update_displayed_health_of_enemies() {
 }
 
 function update_displayed_normal_location(location) {
-    
     clear_action_div();
     location_types_div.innerHTML = "";
     combat_div.style.display = "none";
@@ -1078,12 +1076,12 @@ function update_displayed_normal_location(location) {
         const dialogues_button = document.createElement("div");
         dialogues_button.setAttribute("data-location", location.name);
         dialogues_button.classList.add("location_choices");
-        dialogues_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "talk")');
+        dialogues_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "talk"})');
         dialogues_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Talk to someone';
         action_div.appendChild(dialogues_button);
     } else if (available_dialogues.length <= 2) {
         //there's only 1 -> put it in overall location choice list
-        action_div.append(...create_location_choices(location, "talk", true));
+        action_div.append(...create_location_choices({location: location, category: "talk"}));
     }
 
     /////////////////////////
@@ -1095,11 +1093,11 @@ function update_displayed_normal_location(location) {
         const traders_button = document.createElement("div");
         traders_button.setAttribute("data-location", location.name);
         traders_button.classList.add("location_choices");
-        traders_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "trade")');
+        traders_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "trade"})');
         traders_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Visit a merchant';
         action_div.appendChild(traders_button);
     } else if (available_traders.length <= 2) {
-        action_div.append(...create_location_choices(location, "trade"));
+        action_div.append(...create_location_choices({location: location, category: "trade"}));
     }
 
     ///////////////////////////
@@ -1113,11 +1111,11 @@ function update_displayed_normal_location(location) {
         const jobs_button = document.createElement("div");
         jobs_button.setAttribute("data-location", location.name);
         jobs_button.classList.add("location_choices");
-        jobs_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "work")');
+        jobs_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "work"})');
         jobs_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Find some work';
         action_div.appendChild(jobs_button);
     } else if (available_jobs.length <= 2) {
-        action_div.append(...create_location_choices(location, "work"));
+        action_div.append(...create_location_choices({location: location, category: "work"}));
     }
 
     ///////////////////////////////
@@ -1130,7 +1128,7 @@ function update_displayed_normal_location(location) {
         const trainings_button = document.createElement("div");
         trainings_button.setAttribute("data-location", location.name);
         trainings_button.classList.add("location_choices");
-        trainings_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "train")');
+        trainings_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "train"})');
         trainings_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Train for a bit';
         action_div.appendChild(trainings_button);
     } else if (available_trainings.length <= 2) {
@@ -1155,15 +1153,15 @@ function update_displayed_normal_location(location) {
 
     const available_locations = location.connected_locations.filter(location => location.location.is_unlocked);
 
-    if(available_locations.length > 2 && (location.sleeping || available_trainings.length > 0 || available_jobs.length > 0 ||  available_traders.length > 0 || available_dialogues.length > 0)) {
+    if(available_locations.length > 3 && (location.sleeping + available_trainings.length + available_jobs.length +  available_traders.length + available_dialogues.length) > 2) {
         const locations_button = document.createElement("div");
         locations_button.setAttribute("data-location", location.name);
         locations_button.classList.add("location_choices");
-        locations_button.setAttribute("onclick", 'update_displayed_location_choices(this.getAttribute("data-location"), "travel")');
+        locations_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "travel"})');
         locations_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Move somewhere else';
         action_div.appendChild(locations_button);
     } else if(available_locations.length > 0) {
-        action_div.append(...create_location_choices(location, "travel"));
+        action_div.append(...create_location_choices({location: location, category: "travel"}));
     }
 
     location_name_span.innerText = current_location.name;
@@ -1176,7 +1174,7 @@ function update_displayed_normal_location(location) {
  * @param {*} category 
  * @return {Array} an array of html nodes presenting the available choices
  */
-function create_location_choices(location, category, add_icons = true) {
+function create_location_choices({location, category, add_icons = true, is_combat = false}) {
     const choice_list = [];
     
     if(category === "talk") {
@@ -1271,35 +1269,52 @@ function create_location_choices(location, category, add_icons = true) {
             choice_list.push(activity_div);
         });
     } else if (category === "travel") {
-        for(let i = 0; i < location.connected_locations.length; i++) { 
 
-            if(location.connected_locations[i].location.is_unlocked == false) { //skip if not unlocked
-                continue;
-            }
+        if(!is_combat){
+            for(let i = 0; i < location.connected_locations.length; i++) { 
+
+                if(location.connected_locations[i].location.is_unlocked == false) { //skip if not unlocked
+                    continue;
+                }
+
+                const action = document.createElement("div");
+                
+                if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
+                    action.classList.add("travel_normal");
+                    if("custom_text" in location.connected_locations[i]) {
+                        action.innerHTML = `<i class="material-icons">directions</i>  ` + location.connected_locations[i].custom_text;
+                    }
+                    else {
+                        action.innerHTML = `<i class="material-icons">directions</i>  ` + "Go to " + location.connected_locations[i].location.name;
+                    }
+                } else {
+                    action.classList.add("travel_combat");
+                    if("custom_text" in location.connected_locations[i]) {
+                        action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + location.connected_locations[i].custom_text;
+                    }
+                    else {
+                        action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + "Enter the " + location.connected_locations[i].location.name;
+                    }
+                }
+            
+                action.classList.add("action_travel");
+                action.setAttribute("data-travel", location.connected_locations[i].location.name);
+                action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
+        
+                choice_list.push(action);
+            } 
+        } else {
 
             const action = document.createElement("div");
-            
-            if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
-                action.classList.add("travel_normal");
-                if("custom_text" in location.connected_locations[i]) {
-                    action.innerHTML = `<i class="material-icons">directions</i>  ` + location.connected_locations[i].custom_text;
-                }
-                else {
-                    action.innerHTML = `<i class="material-icons">directions</i>  ` + "Go to " + location.connected_locations[i].location.name;
-                }
+            action.classList.add("travel_normal", "action_travel");
+            if(location.leave_text) {
+                action.innerHTML = `<i class="material-icons">directions</i>  ` + location.leave_text;
             } else {
-                action.classList.add("travel_combat");
-                if("custom_text" in location.connected_locations[i]) {
-                    action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + location.connected_locations[i].custom_text;
-                }
-                else {
-                    action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + "Enter the " + location.connected_locations[i].location.name;
-                }
+                action.innerHTML = `<i class="material-icons">directions</i>  ` + "Go back to " + location.parent_location.name;
             }
-            action.classList.add("action_travel");
-            action.setAttribute("data-travel", location.connected_locations[i].location.name);
+            action.setAttribute("data-travel", location.parent_location.name);
             action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
-    
+
             choice_list.push(action);
         }
     }
@@ -1307,8 +1322,8 @@ function create_location_choices(location, category, add_icons = true) {
     return choice_list;
 }
 
-function update_displayed_location_choices(location_name, category) {
-    action_div.replaceChildren(...create_location_choices(locations[location_name], category));
+function update_displayed_location_choices({location_name, category, add_icons, is_combat}) {
+    action_div.replaceChildren(...create_location_choices({location: locations[location_name], category: category, add_icons: add_icons, is_combat: is_combat}));
     const return_button = document.createElement("div");
     return_button.innerHTML = "<i class='material-icons'>arrow_back</i> Return";
     return_button.setAttribute("onclick", "reload_normal_location()");
@@ -1320,7 +1335,7 @@ function update_displayed_combat_location(location) {
 
     clear_action_div();
     location_types_div.innerHTML = "";
-    var action;
+    let action;
 
     enemy_count_div.style.display = "block";
     combat_div.style.display = "block";
@@ -1332,17 +1347,9 @@ function update_displayed_combat_location(location) {
 
     enemy_count_div.children[0].children[1].innerHTML = location.enemy_count - location.enemy_groups_killed % location.enemy_count;
 
-    action = document.createElement("div");
-    action.classList.add("travel_normal", "action_travel");
-    if(location.leave_text) {
-        action.innerHTML = `<i class="material-icons">directions</i>  ` + location.leave_text;
-    } else {
-        action.innerHTML = `<i class="material-icons">directions</i>  ` + "Go back to " + location.parent_location.name;
-    }
-    action.setAttribute("data-travel", location.parent_location.name);
-    action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
+    action = create_location_choices({location: location, category: "travel", is_combat: true});
 
-    action_div.appendChild(action);
+    action_div.append(...action);
 
 
     location_name_span.innerText = current_location.name;
@@ -1469,28 +1476,32 @@ function update_displayed_time() {
  * @param {Boolean} round if the value should be rounded a bit
  */
 function format_money(num, round) {
-    var value;
+    let value;
     const sign = num >= 0 ? '' : '-';
     num = Math.abs(num);
 
     if(round) {
-        //round it up a bit to skip tiny little meaningless leftovers
+        //round it up a bit to skip tiny little meaningless leftovers (people are totally gonna hate it when it causes trade issues)
         const size = Math.log10(num);
-        if(size > 5 && size < 7) { //remove last 2 digits (C value)
-            num = Math.round(num/100) * 100;
-        } else if(size > 7) { //remove last 4 digits (S and C values)
-            num = Math.round(num/10000) * 10000;
+        if(size > 6 && size < 8) { //remove last 2 digits (C value)
+            num = Math.round(num/1000) * 1000;
+        } else if(size > 8) { //remove last 4 digits (S and C values)
+            num = Math.round(num/100000) * 100000;
         }
     }
 
     if(num > 0) {
-        value = (num%100 != 0 ? `${num%100} C` : '');
+        value = (num%10 != 0 ? `${num%10}<span class="coin coin_wood">W</span>` : '');
 
-        if(num > 99) {
-            value = (Math.floor(num/100)%100 != 0?`${Math.floor(num/100)%100} S ` :'') + value;
-            if(num > 9999) {
-                value = `${Math.floor(num/10000)} G ` + value;
-            }
+        if(num > 9) {
+            value = (Math.floor(num/10)%100 != 0?`${Math.floor(num/10)%100}<span class="coin coin_copper">C</span> ` :'') + value;
+            if(num > 999) {
+                value = (Math.floor(num/1000)%100 != 0?`${Math.floor(num/1000)%100}<span class="coin coin_silver">S</span> ` :'') + value;
+                if(num > 99999) {
+                    value = `${Math.floor(num/100000)}<span class="coin coin_gold">G</span> ` + value;
+                }
+            
+            }  
         }
 
         return sign + value;
@@ -1738,8 +1749,9 @@ function update_displayed_skill_bar(skill) {
     //skill_bar_name
 
     if(skill.current_xp !== "Max") {
-        skill_bar_divs[skill.skill_id].children[0].children[0].children[1].innerHTML = `${expo(100*Math.round(skill.current_xp/skill.xp_to_next_lvl*1000)/1000)}%`;
+        skill_bar_divs[skill.skill_id].children[0].children[0].children[1].innerHTML = `${100*Math.round(skill.current_xp/skill.xp_to_next_lvl*1000)/1000}%`;
         skill_bar_divs[skill.skill_id].children[0].children[2].children[0].innerHTML = `${expo(skill.current_xp)}/${expo(skill.xp_to_next_lvl)}`;
+
     } else {
         skill_bar_divs[skill.skill_id].children[0].children[0].children[1].innerHTML = `Max!`;
         skill_bar_divs[skill.skill_id].children[0].children[2].children[0].innerHTML = `Maxed out!`;

@@ -57,11 +57,13 @@ class Enemy {
 
     get_droprate_modifier() {
         let droprate_modifier = 1;
+        /*
         if(enemy_killcount[this.name] >= 999) {
             droprate_modifier = 0.1;
         } else if(enemy_killcount[this.name]) {
             droprate_modifier = 111/(111+enemy_killcount[this.name]);
         }
+        */
         return droprate_modifier;
     }
 }
