@@ -62,6 +62,21 @@ function setLootSoldCount(data) {
     loot_sold_count = data;
 }
 
+function recoverItemPrices(count=1) {
+    Object.keys(loot_sold_count).forEach(item_name => {
+
+        if(!item_templates[item_name].price_recovers) {
+            return;
+        }
+
+        loot_sold_count[item_name].recovered += count;
+        
+        if(loot_sold_count[item_name].recovered > loot_sold_count[item_name].sold) {
+            loot_sold_count[item_name].recovered = loot_sold_count[item_name].sold;
+        }
+    })
+}
+
 
 function getLootPriceModifier(how_many_sold) {
     let modifier = 1;
@@ -87,6 +102,7 @@ class Item {
                 value = 0}) {
         this.name = name; 
         this.description = description;
+        this.saturates_market = false;
 
         /**
          * Use .getValue() instead of this
@@ -95,7 +111,25 @@ class Item {
     }
 
     getValue() {
+        if(!this.saturates_market) {
+            return this.value;
+        }
+        else {
+            return Math.round(this.value * getLootPriceModifier((Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)));
+        }
+    }
+
+    getBaseValue() {
         return this.value;
+    }
+
+    getValueOfMultiple({additional_count_of_sold = 0, count}) {
+        if(!this.saturates_market) {
+            return this.value * count;
+        }
+        else {
+            return Math.round(this.value * getLootPriceModifierMultiple((Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)+additional_count_of_sold, count));
+        }
     }
 
     getName() {
@@ -112,21 +146,8 @@ class OtherItem extends Item {
         super(item_data);
         this.item_type = "OTHER";
         this.stackable = true;
-    }
-}
-
-class LootItem extends OtherItem {
-    constructor(item_data) {
-        super(item_data);
-        this.item_type = "LOOT";
-    }
-
-    getValue() {
-        return Math.round(this.value * getLootPriceModifier((loot_sold_count[this.getName()]||0)));
-    }
-
-    getValueOfMultiple(additional_count_of_sold, count) {
-        return Math.round(this.value * getLootPriceModifierMultiple((loot_sold_count[this.getName()]||0)+additional_count_of_sold, count));
+        this.saturates_market = item_data.saturates_market;
+        this.price_recovers = item_data.price_recovers;
     }
 }
 
@@ -541,11 +562,7 @@ function getItem(item_data) {
         case "BOOK":
             return new Book(item_data);
         case "OTHER":
-            //this first check is only for compatibility starting from v0.3.5, could technically be removed at some point in the future
-            if(item_data.name === "Rat tail" || item_data.name === "Rat fang" || item_data.name === "Rat pelt") {
-                return new LootItem(item_data);
-            }
-            else if("weapon_types" in item_data) 
+            if("weapon_types" in item_data) 
                 return new WeaponComponent(item_data);
             else if(item_data.component_type == "external" || item_data.component_type == "internal") 
                 return new ArmorComponent(item_data);
@@ -553,8 +570,6 @@ function getItem(item_data) {
                 return new ShieldComponent(item_data);
             else
                 return new OtherItem(item_data);
-        case "LOOT":
-            return new LootItem(item_data);
         default:
             throw new Error(`Wrong item type: ${item_data.item_type}`);
     }
@@ -597,16 +612,27 @@ item_templates["Old combat manual"] = new Book({
 
 //miscellaneous:
 (function(){
-    item_templates["Rat tail"] = new LootItem({
-        name: "Rat tail", description: "Tail of a huge rat, basically useless", value: 10
+    item_templates["Rat tail"] = new OtherItem({
+        name: "Rat tail", 
+        description: "Tail of a huge rat, doesn't seem very useful, but maybe someone would buy it", 
+        value: 10,
+        saturates_market: true,
+        price_recovers: true,
     });
 
-    item_templates["Rat fang"] = new LootItem({
-        name: "Rat fang", description: "Fang of a huge rat, not very sharp", value: 10
+    item_templates["Rat fang"] = new OtherItem({
+        name: "Rat fang", 
+        description: "Fang of a huge rat, not very sharp, but can still pierce a human skin if enough force is applied", 
+        value: 10,
+        saturates_market: true,
+        price_recovers: true,
     });
 
-    item_templates["Rat pelt"] = new LootItem({
-        name: "Rat pelt", description: "Pelt of a huge rat, terrible quality but maybe there's some use", value: 20
+    item_templates["Rat pelt"] = new OtherItem({
+        name: "Rat pelt", description: "Pelt of a huge rat. Fur has terrible quality, but maybe leather could be used for something?", 
+        value: 20,
+        saturates_market: true,
+        price_recovers: true,
     });
 })();
 
@@ -878,4 +904,4 @@ item_templates["Old combat manual"] = new Book({
     });
 })();
 
-export {item_templates, Item, OtherItem, LootItem, UsableItem, Armor, Shield, Weapon, getItem, Book, book_stats, loot_sold_count, setLootSoldCount};
+export {item_templates, Item, OtherItem, UsableItem, Armor, Shield, Weapon, getItem, Book, book_stats, loot_sold_count, setLootSoldCount, recoverItemPrices};

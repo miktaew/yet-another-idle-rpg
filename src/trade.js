@@ -100,7 +100,12 @@ function accept_trade() {
                 add_to_trader_inventory(current_trader, [{item: actual_item, count: item.count}]);
             }
 
-            loot_sold_count[item_name] = ((loot_sold_count[item_name] + (item.count || 1)) || (item.count || 1));
+            if(item_templates[item_name].saturates_market) {
+                if(!loot_sold_count[item_name]) {
+                    loot_sold_count[item_name] = {sold: 0, recovered: 0};
+                }
+                loot_sold_count[item_name].sold = (Math.min(loot_sold_count[item_name]?.sold - loot_sold_count[item_name]?.recovered,0) + (item.count || 1)) || (item.count || 1);
+            }
         }
     }
 
@@ -234,8 +239,8 @@ function add_to_selling_list(selected_item) {
 
         let value;
 
-        if(item_templates[selected_item.item.split(' #')[0]].item_type === "LOOT") {
-            value = item_templates[selected_item.item.split(' #')[0]].getValueOfMultiple((present_item?.count - selected_item.count || 0), selected_item.count);
+        if(item_templates[selected_item.item.split(' #')[0]].saturates_market) {
+            value = item_templates[selected_item.item.split(' #')[0]].getValueOfMultiple({additional_count_of_sold: (present_item?.count - selected_item.count || 0), count: selected_item.count});
         } else {
             value = item_templates[selected_item.item.split(' #')[0]].getValue() * selected_item.count;
         }
@@ -270,8 +275,8 @@ function remove_from_selling_list(selected_item) {
         }
 
         let value;
-        if(item_templates[selected_item.item.split(' #')[0]].item_type === "LOOT") {
-            value = item_templates[selected_item.item.split(' #')[0]].getValueOfMultiple((present_item?.count || 0), actual_number_to_remove);
+        if(item_templates[selected_item.item.split(' #')[0]].saturates_market) {
+            value = item_templates[selected_item.item.split(' #')[0]].getValueOfMultiple({additional_count_of_sold: (present_item?.count || 0), count: actual_number_to_remove});
         } else {
             value = item_templates[selected_item.item.split(' #')[0]].getValue() * actual_number_to_remove;
         }

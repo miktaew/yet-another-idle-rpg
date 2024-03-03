@@ -194,6 +194,10 @@ function create_item_tooltip(item, options) {
 
     item_tooltip.innerHTML += `<br><br>Value: ${format_money(Math.ceil(item.getValue() * ((options && options.trader) ? traders[current_trader].profit_margin : 1) || 1))}`;
 
+    if(item.saturates_market) {
+        item_tooltip.innerHTML += ` [originally ${format_money(Math.ceil(item.getBaseValue() * ((options && options.trader) ? traders[current_trader].profit_margin : 1) || 1))}]`
+    }
+
     return item_tooltip;
 }
 

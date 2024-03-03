@@ -1,7 +1,7 @@
 "use strict";
 
 import { current_game_time } from "./game_time.js";
-import { item_templates, getItem, book_stats, setLootSoldCount, loot_sold_count} from "./items.js";
+import { item_templates, getItem, book_stats, setLootSoldCount, loot_sold_count, recoverItemPrices} from "./items.js";
 import { locations } from "./locations.js";
 import { skills, weapon_type_to_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
@@ -80,7 +80,7 @@ const active_effects = {};
 
 const tickrate = 1;
 //how many ticks per second
-//best leave it at 1, as less is rather slow, and more makes ticks noticably unstable
+//1 is the default value; going too high might make the game unstable
 
 
 //enemy crit stats
@@ -1626,8 +1626,14 @@ function update() {
         and end_date is when previous_tick ended
         */
 
+        const prev_day = current_game_time.day;
         update_timer();
 
+        const curr_day = current_game_time.day;
+        if(curr_day > prev_day) {
+            recoverItemPrices();
+            update_displayed_character_inventory();
+        }
 
         if("parent_location" in current_location){ //if it's a combat_zone
             //nothing here i guess?
