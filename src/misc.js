@@ -2,12 +2,26 @@
 
 function expo(number, precision = 2)
 {
-    if(number >= 1000 || number < 0.01) {
+    if(number == 0) {
+        return 0;
+    } else if(number >= 1000 || number < 0.01) {
         return Number.parseFloat(number).toExponential(precision).replace(/[+-]/g,"");
     } else if(number > 1) {
         return Math.round(number*10)/10;
-    } else if(number > 0.1) {
+    } else {
         return Math.round(number*100)/100;
+    }
+}
+
+function round_item_price(price) {
+    if(price > 9999) {
+        return Math.round(price/1000)*1000;
+    } else if(price > 999) {
+        return Math.round(price/100)*100;
+    } else if(price > 99){
+        return Math.round(price/10)*10;;
+    } else {
+        return Math.round(price);
     }
 }
 
@@ -36,5 +50,56 @@ const stat_names = {"strength": "str",
                     "stamina_efficiency": "stamina efficiency",
                 };
 
+function get_hit_chance(attack_points, evasion_points) {
+    let result = attack_points/(attack_points+evasion_points);
 
-export { expo, format_reading_time, stat_names };
+    if(result >= 0.80) {
+        result = 0.971+(result-0.8)**1.4;
+    } else if(result >= 0.70) {
+        result = 0.846+(result-0.7)**0.9;
+    } else if(result >= 0.6) {
+        result = 0.688+(result-0.6)**0.8;
+    } else if(result >= 0.50) {
+        result = 0.53+(result-0.5)**0.8;
+    } else if(result >= 0.40) {
+        result = 0.331+(result-0.4)**0.7;
+    } else if(result >= 0.3) {
+        result = 0.173 + (result-0.3)**0.8;
+    } else if(result >= 0.20) {
+        result = 0.073 + (result-0.2);
+    } else if(result >= 0.10) {
+        result = 0.01 + (result-0.1)**1.2;
+    } else {
+        result = result**1.92;
+    }
+
+    return result;
+}
+
+/**
+ * 
+ * @returns {String} 1 if a is newer, 0 if both are same, -1 if b is newer
+ */
+function compare_game_version(version_a, version_b) {
+    let a = version_a.replace("v","").split(".");
+    let b = version_b.replace("v","").split(".");
+    for(let i = 0; i < a.length; i++) {
+        let temp;
+        if(Number.parseInt(a[i]) && Number.parseInt(b[i])) {
+            temp = [Number.parseInt(a[i]), Number.parseInt(b[i])] 
+        } else {
+            temp = [a[i], b[i]];
+        }
+        if(temp[0] === temp[1]) {
+            continue;
+        } else if(temp[0] > temp[1]) {
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+
+    return "";
+}
+
+export { expo, format_reading_time, stat_names, get_hit_chance, compare_game_version, round_item_price};
