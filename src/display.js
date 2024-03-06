@@ -573,7 +573,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
             const item_div = document.createElement("div");
             const item_name_div = document.createElement("div");
     
-            item_name_div.innerHTML = `${actual_item.name} x${item_count}`;
+            item_name_div.innerHTML = `<span class="item_category"></span><span class="item_name">${actual_item.name}</span> x${item_count}`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
 
@@ -615,7 +615,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
             const item_div = document.createElement("div");
             const item_name_div = document.createElement("div");
 
-            item_name_div.innerHTML = `[${actual_item.equip_slot}] ${actual_item.getName()}`;
+            item_name_div.innerHTML = `<span class="item_slot">[${actual_item.equip_slot}] </span><span class="item_name">${actual_item.getName()}</span>`;
             item_name_div.classList.add("inventory_item_name");
             item_div.appendChild(item_name_div);
             item_div.classList.add("inventory_item", "trader_item");
@@ -720,6 +720,13 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
         } else if(!a.classList.contains("equipped_item_control") && b.classList.contains("equipped_item_control")){
             return 1;
         } 
+
+        if(a.classList.contains("item_to_trade") && !b.classList.contains("item_to_trade")) {
+            return 1;
+        } else if(!a.classList.contains("item_to_trade") && b.classList.contains("item_to_trade")) {
+            return -1;
+        }
+
         if(a.classList.contains("character_item_equippable") && !b.classList.contains("character_item_equippable")) {
             return 1;
         } else if(!a.classList.contains("character_item_equippable") && b.classList.contains("character_item_equippable")){
@@ -731,15 +738,10 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
             return -1;
         } 
         //items being traded on bottom
-        else if(a.classList.contains("item_to_trade") && !b.classList.contains("item_to_trade")) {
-            return 1;
-        } else if(!a.classList.contains("item_to_trade") && b.classList.contains("item_to_trade")) {
-            return -1;
-        }
 
         //other items by either name or otherwise by value
 
-        else if(sort_by === "name") {
+        if(sort_by === "name") {
             //if they are equippable, take in account the [slot] value displayed in front of item in inventory
             const name_a = a.children[0].children[0].children[1].innerText.toLowerCase().replaceAll('"',"");
             const name_b = b.children[0].children[0].children[1].innerText.toLowerCase().replaceAll('"',"");
@@ -989,7 +991,7 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
                 const item_div = document.createElement("div");
                 const item_name_div = document.createElement("div");
         
-                item_name_div.innerHTML = `${actual_item.name} x${item_count}`;
+                item_name_div.innerHTML = `<span class="item_category"></span><span class="item_name">${actual_item.name}</span><span> x${item_count}</span>`;
                 item_name_div.classList.add("inventory_item_name");
                 item_div.appendChild(item_name_div);
 
@@ -1031,7 +1033,7 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
                 const item_div = document.createElement("div");
                 const item_name_div = document.createElement("div");
 
-                item_name_div.innerHTML = `[${item_templates[actual_item.getName()].equip_slot}] ${actual_item.getName()}`;
+                item_name_div.innerHTML = `<span class="item_slot">[${item_templates[actual_item.getName()].equip_slot}] </span><span>${actual_item.getName()}</span>`;
                 item_name_div.classList.add("inventory_item_name");
                 item_div.appendChild(item_name_div);
                 item_div.classList.add("inventory_item", "character_item", "trade_item_equippable",);       
@@ -1073,7 +1075,7 @@ function update_displayed_equipment() {
         }
         else 
         {
-            equipment_slots_divs[key].innerHTML = 'character.equipment[key].getName()';
+            equipment_slots_divs[key].innerHTML = character.equipment[key].getName();
             equipment_slots_divs[key].classList.remove("equipment_slot_empty");
 
             eq_tooltip = create_item_tooltip(character.equipment[key]);
