@@ -1227,7 +1227,7 @@ i {
 				display: none;
 			}
 
-			#bestiary_box_div, #data_box_div {
+			#bestiary_box_div{
 				width: 100%;
 				height: 255px;
 				display: block;
