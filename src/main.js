@@ -37,7 +37,7 @@ import { end_activity_animation,
 import { compare_game_version, get_hit_chance } from "./misc.js";
 
 const save_key = "save data";
-const game_version = "v0.3.5b";
+const game_version = "v0.3.5c";
 
 //current enemy
 let current_enemies = null;

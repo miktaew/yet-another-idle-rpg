@@ -202,7 +202,6 @@ class Skill {
             });
         }
 
-        character.stats.add_skill_milestone_bonus(gains);
         return gains;
     };
 
@@ -667,10 +666,9 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         5: {
                                             stats: {
                                                 "dexterity": 1,
+                                                "strength": 1,
                                             },
-                                             multipliers: {
-                                                "strength": 1.05,
-                                             },
+    
                                         },
                                         7: {
                                             stats: {
@@ -678,8 +676,8 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                             }
                                         },
                                         10: {
-                                            stats: {
-                                                "strength": 2,
+                                            multipliers: {
+                                                    "strength": 1.05,
                                             },
                                         }
                                     }
