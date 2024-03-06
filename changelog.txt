@@ -1,6 +1,7 @@
 v0.3.5
     - reworked economy (drop rates no longer go down, instead price of enemy loot goes down as more and more is sold, they also slowly recover over time)
     - added quick travel to [last combat location] and to [last location where player slept]
+    - xp multipliers are now displayed - for skills in their onhover tooltip, for hero in data tab
     - shield blocking skill now increases max dmg than can be blocked; block chance reduced by 5% points (goes from 75% to 95%)
       it also has 30 levels instead of 20 now
     - combat areas now have their descriptions available as tooltips when hovering over their name

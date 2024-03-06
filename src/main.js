@@ -922,7 +922,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     }
     
     const was_hidden = skill.visibility_treshold > skill.total_xp;
-    const level_up = skill.add_xp({xp_to_add: xp_to_add});
+    const {message, gains} = skill.add_xp({xp_to_add: xp_to_add});
 
     const is_visible = skill.visibility_treshold <= skill.total_xp;
 
@@ -939,15 +939,12 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     {
         update_displayed_skill_bar(skill, false);
     
-        if(typeof level_up !== "undefined"){ //not undefined => levelup happened and levelup message was returned
-        //character stats currently get added in character.stats.add_skill_milestone_bonus() method, 
-        //called in skill.get_bonus_stats() method, 
-        //called in skill.add_xp() when levelup happens
+        if(typeof message !== "undefined"){ //not undefined => levelup happened and levelup message was returned
 
         update_displayed_skill_bar(skill, true);
             if(typeof should_info === "undefined" || should_info)
             {
-                log_message(level_up, "skill_raised");
+                log_message(message, "skill_raised");
                 character.update_stats();
             }
 
@@ -959,6 +956,8 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     } else {
         update_displayed_skill_bar(skill, false);
     }
+
+    if(gains) { character.stats.add_skill_milestone_bonus(gains) };
 }
 
 /**
@@ -1973,6 +1972,7 @@ else {
     add_to_character_inventory([{item: getItem({...item_templates["Cheap iron sword"], quality: 0.4})}, 
                                 {item: getItem({...item_templates["Cheap leather pants"], quality: 0.4})},
                                 {item: getItem(item_templates["Stale bread"]), count: 5},
+                                //{item: getItem(item_templates["ABC for kids"])},
                             ]);
 
     equip_item_from_inventory({item_name: "Cheap iron sword", item_id: 0});

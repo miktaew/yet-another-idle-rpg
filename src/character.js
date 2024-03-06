@@ -4,7 +4,9 @@ import { InventoryHaver } from "./inventory.js";
 import { skills } from "./skills.js";
 import { update_displayed_character_inventory, update_displayed_equipment, 
          update_displayed_stats, update_displayed_combat_stats,
-         update_displayed_health, update_displayed_stamina } from "./display.js";
+         update_displayed_health, update_displayed_stamina, 
+         update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain,
+         update_displayed_xp_bonuses } from "./display.js";
 import { current_location } from "./main.js";
 import { current_game_time } from "./game_time.js";
 
@@ -335,7 +337,22 @@ character.update_stats = function () {
 
     Object.keys(character.xp_bonuses.total_multiplier).forEach(bonus_target => {
         character.xp_bonuses.total_multiplier[bonus_target] = (character.xp_bonuses.multiplier.skills[bonus_target] || 1) * (character.xp_bonuses.multiplier.books[bonus_target] || 1); 
-        //only this one source as of now
+        //only this two sources as of now
+
+        const bonus = character.xp_bonuses.total_multiplier[bonus_target];
+
+        if(bonus != 1){
+                if (bonus_target !== "hero") {
+                        if(bonus_target === "all" || bonus_target === "all_skill") {
+                                update_all_displayed_skills_xp_gain();
+                        } else {
+                                update_displayed_skill_xp_gain(skills[bonus_target]);
+                        }
+                }
+                if(bonus_target === "hero" || bonus_target === "all") {
+                        update_displayed_xp_bonuses();
+                }
+        }
     });
     
     //some_method_to_update_displayed_xp_bonuses
@@ -487,7 +504,7 @@ function unequip_item(item_slot) {
 /**
  * updates character stats related to combat
  */
- function update_combat_stats() {
+function update_combat_stats() {
 
         let effects = {};
         let light_modifier = 1;
@@ -523,5 +540,17 @@ function unequip_item(item_slot) {
         update_displayed_combat_stats();
 }
 
+function get_skill_xp_gain(skill_name) {
+        return (character.xp_bonuses.total_multiplier.all_skill || 1) * (character.xp_bonuses.total_multiplier.all || 1) * (character.xp_bonuses.total_multiplier[skill_name] || 1);
+}
+
+function get_skills_overall_xp_gain() {
+        return (character.xp_bonuses.total_multiplier.all_skill || 1) * (character.xp_bonuses.total_multiplier.all || 1)
+}
+
+function get_hero_xp_gain() {
+        return (character.xp_bonuses.total_multiplier.hero || 1) * (character.xp_bonuses.total_multiplier.all || 1)
+}
+
 export {character, add_to_character_inventory, remove_from_character_inventory, equip_item_from_inventory, equip_item, 
-        unequip_item, update_character_stats, update_combat_stats};
+        unequip_item, update_character_stats, update_combat_stats, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain};

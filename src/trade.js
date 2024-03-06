@@ -110,7 +110,7 @@ function accept_trade() {
         }
     }
 
-    add_xp_to_skill({skill: skills["Haggling"], xp_to_add: to_sell.value + to_buy.value});
+    add_xp_to_skill({skill: skills["Haggling"], xp_to_add: (to_sell.value + to_buy.value)/10});
 
     to_buy.value = 0;
     to_sell.value = 0;

@@ -155,9 +155,10 @@ class Skill {
                         });
                     }
                 }
-                return message;
+                return {message, gains};
             }
         }
+        return {};
     };
 
     /**
@@ -831,7 +832,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                 description: "Even a simple action of plowing some fields, can be performed better with skills and experience",
                                 base_xp_cost: 40,
                                 max_level: 10,
-                                xp_scaling: 1.7,
+                                xp_scaling: 1.6,
                                 max_level_coefficient: 2,
                                 rewards: {
                                     milestones: {

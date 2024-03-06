@@ -3,7 +3,7 @@
 import { traders } from "./traders.js";
 import { current_trader, to_buy, to_sell } from "./trade.js";
 import { skills, get_unlocked_skill_rewards, get_next_skill_milestone } from "./skills.js";
-import { character } from "./character.js";
+import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain } from "./character.js";
 import { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, get_current_book, last_location_with_bed, last_combat_location } from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
@@ -59,6 +59,12 @@ const skill_list = document.getElementById("skill_list");
 
 const bestiary_entry_divs = {};
 const bestiary_list = document.getElementById("bestiary_list");
+
+const data_entry_divs = {
+                            character: document.getElementById("character_xp_multiplier"),
+                            skills: document.getElementById("skills_xp_multiplier") 
+                        };
+const data_list = document.getElementById("data_list");
 
 let skill_sorting = "name";
 let skill_sorting_direction = "asc";
@@ -1637,6 +1643,11 @@ function update_displayed_character_xp(did_level = false) {
     }
 }
 
+function update_displayed_xp_bonuses() {
+    data_entry_divs.character.innerHTML = `<span class="data_entry_name">Base hero xp gain:</span><span class="data_entry_value">x${Math.round(100*get_hero_xp_gain())/100}</span>`;
+    data_entry_divs.skills.innerHTML = `<span class="data_entry_name">Base skill xp gain:</span><span class="data_entry_value">x${Math.round(100*get_skills_overall_xp_gain())/100}</span>`;
+}
+
 function update_displayed_dialogue(dialogue_key) {
     const dialogue = dialogues[dialogue_key];
     
@@ -1795,6 +1806,7 @@ function create_new_skill_bar(skill) {
 
     const skill_tooltip = document.createElement("div");
     const tooltip_xp = document.createElement("div");
+    const tooltip_xp_gain = document.createElement("div");
     const tooltip_desc = document.createElement("div");
     const tooltip_effect = document.createElement("div");
     const tooltip_milestones = document.createElement("div");
@@ -1811,13 +1823,14 @@ function create_new_skill_bar(skill) {
     skill_bar_text.appendChild(skill_bar_name);
     skill_bar_text.append(skill_bar_xp);
 
+    tooltip_xp_gain.classList.add("skill_xp_gain");
+
     skill_tooltip.appendChild(tooltip_xp);
+    skill_tooltip.appendChild(tooltip_xp_gain);
     skill_tooltip.appendChild(tooltip_desc);
     skill_tooltip.appendChild(tooltip_effect); 
     skill_tooltip.appendChild(tooltip_milestones);
     skill_tooltip.appendChild(tooltip_next);
-
-    
 
     if(skill.parent_skill) {
         tooltip_desc.innerHTML = `${skill.description}<br><br>Parent skill: ${skill.parent_skill}<br><br>`; 
@@ -1836,6 +1849,7 @@ function create_new_skill_bar(skill) {
 
     //sorts skill_list div alphabetically
     sort_displayed_skills({});
+    update_displayed_skill_xp_gain(skill);
 }
 
 function update_displayed_skill_bar(skill, leveled_up) {
@@ -1849,11 +1863,17 @@ function update_displayed_skill_bar(skill, leveled_up) {
                 skill_bar_current, 
                 skill_tooltip -> children(5):
                     tooltip_xp,
+                    tooltip_xp_gain,
                     tooltip_desc,
                     tooltip_effect,
                     tooltip_milestones,
                     tooltip_next
     */
+
+    if(!skill_bar_divs[skill.skill_id]) {
+        return;
+    }
+
     skill_bar_divs[skill.skill_id].children[0].children[0].children[0].innerHTML = `${skill.name()} : level ${skill.current_level}/${skill.max_level}`;
     //skill_bar_name
 
@@ -1871,18 +1891,18 @@ function update_displayed_skill_bar(skill, leveled_up) {
     //skill_bar_current
 
     if(get_unlocked_skill_rewards(skill.skill_id)) {
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[3].innerHTML  = `<br>${get_unlocked_skill_rewards(skill.skill_id)}`;
+        skill_bar_divs[skill.skill_id].children[0].children[2].children[4].innerHTML  = `<br>${get_unlocked_skill_rewards(skill.skill_id)}`;
     }
 
     if(typeof get_next_skill_milestone(skill.skill_id) !== "undefined") {
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[4].innerHTML  = `lvl ${get_next_skill_milestone(skill.skill_id)}: ???`;
+        skill_bar_divs[skill.skill_id].children[0].children[2].children[5].innerHTML  = `lvl ${get_next_skill_milestone(skill.skill_id)}: ???`;
     } else {
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[4].innerHTML = "";
+        skill_bar_divs[skill.skill_id].children[0].children[2].children[5].innerHTML = "";
     }
 
     if(typeof skill.get_effect_description !== "undefined")
     {
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[2].innerHTML = `${skill.get_effect_description()}`;
+        skill_bar_divs[skill.skill_id].children[0].children[2].children[3].innerHTML = `${skill.get_effect_description()}`;
         //tooltip_effect
     }
 
@@ -1892,7 +1912,23 @@ function update_displayed_skill_bar(skill, leveled_up) {
 }
 
 function update_displayed_skill_description(skill) {
-    skill_bar_divs[skill.skill_id].children[0].children[2].children[2].innerHTML = `${skill.get_effect_description()}`;
+    if(!skill_bar_divs[skill.skill_id]) {
+        return;
+    }
+    skill_bar_divs[skill.skill_id].children[0].children[2].children[3].innerHTML = `${skill.get_effect_description()}`;
+}
+
+function update_displayed_skill_xp_gain(skill) {
+    if(!skill_bar_divs[skill.skill_id]) {
+        return;
+    }
+    skill_bar_divs[skill.skill_id].children[0].children[2].children[1].innerHTML = `XP gain: x${Math.round(100*get_skill_xp_gain(skill.skill_id))/100 || 1}`;
+}
+
+function update_all_displayed_skills_xp_gain(){
+    Object.keys(skill_bar_divs).forEach(key => {
+        update_displayed_skill_xp_gain(skills[key]);
+    })
 }
 
 function sort_displayed_skills({sort_by="name", change_direction=false}) {
@@ -2216,7 +2252,9 @@ export {
     exit_displayed_trade,
     start_activity_display,
     start_sleeping_display,
-    create_new_skill_bar, update_displayed_skill_bar, update_displayed_skill_description,
+    create_new_skill_bar, update_displayed_skill_bar, update_displayed_skill_description, 
+    update_displayed_skill_xp_gain,
+    update_all_displayed_skills_xp_gain,
     clear_skill_bars,
     update_displayed_ongoing_activity,
     clear_skill_list,
@@ -2228,5 +2266,6 @@ export {
     update_bestiary_entry,
     clear_bestiary,
     start_reading_display,
-    sort_displayed_skills
+    sort_displayed_skills,
+    update_displayed_xp_bonuses
 }
