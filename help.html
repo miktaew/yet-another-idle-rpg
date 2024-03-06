@@ -1,127 +1,187 @@
 <!DOCTYPE html>
 <html>
 <body>
+    <style>
+        #collapsible {
+            background-color: #eee;
+            color: #444;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        #collapsible:hover, #collapsible.active {
+            background-color: #ccc;
+        }
+        #content {
+            padding: 0 18px;
+            display: none;
+            overflow: hidden;
+            background-color: #f1f1f1;
+        }
+    </style>
 
 <h2>Remember to export!</h2>
 <br>
-<h4>Found a bug? Let me know</h4>
-<br>
+<h4>Found a bug? Let me know. Game has a corner on Arcanum's discord server's Proto23 channel, and there's also a post on r/incremental_games discord server</h4>
 <h4>Game was heavily inspired by <a href="https://23html.github.io" target="_blank">Proto23</a>. Huge thanks to Corc for creating it!</h4>
 <br>
-<br>
-As of v0.3.4, content basically ends after leaving the village. 
+As of v0.3.5, content basically ends after leaving the village. 
 You can try fighting the wolves, but they are not expected to be easily beatable at this stage.
 <br><br>
-Some basic concepts:
-<ul>
-    <li>
-        Economy
-        <ul>
-            <li> Money:
-                <ul>
-                    <li>
-                        10 W = 1 C, 100 C = 1 S, 100 S = 1 G
-                    </li>
-                </ul>
-            </li>
-            <li>
-                Trade
-                <ul>
-                    <li>
-                        As you sell more of enemy loot, its price will slowly go down, stopping at 1/10th of initial value. It applies to all traders. 
-                        <br>The price will recover over time, but it is very slow.
-                    </li>
-                </ul>
-            </li>
-        </ul>
-    </li>
-    <li>AP / EP:
-        <ul>
-            <li>Summary of stats and skills that affect the chance to hit/evade. It doesn't include situational modifiers (e.g. from skills based on the type of an enemy), but does include environmental modifiers (e.g. lower EP in "narrow" areas) </li>
-            <li>Scaling is non-linear.</li>
-            <li>AP equal to 5 times the enemy EP, results in ~98% chance to hit the target. </li>
-            <li>AP equal to twice the enemy EP, results in ~80% chance to hit the target. </li>
-            <li>AP equal to enemy EP, results in a bit over 50% chance to hit the target. </li>
-            <li>AP equal to half of the enemy EP, results in ~24% chance to hit the target. </li>
-            <li>AP equal to 1/5 of the enemy EP, results in ~5% chance to hit the target. </li>
-        </ul> 
-    </li>
-    <li>Stamina:
-        <ul>
-            <li>When stamina drops to 0, character's attack speed and attack power are cut in half.</li>
-            <li>Penalty can be lowered via the "Persistence" skill, leveled by fighting with no stamina</li>
-            <li>It can also be delayed by raising the max stamina and/or using food items, which provide stamina regeneration in combat</li>
-        </ul>
-    </li>
-    <li>
-        Attack speed:
-        <ul>
-            <li>
-                Directly translates to how quickly someone attacks in comparison to another fight participant. 2x more => 2x faster. 2x less => 2x slower.
-            </li>
-            <li>
-                To avoid insanity and potential problems, when new fight begins, both character and enemies have their attack cooldowns scaled up so that no one attacks faster than once per second.
-            </li>
-        </ul>
-    </li>
-    <li>
-        Area types and day-night:
-        <ul>
-            <li>
-                Some combat areas have special properties, which result in penalties to certain stats. E.g. some areas might not offer enough movement space to properly dodge or make a good swing with weapon
-                <br>
-                They usually have a corresponding skill that lowers the penalty and is usually leveled by simply being in such place
-            </li>
-            <li>
-                During night (20 to 4) in normal areas, and whole time in dark areas (e.g. caves), character receives additional penalties to hit/evasion chance.
-                <br>
-                This penalty can be reduced with "Night  vision" skill, which gains xp passively just for being in such place
-                <br>
-            </li>
-        </ul>
-    </li>
-    <li>
-        Parent skills
-        <ul>
-            <li>
-                They multiply leveling speed of their children if these are of lower level
-            </li>
-            <li>
-                They stay on the same level as their highest-leveled child
-            </li>
-        </ul>
-    </li>
-    <li>
-        Items:
-        <ul>
-            <li>
-                Equipment quality 
-                <ul>
-                    <li>
-                        All equippable items come with "quality" parameter. It directly multiplies item's basic bonus (attack for weapons, defense for armors, max block for shields) and value.
-                        <br>
-                        On top of that, higher quality ranks (starting at uncommon, which begins at 100%) provide another multiplier (based solely on rank) to not only basic bonus, but also to all other stats it has.
-                        <br>
-                        <pre>
+<h3> Before reading the content below, please keep in mind that the more you know about game mechanics, the less fun it might become (or not)</h3>
+<br><br>
 
-quality     rarity         color      additional multiplier
-0-49%       trash          gray       x1
-50-99%      common         white      x1
-100-129%    uncommon       green      x1.1
-130-159%    rare           blue       x1.3
-160-199%    epic           purple     x1.6
-200-250%    legendary      orange     x2
+<button type="button" id="collapsible">Some basic concepts and mechanics [click to show]</button>
+<div id="content">
+    <ul>
+        <li>
+            Economy
+            <ul>
+                <li> Money:
+                    <ul>
+                        <li>
+                            10 W = 1 C, 100 C = 1 S, 100 S = 1 G
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    Trade
+                    <ul>
+                        <li>
+                            As you sell more of enemy loot, its price will slowly go down, stopping at 1/10th of initial value. It applies to all traders. 
+                            <br>The price will recover over time, but it is very slow.
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li><br>
+        <li>Stamina:
+            <ul>
+                <li>When stamina drops to 0, character's attack speed and attack power are cut in half.</li>
+                <li>Penalty can be lowered via the "Persistence" skill, leveled by fighting with no stamina</li>
+                <li>It can also be delayed by raising the max stamina and/or using food items, which provide stamina regeneration in combat</li>
+            </ul>
+        </li><br>
+        <li>AP / EP:
+            <ul>
+                <li>Summary of stats and skills that affect the chance to hit/evade. It doesn't include situational modifiers (e.g. from skills based on the type of an enemy), but does include environmental modifiers (e.g. lower EP in "narrow" areas) </li>
+                <li>Scaling is non-linear.</li>
+                <li>AP equal to 5 times the enemy EP, results in ~98% chance to hit the target. </li>
+                <li>AP equal to twice the enemy EP, results in ~80% chance to hit the target. </li>
+                <li>AP equal to enemy EP, results in a bit over 50% chance to hit the target. </li>
+                <li>AP equal to half of the enemy EP, results in ~24% chance to hit the target. </li>
+                <li>AP equal to 1/5 of the enemy EP, results in ~5% chance to hit the target. </li>
+            </ul> 
+        </li><br>
+        <li>Hit / dodge chance
+            <ul>
+                <li>Displayed in an enemy during combat</li>
+                <li>They represent ENEMY's chance to hit or to dodge attacks</li>
+            </ul> 
+        </li><br>
+        <li>Defensive measures
+            <ul>
+                <li>"Dodge" will always completely negate damage if it happens.</li>
+                <li>Shield can absorb damage and has very high base chance, but usually won't be strong enough to reduce it to 0, although it is possible.</li>
+                <li>"Defense" provides a flat reduction to damage taken. It is applied after shield dmg reduction.<br>
+                    It can't reduce damage taken to less than 1. However, if less than 1 dmg gets through the shield, that value will be used instead.</li>
+            </ul> 
+        </li><br>
+        <li>
+            Attack speed:
+            <ul>
+                <li>
+                    Directly translates to how quickly someone attacks in comparison to another fight participant. 2x more => 2x faster. 2x less => 2x slower.
+                </li>
+                <li>
+                    To avoid insanity and potential problems, when new fight begins, both character and enemies have their attack cooldowns scaled up so that no one attacks faster than once per second.
+                </li>
+            </ul>
+        </li><br>
+        <li>
+            Area types and day-night:
+            <ul>
+                <li>
+                    Some combat areas have special properties, which result in penalties to certain stats. E.g. some areas might not offer enough movement space to properly dodge or make a good swing with weapon
+                    <br>
+                    They usually have a corresponding skill that lowers the penalty and is usually leveled by simply being in such place
+                </li>
+                <li>
+                    During night (20 to 4) in normal areas, and whole time in dark areas (e.g. caves), character receives additional penalties to hit/evasion chance.
+                    <br>
+                    This penalty can be reduced with "Night  vision" skill, which gains xp passively just for being in such place
+                    <br>
+                </li><br>
+            </ul>
+        </li>
+        <li>XP points:
+            <ul>
+                <li>Harder enemies generally provide more xp. It is not affected by area modifiers, but is affected by how many enemies are in a group (raised to 0.334, giving x2 in a fight against 8)</li>
+                <li>There is also a lot of bonuses from multiple sources (mainly skill milestones and completed books).</li>
+            </ul> 
+        </li><br>
+        <li>
+            Parent skills
+            <ul>
+                <li>
+                    They multiply leveling speed of their children if these are of lower level
+                </li>
+                <li>
+                    They stay on the same level as their highest-leveled child
+                </li>
+            </ul>
+        </li><br>
+        <li>
+            Items:
+            <ul>
+                <li>
+                    Equipment quality 
+                    <ul>
+                        <li>
+                            All equippable items come with "quality" parameter. It directly multiplies item's basic bonus (attack for weapons, defense for armors, max block for shields) and value.
+                            <br>
+                            On top of that, higher quality ranks (starting at uncommon, which begins at 100%) provide another multiplier (based solely on rank) to not only basic bonus, but also to all other stats it has.
+                            <br>
+                            <pre>
 
-                        </pre>
-                    </li>
-                    <li>
-                        <strong>As of version v0.3.4, highest obtainable item quality is 120%</strong>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-    </li>
-</ul>
+    quality     rarity         color      additional multiplier
+    0-49%       trash          gray       x1
+    50-99%      common         white      x1
+    100-129%    uncommon       green      x1.1
+    130-159%    rare           blue       x1.3
+    160-199%    epic           purple     x1.6
+    200-250%    legendary      orange     x2
+
+                            </pre>
+                        </li>
+                        <li>
+                            <strong>As of version v0.3.5, highest obtainable item quality is 120%</strong>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<script>
+    const btn = document.getElementById("collapsible");
+    const content = document.getElementById("content");
+
+    btn.addEventListener("click", () => {
+        btn.classList.toggle("active");
+        if (content.style.display !== "block"){
+          content.style.display = "block";
+        } else {
+          content.style.display = "none";
+        }
+    });
+</script>
 
 </body>
 </html>

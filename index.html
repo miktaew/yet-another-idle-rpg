@@ -701,24 +701,32 @@
                     </div>
                 </div>
 
-                <div id = "skill_list_div" class = "box_div">
-                        <div id = "skill_list_header">
-                            = Skills =
-                        </div>
-                        <div id = "skill_list">
+                <div id="skills_and_stances_div" class="box_div">
+                    <div id = "skill_list_div">
+                            <div id = "skill_list_header">
+                                = Skills =
+                            </div>
+                            <div id = "skill_list">
 
-                        </div>
+                            </div>
+                            <div id = "skill_sorting_buttons"> 
+                                <div id = "skill_sort_by_name" class = "skill_sorting_button active_selection_button" onclick='sortSkills({sort_by:"name"})'>
+                                    Sort by name
+                                </div>
+                                <div id = "skill_sort_by_level" class = "skill_sorting_button" onclick='sortSkills({sort_by:"level"})'>
+                                    Sort by level
+                                </div>
+                            </div>
+                    </div>
+                    <div id = "stance_list_div">
+
+                    </div>
+                    <div id = "skill_and_stance_control_div">
+                        
+                    </div>
                 </div>
 
                 <div id = "journal_div" class = "box_div">
-                    <div id = "story_box_div">
-                        <div id="story_header">
-                            = Story =
-                        </div>
-                        <div id = "story_list">
- 
-                        </div>
-                    </div>
                     <div id = "quests_box_div">
                         <div id = "quests_header">
                             = Quests =
@@ -736,10 +744,19 @@
                         </div>
                         
                     </div>
+                    <div id = "data_box_div">
+                        <div id="data_header">
+                            = Data =
+                        </div>
+                        <div id = "data_list">
+ 
+                        </div>
+                    </div>
+
                     <div id = "journal_control_div">
-                        <div id = "journal_show_story" class = "journal_control_button active_selection_button" onclick = "showStory()"> Story </div>
                         <div id = "journal_show_quests" class = "journal_control_button" onclick = "showQuests()"> Quests </div>
-                        <div id = "journal_show_bestiary" class = "journal_control_button" onclick = "showBestiary()"> Bestiary </div>
+                        <div id = "journal_show_bestiary" class = "journal_control_button active_selection_button" onclick = "showBestiary()"> Bestiary </div>
+                        <div id = "journal_show_data" class = "journal_control_button" onclick = "showData()"> Data </div>
                     </div>
                 </div>
 
@@ -783,15 +800,45 @@
             <div id = "save_to_file_button" class = "sl_button" onclick = "saveToFile()"> Export </div>
             <label id = "load_from_file_button" class = "sl_button" for = "saved_file_input"> Import </label> 
             <input id = "saved_file_input" type='file' accept = 'text/plain' onchange = 'loadProgress(event)'>	
-            <div id = "hard_reset_button" class = "sl_button" onclick = "hardReset()"> Hard reset </div>
 
             <div id = "changelog_button" class = "game_info"><a href="changelog.txt" target="_blank"></a></div>
             <div id = "help_button" class = "game_info"><a href="help.html" target="_blank"><i class="material-icons">help_outline</i></a></div>
-            <div id = "options_button" class = "game_info"><a><i class="material-icons">settings</i></a></div>
+            <div id = "options_button" class = "game_info" onclick="openOptions()"><a><i class="material-icons">settings</i></a></div>
             
         </div>
 
+        <div id="options_panel">
+            <div id="close_options" onclick="closeOptions()"> X </div>
+            <div id="options_choices">
+                <div class="options_choice">
+                    <input type="checkbox" id="options_textsize" name="options_textsize" value="options_textsize" onclick = "option_uniform_textsize()" />
+                    <label for="options_textsize">Force uniform size of text in action box</label>
+                </div>
+                <div class="options_choice">
+                    <input type="checkbox" id="options_bed_return" name="options_bed_return" value="options_bed_return" onclick = "option_bed_return()"/>
+                    <label for="options_bed_return">Return to last bed upon defeat</label>
+                </div>
+                <div class="options_choice">
+                    <input type="checkbox" id="options_save_messagelog_settings" name="options_save_messagelog_settings" value="options_save_messagelog_settings" onclick = "option_remember_filters()"/>
+                    <label for="options_save_messagelog_settings">Remember message log filters</label>
+                </div>
+            </div>
+            <div id = "hard_reset_button" onclick = "hardReset()"> Hard reset the game </div>
+        </div>
+
         <script>
+
+            function openOptions() {
+                if(document.documentElement.style.getPropertyValue("--options_display") !== "block") {
+                    document.documentElement.style.setProperty('--options_display', 'block');
+                }
+                else {
+                    closeOptions();
+                }
+            }
+            function closeOptions() {
+                document.documentElement.style.setProperty('--options_display', 'none');
+            }
             function showAllItems() {
                 document.documentElement.style.setProperty('--equipment_display', 'inline-block');
                 document.documentElement.style.setProperty('--consumables_display', 'inline-block');
@@ -867,18 +914,18 @@
                 }
             }
             
-            function showStory() {
-                document.getElementById("story_box_div").style.display = "block";
+            function showData() {
+                document.getElementById("data_box_div").style.display = "block";
                 document.getElementById("quests_box_div").style.display = "none";
                 document.getElementById("bestiary_box_div").style.display = "none";
             }
             function showQuests() {
-                document.getElementById("story_box_div").style.display = "none";
+                document.getElementById("data_box_div").style.display = "none";
                 document.getElementById("quests_box_div").style.display = "block";
                 document.getElementById("bestiary_box_div").style.display = "none";
             }
             function showBestiary() {
-                document.getElementById("story_box_div").style.display = "none";
+                document.getElementById("data_box_div").style.display = "none";
                 document.getElementById("quests_box_div").style.display = "none";
                 document.getElementById("bestiary_box_div").style.display = "block";
             }
@@ -922,8 +969,9 @@
             var in_trade = false;
             var total_price;
             const trade_price_value = document.getElementById("trade_price_value");
-            var trader_sorting = "name";
-            var character_sorting = "name";
+            let trader_sorting = "name";
+            let character_sorting = "name";
+            let skill_sorting = "name";
 
             function check_trade_cost() {
                 const accept_button = document.getElementById("accept_trade_button");
@@ -989,15 +1037,18 @@
                 }
             }
 
-
             function sortTraderInventory(option) {
                 trader_sorting = option;
-                sort_displayed_inventory({sort_by: option, target: "trader"});
+                sort_displayed_inventory({sort_by: option, target: "trader", change_direction: true});
             }
 
             function sortCharacterInventory(option) {
                 character_sorting = option;
-                sort_displayed_inventory({sort_by: option, target: "character"})
+                sort_displayed_inventory({sort_by: option, target: "character", change_direction: true})
+            }
+
+            function sortSkills({sort_by}) {
+                sort_displayed_skills({sort_by, change_direction: true});
             }
 
             function saveToFile() {
@@ -1237,7 +1288,7 @@
 
 
                 //skill tooltips
-                var skills_div = document.getElementById("skill_list_div");
+                const skills_div = document.getElementById("skill_list_div");
                 skills_div.addEventListener('mousemove', move_skill_tooltip, false);
                 function move_skill_tooltip(event) {
                     var hovered_element = event.target;
@@ -1275,9 +1326,9 @@
                     }
 
                     if(event.pageY > bottom_edge_position - 22) {
-                        document.documentElement.style.setProperty('--skill_tooltip_top', `${bottom_edge_position - 392}px`);
+                        document.documentElement.style.setProperty('--skill_tooltip_top', `${bottom_edge_position - 422}px`);
                     } else {
-                        document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 370}px`);
+                        document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 400}px`);
                     }
                 }
 
@@ -1452,8 +1503,8 @@
                         }
                     }
 
-                    update_displayed_trader_inventory({trader_sorting});
-                    update_displayed_character_inventory({character_sorting});
+                    update_displayed_trader_inventory({});
+                    update_displayed_character_inventory({});
 
                     trade_price_value.innerHTML = format_money(total_price);
                     check_trade_cost();
@@ -1469,6 +1520,7 @@
                 document.getElementById("trader_category_buttons").addEventListener("click", set_active_button);
                 document.getElementById("page_selection").addEventListener("click", set_active_button);
                 document.getElementById("journal_control_div").addEventListener("click", set_active_button);
+                document.getElementById("skill_sorting_buttons").addEventListener("click", set_active_button);
                 function set_active_button(event) {
                     //based on assumption none of them has child elements
                     //alternatively just give all control buttons some attribute that could be then checked for

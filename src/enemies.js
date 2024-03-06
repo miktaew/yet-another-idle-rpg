@@ -69,6 +69,14 @@ class Enemy {
 }
 
 (function(){
+    /*
+    lore note:
+    wolf rats are semi-magical creatures that feed on natural magical energy; cave near the village, where they live, is filled up with it on lower levels, 
+    providing them with a perfect environment;
+    rats on the surface are ones that were kicked out (because space is limited and they were weak), half starving and trying to quench their hunger by eating plants and stuff
+    
+
+    */
     enemy_templates["Starving wolf rat"] = new Enemy({
         name: "Starving wolf rat", 
         description: "Rat with size of a dog, starved and weakened", 
@@ -76,9 +84,9 @@ class Enemy {
         rank: 1,
         stats: {health: 20, attack: 4, agility: 6, dexterity: 4, magic: 0, intuition: 4, attack_speed: 0.8, defense: 1}, 
         loot_list: [
-            {item_name: "Rat tail", chance: 0.02},
-            {item_name: "Rat fang", chance: 0.02},
-            {item_name: "Rat pelt", chance: 0.01}
+            {item_name: "Rat tail", chance: 0.04},
+            {item_name: "Rat fang", chance: 0.04},
+            {item_name: "Rat pelt", chance: 0.02}
         ]
     });
 
@@ -86,19 +94,19 @@ class Enemy {
         name: "Wolf rat", 
         description: "Rat with size of a dog",
         xp_value: 1, 
-        rank: 2,
+        rank: 1,
         stats: {health: 30, attack: 6, agility: 8, dexterity: 6, intuition: 6, magic: 0, attack_speed: 1, defense: 2}, 
         loot_list: [
-            {item_name: "Rat tail", chance: 0.02},
-            {item_name: "Rat fang", chance: 0.02},
-            {item_name: "Rat pelt", chance: 0.01},
+            {item_name: "Rat tail", chance: 0.04},
+            {item_name: "Rat fang", chance: 0.04},
+            {item_name: "Rat pelt", chance: 0.02},
         ]
     });
 
     enemy_templates["Starving wolf"] = new Enemy({
         name: "Starving wolf", description: "A large, wild and hungry canine", 
-        xp_value: 6, 
-        rank: 3,
+        xp_value: 4, 
+        rank: 2,
         stats: {health: 150, attack: 24, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 8}, 
         loot_list: [
             /* //those items were removed, so let's keep it in comment for a while
@@ -111,29 +119,31 @@ class Enemy {
     enemy_templates["Young wolf"] = new Enemy({
         name: "Young wolf", 
         description: "A small, wild canine", 
-        xp_value: 6, 
-        rank: 4,
+        xp_value: 4, 
+        rank: 2,
         stats: {health: 120, attack: 24, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.4, defense: 4}, 
         loot_list: [
             /*
             {item_name: "Wolf tooth", chance: 0.02},
             {item_name: "Wolf pelt", chance: 0.01}
             */
-        ]
+        ],
+        size: "small",
     });
 
     enemy_templates["Wolf"] = new Enemy({
         name: "Wolf", 
         description: "A large, wild canine", 
-        xp_value: 10, 
-        rank: 5,
+        xp_value: 6, 
+        rank: 3,
         stats: {health: 200, attack: 40, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.3, defense: 20}, 
         loot_list: [
             /*
             {item_name: "Wolf tooth", chance: 0.02, count: {min: 1, max: 3}},
             {item_name: "Wolf pelt", chance: 0.01}
             */
-        ]
+        ],
+        size: "medium"
     });
 })();
 

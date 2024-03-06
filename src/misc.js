@@ -13,6 +13,18 @@ function expo(number, precision = 2)
     }
 }
 
+function round_item_price(price) {
+    if(price > 9999) {
+        return Math.round(price/1000)*1000;
+    } else if(price > 999) {
+        return Math.round(price/100)*100;
+    } else if(price > 99){
+        return Math.round(price/10)*10;;
+    } else {
+        return Math.round(price);
+    }
+}
+
 function format_reading_time(time) {
     if(time >= 120) {
         return `${Math.floor(time/60)} hours`;
@@ -64,4 +76,30 @@ function get_hit_chance(attack_points, evasion_points) {
     return result;
 }
 
-export { expo, format_reading_time, stat_names, get_hit_chance};
+/**
+ * 
+ * @returns {String} 1 if a is newer, 0 if both are same, -1 if b is newer
+ */
+function compare_game_version(version_a, version_b) {
+    let a = version_a.replace("v","").split(".");
+    let b = version_b.replace("v","").split(".");
+    for(let i = 0; i < a.length; i++) {
+        let temp;
+        if(Number.parseInt(a[i]) && Number.parseInt(b[i])) {
+            temp = [Number.parseInt(a[i]), Number.parseInt(b[i])] 
+        } else {
+            temp = [a[i], b[i]];
+        }
+        if(temp[0] === temp[1]) {
+            continue;
+        } else if(temp[0] > temp[1]) {
+            return 1;
+        } else {
+            return -1;
+        }
+    }
+
+    return "";
+}
+
+export { expo, format_reading_time, stat_names, get_hit_chance, compare_game_version, round_item_price};

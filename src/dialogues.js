@@ -94,8 +94,8 @@ class Textline {
             }),
             "need to": new Textline({
                 name: "But I need to leave",
-                text: `What you need is to recover, to get some rest and maybe also training, as you seem rather frail... Well, you know what? Killing a few wolf rats could be a good exercise. 
-    You could help us clear some field of them, how about that?`,
+                text: `What you need is to recover, to get some rest and maybe also training, as you seem rather frail... Well, you know what? Killing a few wolf rats could be a good exercise. `
+                        +`You could help us clear some field of them, how about that?`,
                 is_unlocked: false,
                 unlocks: {
                     textlines: [{dialogue: "village elder", lines: ["rats", "ask to leave 2", "equipment"]}],
@@ -106,8 +106,8 @@ class Textline {
             }),
             "equipment": new Textline({
                 name: "Is there any way I could get a weapon and proper clothes?",
-                text: `We don't have anything to spare, but you can talk with our trader. He should be somewhere nearby. 
-    If you need money, try selling him some rat remains. Fangs, tails or pelts, he will buy them all. I have no idea what he does with this stuff...`,
+                text: `We don't have anything to spare, but you can talk with our trader. He should be somewhere nearby. `
+                        +`If you need money, try selling him some rat remains. Fangs, tails or pelts, he will buy them all. I have no idea what he does with this stuff...`,
                 is_unlocked: false,
                 locks_lines: ["equipment"],
                 unlocks: {
@@ -131,15 +131,15 @@ class Textline {
             }),
             "rats": new Textline({
                 name: "Are wolf rats a big issue?",
-                text: `Oh yes, quite a big one. Not literally, no, though they are much larger than normal rats... 
-    They are a nasty vermin that's really hard to get rid of. And with their numbers they can be seriously life-threatening. 
-    Only in a group though, single wolf rat is not much of a threat`,
+                text: `Oh yes, quite a big one. Not literally, no, though they are much larger than normal rats... `
+                        +`They are a nasty vermin that's really hard to get rid of. And with their numbers they can be seriously life-threatening. `
+                        +`Only in a group though, single wolf rat is not much of a threat`,
                 is_unlocked: false,
             }),
             "cleared field": new Textline({ //will be unlocked on clearing infested field combat_zone
                 name: "I cleared the field, just as you asked me to",
-                text: `You did? That's good. How about a stronger target? Nearby cave is just full of this vermin.
-Before that, maybe get some sleep? Some folks prepared that shack over there for you. It's clean, it's dry, and it will give you some privacy.`,
+                text: `You did? That's good. How about a stronger target? Nearby cave is just full of this vermin. `
+                        +`Before that, maybe get some sleep? Some folks prepared that shack over there for you. It's clean, it's dry, and it will give you some privacy.`,
                 is_unlocked: false,
                 unlocks: {
                     locations: ["Nearby cave", "Infested field", "Shack"],
@@ -157,7 +157,7 @@ Before that, maybe get some sleep? Some folks prepared that shack over there for
             }),
             "cleared cave": new Textline({
                 name: "I cleared the cave. Most of it, at least",
-                text: `Then I can't call you "too weak" anymore, can I? You can leave whenever you want, but still, be careful. You might also want to ask the guard for some tips about the outside.`,
+                text: `Then I can't call you "too weak" anymore, can I? You are free to leave whenever you want, but still, be careful. You might also want to ask the guard for some tips about the outside.`,
                 is_unlocked: false,
                 unlocks: {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 4"]}],
@@ -193,8 +193,9 @@ Before that, maybe get some sleep? Some folks prepared that shack over there for
             "tips": new Textline({
                 name: "Can you give me any tips for the journey?",
                 is_unlocked: false,
-                text: `First and foremost, don't rush. It's fine to spend some more time here, to better prepare yourself. 
-                There's a lot of dangerous animals out there, much stronger than those damn rats, and in worst case you might even run into some bandits.`,
+                text: `First and foremost, don't rush. It's fine to spend some more time here, to better prepare yourself. `
+                +`There's a lot of dangerous animals out there, much stronger than those damn rats, and in worst case you might even run into some bandits. `
+                +`If you see something that is too dangerous to fight, try to run away.`,
             }),
             "job": new Textline({
                 name: "Do you maybe have any jobs for me?",

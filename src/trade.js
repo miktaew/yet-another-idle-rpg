@@ -8,6 +8,7 @@ import { skills } from "./skills.js";
 import { item_templates, loot_sold_count } from "./items.js";
 import { character } from "./character.js";
 import { add_xp_to_skill } from "./main.js";
+import { round_item_price } from "./misc.js";
 
 let current_trader = null;
 const to_sell = {value: 0, items: []};
@@ -318,12 +319,12 @@ function remove_from_trader_inventory(trader_key, item_data) {
  * @returns total value of items, including character haggling skill and trader profit margin
  */
 function get_item_value(selected_item, is_stackable) {
-    const profit_margin = 1 + (traders[current_trader].profit_margin - 1) * (1 - skills["Haggling"].get_level_bonus());
+    const profit_margin = traders[current_trader].getProfitMargin();
     if(is_stackable) {
-        return Math.ceil(profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue()) * selected_item.count;
+        return round_item_price(profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue()) * selected_item.count;
     } else {
         const actual_item = traders[current_trader].inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
-        return Math.ceil(profit_margin * actual_item.getValue());
+        return round_item_price(profit_margin * actual_item.getValue());
     }
 }
 

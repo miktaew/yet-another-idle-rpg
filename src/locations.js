@@ -343,7 +343,7 @@ class LocationType{
                 related_skill: "Tight maneuvers",
                 effects: {
                     multipliers: {
-                                evasion: 0.333,
+                                evasion: 0.5,
                                 }
                         }
                 }

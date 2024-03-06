@@ -129,23 +129,25 @@ character.add_xp = function ({xp_to_add, use_bonus = true}) {
  */
 character.get_level_bonus = function (level) {
 
-        var gained_hp = 0;
-        var gained_str = 0;
-        var gained_agi = 0;
-        var gained_dex = 0;
-        var gained_int = 0;
+        let gained_hp = 0;
+        let gained_str = 0;
+        let gained_agi = 0;
+        let gained_dex = 0;
+        let gained_int = 0;
 
         for(let i = character.xp.current_level + 1; i <= level; i++) {
                 if(i % 2 == 1) {
                         gained_str += Math.floor(1+(i/10));
-                        gained_agi += Math.floor(1+(i/10));
-                        gained_dex += Math.floor(1+(i/10));
                         gained_int += Math.floor(1+(i/10));
 
                         character.stats.flat.level.strength = (character.stats.flat.level.strength || 0) + Math.floor(1+(i/10));
+                        character.stats.flat.level.intuition = (character.stats.flat.level.intuition || 0) + 1;
+                } else {
+                        gained_agi += Math.floor(1+(i/10));
+                        gained_dex += Math.floor(1+(i/10));
+
                         character.stats.flat.level.agility = (character.stats.flat.level.agility || 0) + Math.floor(1+(i/10));
                         character.stats.flat.level.dexterity = (character.stats.flat.level.dexterity || 0) + Math.floor(1+(i/10));
-                        character.stats.flat.level.intuition = (character.stats.flat.level.intuition || 0) + 1;
                 }
                 gained_hp += 10 * Math.floor(1+(i/10));
 
@@ -153,7 +155,7 @@ character.get_level_bonus = function (level) {
                 character.stats.flat.level.health = character.stats.flat.level.max_health;
         }
 
-        var gains = `<br>HP increased by ${gained_hp}`;
+        let gains = `<br>HP increased by ${gained_hp}`;
         if(gained_str > 0) {
                 gains += `<br>Strength increased by ${gained_str}`;
         }
@@ -351,7 +353,11 @@ character.get_stamina_multiplier = function () {
 }
 
 character.get_attack_speed = function () {
-        return character.stats.full.attack_speed * character.get_stamina_multiplier();
+        let spd = character.stats.full.attack_speed * character.get_stamina_multiplier();
+        if(character.equipment.weapon == null) {
+                spd *= (skills["Unarmed"].get_coefficient("multiplicative")**0.5);
+        }
+        return spd;
 }
 
 character.get_attack_power = function () {

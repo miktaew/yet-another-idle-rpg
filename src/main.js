@@ -15,7 +15,7 @@ import { character,
          update_combat_stats, } from "./character.js";
 import { activities } from "./activities.js";
 import { end_activity_animation, 
-         update_displayed_character_inventory, update_displayed_trader_inventory, sort_displayed_inventory,
+         update_displayed_character_inventory, update_displayed_trader_inventory, sort_displayed_inventory, sort_displayed_skills,
          update_displayed_money, log_message,
          update_displayed_enemies, update_displayed_health_of_enemies,
          update_displayed_combat_location, update_displayed_normal_location,
@@ -34,7 +34,7 @@ import { end_activity_animation,
          update_bestiary_entry,
          start_reading_display
         } from "./display.js";
-import { get_hit_chance } from "./misc.js";
+import { compare_game_version, get_hit_chance } from "./misc.js";
 
 const save_key = "save data";
 const game_version = "v0.3.5";
@@ -57,7 +57,7 @@ let is_resting = true;
 //sleeping, true -> health regenerates, timer goes up faster
 let is_sleeping = false;
 
-let last_location_with_bed = null;
+let last_location_with_bed = null; //actually last location where player slept!
 let last_combat_location = null;
 
 //reading, either null or book name
@@ -82,6 +82,20 @@ const tickrate = 1;
 //how many ticks per second
 //1 is the default value; going too high might make the game unstable
 
+//stuff from options panel
+const options = {
+    uniform_text_size_in_action: false,
+    auto_return_to_bed: false,
+    remember_message_log_filters: false,
+    remember_sorting_options: false,
+};
+
+let message_log_filters = {
+    unlocks: true,
+    events: true,
+    combat: true,
+    loot: true,
+};
 
 //enemy crit stats
 const enemy_crit_chance = 0.1;
@@ -100,6 +114,77 @@ time_field.innerHTML = current_game_time.toString();
         character.xp_bonuses.total_multiplier[skill] = 1;
     });
 })();
+
+function option_uniform_textsize(option) {
+    //doesn't really force same textsize, just changes some variables so they match
+    const checkbox = document.getElementById("options_textsize");
+    if(checkbox.checked || option) {
+        options.uniform_text_size_in_action = true;    
+        document.documentElement.style.setProperty('--options_action_textsize', '20px');
+    } else {
+        options.uniform_text_size_in_action = false;
+        document.documentElement.style.setProperty('--options_action_textsize', '16px');
+    }
+
+    if(option) {
+        checkbox.checked = option;
+    }
+}
+
+function option_bed_return(option) {
+    const checkbox = document.getElementById("options_bed_return");
+    if(checkbox.checked || option) {
+        options.auto_return_to_bed = true;
+    } else {
+        options.auto_return_to_bed = false;
+    }
+
+    if(option) {
+        checkbox.checked = option;
+    }
+}
+
+function option_remember_filters(option) {
+    const checkbox = document.getElementById("options_save_messagelog_settings");
+    if(checkbox.checked || option) {
+        options.remember_message_log_filters = true;
+    } else {
+        options.remember_message_log_filters = false;
+    }
+
+    if(option) {
+        checkbox.checked = option;
+
+        if(message_log_filters.unlocks){
+            document.documentElement.style.setProperty('--message_unlocks_display', 'inline-block');
+        } else {
+            document.documentElement.style.setProperty('--message_unlocks_display', 'none');
+            document.getElementById("message_show_unlocks").classList.remove("active_selection_button");
+        }
+
+        if(message_log_filters.combat) {
+            document.documentElement.style.setProperty('--message_combat_display', 'inline-block');
+        } else {
+            document.documentElement.style.setProperty('--message_combat_display', 'none');
+            document.getElementById("message_show_combat").classList.remove("active_selection_button");
+        }
+
+        if(message_log_filters.events) {
+            document.documentElement.style.setProperty('--message_events_display', 'inline-block');
+        } else {
+            document.documentElement.style.setProperty('--message_events_display', 'none');
+            document.getElementById("message_show_events").classList.remove("active_selection_button");
+        }
+
+        if(message_log_filters.loot) {
+            document.documentElement.style.setProperty('--message_loot_display', 'inline-block');
+        } else {
+            document.documentElement.style.setProperty('--message_loot_display', 'none');
+            document.getElementById("message_show_loot").classList.remove("active_selection_button");
+        }
+    }
+}
+
 
 function change_location(location_name) {
     var location = locations[location_name];
@@ -122,10 +207,6 @@ function change_location(location_name) {
 
     if("connected_locations" in current_location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
         update_displayed_normal_location(current_location);
-        if(current_location.sleeping) {
-            last_location_with_bed = current_location.name;
-        }
-
     } else { //so if entering combat zone
         update_displayed_combat_location(current_location);
         start_combat();
@@ -250,6 +331,8 @@ function do_sleeping() {
 function start_sleeping() {
     start_sleeping_display();
     is_sleeping = true;
+
+    last_location_with_bed = current_location.name;
 }
 
 function end_sleeping() {
@@ -300,6 +383,7 @@ function do_reading() {
 
     update_displayed_character_inventory({item_name: is_reading});
 
+    add_xp_to_skill({skill: skills["Literacy"], xp_to_add: book_stats.literacy_xp_rate});
     if(book_stats[is_reading].is_finished) {
         log_message(`Finished the book "${is_reading}"`);
         end_reading();
@@ -519,7 +603,7 @@ function set_character_attack_loop(base_cooldown, attack_type = "normal") {
 
     use_stamina(stamina_cost);
     let actual_cooldown = base_cooldown * character.get_stamina_multiplier();
-    
+
     //if no_weapon
     //  actual_cooldown = actual_cooldown / unarmed_speed_bonus
 
@@ -667,7 +751,12 @@ function do_enemy_combat_action(enemy_id) {
         log_message(character.name + " has lost consciousness", "hero_defeat");
 
         update_displayed_health();
-        change_location(current_location.parent_location.name);
+        if(options.auto_return_to_bed && last_location_with_bed) {
+            change_location(last_location_with_bed);
+            start_sleeping();
+        } else {
+            change_location(current_location.parent_location.name);
+        }
         return;
     }
 
@@ -740,7 +829,7 @@ function do_character_combat_action(attack_power, attack_type = "normal") {
             log_message(target.name + " was defeated", "enemy_defeated");
 
             //gained xp multiplied by square root of TOTAL size of enemy group
-            let xp_reward = target.xp_value * (current_enemies.length**0.5);
+            let xp_reward = target.xp_value * (current_enemies.length**0.3334);
             add_xp_to_character(xp_reward, true);
             
 
@@ -848,12 +937,14 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
 
     if(is_visible) 
     {
-        update_displayed_skill_bar(skill);
+        update_displayed_skill_bar(skill, false);
     
         if(typeof level_up !== "undefined"){ //not undefined => levelup happened and levelup message was returned
         //character stats currently get added in character.stats.add_skill_milestone_bonus() method, 
         //called in skill.get_bonus_stats() method, 
         //called in skill.add_xp() when levelup happens
+
+        update_displayed_skill_bar(skill, true);
             if(typeof should_info === "undefined" || should_info)
             {
                 log_message(level_up, "skill_raised");
@@ -865,6 +956,8 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 update_displayed_skill_description(skill);
             }
         }
+    } else {
+        update_displayed_skill_bar(skill, false);
     }
 }
 
@@ -987,7 +1080,7 @@ function use_item(item_name) {
 
     const item_effects = item_templates[item_name].use_effect;
     
-    var used = false;
+    let used = false;
 
     Object.keys(item_effects).forEach(function(key) {
         /*
@@ -1123,6 +1216,18 @@ function create_save() {
 
         save_data["loot_sold_count"] = loot_sold_count;
 
+        save_data["last_combat_location"] = last_combat_location;
+        save_data["last_location_with_bed"] = last_location_with_bed;
+
+        save_data["options"] = options;
+
+        save_data["message_filters"] = {
+            unlocks: document.documentElement.style.getPropertyValue('--message_unlocks_display') !== "none",
+            events: document.documentElement.style.getPropertyValue('--message_events_display') !== "none",
+            combat: document.documentElement.style.getPropertyValue('--message_combat_display') !== "none",
+            loot: document.documentElement.style.getPropertyValue('--message_loot_display') !== "none",
+        };
+
         return JSON.stringify(save_data);
     } catch(error) {
         console.error("Something went wrong on saving the game!");
@@ -1163,6 +1268,23 @@ function load(save_data) {
 
         name_field.value = save_data.character.name;
         character.name = save_data.character.name;
+
+        last_location_with_bed = save_data.last_location_with_bed;
+        last_combat_location = save_data.last_combat_location;
+
+        options.uniform_text_size_in_action = save_data.options?.uniform_text_size_in_action;
+        option_uniform_textsize(options.uniform_text_size_in_action);
+
+        options.auto_return_to_bed = save_data.options?.auto_return_to_bed;
+        option_bed_return(options.auto_return_to_bed);
+
+        options.remember_message_log_filters = save_data.options?.remember_message_log_filters;
+        if(save_data.message_filters) {
+            message_log_filters = save_data.message_filters;
+        }
+        option_remember_filters(options.remember_message_log_filters);
+
+        const is_from_before_eco_rework = compare_game_version(game_version, save_data["game version"]) == 1;
 
         setLootSoldCount(save_data.loot_sold_count || {});
 
@@ -1318,7 +1440,7 @@ function load(save_data) {
 
         add_to_character_inventory(item_list); // and then to inventory
 
-        character.money = save_data.character.money || 0;
+        character.money = (save_data.character.money || 0) * ((is_from_before_eco_rework == 1)*10 || 1);
         update_displayed_money();
 
         add_xp_to_character(save_data.character.xp.total_xp, false);
@@ -1548,8 +1670,8 @@ function load(save_data) {
                 start_activity(activity_id);
                 if(activities[activity_id].type === "JOB") {
                     current_activity.working_time = save_data.current_activity.working_time;
-                    current_activity.earnings = save_data.current_activity.earnings;
-                    document.getElementById("action_end_earnings").innerText = `(earnings: ${format_money(current_activity.earnings)})`;
+                    current_activity.earnings = save_data.current_activity.earnings * ((is_from_before_eco_rework == 1)*10 || 1);
+                    document.getElementById("action_end_earnings").innerHTML = `(earnings: ${format_money(current_activity.earnings)})`;
                 }
                 
             } else {
@@ -1830,6 +1952,12 @@ window.sort_displayed_inventory = sort_displayed_inventory;
 window.update_displayed_character_inventory = update_displayed_character_inventory;
 window.update_displayed_trader_inventory = update_displayed_trader_inventory;
 
+window.sort_displayed_skills = sort_displayed_skills;
+
+window.option_uniform_textsize = option_uniform_textsize;
+window.option_bed_return = option_bed_return;
+window.option_remember_filters = option_remember_filters;
+
 window.save_to_localStorage = save_to_localStorage;
 window.save_to_file = save_to_file;
 window.load_progress = load_from_file;
@@ -1845,13 +1973,12 @@ else {
     add_to_character_inventory([{item: getItem({...item_templates["Cheap iron sword"], quality: 0.4})}, 
                                 {item: getItem({...item_templates["Cheap leather pants"], quality: 0.4})},
                                 {item: getItem(item_templates["Stale bread"]), count: 5},
-                                {item: getItem(item_templates["ABC for kids"]), count: 1},
                             ]);
 
     equip_item_from_inventory({item_name: "Cheap iron sword", item_id: 0});
     equip_item_from_inventory({item_name: "Cheap leather pants", item_id: 0});
     add_xp_to_character(0);
-    character.money = 152;
+    character.money = 102;
     update_displayed_money();
     character.update_stats();
 }

@@ -43,6 +43,7 @@
 
 import { character } from "./character.js";
 import { skills } from "./skills.js";
+import { round_item_price } from "./misc.js";
 
 const rarity_multipliers = {
     trash: 1,
@@ -112,10 +113,10 @@ class Item {
 
     getValue() {
         if(!this.saturates_market) {
-            return this.value;
+            return round_item_price(this.value);
         }
         else {
-            return Math.round(this.value * getLootPriceModifier((Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)));
+            return round_item_price(Math.round(this.value * getLootPriceModifier((Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0))));
         }
     }
 
@@ -125,10 +126,10 @@ class Item {
 
     getValueOfMultiple({additional_count_of_sold = 0, count}) {
         if(!this.saturates_market) {
-            return this.value * count;
+            return round_item_price(this.value) * count;
         }
         else {
-            return Math.round(this.value * getLootPriceModifierMultiple((Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)+additional_count_of_sold, count));
+            return Math.round(round_item_price(this.value) * getLootPriceModifierMultiple((Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)+additional_count_of_sold, count));
         }
     }
 
@@ -239,7 +240,7 @@ class Equippable extends Item {
     }
 
     getValue() {
-        return Math.ceil(this.value * this.quality);
+        return Mround_item_price(this.value * this.quality);
     } 
 
     getRarity(){
@@ -335,10 +336,10 @@ class Shield extends Equippable {
     getValue() {
         if(!this.value) {
             //value of shield base + value of handle, both multiplied by quality and rarity
-            this.value = Math.ceil((item_templates[this.components.shield_base].value + item_templates[this.components.handle].value)
-                                  * this.quality * rarity_multipliers[this.getRarity()]);
+            this.value = (item_templates[this.components.shield_base].value + item_templates[this.components.handle].value)
+                                  * this.quality * rarity_multipliers[this.getRarity()];
         }
-        return this.value;
+        return round_item_price(this.value);
     } 
 }
 
@@ -382,11 +383,11 @@ class Armor extends Equippable {
     getValue() {
         if(!this.value) {
             //value of internal + value of external (if present), both multiplied by quality and rarity
-            this.value = Math.ceil((item_templates[this.components.internal].value + 
+            this.value = (item_templates[this.components.internal].value + 
                                    (item_templates[this.components.external]?.value || 0))
-                                  * this.quality * rarity_multipliers[this.getRarity()]);
+                                  * this.quality * rarity_multipliers[this.getRarity()];
         }
-        return this.value;
+        return round_item_price(this.value);
     } 
 
     getName() {
@@ -468,9 +469,9 @@ class Weapon extends Equippable {
     getValue() {
         if(!this.value) {
             //value of handle + value of head, both multiplied by quality and rarity
-            this.value = Math.ceil((item_templates[this.components.handle].value + item_templates[this.components.head].value) * this.quality * rarity_multipliers[this.getRarity()]);
+            this.value = (item_templates[this.components.handle].value + item_templates[this.components.head].value) * this.quality * rarity_multipliers[this.getRarity()]
         }
-        return this.value;
+        return round_item_price(this.value);
     } 
 
     getName() {
@@ -656,7 +657,7 @@ item_templates["Old combat manual"] = new Book({
         attack_value: 5,
         stats: {
             crit_rate: {
-                flat: 0.1,
+                flat: 0.08,
             },
             attack_speed: {
                 multiplier: 1.20,
@@ -672,10 +673,13 @@ item_templates["Old combat manual"] = new Book({
         value: 120,
         name_prefix: "Cheap iron",
         component_tier: 1,
-        attack_value: 7,
+        attack_value: 8,
         stats: {
             attack_speed: {
                 multiplier: 1.10,
+            },
+            crit_rate: {
+                flat: 0.02,
             },
         }
     });
@@ -685,7 +689,7 @@ item_templates["Old combat manual"] = new Book({
         value: 120,
         name_prefix: "Cheap iron",
         component_tier: 1,
-        attack_value: 8,
+        attack_value: 10,
         stats: {
             attack_speed: {
                 multiplier: 0.9,
@@ -698,7 +702,7 @@ item_templates["Old combat manual"] = new Book({
         value: 120,
         name_prefix: "Cheap iron",
         component_tier: 1,
-        attack_value: 9,
+        attack_value: 12,
         stats: {
             attack_speed: {
                 multiplier: 0.8,
@@ -820,7 +824,7 @@ item_templates["Old combat manual"] = new Book({
     item_templates["Cheap wooden shield base"] = new ShieldComponent({
         name: "Cheap wooden shield base", description: "Cheap shield component made of wood, basically just a few planks barely holding together", 
         value: 100, 
-        shield_strength: 3, 
+        shield_strength: 2, 
         shield_name: "Cheap wooden shield",
         component_tier: 1,
         component_type: "shield base"
@@ -829,7 +833,7 @@ item_templates["Old combat manual"] = new Book({
     item_templates["Crude wooden shield base"] = new ShieldComponent({
         name: "Crude wooden shield base", description: "A shield component of rather bad quality, but at least it won't fall apart by itself", 
         value: 200,
-        shield_strength: 6,
+        shield_strength: 4,
         shield_name: "Crude wooden shield",
         component_tier: 1,
         component_type: "shield base"
