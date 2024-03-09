@@ -84,8 +84,9 @@ function getLootPriceModifier(how_many_sold) {
     if(how_many_sold >= 999) {
         modifier = 0.1;
     } else if(how_many_sold) {
-        modifier = Math.round(10*modifier * 111/(111+how_many_sold))/10;
+        modifier = modifier * 111/(111+how_many_sold);
     }
+    console.log(modifier);
     return modifier;
 }
 
@@ -116,7 +117,7 @@ class Item {
             return round_item_price(this.value);
         }
         else {
-            return round_item_price(Math.round(this.value * getLootPriceModifier((Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0))));
+            return Math.max(1, round_item_price(Math.round(this.value * getLootPriceModifier((Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)))));
         }
     }
 
@@ -129,7 +130,7 @@ class Item {
             return round_item_price(this.value) * count;
         }
         else {
-            return Math.round(round_item_price(this.value) * getLootPriceModifierMultiple((Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)+additional_count_of_sold, count));
+            return Math.max(count, Math.round(round_item_price(this.value) * getLootPriceModifierMultiple((Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)+additional_count_of_sold, count)));
         }
     }
 
@@ -616,7 +617,7 @@ item_templates["Old combat manual"] = new Book({
     item_templates["Rat tail"] = new OtherItem({
         name: "Rat tail", 
         description: "Tail of a huge rat, doesn't seem very useful, but maybe someone would buy it", 
-        value: 10,
+        value: 8,
         saturates_market: true,
         price_recovers: true,
     });
@@ -624,13 +625,13 @@ item_templates["Old combat manual"] = new Book({
     item_templates["Rat fang"] = new OtherItem({
         name: "Rat fang", 
         description: "Fang of a huge rat, not very sharp, but can still pierce a human skin if enough force is applied", 
-        value: 10,
+        value: 8,
         saturates_market: true,
         price_recovers: true,
     });
 
     item_templates["Rat pelt"] = new OtherItem({
-        name: "Rat pelt", description: "Pelt of a huge rat. Fur has terrible quality, but maybe leather could be used for something?", 
+        name: "Rat pelt", description: "Pelt of a huge rat. Fur has terrible quality, but maybe leather could be used for something if you gather more?", 
         value: 20,
         saturates_market: true,
         price_recovers: true,

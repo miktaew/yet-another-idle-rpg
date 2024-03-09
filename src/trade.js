@@ -105,7 +105,7 @@ function accept_trade() {
                 if(!loot_sold_count[item_name]) {
                     loot_sold_count[item_name] = {sold: 0, recovered: 0};
                 }
-                loot_sold_count[item_name].sold = (Math.min(loot_sold_count[item_name]?.sold - loot_sold_count[item_name]?.recovered,0) + (item.count || 1)) || (item.count || 1);
+                loot_sold_count[item_name].sold = loot_sold_count[item_name]?.sold + (item.count || 1);
             }
         }
     }

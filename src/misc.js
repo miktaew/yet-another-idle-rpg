@@ -6,6 +6,9 @@ function expo(number, precision = 2)
         return 0;
     } else if(number >= 1000 || number < 0.01) {
         return Number.parseFloat(number).toExponential(precision).replace(/[+-]/g,"");
+    }
+    else if(number > 10) {
+        return Math.round(number);
     } else if(number > 1) {
         return Math.round(number*10)/10;
     } else {
@@ -48,6 +51,7 @@ const stat_names = {"strength": "str",
                     "crit_rate": "crit rate",
                     "crit_multiplier": "crit dmg",
                     "stamina_efficiency": "stamina efficiency",
+                    "intuition": "int",
                 };
 
 function get_hit_chance(attack_points, evasion_points) {
@@ -70,8 +74,9 @@ function get_hit_chance(attack_points, evasion_points) {
     } else if(result >= 0.10) {
         result = 0.01 + (result-0.1)**1.2;
     } else {
-        result = result**1.92;
+        result = result**1.3;
     }
+    
 
     return result;
 }

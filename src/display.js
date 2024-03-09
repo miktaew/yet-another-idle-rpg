@@ -1637,7 +1637,7 @@ function update_displayed_character_xp(did_level = false) {
         charaxter_xp_value
     */
     character_xp_div.children[0].children[0].style.width = `${100*character.xp.current_xp/character.xp.xp_to_next_lvl}%`;
-    character_xp_div.children[1].innerText = `${Math.floor(character.xp.current_xp)}/${Math.round(character.xp.xp_to_next_lvl)} xp`;
+    character_xp_div.children[1].innerText = `${Math.floor(character.xp.current_xp)}/${Math.ceil(character.xp.xp_to_next_lvl)} xp`;
 
     if(did_level) {
         character_level_div.innerText = `Level: ${character.xp.current_level}`;

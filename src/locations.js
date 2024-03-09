@@ -343,7 +343,7 @@ class LocationType{
                 related_skill: "Tight maneuvers",
                 effects: {
                     multipliers: {
-                                evasion: 0.5,
+                                evasion: 0.333,
                                 }
                         }
                 }
@@ -517,7 +517,7 @@ class LocationType{
     locations["Cave depths"] = new Combat_zone({
         description: "It's dark. And full of rats.", 
         enemy_count: 50, 
-        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 1, xp_gain: 2}],
+        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 1, xp_gain: 3}],
         enemies_list: ["Wolf rat"],
         enemy_group_size: [5,8],
         enemy_stat_variation: 0.2,
@@ -592,7 +592,7 @@ class LocationType{
             activity: "plowing the fields",
             starting_text: "Work on the fields",
             get_payment: () => {
-                return 10 + Math.round(20 * skills["Farming"].current_level/skills["Farming"].max_level);
+                return 10 + Math.round(15 * skills["Farming"].current_level/skills["Farming"].max_level);
             },
             is_unlocked: false,
             working_period: 60*2,

@@ -100,7 +100,6 @@ class Skill {
         }
         
         this.total_xp += xp_to_add;
-
         if (this.current_level < this.max_level) { //not max lvl
 
             if (xp_to_add + this.current_xp < this.xp_to_next_lvl) { // no levelup
@@ -113,12 +112,20 @@ class Skill {
                 while (this.total_xp >= this.total_xp_to_next_lvl) {
 
                     level_after_xp += 1;
-                    this.total_xp_to_next_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** (level_after_xp + 1)) / (1 - this.xp_scaling));
+                    this.total_xp_to_next_lvl = this.base_xp_cost * (1 - this.xp_scaling ** (level_after_xp + 1)) / (1 - this.xp_scaling);
                 } //calculates lvl reached after adding xp
-
                 //probably could be done much more efficiently, but it shouldn't be a problem anyway
-                var total_xp_to_previous_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** level_after_xp) / (1 - this.xp_scaling));
+
+                
+                let total_xp_to_previous_lvl = this.base_xp_cost * (1 - this.xp_scaling ** level_after_xp) / (1 - this.xp_scaling);
                 //xp needed for current lvl, same formula but for n-1
+
+                if(level_after_xp == 0) { 
+                    console.warn(`Something went wrong, calculated level of skill: ${this.skill_id} after a levelup was 0.`
+                    +`\nxp_added: ${xp_to_add};\nprevious level: ${this.current_level};\ntotal xp: ${this.total_xp};`
+                    +`\ntotal xp for that level: ${total_xp_to_previous_lvl};\ntotal xp for next level: ${this.total_xp_to_next_lvl}`);
+                }
+
                 let gains;
                 if (level_after_xp < this.max_level) { //wont reach max lvl
                     gains = this.get_bonus_stats(level_after_xp);
@@ -151,6 +158,11 @@ class Skill {
                     }
                     if (gains.xp_multipliers) {
                         Object.keys(gains.xp_multipliers).forEach(xp_multiplier => {
+                            if(xp_multiplier !== "all" && xp_multiplier !== "hero" && xp_multiplier !== "all_skill") {
+                                if(!skills[xp_multiplier]) {
+                                    console.warn(`Skill ${this.skill_id} tried to reward an xp multiplier for something that doesn't exist: ${xp_multiplier}. I could be a misspelled skill name`);
+                                }
+                            }
                             message += `<br> x${gains.xp_multipliers[xp_multiplier]} ${xp_multiplier.replace("_"," ")} xp gain`;
                         });
                     }
@@ -399,10 +411,10 @@ function format_skill_rewards(milestone){
                                         },
                                         5: {
                                             stats: {
-                                                "agility": 2,
+                                                "agility": 1,
                                             },
                                             multipliers: {
-                                                "agility": 1.1,
+                                                "agility": 1.05,
                                             }
                                         },
                                         7: {
@@ -412,10 +424,10 @@ function format_skill_rewards(milestone){
                                         },
                                         10: {
                                             stats: {
-                                                "agility": 3,
+                                                "agility": 1,
                                             },
                                             multipliers: {
-                                                "agility": 1.1,
+                                                "agility": 1.05,
                                             }
                                         }
                                     }
@@ -547,6 +559,35 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                     max_level: 10,
                                     get_effect_description: () => {
                                         return `Reduces darkness penalty (except for 'pure darkness') by ${Math.round(10*skills["Night vision"].current_level*100/skills["Night vision"].max_level)/10}%`;
+                                    },
+                                    rewards: {
+                                        milestones: {
+                                            2: {
+                                                stats: {
+                                                    intuition: 1,
+                                                }
+                                            },
+                                            3: {
+                                                xp_multipliers: {
+                                                    Evasion: 1.05,
+                                                    "Shield blocking": 1.05,
+                                                }
+                                            },
+                                            4: {
+                                                stats: {
+                                                    intuition: 1,
+                                                }
+                                             },
+                                            5: {    
+                                                xp_multipliers: 
+                                                {
+                                                    Combat: 1.1,
+                                                },
+                                                multipliers: {
+                                                    intuition: 1.05,
+                                                }
+                                            },
+                                        }
                                     }
                             });
     skills["Presence sensing"] = new Skill({

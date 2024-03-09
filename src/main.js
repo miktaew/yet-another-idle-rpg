@@ -12,7 +12,8 @@ import { is_in_trade, start_trade, cancel_trade, accept_trade, exit_trade, add_t
 import { character, 
          add_to_character_inventory, remove_from_character_inventory,
          equip_item_from_inventory, unequip_item, equip_item, 
-         update_combat_stats, } from "./character.js";
+         update_combat_stats,
+         update_character_stats, } from "./character.js";
 import { activities } from "./activities.js";
 import { end_activity_animation, 
          update_displayed_character_inventory, update_displayed_trader_inventory, sort_displayed_inventory, sort_displayed_skills,
@@ -32,7 +33,8 @@ import { end_activity_animation,
          update_displayed_location_choices,
          create_new_bestiary_entry,
          update_bestiary_entry,
-         start_reading_display
+         start_reading_display,
+         update_displayed_xp_bonuses
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 
@@ -387,6 +389,7 @@ function do_reading() {
     if(book_stats[is_reading].is_finished) {
         log_message(`Finished the book "${is_reading}"`);
         end_reading();
+        update_character_stats();
     }
 }
 
@@ -957,7 +960,10 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
         update_displayed_skill_bar(skill, false);
     }
 
-    if(gains) { character.stats.add_skill_milestone_bonus(gains) };
+    if(gains) { 
+        character.stats.add_skill_milestone_bonus(gains);
+        update_character_stats();
+    };
 }
 
 /**
@@ -1972,7 +1978,7 @@ else {
     add_to_character_inventory([{item: getItem({...item_templates["Cheap iron sword"], quality: 0.4})}, 
                                 {item: getItem({...item_templates["Cheap leather pants"], quality: 0.4})},
                                 {item: getItem(item_templates["Stale bread"]), count: 5},
-                                //{item: getItem(item_templates["ABC for kids"])},
+                                {item: getItem(item_templates["Rat fang"]), count: 1000},
                             ]);
 
     equip_item_from_inventory({item_name: "Cheap iron sword", item_id: 0});
@@ -1984,6 +1990,7 @@ else {
 }
 //checks if there's an existing save file, otherwise just sets up some initial equipment
 update_displayed_equipment();
+update_displayed_xp_bonuses();
 run();
 
 
