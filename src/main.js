@@ -1978,7 +1978,7 @@ else {
     add_to_character_inventory([{item: getItem({...item_templates["Cheap iron sword"], quality: 0.4})}, 
                                 {item: getItem({...item_templates["Cheap leather pants"], quality: 0.4})},
                                 {item: getItem(item_templates["Stale bread"]), count: 5},
-                                {item: getItem(item_templates["Rat fang"]), count: 1000},
+                                //{item: getItem(item_templates["Rat fang"]), count: 1000},
                             ]);
 
     equip_item_from_inventory({item_name: "Cheap iron sword", item_id: 0});
