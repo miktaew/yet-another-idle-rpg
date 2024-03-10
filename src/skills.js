@@ -107,8 +107,9 @@ class Skill {
             }
             else { //levelup
                 
-                var level_after_xp = 0;
+                let level_after_xp = 0;
 
+                //its alright if this goes over max level, it will be overwritten in a if-else below that
                 while (this.total_xp >= this.total_xp_to_next_lvl) {
 
                     level_after_xp += 1;
@@ -1167,7 +1168,8 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
         skill_id: "Iron skin",
         names: {0: "Tough skin", 5: "Wooden skin", 10: "Iron skin"},
         description: "As it gets damaged, your skin regenerates to be tougher and tougher",
-        base_xp_cost: 80,
+        base_xp_cost: 100,
+        xp_scaling: 1.9,
         max_level: 30,
         max_level_bonus: 30,
         get_effect_description: ()=> {

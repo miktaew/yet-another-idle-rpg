@@ -86,7 +86,6 @@ function getLootPriceModifier(how_many_sold) {
     } else if(how_many_sold) {
         modifier = modifier * 111/(111+how_many_sold);
     }
-    console.log(modifier);
     return modifier;
 }
 
