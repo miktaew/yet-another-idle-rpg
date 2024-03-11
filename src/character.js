@@ -139,14 +139,14 @@ character.get_level_bonus = function (level) {
 
         for(let i = character.xp.current_level + 1; i <= level; i++) {
                 if(i % 2 == 1) {
-                        gained_str += Math.floor(1+(i/10));
-                        gained_int += Math.floor(1+(i/10));
+                        gained_str += Math.ceil(i/10);
+                        gained_int += Math.ceil(i/10);
 
                         character.stats.flat.level.strength = (character.stats.flat.level.strength || 0) + Math.floor(1+(i/10));
                         character.stats.flat.level.intuition = (character.stats.flat.level.intuition || 0) + 1;
                 } else {
-                        gained_agi += Math.floor(1+(i/10));
-                        gained_dex += Math.floor(1+(i/10));
+                        gained_agi += Math.ceil(i/10);
+                        gained_dex += Math.ceil(i/10);
 
                         character.stats.flat.level.agility = (character.stats.flat.level.agility || 0) + Math.floor(1+(i/10));
                         character.stats.flat.level.dexterity = (character.stats.flat.level.dexterity || 0) + Math.floor(1+(i/10));

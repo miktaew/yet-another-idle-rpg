@@ -34,12 +34,13 @@ import { end_activity_animation,
          create_new_bestiary_entry,
          update_bestiary_entry,
          start_reading_display,
-         update_displayed_xp_bonuses
+         update_displayed_xp_bonuses, 
+         update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 
 const save_key = "save data";
-const game_version = "v0.3.5d";
+const game_version = "v0.3.5e";
 
 //current enemy
 let current_enemies = null;
@@ -915,7 +916,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                        * (character.xp_bonuses.total_multiplier.all || 1) * (character.xp_bonuses.total_multiplier.all_skill || 1);
 
         if(skill.parent_skill) {
-            xp_to_add *= (1.1**Math.max(0,skills[skill.parent_skill].current_level-skill.current_level));
+            xp_to_add *= skill.get_parent_xp_multiplier();
         }
     }
 
@@ -942,9 +943,10 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     {
         update_displayed_skill_bar(skill, false);
     
-        if(typeof message !== "undefined"){ //not undefined => levelup happened and levelup message was returned
+        if(typeof message !== "undefined"){ 
+        //not undefined => levelup happened and levelup message was returned
 
-        update_displayed_skill_bar(skill, true);
+            update_displayed_skill_bar(skill, true);
             if(typeof should_info === "undefined" || should_info)
             {
                 log_message(message, "skill_raised");
@@ -954,6 +956,13 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
             if(typeof skill.get_effect_description !== "undefined")
             {
                 update_displayed_skill_description(skill);
+            }
+
+            if(skill.is_parent) {
+                update_all_displayed_skills_xp_gain();
+            }
+            else {
+                update_displayed_skill_xp_gain(skill);
             }
         }
     } else {

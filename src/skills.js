@@ -235,6 +235,14 @@ class Skill {
     get_level_bonus() { //starts from 0
         return this.max_level_bonus * this.current_level / this.max_level;
     };
+
+    get_parent_xp_multiplier() {
+        if(this.parent_skill) {
+            return (1.1**Math.max(0,skills[this.parent_skill].current_level-this.current_level));
+        } else {
+            return 1;
+        }
+    }
 }
 
 

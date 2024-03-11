@@ -1924,7 +1924,8 @@ function update_displayed_skill_xp_gain(skill) {
     if(!skill_bar_divs[skill.skill_id]) {
         return;
     }
-    skill_bar_divs[skill.skill_id].children[0].children[2].children[1].innerHTML = `XP gain: x${Math.round(100*get_skill_xp_gain(skill.skill_id))/100 || 1}`;
+    const xp_gain = Math.round(100*skill.get_parent_xp_multiplier()*get_skill_xp_gain(skill.skill_id))/100 || 1;
+    skill_bar_divs[skill.skill_id].children[0].children[2].children[1].innerHTML = `XP gain: x${xp_gain}`;
 }
 
 function update_all_displayed_skills_xp_gain(){
