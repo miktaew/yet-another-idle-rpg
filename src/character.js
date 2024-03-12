@@ -4,7 +4,9 @@ import { InventoryHaver } from "./inventory.js";
 import { skills } from "./skills.js";
 import { update_displayed_character_inventory, update_displayed_equipment, 
          update_displayed_stats, update_displayed_combat_stats,
-         update_displayed_health, update_displayed_stamina } from "./display.js";
+         update_displayed_health, update_displayed_stamina, 
+         update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain,
+         update_displayed_xp_bonuses } from "./display.js";
 import { current_location } from "./main.js";
 import { current_game_time } from "./game_time.js";
 
@@ -13,6 +15,8 @@ class Hero extends InventoryHaver {
                 super();
         }
 }
+
+const base_block_chance = 0.75; //+20 from the skill
 
 const character = new Hero();
 character.name = "Hero";
@@ -32,8 +36,8 @@ character.base_stats = {
         intuition: 10,
         magic: 0, 
         attack_speed: 1, 
-        crit_rate: 0.1, 
-        crit_multiplier: 1.2, 
+        crit_rate: 0.05, 
+        crit_multiplier: 1.4, 
         attack_power: 0, 
         defense: 0
 };
@@ -127,23 +131,25 @@ character.add_xp = function ({xp_to_add, use_bonus = true}) {
  */
 character.get_level_bonus = function (level) {
 
-        var gained_hp = 0;
-        var gained_str = 0;
-        var gained_agi = 0;
-        var gained_dex = 0;
-        var gained_int = 0;
+        let gained_hp = 0;
+        let gained_str = 0;
+        let gained_agi = 0;
+        let gained_dex = 0;
+        let gained_int = 0;
 
         for(let i = character.xp.current_level + 1; i <= level; i++) {
                 if(i % 2 == 1) {
-                        gained_str += Math.floor(1+(i/10));
-                        gained_agi += Math.floor(1+(i/10));
-                        gained_dex += Math.floor(1+(i/10));
-                        gained_int += Math.floor(1+(i/10));
+                        gained_str += Math.ceil(i/10);
+                        gained_int += Math.ceil(i/10);
 
                         character.stats.flat.level.strength = (character.stats.flat.level.strength || 0) + Math.floor(1+(i/10));
+                        character.stats.flat.level.intuition = (character.stats.flat.level.intuition || 0) + 1;
+                } else {
+                        gained_agi += Math.ceil(i/10);
+                        gained_dex += Math.ceil(i/10);
+
                         character.stats.flat.level.agility = (character.stats.flat.level.agility || 0) + Math.floor(1+(i/10));
                         character.stats.flat.level.dexterity = (character.stats.flat.level.dexterity || 0) + Math.floor(1+(i/10));
-                        character.stats.flat.level.intuition = (character.stats.flat.level.intuition || 0) + 1;
                 }
                 gained_hp += 10 * Math.floor(1+(i/10));
 
@@ -151,7 +157,7 @@ character.get_level_bonus = function (level) {
                 character.stats.flat.level.health = character.stats.flat.level.max_health;
         }
 
-        var gains = `<br>HP increased by ${gained_hp}`;
+        let gains = `<br>HP increased by ${gained_hp}`;
         if(gained_str > 0) {
                 gains += `<br>Strength increased by ${gained_str}`;
         }
@@ -331,7 +337,22 @@ character.update_stats = function () {
 
     Object.keys(character.xp_bonuses.total_multiplier).forEach(bonus_target => {
         character.xp_bonuses.total_multiplier[bonus_target] = (character.xp_bonuses.multiplier.skills[bonus_target] || 1) * (character.xp_bonuses.multiplier.books[bonus_target] || 1); 
-        //only this one source as of now
+        //only this two sources as of now
+
+        const bonus = character.xp_bonuses.total_multiplier[bonus_target];
+
+        if(bonus != 1){
+                if (bonus_target !== "hero") {
+                        if(bonus_target === "all" || bonus_target === "all_skill") {
+                                update_all_displayed_skills_xp_gain();
+                        } else {
+                                update_displayed_skill_xp_gain(skills[bonus_target]);
+                        }
+                }
+                if(bonus_target === "hero" || bonus_target === "all") {
+                        update_displayed_xp_bonuses();
+                }
+        }
     });
     
     //some_method_to_update_displayed_xp_bonuses
@@ -349,7 +370,11 @@ character.get_stamina_multiplier = function () {
 }
 
 character.get_attack_speed = function () {
-        return character.stats.full.attack_speed * character.get_stamina_multiplier();
+        let spd = character.stats.full.attack_speed * character.get_stamina_multiplier();
+        if(character.equipment.weapon == null) {
+                spd *= (skills["Unarmed"].get_coefficient("multiplicative")**0.5);
+        }
+        return spd;
 }
 
 character.get_attack_power = function () {
@@ -479,7 +504,7 @@ function unequip_item(item_slot) {
 /**
  * updates character stats related to combat
  */
- function update_combat_stats() {
+function update_combat_stats() {
 
         let effects = {};
         let light_modifier = 1;
@@ -498,7 +523,7 @@ function unequip_item(item_slot) {
 
         if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
             character.combat_stats.evasion_points = null;
-            character.combat_stats.block_chance = 0.8 + Math.round(skills["Shield blocking"].get_level_bonus() * 10000)/10000;
+            character.combat_stats.block_chance = base_block_chance + Math.round(skills["Shield blocking"].get_level_bonus() * 10000)/10000;
         }
 
     
@@ -515,5 +540,17 @@ function unequip_item(item_slot) {
         update_displayed_combat_stats();
 }
 
+function get_skill_xp_gain(skill_name) {
+        return (character.xp_bonuses.total_multiplier.all_skill || 1) * (character.xp_bonuses.total_multiplier.all || 1) * (character.xp_bonuses.total_multiplier[skill_name] || 1);
+}
+
+function get_skills_overall_xp_gain() {
+        return (character.xp_bonuses.total_multiplier.all_skill || 1) * (character.xp_bonuses.total_multiplier.all || 1)
+}
+
+function get_hero_xp_gain() {
+        return (character.xp_bonuses.total_multiplier.hero || 1) * (character.xp_bonuses.total_multiplier.all || 1)
+}
+
 export {character, add_to_character_inventory, remove_from_character_inventory, equip_item_from_inventory, equip_item, 
-        unequip_item, update_character_stats, update_combat_stats};
+        unequip_item, update_character_stats, update_combat_stats, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain};

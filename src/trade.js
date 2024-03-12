@@ -5,11 +5,12 @@ import {
     update_displayed_trader, update_displayed_trader_inventory, update_displayed_character_inventory, exit_displayed_trade, update_displayed_money } from "./display.js";
 import { add_to_character_inventory, remove_from_character_inventory } from "./character.js";
 import { skills } from "./skills.js";
-import { item_templates } from "./items.js";
+import { item_templates, loot_sold_count } from "./items.js";
 import { character } from "./character.js";
 import { add_xp_to_skill } from "./main.js";
+import { round_item_price } from "./misc.js";
 
-var current_trader = null;
+let current_trader = null;
 const to_sell = {value: 0, items: []};
 const to_buy = {value: 0, items: []};
 
@@ -40,10 +41,17 @@ function cancel_trade() {
 }
 
 function accept_trade() {
+
+    let new_balance;
     
-    //button shouldn't be clickable if trade is not affordable, so this is just in case
-    const new_balance = character.money + to_sell.value - to_buy.value
-    if(new_balance < 0) {
+    if(to_sell.items.length == 0 && to_buy.items.length == 0) {
+        new_balance = character.money;
+    }
+    else {
+        new_balance = character.money + to_sell.value - to_buy.value;
+    }
+
+    if(new_balance < 0) { //button shouldn't be clickable if trade is not affordable, so this is just in case
         throw "Trying to make a trade that can't be afforded"
     } else {
 
@@ -56,7 +64,7 @@ function accept_trade() {
             const item = to_buy.items.pop();
             const [item_name, item_id] = item.item.split(' #');
             let actual_item;
-            if(item_id) {
+            if(item_id) { //unstackable
                 actual_item = traders[current_trader].inventory[item_name][item_id];
 
                 remove_from_trader_inventory(current_trader, {item_name, item_count: 1, item_id});
@@ -80,7 +88,7 @@ function accept_trade() {
             const item = to_sell.items.pop();
             const [item_name, item_id] = item.item.split(' #');
             let actual_item;
-            if(item_id) {
+            if(item_id) { //unstackable
                 actual_item = character.inventory[item_name][item_id];
                 
                 remove_from_character_inventory({item_name, item_count: 1, item_id});
@@ -92,10 +100,17 @@ function accept_trade() {
 
                 add_to_trader_inventory(current_trader, [{item: actual_item, count: item.count}]);
             }
+
+            if(item_templates[item_name].saturates_market) {
+                if(!loot_sold_count[item_name]) {
+                    loot_sold_count[item_name] = {sold: 0, recovered: 0};
+                }
+                loot_sold_count[item_name].sold = loot_sold_count[item_name]?.sold + (item.count || 1);
+            }
         }
     }
 
-    add_xp_to_skill({skill: skills["Haggling"], xp_to_add: to_sell.value + to_buy.value});
+    add_xp_to_skill({skill: skills["Haggling"], xp_to_add: (to_sell.value + to_buy.value)/10});
 
     to_buy.value = 0;
     to_sell.value = 0;
@@ -222,7 +237,16 @@ function add_to_selling_list(selected_item) {
 
             to_sell.items.push(selected_item);
         }
-        const value = item_templates[selected_item.item.split(' #')[0]].getValue() * selected_item.count;
+
+        let value;
+
+        if(item_templates[selected_item.item.split(' #')[0]].saturates_market) {
+            value = item_templates[selected_item.item.split(' #')[0]].getValueOfMultiple({additional_count_of_sold: (present_item?.count - selected_item.count || 0), count: selected_item.count});
+        } else {
+            value = item_templates[selected_item.item.split(' #')[0]].getValue() * selected_item.count;
+        }
+
+        //value = item_templates[selected_item.item.split(' #')[0]].getValue() * selected_item.count;
 
         to_sell.value += value;
         return value;
@@ -239,17 +263,25 @@ function add_to_selling_list(selected_item) {
 
 function remove_from_selling_list(selected_item) {
     const is_stackable = !Array.isArray(character.inventory[selected_item.item.split(' #')[0]]);
-    var actual_number_to_remove = selected_item.count;
+    let actual_number_to_remove = selected_item.count;
 
     if(is_stackable) { //stackable, so "count" may be more than 1
         const present_item = to_sell.items.find(a => a.item === selected_item.item);
-        if(present_item?.count > selected_item.count) {
+        if(present_item?.count > selected_item.count) { //more than to remove
             present_item.count -= selected_item.count;
-        } else {
+        } else { //less than to remove, so just remove all
             actual_number_to_remove = present_item.count;
+            present_item.count = 0;
             to_sell.items.splice(to_sell.items.indexOf(present_item), 1);
         }
-        const value = item_templates[selected_item.item.split(' #')[0]].getValue() * actual_number_to_remove;
+
+        let value;
+        if(item_templates[selected_item.item.split(' #')[0]].saturates_market) {
+            value = item_templates[selected_item.item.split(' #')[0]].getValueOfMultiple({additional_count_of_sold: (present_item?.count || 0), count: actual_number_to_remove});
+        } else {
+            value = item_templates[selected_item.item.split(' #')[0]].getValue() * actual_number_to_remove;
+        }
+        
         to_sell.value -= value;
         return -value;
     } else { //unstackable item
@@ -281,19 +313,18 @@ function remove_from_trader_inventory(trader_key, item_data) {
 }
 
 /**
- * @description for buying only !!
+ * @description for buying only
  * @param {*} selected_item {item, count}
  * @param {Boolean} is_stackable
  * @returns total value of items, including character haggling skill and trader profit margin
  */
 function get_item_value(selected_item, is_stackable) {
-
-    const profit_margin = 1 + (traders[current_trader].profit_margin - 1) * (1 - skills["Haggling"].get_level_bonus());
+    const profit_margin = traders[current_trader].getProfitMargin();
     if(is_stackable) {
-        return Math.ceil(profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue()) * selected_item.count;
+        return round_item_price(profit_margin * item_templates[selected_item.item.split(' #')[0]].getValue()) * selected_item.count;
     } else {
         const actual_item = traders[current_trader].inventory[selected_item.item.split(' #')[0]][selected_item.item.split(' #')[1]];
-        return Math.ceil(profit_margin * actual_item.getValue());
+        return round_item_price(profit_margin * actual_item.getValue());
     }
 }
 

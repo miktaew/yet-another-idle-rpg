@@ -35,7 +35,7 @@ class Skill {
                   get_effect_description = () => { return ''; }, 
                   parent_skill = null, 
                   rewards, 
-                  xp_scaling = 1.7,
+                  xp_scaling = 1.8,
                 }) 
     {
         if(skill_id === "all" || skill_id === "hero" || skill_id === "all_skill") {
@@ -100,7 +100,6 @@ class Skill {
         }
         
         this.total_xp += xp_to_add;
-
         if (this.current_level < this.max_level) { //not max lvl
 
             if (xp_to_add + this.current_xp < this.xp_to_next_lvl) { // no levelup
@@ -108,17 +107,26 @@ class Skill {
             }
             else { //levelup
                 
-                var level_after_xp = 0;
+                let level_after_xp = 0;
 
+                //its alright if this goes over max level, it will be overwritten in a if-else below that
                 while (this.total_xp >= this.total_xp_to_next_lvl) {
 
                     level_after_xp += 1;
-                    this.total_xp_to_next_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** (level_after_xp + 1)) / (1 - this.xp_scaling));
+                    this.total_xp_to_next_lvl = this.base_xp_cost * (1 - this.xp_scaling ** (level_after_xp + 1)) / (1 - this.xp_scaling);
                 } //calculates lvl reached after adding xp
-
                 //probably could be done much more efficiently, but it shouldn't be a problem anyway
-                var total_xp_to_previous_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** level_after_xp) / (1 - this.xp_scaling));
+
+                
+                let total_xp_to_previous_lvl = this.base_xp_cost * (1 - this.xp_scaling ** level_after_xp) / (1 - this.xp_scaling);
                 //xp needed for current lvl, same formula but for n-1
+
+                if(level_after_xp == 0) { 
+                    console.warn(`Something went wrong, calculated level of skill: ${this.skill_id} after a levelup was 0.`
+                    +`\nxp_added: ${xp_to_add};\nprevious level: ${this.current_level};\ntotal xp: ${this.total_xp};`
+                    +`\ntotal xp for that level: ${total_xp_to_previous_lvl};\ntotal xp for next level: ${this.total_xp_to_next_lvl}`);
+                }
+
                 let gains;
                 if (level_after_xp < this.max_level) { //wont reach max lvl
                     gains = this.get_bonus_stats(level_after_xp);
@@ -134,30 +142,36 @@ class Skill {
                     this.xp_to_next_lvl = "Max";
                 }
 
-                var message = `${this.name()} has reached level ${this.current_level}`;
+                let message = `${this.name()} has reached level ${this.current_level}`;
 
                 if (Object.keys(gains.flats).length > 0 || Object.keys(gains.multipliers).length > 0 || Object.keys(gains.xp_multipliers).length > 0) { 
                     message += `<br><br> Thanks to ${this.name()} reaching new milestone, ${character.name} gained: `;
 
                     if (gains.flats) {
                         Object.keys(gains.flats).forEach(stat => {
-                            message += `<br> +${gains.flats[stat]} ${stat_names[stat]}`;
+                            message += `<br> +${gains.flats[stat]} ${stat_names[stat].replace("_"," ")}`;
                         });
                     }
                     if (gains.multipliers) {
                         Object.keys(gains.multipliers).forEach(multiplier => {
-                            message += `<br> x${gains.multipliers[multiplier]} ${stat_names[multiplier]}`;
+                            message += `<br> x${gains.multipliers[multiplier]} ${stat_names[multiplier].replace("_"," ")}`;
                         });
                     }
                     if (gains.xp_multipliers) {
                         Object.keys(gains.xp_multipliers).forEach(xp_multiplier => {
-                            message += `<br> x${gains.xp_multipliers[xp_multiplier]} ${xp_multiplier} xp gain`;
+                            if(xp_multiplier !== "all" && xp_multiplier !== "hero" && xp_multiplier !== "all_skill") {
+                                if(!skills[xp_multiplier]) {
+                                    console.warn(`Skill ${this.skill_id} tried to reward an xp multiplier for something that doesn't exist: ${xp_multiplier}. I could be a misspelled skill name`);
+                                }
+                            }
+                            message += `<br> x${gains.xp_multipliers[xp_multiplier]} ${xp_multiplier.replace("_"," ")} xp gain`;
                         });
                     }
                 }
-                return message;
+                return {message, gains};
             }
         }
+        return {};
     };
 
     /**
@@ -201,7 +215,6 @@ class Skill {
             });
         }
 
-        character.stats.add_skill_milestone_bonus(gains);
         return gains;
     };
 
@@ -222,6 +235,14 @@ class Skill {
     get_level_bonus() { //starts from 0
         return this.max_level_bonus * this.current_level / this.max_level;
     };
+
+    get_parent_xp_multiplier() {
+        if(this.parent_skill) {
+            return (1.1**Math.max(0,skills[this.parent_skill].current_level-this.current_level));
+        } else {
+            return 1;
+        }
+    }
 }
 
 
@@ -327,6 +348,7 @@ function format_skill_rewards(milestone){
                                 names: {0: "Combat"}, 
                                 description: "Overall combat ability", 
                                 max_level_coefficient: 2,
+                                base_xp_cost: 60,
                                 get_effect_description: ()=> {
                                     return `Multiplies hit chance by ${Math.round(skills["Combat"].get_coefficient("multiplicative")*1000)/1000}`;
                                 }});
@@ -335,6 +357,7 @@ function format_skill_rewards(milestone){
                                 names: {0: "Pest killer"}, 
                                 description: "Small enemies might not seem very dangerous, but it's not that easy to hit them!", 
                                 max_level_coefficient: 2,
+                                base_xp_cost: 100,
                                 get_effect_description: ()=> {
                                     return `Multiplies hit chance against small-type enemies by ${Math.round(skills["Pest killer"].get_coefficient("multiplicative")*1000)/1000}`;
                                 },
@@ -397,10 +420,10 @@ function format_skill_rewards(milestone){
                                         },
                                         5: {
                                             stats: {
-                                                "agility": 2,
+                                                "agility": 1,
                                             },
                                             multipliers: {
-                                                "agility": 1.1,
+                                                "agility": 1.05,
                                             }
                                         },
                                         7: {
@@ -410,10 +433,10 @@ function format_skill_rewards(milestone){
                                         },
                                         10: {
                                             stats: {
-                                                "agility": 3,
+                                                "agility": 1,
                                             },
                                             multipliers: {
-                                                "agility": 1.1,
+                                                "agility": 1.05,
                                             }
                                         }
                                     }
@@ -422,17 +445,18 @@ function format_skill_rewards(milestone){
     skills["Shield blocking"] = new Skill({skill_id: "Shield blocking", 
                                     names: {0: "Shield blocking"}, 
                                     description: "Ability to block attacks with shield", 
-                                    max_level: 20, 
+                                    max_level: 30, 
                                     max_level_bonus: 0.2,
                                     get_effect_description: ()=> {
-                                        return `Increases block chance by flat ${Math.round(skills["Shield blocking"].get_level_bonus()*1000)/10}%`;
+                                        return `Increases block chance by flat ${Math.round(skills["Shield blocking"].get_level_bonus()*1000)/10}%. Increases blocked damage by ${Math.round(skills["Shield blocking"].get_level_bonus()*5000)/10}%`;
                                     }});
     
      skills["Unarmed"] = new Skill({skill_id: "Unarmed", 
                                     names: {0: "Unarmed"}, 
                                     description: "It's definitely, unquestionably, undoubtedly better to just use a weapon instead of doing this. But sure, why not?",
                                     get_effect_description: ()=> {
-                                        return `Multiplies damage dealt in unarmed combat by ${Math.round(skills["Unarmed"].get_coefficient("multiplicative")*1000)/1000}`;
+                                        return `Multiplies damage dealt in unarmed combat by ${Math.round(skills["Unarmed"].get_coefficient("multiplicative")*1000)/1000}. 
+Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get_coefficient("multiplicative")**0.5)*1000)/1000}`;
                                     },
                                     max_level_coefficient: 64, //even with 8x more it's still gonna be worse than just using a weapon lol
                                     rewards: {
@@ -523,8 +547,8 @@ function format_skill_rewards(milestone){
                                             milestones: {
                                                 3: {
                                                     xp_multipliers: {
-                                                        Evasion: 1.05,
-                                                        "Shield blocking": 1.05,
+                                                        Evasion: 1.1,
+                                                        "Shield blocking": 1.1,
                                                     }
                                                 },
                                                 5: {
@@ -540,10 +564,39 @@ function format_skill_rewards(milestone){
                                     names: {0: "Night vision"},
                                     description: "Ability to see in darkness",
                                     base_xp_cost: 600,
-                                    xp_scaling: 1.8,
+                                    xp_scaling: 1.9,
                                     max_level: 10,
                                     get_effect_description: () => {
                                         return `Reduces darkness penalty (except for 'pure darkness') by ${Math.round(10*skills["Night vision"].current_level*100/skills["Night vision"].max_level)/10}%`;
+                                    },
+                                    rewards: {
+                                        milestones: {
+                                            2: {
+                                                stats: {
+                                                    intuition: 1,
+                                                }
+                                            },
+                                            3: {
+                                                xp_multipliers: {
+                                                    Evasion: 1.05,
+                                                    "Shield blocking": 1.05,
+                                                }
+                                            },
+                                            4: {
+                                                stats: {
+                                                    intuition: 1,
+                                                }
+                                             },
+                                            5: {    
+                                                xp_multipliers: 
+                                                {
+                                                    Combat: 1.1,
+                                                },
+                                                multipliers: {
+                                                    intuition: 1.05,
+                                                }
+                                            },
+                                        }
                                     }
                             });
     skills["Presence sensing"] = new Skill({
@@ -562,7 +615,6 @@ function format_skill_rewards(milestone){
         names: {0: "Heat resistance"},
         description: "Ability to survive and function in high temperatures",
         base_xp_cost: 100,
-        xp_scaling: 1.8,
         max_level: 40,
         get_effect_description: () => {
             return `Reduces penalty from hot locations`;
@@ -573,7 +625,6 @@ function format_skill_rewards(milestone){
         names: {0: "Cold resistance"},
         description: "Ability to survive and function in low temperatures",
         base_xp_cost: 100,
-        xp_scaling: 1.8,
         max_level: 40,
         get_effect_description: () => {
             return `Reduces penalty from cold locations`;
@@ -624,7 +675,7 @@ function format_skill_rewards(milestone){
                                         5: {
                                             stats: {
                                                 "strength": 1,
-                                                "crit_rate": 0.05,
+                                                "crit_rate": 0.02,
                                             },
                                         },
                                         7: {
@@ -665,8 +716,9 @@ function format_skill_rewards(milestone){
                                         5: {
                                             stats: {
                                                 "dexterity": 1,
-                                                "strength": 0.05,
+                                                "strength": 1,
                                             },
+    
                                         },
                                         7: {
                                             stats: {
@@ -674,8 +726,8 @@ function format_skill_rewards(milestone){
                                             }
                                         },
                                         10: {
-                                            stats: {
-                                                "strength": 2,
+                                            multipliers: {
+                                                    "strength": 1.05,
                                             },
                                         }
                                     }
@@ -704,7 +756,7 @@ function format_skill_rewards(milestone){
                                         5: {
                                             stats: {
                                                 "strength": 1,
-                                                "crit_rate": 0.05,
+                                                "crit_rate": 0.02,
                                             },
                                         },
                                         7: {
@@ -784,7 +836,7 @@ function format_skill_rewards(milestone){
                                         5: {
                                             stats: {
                                                 "crit_multiplier": 0.1,
-                                                "crit_rate": 0.1,
+                                                "crit_rate": 0.02,
                                             },
                                         },
                                         7: {
@@ -794,7 +846,7 @@ function format_skill_rewards(milestone){
                                         },
                                         10: {
                                             stats: {
-                                                "crit_rate": 0.05,
+                                                "crit_rate": 0.03,
                                                 "crit_multiplier": 0.1, 
                                             },
                                         }
@@ -832,45 +884,69 @@ function format_skill_rewards(milestone){
                                 max_level_coefficient: 2,
                                 rewards: {
                                     milestones: {
+                                        1: {
+                                            stats: {
+                                                max_stamina: 2,
+                                            },
+                                        },
                                         2: {
                                             stats: {
-                                                "strength": 1,
-                                                max_stamina: 3,
+                                                strength: 1
                                             },
+                                        },
+                                        3: {
+                                            stats: {
+                                                dexterity: 1,
+                                                max_stamina: 2,
+                                            }
                                         },
                                         4: {
                                             stats: {
-                                                "strength": 1,
-                                                "dexterity": 1,
-                                                max_stamina: 3,
+                                                strength: 1,
+                                                max_stamina: 2,
                                             }
+                                        },
+                                        5: {
+                                            stats: {
+                                                strength: 1,
+                                                max_stamina: 2,
+                                            },
                                         },
                                         6: {
                                             stats: {
-                                                "strength": 1,
-                                                "dexterity": 1,
-                                                max_stamina: 3,
+                                                strength: 1,
+                                                max_stamina: 2,
                                             },
                                             xp_multipliers: {
                                                 Weightlifting: 1.1,
                                             }
                                         },
+                                        7: {
+                                            stats: {
+                                                dexterity: 1,
+                                                max_stamina: 2,
+                                            }
+                                        },
                                         8: {
                                             stats: {
-                                                "strength": 2,
-                                                "dexterity": 1,
-                                                max_stamina: 3,
+                                                strength: 1,
+                                                max_stamina: 2,
                                             }
+                                        },
+                                        9: {
+                                            stats: {
+                                                strength: 1,
+                                                dexterity: 1,
+                                                max_stamina: 2,
+                                            },
                                         },
                                         10: {
                                             stats: {
-                                                "strength": 2,
-                                                "dexterity": 1,
-                                                max_stamina: 5,
+                                                max_stamina: 4,
                                             },
                                             multipliers: {
-                                                "strength": 1.05,
-                                                "dexterity": 1.05,
+                                                strength: 1.05,
+                                                dexterity: 1.05,
                                             }
                                         }
                                     }
@@ -891,7 +967,7 @@ function format_skill_rewards(milestone){
                                         milestones: {
                                             2: {
                                                 stats: {
-                                                    "max_health": 20,
+                                                    "max_health": 10,
                                                 },
                                                 multipliers: {
                                                     "max_health": 1.05,
@@ -902,7 +978,7 @@ function format_skill_rewards(milestone){
                                             },
                                             4: {
                                                 stats: {
-                                                    "max_health": 40,
+                                                    "max_health": 20,
                                                 },
                                                 multipliers: {
                                                     "max_health": 1.05,
@@ -913,7 +989,7 @@ function format_skill_rewards(milestone){
                                             },
                                             6: {
                                                 stats: {
-                                                    "max_health": 60,
+                                                    "max_health": 30,
                                                 },
                                                 multipliers: {
                                                     "max_health": 1.05,
@@ -924,7 +1000,7 @@ function format_skill_rewards(milestone){
                                             },
                                             8: {
                                                 stats: {
-                                                    "max_health": 80,
+                                                    "max_health": 40,
                                                 },
                                                 multipliers: {
                                                     "max_health": 1.05,
@@ -935,7 +1011,7 @@ function format_skill_rewards(milestone){
                                             },
                                             10: {
                                                 stats: {
-                                                    "max_health": 100,
+                                                    "max_health": 50,
                                                 },
                                                 multipliers: {
                                                     "max_health": 1.05,
@@ -970,18 +1046,21 @@ function format_skill_rewards(milestone){
                                                 agility: 1,
                                             },
                                             multipliers: {
-                                                agility: 1.05,
                                                 stamina_efficiency: 1.05,
                                             }
+                                            
                                         },
                                         7: {
                                             stats: {
-                                                agility: 2,
+                                                agility: 1,
                                             },
+                                            multipliers: {
+                                                agility: 1.05,
+                                            }
                                         },
                                         10: {
                                             stats: {
-                                                agility: 2,
+                                                agility: 1,
                                             },
                                             multipliers: {
                                                 agility: 1.05,
@@ -1097,7 +1176,8 @@ function format_skill_rewards(milestone){
         skill_id: "Iron skin",
         names: {0: "Tough skin", 5: "Wooden skin", 10: "Iron skin"},
         description: "As it gets damaged, your skin regenerates to be tougher and tougher",
-        base_xp_cost: 80,
+        base_xp_cost: 100,
+        xp_scaling: 1.9,
         max_level: 30,
         max_level_bonus: 30,
         get_effect_description: ()=> {
@@ -1112,17 +1192,17 @@ function format_skill_rewards(milestone){
                 },
                 5: {
                     multipliers: {
-                        max_health: 1.02,
+                        max_health: 1.01,
                     }
                 },
                 7: {
                     multipliers: {
-                        max_health: 1.03,
+                        max_health: 1.02,
                     }
                 },
                 10: {
                     multipliers: {
-                        max_health: 1.04,
+                        max_health: 1.02,
                     }
                 }
             }
@@ -1193,11 +1273,20 @@ function format_skill_rewards(milestone){
         max_level: 10,
         xp_scaling: 2,
         get_effect_description: ()=> {
-            return `Allows reading harder texts`;
+            return `Allows reading harder books`;
         },
         rewards: {
             milestones: {
-                //todo: some xp buffs
+                1: {
+                    xp_multipliers: {
+                        hero: 1.05,
+                    }
+                },
+                2: {
+                    xp_multipliers: {
+                        all_skill: 1.05,
+                    }
+                }
             }
         }
     }); 
