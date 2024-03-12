@@ -563,9 +563,6 @@ function set_new_combat(enemies, stance) {
         }
     }
 
-    console.log(character_attack_cooldown);
-    console.log(enemy_attack_cooldowns);
-
     //attach loops
     for(let i = 0; i < current_enemies.length; i++) {
         //set_enemy_attack_animation(i, enemy_attack_cooldowns[i]);
