@@ -230,11 +230,11 @@ function end_activity_animation() {
         return;
     }
 
-    var message = document.createElement("div");
+    let message = document.createElement("div");
     message.classList.add("message_common");
 
-    var class_to_add = "message_default";
-    var group_to_add = "unlocks";
+    let class_to_add = "message_default";
+    let group_to_add = "message_events";
 
     //selects proper class to add based on argument
     switch(message_type) {
@@ -318,15 +318,20 @@ function end_activity_animation() {
         case "message_travel":
             class_to_add = "message_travel";
             group_to_add = "message_events";
-            message_count.message_events +1;
+            message_count.message_events += 1;
             break;
         case "activity_finished":
             group_to_add = "message_events";
-            message_count.message_events +1;
+            message_count.message_events += 1;
             break;
         case "activity_money":
             group_to_add = "message_events";
-            message_count.message_events +1;
+            message_count.message_events += 1;
+            break;
+        case "notification":
+            message_count.message_events += 1;
+            group_to_add = "message_events";
+            class_to_add = "message_notification";
             break;
     }
 

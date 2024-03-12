@@ -502,7 +502,7 @@ class LocationType{
         enemy_stat_variation: 0.2,
         is_unlocked: true, 
         name: "Cave room", 
-        leave_text: "Go back to entrence",
+        leave_text: "Go back to entrance",
         parent_location: locations["Nearby cave"],
         first_reward: {
             xp: 20,

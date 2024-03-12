@@ -1,3 +1,5 @@
+v0.3.5f
+    - (hopefully) fixed issue with attack speed
 v0.3.5e
     - xp bonus from parent skill is now included in xp gains in skill tooltip
     - minor balance change
