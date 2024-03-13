@@ -1,3 +1,5 @@
+v0.3.5h
+    - fixed minor bug with loading older saves
 v0.3.5g
     - fixed unarmed attack speed bonus not being added
 v0.3.5f
