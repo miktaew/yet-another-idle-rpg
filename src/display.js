@@ -780,7 +780,9 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
 
 /**
  * updates displayed inventory of the character (only inventory, worn equipment is managed by separate method)
+ * 
  * if item_name is passed, it will instead only update the display of that one item
+ * 
  * currently item_name is only used for books
  */
  function update_displayed_character_inventory({item_name, character_sorting="name", sorting_direction="asc"} = {}) {    

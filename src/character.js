@@ -271,6 +271,11 @@ character.stats.add_all_equipment_bonus = function() {
                         }
                 });
         });
+
+        //add unarmed speed bonus (technically a bonus from equipment, or rather lack of it)
+        if(character.equipment.weapon == null) {
+                character.stats.multiplier.equipment.attack_speed = (character.stats.multiplier.equipment.attack_speed || 1) * (skills["Unarmed"].get_coefficient("multiplicative")**0.5);
+        } 
 }
 
 /**
@@ -355,7 +360,6 @@ character.update_stats = function () {
         }
     });
     
-    //some_method_to_update_displayed_xp_bonuses
     update_displayed_stats();
     update_displayed_health();
     update_displayed_stamina();
@@ -371,9 +375,6 @@ character.get_stamina_multiplier = function () {
 
 character.get_attack_speed = function () {
         let spd = character.stats.full.attack_speed * character.get_stamina_multiplier();
-        if(character.equipment.weapon == null) {
-                spd *= (skills["Unarmed"].get_coefficient("multiplicative")**0.5);
-        }
         return spd;
 }
 
@@ -455,8 +456,10 @@ function remove_from_character_inventory({item_name, item_count, item_id}) {
  * @param: game item object
  */
 function equip_item(item) {
-        unequip_item(item.equip_slot);
-        character.equipment[item.equip_slot] = item;
+        if(item) {
+                unequip_item(item.equip_slot);
+                character.equipment[item.equip_slot] = item;
+        }
         update_displayed_equipment();
         update_displayed_character_inventory();
         character.stats.add_all_equipment_bonus();

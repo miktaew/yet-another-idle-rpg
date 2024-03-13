@@ -40,7 +40,7 @@ import { end_activity_animation,
 import { compare_game_version, get_hit_chance } from "./misc.js";
 
 const save_key = "save data";
-const game_version = "v0.3.5g";
+const game_version = "v0.3.5h";
 
 //current enemy
 let current_enemies = null;
@@ -541,7 +541,7 @@ function start_textline(textline_key){
  * @description sets attack cooldowns and new enemies, either from provided list or from current location, called whenever a new enemy group starts
  * @param {List<Enemy>} enemies 
  */
-function set_new_combat(enemies, stance) {
+function set_new_combat({enemies} = {}) {
     current_enemies = enemies || current_location.get_next_enemies();
     clear_all_enemy_attack_loops();
 
@@ -550,6 +550,7 @@ function set_new_combat(enemies, stance) {
 
     //todo: check for stance, apply proper modifier to character cooldown
     //if() {}
+    let stance;
 
     let fastest_cooldown = [character_attack_cooldown, ...enemy_attack_cooldowns].sort((a,b) => a - b)[0];
 
@@ -565,7 +566,6 @@ function set_new_combat(enemies, stance) {
 
     //attach loops
     for(let i = 0; i < current_enemies.length; i++) {
-        //set_enemy_attack_animation(i, enemy_attack_cooldowns[i]);
         set_enemy_attack_loop(i, enemy_attack_cooldowns[i]);
     }
 
@@ -605,16 +605,11 @@ function clear_enemy_attack_loop(enemy_id) {
 function set_character_attack_loop({base_cooldown, attack_type = "normal", stance = "normal"}) {
     clear_character_attack_loop();
 
-    let speed_modifier = 1;
-    if(character.equipment.weapon == null) {
-        speed_modifier = (skills["Unarmed"].get_coefficient("multiplicative")**0.5);
-    }
-
     let stamina_cost = 1; 
     //TODO: set it depending on stance
 
     use_stamina(stamina_cost);
-    let actual_cooldown = base_cooldown * character.get_stamina_multiplier()/speed_modifier;
+    let actual_cooldown = base_cooldown * character.get_stamina_multiplier();
 
     let attack_power = character.get_attack_power();
     do_character_attack_loop(base_cooldown, actual_cooldown, attack_power, attack_type);
@@ -1083,13 +1078,13 @@ function dismantle_item() {
 
 function character_equip_item(item_info) {
     if(current_enemies) {
-        set_new_combat(current_enemies);
+        set_new_combat({enemies: current_enemies});
     }
     equip_item_from_inventory(item_info);
 }
 function character_unequip_item(item_info) {
     if(current_enemies) {
-        set_new_combat(current_enemies);
+        set_new_combat({enemies: current_enemies});
     }
     unequip_item(item_info);
 }
@@ -1303,14 +1298,31 @@ function load(save_data) {
         }
         option_remember_filters(options.remember_message_log_filters);
 
-        const is_from_before_eco_rework = compare_game_version(game_version, save_data["game version"]) == 1;
-
+        //this can be removed at some point
+        const is_from_before_eco_rework = compare_game_version("v0.3.5", save_data["game version"]) == 1;
         setLootSoldCount(save_data.loot_sold_count || {});
+
+        character.money = (save_data.character.money || 0) * ((is_from_before_eco_rework == 1)*10 || 1);
+        update_displayed_money();
+
+        add_xp_to_character(save_data.character.xp.total_xp, false);
+
+        Object.keys(save_data.skills).forEach(function(key){ 
+            if(skills[key] && !skills[key].is_parent){
+                if(save_data.skills[key].total_xp > 0) {
+                    add_xp_to_skill({skill: skills[key], xp_to_add: save_data.skills[key].total_xp, 
+                                     should_info: false, add_to_parent: true, use_bonus: false
+                                    });
+                }
+            } else {
+                console.warn(`Skill "${key}" couldn't be found!`);
+                return;
+            }
+        }); //add xp to skills
 
         Object.keys(save_data.character.equipment).forEach(function(key){
             if(save_data.character.equipment[key] != null) {
                 try{
-
                     if(key === "weapon") {
                         const {quality, equip_slot} = save_data.character.equipment[key];
                         let components;
@@ -1371,6 +1383,10 @@ function load(save_data) {
                 }
             }
         }); //equip proper items
+
+        if(character.equipment.weapon == null) {
+            equip_item(null);
+        }
 
         const item_list = [];
 
@@ -1459,23 +1475,7 @@ function load(save_data) {
 
         add_to_character_inventory(item_list); // and then to inventory
 
-        character.money = (save_data.character.money || 0) * ((is_from_before_eco_rework == 1)*10 || 1);
-        update_displayed_money();
-
-        add_xp_to_character(save_data.character.xp.total_xp, false);
-
-        Object.keys(save_data.skills).forEach(function(key){ 
-            if(skills[key] && !skills[key].is_parent){
-                if(save_data.skills[key].total_xp > 0) {
-                    add_xp_to_skill({skill: skills[key], xp_to_add: save_data.skills[key].total_xp, 
-                                     should_info: false, add_to_parent: true, use_bonus: false
-                                    });
-                }
-            } else {
-                console.warn(`Skill "${key}" couldn't be found!`);
-                return;
-            }
-        }); //add xp to skills
+        
 
         Object.keys(save_data.dialogues).forEach(function(dialogue) {
             if(dialogues[dialogue]) {
@@ -1984,7 +1984,6 @@ window.get_game_version = get_game_version;
 
 if("save data" in localStorage) {
     load_from_localstorage();
-
     update_combat_stats();
 }
 else {
@@ -2008,7 +2007,7 @@ update_displayed_xp_bonuses();
 run();
 
 if(window.location.href.endsWith("-dev/")) {
-    log_message("It looks like you are playing on the dev release. It is recommened to keep the developer console open (F12 => 'Console' tab) in case of any errors/warnings appearing in there.", "notification");
+    log_message("It looks like you are playing on the dev release. It is recommended to keep the developer console open (F12 => 'Console' tab) in case of any errors/warnings appearing in there.", "notification");
 }
 
 
