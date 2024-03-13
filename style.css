@@ -95,7 +95,7 @@ body {
 	word-wrap: break-word;
 	padding: 2px;
 	padding-right:20px;
-	font-size: 12;
+	font-size: 12px;
 }
 
 .message_default {
@@ -143,9 +143,16 @@ body {
 	 font-weight: bold;
  }
 
+ .message_notification {
+	font-weight: bold;
+	font-size: 12px;
+	color: yellow;
+	text-align: left;
+ }
+
  .action_travel, .activity_unavailable, .start_dialogue,  .end_dialogue_button, .start_trade, .dialogue_trade, .choices_return_button, .start_activity, .location_choices, #action_status_div, #action_end_div {
 	text-align: left;
-	font-size: 20;
+	font-size: 20px;
 	border-bottom: 1px solid white;
 	cursor: pointer;
 	padding: 5px;
@@ -162,7 +169,7 @@ body {
 	cursor: pointer;
 	text-align: center;
 	display: inline-block;
-	font-size: 20;
+	font-size: 20px;
  }
 
  #hard_reset_button:hover {
@@ -172,7 +179,7 @@ body {
 
  #action_status_div, #action_end_div {
 	text-align: center;
-	font-size: 20;
+	font-size: 20px;
 
 	border-bottom: 1px solid white;
 	cursor: pointer;
@@ -199,7 +206,7 @@ body {
 }
 
  #close_options {
-	font-size: 40;
+	font-size: 40px;
 	position: relative;
 	left: 448px;
 	top: 2px;
@@ -215,7 +222,7 @@ body {
 	position: relative;
 	top: -40px;
 	left: 5px;
-	font-size: 20;
+	font-size: 20px;
  }
 
  #options_choices input {
@@ -264,13 +271,13 @@ body {
 	}
 
 .inventory_item, .trader_item {
-	 font-size: 13;
+	 font-size: 13px;
 	 display: inline-block;
 
 }
 
 .equipped_item_control {
-	font-size: 13;
+	font-size: 13px;
 	background-color: rgba(255, 236, 128, 0.15);
 	padding-bottom: 2px;
 	padding-top: 2px;
@@ -308,7 +315,7 @@ body {
 }
 
 .location_tooltip {
-	font-size: 16;
+	font-size: 16px;
 	top: var(--location_desc_tooltip_top);
 	left: var(--location_desc_tooltip_left);
 	display: none;
@@ -333,7 +340,7 @@ body {
 .job_tooltip {
 	top: var(--job_tooltip_top);
 	left: var(--job_tooltip_left);
-	font-size: 16;
+	font-size: 16px;
 }
 
 .equipment_slot_div:hover .item_tooltip, .trader_item_control:hover .item_tooltip, .inventory_item_control:hover .item_tooltip, 
@@ -386,7 +393,7 @@ body {
 .equip_item_button {
 	 cursor: pointer;
 	 font-weight: bold;
-	 font-size: 13;
+	 font-size: 13px;
 	 display: inline-block;
 	 width: 48px;
 	 text-align: right;
@@ -426,7 +433,7 @@ body {
 	width: 39px;
 	font-weight: bold;
 	cursor: pointer;
-	font-size: 13;
+	font-size: 13px;
 	text-align: right;
 }
 
@@ -436,7 +443,7 @@ body {
 
 .item_value {
 	text-align: right;
-	font-size: 13;
+	font-size: 13px;
 	width: 60px;
 	border-left: 1px solid white;
 	margin-left: 4px;
@@ -498,7 +505,7 @@ body {
 	float:left;
 	padding: 6px;
 	min-width: 119.3px;
-	font-size: 14;
+	font-size: 14px;
 	text-align: center;
 	margin: 1px;
 	outline: 1px solid white;
@@ -516,7 +523,7 @@ body {
 
 .equipment_slot_div {
 	text-align: center;
-	font-size: 14;
+	font-size: 14px;
 	width: 100%;
 	height: 32px;
 	margin-bottom: 1px;
@@ -529,11 +536,11 @@ body {
 .equipment_slot_empty {
 	color: silver;
 	font-style: italic;
-	font-size: 12;
+	font-size: 12px;
 }
 
 .equipment_slot_empty .item_tooltip {
-	font-size: 14;
+	font-size: 14px;
 	font-style: normal;
 }
 
@@ -673,7 +680,7 @@ i {
 	outline: 1px solid white;
 	cursor: pointer;
 	margin: 1px;
-	font-size: 16;
+	font-size: 16px;
 }
 
 
@@ -691,7 +698,7 @@ i {
 	display: var(--trade_ammount_button_display);
 	cursor: pointer;
 	font-weight: bold;
-	font-size: 14;
+	font-size: 14px;
 	width: 19.5px;
 }
 
@@ -715,7 +722,7 @@ i {
 
 .page_selection_button {
 	width: 50%;
-	font-size: 20;
+	font-size: 20px;
 	font-weight: bold;
 	text-align: center;
 	position: relative;
@@ -766,21 +773,21 @@ i {
 .skill_sorting_button {
 	float:left;
 	top: 100px;
-	width: 200;
+	width: 200px;
 	text-align: center;
 	outline: 1px solid white;
 	cursor: pointer;
-	font-size: 16;
+	font-size: 16px;
 }
 
 #accept_trade_button, #cancel_trade_button, .trader_sorting_button {
     float:left;
-	width: 198;
+	width: 198px;
 	text-align: center;
 	outline: 1px solid white;
 	margin: -1px 1px;
 	cursor: pointer;
-	font-size: 16;
+	font-size: 16px;
 }
 
 #accept_trade_button {
@@ -842,8 +849,8 @@ i {
 	height: 40px;
 	background-image: linear-gradient(to right, #232f47, #15152d);
 	border-top: 3px solid #0e0e25;
-	bottom: 0;
-	left: 0;
+	bottom: 0px;
+	left: 0px;
 }
 		@media only screen and (max-height: 857px) {
 			#bottom_panel_div {
@@ -876,7 +883,7 @@ i {
 	color: white;
 	position: absolute;
 	top: 2px;
-	font-size: 16;
+	font-size: 16px;
 	left: 140px;
 }
 
@@ -905,7 +912,7 @@ i {
 	position: absolute;
 	width: 400px;
 	top: 102px;
-	font-size: 18;
+	font-size: 18px;
 }
 #character_health_text {
 	text-align: left; margin-left: 28px;
@@ -937,7 +944,7 @@ i {
 
 #character_mana_value {
 	position: absolute;
-	font-size: 15;
+	font-size: 15px;
 	width: 400px;
 	top: 77px;
 	text-align: center;
@@ -962,7 +969,7 @@ i {
 	width: 400px;
 	top: 53px;
 	text-align: center;
-	font-size: 15;
+	font-size: 15px;
 }
 
 #character_xp_bar_max {
@@ -981,7 +988,7 @@ i {
 
 #character_xp_value {
 	position: absolute;
-	font-size: 15;
+	font-size: 15px;
 	width: 400px;
 	top: 29px;
 	text-align: center;
@@ -1004,11 +1011,11 @@ i {
 #character_control_div {
 	color: white;
 	position: absolute;
-	bottom: 0;
+	bottom: 0px;
 }
 
 #effects_div {
-	font-size: 16;
+	font-size: 16px;
 	padding-top: 4px;
 	padding-bottom: 4px;
 	padding-left: 4px;
@@ -1054,13 +1061,13 @@ i {
 
 #exit_trade_button {
 	float:left;
-	width: 398;
+	width: 398px;
 	text-align: center;
 	border: 1px solid white;
 	border-top: none;
 	border-bottom: none;
 	cursor: pointer;
-	font-size: 20;
+	font-size: 20px;
 	padding: 1px 0px 1px 0px;
 }
 
@@ -1074,7 +1081,7 @@ i {
 		.enemy_div {
 			color: white;
 			display: var(--enemy_div_display);
-			font-size: 14;
+			font-size: 14px;
 			height: 66px;
 			outline: 2px solid silver;
 			width: 100%;
@@ -1088,7 +1095,7 @@ i {
 					.enemy_stat, .attack_stat {
 						display: inline-block;
 						text-align: left;
-						font-size: 12;
+						font-size: 12px;
 					}
 					.enemy_stat_short, .attack_stat_short {
 						width: 64px;
@@ -1158,8 +1165,8 @@ i {
 #enemy_count_content {
 	color: white;
 	width: 50%;
-	font-size: 17;
-	padding-right: 5;
+	font-size: 17px;
+	padding-right: 5px;
 	margin-left: auto;
 	text-align: right;
 	
@@ -1178,7 +1185,7 @@ i {
 }
 
 #inventory_control_div {
-	font-size: 20;
+	font-size: 20px;
 	position: absolute;
 	top: 369px;
 }
@@ -1186,7 +1193,7 @@ i {
 #inventory_div {
 	width: 400px;
 	height: 400px;
-	top: 360;
+	top: 360px;
 	display: var(--inventory_div_display);
 }
 
@@ -1204,7 +1211,7 @@ i {
 		margin-bottom: 5px;
 	}
 	#journal_control_div {
-		font-size: 20;
+		font-size: 20px;
 		position: absolute;
 		top: 254px;
 	}
@@ -1215,7 +1222,7 @@ i {
 			outline: 1px solid white;
 			cursor: pointer;
 			margin: 1px;
-			font-size: 18;
+			font-size: 18px;
 		}
 			#story_box_div {
 				width:100%;
@@ -1326,7 +1333,7 @@ i {
 #time_and_location {
 	left: 410px;
 	width: 400px;
-	font-size: 20;
+	font-size: 20px;
 }
 		#location_name_div {
 			padding: 4px;
@@ -1341,7 +1348,7 @@ i {
 			padding: 2px;
 			position: absolute;
 			text-align: right;
-			font-size: 12;
+			font-size: 12px;
 		}
 			.location_type_div {
 				float: left;
@@ -1386,7 +1393,7 @@ i {
 	position: absolute;
 	z-index: 1000;
 	max-width: 500px;
-	font-size: 18;
+	font-size: 18px;
 	width: fit-content;
 	height: auto;
 }
@@ -1421,7 +1428,7 @@ i {
 }
 
 	#message_box_div {
-		width: 100%;
+		width: 415px;
 		height: 734px;
 		overflow-y: scroll;
 		overflow-x: hidden;
@@ -1468,7 +1475,7 @@ i {
 
 #start_sleeping_div{
 	text-align: left;
-	font-size: 20;
+	font-size: 20px;
 	border-bottom: 1px solid white;
 	cursor: pointer;
 	padding: 5px;

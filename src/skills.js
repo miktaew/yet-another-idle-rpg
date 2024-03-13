@@ -2,7 +2,7 @@
 
 const skills = {};
 
-import { character } from "./character.js";
+import {character} from "./character.js";
 import {stat_names} from "./misc.js";
 
 /*    

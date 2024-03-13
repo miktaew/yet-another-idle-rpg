@@ -40,7 +40,7 @@ import { end_activity_animation,
 import { compare_game_version, get_hit_chance } from "./misc.js";
 
 const save_key = "save data";
-const game_version = "v0.3.5e";
+const game_version = "v0.3.5g";
 
 //current enemy
 let current_enemies = null;
@@ -541,12 +541,15 @@ function start_textline(textline_key){
  * @description sets attack cooldowns and new enemies, either from provided list or from current location, called whenever a new enemy group starts
  * @param {List<Enemy>} enemies 
  */
-function set_new_combat(enemies) {
+function set_new_combat(enemies, stance) {
     current_enemies = enemies || current_location.get_next_enemies();
     clear_all_enemy_attack_loops();
 
-    let character_attack_cooldown = 1/character.stats.full.attack_speed;
+    let character_attack_cooldown = 1/(character.stats.full.attack_speed);
     let enemy_attack_cooldowns = [...current_enemies.map(x => 1/x.stats.attack_speed)];
+
+    //todo: check for stance, apply proper modifier to character cooldown
+    //if() {}
 
     let fastest_cooldown = [character_attack_cooldown, ...enemy_attack_cooldowns].sort((a,b) => a - b)[0];
 
@@ -566,7 +569,7 @@ function set_new_combat(enemies) {
         set_enemy_attack_loop(i, enemy_attack_cooldowns[i]);
     }
 
-    set_character_attack_loop(character_attack_cooldown);
+    set_character_attack_loop({base_cooldown: character_attack_cooldown, stance: stance});
     
     update_displayed_enemies();
     update_displayed_health_of_enemies();
@@ -599,17 +602,19 @@ function clear_enemy_attack_loop(enemy_id) {
  * @param {Number} base_cooldown basic cooldown based on attack speeds of enemies and character (ignoring stamina penalty) 
  * @param {String} attack_type type of attack, not yet implemented
  */
-function set_character_attack_loop(base_cooldown, attack_type = "normal") {
+function set_character_attack_loop({base_cooldown, attack_type = "normal", stance = "normal"}) {
     clear_character_attack_loop();
 
+    let speed_modifier = 1;
+    if(character.equipment.weapon == null) {
+        speed_modifier = (skills["Unarmed"].get_coefficient("multiplicative")**0.5);
+    }
+
     let stamina_cost = 1; 
-    //TODO: set it depending on attack type when they are added
+    //TODO: set it depending on stance
 
     use_stamina(stamina_cost);
-    let actual_cooldown = base_cooldown * character.get_stamina_multiplier();
-
-    //if no_weapon
-    //  actual_cooldown = actual_cooldown / unarmed_speed_bonus
+    let actual_cooldown = base_cooldown * character.get_stamina_multiplier()/speed_modifier;
 
     let attack_power = character.get_attack_power();
     do_character_attack_loop(base_cooldown, actual_cooldown, attack_power, attack_type);
@@ -622,7 +627,7 @@ function set_character_attack_loop(base_cooldown, attack_type = "normal") {
  * @param {*} attack_power 
  * @param {*} attack_type 
  */
-function do_character_attack_loop(base_cooldown, actual_cooldown, attack_power, attack_type) {
+function do_character_attack_loop(base_cooldown, actual_cooldown, attack_power, attack_type, stance) {
     let count = 0;
     character_attack_loop = setInterval(() => {
         
@@ -630,12 +635,12 @@ function do_character_attack_loop(base_cooldown, actual_cooldown, attack_power, 
         count++;
         if(count == 40) {
             count = 0;
-            let done = do_character_combat_action(attack_power, attack_type);
+            let done = do_character_combat_action({attack_power, attack_type, stance});
             if(!done) { //set next loop if there's still an enemy left
-                set_character_attack_loop(base_cooldown, attack_type);
+                set_character_attack_loop({base_cooldown, attack_type, stance});
             }
         }
-    }, 1000/(40*actual_cooldown*tickrate));
+    }, actual_cooldown*1000/(40*tickrate));
 }
 
 function clear_character_attack_loop() {
@@ -767,7 +772,7 @@ function do_enemy_combat_action(enemy_id) {
     update_displayed_health();
 }
 
-function do_character_combat_action(attack_power, attack_type = "normal") {
+function do_character_combat_action({attack_power, attack_type = "normal", stance = "normal"}) {
     
     //todo: attack types with different stamina costs
     //TODO: when multi-target attacks are added, calculate this iterating over enemies that can be hit
@@ -1870,7 +1875,7 @@ function update() {
         update_displayed_effect_durations();
 
         save_counter += 1;
-        if(save_counter >= save_period) {
+        if(save_counter >= save_period*tickrate) {
             save_counter = 0;
             save_to_localStorage();
             console.log("Auto-saved the game!");
@@ -2001,6 +2006,10 @@ else {
 update_displayed_equipment();
 update_displayed_xp_bonuses();
 run();
+
+if(window.location.href.endsWith("-dev/")) {
+    log_message("It looks like you are playing on the dev release. It is recommened to keep the developer console open (F12 => 'Console' tab) in case of any errors/warnings appearing in there.", "notification");
+}
 
 
 export { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, add_xp_to_skill, get_current_book, last_location_with_bed, last_combat_location };
