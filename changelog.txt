@@ -1,3 +1,5 @@
+v0.3.5i
+    - fixed attacks getting faster on 0 stamina
 v0.3.5h
     - fixed minor bug with loading older saves
 v0.3.5g

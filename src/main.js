@@ -40,7 +40,7 @@ import { end_activity_animation,
 import { compare_game_version, get_hit_chance } from "./misc.js";
 
 const save_key = "save data";
-const game_version = "v0.3.5h";
+const game_version = "v0.3.5i";
 
 //current enemy
 let current_enemies = null;
@@ -609,7 +609,7 @@ function set_character_attack_loop({base_cooldown, attack_type = "normal", stanc
     //TODO: set it depending on stance
 
     use_stamina(stamina_cost);
-    let actual_cooldown = base_cooldown * character.get_stamina_multiplier();
+    let actual_cooldown = base_cooldown / character.get_stamina_multiplier();
 
     let attack_power = character.get_attack_power();
     do_character_attack_loop(base_cooldown, actual_cooldown, attack_power, attack_type);
