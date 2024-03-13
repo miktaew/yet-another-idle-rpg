@@ -1,3 +1,5 @@
+v0.3.5g
+    - fixed unarmed attack speed bonus not being added
 v0.3.5f
     - (hopefully) fixed issue with attack speed
 v0.3.5e

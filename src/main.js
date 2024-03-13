@@ -40,7 +40,7 @@ import { end_activity_animation,
 import { compare_game_version, get_hit_chance } from "./misc.js";
 
 const save_key = "save data";
-const game_version = "v0.3.5f";
+const game_version = "v0.3.5g";
 
 //current enemy
 let current_enemies = null;
@@ -545,7 +545,7 @@ function set_new_combat(enemies, stance) {
     current_enemies = enemies || current_location.get_next_enemies();
     clear_all_enemy_attack_loops();
 
-    let character_attack_cooldown = 1/character.stats.full.attack_speed;
+    let character_attack_cooldown = 1/(character.stats.full.attack_speed);
     let enemy_attack_cooldowns = [...current_enemies.map(x => 1/x.stats.attack_speed)];
 
     //todo: check for stance, apply proper modifier to character cooldown
@@ -605,14 +605,16 @@ function clear_enemy_attack_loop(enemy_id) {
 function set_character_attack_loop({base_cooldown, attack_type = "normal", stance = "normal"}) {
     clear_character_attack_loop();
 
+    let speed_modifier = 1;
+    if(character.equipment.weapon == null) {
+        speed_modifier = (skills["Unarmed"].get_coefficient("multiplicative")**0.5);
+    }
+
     let stamina_cost = 1; 
-    //TODO: set it depending on attack type when they are added
+    //TODO: set it depending on stance
 
     use_stamina(stamina_cost);
-    let actual_cooldown = base_cooldown * character.get_stamina_multiplier();
-
-    //if no_weapon
-    //  actual_cooldown = actual_cooldown / unarmed_speed_bonus
+    let actual_cooldown = base_cooldown * character.get_stamina_multiplier()/speed_modifier;
 
     let attack_power = character.get_attack_power();
     do_character_attack_loop(base_cooldown, actual_cooldown, attack_power, attack_type);
