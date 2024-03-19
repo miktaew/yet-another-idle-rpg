@@ -1,3 +1,6 @@
+v0.3.6
+    - introduced combat stances; lots of names were suggested by Varian on our discord channel
+    
 v0.3.5i
     - fixed attacks getting faster on 0 stamina
 v0.3.5h

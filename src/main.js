@@ -35,9 +35,10 @@ import { end_activity_animation,
          update_bestiary_entry,
          start_reading_display,
          update_displayed_xp_bonuses, 
-         update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain
+         update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain, update_displayed_stance_list, update_displayed_stamina_efficiency, update_displayed_stance, update_displayed_faved_stances
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
+import { stances } from "./combat_stances.js";
 
 const save_key = "save data";
 const game_version = "v0.3.5i";
@@ -80,6 +81,10 @@ let end_date;
 let current_dialogue;
 const active_effects = {};
 //e.g. health regen from food
+
+let selected_stance = "normal";
+let current_stance = "normal";
+const faved_stances = {};
 
 const tickrate = 1;
 //how many ticks per second
@@ -537,6 +542,44 @@ function start_textline(textline_key){
     update_displayed_textline_answer(textline.text);
 }
 
+function change_stance(stance_id, is_temporary = false) {
+    if(is_temporary) {
+        if(!stances[stance_id]) {
+            throw new Error(`No such stance as "${stance_id}"`);
+        }
+        if(!stances[stance_id].is_unlocked) {
+            throw new Error(`Stance "${stance_id}" is not yet unlocked!`)
+        }
+
+    } else {
+        selected_stance = stance_id;
+        update_displayed_stance();
+    }
+    
+    current_stance = stance_id;
+
+    update_character_stats();
+
+    if(current_enemies){
+        reset_combat_loops();
+    }
+}
+
+/**
+ * @description handle faving/unfaving of stances
+ * @param {String} stance_id 
+ */
+function fav_stance(stance_id) {
+    if(faved_stances[stance_id]) {
+        delete faved_stances[stance_id];
+    } else if(stances[stance_id].is_unlocked){
+        faved_stances[stance_id] = true;
+    } else {
+        console.warn(`Tried to fav a stance '${stance_id}' despite it not being unlocked!`);
+    }
+    update_displayed_faved_stances();
+}
+
 /**
  * @description sets attack cooldowns and new enemies, either from provided list or from current location, called whenever a new enemy group starts
  * @param {List<Enemy>} enemies 
@@ -549,8 +592,8 @@ function set_new_combat({enemies} = {}) {
     let enemy_attack_cooldowns = [...current_enemies.map(x => 1/x.stats.attack_speed)];
 
     //todo: check for stance, apply proper modifier to character cooldown
-    //if() {}
-    let stance;
+    let stance = "normal";
+    character_attack_cooldown /= (stances[stance]?.stat_multipliers?.attack_speed || 1);
 
     let fastest_cooldown = [character_attack_cooldown, ...enemy_attack_cooldowns].sort((a,b) => a - b)[0];
 
@@ -566,7 +609,7 @@ function set_new_combat({enemies} = {}) {
 
     //attach loops
     for(let i = 0; i < current_enemies.length; i++) {
-        set_enemy_attack_loop(i, enemy_attack_cooldowns[i]);
+        do_enemy_attack_loop(i, enemy_attack_cooldowns[i]);
     }
 
     set_character_attack_loop({base_cooldown: character_attack_cooldown, stance: stance});
@@ -575,18 +618,34 @@ function set_new_combat({enemies} = {}) {
     update_displayed_health_of_enemies();
 }
 
+function reset_combat_loops() {
+    if(!current_enemies) { 
+        return;
+    }
+
+    console.warn("Method for resetting combat loops (on stance change) is still not implemented");
+    /*
+    TODO
+    recalc speeds
+    for enemies, modify their cooldowns (global variable)
+    for hero, restart the attack bar too
+
+    */
+}
+
 /**
  * @description Creates an Interval responsible for performing the attack loop of enemy and updating their attack_bar progress
  * @param {*} enemy_id 
  * @param {*} cooldown 
  */
-function set_enemy_attack_loop(enemy_id, cooldown) {
+function do_enemy_attack_loop(enemy_id, cooldown) {
     let count = 0;
+    update_enemy_attack_bar(enemy_id, count);
 
     enemy_attack_loops[enemy_id] = setInterval(() => {
         update_enemy_attack_bar(enemy_id, count);
         count++;
-        if(count == 40) {
+        if(count >= 40) {
             count = 0;
             do_enemy_combat_action(enemy_id);
         }
@@ -602,37 +661,61 @@ function clear_enemy_attack_loop(enemy_id) {
  * @param {Number} base_cooldown basic cooldown based on attack speeds of enemies and character (ignoring stamina penalty) 
  * @param {String} attack_type type of attack, not yet implemented
  */
-function set_character_attack_loop({base_cooldown, attack_type = "normal", stance = "normal"}) {
+function set_character_attack_loop({base_cooldown, attack_type = "normal"}) {
     clear_character_attack_loop();
 
-    let stamina_cost = 1; 
-    //TODO: set it depending on stance
+    //tries to switch stance back to the one that was actually selected, otherwise tries to switch stance to "normal" if not enough stamina
+    if(character.stats.full.stamina >= stances[current_stance].stamina_cost / character.stats.full.stamina_efficiency){ 
+        if(selected_stance !== current_stance) {
+            change_stance(selected_stance);
+        }
+    } else if(current_stance !== "normal") {
+        change_stance("normal", true);
+    }
+    let target_count;
+    if(stances[current_stance].randomize_target_count) {
+        target_count = Math.floor(Math.random()*stances[current_stance].target_count) || 1;
+    } else {
+        target_count = stances[current_stance].target_count;
+    }
 
-    use_stamina(stamina_cost);
+    let targets=[];
+    const alive_enemies = current_enemies.filter(enemy => enemy.is_alive).slice(-target_count);
+    while(alive_enemies.length>0) {
+        targets.push(alive_enemies.pop());
+    }
+
+    use_stamina(stances[current_stance].stamina_cost);
     let actual_cooldown = base_cooldown / character.get_stamina_multiplier();
 
     let attack_power = character.get_attack_power();
-    do_character_attack_loop(base_cooldown, actual_cooldown, attack_power, attack_type);
+    do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, attack_type, targets});
 }
 
 /**
  * @description updates character's attack bar, performs combat action when it reaches full
- * @param {*} base_cooldown 
- * @param {*} actual_cooldown 
- * @param {*} attack_power 
- * @param {*} attack_type 
+ * @param {Number} base_cooldown 
+ * @param {Number} actual_cooldown 
+ * @param {String} attack_power 
+ * @param {String} attack_type 
  */
-function do_character_attack_loop(base_cooldown, actual_cooldown, attack_power, attack_type, stance) {
+function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, attack_type, targets}) {
     let count = 0;
     character_attack_loop = setInterval(() => {
         
         update_character_attack_bar(count);
         count++;
-        if(count == 40) {
-            count = 0;
-            let done = do_character_combat_action({attack_power, attack_type, stance});
-            if(!done) { //set next loop if there's still an enemy left
-                set_character_attack_loop({base_cooldown, attack_type, stance});
+        let set_again = false;
+        if(count >= 40) {
+            for(let i = 0; i < targets.length; i++) {
+                count = 0;
+                let done = do_character_combat_action({target: targets[i], attack_power, attack_type});
+                if(!done) {
+                    set_again = true;
+                }
+            }
+            if(set_again) { //set next loop if there's still an enemy left
+                set_character_attack_loop({base_cooldown, attack_type});
             }
         }
     }, actual_cooldown*1000/(40*tickrate));
@@ -695,11 +778,11 @@ function do_enemy_combat_action(enemy_id) {
     if(character.equipment["off-hand"]?.offhand_type === "shield") { //HAS SHIELD
         if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
             add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value});
-            if(character.equipment["off-hand"].getShieldStrength() >= damage_dealt) {
+            if(character.stats.total_multiplier.block_strength * character.equipment["off-hand"].getShieldStrength() >= damage_dealt) {
                 log_message(character.name + " blocked an attack", "hero_blocked");
                 return; //damage fully blocked, nothing more can happen 
             } else {
-                damage_dealt -= character.equipment["off-hand"].getShieldStrength();
+                damage_dealt -= character.stats.total_multiplier.block_strength * character.equipment["off-hand"].getShieldStrength();
                 partially_blocked = true;
             }
          }
@@ -767,7 +850,7 @@ function do_enemy_combat_action(enemy_id) {
     update_displayed_health();
 }
 
-function do_character_combat_action({attack_power, attack_type = "normal", stance = "normal"}) {
+function do_character_combat_action({target, attack_power, attack_type = "normal"}) {
     
     //todo: attack types with different stamina costs
     //TODO: when multi-target attacks are added, calculate this iterating over enemies that can be hit
@@ -777,8 +860,6 @@ function do_character_combat_action({attack_power, attack_type = "normal", stanc
     let damage_dealt;
     
     let critted = false;
-
-    const target = current_enemies.filter(enemy => enemy.is_alive).slice(-1).pop(); //get bottom-most of alive enemies
     
     let hit_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/4); // down to ~ 60% if there's full 8 enemies
     
@@ -790,7 +871,6 @@ function do_character_combat_action({attack_power, attack_type = "normal", stanc
         add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: target.xp_value});
     }
 
-    
     const hit_chance = get_hit_chance(character.combat_stats.attack_points, target.stats.agility * Math.sqrt(target.stats.intuition ?? 1)) * hit_chance_modifier;
 
     if(hit_chance > Math.random()) {//hero's attack hits
@@ -832,7 +912,7 @@ function do_character_combat_action({attack_power, attack_type = "normal", stanc
 
             log_message(target.name + " was defeated", "enemy_defeated");
 
-            //gained xp multiplied by square root of TOTAL size of enemy group
+            //gained xp multiplied ny TOTAL size of enemy group raised to 1/3
             let xp_reward = target.xp_value * (current_enemies.length**0.3334);
             add_xp_to_character(xp_reward, true);
             
@@ -885,7 +965,7 @@ function kill_enemy(target) {
 }
 
 function use_stamina(num = 1, use_efficiency = true) {
-    character.stats.full.stamina -= num/(1 || use_efficiency * character.stats.full.stamina_efficiency);
+    character.stats.full.stamina -= num/(use_efficiency * character.stats.full.stamina_efficiency || 1);
 
     if(character.stats.full.stamina < 0)  {
         character.stats.full.stamina = 0;
@@ -950,7 +1030,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
             if(typeof should_info === "undefined" || should_info)
             {
                 log_message(message, "skill_raised");
-                character.update_stats();
+                update_character_stats();
             }
 
             if(typeof skill.get_effect_description !== "undefined")
@@ -964,6 +1044,9 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
             else {
                 update_displayed_skill_xp_gain(skill);
             }
+
+            //no point doing any checks for optimization
+            update_displayed_stamina_efficiency();
         }
     } else {
         update_displayed_skill_bar(skill, false);
@@ -989,7 +1072,7 @@ function add_xp_to_character(xp_to_add, should_info = true, use_bonus) {
         }
         
         character.stats.full.health = character.stats.full.max_health; //free healing on level up, because it's a nice thing to have
-        character.update_stats();
+        update_character_stats();
     }
 
     update_displayed_character_xp(level_up);
@@ -1067,13 +1150,6 @@ function unlock_location(location) {
 
 function clear_enemies() {
     current_enemies = null;
-}
-
-/**
- * TODO
- */
-function dismantle_item() {
-    //TODO
 }
 
 function character_equip_item(item_info) {
@@ -1235,6 +1311,10 @@ function create_save() {
 
         save_data["options"] = options;
 
+        save_data["current_stance"] = current_stance;
+        save_data["selected_stance"] = selected_stance;
+        save_data["faved_stances"] = faved_stances;
+
         save_data["message_filters"] = {
             unlocks: document.documentElement.style.getPropertyValue('--message_unlocks_display') !== "none",
             events: document.documentElement.style.getPropertyValue('--message_events_display') !== "none",
@@ -1285,6 +1365,21 @@ function load(save_data) {
 
         last_location_with_bed = save_data.last_location_with_bed;
         last_combat_location = save_data.last_combat_location;
+
+        update_displayed_stance_list();
+        if(save_data.current_stance) {
+            current_stance = save_data.current_stance;
+            selected_stance = save_data.selected_stance;
+            change_stance(selected_stance);
+        }
+        
+        if(save_data.faved_stances) {
+            Object.keys(save_data.faved_stances).forEach(stance_id=> {
+                if(stances[stance_id] && stances[stance_id].is_unlocked) {
+                    fav_stance(stance_id);
+                }
+            });
+        }
 
         options.uniform_text_size_in_action = save_data.options?.uniform_text_size_in_action;
         option_uniform_textsize(options.uniform_text_size_in_action);
@@ -1475,8 +1570,6 @@ function load(save_data) {
 
         add_to_character_inventory(item_list); // and then to inventory
 
-        
-
         Object.keys(save_data.dialogues).forEach(function(dialogue) {
             if(dialogues[dialogue]) {
                 dialogues[dialogue].is_unlocked = save_data.dialogues[dialogue].is_unlocked;
@@ -1646,8 +1739,6 @@ function load(save_data) {
                 }
             });
         }
-
-        update_displayed_character_inventory();
         
         if(save_data.character.hp_to_full == null || save_data.character.hp_to_full >= character.stats.full.max_health) {
             character.stats.full.health = 1;
@@ -1670,7 +1761,8 @@ function load(save_data) {
             });
         }
         
-        character.update_stats();
+        update_character_stats();
+        update_displayed_character_inventory();
 
         update_displayed_health();
         //load current health
@@ -1791,6 +1883,10 @@ function update() {
                     do_reading();
                 }
             } 
+
+            if(selected_stance !== current_stance) {
+                change_stance(selected_stance);
+            }
 
             if(current_activity) { //in activity
 
@@ -1973,6 +2069,9 @@ window.update_displayed_trader_inventory = update_displayed_trader_inventory;
 
 window.sort_displayed_skills = sort_displayed_skills;
 
+window.change_stance = change_stance;
+window.fav_stance = fav_stance;
+
 window.option_uniform_textsize = option_uniform_textsize;
 window.option_bed_return = option_bed_return;
 window.option_remember_filters = option_remember_filters;
@@ -1985,9 +2084,9 @@ window.get_game_version = get_game_version;
 if("save data" in localStorage) {
     load_from_localstorage();
     update_combat_stats();
+    update_displayed_xp_bonuses();
 }
 else {
-    
     add_to_character_inventory([{item: getItem({...item_templates["Cheap iron sword"], quality: 0.4})}, 
                                 {item: getItem({...item_templates["Cheap leather pants"], quality: 0.4})},
                                 {item: getItem(item_templates["Stale bread"]), count: 5},
@@ -1999,11 +2098,14 @@ else {
     add_xp_to_character(0);
     character.money = 102;
     update_displayed_money();
-    character.update_stats();
+    update_character_stats();
+
+    update_displayed_stance_list();
+    change_stance("normal");
 }
 //checks if there's an existing save file, otherwise just sets up some initial equipment
+
 update_displayed_equipment();
-update_displayed_xp_bonuses();
 run();
 
 if(window.location.href.endsWith("-dev/")) {
@@ -2011,4 +2113,11 @@ if(window.location.href.endsWith("-dev/")) {
 }
 
 
-export { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, add_xp_to_skill, get_current_book, last_location_with_bed, last_combat_location };
+export { current_enemies, can_work, 
+        current_location, active_effects, 
+        enough_time_for_earnings, add_xp_to_skill, 
+        get_current_book, 
+        last_location_with_bed, 
+        last_combat_location, 
+        current_stance, selected_stance,
+        faved_stances };

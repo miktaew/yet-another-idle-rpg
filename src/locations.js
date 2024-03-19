@@ -445,7 +445,7 @@ class LocationType{
 (function(){ 
     locations["Village"] = new Location({ 
         connected_locations: [], 
-        description: "Medium-sized village surrounded by many fields, some of them infested by rats. Other than that, there's nothing interesting around.", 
+        description: "Medium-sized village built near a small river. It's surrounded by many fields, some of them infested by huge rats. Other than that, there's nothing interesting around", 
         dialogues: ["village elder", "village guard"],
         traders: ["village trader"],
         name: "Village", 

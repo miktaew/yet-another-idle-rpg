@@ -45,6 +45,12 @@
 	--location__desc_tooltip_top: 0px;
 	--location_desc_tooltip_left: 0px;
 
+	--stance_tooltip_top: 0px;
+	--stance_tooltip_left: 0px;
+
+	--bestiary_entry_tooltip_top: 0px;
+	--bestiary_entry_tooltip_left: 0px;
+
 	/* for #location_related_div */
 	--actions_div_height_default: 400px;
 	--actions_div_height_combat: 100px;
@@ -52,9 +58,6 @@
 	--actions_div_top_default: 340px;
 	--actions_div_top_combat: 640px;
 	--actions_div_top: var(--actions_div_top_default);
-
-	--bestiary_entry_tooltip_top: 0px;
-	--bestiary_entry_tooltip_left: 0px;
 
 	--options_action_textsize: 16px;
 }
@@ -386,6 +389,31 @@ body {
 			display: block;
 		}
 
+#skill_list_div {
+	display: block;
+}
+
+#magic_list_div {
+	display: none;
+}
+
+#stance_list_div {
+	display: none;
+}
+
+.skill_stance_control_button {
+	float:left;
+	padding: 3px;
+	padding-left: 5px;
+	padding-right: 5px;
+	min-width: 121.3px;
+	text-align: center;
+	outline: 1px solid white;
+	cursor: pointer;
+	margin: 1px;
+	font-size: 20px;
+}
+
 .item_slot {
 	color: rgb(149, 255, 190);
 }
@@ -642,7 +670,7 @@ body {
 	background-color: #2c3953;
 }
 
-.game_info a{
+.game_info a, .game_info span {
 	width: fit-content;
 	padding: 10px 10px;
 	height: 20px;
@@ -652,7 +680,11 @@ body {
 	text-align: center;
 	display: inline-block;
 	text-decoration: none;
+}
 
+.game_info a:hover, .game_info span:hover {
+	background-image: none;
+	background-color: #2c3953;
 }
 
 i {
@@ -772,11 +804,11 @@ i {
 
 .skill_sorting_button {
 	float:left;
-	top: 100px;
-	width: 200px;
+	width: 198px;
 	text-align: center;
 	outline: 1px solid white;
 	cursor: pointer;
+	margin: 1px;
 	font-size: 16px;
 }
 
@@ -1143,10 +1175,28 @@ i {
 		width: 400px;
 		top: 177px;
 	}
-		#character_attack_name {
-			padding: 5px;
+		#character_stance_name {
+			padding: 3px;
+			margin-top: 2px;
+			margin-bottom: 2px;
+			width: 244px;
+			border: 1px solid gray;
 			text-align: center;
 		}
+			#character_stance_selection {
+				display: none;
+				position: absolute;
+				width: fit-content;
+				height: fit-content;
+				outline: 2px solid gray;
+				top: 45px;
+				background-color:#232f47;
+				text-align: left;
+			}
+			#character_stance_name:hover #character_stance_selection, #character_stance_selection:hover {
+				display: block;
+			}
+
 		#character_attack_bar {
 			background-color: rgb(156, 0, 156);
 			height: 20px;
@@ -1204,12 +1254,13 @@ i {
 	height: 277px;
 }
 
-	#data_header, #bestiary_header, #quests_header, #skill_list_header {
+	#quests_header {
 		width: 100%;
 		text-align: center;
 		padding-top: 5px;
 		margin-bottom: 5px;
 	}
+
 	#journal_control_div {
 		font-size: 20px;
 		position: absolute;
@@ -1290,9 +1341,13 @@ i {
 	width: 400px;
 	height: 400px;
 }
+
+#skill_list_div, #stance_list_div, #magic_list_div {
+	height: 369px;
+}
 		#skill_list {
 			overflow-y: scroll;
-			height: 350px;
+			height: 346px;
 			padding-bottom:3px;
 		}
 
@@ -1300,7 +1355,58 @@ i {
 	padding-bottom: 10px;
 	padding-top: 5px;
 	color: white;
-	font-size: 16px;;
+	font-size: 16px;
+}
+
+#stance_list {
+	font-size: 20px;
+	width: 100%;
+}
+
+.stance_tooltip {
+	display: none;
+	z-index: 1000;
+	width: 300px;
+	font-size: 16px;
+	position: absolute;
+	pointer-events: none;
+	background-color: rgba(92, 92, 92, 0.9);
+	border-radius: 10px;
+	padding: 5px;
+	top: var(--stance_tooltip_top);
+	left: var(--stance_tooltip_left);
+	text-align: left;
+}
+.stance_list_entry:hover .stance_tooltip {
+	display: block;
+}
+.stance_tooltip:hover {
+	display: none;
+}
+
+.stances_button {
+	text-align: center;
+	border-right: 1px solid gray;
+	border-bottom: 2px dotted gray;
+}
+
+.stance_list_fav {
+	width: 50px;
+	border-right: 1px solid gray;
+	border-bottom: 2px dotted gray;
+}
+
+.stance_list_select {
+	width: 75px;
+	border-right: 1px solid gray;
+	border-bottom: 2px dotted gray;
+}
+
+.stances_name {
+	width: 300px;
+	padding-left: 10px;
+	text-align: left;
+	border-bottom: 2px dotted gray;
 }
 
 #location_actions_div {

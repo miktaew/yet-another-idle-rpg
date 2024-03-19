@@ -506,6 +506,59 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                     }});                                
 })();
 
+//combat stances
+(function(){
+    skills["Quick steps"] = new Skill({skill_id: "Quick steps", 
+                                names: {0: "Quick steps"}, 
+                                description: "A swift and precise technique that abandons strength in favor of greater speed", 
+                                max_level_coefficient: 2,
+                                base_xp_cost: 60,
+                                get_effect_description: ()=> {
+                                    return `Improves efficiency of the 'Quick Steps' stance`;
+                                }});
+    skills["Heavy strike"] = new Skill({skill_id: "Heavy strike", 
+                                names: {0: "Crushing force"}, 
+                                description: "A powerful and dangerous technique that abandons speed in favor of overwhelmingly strong attacks", 
+                                max_level_coefficient: 2,
+                                base_xp_cost: 60,
+                                get_effect_description: ()=> {
+                                    return `Improves efficiency of the 'Heavy Strike' stance`;
+                                }});
+    skills["Wide swing"] = new Skill({skill_id: "Wide swing", 
+                                names: {0: "Broad arc"}, 
+                                description: "A special technique that allows striking multiple enemies at once, although at a cost of lower damage", 
+                                max_level_coefficient: 2,
+                                base_xp_cost: 60,
+                                get_effect_description: ()=> {
+                                    return `Improves efficiency of the 'Wide Strike' stance`;
+                                }});
+    skills["Defensive measures"] = new Skill({skill_id: "Defensive measures", 
+                                names: {0: "Defensive measures"}, 
+                                description: "A careful technique focused much more on defense than on attacking", 
+                                max_level_coefficient: 2,
+                                base_xp_cost: 60,
+                                get_effect_description: ()=> {
+                                    return `Improves efficiency of the 'Defensive Measures' stance`;
+                                }});
+    skills["Berserker's stride"] = new Skill({skill_id: "Berserker's stride", 
+                                names: {0: "Berserker's stride"}, 
+                                description: "A wild and dangerous technique that focuses on dealing as much damage as possible, while completely ignoring own defense", 
+                                max_level_coefficient: 2,
+                                base_xp_cost: 60,
+                                get_effect_description: ()=> {
+                                    return `Improves efficiency of the 'Berserker's Stride' stance`;
+                                }});                  
+    skills["Flowing water"] = new Skill({skill_id: "Flowing water", 
+                                names: {0: "Flowing water"}, 
+                                description: "A wild and dangerous technique that focuses on dealing as much damage as possible, while completely ignoring own defense", 
+                                max_level_coefficient: 2,
+                                base_xp_cost: 60,
+                                get_effect_description: ()=> {
+                                    return `Improves efficiency of the 'Flowing Water' stance`;
+                                }});         
+                                
+})();
+
 //environment related skills
 (function(){
     skills["Spatial awareness"] = new Skill({
@@ -1046,7 +1099,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                                 agility: 1,
                                             },
                                             multipliers: {
-                                                stamina_efficiency: 1.05,
+                                                max_stamina: 1.05,
                                             }
                                             
                                         },
@@ -1064,7 +1117,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                             },
                                             multipliers: {
                                                 agility: 1.05,
-                                                stamina_efficiency: 1.05,
+                                                max_stamina: 1.05,
                                             }
                                         }
                                     }
@@ -1078,7 +1131,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                     } else {
                                         value = Math.round(value*100)/100;
                                     }
-                                    return `Multiplies max stamina by ${value}`;
+                                    return `Multiplies stamina efficiency by ${value}`;
                                   },
                                   
                                 });

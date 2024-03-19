@@ -240,7 +240,7 @@ class Equippable extends Item {
     }
 
     getValue() {
-        return Mround_item_price(this.value * this.quality);
+        return round_item_price(this.value * this.quality);
     } 
 
     getRarity(){
@@ -326,7 +326,7 @@ class Shield extends Equippable {
     }
 
     getShieldStrength() {
-        return Math.round(10 * (1 + 5*skills["Shield blocking"].get_level_bonus()) * Math.ceil(item_templates[this.components.shield_base].shield_strength * this.quality * rarity_multipliers[this.getRarity()]))/10;
+        return Math.round(10 * Math.ceil(item_templates[this.components.shield_base].shield_strength * this.quality * rarity_multipliers[this.getRarity()]))/10;
     }
 
     getName() {
@@ -456,7 +456,6 @@ class Weapon extends Equippable {
 
     getAttack(){
         if(!this.attack_power) {
-
             this.attack_power = Math.ceil(
                 (item_templates[this.components.head].attack_value + item_templates[this.components.handle].attack_value)
                 * item_templates[this.components.head].attack_multiplier * item_templates[this.components.handle].attack_multiplier

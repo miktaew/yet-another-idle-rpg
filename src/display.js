@@ -4,7 +4,7 @@ import { traders } from "./traders.js";
 import { current_trader, to_buy, to_sell } from "./trade.js";
 import { skills, get_unlocked_skill_rewards, get_next_skill_milestone } from "./skills.js";
 import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain } from "./character.js";
-import { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, get_current_book, last_location_with_bed, last_combat_location } from "./main.js";
+import { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, get_current_book, last_location_with_bed, last_combat_location, faved_stances, current_stance, selected_stance } from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time } from "./game_time.js";
@@ -12,6 +12,7 @@ import { book_stats, item_templates } from "./items.js";
 import { location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
 import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price } from "./misc.js"
+import { stances } from "./combat_stances.js";
 
 var activity_anim; //for the activity animation interval
 
@@ -57,12 +58,16 @@ const time_field = document.getElementById("time_div");
 const skill_bar_divs = {};
 const skill_list = document.getElementById("skill_list");
 
+const stance_bar_divs = {};
+const stance_list = document.getElementById("stance_list");
+
 const bestiary_entry_divs = {};
 const bestiary_list = document.getElementById("bestiary_list");
 
 const data_entry_divs = {
                             character: document.getElementById("character_xp_multiplier"),
-                            skills: document.getElementById("skills_xp_multiplier") 
+                            skills: document.getElementById("skills_xp_multiplier"),
+                            stamina: document.getElementById("stamina_efficiency_multiplier")
                         };
 const data_list = document.getElementById("data_list");
 
@@ -148,7 +153,7 @@ function create_item_tooltip(item, options) {
         //if a shield
         if(item.offhand_type === "shield") {
             item_tooltip.innerHTML += 
-            `<br><br><b>[shield]</b><br><br>Can block up to ${item.getShieldStrength()} damage`;
+            `<br><br><b>[shield]</b><br><br>Can block up to ${Math.round(10*item.getShieldStrength()*(character.stats.total_multiplier.block_strength))/10} damage [base: ${item.getShieldStrength()}]`;
         }
         else if(item.equip_slot === "weapon") {
             item_tooltip.innerHTML += `<br><br>Type: <b>${item.weapon_type}</b>`;
@@ -1657,6 +1662,10 @@ function update_displayed_xp_bonuses() {
     data_entry_divs.skills.innerHTML = `<span class="data_entry_name">Base skill xp gain:</span><span class="data_entry_value">x${Math.round(100*get_skills_overall_xp_gain())/100}</span>`;
 }
 
+function update_displayed_stamina_efficiency() {
+    data_entry_divs.stamina.innerHTML = `<span class="data_entry_name">Stamina efficiency:</span><span class="data_entry_value">${Math.round(10*character.stats.full.stamina_efficiency)/10 || 1}</span>`;
+}
+
 function update_displayed_dialogue(dialogue_key) {
     const dialogue = dialogues[dialogue_key];
     
@@ -1990,6 +1999,147 @@ function sort_displayed_skills({sort_by="name", change_direction=false}) {
 }
 
 /**
+ * @description updates the list of stances, 
+ */
+function update_displayed_stance_list() {
+    while(stance_list.firstChild) {
+        stance_list.removeChild(stance_list.lastChild);
+    }
+    Object.keys(stance_bar_divs).forEach(bar => {
+        delete stance_bar_divs[bar];
+    })
+
+    stance_list.innerHTML = 
+    `<tr class="stance_list_entry stance_list_header">
+        <th class="stance_list_fav stance_list_header">Fav</th>
+        <th class="stance_list_select stance_list_header">Select</th>
+        <th class="stances_name stance_list_header">Name</th>
+    </tr>`
+
+    Object.keys(stances).forEach(stance => {
+        if(stances[stance].is_unlocked) {
+            stance_bar_divs[stance] = document.createElement("tr");
+            stance_bar_divs[stance].classList.add("stance_list_entry");
+            stance_bar_divs[stance].dataset.stance = stance;
+
+            const fav_selection = `<td class="stances_button stances_button_checkbox"><input type="checkbox" id="stances_fav_${stance}" name="stance_fav_selection" onclick="fav_stance('${stance}')"></td>`;
+            const stance_selection = `<td class="stances_button stances_button_radio"><input type="radio" id="stances_select_${stance}" name="stance_list_selection" onclick="select_stance('${stance}')"></td>`;
+            const stance_info = 
+                `<td class="stances_name"><label for="stances_select_${stance}">${stances[stance].name}</td>`
+
+            stance_bar_divs[stance].innerHTML = fav_selection;
+            stance_bar_divs[stance].innerHTML += stance_selection;
+            stance_bar_divs[stance].innerHTML += stance_info
+
+            stance_bar_divs[stance].appendChild(create_stance_tooltip(stance));
+
+            //TODO: add tooltips with stats!
+
+            stance_list.append(stance_bar_divs[stance]);
+        }
+    });
+
+    //different stamina cost: cheaper first; same stamina cost: sort alphabetically
+    [...stance_list.children].sort((a,b)=>{
+        const stance_a = stances[a.getAttribute("data-stance")];
+        const stance_b = stances[b.getAttribute("data-stance")];
+        if(!stance_b) {
+            return 1;
+        } else if(!stance_a) {
+            return -1;
+        }
+
+        if(!stance_a || !stance_b || !stance_a.is_unlocked || !stance_b.is_unlocked) {
+            console.error(`No such stance as either '${stance_a}' or '${stance_b}', or at least one of them is not yet unlocked!`);
+        }
+        
+        if(stance_a.stamina_cost < stance_b.stamina_cost) {
+            return -1;
+        } else if(stance_a.stamina_cost > stance_b.stamina_cost) {
+            return 1;
+        } else {
+            if(stance_a.name > stance_b.name) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+    }).forEach(node=>stance_list.appendChild(node));
+
+
+    update_displayed_stance();
+    update_displayed_faved_stances();
+}
+
+function create_stance_tooltip(stance_id) {
+    const tooltip_div = document.createElement("div");
+    tooltip_div.classList.add("stance_tooltip");
+    tooltip_div.innerHTML = 
+    `<div>${stances[stance_id].name}</div><br>
+    <div>${stances[stance_id].getDescription()}</div><br>
+    <div>Stamina cost: ${stances[stance_id].stamina_cost}</div>`;
+    if(stances[stance_id].target_count > 1) {
+        tooltip_div.innerHTML += `
+        <div>${stances[stance_id].randomize_target_count?"Randomly hits up to":"Hits up to"} ${stances[stance_id].target_count} enemies</div>`;
+    }
+
+    return tooltip_div;
+}
+
+function update_displayed_stance() {
+    stance_bar_divs[selected_stance].children[1].children[0].checked = true;
+    document.getElementById("character_stance_name").children[0].innerHTML = stances[selected_stance].name;
+
+    const selection = document.getElementById("character_stance_selection");
+    if(selection.children && selection.querySelector(`[data-stance='${selected_stance}']`)) {
+        selection.querySelector(`[data-stance='${selected_stance}']`).children[0].checked = true;
+    }
+}
+
+function update_displayed_faved_stances() {
+    
+    const list = document.getElementById("character_stance_selection");
+    list.innerHTML = "";
+    Object.keys(faved_stances).forEach(stance => {
+        stance_bar_divs[stance].children[0].children[0].checked = true;
+
+        const node = 
+        `<div data-stance="${stance}"><input type="radio" id="stances_quick_select_${stance}" name="stance_quick_selection" onclick="select_stance('${stance}')">
+         <label for="stances_quick_select_${stance}">${stances[stance].name}</div>`;
+        list.innerHTML += node;
+    });
+
+
+    //different stamina cost: cheaper first; same stamina cost: sort alphabetically
+    [...list.children].sort((a,b)=>{
+        const stance_a = stances[a.getAttribute("data-stance")];
+        const stance_b = stances[b.getAttribute("data-stance")];
+
+        if(!stance_a || !stance_b || !stance_a.is_unlocked || !stance_b.is_unlocked) {
+            console.error(`No such stance as either '${stance_a}' or '${stance_b}', or at least one of them is not yet unlocked!`);
+        }
+        
+        if(stance_a.stamina_cost < stance_b.stamina_cost) {
+            return -1;
+        } else if(stance_a.stamina_cost > stance_b.stamina_cost) {
+            return 1;
+        } else {
+            if(stance_a.name > stance_b.name) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+    }).forEach(node=>list.appendChild(node));
+
+    //mark selected stance as checked in quick selection
+    const selection = document.getElementById("character_stance_selection");
+    if(selection.children && selection.querySelector(`[data-stance='${selected_stance}']`)) {
+        selection.querySelector(`[data-stance='${selected_stance}']`).children[0].checked = true;
+    };
+}
+
+/**
  * creates a new bestiary entry;
  * called when a new enemy is killed (or, you know, loading a save)
  * @param {String} enemy_name 
@@ -2223,11 +2373,11 @@ function clear_skill_list(){
 }
 
 function update_enemy_attack_bar(enemy_id, num) {
-    enemies_div.children[enemy_id].querySelector(".enemy_attack_bar").style.width = `${num*2.5}%`;
+    enemies_div.children[enemy_id].querySelector(".enemy_attack_bar").style.width = `${Math.min(num*2.6,100)}%`;
 }
 
 function update_character_attack_bar(num) {
-    character_attack_bar.style.width = `${num*2.5}%`;
+    character_attack_bar.style.width = `${Math.min(num*2.6,100)}%`;
 }
 
 export {
@@ -2277,5 +2427,9 @@ export {
     clear_bestiary,
     start_reading_display,
     sort_displayed_skills,
-    update_displayed_xp_bonuses
+    update_displayed_xp_bonuses,
+    update_displayed_stance_list,
+    update_displayed_stamina_efficiency,
+    update_displayed_stance,
+    update_displayed_faved_stances
 }

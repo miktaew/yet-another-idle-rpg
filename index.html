@@ -77,11 +77,11 @@
                     <div id = "money_div">  </div>
                     <div id = "inventory_content_div"> </div>
 
-                    <div id = "inventory_sorting_div">
+                    <div id = "inventory_sorting_div" class="activable_buttons">
                         <div id = "inventory_sort_by_name" class = "character_sorting_button active_selection_button" onclick='sortCharacterInventory("name")'> Sort by name </div>
                         <div id = "inventory_sort_by_price" class = "character_sorting_button" onclick='sortCharacterInventory("price")'> Sort by value </div>
                     </div>
-                    <div id = "inventory_control_div">
+                    <div id = "inventory_control_div" class="activable_buttons">
                         <div id = "inventory_show_all" class = "inventory_control_button active_selection_button" onclick = "showAllItems()"> All </div>
                         <div id = "inventory_show_equipment" class = "inventory_control_button" onclick = "showOnlyEquipment()"> Equipment </div>
                         <div id = "inventory_show_consumable" class = "inventory_control_button" onclick = "showOnlyConsumables()"> Usable </div>
@@ -137,8 +137,11 @@
                     </div>
                 
                 
-                    <div id = "character_attack_name">
-                        normal stance
+                    <div id = "character_stance_name">
+                        <span>Normal stance</span>
+                        <div id = "character_stance_selection">
+                        
+                        </div>
                     </div>
                     <div id = "character_attack_bar">
 
@@ -522,7 +525,7 @@
                     </div>
 
                     <div id = "trade_div">
-                        <div id = "trader_sorting_buttons"> 
+                        <div id = "trader_sorting_buttons" class="activable_buttons"> 
                             <div id = "trader_sort_by_name" class = "trader_sorting_button active_selection_button" onclick='sortTraderInventory("name")'>
                                 Sort by name
                             </div>
@@ -530,7 +533,7 @@
                                 Sort by value
                             </div>
                         </div>
-                        <div id = "trader_category_buttons">
+                        <div id = "trader_category_buttons" class="activable_buttons">
                             <div id = "trader_category_all" class = "trader_category_button active_selection_button" onclick='showAllTraderItems()'>
                                 all
                             </div>
@@ -695,7 +698,7 @@
 
                     </div>
 
-                    <div id = "character_control_div">
+                    <div id = "character_control_div" class="activable_buttons">
                         <div id = "character_show_stats" class = "character_control_button active_selection_button" onclick = "showCharacterStats()"> Stats </div>
                         <div id = "character_show_equipment" class = "character_control_button" onclick = "showCharacterEquipment()"> Equipment </div>
                         <div id = "character_show_tools" class = "character_control_button" onclick = "showCharacterTools()"> Tools </div>
@@ -704,13 +707,9 @@
 
                 <div id="skills_and_stances_div" class="box_div">
                     <div id = "skill_list_div">
-                            <div id = "skill_list_header">
-                                = Skills =
-                            </div>
                             <div id = "skill_list">
-
                             </div>
-                            <div id = "skill_sorting_buttons"> 
+                            <div id = "skill_sorting_buttons" class="activable_buttons"> 
                                 <div id = "skill_sort_by_name" class = "skill_sorting_button active_selection_button" onclick='sortSkills({sort_by:"name"})'>
                                     Sort by name
                                 </div>
@@ -720,10 +719,23 @@
                             </div>
                     </div>
                     <div id = "stance_list_div">
-
+                        <table id = "stance_list">
+                        </table>
                     </div>
-                    <div id = "skill_and_stance_control_div">
-
+                    <div id = "magic_list_div">
+                        <div id = "magic_list">
+                        </div>
+                    </div>
+                    <div id = "skill_and_stance_control_div" class="activable_buttons">
+                        <div id="show_skills" class="skill_stance_control_button active_selection_button" onclick="showSkills()">
+                            Skills
+                        </div>
+                        <div id="show_stances" class="skill_stance_control_button" onclick="showStances()">
+                            Stances
+                        </div>
+                        <div id="show_magic" class="skill_stance_control_button" onclick="showMagic()">
+                            Magic
+                        </div>
                     </div>
                 </div>
 
@@ -737,27 +749,22 @@
                         </div>
                     </div>
                     <div id = "bestiary_box_div">
-                        <div id="bestiary_header">
-                            = Bestiary =
-                        </div>
                         <div id = "bestiary_list">
 
                         </div>
                         
                     </div>
                     <div id = "data_box_div">
-                        <div id="data_header">
-                            = Data =
-                        </div>
                         <div id = "data_list">
                             <div id = "data_xp">
                                 <div id = "character_xp_multiplier" class="data_entry"></div>
                                 <div id = "skills_xp_multiplier" class="data_entry"></div>
+                                <div id = "stamina_efficiency_multiplier" class="data_entry"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div id = "journal_control_div">
+                    <div id = "journal_control_div" class="activable_buttons">
                         <div id = "journal_show_quests" class = "journal_control_button" onclick = "showQuests()"> Quests </div>
                         <div id = "journal_show_bestiary" class = "journal_control_button active_selection_button" onclick = "showBestiary()"> Bestiary </div>
                         <div id = "journal_show_data" class = "journal_control_button" onclick = "showData()"> Data </div>
@@ -790,7 +797,7 @@
             </div>
         </div>
 
-        <div id = "page_selection">
+        <div id = "page_selection" class="activable_buttons">
             <div id = "area_page_button" class = "page_selection_button active_selection_button" onclick = "showAreaPage()">
                 Area / Combat
             </div>
@@ -805,9 +812,9 @@
             <label id = "load_from_file_button" class = "sl_button" for = "saved_file_input"> Import </label> 
             <input id = "saved_file_input" type='file' accept = 'text/plain' onchange = 'loadProgress(event)'>	
 
+            <div id = "options_button" class = "game_info" onclick="openOptions()"><span><i class="material-icons">settings</i></span></div>
             <div id = "changelog_button" class = "game_info"><a href="changelog.txt" target="_blank"></a></div>
             <div id = "help_button" class = "game_info"><a href="help.html" target="_blank"><i class="material-icons">help_outline</i></a></div>
-            <div id = "options_button" class = "game_info" onclick="openOptions()"><a><i class="material-icons">settings</i></a></div>
             
         </div>
 
@@ -970,6 +977,25 @@
                 document.getElementById("character_tools_div").style.display = "grid";
             }
 
+
+            function showSkills() {
+                document.getElementById("skill_list_div").style.display = "block";
+                document.getElementById("stance_list_div").style.display = "none";
+                document.getElementById("magic_list_div").style.display = "none";
+            }
+
+            function showStances() {
+                document.getElementById("skill_list_div").style.display = "none";
+                document.getElementById("stance_list_div").style.display = "block";
+                document.getElementById("magic_list_div").style.display = "none";
+            }
+
+            function showMagic() {
+                document.getElementById("skill_list_div").style.display = "none";
+                document.getElementById("stance_list_div").style.display = "none";
+                document.getElementById("magic_list_div").style.display = "block";
+            }
+
             var in_trade = false;
             var total_price;
             const trade_price_value = document.getElementById("trade_price_value");
@@ -1103,6 +1129,10 @@
                 }
             }
 
+            function select_stance(stance_id) {
+                change_stance(stance_id);
+            }
+
             function prepareGame() { //called on body loaded
                 document.getElementById("changelog_button").children[0].innerHTML = get_game_version();
 
@@ -1145,7 +1175,7 @@
                 function move_item_tooltip(event) {
                     var hovered_element = event.target;
                     
-                    if( !( hovered_element.classList.contains("inventory_item_control") 
+                    if(!(hovered_element.classList.contains("inventory_item_control") 
                         || hovered_element.classList.contains("trade_ammount_button")
                         || hovered_element.classList.contains("inventory_item") 
                         || hovered_element.classList.contains("item_controls") 
@@ -1296,7 +1326,6 @@
                 skills_div.addEventListener('mousemove', move_skill_tooltip, false);
                 function move_skill_tooltip(event) {
                     var hovered_element = event.target;
-
                     if(!hovered_element.classList.contains("skill_div")) {
                         if(hovered_element.classList.contains("skill_bar_max")) {
                             hovered_element = hovered_element.parentNode;
@@ -1307,7 +1336,7 @@
                         } else {
                             return;
                         }
-                    } 
+                    }
 
                     const tooltip_width = hovered_element.children[0].children[2].scrollWidth;
                     const tooltip_height = hovered_element.children[0].children[2].scrollHeight;
@@ -1330,9 +1359,54 @@
                     }
 
                     if(event.pageY > bottom_edge_position - 22) {
-                        document.documentElement.style.setProperty('--skill_tooltip_top', `${bottom_edge_position - 372}px`);
+                        document.documentElement.style.setProperty('--skill_tooltip_top', `${bottom_edge_position - 382}px`);
                     } else {
-                        document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 350}px`);
+                        document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 360}px`);
+                    }
+                }
+
+                //stance tooltips
+                const stances_tab = document.getElementById("stance_list");
+                stances_tab.addEventListener('mousemove', move_stance_tooltip, false);
+                function move_stance_tooltip(event) {
+                    let hovered_element = event.target;
+
+                    if(hovered_element.classList.contains("stance_list_header")) {
+                        return;
+                    }else if(!hovered_element.classList.contains("stance_list_entry")) {
+                        if(hovered_element.classList.contains("stances_button") || hovered_element.classList.contains("stances_name")) {
+                            hovered_element = hovered_element.parentNode;
+                        } else if(hovered_element.nodeName === "LABEL" || hovered_element.nodeName === "INPUT") {
+                            hovered_element = hovered_element.parentNode.parentNode;
+                        } else {
+                            return;
+                        }
+                    } 
+
+                    const tooltip_width = hovered_element.children[3].scrollWidth;
+                    const tooltip_height = hovered_element.children[3].scrollHeight;
+                    
+                    const body = document.getElementsByTagName("body")[0];
+                    const scrollbar_Y_visible = (body.scrollHeight - body.clientHeight) > 0;
+                    const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
+
+                    const right_edge_position = 
+                        window.innerWidth - tooltip_width -  23 + window.scrollX - (scrollbar_Y_visible?10:0);
+                    const bottom_edge_position = 
+                        window.innerHeight - tooltip_height + window.scrollY - 33 - (scrollbar_X_visible?10:0);
+                    
+                    //size of window - size of tooltip + scrolling position - 23 (not sure where it comes from) - 10 (for scrollbar if its visible)
+
+                    if(event.pageX > right_edge_position) {
+                        document.documentElement.style.setProperty('--stance_tooltip_left', `${right_edge_position - 400}px`);
+                    } else {
+                        document.documentElement.style.setProperty('--stance_tooltip_left', `${event.pageX - 400}px`);
+                    }
+
+                    if(event.pageY > bottom_edge_position - 22) {
+                        document.documentElement.style.setProperty('--stance_tooltip_top', `${bottom_edge_position - 382}px`);
+                    } else {
+                        document.documentElement.style.setProperty('--stance_tooltip_top', `${event.pageY - 360}px`);
                     }
                 }
 
@@ -1516,18 +1590,10 @@
 
                 //set colors for active selection buttons
                 //for stuff where only 1 can be active
-                document.getElementById("inventory_control_div").addEventListener("click", set_active_button);
-                document.getElementById("character_control_div").addEventListener("click", set_active_button);
-                document.getElementById("trader_sort_by_name").addEventListener("click", set_active_button);
-                document.getElementById("trader_sort_by_price").addEventListener("click", set_active_button);
-                document.getElementById("inventory_sorting_div").addEventListener("click", set_active_button);
-                document.getElementById("trader_category_buttons").addEventListener("click", set_active_button);
-                document.getElementById("page_selection").addEventListener("click", set_active_button);
-                document.getElementById("journal_control_div").addEventListener("click", set_active_button);
-                document.getElementById("skill_sorting_buttons").addEventListener("click", set_active_button);
+                Array.from(document.getElementsByClassName("activable_buttons")).forEach(element => element.addEventListener("click", set_active_button));
                 function set_active_button(event) {
                     //based on assumption none of them has child elements
-                    //alternatively just give all control buttons some attribute that could be then checked for
+                    //alternatively just give all control buttons some attribute that could be then checked for?
                     var clicked_element = event.target;
                     if(clicked_element.children.length == 0) {
                         for(let i = 0; i < clicked_element.parentNode.children.length; i++) {
@@ -1550,6 +1616,16 @@
                         }
                     }
                 }
+
+                document.getElementById("stance_list").addEventListener("click", event => {
+                    if(event.target.classList.contains("stances_button_radio")) {
+                        event.target.children[0].click();
+                    } else if(event.target.classList.contains("stances_name")) {
+                        event.target.parentNode.children[1].children[0].click();
+                    } else if(event.target.classList.contains("stances_button_checkbox")) {
+                        event.target.children[0].click();
+                    }
+                });
             }
         </script> 
     </body>
