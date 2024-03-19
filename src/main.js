@@ -47,6 +47,7 @@ const game_version = "v0.3.5i";
 let current_enemies = null;
 
 const enemy_attack_loops = {};
+let enemy_attack_cooldowns;
 
 let character_attack_loop;
 
@@ -589,11 +590,7 @@ function set_new_combat({enemies} = {}) {
     clear_all_enemy_attack_loops();
 
     let character_attack_cooldown = 1/(character.stats.full.attack_speed);
-    let enemy_attack_cooldowns = [...current_enemies.map(x => 1/x.stats.attack_speed)];
-
-    //todo: check for stance, apply proper modifier to character cooldown
-    let stance = "normal";
-    character_attack_cooldown /= (stances[stance]?.stat_multipliers?.attack_speed || 1);
+    enemy_attack_cooldowns = [...current_enemies.map(x => 1/x.stats.attack_speed)];
 
     let fastest_cooldown = [character_attack_cooldown, ...enemy_attack_cooldowns].sort((a,b) => a - b)[0];
 
@@ -609,28 +606,40 @@ function set_new_combat({enemies} = {}) {
 
     //attach loops
     for(let i = 0; i < current_enemies.length; i++) {
-        do_enemy_attack_loop(i, enemy_attack_cooldowns[i]);
+        do_enemy_attack_loop(i);
     }
 
-    set_character_attack_loop({base_cooldown: character_attack_cooldown, stance: stance});
+    set_character_attack_loop({base_cooldown: character_attack_cooldown});
     
     update_displayed_enemies();
     update_displayed_health_of_enemies();
 }
 
+/**
+ * @description Recalculates attack speeds;
+ * 
+ * For enemies, modifies their existing cooldowns, for hero it restarts the attack bar with a new cooldown 
+ */
 function reset_combat_loops() {
     if(!current_enemies) { 
         return;
     }
 
-    console.warn("Method for resetting combat loops (on stance change) is still not implemented");
-    /*
-    TODO
-    recalc speeds
-    for enemies, modify their cooldowns (global variable)
-    for hero, restart the attack bar too
+    let character_attack_cooldown = 1/(character.stats.full.attack_speed);
+    enemy_attack_cooldowns = [...current_enemies.map(x => 1/x.stats.attack_speed)];
 
-    */
+    let fastest_cooldown = [character_attack_cooldown, ...enemy_attack_cooldowns].sort((a,b) => a - b)[0];
+
+    //scale all attacks to be not faster than 1 per second
+    if(fastest_cooldown < 1) {
+        const cooldown_multiplier = 1/fastest_cooldown;
+        character_attack_cooldown *= cooldown_multiplier;
+        for(let i = 0; i < current_enemies.length; i++) {
+            enemy_attack_cooldowns[i] *= cooldown_multiplier;
+        }
+    }
+
+    set_character_attack_loop({base_cooldown: character_attack_cooldown});
 }
 
 /**
@@ -638,22 +647,23 @@ function reset_combat_loops() {
  * @param {*} enemy_id 
  * @param {*} cooldown 
  */
-function do_enemy_attack_loop(enemy_id, cooldown) {
-    let count = 0;
+function do_enemy_attack_loop(enemy_id, count) {
+    count = count || 0;
     update_enemy_attack_bar(enemy_id, count);
 
-    enemy_attack_loops[enemy_id] = setInterval(() => {
+    enemy_attack_loops[enemy_id] = setTimeout(() => {
         update_enemy_attack_bar(enemy_id, count);
         count++;
         if(count >= 40) {
             count = 0;
             do_enemy_combat_action(enemy_id);
         }
-    }, cooldown*1000/(40*tickrate));
+        do_enemy_attack_loop(enemy_id, count);
+    }, enemy_attack_cooldowns[enemy_id]*1000/(40*tickrate), count);
 }
 
 function clear_enemy_attack_loop(enemy_id) {
-    clearInterval(enemy_attack_loops[enemy_id]);
+    clearTimeout(enemy_attack_loops[enemy_id]);
 }
 
 /**
@@ -661,8 +671,14 @@ function clear_enemy_attack_loop(enemy_id) {
  * @param {Number} base_cooldown basic cooldown based on attack speeds of enemies and character (ignoring stamina penalty) 
  * @param {String} attack_type type of attack, not yet implemented
  */
-function set_character_attack_loop({base_cooldown, attack_type = "normal"}) {
+function set_character_attack_loop({base_cooldown}) {
     clear_character_attack_loop();
+
+    //little safety, as this function would occasionally throw an error due to not having any enemies left 
+    //(can happen on forced leave after first win)
+    if(!current_enemies) {
+        return;
+    }
 
     //tries to switch stance back to the one that was actually selected, otherwise tries to switch stance to "normal" if not enough stamina
     if(character.stats.full.stamina >= stances[current_stance].stamina_cost / character.stats.full.stamina_efficiency){ 
@@ -689,7 +705,7 @@ function set_character_attack_loop({base_cooldown, attack_type = "normal"}) {
     let actual_cooldown = base_cooldown / character.get_stamina_multiplier();
 
     let attack_power = character.get_attack_power();
-    do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, attack_type, targets});
+    do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets});
 }
 
 /**
@@ -699,7 +715,7 @@ function set_character_attack_loop({base_cooldown, attack_type = "normal"}) {
  * @param {String} attack_power 
  * @param {String} attack_type 
  */
-function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, attack_type, targets}) {
+function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets}) {
     let count = 0;
     character_attack_loop = setInterval(() => {
         
@@ -709,13 +725,13 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
         if(count >= 40) {
             for(let i = 0; i < targets.length; i++) {
                 count = 0;
-                let done = do_character_combat_action({target: targets[i], attack_power, attack_type});
+                let done = do_character_combat_action({target: targets[i], attack_power});
                 if(!done) {
                     set_again = true;
                 }
             }
-            if(set_again) { //set next loop if there's still an enemy left
-                set_character_attack_loop({base_cooldown, attack_type});
+            if(set_again) { //set next loop if there's still an enemy left;
+                set_character_attack_loop({base_cooldown});
             }
         }
     }, actual_cooldown*1000/(40*tickrate));
@@ -850,7 +866,7 @@ function do_enemy_combat_action(enemy_id) {
     update_displayed_health();
 }
 
-function do_character_combat_action({target, attack_power, attack_type = "normal"}) {
+function do_character_combat_action({target, attack_power}) {
     
     //todo: attack types with different stamina costs
     //TODO: when multi-target attacks are added, calculate this iterating over enemies that can be hit
