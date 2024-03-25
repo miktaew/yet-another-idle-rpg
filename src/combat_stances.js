@@ -3,7 +3,20 @@ import { skills } from "./skills.js";
 const stances = {};
 
 class Stance {
-    constructor({name, id, related_skill, target_count = 1, randomize_target_count = false, is_unlocked = false, stat_multipliers = {}, stamina_cost = 1, description = ""}) {
+    constructor(
+            {
+                name, 
+                id, 
+                related_skill, 
+                target_count = 1, 
+                randomize_target_count = false, 
+                is_unlocked = false, 
+                stat_multipliers = {}, 
+                stamina_cost = 1, 
+                description = ""
+            }
+        ) {
+            
         if(related_skill && !skills[related_skill]) {
             throw(`Tried to attach skill "${related_skill}" to stance "${name}", but such a skill doesnt exist!`);
         }
@@ -17,7 +30,7 @@ class Stance {
         }  
         this.target_count = target_count;
         this.randomize_target_count = randomize_target_count; //if true, the actual target count is a random number in range [1, target_count]
-        this.is_unlocked = is_unlocked || true; //TODO: this is testing only, change before releasing!
+        this.is_unlocked = is_unlocked;
         this.stat_multipliers = stat_multipliers;
         this.stamina_cost = stamina_cost;
     }

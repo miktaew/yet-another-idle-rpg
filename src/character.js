@@ -298,6 +298,7 @@ character.stats.add_all_skill_level_bonus = function() {
         character.stats.multiplier.skills.stamina_efficiency = skills["Running"].get_coefficient("multiplicative");
         character.stats.multiplier.skills.strength = skills["Weightlifting"].get_coefficient("multiplicative");
         character.stats.multiplier.skills.block_strength = 1 + 5*skills["Shield blocking"].get_level_bonus();
+        character.stats.multiplier.skills.agility = skills["Equilibrium"].get_coefficient("multiplicative");
 }
 
 /**
@@ -345,24 +346,12 @@ character.update_stats = function () {
         character.stats.total_multiplier[stat] = stat_mult || 1;
 
         if(stat === "health") {
-                character.stats.full["health"] = Math.round(Math.max(1, character.stats.full["max_health"] - missing_health));
-                character.stats.full["max_health"] = Math.round(character.stats.full["max_health"]);
+                character.stats.full["health"] = Math.max(1, character.stats.full["max_health"] - missing_health);
         }
         else if(stat === "stamina") {
-                character.stats.full["stamina"] = Math.round(Math.max(0, character.stats.full["max_stamina"] - missing_stamina));
-                character.stats.full["max_stamina"] = Math.round(character.stats.full["max_stamina"]);
+                character.stats.full["stamina"] = Math.max(0, character.stats.full["max_stamina"] - missing_stamina);
         } else if(stat === "mana") {
-                character.stats.full["mana"] = Math.round(Math.max(0, character.stats.full["max_mana"] - missing_mana));
-                character.stats.full["max_mana"] = Math.round(character.stats.full["max_mana"]);
-        }
-        else if(stat === "crit_rate") {
-                character.stats.full[stat] = Math.round(1000*character.stats.full[stat])/1000;
-        }
-        else if(stat === "crit_dmg") {
-                character.stats.full[stat] = Math.round(100*character.stats.full[stat])/100;
-        }
-        else {
-                character.stats.full[stat] = Math.round(10*character.stats.full[stat])/10;
+                character.stats.full["mana"] = Math.max(0, character.stats.full["max_mana"] - missing_mana);
         }
     });
 
@@ -432,7 +421,7 @@ character.wears_armor = function () {
  * @param {*}
  * @returns [actual damage taken; Boolean if character should faint] 
  */
-character.take_damage = function ({damage_value, damage_type = "physical", damage_element, can_faint = true, give_skill_xp = true}) {
+character.take_damage = function ({damage_value, can_faint = true, give_skill_xp = true}) {
         /*
         TODO:
                 - damage types: "physical", "elemental", "magic"
@@ -501,7 +490,7 @@ function equip_item(item) {
  * @param item_info {name, id}
  */
  function equip_item_from_inventory({item_name, item_id}) {
-        if(character.inventory.hasOwnProperty(item_name)) { //check if its in inventory, just in case
+        if(item_name in character.inventory) { //check if its in inventory, just in case
             //add specific item to equipment slot
             // -> id and name tell which exactly item it is, then also check slot in item object and thats all whats needed
             equip_item(character.inventory[item_name][item_id]);

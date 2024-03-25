@@ -42,7 +42,6 @@
 */
 
 import { character } from "./character.js";
-import { skills } from "./skills.js";
 import { round_item_price } from "./misc.js";
 
 const rarity_multipliers = {
@@ -100,10 +99,11 @@ function getLootPriceModifierMultiple(start_count, how_many_to_sell) {
 class Item {
     constructor({name,
                 description,
-                value = 0}) {
+                value = 0, id}) {
         this.name = name; 
         this.description = description;
         this.saturates_market = false;
+        this.id = id || name;
 
         /**
          * Use .getValue() instead of this
@@ -596,7 +596,6 @@ book_stats["Old combat manual"] = new BookData({
     },
 });
 
-
 //books
 item_templates["ABC for kids"] = new Book({
     name: "ABC for kids",
@@ -629,7 +628,32 @@ item_templates["Old combat manual"] = new Book({
     });
 
     item_templates["Rat pelt"] = new OtherItem({
-        name: "Rat pelt", description: "Pelt of a huge rat. Fur has terrible quality, but maybe leather could be used for something if you gather more?", 
+        name: "Rat pelt", 
+        description: "Pelt of a huge rat. Fur has terrible quality, but maybe leather could be used for something if you gather more?", 
+        value: 15,
+        saturates_market: true,
+        price_recovers: true,
+    });
+
+    item_templates["Wolf fang"] = new OtherItem({
+        name: "Wolf fang", 
+        description: "Fang of a wild wolf. Somewhat sharp, still not very useful. Maybe if it had a bit better quality...", 
+        value: 12,
+        saturates_market: true,
+        price_recovers: true,
+    });
+
+    item_templates["High quality wolf fang"] = new OtherItem({
+        name: "High quality wolf fang", 
+        description: "Fang of a wild wolf. Very sharp and doesn't seem to have any signs of damage. You feel like it might be of some use, one day.", 
+        value: 15,
+        saturates_market: true,
+        price_recovers: true,
+    });
+
+    item_templates["Wolf pelt"] = new OtherItem({
+        name: "Wolf pelt", 
+        description: "Pelt of a wild wolf. It's a bit damaged so it won't fetch a great price, but the leather itself could be useful.", 
         value: 20,
         saturates_market: true,
         price_recovers: true,

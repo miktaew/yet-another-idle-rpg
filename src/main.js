@@ -5,7 +5,7 @@ import { item_templates, getItem, book_stats, setLootSoldCount, loot_sold_count,
 import { locations } from "./locations.js";
 import { skills, weapon_type_to_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
-import { Enemy, enemy_killcount } from "./enemies.js";
+import { enemy_killcount } from "./enemies.js";
 import { traders } from "./traders.js";
 import { is_in_trade, start_trade, cancel_trade, accept_trade, exit_trade, add_to_trader_inventory,
          add_to_buying_list, remove_from_buying_list, add_to_selling_list, remove_from_selling_list} from "./trade.js";
@@ -196,7 +196,12 @@ function option_remember_filters(option) {
 
 
 function change_location(location_name) {
-    var location = locations[location_name];
+    let location = locations[location_name];
+
+    if(!location_name === current_location?.name && location.is_finished) {
+        return;
+    }
+
     clear_all_enemy_attack_loops();
     clear_character_attack_loop();
     clear_enemies();
@@ -220,7 +225,9 @@ function change_location(location_name) {
         update_displayed_combat_location(current_location);
         start_combat();
 
-        last_combat_location = current_location.name;
+        if(!current_location.is_challenge) {
+            last_combat_location = current_location.name;
+        }
     }
 }
 
@@ -273,13 +280,18 @@ function end_activity() {
 }
 
 /**
- * 
+ * @description Unlocks an activity and adds a proper message to the message log. NOT called on loading a save.
  * @param {Object} activity_data {activity, location_name}
  */
  function unlock_activity(activity_data) {
     if(!activity_data.activity.is_unlocked){
         activity_data.activity.is_unlocked = true;
-        log_message(`Unlocked activity "${activity_data.activity.activity}" in location "${activity_data.location}"`, "activity_unlocked");
+        
+        let message = "";
+        if(locations[activity_data.location].activities[activity_data.activity.activity].unlock_text) {
+           message = locations[activity_data.location].activities[activity_data.activity.activity].unlock_text+":<br>";
+        }
+        log_message(message + `Unlocked activity "${activity_data.activity.activity}" in location "${activity_data.location}"`, "activity_unlocked");
     }
 }
 
@@ -529,6 +541,10 @@ function start_textline(textline_key){
         unlock_location(locations[textline.unlocks.locations[i]]);
     }
 
+    for(let i = 0; i < textline.unlocks.stances.length; i++) { //unlocking locations
+        unlock_combat_stance(textline.unlocks.stances[i]);
+    }
+
     for(let i = 0; i < textline.locks_lines.length; i++) { //locking textlines
         dialogue.textlines[textline.locks_lines[i]].is_finished = true;
     }
@@ -539,8 +555,23 @@ function start_textline(textline_key){
                              activity: locations[textline.unlocks.activities[i].location].activities[textline.unlocks.activities[i].activity]});
         }
     }
+    if(textline.otherUnlocks) {
+        textline.otherUnlocks();
+    }
+
     start_dialogue(current_dialogue);
     update_displayed_textline_answer(textline.text);
+}
+
+function unlock_combat_stance(stance_id) {
+    if(!stances[stance_id]) {
+        console.warn(`Tried to unlock stance "${stance_id}", but no such stance exists!`);
+        return;
+    }
+
+    stances[stance_id].is_unlocked = true;
+    update_displayed_stance_list();
+    log_message(`You have learned a new stance: "${stances[stance_id].name}"`, "location_unlocked") 
 }
 
 function change_stance(stance_id, is_temporary = false) {
@@ -560,10 +591,7 @@ function change_stance(stance_id, is_temporary = false) {
     current_stance = stance_id;
 
     update_character_stats();
-
-    if(current_enemies){
-        reset_combat_loops();
-    }
+    reset_combat_loops();
 }
 
 /**
@@ -651,6 +679,7 @@ function do_enemy_attack_loop(enemy_id, count) {
     count = count || 0;
     update_enemy_attack_bar(enemy_id, count);
 
+    clearTimeout(enemy_attack_loops[enemy_id]);
     enemy_attack_loops[enemy_id] = setTimeout(() => {
         update_enemy_attack_bar(enemy_id, count);
         count++;
@@ -680,14 +709,17 @@ function set_character_attack_loop({base_cooldown}) {
         return;
     }
 
-    //tries to switch stance back to the one that was actually selected, otherwise tries to switch stance to "normal" if not enough stamina
-    if(character.stats.full.stamina >= stances[current_stance].stamina_cost / character.stats.full.stamina_efficiency){ 
+    //tries to switch stance back to the one that was actually selected if there's enough stamina, otherwise tries to switch stance to "normal" if not enough stamina
+    if(character.stats.full.stamina >= (stances[selected_stance].stamina_cost / character.stats.full.stamina_efficiency)){ 
         if(selected_stance !== current_stance) {
             change_stance(selected_stance);
+            return;
         }
     } else if(current_stance !== "normal") {
         change_stance("normal", true);
+        return;
     }
+
     let target_count;
     if(stances[current_stance].randomize_target_count) {
         target_count = Math.floor(Math.random()*stances[current_stance].target_count) || 1;
@@ -717,6 +749,7 @@ function set_character_attack_loop({base_cooldown}) {
  */
 function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets}) {
     let count = 0;
+    clear_character_attack_loop();
     character_attack_loop = setInterval(() => {
         
         update_character_attack_bar(count);
@@ -758,7 +791,7 @@ function start_combat() {
  * performs a single combat action (that is attack, as there isn't really any other kind for now),
  * called when attack cooldown finishes
  * 
- * @param attacker combatant performing the action
+ * @param {String} attacker id of enemy
 */ 
 function do_enemy_combat_action(enemy_id) {
     
@@ -801,6 +834,8 @@ function do_enemy_combat_action(enemy_id) {
                 damage_dealt -= character.stats.total_multiplier.block_strength * character.equipment["off-hand"].getShieldStrength();
                 partially_blocked = true;
             }
+         } else {
+            add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value/2});
          }
     } else { // HAS NO SHIELD
         const hit_chance = get_hit_chance(attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1), character.combat_stats.evasion_points)/evasion_chance_modifier;
@@ -811,6 +846,8 @@ function do_enemy_combat_action(enemy_id) {
             add_xp_to_skill({skill: skills["Evasion"], xp_to_add});
             log_message(character.name + " evaded an attack", "enemy_missed");
             return; //damage fully evaded, nothing more can happen
+        } else {
+            add_xp_to_skill({skill: skills["Evasion"], xp_to_add: attacker.xp_value/2});
         }
     }
 
@@ -829,6 +866,8 @@ function do_enemy_combat_action(enemy_id) {
     if(!character.wears_armor())
     {
         add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: attacker.xp_value});
+    } else {
+        add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: attacker.xp_value/2});
     }
 
     let {damage_taken, fainted} = character.take_damage({damage_value: damage_dealt});
@@ -869,7 +908,6 @@ function do_enemy_combat_action(enemy_id) {
 function do_character_combat_action({target, attack_power}) {
     
     //todo: attack types with different stamina costs
-    //TODO: when multi-target attacks are added, calculate this iterating over enemies that can be hit
 
     const hero_base_damage = attack_power;
 
@@ -950,7 +988,7 @@ function do_character_combat_action({target, attack_power}) {
                     get_location_rewards(current_location);
 
                 }
-                enemy_count_div.children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemy_groups_killed % current_location.enemy_count;
+                document.getElementById("enemy_count_div").children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemy_groups_killed % current_location.enemy_count;
                 
                 return true;
             }
@@ -969,23 +1007,26 @@ function do_character_combat_action({target, attack_power}) {
  */
 function kill_enemy(target) {
     target.is_alive = false;
-    if(enemy_killcount[target.name]) {
-        enemy_killcount[target.name] += 1;
-        update_bestiary_entry(target.name);
-    } else {
-        enemy_killcount[target.name] = 1;
-        create_new_bestiary_entry(target.name);
+    if(target.add_to_bestiary) {
+        if(enemy_killcount[target.name]) {
+            enemy_killcount[target.name] += 1;
+            update_bestiary_entry(target.name);
+        } else {
+            enemy_killcount[target.name] = 1;
+            create_new_bestiary_entry(target.name);
+        }
     }
     const enemy_id = current_enemies.findIndex(enemy => enemy===target);
     clear_enemy_attack_loop(enemy_id);
 }
 
 function use_stamina(num = 1, use_efficiency = true) {
+    
     character.stats.full.stamina -= num/(use_efficiency * character.stats.full.stamina_efficiency || 1);
 
     if(character.stats.full.stamina < 0)  {
         character.stats.full.stamina = 0;
-    };
+    }
 
     if(character.stats.full.stamina < 1) {
         add_xp_to_skill({skill: skills["Persistence"], xp_to_add: num});
@@ -1015,14 +1056,21 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
             xp_to_add *= skill.get_parent_xp_multiplier();
         }
     }
-
-    if(skill.parent_skill && add_to_parent) {
-        const xp_for_parent = Math.max(skill.total_xp + xp_to_add - skills[skill.parent_skill].total_xp, 0);
-        add_xp_to_skill({skill: skills[skill.parent_skill], xp_to_add: xp_for_parent, should_info, use_bonus, add_to_parent});
-    }
     
     const was_hidden = skill.visibility_treshold > skill.total_xp;
     const {message, gains} = skill.add_xp({xp_to_add: xp_to_add});
+
+    
+    if(skill.parent_skill && add_to_parent) {
+        if(skill.total_xp > skills[skill.parent_skill].total_xp) {
+            /*
+                add xp to parent if skill would now have more than the parent
+                calc xp ammount so that it's no more than the difference between child and parent
+            */
+            let xp_for_parent = Math.min(skill.total_xp - skills[skill.parent_skill].total_xp, xp_to_add);
+            add_xp_to_skill({skill: skills[skill.parent_skill], xp_to_add: xp_for_parent, should_info, use_bonus: false, add_to_parent});
+        }
+    }
 
     const is_visible = skill.visibility_treshold <= skill.total_xp;
 
@@ -1071,7 +1119,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     if(gains) { 
         character.stats.add_skill_milestone_bonus(gains);
         update_character_stats();
-    };
+    }
 }
 
 /**
@@ -1103,6 +1151,10 @@ function get_location_rewards(location) {
     if(location.enemy_groups_killed == location.enemy_count) { //first clear
         change_location(current_location.parent_location.name); //go back to parent location, only on first clear
 
+        if(location.is_challenge) {
+            location.is_finished = true;
+        }
+
         if(location.first_reward.xp && typeof location.first_reward.xp === "number") {
             log_message(`Obtained ${location.first_reward.xp}xp for clearing ${location.name} for the first time`, "location_reward");
             add_xp_to_character(location.first_reward.xp);
@@ -1112,8 +1164,9 @@ function get_location_rewards(location) {
         add_xp_to_character(location.repeatable_reward.xp);
     }
 
-
     //all below: on each clear, so that if something gets added after location was cleared, it will still be unlockable
+
+    location.otherUnlocks();
 
     for(let i = 0; i < location.repeatable_reward.locations?.length; i++) { //unlock locations
         unlock_location(locations[location.repeatable_reward.locations[i]]);
@@ -1128,7 +1181,7 @@ function get_location_rewards(location) {
             }
         }
         if(any_unlocked) {
-            log_message(`Maybe you should check on ${location.repeatable_reward.textlines[i].dialogue}...`, "dialogue_unlocked");
+            log_message(`You should talk to ${location.repeatable_reward.textlines[i].dialogue}`, "dialogue_unlocked");
             //maybe do this only when there's just 1 dialogue with changes?
         }
     }
@@ -1141,11 +1194,11 @@ function get_location_rewards(location) {
         }
     }
 
-    /*
-    TODO: give more rewards on all clears
-    - some xp for location-related skills?
-    - items/money -> random chance?
-    */
+    //activities
+    for(let i = 0; i < location.repeatable_reward.activities?.length; i++) {
+            unlock_activity({location: locations[location.repeatable_reward.activities[i].location].name, 
+                             activity: locations[location.repeatable_reward.activities[i].location].activities[location.repeatable_reward.activities[i].activity]});
+    }
 }
 
 /**
@@ -1155,7 +1208,8 @@ function get_location_rewards(location) {
 function unlock_location(location) {
     if(!location.is_unlocked){
         location.is_unlocked = true;
-        log_message(`Unlocked location ${location.name}`, "location_unlocked");
+        const message = location.unlock_text || `Unlocked location ${location.name}`;
+        log_message(message, "location_unlocked") 
 
         //reloads the location (assumption is that a new one was unlocked by clearing a zone)
         if(!current_dialogue) {
@@ -1327,6 +1381,12 @@ function create_save() {
 
         save_data["options"] = options;
 
+        save_data["stances"] = {};
+        Object.keys(stances).forEach(stance => {
+            if(stances[stance].is_unlocked) {
+                save_data["stances"][stance] = true;
+            }
+        }) 
         save_data["current_stance"] = current_stance;
         save_data["selected_stance"] = selected_stance;
         save_data["faved_stances"] = faved_stances;
@@ -1371,450 +1431,468 @@ function load(save_data) {
     //current enemies are not saved
 
     //TODO: some loading screen
-    try{
-        current_game_time.load_time(save_data["current time"]);
-        time_field.innerHTML = current_game_time.toString();
-        //set game time
+    current_game_time.load_time(save_data["current time"]);
+    time_field.innerHTML = current_game_time.toString();
+    //set game time
 
-        name_field.value = save_data.character.name;
-        character.name = save_data.character.name;
+    name_field.value = save_data.character.name;
+    character.name = save_data.character.name;
 
-        last_location_with_bed = save_data.last_location_with_bed;
-        last_combat_location = save_data.last_combat_location;
+    last_location_with_bed = save_data.last_location_with_bed;
+    last_combat_location = save_data.last_combat_location;
 
-        update_displayed_stance_list();
-        if(save_data.current_stance) {
-            current_stance = save_data.current_stance;
-            selected_stance = save_data.selected_stance;
-            change_stance(selected_stance);
-        }
-        
-        if(save_data.faved_stances) {
-            Object.keys(save_data.faved_stances).forEach(stance_id=> {
-                if(stances[stance_id] && stances[stance_id].is_unlocked) {
-                    fav_stance(stance_id);
-                }
-            });
-        }
-
-        options.uniform_text_size_in_action = save_data.options?.uniform_text_size_in_action;
-        option_uniform_textsize(options.uniform_text_size_in_action);
-
-        options.auto_return_to_bed = save_data.options?.auto_return_to_bed;
-        option_bed_return(options.auto_return_to_bed);
-
-        options.remember_message_log_filters = save_data.options?.remember_message_log_filters;
-        if(save_data.message_filters) {
-            message_log_filters = save_data.message_filters;
-        }
-        option_remember_filters(options.remember_message_log_filters);
-
-        //this can be removed at some point
-        const is_from_before_eco_rework = compare_game_version("v0.3.5", save_data["game version"]) == 1;
-        setLootSoldCount(save_data.loot_sold_count || {});
-
-        character.money = (save_data.character.money || 0) * ((is_from_before_eco_rework == 1)*10 || 1);
-        update_displayed_money();
-
-        add_xp_to_character(save_data.character.xp.total_xp, false);
-
-        Object.keys(save_data.skills).forEach(function(key){ 
-            if(skills[key] && !skills[key].is_parent){
-                if(save_data.skills[key].total_xp > 0) {
-                    add_xp_to_skill({skill: skills[key], xp_to_add: save_data.skills[key].total_xp, 
-                                     should_info: false, add_to_parent: true, use_bonus: false
-                                    });
-                }
-            } else {
-                console.warn(`Skill "${key}" couldn't be found!`);
-                return;
+    if(save_data["stances"]) {
+        Object.keys(save_data["stances"]).forEach(stance => {
+            if(save_data["stances"]) {
+                stances[stance].is_unlocked = true;
+            } 
+        });
+    }
+    update_displayed_stance_list();
+    if(save_data.current_stance) {
+        current_stance = save_data.current_stance;
+        selected_stance = save_data.selected_stance;
+        change_stance(selected_stance);
+    }
+    
+    if(save_data.faved_stances) {
+        Object.keys(save_data.faved_stances).forEach(stance_id=> {
+            if(stances[stance_id] && stances[stance_id].is_unlocked) {
+                fav_stance(stance_id);
             }
-        }); //add xp to skills
+        });
+    }
 
-        Object.keys(save_data.character.equipment).forEach(function(key){
-            if(save_data.character.equipment[key] != null) {
-                try{
-                    if(key === "weapon") {
-                        const {quality, equip_slot} = save_data.character.equipment[key];
-                        let components;
-                        if(save_data.character.equipment[key].components) {
-                            components = save_data.character.equipment[key].components
-                        } else {
-                            const {head, handle} = save_data.character.equipment[key];
-                            components = {head, handle};
-                        }
+    options.uniform_text_size_in_action = save_data.options?.uniform_text_size_in_action;
+    option_uniform_textsize(options.uniform_text_size_in_action);
 
-                        if(!item_templates[components.head]){
-                            console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
-                        } else if(!item_templates[components.handle]) {
-                            console.warn(`Skipped item: weapon handle component "${components.handle}" couldn't be found!`);
-                        } else {
-                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
-                            equip_item(item);
-                        }
-                    } else if(key === "off-hand") {
-                        const {quality, equip_slot} = save_data.character.equipment[key];
-                        let components;
-                        if(save_data.character.equipment[key].components) {
-                            components = save_data.character.equipment[key].components
-                        } else {
-                            const {shield_base, handle} = save_data.character.equipment[key];
-                            components = {shield_base, handle};
-                        }
+    options.auto_return_to_bed = save_data.options?.auto_return_to_bed;
+    option_bed_return(options.auto_return_to_bed);
 
-                        if(!item_templates[components.shield_base]){
-                            console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
-                        } else if(!item_templates[components.handle]) {
-                            console.warn(`Skipped item: shield handle "${components.handle}" couldn't be found!`);
-                        } else {
-                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
-                            equip_item(item);
-                        }
+    options.remember_message_log_filters = save_data.options?.remember_message_log_filters;
+    if(save_data.message_filters) {
+        message_log_filters = save_data.message_filters;
+    }
+    option_remember_filters(options.remember_message_log_filters);
+
+    //this can be removed at some point
+    const is_from_before_eco_rework = compare_game_version("v0.3.5", save_data["game version"]) == 1;
+    setLootSoldCount(save_data.loot_sold_count || {});
+
+    character.money = (save_data.character.money || 0) * ((is_from_before_eco_rework == 1)*10 || 1);
+    update_displayed_money();
+
+    add_xp_to_character(save_data.character.xp.total_xp, false);
+
+    Object.keys(save_data.skills).forEach(function(key){ 
+        if(key === "Literacy") {
+            return; //done separately, for compatibility with older saves (can be eventually remove)
+        }
+        if(skills[key] && !skills[key].is_parent){
+            if(save_data.skills[key].total_xp > 0) {
+                add_xp_to_skill({skill: skills[key], xp_to_add: save_data.skills[key].total_xp, 
+                                    should_info: false, add_to_parent: true, use_bonus: false
+                                });
+            }
+        } else {
+            console.warn(`Skill "${key}" couldn't be found!`);
+            return;
+        }
+    }); //add xp to skills
+
+    if(save_data.books) {
+        let total_book_xp = 0;
+        const literacy_xp = save_data.skills["Literacy"].total_xp;
+        Object.keys(save_data.books).forEach(book=>{
+            if(!item_templates[book]) {
+                console.warn(`Book ${book} couldn't be found and was skipped!`);
+            }
+
+            if(save_data.books[book].accumulated_time > 0) {
+                if(save_data.books[book].is_finished) {
+                    item_templates[book].setAsFinished();
+                    total_book_xp += book_stats[book].required_time * book_stats[book].literacy_xp_rate;
+                } else {
+                    item_templates[book].addProgress(save_data.books[book].accumulated_time);
+                    total_book_xp += book_stats[book].accumulated_time * book_stats[book].literacy_xp_rate;
+                }
+            }
+        });
+        if(total_book_xp > literacy_xp) {
+            add_xp_to_skill({skill: skills["Literacy"], should_info: false, xp_to_add: total_book_xp, use_bonus: false});
+            console.warn(`Saved XP for "Literacy skill" was less than it should be based on progress with books (${literacy_xp} vs ${total_book_xp}), so it was adjusted to match it!`);
+        } else {
+            add_xp_to_skill({skill: skills["Literacy"], should_info: false, xp_to_add: literacy_xp, use_bonus: false});
+        }
+    }
+
+
+
+    Object.keys(save_data.character.equipment).forEach(function(key){
+        if(save_data.character.equipment[key] != null) {
+            try{
+                if(key === "weapon") {
+                    const {quality, equip_slot} = save_data.character.equipment[key];
+                    let components;
+                    if(save_data.character.equipment[key].components) {
+                        components = save_data.character.equipment[key].components
                     } else {
-                        const {quality, equip_slot} = save_data.character.equipment[key];
-                        let components;
-                        if(save_data.character.equipment[key].components) {
-                            components = save_data.character.equipment[key].components
-                        } else {
-                            const {internal, external} = save_data.character.equipment[key];
-                            components = {internal, external};
-                        }
+                        const {head, handle} = save_data.character.equipment[key];
+                        components = {head, handle};
+                    }
 
-                        if(!item_templates[components.internal]){
-                            console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
-                        } else if(components.external && !item_templates[components.external]) {
-                            console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
+                    if(!item_templates[components.head]){
+                        console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
+                    } else if(!item_templates[components.handle]) {
+                        console.warn(`Skipped item: weapon handle component "${components.handle}" couldn't be found!`);
+                    } else {
+                        const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                        equip_item(item);
+                    }
+                } else if(key === "off-hand") {
+                    const {quality, equip_slot} = save_data.character.equipment[key];
+                    let components;
+                    if(save_data.character.equipment[key].components) {
+                        components = save_data.character.equipment[key].components
+                    } else {
+                        const {shield_base, handle} = save_data.character.equipment[key];
+                        components = {shield_base, handle};
+                    }
+
+                    if(!item_templates[components.shield_base]){
+                        console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
+                    } else if(!item_templates[components.handle]) {
+                        console.warn(`Skipped item: shield handle "${components.handle}" couldn't be found!`);
+                    } else {
+                        const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                        equip_item(item);
+                    }
+                } else {
+                    const {quality, equip_slot} = save_data.character.equipment[key];
+                    let components;
+                    if(save_data.character.equipment[key].components) {
+                        components = save_data.character.equipment[key].components
+                    } else {
+                        const {internal, external} = save_data.character.equipment[key];
+                        components = {internal, external};
+                    }
+
+                    if(!item_templates[components.internal]){
+                        console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
+                    } else if(components.external && !item_templates[components.external]) {
+                        console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
+                    } else {
+                        const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                        equip_item(item);
+                    }
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    }); //equip proper items
+
+    if(character.equipment.weapon == null) {
+        equip_item(null);
+    }
+
+    const item_list = [];
+
+    Object.keys(save_data.character.inventory).forEach(function(key){
+        if(Array.isArray(save_data.character.inventory[key])) { //is a list of unstackable items (equippables or books), needs to be added 1 by 1
+            for(let i = 0; i < save_data.character.inventory[key].length; i++) {
+                try{
+                    if(save_data.character.inventory[key][i].item_type === "EQUIPPABLE")
+                    {
+                        if(save_data.character.inventory[key][i].equip_slot === "weapon") {
+                            
+                            const {quality, equip_slot} = save_data.character.inventory[key][i];
+                            let components;
+                            if(save_data.character.inventory[key][i].components) {
+                                components = save_data.character.inventory[key][i].components
+                            } else {
+                                const {head, handle} = save_data.character.inventory[key][i];
+                                components = {head, handle};
+                            }
+
+                            if(!item_templates[components.head]){
+                                console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
+                            } else if(!item_templates[components.handle]) {
+                                console.warn(`Skipped item: weapon handle component "${components.handle}" couldn't be found!`);
+                            } else {
+                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                item_list.push({item, count: 1});
+                            }
+                        } else if(save_data.character.inventory[key][i].equip_slot === "off-hand") {
+                            const {quality, equip_slot} = save_data.character.inventory[key][i];
+                            let components;
+                            if(save_data.character.inventory[key][i].components) {
+                                components = save_data.character.inventory[key][i].components
+                            } else {
+                                const {shield_base, handle} = save_data.character.inventory[key][i];
+                                components = {shield_base, handle};
+                            }
+
+                            if(!item_templates[components.shield_base]){
+                                console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
+                            } else if(!item_templates[components.handle]) {
+                                console.warn(`Skipped item: shield handle "${components.handle}" couldn't be found!`);
+                            } else {
+                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                item_list.push({item, count: 1});
+                            }
                         } else {
-                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
-                            equip_item(item);
+                            const {quality, equip_slot} = save_data.character.inventory[key][i];
+                            let components;
+                            if(save_data.character.inventory[key][i].components) {
+                                components = save_data.character.inventory[key][i].components
+                            } else {
+                                const {internal, external} = save_data.character.inventory[key][i];
+                                components = {internal, external};
+                            }
+                            if(!item_templates[components.internal]){
+                                console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
+                            } else if(components.external && !item_templates[components.external]) {
+                                console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
+                            } else {
+                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                item_list.push({item, count: 1});
+                            }
                         }
                     }
                 } catch (error) {
                     console.error(error);
                 }
             }
-        }); //equip proper items
-
-        if(character.equipment.weapon == null) {
-            equip_item(null);
         }
-
-        const item_list = [];
-
-        Object.keys(save_data.character.inventory).forEach(function(key){
-            if(Array.isArray(save_data.character.inventory[key])) { //is a list of unstackable items (equippables or books), needs to be added 1 by 1
-                for(let i = 0; i < save_data.character.inventory[key].length; i++) {
-                    try{
-                        if(save_data.character.inventory[key][i].item_type === "EQUIPPABLE")
-                        {
-                            if(save_data.character.inventory[key][i].equip_slot === "weapon") {
-                                
-                                const {quality, equip_slot} = save_data.character.inventory[key][i];
-                                let components;
-                                if(save_data.character.inventory[key][i].components) {
-                                    components = save_data.character.inventory[key][i].components
-                                } else {
-                                    const {head, handle} = save_data.character.inventory[key][i];
-                                    components = {head, handle};
-                                }
-
-                                if(!item_templates[components.head]){
-                                    console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
-                                } else if(!item_templates[components.handle]) {
-                                    console.warn(`Skipped item: weapon handle component "${components.handle}" couldn't be found!`);
-                                } else {
-                                    const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
-                                    item_list.push({item, count: 1});
-                                }
-                            } else if(save_data.character.inventory[key][i].equip_slot === "off-hand") {
-                                const {quality, equip_slot} = save_data.character.inventory[key][i];
-                                let components;
-                                if(save_data.character.inventory[key][i].components) {
-                                    components = save_data.character.inventory[key][i].components
-                                } else {
-                                    const {shield_base, handle} = save_data.character.inventory[key][i];
-                                    components = {shield_base, handle};
-                                }
-
-                                if(!item_templates[components.shield_base]){
-                                    console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
-                                } else if(!item_templates[components.handle]) {
-                                    console.warn(`Skipped item: shield handle "${components.handle}" couldn't be found!`);
-                                } else {
-                                    const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
-                                    item_list.push({item, count: 1});
-                                }
-                            } else {
-                                const {quality, equip_slot} = save_data.character.inventory[key][i];
-                                let components;
-                                if(save_data.character.inventory[key][i].components) {
-                                    components = save_data.character.inventory[key][i].components
-                                } else {
-                                    const {internal, external} = save_data.character.inventory[key][i];
-                                    components = {internal, external};
-                                }
-                                if(!item_templates[components.internal]){
-                                    console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
-                                } else if(components.external && !item_templates[components.external]) {
-                                    console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
-                                } else {
-                                    const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
-                                    item_list.push({item, count: 1});
-                                }
-                            }
-                        }
-                    } catch (error) {
-                        console.error(error);
-                    }
+        else { //is stackable 
+            if(item_templates[key]) {
+                save_data.character.inventory[key].item.value = item_templates[key].value;
+                save_data.character.inventory[key].item.description = item_templates[key].description;
+                if(item_templates[key].item_type === "USABLE") {
+                    save_data.character.inventory[key].item.use_effect = item_templates[key].use_effect;
                 }
+                item_list.push({item: getItem(save_data.character.inventory[key].item), count: save_data.character.inventory[key].count});
+            } else {
+                console.warn(`Inventory item "${key}" couldn't be found!`);
+                return;
             }
-            else { //is stackable 
-                if(item_templates[key]) {
-                    save_data.character.inventory[key].item.value = item_templates[key].value;
-                    save_data.character.inventory[key].item.description = item_templates[key].description;
-                    if(item_templates[key].item_type === "USABLE") {
-                        save_data.character.inventory[key].item.use_effect = item_templates[key].use_effect;
-                    }
-                    item_list.push({item: getItem(save_data.character.inventory[key].item), count: save_data.character.inventory[key].count});
+        }
+        
+    }); //add all loaded items to list
+
+    add_to_character_inventory(item_list); // and then to inventory
+
+    Object.keys(save_data.dialogues).forEach(function(dialogue) {
+        if(dialogues[dialogue]) {
+            dialogues[dialogue].is_unlocked = save_data.dialogues[dialogue].is_unlocked;
+            dialogues[dialogue].is_finished = save_data.dialogues[dialogue].is_finished;
+        } else {
+            console.warn(`Dialogue "${dialogue}" couldn't be found!`);
+            return;
+        }
+        if(save_data.dialogues[dialogue].textlines) {  
+            Object.keys(save_data.dialogues[dialogue].textlines).forEach(function(textline){
+                if(dialogues[dialogue].textlines[textline]) {
+                    dialogues[dialogue].textlines[textline].is_unlocked = save_data.dialogues[dialogue].textlines[textline].is_unlocked;
+                    dialogues[dialogue].textlines[textline].is_finished = save_data.dialogues[dialogue].textlines[textline].is_finished;
                 } else {
-                    console.warn(`Inventory item "${key}" couldn't be found!`);
+                    console.warn(`Textline "${textline}" in dialogue "${dialogue}" couldn't be found!`);
                     return;
                 }
-            }
-            
-        }); //add all loaded items to list
+            }); 
+        }
+    }); //load for dialogues and their textlines their unlocked/finished status
 
-        add_to_character_inventory(item_list); // and then to inventory
+    
+    Object.keys(save_data.traders).forEach(function(trader) { 
+        let trader_item_list = [];
+        if(traders[trader]){
 
-        Object.keys(save_data.dialogues).forEach(function(dialogue) {
-            if(dialogues[dialogue]) {
-                dialogues[dialogue].is_unlocked = save_data.dialogues[dialogue].is_unlocked;
-                dialogues[dialogue].is_finished = save_data.dialogues[dialogue].is_finished;
-            } else {
-                console.warn(`Dialogue "${dialogue}" couldn't be found!`);
-                return;
-            }
-            if(save_data.dialogues[dialogue].textlines) {  
-                Object.keys(save_data.dialogues[dialogue].textlines).forEach(function(textline){
-                    if(dialogues[dialogue].textlines[textline]) {
-                        dialogues[dialogue].textlines[textline].is_unlocked = save_data.dialogues[dialogue].textlines[textline].is_unlocked;
-                        dialogues[dialogue].textlines[textline].is_finished = save_data.dialogues[dialogue].textlines[textline].is_finished;
-                    } else {
-                        console.warn(`Textline "${textline}" in dialogue "${dialogue}" couldn't be found!`);
-                        return;
-                    }
-                }); 
-            }
-        }); //load for dialogues and their textlines their unlocked/finished status
+            //set as unlocked (it must have been unlocked to be saved, so no need to check the actual value)
+            traders[trader].is_unlocked = true;
 
-        
-        Object.keys(save_data.traders).forEach(function(trader) { 
-            let trader_item_list = [];
-            if(traders[trader]){
-
-                //set as unlocked (it must have been unlocked to be saved, so no need to check the actual value)
-                traders[trader].is_unlocked = true;
-
-                if(save_data.traders[trader].inventory) {
-                    Object.keys(save_data.traders[trader].inventory).forEach(function(key){
-                        if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list of unstackable (equippable or book) item, needs to be added 1 by 1
-                            for(let i = 0; i < save_data.traders[trader].inventory[key].length; i++) {
-                                try{
-                                    if(save_data.traders[trader].inventory[key][i].item_type === "EQUIPPABLE"){
-                                        if(save_data.traders[trader].inventory[key][i].equip_slot === "weapon") {
-                                            const {quality, equip_slot} = save_data.traders[trader].inventory[key][i];
-                                            let components;
-                                            if(save_data.traders[trader].inventory[key][i].components) {
-                                                components = save_data.traders[trader].inventory[key][i].components
-                                            } else {
-                                                const {head, handle} = save_data.traders[trader].inventory[key][i];
-                                                components = {head, handle};
-                                            }
-
-                                            if(!item_templates[components.head]){
-                                                console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
-                                            } else if(!item_templates[components.handle]) {
-                                                console.warn(`Skipped item: weapon handle component "${components.handle}" couldn't be found!`);
-                                            } else {
-                                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
-                                                trader_item_list.push({item, count: 1});
-                                            }
-                                        } else if(save_data.traders[trader].inventory[key][i].equip_slot === "off-hand") {
-                                            
-                                            const {quality, equip_slot} = save_data.traders[trader].inventory[key][i];
-                                            let components;
-                                            if(save_data.traders[trader].inventory[key][i].components) {
-                                                components = save_data.traders[trader].inventory[key][i].components
-                                            } else {
-                                                const {shield_base, handle} = save_data.traders[trader].inventory[key][i];
-                                                components = {shield_base, handle};
-                                            }
-
-                                            if(!item_templates[components.shield_base]){
-                                                console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
-                                            } else if(!item_templates[components.handle]) {
-                                                console.warn(`Skipped item: shield handle "${components.handle}" couldn't be found!`);
-                                            } else {
-                                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
-                                                trader_item_list.push({item, count: 1});
-                                            }
+            if(save_data.traders[trader].inventory) {
+                Object.keys(save_data.traders[trader].inventory).forEach(function(key){
+                    if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list of unstackable (equippable or book) item, needs to be added 1 by 1
+                        for(let i = 0; i < save_data.traders[trader].inventory[key].length; i++) {
+                            try{
+                                if(save_data.traders[trader].inventory[key][i].item_type === "EQUIPPABLE"){
+                                    if(save_data.traders[trader].inventory[key][i].equip_slot === "weapon") {
+                                        const {quality, equip_slot} = save_data.traders[trader].inventory[key][i];
+                                        let components;
+                                        if(save_data.traders[trader].inventory[key][i].components) {
+                                            components = save_data.traders[trader].inventory[key][i].components
                                         } else {
-                                            const {quality, equip_slot} = save_data.traders[trader].inventory[key][i];
-                                            let components;
-                                            if(save_data.traders[trader].inventory[key][i].components) {
-                                                components = save_data.traders[trader].inventory[key][i].components
-                                            } else {
-                                                const {internal, external} = save_data.traders[trader].inventory[key][i];
-                                                components = {internal, external};
-                                            }
+                                            const {head, handle} = save_data.traders[trader].inventory[key][i];
+                                            components = {head, handle};
+                                        }
 
-                                            if(!item_templates[components.internal]){
-                                                console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
-                                            } else if(components.external && !item_templates[components.external]) {
-                                                console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
-                                            } else {
-                                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
-                                                trader_item_list.push({item, count: 1});
-                                            }
+                                        if(!item_templates[components.head]){
+                                            console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
+                                        } else if(!item_templates[components.handle]) {
+                                            console.warn(`Skipped item: weapon handle component "${components.handle}" couldn't be found!`);
+                                        } else {
+                                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                            trader_item_list.push({item, count: 1});
+                                        }
+                                    } else if(save_data.traders[trader].inventory[key][i].equip_slot === "off-hand") {
+                                        
+                                        const {quality, equip_slot} = save_data.traders[trader].inventory[key][i];
+                                        let components;
+                                        if(save_data.traders[trader].inventory[key][i].components) {
+                                            components = save_data.traders[trader].inventory[key][i].components
+                                        } else {
+                                            const {shield_base, handle} = save_data.traders[trader].inventory[key][i];
+                                            components = {shield_base, handle};
+                                        }
+
+                                        if(!item_templates[components.shield_base]){
+                                            console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
+                                        } else if(!item_templates[components.handle]) {
+                                            console.warn(`Skipped item: shield handle "${components.handle}" couldn't be found!`);
+                                        } else {
+                                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                            trader_item_list.push({item, count: 1});
                                         }
                                     } else {
-                                        console.warn(`Skipped item, no such item type as ${0} could be found`)
+                                        const {quality, equip_slot} = save_data.traders[trader].inventory[key][i];
+                                        let components;
+                                        if(save_data.traders[trader].inventory[key][i].components) {
+                                            components = save_data.traders[trader].inventory[key][i].components
+                                        } else {
+                                            const {internal, external} = save_data.traders[trader].inventory[key][i];
+                                            components = {internal, external};
+                                        }
+
+                                        if(!item_templates[components.internal]){
+                                            console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
+                                        } else if(components.external && !item_templates[components.external]) {
+                                            console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
+                                        } else {
+                                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                            trader_item_list.push({item, count: 1});
+                                        }
                                     }
-                                } catch (error) {
-                                    console.error(error);
+                                } else {
+                                    console.warn(`Skipped item, no such item type as ${0} could be found`)
                                 }
+                            } catch (error) {
+                                console.error(error);
                             }
                         }
-                        else {
-                            save_data.traders[trader].inventory[key].item.value = item_templates[key].value;
-                            if(item_templates[key].item_type === "EQUIPPABLE") {
-                                save_data.traders[trader].inventory[key].item.equip_effect = item_templates[key].equip_effect;
-                            } else if(item_templates[key].item_type === "USABLE") {
-                                save_data.traders[trader].inventory[key].item.use_effect = item_templates[key].use_effect;
-                            }
-                            trader_item_list.push({item: getItem(save_data.traders[trader].inventory[key].item), count: save_data.traders[trader].inventory[key].count});
-                        }
-                    });
-                }
-                traders[trader].refresh(); 
-                traders[trader].inventory = {};
-                add_to_trader_inventory(trader, trader_item_list);
-
-                traders[trader].last_refresh = save_data.traders[trader].last_refresh; 
-            }
-            else {
-                console.warn(`Trader "${trader} couldn't be found!`);
-                return;
-            }
-        }); //load trader inventories
-        
-
-        Object.keys(save_data.locations).forEach(function(key) {
-            if(locations[key]) {
-                if(save_data.locations[key].is_unlocked) {
-                    locations[key].is_unlocked = true;
-                }
-                if("parent_location" in locations[key]) { // if combat zone
-                    locations[key].enemy_groups_killed = save_data.locations[key].enemy_groups_killed || 0;   
-                }
-
-                //unlock activities
-                if(save_data.locations[key].unlocked_activities) {
-                    for(let i = 0; i < save_data.locations[key].unlocked_activities.length; i++) {
-                        locations[key].activities[save_data.locations[key].unlocked_activities[i]].is_unlocked = true;
                     }
-                }
-            } else {
-                console.warn(`Location "${key}" couldn't be found!`);
-                return;
+                    else {
+                        save_data.traders[trader].inventory[key].item.value = item_templates[key].value;
+                        if(item_templates[key].item_type === "EQUIPPABLE") {
+                            save_data.traders[trader].inventory[key].item.equip_effect = item_templates[key].equip_effect;
+                        } else if(item_templates[key].item_type === "USABLE") {
+                            save_data.traders[trader].inventory[key].item.use_effect = item_templates[key].use_effect;
+                        }
+                        trader_item_list.push({item: getItem(save_data.traders[trader].inventory[key].item), count: save_data.traders[trader].inventory[key].count});
+                    }
+                });
             }
-        }); //load for locations their unlocked status and their killcounts
+            traders[trader].refresh(); 
+            traders[trader].inventory = {};
+            add_to_trader_inventory(trader, trader_item_list);
 
-        Object.keys(save_data.activities).forEach(function(activity) {
-            if(activities[activity]) {
-                activities[activity].is_unlocked = save_data.activities[activity].is_unlocked || false;
-            } else {
-                console.warn(`Activity "${activity}" couldn't be found!`);
-            }
-        });
-
-        Object.keys(save_data.active_effects).forEach(function(effect) {
-            active_effects[effect] = save_data.active_effects[effect];
-        });
-
-        if(save_data.books) {
-            Object.keys(save_data.books).forEach(book=>{
-                if(!item_templates[book]) {
-                    console.warn(`Book ${book} couldn't be found and was skipped!`);
-                }
-
-                if(save_data.books[book].is_finished) {
-                    item_templates[book].setAsFinished();
-                } else if(save_data.books[book].accumulated_time > 0) {
-                    item_templates[book].addProgress(save_data.books[book].accumulated_time);
-                }
-            });
+            traders[trader].last_refresh = save_data.traders[trader].last_refresh; 
         }
-        
-        if(save_data.character.hp_to_full == null || save_data.character.hp_to_full >= character.stats.full.max_health) {
-            character.stats.full.health = 1;
+        else {
+            console.warn(`Trader "${trader} couldn't be found!`);
+            return;
+        }
+    }); //load trader inventories
+    
+
+    Object.keys(save_data.locations).forEach(function(key) {
+        if(locations[key]) {
+            if(save_data.locations[key].is_unlocked) {
+                locations[key].is_unlocked = true;
+            }
+            if("parent_location" in locations[key]) { // if combat zone
+                locations[key].enemy_groups_killed = save_data.locations[key].enemy_groups_killed || 0;   
+            }
+
+            //unlock activities
+            if(save_data.locations[key].unlocked_activities) {
+                for(let i = 0; i < save_data.locations[key].unlocked_activities.length; i++) {
+                    locations[key].activities[save_data.locations[key].unlocked_activities[i]].is_unlocked = true;
+                }
+            }
         } else {
-            character.stats.full.health = character.stats.full.max_health - save_data.character.hp_to_full;
+            console.warn(`Location "${key}" couldn't be found!`);
+            return;
         }
-        //if missing hp is null (save got corrupted) or its more than max_health, set health to minimum allowed (which is 1)
-        //otherwise just do simple substraction
-        //then same with stamina below
-        if(save_data.character.stamina_to_full == null || save_data.character.stamina_to_full >= character.stats.full.max_stamina) {
-            character.stats.full.stamina = 0;
+    }); //load for locations their unlocked status and their killcounts
+
+    Object.keys(save_data.activities).forEach(function(activity) {
+        if(activities[activity]) {
+            activities[activity].is_unlocked = save_data.activities[activity].is_unlocked || false;
         } else {
-            character.stats.full.stamina = character.stats.full.max_stamina - save_data.character.stamina_to_full;
+            console.warn(`Activity "${activity}" couldn't be found!`);
         }
+    });
 
-        if(save_data["enemy_killcount"]) {
-            Object.keys(save_data["enemy_killcount"]).forEach(enemy_name => {
-                enemy_killcount[enemy_name] = save_data["enemy_killcount"][enemy_name];
-                create_new_bestiary_entry(enemy_name);
-            });
-        }
-        
-        update_character_stats();
-        update_displayed_character_inventory();
+    Object.keys(save_data.active_effects).forEach(function(effect) {
+        active_effects[effect] = save_data.active_effects[effect];
+    });
+    
+    if(save_data.character.hp_to_full == null || save_data.character.hp_to_full >= character.stats.full.max_health) {
+        character.stats.full.health = 1;
+    } else {
+        character.stats.full.health = character.stats.full.max_health - save_data.character.hp_to_full;
+    }
+    //if missing hp is null (save got corrupted) or its more than max_health, set health to minimum allowed (which is 1)
+    //otherwise just do simple substraction
+    //then same with stamina below
+    if(save_data.character.stamina_to_full == null || save_data.character.stamina_to_full >= character.stats.full.max_stamina) {
+        character.stats.full.stamina = 0;
+    } else {
+        character.stats.full.stamina = character.stats.full.max_stamina - save_data.character.stamina_to_full;
+    }
 
-        update_displayed_health();
-        //load current health
-        
-        //TODO: apply effects properly
-        update_displayed_effects();
-        
-        change_location(save_data["current location"]);
+    if(save_data["enemy_killcount"]) {
+        Object.keys(save_data["enemy_killcount"]).forEach(enemy_name => {
+            enemy_killcount[enemy_name] = save_data["enemy_killcount"][enemy_name];
+            create_new_bestiary_entry(enemy_name);
+        });
+    }
 
-        //set activity if any saved
-        if(save_data.current_activity) {
-            //search for it in location from save_data
-            const activity_id = save_data.current_activity.activity;
+    update_character_stats();
+    update_displayed_character_inventory();
 
-            if(typeof activity_id !== "undefined" && current_location.activities[activity_id]) {
-                start_activity(activity_id);
-                if(activities[activity_id].type === "JOB") {
-                    current_activity.working_time = save_data.current_activity.working_time;
-                    current_activity.earnings = save_data.current_activity.earnings * ((is_from_before_eco_rework == 1)*10 || 1);
-                    document.getElementById("action_end_earnings").innerHTML = `(earnings: ${format_money(current_activity.earnings)})`;
-                }
-                
-            } else {
-                console.warn("Couldn't find saved activity! It might have been removed");
+    update_displayed_health();
+    //load current health
+    
+    update_displayed_effects();
+    
+    change_location(save_data["current location"]);
+
+    //set activity if any saved
+    if(save_data.current_activity) {
+        //search for it in location from save_data
+        const activity_id = save_data.current_activity.activity;
+
+        if(typeof activity_id !== "undefined" && current_location.activities[activity_id]) {
+            start_activity(activity_id);
+            if(activities[activity_id].type === "JOB") {
+                current_activity.working_time = save_data.current_activity.working_time;
+                current_activity.earnings = save_data.current_activity.earnings * ((is_from_before_eco_rework == 1)*10 || 1);
+                document.getElementById("action_end_earnings").innerHTML = `(earnings: ${format_money(current_activity.earnings)})`;
             }
+            
+        } else {
+            console.warn("Couldn't find saved activity! It might have been removed");
         }
+    }
 
-        if(save_data.is_sleeping) {
-            start_sleeping();
-        }
-        if(save_data.is_reading) {
-            start_reading(save_data.is_reading);
-        }
-
-    } catch(error) {
-        throw error; //let other loading methods (from_file and from_localstorage) take care of it
+    if(save_data.is_sleeping) {
+        start_sleeping();
+    }
+    if(save_data.is_reading) {
+        start_reading(save_data.is_reading);
     }
 
 } //core function for loading
@@ -1851,6 +1929,7 @@ function load_from_localstorage() {
 function update_timer() {
     current_game_time.go_up(is_sleeping ? 6 : 1);
     update_combat_stats(); //yep, done every second, gotta try to optimize it at some point
+    //honestly unsure if it's still needed
     update_displayed_time();
 }
 

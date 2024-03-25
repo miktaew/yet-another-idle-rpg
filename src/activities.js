@@ -34,6 +34,7 @@ class Training extends Activity {
     }
 }
 
+/*
 class Gathering extends Activity {
     constructor(activity_data) {
         super(activity_data);
@@ -42,6 +43,7 @@ class Gathering extends Activity {
         //anyway, this waits for crafting to be implemented
     }
 }
+*/
 
 class Job extends Activity {
     constructor(activity_data) {
@@ -80,11 +82,18 @@ class Job extends Activity {
     });
     activities["weightlifting"] = new Training({
         name: "weightlifting",
-        action_text: "Carring heavy things",
+        action_text: "Carrying heavy things",
         description: "One of the most basic exercises",
         base_skills_names: ["Weightlifting"],
         is_unlocked: true,
-    })
+    });
+    activities["balancing"] = new Training({
+        name: "balancing",
+        action_text: "Trying to keep your balance",
+        description: "One of the most basic exercises",
+        base_skills_names: ["Equilibrium"],
+        is_unlocked: true,
+    });
 })();
 
 

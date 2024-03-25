@@ -60,6 +60,8 @@
 	--actions_div_top: var(--actions_div_top_default);
 
 	--options_action_textsize: 16px;
+
+	--location_name_div_width: 250px;
 }
 
 body {
@@ -364,6 +366,9 @@ body {
 	top: var(--stat_tooltip_top);
 	left: var(--stat_tooltip_left);
 }
+	.stat_breakdown {
+		text-align: left;
+	}
 
 .stat_slot_div:hover .stat_tooltip {
 	 display: block;
@@ -1443,10 +1448,10 @@ i {
 }
 		#location_name_div {
 			padding: 4px;
-			width: 250px;
+			width: var(--location_name_div_width);
 			float: left;
+			z-index: 2;
 		}
-
 		#location_types_div {
 			left: 292px;
 			width: 100px;
@@ -1480,11 +1485,20 @@ i {
 					}
 
 		#time_div {
-			padding: 4px;
+			padding: 2px;
 			text-align: right;
 			border-bottom: 1px solid white;
 		}
-
+			.icon {
+				position: relative;
+				top:3px;
+			}
+			.icon_night {
+				color: gray;
+			}
+			.icon_day {
+				color: orange;
+			}
 #location_name_div:hover #location_description_tooltip {
 	display: block;
 }

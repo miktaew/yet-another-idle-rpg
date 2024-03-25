@@ -27,26 +27,32 @@ class Dialogue {
 class Textline {
     constructor({name,
                  text,
+                 getText,
                  is_unlocked = true,
                  is_finished = false,
                  unlocks = {textlines: [],
                             locations: [],
                             dialogues: [],
                             traders: [],
+                            stances: [],
                             },
                 locks_lines = {},
+                otherUnlocks,
             }) 
     {
         this.name = name; // displayed option to click, don't make it too long
         this.text = text; // what's shown after clicking
+        this.getText = getText || function(){return this.text;};
+        this.otherUnlocks = otherUnlocks || function(){return;};
         this.is_unlocked = is_unlocked;
         this.is_finished = is_finished;
-        this.unlocks = unlocks;
+        this.unlocks = unlocks || {};
         
-        this.unlocks.textlines = typeof unlocks.textlines !== "undefined" ? unlocks.textlines : [];
-        this.unlocks.locations = typeof unlocks.locations !== "undefined" ? unlocks.locations : [];
-        this.unlocks.dialogues = typeof unlocks.dialogues !== "undefined" ? unlocks.dialogues : [];
-        this.unlocks.traders = typeof unlocks.traders !== "undefined" ? unlocks.traders : [];
+        this.unlocks.textlines = unlocks.textlines || [];
+        this.unlocks.locations = unlocks.locations || [];
+        this.unlocks.dialogues = unlocks.dialogues || [];
+        this.unlocks.traders = unlocks.traders || [];
+        this.unlocks.stances = unlocks.stances || [];
         
         this.locks_lines = locks_lines;
         //related text lines that get locked; might be itself, might be some previous line 
@@ -157,7 +163,7 @@ class Textline {
             }),
             "cleared cave": new Textline({
                 name: "I cleared the cave. Most of it, at least",
-                text: `Then I can't call you "too weak" anymore, can I? You are free to leave whenever you want, but still, be careful. You might also want to ask the guard for some tips about the outside.`,
+                text: `Then I can't call you "too weak" anymore, can I? You are free to leave whenever you want, but still, be careful. You might also want to ask the guard for some tips about the outside. He used to be an adventurer.`,
                 is_unlocked: false,
                 unlocks: {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 4"]}],
@@ -190,13 +196,6 @@ class Textline {
                 },
                 locks_lines: ["hello"],
             }),
-            "tips": new Textline({
-                name: "Can you give me any tips for the journey?",
-                is_unlocked: false,
-                text: `First and foremost, don't rush. It's fine to spend some more time here, to better prepare yourself. `
-                +`There's a lot of dangerous animals out there, much stronger than those damn rats, and in worst case you might even run into some bandits. `
-                +`If you see something that is too dangerous to fight, try to run away.`,
-            }),
             "job": new Textline({
                 name: "Do you maybe have any jobs for me?",
                 is_unlocked: false,
@@ -205,6 +204,67 @@ class Textline {
                     activities: [{location:"Village", activity:"patrolling"}],
                 },
                 locks_lines: ["job"],
+            }),
+            "tips": new Textline({
+                name: "Can you give me any tips for the journey?",
+                is_unlocked: false,
+                text: `First and foremost, don't rush. It's fine to spend some more time here, to better prepare yourself. `
+                +`There's a lot of dangerous animals out there, much stronger than those damn rats, and in worst case you might even run into some bandits. `
+                +`If you see something that is too dangerous to fight, try to run away.`,
+                unlocks: {
+                    textlines: [{dialogue: "village guard", lines: ["teach"]}],
+                },
+            }),
+            "teach": new Textline({
+                name: "Could you maybe teach me something that would be of use?",
+                is_unlocked: false,
+                text: `Lemme take a look... Yes, it looks like you know some basics. Do you know any proper techniques? No? I thought so. I could teach you the most standard three. `
+                +`They might be more tiring than fighting the "normal" way, but if used in a proper situation, they will be a lot more effective. Two can be easily presented through `
+                + `some sparring, so let's start with it. The third I'll just have to explain. How about that?`,
+                unlocks: {
+                    locations: ["Sparring with the village guard (quick)", "Sparring with the village guard (heavy)"],
+                },
+                locks_lines: ["teach"],
+            }),
+            "quick": new Textline({
+                name: "So about the quick stance...",
+                is_unlocked: false,
+                text: `It's usually called "quick steps". As you have seen, it's about being quick on your feet. `
+                +`While power of your attacks will suffer, it's very fast, making it perfect against more fragile enemies`,
+                otherUnlocks: () => {
+                    if(dialogues["village guard"].textlines["heavy"].is_finished) {
+                        dialogues["village guard"].textlines["wide"].is_unlocked = true;
+                    }
+                },
+                locks_lines: ["quick"],
+                unlocks: {
+                    stances: ["quick"]
+                }
+            }),
+            "heavy": new Textline({
+                name: "So about the heavy stance...",
+                is_unlocked: false,
+                text: `It's usually called "crushing force". As you have seen, it's about putting all your strength in attacks. ` 
+                +`It will make your attacks noticeably slower, but it's a perfect solution if you face an enemy that's too tough for normal attacks`,
+                otherUnlocks: () => {
+                    if(dialogues["village guard"].textlines["quick"].is_finished) {
+                        dialogues["village guard"].textlines["wide"].is_unlocked = true;
+                    }
+                },
+                locks_lines: ["heavy"],
+                unlocks: {
+                    stances: ["heavy"]
+                }
+            }),
+            "wide": new Textline({
+                name: "What's the third technique?",
+                is_unlocked: false,
+                text: `It's usually called "broad arc". Instead of focusing on a single target, you make a wide swing to hit as many as possible. ` 
+                +`It might work great against groups of weaker enemies, but it will also significantly reduce the power of your attacks and will be even more tiring than the other two stances.`,
+                locks_lines: ["wide"],
+                unlocks: {
+                    stances: ["wide"]
+                }
             }),
         }
     });

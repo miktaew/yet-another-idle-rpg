@@ -92,7 +92,7 @@ class Skill {
             }
             return rank_name;
         }
-    };
+    }
 
     add_xp({xp_to_add = 0}) {
         if(xp_to_add == 0) {
@@ -172,7 +172,7 @@ class Skill {
             }
         }
         return {};
-    };
+    }
 
     /**
      * @description only called on leveling; adds bonuses to character, returns all the bonuses so they can be logged in message_log 
@@ -216,7 +216,7 @@ class Skill {
         }
 
         return gains;
-    };
+    }
 
     get_coefficient(scaling_type) { //starts from 1
         //maybe lvl as param, with current lvl being used if it's undefined?
@@ -226,15 +226,13 @@ class Skill {
                 return 1 + Math.round((this.max_level_coefficient - 1) * this.current_level / this.max_level * 1000) / 1000;
             case "multiplicative":
                 return Math.round(Math.pow(this.max_level_coefficient, this.current_level / this.max_level) * 1000) / 1000;
-                break;
             default: //same as on multiplicative
                 return Math.round(Math.pow(this.max_level_coefficient, this.current_level / this.max_level) * 1000) / 1000;
-                break;
         }
-    };
+    }
     get_level_bonus() { //starts from 0
         return this.max_level_bonus * this.current_level / this.max_level;
-    };
+    }
 
     get_parent_xp_multiplier() {
         if(this.parent_skill) {
@@ -268,11 +266,13 @@ function get_unlocked_skill_rewards(skill_id) {
     return unlocked_rewards;
 }
 
+
 /**
  * gets rewards for next lvl
  * @param {String} skill_id key used in skills object
  * @returns rewards for next level, formatted to a string
  */
+/*
 function get_next_skill_reward(skill_id) {
     if(skills[skill_id].current_level !== "Max!") {
         let rewards = skills[skill_id].rewards.milestones[get_next_skill_milestone(skill_id)];
@@ -286,6 +286,7 @@ function get_next_skill_reward(skill_id) {
         return '';
     }
 }
+*/
 
 /**
  * 
@@ -416,6 +417,9 @@ function format_skill_rewards(milestone){
                                         3: {
                                             stats: {
                                                 "agility": 1,
+                                            },
+                                            xp_multipliers: {
+                                                Equilibrium: 1.05,
                                             }
                                         },
                                         5: {
@@ -429,6 +433,9 @@ function format_skill_rewards(milestone){
                                         7: {
                                             stats: {
                                                 "agility": 2,
+                                            },
+                                            xp_multipliers: {
+                                                Equilibrium: 1.05,
                                             }
                                         },
                                         10: {
@@ -1080,7 +1087,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                   description: "Great way to improve the efficiency of the body",
                                   names: {0: "Running"},
                                   max_level: 50,
-                                  max_level_coefficient: 4,
+                                  max_level_coefficient: 2,
                                   base_xp_cost: 50,
                                   rewards: {
                                     milestones: {
@@ -1191,6 +1198,62 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
     },
     
   });
+  skills["Equilibrium"] = new Skill({skill_id: "Equilibrium",
+    description: "Nothing will throw you off balance (at least the physical one)",
+    names: {0: "Equilibrium"},
+    max_level: 50,
+    max_level_coefficient: 4,
+    base_xp_cost: 50,
+    rewards: {
+      milestones: {
+          1: {
+              stats: {
+                agility: 1,
+              },
+          },
+          3: {
+              stats: {
+                intuition: 1,
+              }
+          },
+          5: {
+              stats: {
+                agility: 1,
+              },
+              multipliers: {
+                agility: 1.05,
+                max_stamina: 1.05,
+              }
+          },
+          7: {
+              stats: {
+                intuition: 1,
+              },
+          },
+          10: {
+              stats: {
+                agility: 1,
+              },
+              multipliers: {
+                intuition: 1.05,
+                max_stamina: 1.05,
+              }
+          }
+      }
+    },
+    get_effect_description: ()=> {
+      let value = skills["Equilibrium"].get_coefficient("multiplicative");
+      if(value >= 100) {
+          value = Math.round(value);
+      } else if(value >= 10 && value < 100) {
+          value = Math.round(value*10)/10; 
+      } else {
+          value = Math.round(value*100)/100;
+      }
+      return `Multiplies agility by ${value}`;
+    },
+    
+  });
 })();
 
 //crafting skills
@@ -1229,7 +1292,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
         skill_id: "Iron skin",
         names: {0: "Tough skin", 5: "Wooden skin", 10: "Iron skin"},
         description: "As it gets damaged, your skin regenerates to be tougher and tougher",
-        base_xp_cost: 100,
+        base_xp_cost: 160,
         xp_scaling: 1.9,
         max_level: 30,
         max_level_bonus: 30,

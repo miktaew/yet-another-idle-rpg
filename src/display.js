@@ -4,7 +4,7 @@ import { traders } from "./traders.js";
 import { current_trader, to_buy, to_sell } from "./trade.js";
 import { skills, get_unlocked_skill_rewards, get_next_skill_milestone } from "./skills.js";
 import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain } from "./character.js";
-import { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, get_current_book, last_location_with_bed, last_combat_location, faved_stances, current_stance, selected_stance } from "./main.js";
+import { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, get_current_book, last_location_with_bed, last_combat_location, faved_stances, selected_stance } from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time } from "./game_time.js";
@@ -69,7 +69,6 @@ const data_entry_divs = {
                             skills: document.getElementById("skills_xp_multiplier"),
                             stamina: document.getElementById("stamina_efficiency_multiplier")
                         };
-const data_list = document.getElementById("data_list");
 
 let skill_sorting = "name";
 let skill_sorting_direction = "asc";
@@ -95,7 +94,7 @@ const stats_divs = {strength: document.getElementById("strength_slot"), agility:
                     crit_multiplier: document.getElementById("crit_multiplier_slot")
                     };
 
-const other_combat_divs = {offensive_points: document.getElementById("hit_chance_slot"), defensive_action: document.getElementById("defensive_action_slot"),
+const other_combat_divs = {attack_points: document.getElementById("hit_chance_slot"), defensive_action: document.getElementById("defensive_action_slot"),
                            defensive_points: document.getElementById("defensive_action_chance_slot")
                           };
 
@@ -419,6 +418,7 @@ function log_loot(loot_list) {
 }
 
 function start_activity_animation(settings) {
+    clearInterval(end_activity_animation);
     activity_anim = setInterval(() => { //sets a tiny little "animation" for activity text
         const action_status_div = document.getElementById("action_status_div");
         let end = "";
@@ -560,7 +560,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);
 
-            var item_value_span = document.createElement("span");
+            let item_value_span = document.createElement("span");
             item_value_span.innerHTML = `${format_money(round_item_price(trader.inventory[key].item.getValue() * trader.getProfitMargin()), true)}`;
             item_value_span.classList.add("item_value", "item_controls");
             item_control_div.appendChild(item_value_span);
@@ -638,7 +638,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
             item_control_div.setAttribute("data-item_value", `${actual_item.getValue()}`);
             item_control_div.appendChild(item_div);
 
-            var item_value_span = document.createElement("span");
+            let item_value_span = document.createElement("span");
             item_value_span.innerHTML = `${format_money(actual_item.getValue(), true)}`;
             item_value_span.classList.add("item_value", "item_controls");
             item_control_div.appendChild(item_value_span);
@@ -853,7 +853,7 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
                 item_equip_span.classList.add("equip_item_button", "item_controls");
                 item_control_div.appendChild(item_equip_span);
 
-                var item_value_span = document.createElement("span");
+                let item_value_span = document.createElement("span");
 
                 item_value_span.innerHTML = `${format_money(character.inventory[key][i].getValue(), true)}`;
                 item_value_span.classList.add("item_value", "item_controls");
@@ -937,7 +937,7 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);
 
-            var item_value_span = document.createElement("span");
+            let item_value_span = document.createElement("span");
             item_value_span.innerHTML = `${format_money(character.inventory[key].item.getValue(), true)}`;
             item_value_span.classList.add("item_value", "item_controls");
             item_control_div.appendChild(item_value_span);
@@ -1030,7 +1030,7 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
                 item_control_div.appendChild(trade_button_5);
                 item_control_div.appendChild(trade_button_10);
 
-                var item_value_span = document.createElement("span");
+                let item_value_span = document.createElement("span");
                 item_value_span.innerHTML = `${format_money(round_item_price(actual_item.getValue() * traders[current_trader].getProfitMargin()), true)}`;
                 item_value_span.classList.add("item_value", "item_controls");
                 item_control_div.appendChild(item_value_span);
@@ -1058,7 +1058,7 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
                 item_control_div.setAttribute("data-item_value", `${actual_item.getValue()}`);
                 item_control_div.appendChild(item_div);
 
-                var item_value_span = document.createElement("span");
+                let item_value_span = document.createElement("span");
                 item_value_span.innerHTML = `${format_money(round_item_price(actual_item.getValue() * traders[current_trader].getProfitMargin()/10)*10, true)}`;
                 item_value_span.classList.add("item_value", "item_controls");
                 item_control_div.appendChild(item_value_span);
@@ -1265,7 +1265,7 @@ function update_displayed_normal_location(location) {
     /////////////////////////////////
     //add butttons to change location
 
-    const available_locations = location.connected_locations.filter(location => location.location.is_unlocked);
+    const available_locations = location.connected_locations.filter(location => {if(location.location.is_unlocked && !location.location.is_challenge) return true});
 
     if(available_locations.length > 3 && (location.sleeping + available_trainings.length + available_jobs.length +  available_traders.length + available_dialogues.length) > 2) {
         const locations_button = document.createElement("div");
@@ -1279,7 +1279,7 @@ function update_displayed_normal_location(location) {
     }
 
     location_name_span.innerText = current_location.name;
-    document.getElementById("location_description_div").innerText = current_location.description;
+    document.getElementById("location_description_div").innerText = current_location.getDescription();
 }
 
 /**
@@ -1383,8 +1383,7 @@ function create_location_choices({location, category, add_icons = true, is_comba
     } else if (category === "travel") {
         if(!is_combat){
             for(let i = 0; i < location.connected_locations.length; i++) { 
-
-                if(location.connected_locations[i].location.is_unlocked == false) { //skip if not unlocked
+                if(location.connected_locations[i].location.is_unlocked == false || location.connected_locations[i].location.is_finished) { //skip if not unlocked or if finished
                     continue;
                 }
 
@@ -1494,12 +1493,16 @@ function update_displayed_combat_location(location) {
 
 
     location_name_span.innerText = current_location.name;
-    //ADD tooltip with description to this!
+    if(current_location.types.length == 0) {
+        document.documentElement.style.setProperty('--location_name_div_width', '390px');
+    } else {
+        document.documentElement.style.setProperty('--location_name_div_width', '250px');
+    }
 
-    location_tooltip.innerText = current_location.description;
+    location_tooltip.innerText = current_location.getDescription();
     location_tooltip.classList.add("location_tooltip");
     
-    document.getElementById("location_description_div").innerText = current_location.description;
+    document.getElementById("location_description_div").innerText = current_location.getDescription();
 
     //add location types to display
     for(let i = 0; i < current_location.types?.length; i++) {
@@ -1517,7 +1520,7 @@ function update_displayed_combat_location(location) {
 }
 
 function update_displayed_health() { //call it when using healing items, resting or getting hit
-    current_health_value_div.innerText = (Math.round(character.stats.full.health*10)/10) + "/" + character.stats.full.max_health + " hp";
+    current_health_value_div.innerText = (Math.round(character.stats.full.health*10)/10) + "/" + Math.round(character.stats.full.max_health) + " hp";
     current_health_bar.style.width = (character.stats.full.health*100/character.stats.full.max_health).toString() +"%";
 }
 function update_displayed_stamina() { //call it when eating, resting or fighting
@@ -1540,6 +1543,8 @@ function update_displayed_stats() { //updates displayed stats
         else {
             stats_divs[key].innerHTML = `${(character.stats.full[key]).toFixed(1)}`;
         }
+        update_stat_description(key);
+        
     });
 }
 
@@ -1547,13 +1552,13 @@ function update_displayed_combat_stats() {
     const attack_stats = document.getElementById("attack_stats");
 
     const ap = Math.round(character.combat_stats.attack_points);
-    other_combat_divs.offensive_points.innerHTML = `${ap}`;
+    other_combat_divs.attack_points.innerHTML = `${ap}`;
 
     if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
         const dp = (character.combat_stats.block_chance*100).toFixed(1)
         other_combat_divs.defensive_action.innerHTML = "Block :";
         other_combat_divs.defensive_points.innerHTML = `${dp}%`;
-        other_combat_divs.defensive_points.parentNode.children[2].innerHTML = "Chance to block an attack";
+        other_combat_divs.defensive_points.parentNode.children[2].children[0].innerHTML = "Chance to block an attack";
 
         attack_stats.children[3].innerHTML = `Block : ${Math.round(dp)}%`;
     }
@@ -1561,16 +1566,31 @@ function update_displayed_combat_stats() {
         const ep = Math.round(character.combat_stats.evasion_points);
         other_combat_divs.defensive_action.innerHTML = "EP : ";
         other_combat_divs.defensive_points.innerHTML = `${ep}`;
-        other_combat_divs.defensive_points.parentNode.children[2].innerHTML = 
+        other_combat_divs.defensive_points.parentNode.children[2].children[0].innerHTML = 
         "Evasion points, a total value of everything that contributes to the evasion chance, except for some situational skills and modifiers";
 
         attack_stats.children[3].innerHTML = `EP: ${Math.round(ep)} `;
     }
+    update_stat_description("defensive_points");
+    update_stat_description("attack_points");
 
     attack_stats.children[0].innerHTML = `Atk pwr: ${Math.round(character.get_attack_power()*10)/10}`;
     attack_stats.children[1].innerHTML = `Atk spd: ${Math.round(character.get_attack_speed()*100)/100}`;
     attack_stats.children[2].innerHTML = `AP  ${Math.round(ap)}`;
     attack_stats.children[4].innerHTML = `Def: ${Math.round(character.stats.full.defense)} `;
+}
+
+function update_stat_description(stat) {
+    let target;
+    if(stats_divs[stat]) {
+        target = stats_divs[stat].parentNode.children[2].children[1];
+        target.innerHTML = 
+`<br>Breakdown:
+<br>+ ${character.stats.total_flat[stat]}
+<br>x ${Math.round(100*character.stats.total_multiplier[stat])/100}`;
+
+    }
+    return;
 }
 
 function update_displayed_effects() {
@@ -1607,7 +1627,11 @@ function update_displayed_effect_durations() {
 }
 
 function update_displayed_time() {
-    time_field.innerHTML = current_game_time.toString();
+    if(current_game_time.hour >= 20 || current_game_time.hour < 4) {
+        time_field.innerHTML = current_game_time.toString() + '<span class="material-icons icon icon_night">nightlight_round</span>';
+    } else {
+        time_field.innerHTML = current_game_time.toString() + '<span class="material-icons icon icon_day">light_mode</span>';
+    }
 }
 
 /** 
@@ -2032,9 +2056,6 @@ function update_displayed_stance_list() {
             stance_bar_divs[stance].innerHTML += stance_info
 
             stance_bar_divs[stance].appendChild(create_stance_tooltip(stance));
-
-            //TODO: add tooltips with stats!
-
             stance_list.append(stance_bar_divs[stance]);
         }
     });
@@ -2072,6 +2093,7 @@ function update_displayed_stance_list() {
 }
 
 function create_stance_tooltip(stance_id) {
+    //TODO: add stats to tooltips!
     const tooltip_div = document.createElement("div");
     tooltip_div.classList.add("stance_tooltip");
     tooltip_div.innerHTML = 
@@ -2136,7 +2158,7 @@ function update_displayed_faved_stances() {
     const selection = document.getElementById("character_stance_selection");
     if(selection.children && selection.querySelector(`[data-stance='${selected_stance}']`)) {
         selection.querySelector(`[data-stance='${selected_stance}']`).children[0].checked = true;
-    };
+    }
 }
 
 /**

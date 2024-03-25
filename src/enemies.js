@@ -13,7 +13,8 @@ class Enemy {
                  stats, 
                  rank,
                  loot_list = [], 
-                 size = "small"
+                 size = "small",
+                 add_to_bestiary = true
                 }) {
                     
         this.name = name;
@@ -24,6 +25,8 @@ class Enemy {
         //only magic & defense can be 0 in stats, other things will cause issues
         this.stats.max_health = stats.health;
         this.loot_list = loot_list;
+
+        this.add_to_bestiary = add_to_bestiary; //generally set it false only for SOME of challenges and keep true for everything else
 
         if(size !== "small" && size !== "medium" && size !== "large") {
             throw new Error(`No such enemy size option as "size"!`);
@@ -40,6 +43,10 @@ class Enemy {
         
         for (let i = 0; i < this.loot_list.length; i++) {
             item = this.loot_list[i];
+            if(!item_templates[item.item_name]) {
+                console.warn(`Tried to loot an item "${item.item_name}" from "${this.name}", but such an item doesn't exist!`);
+                continue;
+            }
             if (item.chance * this.get_droprate_modifier() >= Math.random()) {
                 // checks if it should drop
                 let item_count = 1;
@@ -53,7 +60,7 @@ class Enemy {
         }
 
         return loot;
-    };
+    }
 
     get_droprate_modifier() {
         let droprate_modifier = 1;
@@ -68,6 +75,7 @@ class Enemy {
     }
 }
 
+//regular enemies
 (function(){
     /*
     lore note:
@@ -109,10 +117,8 @@ class Enemy {
         rank: 2,
         stats: {health: 150, attack: 24, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 8}, 
         loot_list: [
-            /* //those items were removed, so let's keep it in comment for a while
-            {item_name: "Wolf tooth", chance: 0.02, count: {min: 1, max: 2}},
-            {item_name: "Wolf pelt", chance: 0.01}
-            */
+            {item_name: "Wolf fang", chance: 0.03},
+            {item_name: "Wolf pelt", chance: 0.01},
         ]
     });
 
@@ -123,10 +129,8 @@ class Enemy {
         rank: 2,
         stats: {health: 120, attack: 24, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.4, defense: 4}, 
         loot_list: [
-            /*
-            {item_name: "Wolf tooth", chance: 0.02},
-            {item_name: "Wolf pelt", chance: 0.01}
-            */
+            {item_name: "Wolf fang", chance: 0.03},
+            {item_name: "Wolf pelt", chance: 0.01},
         ],
         size: "small",
     });
@@ -138,13 +142,33 @@ class Enemy {
         rank: 3,
         stats: {health: 200, attack: 40, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.3, defense: 20}, 
         loot_list: [
-            /*
-            {item_name: "Wolf tooth", chance: 0.02, count: {min: 1, max: 3}},
-            {item_name: "Wolf pelt", chance: 0.01}
-            */
+            {item_name: "Wolf fang", chance: 0.04},
+            {item_name: "Wolf pelt", chance: 0.02},
+            {item_name: "High quality wolf fang", chance: 0.002}
         ],
         size: "medium"
     });
 })();
+
+
+//challenge enemies
+(function(){
+    enemy_templates["Village guard (heavy)"] = new Enemy({
+        name: "Village guard (heavy)", 
+        description: "", 
+        add_to_bestiary: false,
+        xp_value: 1,
+        rank: 4,
+        stats: {health: 40, attack: 70, agility: 20, dexterity: 80, magic: 0, intuition: 20, attack_speed: 0.1, defense: 30},
+    });
+    enemy_templates["Village guard (quick)"] = new Enemy({
+        name: "Village guard (quick)", 
+        description: "", 
+        add_to_bestiary: false,
+        xp_value: 1,
+        rank: 4,
+        stats: {health: 40, attack: 20, agility: 20, dexterity: 80, magic: 0, intuition: 20, attack_speed: 2, defense: 10},
+    });
+})()
 
 export {Enemy, enemy_templates, enemy_killcount};
