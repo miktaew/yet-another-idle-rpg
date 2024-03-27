@@ -596,6 +596,16 @@ book_stats["Old combat manual"] = new BookData({
     },
 });
 
+book_stats["Twist liek a snek"] = new BookData({
+    required_time: 320,
+    literacy_xp_rate: 1,
+    rewards: {
+        xp_multipliers: {
+            evasion: 1.2,
+        }
+    },
+});
+
 //books
 item_templates["ABC for kids"] = new Book({
     name: "ABC for kids",
@@ -608,6 +618,13 @@ item_templates["Old combat manual"] = new Book({
     description: "Old book about combat, worn and outdated, but might still contain something useful",
     value: 200,
 });
+
+item_templates["Twist liek a snek"] = new Book({
+    name: "Twist liek a snek",
+    description: "This book has a terrible grammar, seemingly written by some uneducated bandit, but despite that it quite well details how to properly evade attacks.",
+    value: 200,
+});
+
 
 //miscellaneous:
 (function(){
@@ -690,6 +707,25 @@ item_templates["Old combat manual"] = new Book({
             }
         }
     });
+    item_templates["Short iron blade"] = new WeaponComponent({
+        name: "Short iron blade", description: "A good iron blade. Perfect length for a dagger, but could be also used for a spear",
+        component_type: "short blade",
+        value: 200,
+        component_tier: 2,
+        name_prefix: "Iron",
+        attack_value: 9,
+        stats: {
+            crit_rate: {
+                flat: 0.1,
+            },
+            attack_speed: {
+                multiplier: 1.30,
+            },
+            agility: {
+                flat: 2,
+            }
+        }
+    });
     item_templates["Cheap long iron blade"] = new WeaponComponent({
         name: "Cheap long iron blade", description: "Crude blade made of iron, with a perfect length for a sword",
         component_type: "long blade",
@@ -706,6 +742,22 @@ item_templates["Old combat manual"] = new Book({
             },
         }
     });
+    item_templates["Long iron blade"] = new WeaponComponent({
+        name: "Long iron blade", description: "Good blade made of iron, with a perfect length for a sword",
+        component_type: "long blade",
+        value: 260,
+        name_prefix: "Iron",
+        component_tier: 2,
+        attack_value: 15,
+        stats: {
+            attack_speed: {
+                multiplier: 1.15,
+            },
+            crit_rate: {
+                flat: 0.04,
+            },
+        }
+    });
     item_templates["Cheap iron axe head"] = new WeaponComponent({
         name: "Cheap iron axe head", description: "A heavy axe head made of low quality iron",
         component_type: "axe head",
@@ -719,6 +771,19 @@ item_templates["Old combat manual"] = new Book({
             }
         }
     });
+    item_templates["Iron axe head"] = new WeaponComponent({
+        name: "Iron axe head", description: "A heavy axe head made of good iron",
+        component_type: "axe head",
+        value: 260,
+        name_prefix: "Iron",
+        component_tier: 1,
+        attack_value: 18,
+        stats: {
+            attack_speed: {
+                multiplier: 0.95,
+            }
+        }
+    });
     item_templates["Cheap iron hammer head"] = new WeaponComponent({
         name: "Cheap iron hammer head", description: "A crude ball made of low quality iron, with a small hole for the handle",
         component_type: "hammer head",
@@ -729,6 +794,20 @@ item_templates["Old combat manual"] = new Book({
         stats: {
             attack_speed: {
                 multiplier: 0.8,
+            }
+        }
+    });
+
+    item_templates["Iron hammer head"] = new WeaponComponent({
+        name: "Iron hammer head", description: "A crude ball made of iron, with a small hole for the handle",
+        component_type: "hammer head",
+        value: 260,
+        name_prefix: "Iron",
+        component_tier: 2,
+        attack_value: 22,
+        stats: {
+            attack_speed: {
+                multiplier: 0.85,
             }
         }
     });
@@ -775,10 +854,22 @@ item_templates["Old combat manual"] = new Book({
             handle: "Simple long wooden shaft"
         }
     });
+    item_templates["Iron spear"] = new Weapon({
+        components: {
+            head: "Short iron blade",
+            handle: "Simple long wooden shaft"
+        }
+    });
 
     item_templates["Cheap iron dagger"] = new Weapon({
         components: {
             head: "Cheap short iron blade",
+            handle: "Simple short wooden hilt",
+        }
+    });
+    item_templates["Iron dagger"] = new Weapon({
+        components: {
+            head: "Short iron blade",
             handle: "Simple short wooden hilt",
         }
     });
@@ -789,6 +880,12 @@ item_templates["Old combat manual"] = new Book({
             handle: "Simple short wooden hilt",
         }
     });
+    item_templates["Iron sword"] = new Weapon({
+        components: {
+            head: "Long iron blade",
+            handle: "Simple short wooden hilt",
+        }
+    });
 
     item_templates["Cheap iron axe"] = new Weapon({
         components: {
@@ -796,10 +893,22 @@ item_templates["Old combat manual"] = new Book({
             handle: "Simple medium wooden handle",
         }
     });
+    item_templates["Iron axe"] = new Weapon({
+        components: {
+            head: "Iron axe head",
+            handle: "Simple medium wooden handle",
+        }
+    });
 
     item_templates["Cheap iron battle hammer"] = new Weapon({
         components: {
             head: "Cheap iron hammer head",
+            handle: "Simple medium wooden handle",
+        }
+    });
+    item_templates["Iron battle hammer"] = new Weapon({
+        components: {
+            head: "Iron hammer head",
             handle: "Simple medium wooden handle",
         }
     });
@@ -816,14 +925,43 @@ item_templates["Old combat manual"] = new Book({
         defense_value: 2,
         component_tier: 1,
     });
+    item_templates["Leather vest [component]"] = new ArmorComponent({
+        name: "Leather vest [component]", description: "Vest providing a rather low protection.", 
+        value: 500,
+        armor_name: "Leather vest",
+        equip_slot: "torso",
+        component_type: "internal",
+        defense_value: 4,
+        component_tier: 2,
+    });
 
     item_templates["Cheap leather pants [component]"] = new ArmorComponent({
-        name: "Cheap leather pants [component]", description: "Pants of made of unknown leather. Uncomfortable.", 
+        name: "Cheap leather pants [component]", description: "Pants made of unknown leather. Uncomfortable.", 
         value: 200,
         armor_name: "Cheap leather pants",
         equip_slot: "legs",
         component_type: "internal",
         defense_value: 2,
+        component_tier: 1,
+    });
+
+    item_templates["Leather pants [component]"] = new ArmorComponent({
+        name: "Leather pants [component]", description: "Pants made of average quality leather. Slightly uncomfortable.", 
+        value: 500,
+        armor_name: "Leather pants",
+        equip_slot: "legs",
+        component_type: "internal",
+        defense_value: 4,
+        component_tier: 1,
+    });
+
+    item_templates["Leather hat [component]"] = new ArmorComponent({
+        name: "Leather hat [component]", description: "A leather hat. Should provide some protection, although it makes your skin itchy.",
+        value: 500,
+        armor_name: "Leather hat",
+        equip_slot: "head",
+        component_type: "internal",
+        defense_value: 4,
         component_tier: 1,
     });
 })();
@@ -835,9 +973,26 @@ item_templates["Old combat manual"] = new Book({
             internal: "Cheap leather vest [component]",
         }
     });
+    item_templates["Leather vest"] = new Armor({
+        components: { 
+            internal: "Leather vest [component]",
+        }
+    });
+
     item_templates["Cheap leather pants"] = new Armor({
         components: {
             internal: "Cheap leather pants [component]",
+        }
+    });
+    item_templates["Leather pants"] = new Armor({
+        components: {
+            internal: "Leather pants [component]",
+        }
+    });
+
+    item_templates["Leather hat"] = new Armor({
+        components: {
+            internal: "Leather hat [component]",
         }
     })
 })();
@@ -864,7 +1019,7 @@ item_templates["Old combat manual"] = new Book({
     item_templates["Wooden shield base"] = new ShieldComponent({
         name: "Wooden shield base", description: "Proper wooden shield component, although it could use some additional reinforcement", 
         value: 400,
-        shield_strength: 10,
+        shield_strength: 7,
         shield_name: "Wooden shield",
         component_tier: 1,
         component_type: "shield base"
@@ -890,6 +1045,13 @@ item_templates["Old combat manual"] = new Book({
     item_templates["Crude wooden shield"] = new Shield({
         components: {
             shield_base: "Crude wooden shield base",
+            handle: "Basic shield handle",
+        }
+    });
+
+    item_templates["Wooden shield"] = new Shield({
+        components: {
+            shield_base: "Wooden shield base",
             handle: "Basic shield handle",
         }
     });

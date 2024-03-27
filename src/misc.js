@@ -22,7 +22,7 @@ function round_item_price(price) {
     } else if(price > 999) {
         return Math.round(price/100)*100;
     } else if(price > 99){
-        return Math.round(price/10)*10;;
+        return Math.round(price/10)*10;
     } else {
         return Math.round(price);
     }

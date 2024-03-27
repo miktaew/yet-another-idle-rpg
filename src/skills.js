@@ -113,12 +113,12 @@ class Skill {
                 while (this.total_xp >= this.total_xp_to_next_lvl) {
 
                     level_after_xp += 1;
-                    this.total_xp_to_next_lvl = this.base_xp_cost * (1 - this.xp_scaling ** (level_after_xp + 1)) / (1 - this.xp_scaling);
+                    this.total_xp_to_next_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** (level_after_xp + 1)) / (1 - this.xp_scaling));
                 } //calculates lvl reached after adding xp
                 //probably could be done much more efficiently, but it shouldn't be a problem anyway
 
                 
-                let total_xp_to_previous_lvl = this.base_xp_cost * (1 - this.xp_scaling ** level_after_xp) / (1 - this.xp_scaling);
+                let total_xp_to_previous_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** level_after_xp) / (1 - this.xp_scaling));
                 //xp needed for current lvl, same formula but for n-1
 
                 if(level_after_xp == 0) { 
@@ -130,7 +130,7 @@ class Skill {
                 let gains;
                 if (level_after_xp < this.max_level) { //wont reach max lvl
                     gains = this.get_bonus_stats(level_after_xp);
-                    this.xp_to_next_lvl = this.total_xp_to_next_lvl - total_xp_to_previous_lvl;
+                    this.xp_to_next_lvl = Math.round(this.total_xp_to_next_lvl - total_xp_to_previous_lvl);
                     this.current_level = level_after_xp;
                     this.current_xp = this.total_xp - total_xp_to_previous_lvl;
                 }
@@ -975,7 +975,6 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         6: {
                                             stats: {
                                                 strength: 1,
-                                                max_stamina: 2,
                                             },
                                             xp_multipliers: {
                                                 Weightlifting: 1.1,
@@ -997,7 +996,6 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                             stats: {
                                                 strength: 1,
                                                 dexterity: 1,
-                                                max_stamina: 2,
                                             },
                                         },
                                         10: {

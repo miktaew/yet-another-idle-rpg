@@ -55,8 +55,8 @@ class Job extends Activity {
 
 //jobs
 (function(){
-    activities["plowing the fields"] = new Job({
-        name: "plowing the fields",
+    activities["fieldwork"] = new Job({
+        name: "fieldwork",
         action_text: "Working on the fields",
         description: "It's tiring and doesn't pay much, but it's better than doing nothing",
         base_skills_names: ["Farming"],

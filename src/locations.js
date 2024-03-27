@@ -556,7 +556,13 @@ class LocationType{
     locations["Nearby cave"] = new Location({ 
         connected_locations: [{location: locations["Village"], custom_text: "Go outside and to the village"}], 
         getDescription: function() {
-            if(locations["Cave depths"].enemy_groups_killed >= locations["Cave depths"].enemy_count) { 
+            if(locations["Pitch black tunnel"].enemy_groups_killed >= locations["Pitch black tunnel"].enemy_count) { 
+                return "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured a decent space and many of the tunnels. It seems like you almost reached the deepest part.";
+            }
+            else if(locations["Hidden tunnel"].enemy_groups_killed >= locations["Hidden tunnel"].enemy_count) { 
+                return "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured a major space and some tunnels, but there are still more places left to clear out.";
+            }
+            else if(locations["Cave depths"].enemy_groups_killed >= locations["Cave depths"].enemy_count) { 
                 return "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured a decent space and even a few tunnels, yet somehow you can still hear the sounds of the wolf rats.";
             }
             else if(locations["Cave room"].enemy_groups_killed >= locations["Cave room"].enemy_count) {
@@ -586,7 +592,7 @@ class LocationType{
             xp: 20,
         },
         repeatable_reward: {
-            locations: ["Cave depths"],
+            locations: [{location: "Cave depths"}],
             xp: 10,
             activities: [{location:"Nearby cave", activity:"weightlifting"}, {location:"Village", activity:"balancing"}],
         }
@@ -609,14 +615,56 @@ class LocationType{
         },
         repeatable_reward: {
             textlines: [{dialogue: "village elder", lines: ["cleared cave"]}],
+            locations: [{location: "Suspicious wall", required_clears: 4}],
             xp: 15,
         }
     });
-    locations["Nearby cave"].connected_locations.push({location: locations["Cave depths"]});
+    
+    locations["Hidden tunnel"] = new Combat_zone({
+        description: "There is, in fact, even more rats here.", 
+        enemy_count: 50, 
+        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 2, xp_gain: 6}],
+        enemies_list: ["Elite wolf rat"],
+        enemy_group_size: [3,6],
+        enemy_stat_variation: 0.2,
+        is_unlocked: false, 
+        name: "Hidden tunnel", 
+        leave_text: "Retreat for now",
+        parent_location: locations["Nearby cave"],
+        first_reward: {
+            xp: 100,
+        },
+        repeatable_reward: {
+            locations: [{location: "Pitch black tunnel"}],
+            xp: 50,
+        },
+        unlock_text: "As the wall falls apart, you find yourself in front of a new tunnel, leading even deeper. And of course, it's full of wolf rats."
+    });
+    locations["Pitch black tunnel"] = new Combat_zone({
+        description: "There is no light here. Only rats.", 
+        enemy_count: 50, 
+        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 3, xp_gain: 1}],
+        enemies_list: ["Elite wolf rat"],
+        enemy_group_size: [8,8],
+        enemy_stat_variation: 0.2,
+        is_unlocked: false, 
+        name: "Pitch black tunnel", 
+        leave_text: "Retreat for now",
+        parent_location: locations["Nearby cave"],
+        first_reward: {
+            xp: 200,
+        },
+        repeatable_reward: {
+            xp: 100,
+        },
+        unlock_text: "As you keep going deeper, you barely notice a pitch black hole. Not even a tiniest speck of light reaches it."
+    });
+
+    locations["Nearby cave"].connected_locations.push({location: locations["Hidden tunnel"], custom_text: "Enter the hidden tunnel"}, {location: locations["Pitch black tunnel"], custom_text: "Go into the pitch black tunnel"})
 
     locations["Forest road"] = new Location({ 
         connected_locations: [{location: locations["Village"]}],
-        description: "Shabby road leading through a dark forest, the only way to leave the village",
+        description: "Old trodden road leading through a dark forest, the only path connecting village to the town. You can hear some animals from the surrounding woods.",
         name: "Forest road",
         is_unlocked: false,
     });
@@ -633,7 +681,8 @@ class LocationType{
         },
         repeatable_reward: {
             xp: 20,
-        }
+            locations: [{location:"Deep forest"}]
+        },
     });
     locations["Forest road"].connected_locations.push({location: locations["Forest"], custom_text: "Leave the safe path"});
 
@@ -653,16 +702,37 @@ class LocationType{
         }
     });
     locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture deeper into the woods"});
-    locations["Forest"].repeatable_reward.locations = [locations["Deep forest"]];
 
     locations["Town outskirts"] = new Location({ 
         connected_locations: [{location: locations["Forest road"]}],
-        description: "You can see a tall stone wall, surrounded by a green open field.",
+        description: "The town is surrounded by a tall stone wall. The only gate seems to be closed, with a lone guard outside.",
         name: "Town outskirts",
         is_unlocked: true,
+        dialogues: ["gate guard"],
     });
     locations["Forest road"].connected_locations.push({location: locations["Town outskirts"], custom_text: "Leave the forest"});
 
+    locations["Slums"] = new Location({ 
+        connected_locations: [{location: locations["Town outskirts"]}],
+        description: "A wild settlement next to city walls, filled with decaying buildings and criminals",
+        name: "Slums",
+        is_unlocked: true,
+        dialogues: ["suspicious man"],
+        traders: ["suspicious trader"]
+    });
+    locations["Town farms"] = new Location({ 
+        connected_locations: [{location: locations["Town outskirts"]}],
+        description: "Semi-private farms under jurisdiction of the city council. Full of life and sounds of heavy work.",
+        name: "Town farms",
+        is_unlocked: true,
+        dialogues: ["farm supervisor"],
+    });
+
+    locations["Town outskirts"].connected_locations.push({location: locations["Town farms"]}, {location: locations["Slums"]});
+})();
+
+//challenge zones
+(function(){
     locations["Sparring with the village guard (heavy)"] = new Challenge_zone({
         description: "He's showing you a technique that makes his attacks slow but deadly",
         enemy_count: 1, 
@@ -701,13 +771,52 @@ class LocationType{
         {location: locations["Sparring with the village guard (heavy)"], custom_text: "Spar with the guard [heavy]"},
         {location: locations["Sparring with the village guard (quick)"], custom_text: "Spar with the guard [quick]"}
     );
+
+    locations["Suspicious wall"] = new Challenge_zone({
+        description: "It can be broken with enough force, you can feel it", 
+        enemy_count: 1, 
+        types: [],
+        enemies_list: ["Suspicious wall"],
+        enemy_group_size: [1,1],
+        enemy_stat_variation: 0,
+        is_unlocked: false, 
+        name: "Suspicious wall", 
+        leave_text: "Leave it for now",
+        parent_location: locations["Nearby cave"],
+        repeatable_reward: {
+            locations: [{location: "Hidden tunnel"}],
+            textlines: [{dialogue: "village elder", lines: ["new tunnel"]}],
+            xp: 20,
+        },
+        unlock_text: "At some point, one of wolf rats tries to escape through a previously unnoticed hole in a nearby wall. There might be another tunnel behind it!"
+    });
+    locations["Nearby cave"].connected_locations.push({location: locations["Cave depths"]}, {location: locations["Suspicious wall"], custom_text: "Try to break the suspicious wall"});
+
+    locations["Fight off the assailant"] = new Challenge_zone({
+        description: "He attacked you out of nowhere", 
+        enemy_count: 1, 
+        types: [],
+        enemies_list: ["Suspicious man"],
+        enemy_group_size: [1,1],
+        enemy_stat_variation: 0,
+        is_unlocked: false, 
+        name: "Fight off the assailant", 
+        leave_text: "Run away for now",
+        parent_location: locations["Slums"],
+        repeatable_reward: {
+            textlines: [{dialogue: "suspicious man", lines: ["defeated"]}],
+            xp: 40,
+        },
+        unlock_text: "Defend yourself!"
+    });
+    locations["Slums"].connected_locations.push({location: locations["Fight off the assailant"], custom_text: "Fight off the suspicious man"});
 })();
 
 //add activities
 (function(){
     locations["Village"].activities = {
-        "plowing the fields": new LocationActivity({
-            activity: "plowing the fields",
+        "fieldwork": new LocationActivity({
+            activity: "fieldwork",
             starting_text: "Work on the fields",
             get_payment: () => {
                 return 10 + Math.round(15 * skills["Farming"].current_level/skills["Farming"].max_level);
@@ -757,7 +866,7 @@ class LocationType{
             skill_xp_per_tick: 3,
             is_unlocked: false
         }),
-    }
+    };
     locations["Forest road"].activities = {
         "running": new LocationActivity({
             activity: "running",
@@ -765,9 +874,21 @@ class LocationType{
             starting_text: "Go for a run through the forest",
             skill_xp_per_tick: 3,
         }),
-    }
+    };
+    locations["Town farms"].activities = {
+        "fieldwork": new LocationActivity({
+            activity: "fieldwork",
+            starting_text: "Work on the fields",
+            get_payment: () => {
+                return 20 + Math.round(20 * skills["Farming"].current_level/skills["Farming"].max_level);
+            },
+            is_unlocked: false,
+            working_period: 60*2,
+            availability_time: {start: 6, end: 20},
+            skill_xp_per_tick: 2,
+        }),
+    };
 })();
-
 
 export {locations, location_types};
 

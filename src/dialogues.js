@@ -16,8 +16,7 @@ class Dialogue {
         this.starting_text = starting_text;
         this.ending_text = ending_text; //text shown on option to finish talking
         this.is_unlocked = is_unlocked;
-        this.is_finished = is_finished;
-        //separate bool to remove dialogue option if it's finished
+        this.is_finished = is_finished; //separate bool to remove dialogue option if it's finished
         this.textlines = textlines; //all the lines in dialogue
 
         this.location_name = location_name; //this is purely informative and wrong value shouldn't cause any actual issues
@@ -66,13 +65,43 @@ class Textline {
     dialogues["village elder"] = new Dialogue({
         name: "village elder",
         textlines: {
-            "hello": new Textline({ //i guess it's the best way to have easy access later on
+            "hello": new Textline({
                 name: "Hello?",
                 text: "Hello. Glad to see you got better",
                 unlocks: {
-                    textlines: [{dialogue: "village elder", lines: ["what happened", "about"]}],
+                    textlines: [{dialogue: "village elder", lines: ["what happened", "where am i", "dont remember", "about"]}],
                 },
                 locks_lines: ["hello"],
+            }),
+            "what happened": new Textline({
+                name: "Ouch, my head... What happened?",
+                text: `Some of our people found you unconscious in the forest, wounded and with nothing but pants and an old sword, so they brought you to our village. `
+                + `It would seem you were on your way to a nearby town when someone attacked you and hit you really hard in the head.`,
+                is_unlocked: false,
+                locks_lines: ["what happened", "where am i", "dont remember"],
+                unlocks: {
+                    textlines: [{dialogue: "village elder", lines: ["ask to leave 1"]}],
+                },
+            }),
+            "where am i": new Textline({
+                name: "Where am I?",
+                text: `Some of our people found you unconscious in the forest, wounded and with nothing but pants and an old sword, so they brought you to our village. `
+                + `It would seem you were on your way to a nearby town when someone attacked you and hit you really hard in the head.`,
+                is_unlocked: false,
+                locks_lines: ["what happened", "where am i", "dont remember"],
+                unlocks: {
+                    textlines: [{dialogue: "village elder", lines: ["ask to leave 1"]}],
+                },
+            }),
+            "dont remember": new Textline({
+                name: "I don't remember how I got here, what happened?",
+                text: `Some of our people found you unconscious in the forest, wounded and with nothing but pants and an old sword, so they brought you to our village. `
+                + `It would seem you were on your way to a nearby town when someone attacked you and hit you really hard in the head.`,
+                is_unlocked: false,
+                locks_lines: ["what happened", "where am i", "dont remember"],
+                unlocks: {
+                    textlines: [{dialogue: "village elder", lines: ["ask to leave 1"]}],
+                },
             }),
             "about": new Textline({
                 name: "Who are you?",
@@ -80,17 +109,8 @@ class Textline {
                 is_unlocked: false,
                 locks_lines: ["about"]
             }),
-            "what happened": new Textline({
-                name: "I don't remember how I got here, what happened?",
-                text: "Some of our people found you unconscious in the forest, with nothing but pants. Must have been bandits.",
-                is_unlocked: false,
-                locks_lines: ["what happened"],
-                unlocks: {
-                    textlines: [{dialogue: "village elder", lines: ["ask to leave 1"]}],
-                },
-            }),
             "ask to leave 1": new Textline({
-                name: "Great... Thank you for help, but I will leave now.",
+                name: "Great... Thank you for help, but I think I should go there then. Maybe it will help me remember more.",
                 text: "Nearby lands are dangerous and you are still too weak to leave. Do you plan on getting ambushed again?",
                 is_unlocked: false,
                 unlocks: {
@@ -99,8 +119,8 @@ class Textline {
                 locks_lines: ["ask to leave 1"],
             }),
             "need to": new Textline({
-                name: "But I need to leave",
-                text: `What you need is to recover, to get some rest and maybe also training, as you seem rather frail... Well, you know what? Killing a few wolf rats could be a good exercise. `
+                name: "But I want to leave",
+                text: `You first need to recover, to get some rest and maybe also training, as you seem rather frail... Well, you know what? Killing a few wolf rats could be a good exercise. `
                         +`You could help us clear some field of them, how about that?`,
                 is_unlocked: false,
                 unlocks: {
@@ -127,7 +147,7 @@ class Textline {
                 is_unlocked: false,
                 locks_lines: ["money"],
                 unlocks: {
-                    activities: [{location: "Village", activity: "plowing the fields"}],
+                    activities: [{location: "Village", activity: "fieldwork"}],
                 }
             }),
             "ask to leave 2": new Textline({
@@ -180,6 +200,12 @@ class Textline {
                     locations: ["Forest road", "Infested field", "Nearby cave"],
                     dialogues: ["village guard"],
                 },
+            }),
+            "new tunnel": new Textline({
+                name: "I found an even deeper tunnel in the cave",
+                text: "The what?... I have a bad feeling about this, you better avoid it until you get better equipment.",
+                is_unlocked: false,
+                locks_lines: ["new tunnel"],
             }),
         }
     });
@@ -266,6 +292,72 @@ class Textline {
                     stances: ["wide"]
                 }
             }),
+        }
+    });
+
+    dialogues["gate guard"] = new Dialogue({
+        name: "gate guard",
+        textlines: {
+            "enter": new Textline({
+                name: "Hello, can I get in?",
+                text: "The town is currently closed to everyone who isn't a citizen or a guild member. No exceptions.",
+            }), 
+        }
+    });
+    dialogues["suspicious man"] = new Dialogue({
+        name: "suspicious man",
+        textlines: {
+            "hello": new Textline({ 
+                name: "Hello? Why are you looking at me like that?",
+                text: "Y-you! You should be dead! *the man pulls out a dagger*",
+                unlocks: {
+                    locations: ["Fight off the assailant"],
+                },
+                locks_lines: ["hello"],
+            }), 
+            "defeated": new Textline({ 
+                name: "What was that about?",
+                is_unlocked: false,
+                text: "I... We... It was my group that robbed you. I thought you came back from your grave for revenge... Please, I don't know anything. "
+                +"If you want answers, ask my the boss. He's somewhere in the town.",
+                locks_lines: ["defeated"],
+                unlocks: {
+                    textlines: [{dialogue: "suspicious man", lines: ["behave"]}],
+                },
+            }), 
+            "behave": new Textline({ 
+                name: "Are you behaving yourself?",
+                is_unlocked: false,
+                text: "Y-yes! Please don't beat me again!",
+                locks_lines: ["defeated"],
+            }), 
+        }
+    });
+    dialogues["farm supervisor"] = new Dialogue({
+        name: "farm supervisor",
+        textlines: {
+            "hello": new Textline({ 
+                name: "Hello",
+                text: "Hello stranger",
+                unlocks: {
+                    textlines: [{dialogue: "farm supervisor", lines: ["things", "work"]}],
+                },
+                locks_lines: ["hello"],
+            }),
+            "work": new Textline({
+                name: "Do you have any work?",
+                is_unlocked: false,
+                text: "We sure could use more hands. Feel free to help my boys on the fields whenever you have time!",
+                unlocks: {
+                    activities: [{location: "Town farms", activity: "fieldwork"}],
+                },
+                locks_lines: ["work"],
+            }),
+            "things": new Textline({
+                is_unlocked: false,
+                name: "How are things around here?",
+                text: "Nothing to complain about. Trouble is rare, pay is good, and the soil is as fertile as my wife!",
+            }), 
         }
     });
 })();

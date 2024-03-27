@@ -1179,11 +1179,25 @@ function update_displayed_normal_location(location) {
     document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_default'));
     document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_default'));
     character_attack_bar.parentNode.style.display = "none";
-    
+
     ////////////////////////////////////
     //add buttons for starting dialogues
 
-    const available_dialogues = location.dialogues.filter(dialogue => dialogues[dialogue].is_unlocked && !dialogues[dialogue].is_finished);
+    const available_dialogues = location.dialogues.filter(dialogue => {
+        if(!dialogues[dialogue].is_unlocked || dialogues[dialogue].is_finished) {
+            return false;
+        } else {
+            let lines_available = false;
+            Object.keys(dialogues[dialogue].textlines).forEach(line => {
+                if(lines_available) {
+                    return;
+                } else {
+                    lines_available = dialogues[dialogue].textlines[line].is_unlocked && !dialogues[dialogue].textlines[line].is_finished;
+                }
+            });
+            return lines_available;
+        }
+    });
 
     if(available_dialogues.length > 2) {
         //there's multiple -> add a choice to location actions that will show all available dialogues        
@@ -1210,7 +1224,7 @@ function update_displayed_normal_location(location) {
         traders_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "trade"})');
         traders_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Visit a merchant';
         action_div.appendChild(traders_button);
-    } else if (available_traders.length <= 2) {
+    } else if (available_traders.length > 0) {
         action_div.append(...create_location_choices({location: location, category: "trade"}));
     }
 
@@ -1265,7 +1279,7 @@ function update_displayed_normal_location(location) {
     /////////////////////////////////
     //add butttons to change location
 
-    const available_locations = location.connected_locations.filter(location => {if(location.location.is_unlocked && !location.location.is_challenge) return true});
+    const available_locations = location.connected_locations.filter(location => {if(location.location.is_unlocked && !location.location.is_finished) return true});
 
     if(available_locations.length > 3 && (location.sleeping + available_trainings.length + available_jobs.length +  available_traders.length + available_dialogues.length) > 2) {
         const locations_button = document.createElement("div");
@@ -1296,6 +1310,21 @@ function create_location_choices({location, category, add_icons = true, is_comba
             if(!dialogues[location.dialogues[i]].is_unlocked || dialogues[location.dialogues[i]].is_finished) { //skip if dialogue is not available
                 continue;
             } 
+
+            const lines_available = location.dialogues.filter(dialogue => {
+                    let lines_available = false;
+                    Object.keys(dialogues[dialogue].textlines).forEach(line => {
+                        if(lines_available) {
+                            return;
+                        } else {
+                            lines_available = dialogues[dialogue].textlines[line].is_unlocked && !dialogues[dialogue].textlines[line].is_finished;
+                        }
+                    });
+                    return lines_available;
+            }).length > 0;
+            if(!lines_available) {
+                continue;
+            }
             
             const dialogue_div = document.createElement("div");
     

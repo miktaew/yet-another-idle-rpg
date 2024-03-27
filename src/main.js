@@ -194,11 +194,10 @@ function option_remember_filters(option) {
     }
 }
 
-
 function change_location(location_name) {
     let location = locations[location_name];
 
-    if(!location_name === current_location?.name && location.is_finished) {
+    if(location_name !== current_location?.name && location.is_finished) {
         return;
     }
 
@@ -1148,12 +1147,14 @@ function add_xp_to_character(xp_to_add, should_info = true, use_bonus) {
  */
 function get_location_rewards(location) {
 
+    let should_return = false;
     if(location.enemy_groups_killed == location.enemy_count) { //first clear
-        change_location(current_location.parent_location.name); //go back to parent location, only on first clear
 
         if(location.is_challenge) {
             location.is_finished = true;
         }
+        should_return = true;
+        
 
         if(location.first_reward.xp && typeof location.first_reward.xp === "number") {
             log_message(`Obtained ${location.first_reward.xp}xp for clearing ${location.name} for the first time`, "location_reward");
@@ -1169,7 +1170,10 @@ function get_location_rewards(location) {
     location.otherUnlocks();
 
     for(let i = 0; i < location.repeatable_reward.locations?.length; i++) { //unlock locations
-        unlock_location(locations[location.repeatable_reward.locations[i]]);
+
+        if(!location.repeatable_reward.locations[i].required_clears || location.enemy_groups_killed/location.enemy_count >= location.repeatable_reward.locations[i].required_clears){
+            unlock_location(locations[location.repeatable_reward.locations[i].location]);
+        }
     }
 
     for(let i = 0; i < location.repeatable_reward.textlines?.length; i++) { //unlock textlines
@@ -1198,6 +1202,10 @@ function get_location_rewards(location) {
     for(let i = 0; i < location.repeatable_reward.activities?.length; i++) {
             unlock_activity({location: locations[location.repeatable_reward.activities[i].location].name, 
                              activity: locations[location.repeatable_reward.activities[i].location].activities[location.repeatable_reward.activities[i].activity]});
+    }
+
+    if(should_return) {
+        change_location(current_location.parent_location.name); //go back to parent location, only on first clear
     }
 }
 
@@ -1299,6 +1307,9 @@ function create_save() {
             save_data["locations"][key] = {};
             if(locations[key].is_unlocked) {      
                 save_data["locations"][key].is_unlocked = true;
+            }
+            if(locations[key].is_finished) {      
+                save_data["locations"][key].is_finished = true;
             }
 
             if("parent_location" in locations[key]) { //combat zone
@@ -1811,6 +1822,9 @@ function load(save_data) {
             if(save_data.locations[key].is_unlocked) {
                 locations[key].is_unlocked = true;
             }
+            if(save_data.locations[key].is_finished) {
+                locations[key].is_finished = true;
+            }
             if("parent_location" in locations[key]) { // if combat zone
                 locations[key].enemy_groups_killed = save_data.locations[key].enemy_groups_killed || 0;   
             }
@@ -1818,7 +1832,11 @@ function load(save_data) {
             //unlock activities
             if(save_data.locations[key].unlocked_activities) {
                 for(let i = 0; i < save_data.locations[key].unlocked_activities.length; i++) {
-                    locations[key].activities[save_data.locations[key].unlocked_activities[i]].is_unlocked = true;
+                    if(save_data.locations[key].unlocked_activities[i] === "plowing the fields") {
+                        locations[key].activities["fieldwork"].is_unlocked = true;
+                    } else {
+                        locations[key].activities[save_data.locations[key].unlocked_activities[i]].is_unlocked = true;
+                    }
                 }
             }
         } else {
@@ -1830,6 +1848,8 @@ function load(save_data) {
     Object.keys(save_data.activities).forEach(function(activity) {
         if(activities[activity]) {
             activities[activity].is_unlocked = save_data.activities[activity].is_unlocked || false;
+        } else if(activity === "plowing the fields") {
+            activities["fieldwork"].is_unlocked = save_data.activities[activity].is_unlocked || false;
         } else {
             console.warn(`Activity "${activity}" couldn't be found!`);
         }
