@@ -325,8 +325,7 @@ function do_resting() {
 function do_sleeping() {
     if(character.stats.full.health < character.stats.full.max_health)
     {
-        const sleeping_heal_ammount = Math.max(character.stats.full.max_health * 0.04, 5); 
-        //todo: scale it with skill
+        const sleeping_heal_ammount = Math.round(Math.max(character.stats.full.max_health * 0.04, 5) * (1 + skills["Sleeping"].current_level/skills["Sleeping"].max_level));
         
         character.stats.full.health += (sleeping_heal_ammount);
         if(character.stats.full.health > character.stats.full.max_health) {
@@ -337,7 +336,7 @@ function do_sleeping() {
 
     if(character.stats.full.stamina < character.stats.full.max_stamina)
     {
-        const sleeping_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/30, 5)); 
+        const sleeping_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/30, 5) * (1 + skills["Sleeping"].current_level/skills["Sleeping"].max_level)); 
         //todo: scale it with skill as well
 
         character.stats.full.stamina += (sleeping_stamina_ammount);
