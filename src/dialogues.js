@@ -74,7 +74,7 @@ class Textline {
                 locks_lines: ["hello"],
             }),
             "what happened": new Textline({
-                name: "Ouch, my head... What happened?",
+                name: "My head hurts.. What happened?",
                 text: `Some of our people found you unconscious in the forest, wounded and with nothing but pants and an old sword, so they brought you to our village. `
                 + `It would seem you were on your way to a nearby town when someone attacked you and hit you really hard in the head.`,
                 is_unlocked: false,

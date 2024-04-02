@@ -4,3 +4,5 @@ achievements.js
 package-lock.json
 package.json
 .eslintrc.json
+.dependency-cruiser.js
+dependency-graph.svg

@@ -827,6 +827,9 @@
                     <div id = "message_show_loot" class = "message_control_button active_selection_button" onclick = "showLootMessages()">
                         Loot
                     </div>
+                    <div id = "message_show_background" class = "message_control_button active_selection_button" onclick = "showBackgroundMessages()">
+                        Background
+                    </div>
                     
                 </div>
             </div>
@@ -957,6 +960,15 @@
                     document.documentElement.style.setProperty('--message_events_display', 'none');
                 } else {
                     document.documentElement.style.setProperty('--message_events_display', 'inline-block');
+                }
+            }
+
+            function showBackgroundMessages() {
+                console.log(document.documentElement.style.getPropertyValue('--message_background_display'));
+                if(document.documentElement.style.getPropertyValue('--message_background_display') !== "none") {
+                    document.documentElement.style.setProperty('--message_background_display', 'none');
+                } else {
+                    document.documentElement.style.setProperty('--message_background_display', 'inline-block');
                 }
             }
             

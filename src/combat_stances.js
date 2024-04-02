@@ -5,14 +5,14 @@ const stances = {};
 class Stance {
     constructor(
             {
-                name, 
-                id, 
-                related_skill, 
-                target_count = 1, 
-                randomize_target_count = false, 
-                is_unlocked = false, 
-                stat_multipliers = {}, 
-                stamina_cost = 1, 
+                name,
+                id,
+                related_skill,
+                target_count = 1,
+                randomize_target_count = false,
+                is_unlocked = false,
+                stat_multipliers = {},
+                stamina_cost = 1,
                 description = ""
             }
         ) {
@@ -40,6 +40,25 @@ class Stance {
             return this.description;
         } else if(this.related_skill) {
             return skills[this.related_skill].description;
+        }
+    }
+
+    getStats = function() {
+        if(!this.related_skill) {
+            //no skill, nothing to scale stats with
+            return this.stat_multipliers;
+        } else {
+            const multipliers = {};
+            Object.keys(this.stat_multipliers).forEach(stat => {
+                if(this.stat_multipliers[stat] < 1) {
+                    multipliers[stat] = this.stat_multipliers[stat] + (1 - this.stat_multipliers[stat]) * skills[this.related_skill].current_level/(2*skills[this.related_skill].max_level);
+                    //div by 2 because penalties don't get fully nullified, only cut in half (e.g. x0.8 -> x0.9)
+                }
+                else {
+                    multipliers[stat] =  this.stat_multipliers[stat] + (this.stat_multipliers[stat]-1) * skills[this.related_skill].current_level/skills[this.related_skill].max_level;
+                }
+            });
+            return multipliers;
         }
     }
 }

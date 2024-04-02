@@ -3,6 +3,7 @@
 import { enemy_templates, Enemy } from "./enemies.js";
 import { dialogues as dialoguesList} from "./dialogues.js";
 import { skills } from "./skills.js";
+import { current_game_time } from "./game_time.js";
 const locations = {};
 const location_types = {};
 //contains all the created locations
@@ -20,13 +21,16 @@ class Location {
                 sleeping = null, //{text to start, xp per tick},
                 light_level = "normal",
                 getDescription,
+                background_noises = [],
+                getBackgroundNoises,
             }) {
-        /* always safe
-    
-        */
+        // always a safe zone
+
         this.name = name; //needs to be the same as key in locations
         this.description = description;
         this.getDescription = getDescription || function(){return description;}
+        this.background_noises = background_noises;
+        this.getBackgroundNoises = getBackgroundNoises || function(){return background_noises;}
         this.connected_locations = connected_locations; //a list
         this.is_unlocked = is_unlocked;
         this.is_finished = is_finished; //for when it's in any way or form "completed" and player shouldn't be allowed back
@@ -515,6 +519,24 @@ class LocationType{
                 return "Medium-sized village built near a small river. It's surrounded by many fields, most of them infested by huge rats. Other than that, there's nothing interesting around"; 
             }
         },
+        getBackgroundNoises: function() {
+            let noises = ["*Rustle*", "*Rustle rustle*"];
+            if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
+                noises.push("Anyone seen my cow?", "Mooooo!", "Tomorrow I'm gonna fix the roof", "Look, a bird!");
+
+                if(locations["Infested field"].enemy_groups_killed <= 3) {
+                    noises.push("These nasty rats almost ate my cat!");
+                }
+            }
+
+            if(current_game_time.hour > 3 && current_game_time.hour < 10) {
+                noises.push("♫♫ Heigh ho, heigh ho, it's off to work I go~ ♫♫", "Cock-a-doodle-doo!");
+            } else if(current_game_time.hour > 18 && current_game_time.hour < 22) {
+                noises.push("♫♫ Heigh ho, heigh ho, it's home from work I go~ ♫♫");
+            } 
+
+            return noises;
+        },
         dialogues: ["village elder", "village guard"],
         traders: ["village trader"],
         name: "Village", 
@@ -570,6 +592,10 @@ class LocationType{
             } else {
                 return "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. You can hear sounds of wolf rats from the nearby room.";
             }
+        },
+        getBackgroundNoises: function() {
+            let noises = ["*Rumble*", "Squeak!", ];
+            return noises;
         },
         name: "Nearby cave",
         is_unlocked: false,
@@ -666,6 +692,11 @@ class LocationType{
         connected_locations: [{location: locations["Village"]}],
         description: "Old trodden road leading through a dark forest, the only path connecting village to the town. You can hear some animals from the surrounding woods.",
         name: "Forest road",
+        getBackgroundNoises: function() {
+            let noises = ["*Rustle*", "Roar", "*You almost tripped on some roots*", "*You hear some animal running away*"];
+
+            return noises;
+        },
         is_unlocked: false,
     });
     locations["Village"].connected_locations.push({location: locations["Forest road"], custom_text: "Leave the village"});
@@ -705,7 +736,7 @@ class LocationType{
 
     locations["Town outskirts"] = new Location({ 
         connected_locations: [{location: locations["Forest road"]}],
-        description: "The town is surrounded by a tall stone wall. The only gate seems to be closed, with a lone guard outside.",
+        description: "The town is surrounded by a tall stone wall. The only gate seems to be closed, with a lone guard outside. You can see farms to the north and slums to the south.",
         name: "Town outskirts",
         is_unlocked: true,
         dialogues: ["gate guard"],
@@ -718,7 +749,17 @@ class LocationType{
         name: "Slums",
         is_unlocked: true,
         dialogues: ["suspicious man"],
-        traders: ["suspicious trader"]
+        traders: ["suspicious trader"],
+        getBackgroundNoises: function() {
+            let noises = ["Cough cough", "*scream*", "*sobbing*"];
+
+            if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
+                noises.push("Please, do you have a coin to spare?");
+            } else {
+                noises.push("*Sounds of someone getting repeatedly stabbed*", "Scammed some fools for money today, time to get drunk");
+            }
+            return noises;
+        },
     });
     locations["Town farms"] = new Location({ 
         connected_locations: [{location: locations["Town outskirts"]}],
@@ -726,6 +767,22 @@ class LocationType{
         name: "Town farms",
         is_unlocked: true,
         dialogues: ["farm supervisor"],
+        getBackgroundNoises: function() {
+            let noises = [];
+            if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
+                noises.push("Mooooo!", "Look, a bird!", "Bark bark!", "*bleat*", "Neigh!", "Oink oink");
+            } else {
+                noises.push("*Rustle*", "*Rustle rustle*", "*You hear snoring workers*");
+            }
+
+            if(current_game_time.hour > 3 && current_game_time.hour < 10) {
+                noises.push("♫♫ Heigh ho, heigh ho, it's off to work I go~ ♫♫", "Cock-a-doodle-doo!");
+            } else if(current_game_time.hour > 18 && current_game_time.hour < 22) {
+                noises.push("♫♫ Heigh ho, heigh ho, it's home from work I go~ ♫♫");
+            } 
+
+            return noises;
+        },
     });
 
     locations["Town outskirts"].connected_locations.push({location: locations["Town farms"]}, {location: locations["Slums"]});
@@ -847,6 +904,13 @@ class LocationType{
             unlock_text: "All this fighting while surrounded by stone and rocks gives you a new idea",
             skill_xp_per_tick: 1,
             is_unlocked: false,
+        }),
+        "meditating": new LocationActivity({
+            activity: "meditating",
+            infinite: true,
+            starting_text: "Sit down and meditate",
+            skill_xp_per_tick: 1,
+            is_unlocked: true,
         }),
         "patrolling": new LocationActivity({
             activity: "patrolling",

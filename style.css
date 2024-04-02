@@ -18,6 +18,7 @@
 	--message_unlocks_display: inline-block;
 	--message_loot_display: inline-block;
 	--message_events_display: inline-block;
+	--message_background_display: inline-block;
 
 	--trade_ammount_button_display: none;
 	--item_use_button_display: inline-block;
@@ -153,6 +154,11 @@ body {
 	font-size: 12px;
 	color: yellow;
 	text-align: left;
+ }
+
+ .message_background {
+	font-style: italic;
+	color: rgb(171, 171, 255);
  }
 
  .action_travel, .activity_unavailable, .start_dialogue,  .end_dialogue_button, .start_trade, .dialogue_trade, .choices_return_button, .start_activity, .location_choices, #action_status_div, #action_end_div {
@@ -837,12 +843,12 @@ i {
 	font-weight: bold;
 }
 
-#action_status_div, #not_enough_time_for_earnings_div {
+#action_status_div, #time_for_earnings_div {
 	font-size: var(--options_action_textsize);
 	font-style: italic;
 	cursor: default;
 }
-#not_enough_time_for_earnings_div, #action_xp_div {
+#time_for_earnings_div, #action_xp_div {
 	color: rgb(192,192,192);
 	border-bottom: 1px solid white;
 	text-align: center;	
@@ -1561,9 +1567,9 @@ i {
 		.message_control_button {
 			float: left;
 			padding: 3px;
-			padding-left: 5px;
-			padding-right: 5px;
-			min-width: 76.9px;
+			padding-left: 4px;
+			padding-right: 4px;
+			min-width: 38.3px;
 			text-align: center;
 			outline: 1px solid white;
 			margin: 1px;
@@ -1580,6 +1586,9 @@ i {
 	}
 	.message_events {
 		display: var(--message_events_display);
+	}
+	.message_background {
+		display: var(--message_background_display);
 	}
 
 #money_div {

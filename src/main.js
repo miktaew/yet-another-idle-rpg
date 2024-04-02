@@ -35,13 +35,13 @@ import { end_activity_animation,
          update_bestiary_entry,
          start_reading_display,
          update_displayed_xp_bonuses, 
-         update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain, update_displayed_stance_list, update_displayed_stamina_efficiency, update_displayed_stance, update_displayed_faved_stances
+         update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain, update_displayed_stance_list, update_displayed_stamina_efficiency, update_displayed_stance, update_displayed_faved_stances, update_stance_tooltip
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
 
 const save_key = "save data";
-const game_version = "v0.3.5i";
+const game_version = "v0.4";
 
 //current enemy
 let current_enemies = null;
@@ -719,11 +719,13 @@ function set_character_attack_loop({base_cooldown}) {
         return;
     }
 
-    let target_count;
+    let target_count = stances[current_stance].target_count;
+    if(target_count > 1) {
+        target_count = target_count  + Math.round(target_count * skills[stances[current_stance].related_skill].current_level/skills[stances[current_stance].related_skill].max_level);
+    }
+
     if(stances[current_stance].randomize_target_count) {
-        target_count = Math.floor(Math.random()*stances[current_stance].target_count) || 1;
-    } else {
-        target_count = stances[current_stance].target_count;
+        target_count = Math.floor(Math.random()*target_count) || 1;
     }
 
     let targets=[];
@@ -917,6 +919,14 @@ function do_character_combat_action({target, attack_power}) {
     let hit_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/4); // down to ~ 60% if there's full 8 enemies
     
     add_xp_to_skill({skill: skills["Combat"], xp_to_add: target.xp_value});
+    if(stances[current_stance].related_skill) {
+        let leveled = add_xp_to_skill({skill: skills[stances[current_stance].related_skill], xp_to_add: target.xp_value});
+        if(leveled) {
+            update_stance_tooltip(current_stance);
+            update_character_stats();
+        }
+    }
+
     if(target.size === "small") {
         add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: target.xp_value});
         hit_chance_modifier *= skills["Pest killer"].get_coefficient("multiplicative");
@@ -1043,8 +1053,9 @@ function use_stamina(num = 1, use_efficiency = true) {
  */
 function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = true, add_to_parent = true})
 {
+    let leveled = false;
     if(xp_to_add == 0) {
-        return;
+        return leveled;
     }
 
     if(use_bonus) {
@@ -1057,8 +1068,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     }
     
     const was_hidden = skill.visibility_treshold > skill.total_xp;
-    const {message, gains} = skill.add_xp({xp_to_add: xp_to_add});
-
+    const {message, gains, unlocks} = skill.add_xp({xp_to_add: xp_to_add});
     
     if(skill.parent_skill && add_to_parent) {
         if(skill.total_xp > skills[skill.parent_skill].total_xp) {
@@ -1082,12 +1092,25 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
         }
     } 
 
+    for(let i = 0; i < unlocks?.skills?.length; i++) {
+        const unlocked_skill = skills[unlocks.skills[i]];
+        unlocked_skill.is_unlocked = true;
+
+        create_new_skill_bar(unlocked_skill);
+        update_displayed_skill_bar(unlocked_skill, false);
+        
+        if(typeof should_info === "undefined" || should_info) {
+            log_message(`Unlocked new skill: ${unlocked_skill.name()}`, "skill_raised");
+        }
+    }
+
     if(is_visible) 
     {
         update_displayed_skill_bar(skill, false);
     
         if(typeof message !== "undefined"){ 
         //not undefined => levelup happened and levelup message was returned
+        leveled = true;
 
             update_displayed_skill_bar(skill, true);
             if(typeof should_info === "undefined" || should_info)
@@ -1119,6 +1142,8 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
         character.stats.add_skill_milestone_bonus(gains);
         update_character_stats();
     }
+
+    return leveled;
 }
 
 /**
@@ -1407,6 +1432,7 @@ function create_save() {
             events: document.documentElement.style.getPropertyValue('--message_events_display') !== "none",
             combat: document.documentElement.style.getPropertyValue('--message_combat_display') !== "none",
             loot: document.documentElement.style.getPropertyValue('--message_loot_display') !== "none",
+            background: document.documentElement.style.getPropertyValue('--message_background_display') !== "none",
         };
 
         return JSON.stringify(save_data);
@@ -1451,28 +1477,6 @@ function load(save_data) {
 
     last_location_with_bed = save_data.last_location_with_bed;
     last_combat_location = save_data.last_combat_location;
-
-    if(save_data["stances"]) {
-        Object.keys(save_data["stances"]).forEach(stance => {
-            if(save_data["stances"]) {
-                stances[stance].is_unlocked = true;
-            } 
-        });
-    }
-    update_displayed_stance_list();
-    if(save_data.current_stance) {
-        current_stance = save_data.current_stance;
-        selected_stance = save_data.selected_stance;
-        change_stance(selected_stance);
-    }
-    
-    if(save_data.faved_stances) {
-        Object.keys(save_data.faved_stances).forEach(stance_id=> {
-            if(stances[stance_id] && stances[stance_id].is_unlocked) {
-                fav_stance(stance_id);
-            }
-        });
-    }
 
     options.uniform_text_size_in_action = save_data.options?.uniform_text_size_in_action;
     option_uniform_textsize(options.uniform_text_size_in_action);
@@ -1537,7 +1541,27 @@ function load(save_data) {
         }
     }
 
-
+    if(save_data["stances"]) {
+        Object.keys(save_data["stances"]).forEach(stance => {
+            if(save_data["stances"]) {
+                stances[stance].is_unlocked = true;
+            } 
+        });
+    }
+    update_displayed_stance_list();
+    if(save_data.current_stance) {
+        current_stance = save_data.current_stance;
+        selected_stance = save_data.selected_stance;
+        change_stance(selected_stance);
+    }
+    
+    if(save_data.faved_stances) {
+        Object.keys(save_data.faved_stances).forEach(stance_id=> {
+            if(stances[stance_id] && stances[stance_id].is_unlocked) {
+                fav_stance(stance_id);
+            }
+        });
+    }
 
     Object.keys(save_data.character.equipment).forEach(function(key){
         if(save_data.character.equipment[key] != null) {
@@ -2016,15 +2040,15 @@ function update() {
 
                     if(current_activity.working_time % current_activity.working_period == 0) { 
                         //finished working period, add money, then check if there's enough time left for another
-
                         current_activity.earnings += current_activity.get_payment();
-
-                        update_displayed_ongoing_activity(current_activity);
                     }
+                    update_displayed_ongoing_activity(current_activity, true);
                     
                     if(!can_work(current_activity)) {
                         end_activity();
                     }
+                } else {
+                    update_displayed_ongoing_activity(current_activity, false);
                 }
 
                 //if gathering: add drops to inventory
@@ -2044,6 +2068,13 @@ function update() {
                         }
                         
                     }
+                }
+            }
+
+            const sounds = current_location.getBackgroundNoises();
+            if(sounds.length > 0){
+                if(Math.random() < 1/300) {
+                    log_message(`"${sounds[Math.round(Math.random()*sounds.length)]}"`, "background");
                 }
             }
         }

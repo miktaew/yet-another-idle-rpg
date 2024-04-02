@@ -36,6 +36,7 @@ class Skill {
                   parent_skill = null, 
                   rewards, 
                   xp_scaling = 1.8,
+                  is_unlocked = true,
                 }) 
     {
         if(skill_id === "all" || skill_id === "hero" || skill_id === "all_skill") {
@@ -54,6 +55,7 @@ class Skill {
         this.total_xp = 0; // total collected xp, on loading calculate lvl based on this (so to not break skills if scaling ever changes)
         this.base_xp_cost = base_xp_cost; //xp to go from lvl 1 to lvl 2
         this.visibility_treshold = visibility_treshold < base_xp_cost ? visibility_treshold : base_xp_cost; 
+        this.is_unlocked = is_unlocked;
         //xp needed for skill to become visible and to get "unlock" message; try to keep it less than xp needed for lvl
         this.xp_to_next_lvl = base_xp_cost; //for display only
         this.total_xp_to_next_lvl = base_xp_cost; //total xp needed to lvl up
@@ -76,6 +78,10 @@ class Skill {
     }
 
     name() {
+        if(this.visibility_treshold > this.total_xp) {
+            return "?????";
+        }
+        
         const keys = Object.keys(this.names);
         if (keys.length == 1) {
             return (this.names[keys[0]]);
@@ -95,7 +101,7 @@ class Skill {
     }
 
     add_xp({xp_to_add = 0}) {
-        if(xp_to_add == 0) {
+        if(xp_to_add == 0 || !this.is_unlocked) {
             return;
         }
         
@@ -108,12 +114,17 @@ class Skill {
             else { //levelup
                 
                 let level_after_xp = 0;
+                let unlocks = {skills: []};
 
                 //its alright if this goes over max level, it will be overwritten in a if-else below that
                 while (this.total_xp >= this.total_xp_to_next_lvl) {
 
                     level_after_xp += 1;
                     this.total_xp_to_next_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** (level_after_xp + 1)) / (1 - this.xp_scaling));
+
+                    if(this.rewards?.milestones[level_after_xp]?.unlocks?.skills) {
+                        unlocks.skills.push(...this.rewards.milestones[level_after_xp].unlocks.skills);
+                    }
                 } //calculates lvl reached after adding xp
                 //probably could be done much more efficiently, but it shouldn't be a problem anyway
 
@@ -168,14 +179,15 @@ class Skill {
                         });
                     }
                 }
-                return {message, gains};
+
+                return {message, gains, unlocks};
             }
         }
         return {};
     }
 
     /**
-     * @description only called on leveling; adds bonuses to character, returns all the bonuses so they can be logged in message_log 
+     * @description only called on leveling; calculates all the bonuses gained, so they can be added to hero and logged in message log
      * @param {*} level 
      * @returns bonuses from milestones
      */
@@ -307,7 +319,7 @@ function get_next_skill_milestone(skill_id){
  * @returns rewards formatted to a nice string
  */
 function format_skill_rewards(milestone){
-    var formatted = '';
+    let formatted = '';
     if(milestone.stats) {
         const stats = Object.keys(milestone.stats);
         
@@ -337,6 +349,17 @@ function format_skill_rewards(milestone){
         }
         for(let i = 1; i < xp_multipliers.length; i++) {
             formatted += `, x${milestone.xp_multipliers[xp_multipliers[i]]} ${xp_multipliers[i].replace("_"," ")} xp gain`;
+        }
+    }
+    if(milestone.unlocks) {
+        const unlocked_skills = milestone.unlocks.skills;
+        if(formatted) {
+            formatted += `, <br> Unlocked skill "${milestone.unlocks.skills[0]}"`;
+        } else {
+            formatted = `Unlocked skill "${milestone.unlocks.skills[0]}"`;
+        }
+        for(let i = 1; i < unlocked_skills.length; i++) {
+            formatted += `, "${milestone.unlocks.skills[i]}"`;
         }
     }
 
@@ -519,7 +542,8 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                 names: {0: "Quick steps"}, 
                                 description: "A swift and precise technique that abandons strength in favor of greater speed", 
                                 max_level_coefficient: 2,
-                                base_xp_cost: 60,
+                                base_xp_cost: 6,
+                                max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the 'Quick Steps' stance`;
                                 }});
@@ -528,6 +552,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                 description: "A powerful and dangerous technique that abandons speed in favor of overwhelmingly strong attacks", 
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
+                                max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the 'Heavy Strike' stance`;
                                 }});
@@ -535,7 +560,8 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                 names: {0: "Broad arc"}, 
                                 description: "A special technique that allows striking multiple enemies at once, although at a cost of lower damage", 
                                 max_level_coefficient: 2,
-                                base_xp_cost: 60,
+                                base_xp_cost: 200,
+                                max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the 'Wide Strike' stance`;
                                 }});
@@ -544,6 +570,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                 description: "A careful technique focused much more on defense than on attacking", 
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
+                                max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the 'Defensive Measures' stance`;
                                 }});
@@ -551,7 +578,8 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                 names: {0: "Berserker's stride"}, 
                                 description: "A wild and dangerous technique that focuses on dealing as much damage as possible, while completely ignoring own defense", 
                                 max_level_coefficient: 2,
-                                base_xp_cost: 60,
+                                base_xp_cost: 200,
+                                max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the 'Berserker's Stride' stance`;
                                 }});                  
@@ -560,6 +588,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                 description: "A wild and dangerous technique that focuses on dealing as much damage as possible, while completely ignoring own defense", 
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
+                                max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the 'Flowing Water' stance`;
                                 }});         
@@ -1043,6 +1072,13 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                                 },
                                                 xp_multipliers: {
                                                     all: 1.05,
+                                                },
+                                            },
+                                            5: {
+                                                unlocks: {
+                                                    skills: [
+                                                        "Meditation"
+                                                    ]
                                                 }
                                             },
                                             6: {
@@ -1054,6 +1090,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                                 },
                                                 xp_multipliers: {
                                                     all: 1.1,
+                                                    "Meditation": 1.1,
                                                 }
                                             },
                                             8: {
@@ -1076,11 +1113,74 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                                 },
                                                 xp_multipliers: {
                                                     all: 1.1,
+                                                    "Meditation": 1.3,
                                                 }
                                             }
                                         }
                                     }
                                 });
+    skills["Meditation"] = new Skill({skill_id: "Meditation",
+                                names: {0: "Meditation"}, 
+                                description: "Focus your mind",
+                                base_xp_cost: 200,
+                                max_level: 30, 
+                                is_unlocked: false,
+                                visibility_treshold: 0,
+                                rewards: {
+                                    milestones: {
+                                        2: {
+                                            stats: {
+                                                "intuition": 1,
+                                            },
+                                            xp_multipliers: {
+                                                all: 1.05,
+                                            }
+                                        },
+                                        4: {
+                                            stats: {
+                                                "intuition": 1,
+                                            },
+                                            multipliers: {
+                                                "intuition": 1.05,
+                                            },
+                                            xp_multipliers: {
+                                                all: 1.05,
+                                            }
+                                        },
+                                        5: {
+                                            xp_multipliers: {
+                                                "Sleeping": 1.1,
+                                            }
+                                        },
+                                        6: {
+                                            stats: {
+                                                "intuition": 2,
+                                            },
+                                        },
+                                        8: {
+                                            multipliers: {
+                                                "intuition": 1.05,
+                                            },
+                                            xp_multipliers: {
+                                                all: 1.05,
+                                                "Sleeping": 1.1,
+                                            }
+                                        },
+                                        10: {
+                                            stats: {
+                                                "intuition": 2,
+                                            },
+                                            multipliers: {
+                                                "intuition": 1.05,
+                                            },
+                                            xp_multipliers: {
+                                                all: 1.1,
+                                                "Sleeping": 1.2,
+                                            }
+                                        }
+                                    }
+                                }
+                            });                            
     skills["Running"] = new Skill({skill_id: "Running",
                                   description: "Great way to improve the efficiency of the body",
                                   names: {0: "Running"},

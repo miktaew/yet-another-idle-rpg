@@ -112,7 +112,7 @@ class Enemy {
     });
     enemy_templates["Elite wolf rat"] = new Enemy({
         name: "Elite wolf rat",
-        description: "Rat with size of a dog, but much more ferocious than its relatives",
+        description: "Rat with size of a dog, much more ferocious than its relatives",
         xp_value: 10, 
         rank: 1,
         stats: {health: 80, attack: 30, agility: 30, dexterity: 30, intuition: 30, magic: 0, attack_speed: 1.4, defense: 4}, 
@@ -127,11 +127,12 @@ class Enemy {
         name: "Starving wolf", description: "A large, wild and hungry canine", 
         xp_value: 4, 
         rank: 2,
-        stats: {health: 150, attack: 28, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 8}, 
+        stats: {health: 150, attack: 20, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 8}, 
         loot_list: [
             {item_name: "Wolf fang", chance: 0.03},
             {item_name: "Wolf pelt", chance: 0.01},
-        ]
+        ],
+        size: "medium",
     });
 
     enemy_templates["Young wolf"] = new Enemy({
@@ -139,7 +140,7 @@ class Enemy {
         description: "A small, wild canine", 
         xp_value: 4, 
         rank: 2,
-        stats: {health: 120, attack: 28, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.4, defense: 4}, 
+        stats: {health: 120, attack: 20, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.4, defense: 4}, 
         loot_list: [
             {item_name: "Wolf fang", chance: 0.03},
             {item_name: "Wolf pelt", chance: 0.01},
@@ -152,7 +153,7 @@ class Enemy {
         description: "A large, wild canine", 
         xp_value: 6, 
         rank: 3,
-        stats: {health: 200, attack: 45, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.3, defense: 20}, 
+        stats: {health: 200, attack: 30, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.3, defense: 20}, 
         loot_list: [
             {item_name: "Wolf fang", chance: 0.04},
             {item_name: "Wolf pelt", chance: 0.02},
@@ -171,21 +172,21 @@ class Enemy {
         add_to_bestiary: false,
         xp_value: 0,
         rank: 4,
-        stats: {health: 300, attack: 80, agility: 20, dexterity: 80, magic: 0, intuition: 20, attack_speed: 0.1, defense: 30},
+        stats: {health: 300, attack: 50, agility: 20, dexterity: 80, magic: 0, intuition: 20, attack_speed: 0.2, defense: 30},
     });
     enemy_templates["Village guard (quick)"] = new Enemy({
         name: "Village guard (quick)", 
         description: "", 
         add_to_bestiary: false,
-        xp_value: 0,
+        xp_value: 1,
         rank: 4,
-        stats: {health: 300, attack: 25, agility: 20, dexterity: 80, magic: 0, intuition: 20, attack_speed: 2, defense: 10},
+        stats: {health: 300, attack: 20, agility: 20, dexterity: 50, magic: 0, intuition: 20, attack_speed: 2, defense: 10},
     });
     enemy_templates["Suspicious wall"] = new Enemy({
         name: "Suspicious wall", 
         description: "", 
         add_to_bestiary: false,
-        xp_value: 0,
+        xp_value: 1,
         rank: 1,
         stats: {health: 10000, attack: 0, agility: 0, dexterity: 0, magic: 0, intuition: 0, attack_speed: 0.000001, defense: 100},
     });
@@ -194,7 +195,7 @@ class Enemy {
         name: "Suspicious man", 
         description: "", 
         add_to_bestiary: false,
-        xp_value: 0,
+        xp_value: 1,
         rank: 5,
         stats: {health: 400, attack: 50, agility: 60, dexterity: 60, magic: 0, intuition: 60, attack_speed: 2, defense: 20},
     });

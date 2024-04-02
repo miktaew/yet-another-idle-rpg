@@ -1,8 +1,11 @@
-v0.3.6
+v0.4
     - introduced combat stances, talk with village guard to unlock; lots of names were suggested by Varian on our discord channel
     - some combat related skills now gain xp even if their original condition (e.g. succeeding in some action) is not fulfilled, although at half the efficiency
     - the rat saga continues
     - a bit more content after leaving the village
+    - added some background "sounds"
+    - new skill
+    - rebalance; changes to some displayed texts
 
 v0.3.5i
     - fixed attacks getting faster on 0 stamina

@@ -6,8 +6,7 @@ function expo(number, precision = 2)
         return 0;
     } else if(number >= 1000 || number < 0.01) {
         return Number.parseFloat(number).toExponential(precision).replace(/[+-]/g,"");
-    }
-    else if(number > 10) {
+    } else if(number > 10) {
         return Math.round(number);
     } else if(number > 1) {
         return Math.round(number*10)/10;
@@ -47,11 +46,14 @@ const stat_names = {"strength": "str",
                     "agility": "agl",
                     "dexterity": "dex",
                     "magic": "magic",
-                    "attack_speed": "atk spd",
+                    "attack_speed": "attack speed",
                     "crit_rate": "crit rate",
                     "crit_multiplier": "crit dmg",
                     "stamina_efficiency": "stamina efficiency",
                     "intuition": "int",
+                    "attack_power": "attack power",
+                    "block_strength": "shield strength",
+                    "hit_chance": "hit chance",
                 };
 
 function get_hit_chance(attack_points, evasion_points) {

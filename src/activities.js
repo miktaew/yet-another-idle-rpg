@@ -94,6 +94,13 @@ class Job extends Activity {
         base_skills_names: ["Equilibrium"],
         is_unlocked: true,
     });
+    activities["meditating"] = new Training({
+        name: "meditating",
+        action_text: "Focusing your mind",
+        description: "A somewhat basic exercise",
+        base_skills_names: ["Meditation"],
+        is_unlocked: true,
+    });
 })();
 
 
