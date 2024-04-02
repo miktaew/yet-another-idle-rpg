@@ -331,7 +331,6 @@ character.update_stats = function () {
     character.stats.add_all_stance_bonus();
 
     Object.keys(character.stats.full).forEach(function(stat){
-
         //just sum all flats
         //then multiply them by all multipliers
         const stat_sum = 
@@ -355,14 +354,15 @@ character.update_stats = function () {
         }
     });
 
-    
+     
     if(character.equipment.weapon != null) { 
-        //console.log(character.stats.total_multiplier.attack_power);
         character.stats.full.attack_power = (character.stats.full.strength/10) * character.equipment.weapon.getAttack() * character.stats.total_multiplier.attack_power;
     } 
     else {
         character.stats.full.attack_power = (character.stats.full.strength/10) * character.stats.total_multiplier.attack_power;
     }
+    
+    character.stats.total_flat.attack_power = character.stats.full.attack_power/character.stats.total_multiplier.attack_power;
 
     Object.keys(character.xp_bonuses.total_multiplier).forEach(bonus_target => {
         character.xp_bonuses.total_multiplier[bonus_target] = (character.xp_bonuses.multiplier.skills[bonus_target] || 1) * (character.xp_bonuses.multiplier.books[bonus_target] || 1); 
@@ -482,7 +482,8 @@ function equip_item(item) {
         update_displayed_equipment();
         update_displayed_character_inventory();
         character.stats.add_all_equipment_bonus();
-        character.update_stats();
+        
+        update_character_stats();
 }
 
 /**
@@ -495,6 +496,8 @@ function equip_item(item) {
             // -> id and name tell which exactly item it is, then also check slot in item object and thats all whats needed
             equip_item(character.inventory[item_name][item_id]);
             remove_from_character_inventory({item_name, item_id});
+
+            update_character_stats();
         }
 }
     
@@ -505,7 +508,8 @@ function unequip_item(item_slot) {
                 update_displayed_equipment();
                 update_displayed_character_inventory();
                 character.stats.add_all_equipment_bonus();
-                character.update_stats();
+
+                update_character_stats();
         }
 }
 

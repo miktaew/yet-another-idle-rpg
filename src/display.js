@@ -1181,6 +1181,8 @@ function update_displayed_normal_location(location) {
     combat_div.style.display = "none";
     location_tooltip.innerText = "";
 
+    document.documentElement.style.setProperty('--location_desc_tooltip_visibility', "hidden");
+
     enemy_count_div.style.display = "none";
     document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_default'));
     document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_default'));
@@ -1541,6 +1543,7 @@ function update_displayed_location_choices({location_name, category, add_icons, 
 
 function update_displayed_combat_location(location) {
 
+    document.documentElement.style.setProperty('--location_desc_tooltip_visibility', "visible");
     clear_action_div();
     location_types_div.innerHTML = "";
     let action;
@@ -1654,9 +1657,9 @@ function update_stat_description(stat) {
         target = stats_divs[stat].parentNode.children[2].children[1];
         target.innerHTML = 
 `<br>Breakdown:
-<br>+ ${character.stats.total_flat[stat]}
+<br>+ ${Math.round(10*character.stats.total_flat[stat])/10}
 <br>x ${Math.round(100*character.stats.total_multiplier[stat])/100}`;
-
+    
     }
     return;
 }

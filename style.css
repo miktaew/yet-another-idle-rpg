@@ -45,6 +45,8 @@
 
 	--location__desc_tooltip_top: 0px;
 	--location_desc_tooltip_left: 0px;
+	--location_desc_tooltip_visibility: hidden;
+
 
 	--stance_tooltip_top: 0px;
 	--stance_tooltip_left: 0px;
@@ -330,18 +332,19 @@ body {
 	top: var(--location_desc_tooltip_top);
 	left: var(--location_desc_tooltip_left);
 	display: none;
-	 text-align: left;
-	 color: white;
-	 font-weight: normal;
-	 background-color: rgba(92, 92, 92, 0.9);
-	 border-radius: 10px;
-	 margin-left: 30px;
-	 margin-top: 20px;
-	 padding: 5px;
-	 position: absolute;
-	 z-index: 1000;
-	 width: 250px;
-	 pointer-events: none;
+	visibility: var(--location_desc_tooltip_visibility);
+	text-align: left;
+	color: white;
+	font-weight: normal;
+	background-color: rgba(92, 92, 92, 0.9);
+	border-radius: 10px;
+	margin-left: 30px;
+	margin-top: 20px;
+	padding: 5px;
+	position: absolute;
+	z-index: 1000;
+	width: 250px;
+	pointer-events: none;
 }
 
 .item_tooltip {

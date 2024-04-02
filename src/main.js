@@ -1257,16 +1257,16 @@ function clear_enemies() {
 }
 
 function character_equip_item(item_info) {
+    equip_item_from_inventory(item_info);
     if(current_enemies) {
         set_new_combat({enemies: current_enemies});
     }
-    equip_item_from_inventory(item_info);
 }
 function character_unequip_item(item_info) {
+    unequip_item(item_info);
     if(current_enemies) {
         set_new_combat({enemies: current_enemies});
     }
-    unequip_item(item_info);
 }
 
 function use_item(item_name) { 
