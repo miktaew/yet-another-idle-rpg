@@ -39,9 +39,9 @@ import { end_activity_animation,
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
+import { game_version, get_game_version } from "./game_version.js";
 
 const save_key = "save data";
-const game_version = "v0.4";
 
 //current enemy
 let current_enemies = null;
@@ -1092,25 +1092,13 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
         }
     } 
 
-    for(let i = 0; i < unlocks?.skills?.length; i++) {
-        const unlocked_skill = skills[unlocks.skills[i]];
-        unlocked_skill.is_unlocked = true;
-
-        create_new_skill_bar(unlocked_skill);
-        update_displayed_skill_bar(unlocked_skill, false);
-        
-        if(typeof should_info === "undefined" || should_info) {
-            log_message(`Unlocked new skill: ${unlocked_skill.name()}`, "skill_raised");
-        }
-    }
-
     if(is_visible) 
     {
         update_displayed_skill_bar(skill, false);
     
         if(typeof message !== "undefined"){ 
         //not undefined => levelup happened and levelup message was returned
-        leveled = true;
+            leveled = true;
 
             update_displayed_skill_bar(skill, true);
             if(typeof should_info === "undefined" || should_info)
@@ -1133,6 +1121,19 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
 
             //no point doing any checks for optimization
             update_displayed_stamina_efficiency();
+
+            for(let i = 0; i < unlocks?.skills?.length; i++) {
+                const unlocked_skill = skills[unlocks.skills[i]];
+                unlocked_skill.is_unlocked = true;
+        
+                create_new_skill_bar(unlocked_skill);
+                update_displayed_skill_bar(unlocked_skill, false);
+                
+                if(typeof should_info === "undefined" || should_info) {
+                    log_message(`Unlocked new skill: ${unlocked_skill.name()}`, "skill_raised");
+                }
+            }
+
         }
     } else {
         update_displayed_skill_bar(skill, false);
@@ -1975,10 +1976,6 @@ function update_timer() {
     update_combat_stats(); //yep, done every second, gotta try to optimize it at some point
     //honestly unsure if it's still needed
     update_displayed_time();
-}
-
-function get_game_version() {
-    return game_version;
 }
 
 function update() {
