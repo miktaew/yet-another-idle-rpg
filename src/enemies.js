@@ -113,9 +113,9 @@ class Enemy {
     enemy_templates["Elite wolf rat"] = new Enemy({
         name: "Elite wolf rat",
         description: "Rat with size of a dog, much more ferocious than its relatives",
-        xp_value: 10, 
+        xp_value: 7, 
         rank: 1,
-        stats: {health: 80, attack: 30, agility: 30, dexterity: 30, intuition: 30, magic: 0, attack_speed: 1.4, defense: 4}, 
+        stats: {health: 70, attack: 30, agility: 20, dexterity: 20, intuition: 30, magic: 0, attack_speed: 1.4, defense: 4}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
             {item_name: "Rat fang", chance: 0.04},
@@ -151,7 +151,7 @@ class Enemy {
     enemy_templates["Wolf"] = new Enemy({
         name: "Wolf", 
         description: "A large, wild canine", 
-        xp_value: 6, 
+        xp_value: 5, 
         rank: 3,
         stats: {health: 200, attack: 30, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.3, defense: 20}, 
         loot_list: [
@@ -170,7 +170,7 @@ class Enemy {
         name: "Village guard (heavy)", 
         description: "", 
         add_to_bestiary: false,
-        xp_value: 0,
+        xp_value: 1,
         rank: 4,
         stats: {health: 300, attack: 50, agility: 20, dexterity: 80, magic: 0, intuition: 20, attack_speed: 0.2, defense: 30},
     });
@@ -197,7 +197,7 @@ class Enemy {
         add_to_bestiary: false,
         xp_value: 1,
         rank: 5,
-        stats: {health: 400, attack: 50, agility: 60, dexterity: 60, magic: 0, intuition: 60, attack_speed: 2, defense: 20},
+        stats: {health: 400, attack: 60, agility: 60, dexterity: 60, magic: 0, intuition: 60, attack_speed: 2, defense: 30},
     });
 })()
 

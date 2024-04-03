@@ -906,8 +906,6 @@ function do_enemy_combat_action(enemy_id) {
 }
 
 function do_character_combat_action({target, attack_power}) {
-    
-    //todo: attack types with different stamina costs
 
     const hero_base_damage = attack_power;
 
@@ -1258,13 +1256,15 @@ function clear_enemies() {
 function character_equip_item(item_info) {
     equip_item_from_inventory(item_info);
     if(current_enemies) {
-        set_new_combat({enemies: current_enemies});
+        reset_combat_loops();
+        //set_new_combat({enemies: current_enemies});
     }
 }
 function character_unequip_item(item_info) {
     unequip_item(item_info);
     if(current_enemies) {
-        set_new_combat({enemies: current_enemies});
+        reset_combat_loops();
+        //set_new_combat({enemies: current_enemies});
     }
 }
 
@@ -2070,7 +2070,7 @@ function update() {
             const sounds = current_location.getBackgroundNoises();
             if(sounds.length > 0){
                 if(Math.random() < 1/300) {
-                    log_message(`"${sounds[Math.round(Math.random()*sounds.length)]}"`, "background");
+                    log_message(`"${sounds[Math.floor(Math.random()*sounds.length)]}"`, "background");
                 }
             }
         }

@@ -27,6 +27,9 @@
 	--item_other_width_trade: 265px; /* value for in trade */
 	--item_other_width: var(--item_other_width_default); /* modified in index.html on trade start/end to fit the buttons */
 
+	--item_stackable_width: 280px;
+	--item_stackable_width_default: var(var(--item_stackable_width));
+
 	--item_tooltip_top: 0px;
 	--item_tooltip_left: 0px;
 
@@ -505,7 +508,7 @@ body {
 }
 
 .item_stackable {
-	width: 265px;
+	width: var(--item_stackable_width);
 	display: inline-block;
 }
 

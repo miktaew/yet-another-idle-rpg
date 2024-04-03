@@ -1072,6 +1072,7 @@
                 document.documentElement.style.setProperty('--trade_ammount_button_display', 'inline-block');
                 document.documentElement.style.setProperty('--item_use_button_display', 'none');
                 document.documentElement.style.setProperty('--item_other_width', getComputedStyle(document.body).getPropertyValue('--item_other_width_trade'));
+                document.documentElement.style.setProperty('--item_stackable_width', getComputedStyle(document.body).getPropertyValue('--item_other_width_trade'));
                 document.documentElement.style.setProperty('--inventory_div_display', 'block');
 
                 start_trade(trader_key);
@@ -1083,6 +1084,7 @@
                 document.documentElement.style.setProperty('--trade_ammount_button_display', 'none');
                 document.documentElement.style.setProperty('--item_use_button_display', 'inline-block');
                 document.documentElement.style.setProperty('--item_other_width', getComputedStyle(document.body).getPropertyValue('--item_other_width_default'));
+                document.documentElement.style.setProperty('--item_stackable_width', getComputedStyle(document.body).getPropertyValue('--item_stackable_width_default'));
                 
                 document.documentElement.style.setProperty('--inventory_div_display', 'none');
 

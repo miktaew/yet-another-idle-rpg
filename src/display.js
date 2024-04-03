@@ -1453,6 +1453,7 @@ function create_location_choices({location, category, add_icons = true, is_comba
     } else if (category === "travel") {
         if(!is_combat){
             for(let i = 0; i < location.connected_locations.length; i++) { 
+                
                 if(location.connected_locations[i].location.is_unlocked == false || location.connected_locations[i].location.is_finished) { //skip if not unlocked or if finished
                     continue;
                 }

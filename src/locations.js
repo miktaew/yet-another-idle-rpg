@@ -400,8 +400,8 @@ class LocationType{
                 related_skill: "Presence sensing",
                 effects: {
                     multipliers: {
-                        hit_chance: 0.1,
-                        evasion: 0.1,
+                        hit_chance: 0.15,
+                        evasion: 0.15,
                     }
                 }
             }
@@ -657,9 +657,9 @@ class LocationType{
     locations["Hidden tunnel"] = new Combat_zone({
         description: "There is, in fact, even more rats here.", 
         enemy_count: 50, 
-        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 2, xp_gain: 6}],
+        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 3, xp_gain: 1}],
         enemies_list: ["Elite wolf rat"],
-        enemy_group_size: [3,6],
+        enemy_group_size: [2,2],
         enemy_stat_variation: 0.2,
         is_unlocked: false, 
         name: "Hidden tunnel", 
@@ -677,9 +677,9 @@ class LocationType{
     locations["Pitch black tunnel"] = new Combat_zone({
         description: "There is no light here. Only rats.", 
         enemy_count: 50, 
-        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 3, xp_gain: 1}],
+        types: [{type: "narrow", stage: 1,  xp_gain: 6}, {type: "dark", stage: 3, xp_gain: 3}],
         enemies_list: ["Elite wolf rat"],
-        enemy_group_size: [8,8],
+        enemy_group_size: [5,8],
         enemy_stat_variation: 0.2,
         is_unlocked: false, 
         name: "Pitch black tunnel", 
@@ -693,8 +693,7 @@ class LocationType{
         },
         unlock_text: "As you keep going deeper, you barely notice a pitch black hole. Not even a tiniest speck of light reaches it."
     });
-
-    locations["Nearby cave"].connected_locations.push({location: locations["Hidden tunnel"], custom_text: "Enter the hidden tunnel"}, {location: locations["Pitch black tunnel"], custom_text: "Go into the pitch black tunnel"})
+    locations["Nearby cave"].connected_locations.push({location: locations["Cave depths"]}, {location: locations["Hidden tunnel"], custom_text: "Enter the hidden tunnel"}, {location: locations["Pitch black tunnel"], custom_text: "Go into the pitch black tunnel"})
 
     locations["Forest road"] = new Location({ 
         connected_locations: [{location: locations["Village"]}],
@@ -855,7 +854,7 @@ class LocationType{
         },
         unlock_text: "At some point, one of wolf rats tries to escape through a previously unnoticed hole in a nearby wall. There might be another tunnel behind it!"
     });
-    locations["Nearby cave"].connected_locations.push({location: locations["Cave depths"]}, {location: locations["Suspicious wall"], custom_text: "Try to break the suspicious wall"});
+    locations["Nearby cave"].connected_locations.push({location: locations["Suspicious wall"], custom_text: "Try to break the suspicious wall"});
 
     locations["Fight off the assailant"] = new Challenge_zone({
         description: "He attacked you out of nowhere", 

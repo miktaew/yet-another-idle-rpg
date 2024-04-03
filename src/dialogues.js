@@ -203,7 +203,7 @@ class Textline {
             }),
             "new tunnel": new Textline({
                 name: "I found an even deeper tunnel in the cave",
-                text: "The what?... I have a bad feeling about this, you better avoid it until you get better equipment.",
+                text: "The what?... I have a bad feeling about this, you better avoid it until you get better equipment. Don't forget to bring a good shield too.",
                 is_unlocked: false,
                 locks_lines: ["new tunnel"],
             }),
@@ -319,7 +319,7 @@ class Textline {
                 name: "What was that about?",
                 is_unlocked: false,
                 text: "I... We... It was my group that robbed you. I thought you came back from your grave for revenge... Please, I don't know anything. "
-                +"If you want answers, ask my the boss. He's somewhere in the town.",
+                +"If you want answers, ask my boss. He's somewhere in the town.",
                 locks_lines: ["defeated"],
                 unlocks: {
                     textlines: [{dialogue: "suspicious man", lines: ["behave"]}],
