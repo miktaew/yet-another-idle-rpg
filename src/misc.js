@@ -17,13 +17,13 @@ function expo(number, precision = 2)
 
 function round_item_price(price) {
     if(price > 9999) {
-        return Math.round(price/1000)*1000;
+        return Math.ceil(price/1000)*1000;
     } else if(price > 999) {
-        return Math.round(price/100)*100;
+        return Math.ceil(price/100)*100;
     } else if(price > 99){
-        return Math.round(price/10)*10;
+        return Math.ceil(price/10)*10;
     } else {
-        return Math.round(price);
+        return Math.ceil(price);
     }
 }
 

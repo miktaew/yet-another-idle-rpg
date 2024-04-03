@@ -88,10 +88,21 @@ function getLootPriceModifier(how_many_sold) {
     return modifier;
 }
 
-function getLootPriceModifierMultiple(start_count, how_many_to_sell) {
+/**
+ * 
+ * @param {Number} value
+ * @param {Number} start_count 
+ * @param {Number} how_many_to_sell 
+ * @returns 
+ */
+function getLootPriceModifierMultiple(value, start_count, how_many_to_sell) {
     let sum = 0;
     for(let i = start_count; i < start_count+how_many_to_sell; i++) {
-        sum += getLootPriceModifier(i);
+        /*
+        rounding is necessary to make it be a proper fraction of the value
+        otherwise, there might be cases where trading too much of an item results in small deviation from what it should be
+        */
+        sum += Math.round(value*getLootPriceModifier(i))/value;
     }
     return sum;
 }
@@ -116,7 +127,7 @@ class Item {
             return round_item_price(this.value);
         }
         else {
-            return Math.max(1, round_item_price(Math.round(this.value * getLootPriceModifier((Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)))));
+            return Math.max(1, round_item_price(Math.ceil(this.value * getLootPriceModifier((Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)))));
         }
     }
 
@@ -129,7 +140,8 @@ class Item {
             return round_item_price(this.value) * count;
         }
         else {
-            return Math.max(count, Math.round(round_item_price(this.value) * getLootPriceModifierMultiple((Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)+additional_count_of_sold, count)));
+            const modifier = getLootPriceModifierMultiple(this.value, (Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)+additional_count_of_sold, count);
+            return Math.max(count, Math.ceil(round_item_price(this.value) * Math.round(this.value*modifier)/this.value));
         }
     }
 
@@ -1005,7 +1017,7 @@ item_templates["Twist liek a snek"] = new Book({
         shield_strength: 2, 
         shield_name: "Cheap wooden shield",
         component_tier: 1,
-        component_type: "shield base"
+        component_type: "shield base",
     });
 
     item_templates["Crude wooden shield base"] = new ShieldComponent({
@@ -1014,7 +1026,7 @@ item_templates["Twist liek a snek"] = new Book({
         shield_strength: 4,
         shield_name: "Crude wooden shield",
         component_tier: 1,
-        component_type: "shield base"
+        component_type: "shield base",
     });
     item_templates["Wooden shield base"] = new ShieldComponent({
         name: "Wooden shield base", description: "Proper wooden shield component, although it could use some additional reinforcement", 
@@ -1022,13 +1034,13 @@ item_templates["Twist liek a snek"] = new Book({
         shield_strength: 7,
         shield_name: "Wooden shield",
         component_tier: 1,
-        component_type: "shield base"
+        component_type: "shield base",
     });
     item_templates["Basic shield handle"] = new ShieldComponent({
         name: "Wooden shield base", description: "A simple handle for holding the shield", 
         value: 80,
         component_tier: 1,
-        component_type: "shield handle"
+        component_type: "shield handle",
     });
 
 })();

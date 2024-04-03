@@ -554,6 +554,11 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
             trade_button_10.innerText = "10";
             trade_button_10.setAttribute("data-trade_ammount", 10);
 
+            const trade_button_max = document.createElement("div");
+            trade_button_max.classList.add("trade_ammount_button");
+            trade_button_max.innerText = "all";
+            trade_button_max.setAttribute("data-trade_ammount", Infinity);
+
             item_div.appendChild(create_item_tooltip(trader.inventory[key].item, {trader: true}));
 
 
@@ -565,6 +570,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
             item_control_div.appendChild(item_div);
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);
+            item_control_div.appendChild(trade_button_max);
 
             let item_value_span = document.createElement("span");
             item_value_span.innerHTML = `${format_money(round_item_price(trader.inventory[key].item.getValue() * trader.getProfitMargin()), true)}`;
@@ -607,6 +613,11 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
             trade_button_10.innerText = "10";
             trade_button_10.setAttribute("data-trade_ammount", 10);
 
+            const trade_button_max = document.createElement("div");
+            trade_button_max.classList.add("trade_ammount_button");
+            trade_button_max.innerText = "all";
+            trade_button_max.setAttribute("data-trade_ammount", Infinity);
+
             item_control_div.classList.add('item_to_trade', 'trader_item_control', 'inventory_item_control', `trader_item_${actual_item.item_type.toLowerCase()}`);
             item_control_div.setAttribute("data-trader_item", `${actual_item.name}`);
             item_control_div.setAttribute("data-item_value", `${actual_item.getValue()}`);
@@ -615,6 +626,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
 
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);
+            item_control_div.appendChild(trade_button_max);
 
             var item_value_span = document.createElement("span");
             item_value_span.innerHTML = `${format_money(actual_item.getValue(), true)}`;
@@ -920,6 +932,11 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
             trade_button_10.innerText = "10";
             trade_button_10.setAttribute("data-trade_ammount", 10);
 
+            const trade_button_max = document.createElement("div");
+            trade_button_max.classList.add("trade_ammount_button");
+            trade_button_max.innerText = "all";
+            trade_button_max.setAttribute("data-trade_ammount", Infinity);
+
             item_control_div.classList.add('inventory_item_control', 'character_item_control', `character_item_${character.inventory[key].item.item_type.toLowerCase()}`);
             item_control_div.setAttribute("data-character_item", `${character.inventory[key].item.name}`)
             item_control_div.setAttribute("data-item_count", `${item_count}`)
@@ -942,6 +959,7 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
 
             item_control_div.appendChild(trade_button_5);
             item_control_div.appendChild(trade_button_10);
+            item_control_div.appendChild(trade_button_max);
 
             let item_value_span = document.createElement("span");
             item_value_span.innerHTML = `${format_money(character.inventory[key].item.getValue(), true)}`;
@@ -1027,6 +1045,11 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
                 trade_button_10.innerText = "10";
                 trade_button_10.setAttribute("data-trade_ammount", 10);
 
+                const trade_button_max = document.createElement("div");
+                trade_button_max.classList.add("trade_ammount_button");
+                trade_button_max.innerText = "all";
+                trade_button_max.setAttribute("data-trade_ammount", Infinity);
+
                 item_control_div.classList.add('item_to_trade', 'character_item_control', 'inventory_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
                 item_control_div.setAttribute("data-character_item", `${actual_item.name}`);
                 item_control_div.setAttribute("data-item_count", `${item_count}`);
@@ -1035,6 +1058,7 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
 
                 item_control_div.appendChild(trade_button_5);
                 item_control_div.appendChild(trade_button_10);
+                item_control_div.appendChild(trade_button_max);
 
                 let item_value_span = document.createElement("span");
                 item_value_span.innerHTML = `${format_money(round_item_price(actual_item.getValue() * traders[current_trader].getProfitMargin()), true)}`;

@@ -24,7 +24,7 @@
 	--item_use_button_display: inline-block;
 	 
 	--item_other_width_default: 319px; /* value for out of trade */
-	--item_other_width_trade: 280px; /* value for in trade */
+	--item_other_width_trade: 265px; /* value for in trade */
 	--item_other_width: var(--item_other_width_default); /* modified in index.html on trade start/end to fit the buttons */
 
 	--item_tooltip_top: 0px;
@@ -505,7 +505,7 @@ body {
 }
 
 .item_stackable {
-	width: 280px;
+	width: 265px;
 	display: inline-block;
 }
 
@@ -745,11 +745,13 @@ i {
 	cursor: pointer;
 	font-weight: bold;
 	font-size: 14px;
-	width: 19.5px;
+	max-width: 24px;
+	min-width: fit-content;
+	padding-left: 5px;
 }
 
 .trader_item_control  .item_stackable {
-	width: 280px;
+	width: 265px;
 }
 
 .trader_item {
