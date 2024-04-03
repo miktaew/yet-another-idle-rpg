@@ -167,33 +167,41 @@ class Combat_zone {
 
                 const base = 1 + variation;
                 const vary = 2 * variation;
-                newEnemy = new Enemy({name: enemy.name, description: enemy.description, xp_value: enemy.xp_value,
-                                            stats: {
-                                                health: Math.round(enemy.stats.health * (base - Math.random() * vary)),
-                                                attack: Math.round(enemy.stats.attack * (base - Math.random() * vary)),
-                                                agility: Math.round(enemy.stats.agility * (base - Math.random() * vary)),
-                                                dexterity: Math.round(enemy.stats.dexterity * (base - Math.random() * vary)),
-                                                magic: Math.round(enemy.stats.magic * (base - Math.random() * vary)),
-                                                intuition: Math.round(enemy.stats.intuition * (base - Math.random() * vary)),
-                                                attack_speed: Math.round(enemy.stats.attack_speed * (base - Math.random() * vary) * 100) / 100,
-                                                defense: Math.round(enemy.stats.defense * (base - Math.random() * vary))
-                                            },
-                                            loot_list: enemy.loot_list,
-                                        });
+                newEnemy = new Enemy({
+                                        name: enemy.name, 
+                                        description: enemy.description, 
+                                        xp_value: enemy.xp_value,
+                                        stats: {
+                                            health: Math.round(enemy.stats.health * (base - Math.random() * vary)),
+                                            attack: Math.round(enemy.stats.attack * (base - Math.random() * vary)),
+                                            agility: Math.round(enemy.stats.agility * (base - Math.random() * vary)),
+                                            dexterity: Math.round(enemy.stats.dexterity * (base - Math.random() * vary)),
+                                            magic: Math.round(enemy.stats.magic * (base - Math.random() * vary)),
+                                            intuition: Math.round(enemy.stats.intuition * (base - Math.random() * vary)),
+                                            attack_speed: Math.round(enemy.stats.attack_speed * (base - Math.random() * vary) * 100) / 100,
+                                            defense: Math.round(enemy.stats.defense * (base - Math.random() * vary))
+                                        },
+                                        loot_list: enemy.loot_list,
+                                        add_to_bestiary: enemy.add_to_bestiary,
+                                    });
 
             } else {
-                newEnemy = new Enemy({name: enemy.name, description: enemy.description, xp_value: enemy.xp_value,
-                    stats: {
-                        health: enemy.stats.health,
-                        attack: enemy.stats.attack,
-                        agility: enemy.stats.agility,
-                        dexterity: enemy.stats.dexterity,
-                        magic: enemy.stats.magic,
-                        intuition: enemy.stats.intuition,
-                        attack_speed: enemy.stats.attack_speed,
-                        defense: enemy.stats.defense
-                    },
-                    loot_list: enemy.loot_list,
+                newEnemy = new Enemy({
+                        name: enemy.name, 
+                        description: enemy.description, 
+                        xp_value: enemy.xp_value,
+                        stats: {
+                            health: enemy.stats.health,
+                            attack: enemy.stats.attack,
+                            agility: enemy.stats.agility,
+                            dexterity: enemy.stats.dexterity,
+                            magic: enemy.stats.magic,
+                            intuition: enemy.stats.intuition,
+                            attack_speed: enemy.stats.attack_speed,
+                            defense: enemy.stats.defense
+                        },
+                        loot_list: enemy.loot_list,
+                        add_to_bestiary: enemy.add_to_bestiary,
                 });
             }
             newEnemy.is_alive = true;
@@ -735,13 +743,13 @@ class LocationType{
     locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture deeper into the woods"});
 
     locations["Town outskirts"] = new Location({ 
-        connected_locations: [{location: locations["Forest road"]}],
+        connected_locations: [{location: locations["Forest road"], custom_text: "Return to the forest"}],
         description: "The town is surrounded by a tall stone wall. The only gate seems to be closed, with a lone guard outside. You can see farms to the north and slums to the south.",
         name: "Town outskirts",
         is_unlocked: true,
         dialogues: ["gate guard"],
     });
-    locations["Forest road"].connected_locations.push({location: locations["Town outskirts"], custom_text: "Leave the forest"});
+    locations["Forest road"].connected_locations.push({location: locations["Town outskirts"], custom_text: "Go towards the town"});
 
     locations["Slums"] = new Location({ 
         connected_locations: [{location: locations["Town outskirts"]}],

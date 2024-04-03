@@ -1406,19 +1406,19 @@ i {
 	border-bottom: 2px dotted gray;
 }
 
-.stance_list_fav {
+.stance_list_fav, .stance_list_header_fav {
 	width: 50px;
 	border-right: 1px solid gray;
 	border-bottom: 2px dotted gray;
 }
 
-.stance_list_select {
+.stance_list_select, .stance_list_header_select {
 	width: 75px;
 	border-right: 1px solid gray;
 	border-bottom: 2px dotted gray;
 }
 
-.stances_name {
+.stances_name, .stance_list_header_name {
 	width: 300px;
 	padding-left: 10px;
 	text-align: left;

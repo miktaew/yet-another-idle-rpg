@@ -2139,9 +2139,9 @@ function update_displayed_stance_list() {
 
     stance_list.innerHTML = 
     `<tr class="stance_list_entry stance_list_header">
-        <th class="stance_list_fav stance_list_header">Fav</th>
-        <th class="stance_list_select stance_list_header">Select</th>
-        <th class="stances_name stance_list_header">Name</th>
+        <th class="stance_list_header stance_list_header_fav">Fav</th>
+        <th class="stance_list_header stance_list_header_select">Select</th>
+        <th class="stance_list_header stance_list_header_name">Name</th>
     </tr>`
 
     Object.keys(stances).forEach(stance => {
@@ -2281,6 +2281,7 @@ function update_displayed_faved_stances() {
     }).forEach(node=>list.appendChild(node));
 
     //mark selected stance as checked in quick selection
+
     const selection = document.getElementById("character_stance_selection");
     if(selection.children && selection.querySelector(`[data-stance='${selected_stance}']`)) {
         selection.querySelector(`[data-stance='${selected_stance}']`).children[0].checked = true;
