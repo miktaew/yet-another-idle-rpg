@@ -115,7 +115,7 @@ class Enemy {
         description: "Rat with size of a dog, much more ferocious than its relatives",
         xp_value: 7, 
         rank: 1,
-        stats: {health: 70, attack: 30, agility: 20, dexterity: 20, intuition: 30, magic: 0, attack_speed: 1.4, defense: 4}, 
+        stats: {health: 80, attack: 30, agility: 32, dexterity: 32, intuition: 30, magic: 0, attack_speed: 1.4, defense: 8}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
             {item_name: "Rat fang", chance: 0.04},
@@ -127,7 +127,7 @@ class Enemy {
         name: "Starving wolf", description: "A large, wild and hungry canine", 
         xp_value: 4, 
         rank: 2,
-        stats: {health: 150, attack: 20, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 8}, 
+        stats: {health: 150, attack: 20, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 12}, 
         loot_list: [
             {item_name: "Wolf fang", chance: 0.03},
             {item_name: "Wolf pelt", chance: 0.01},
@@ -140,7 +140,7 @@ class Enemy {
         description: "A small, wild canine", 
         xp_value: 4, 
         rank: 2,
-        stats: {health: 120, attack: 20, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.4, defense: 4}, 
+        stats: {health: 120, attack: 20, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.4, defense: 6}, 
         loot_list: [
             {item_name: "Wolf fang", chance: 0.03},
             {item_name: "Wolf pelt", chance: 0.01},

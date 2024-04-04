@@ -528,7 +528,7 @@ class LocationType{
             }
         },
         getBackgroundNoises: function() {
-            let noises = ["*Rustle*", "*Rustle rustle*"];
+            let noises = ["*You hear some rustling*"];
             if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
                 noises.push("Anyone seen my cow?", "Mooooo!", "Tomorrow I'm gonna fix the roof", "Look, a bird!");
 
@@ -602,7 +602,7 @@ class LocationType{
             }
         },
         getBackgroundNoises: function() {
-            let noises = ["*Rumble*", "Squeak!", ];
+            let noises = ["*You hear rocks rumbling somewhere*", "Squeak!", ];
             return noises;
         },
         name: "Nearby cave",
@@ -679,7 +679,7 @@ class LocationType{
         enemy_count: 50, 
         types: [{type: "narrow", stage: 1,  xp_gain: 6}, {type: "dark", stage: 3, xp_gain: 3}],
         enemies_list: ["Elite wolf rat"],
-        enemy_group_size: [5,8],
+        enemy_group_size: [6,8],
         enemy_stat_variation: 0.2,
         is_unlocked: false, 
         name: "Pitch black tunnel", 
@@ -700,7 +700,7 @@ class LocationType{
         description: "Old trodden road leading through a dark forest, the only path connecting village to the town. You can hear some animals from the surrounding woods.",
         name: "Forest road",
         getBackgroundNoises: function() {
-            let noises = ["*Rustle*", "Roar", "*You almost tripped on some roots*", "*You hear some animal running away*"];
+            let noises = ["*You hear some rustling*", "Roar!", "*You almost tripped on some roots*", "*You hear some animal running away*"];
 
             return noises;
         },
@@ -733,10 +733,10 @@ class LocationType{
         name: "Deep forest", 
         parent_location: locations["Forest road"],
         first_reward: {
-            xp: 50,
+            xp: 70,
         },
         repeatable_reward: {
-            xp: 25,
+            xp: 35,
         }
     });
     locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture deeper into the woods"});
@@ -758,7 +758,7 @@ class LocationType{
         dialogues: ["suspicious man"],
         traders: ["suspicious trader"],
         getBackgroundNoises: function() {
-            let noises = ["Cough cough", "*scream*", "*sobbing*"];
+            let noises = ["Cough cough", "*You hear a scream*", "*You hear someone sobbing*"];
 
             if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
                 noises.push("Please, do you have a coin to spare?");
@@ -777,9 +777,9 @@ class LocationType{
         getBackgroundNoises: function() {
             let noises = [];
             if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
-                noises.push("Mooooo!", "Look, a bird!", "Bark bark!", "*bleat*", "Neigh!", "Oink oink");
+                noises.push("Mooooo!", "Look, a bird!", "Bark bark!", "*You notice a goat staring at you menacingly*", "Neigh!", "Oink oink");
             } else {
-                noises.push("*Rustle*", "*Rustle rustle*", "*You hear snoring workers*");
+                noises.push("*You can hear some rustling*", "*You can hear snoring workers*");
             }
 
             if(current_game_time.hour > 3 && current_game_time.hour < 10) {

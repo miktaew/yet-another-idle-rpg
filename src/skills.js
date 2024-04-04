@@ -105,11 +105,11 @@ class Skill {
             return;
         }
         
-        this.total_xp += xp_to_add;
+        this.total_xp = Math.round(100*(this.total_xp + xp_to_add))/100;
         if (this.current_level < this.max_level) { //not max lvl
 
             if (xp_to_add + this.current_xp < this.xp_to_next_lvl) { // no levelup
-                this.current_xp += xp_to_add;
+                this.current_xp = Math.round(100*(this.current_xp + xp_to_add))/100;
             }
             else { //levelup
                 
@@ -1172,7 +1172,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                                     "max_health": 30,
                                                 },
                                                 multipliers: {
-                                                    "max_health": 1.1,
+                                                    "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
                                                     all: 1.1,
@@ -1184,7 +1184,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                                     "max_health": 40,
                                                 },
                                                 multipliers: {
-                                                    "max_health": 1.1,
+                                                    "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
                                                     all: 1.1,
@@ -1195,7 +1195,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                                     "max_health": 50,
                                                 },
                                                 multipliers: {
-                                                    "max_health": 1.2,
+                                                    "max_health": 1.1,
                                                 },
                                                 xp_multipliers: {
                                                     all: 1.1,

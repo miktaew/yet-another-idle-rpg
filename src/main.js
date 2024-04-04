@@ -13,7 +13,8 @@ import { character,
          add_to_character_inventory, remove_from_character_inventory,
          equip_item_from_inventory, unequip_item, equip_item, 
          update_combat_stats,
-         update_character_stats, } from "./character.js";
+         update_character_stats,
+         get_skill_xp_gain, } from "./character.js";
 import { activities } from "./activities.js";
 import { end_activity_animation, 
          update_displayed_character_inventory, update_displayed_trader_inventory, sort_displayed_inventory, sort_displayed_skills,
@@ -1056,8 +1057,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     }
 
     if(use_bonus) {
-        xp_to_add = xp_to_add * (character.xp_bonuses.total_multiplier[skill.id] || 1) 
-                       * (character.xp_bonuses.total_multiplier.all || 1) * (character.xp_bonuses.total_multiplier.all_skill || 1);
+        xp_to_add = xp_to_add * get_skill_xp_gain(skill.id);
 
         if(skill.parent_skill) {
             xp_to_add *= skill.get_parent_xp_multiplier();
@@ -2251,7 +2251,7 @@ update_displayed_equipment();
 run();
 
 if(window.location.href.endsWith("-dev/")) {
-    log_message("It looks like you are playing on the dev release. It is recommended to keep the developer console open (F12 => 'Console' tab) in case of any errors/warnings appearing in there.", "notification");
+    log_message("It looks like you are playing on the dev release. It is recommended to keep the developer console open (in Chrome/Firefox/Edge it's at F12 => 'Console' tab) in case of any errors/warnings appearing in there.", "notification");
 }
 
 
