@@ -729,9 +729,10 @@ function set_character_attack_loop({base_cooldown}) {
     }
 
     let targets=[];
-    const alive_enemies = current_enemies.filter(enemy => enemy.is_alive).slice(-target_count);
-    while(alive_enemies.length>0) {
-        targets.push(alive_enemies.pop());
+    const alive_targets = current_enemies.filter(enemy => enemy.is_alive).slice(-target_count);
+
+    while(alive_targets.length>0) {
+        targets.push(alive_targets.pop());
     }
 
     use_stamina(stances[current_stance].stamina_cost);
@@ -752,20 +753,25 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
     let count = 0;
     clear_character_attack_loop();
     character_attack_loop = setInterval(() => {
-        
         update_character_attack_bar(count);
         count++;
-        let set_again = false;
         if(count >= 40) {
             for(let i = 0; i < targets.length; i++) {
                 count = 0;
-                let done = do_character_combat_action({target: targets[i], attack_power});
-                if(!done) {
-                    set_again = true;
-                }
+                do_character_combat_action({target: targets[i], attack_power});
             }
-            if(set_again) { //set next loop if there's still an enemy left;
+
+            if(current_enemies.filter(enemy => enemy.is_alive).length != 0) { //set next loop if there's still an enemy left;
                 set_character_attack_loop({base_cooldown});
+            } else { //all enemies defeated, do relevant things and set new combat
+
+                current_location.enemy_groups_killed += 1;
+                if(current_location.enemy_groups_killed > 0 && current_location.enemy_groups_killed % current_location.enemy_count == 0) {
+                    get_location_rewards(current_location);
+                }
+                document.getElementById("enemy_count_div").children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemy_groups_killed % current_location.enemy_count;
+        
+                set_new_combat();
             }
         }
     }, actual_cooldown*1000/(40*tickrate));
@@ -985,20 +991,6 @@ function do_character_combat_action({target, attack_power}) {
             }
             
             kill_enemy(target);
-            const finished_group = current_enemies.filter(enemy => enemy.is_alive).length == 0;
-
-            if(finished_group) {
-                current_location.enemy_groups_killed += 1;
-                set_new_combat();
-
-                if(current_location.enemy_groups_killed > 0 && current_location.enemy_groups_killed % current_location.enemy_count == 0) {
-                    get_location_rewards(current_location);
-
-                }
-                document.getElementById("enemy_count_div").children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemy_groups_killed % current_location.enemy_count;
-                
-                return true;
-            }
         }
 
         update_displayed_health_of_enemies();
@@ -1065,6 +1057,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     }
     
     const was_hidden = skill.visibility_treshold > skill.total_xp;
+    
     const {message, gains, unlocks} = skill.add_xp({xp_to_add: xp_to_add});
     
     if(skill.parent_skill && add_to_parent) {
@@ -1121,6 +1114,10 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
 
             for(let i = 0; i < unlocks?.skills?.length; i++) {
                 const unlocked_skill = skills[unlocks.skills[i]];
+                if(unlocked_skill.is_unlocked) {
+                    continue;
+                }
+                
                 unlocked_skill.is_unlocked = true;
         
                 create_new_skill_bar(unlocked_skill);
@@ -2008,7 +2005,7 @@ function update() {
         } else { //everything other than combat
             if(is_sleeping) {
                 do_sleeping();
-                add_xp_to_skill({skill: skills["Sleeping"], xp_to_add: current_location.sleeping.xp});
+                add_xp_to_skill({skill: skills["Sleeping"], xp_to_add: current_location.sleeping?.xp});
             }
             else {
                 if(is_resting) {
@@ -2035,7 +2032,7 @@ function update() {
                     current_activity.working_time += 1;
 
                     if(current_activity.working_time % current_activity.working_period == 0) { 
-                        //finished working period, add money, then check if there's enough time left for another
+                        //finished working period, add money
                         current_activity.earnings += current_activity.get_payment();
                     }
                     update_displayed_ongoing_activity(current_activity, true);
@@ -2069,7 +2066,7 @@ function update() {
 
             const sounds = current_location.getBackgroundNoises();
             if(sounds.length > 0){
-                if(Math.random() < 1/300) {
+                if(Math.random() < 1/450) {
                     log_message(`"${sounds[Math.floor(Math.random()*sounds.length)]}"`, "background");
                 }
             }

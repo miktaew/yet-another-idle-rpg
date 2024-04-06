@@ -708,9 +708,9 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                 skill_id: "Presence sensing",
                 names: {0: "Presence sensing"},
                 description: "Ability to sense a presence without using your eyes",
-                base_xp_cost: 200,
+                base_xp_cost: 60,
                 xp_scaling: 2,
-                max_level: 10,
+                max_level: 20,
                 get_effect_description: () => {
                     return `Provides a variety of combat bonuses. Reduces extreme darkness penalty by ${Math.round(10*skills["Presence sensing"].current_level*100/skills["Presence sensing"].max_level)/10}%`;
                 },

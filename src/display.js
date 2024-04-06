@@ -782,8 +782,18 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
             }
             else if(name_a > name_b) {
                 return plus;
-            } else {
+            } else if(name_a < name_b) {
                 return minus;
+            } else {
+                //if same name, sort based on price (to avoid awkward position changing on some occasions)
+                let value_a = Number.parseInt(a.getAttribute(`data-item_value`));
+                let value_b = Number.parseInt(b.getAttribute(`data-item_value`));
+                
+                if(value_a > value_b) {
+                    return plus;
+                } else {
+                    return minus;
+                }
             }
 
         } else if(sort_by === "price") {
@@ -1098,7 +1108,9 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
         }
     }
 
-    sort_displayed_inventory({target: "character", sort_by: character_sorting, direction: sorting_direction});
+    if(!item_name) {
+        sort_displayed_inventory({target: "character", sort_by: character_sorting, direction: sorting_direction});
+    }
 }
 
 /**
@@ -1616,7 +1628,7 @@ function update_displayed_combat_location(location) {
 }
 
 function update_displayed_health() { //call it when using healing items, resting or getting hit
-    current_health_value_div.innerText = (Math.round(character.stats.full.health*10)/10) + "/" + Math.round(character.stats.full.max_health) + " hp";
+    current_health_value_div.innerText = Math.round(character.stats.full.health) + "/" + Math.round(character.stats.full.max_health) + " hp";
     current_health_bar.style.width = (character.stats.full.health*100/character.stats.full.max_health).toString() +"%";
 }
 function update_displayed_stamina() { //call it when eating, resting or fighting
@@ -1943,6 +1955,10 @@ function start_reading_display(title) {
  * @param {Skill} skill 
  */
 function create_new_skill_bar(skill) {
+    if(skill_bar_divs[skill.skill_id]) {
+        console.warn(`Tried to create a skillbar for skill "${skill.skill_id}", but it already has one!`);
+        return;
+    }
     skill_bar_divs[skill.skill_id] = document.createElement("div");
 
     const skill_bar_max = document.createElement("div");
@@ -2517,8 +2533,8 @@ function update_displayed_ongoing_activity(current_activity, is_job){
         }
     }
     const action_xp_div = document.getElementById("action_xp_div");
-    action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${skills[current_activity.activity.base_skills_names].name()}`+
-        ` (${Math.round(10000*skills[current_activity.activity.base_skills_names].current_xp/skills[current_activity.activity.base_skills_names].xp_to_next_lvl)/100}%)`;
+    const needed_xp = skills[current_activity.activity.base_skills_names].current_level == skills[current_activity.activity.base_skills_names].max_level? "Max": `${Math.round(10000*skills[current_activity.activity.base_skills_names].current_xp/skills[current_activity.activity.base_skills_names].xp_to_next_lvl)/100}%`
+    action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${skills[current_activity.activity.base_skills_names].name()} (${needed_xp})`;
 }
 
 function clear_skill_list(){
