@@ -116,7 +116,7 @@ stances["wide"] = new Stance({
         attack_power: 0.5,
     },
     target_count: 4,
-    stamina_cost: 3,
+    stamina_cost: 4,
 });
 
 
