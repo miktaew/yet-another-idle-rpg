@@ -1615,7 +1615,7 @@ function update_displayed_combat_location(location) {
     //add location types to display
     for(let i = 0; i < current_location.types?.length; i++) {
         const type_div = document.createElement("div");
-        type_div.innerHTML = current_location.types[i].type;
+        type_div.innerHTML = current_location.types[i].type + (current_location.types[i].stage>1?` ${"I".repeat(current_location.types[i].stage)}`:"");
         type_div.classList.add("location_type_div");
 
         const type_tooltip = document.createElement("div");
@@ -2214,7 +2214,6 @@ function update_displayed_stance_list() {
 }
 
 function create_stance_tooltip(stance_id) {
-    //TODO: add stats to tooltips!
     const tooltip_div = document.createElement("div");
     tooltip_div.classList.add("stance_tooltip");
     tooltip_div.innerHTML = 
@@ -2226,12 +2225,11 @@ function create_stance_tooltip(stance_id) {
     let target_count = stances[stance_id].target_count;
     if(target_count > 1 && stances[stance_id].related_skill) {
         target_count = target_count + Math.round(target_count * skills[stances[stance_id].related_skill].current_level/skills[stances[stance_id].related_skill].max_level);
-
     }
 
-    if(stances[stance_id].target_count > 1) {
+    if(target_count > 1) {
         tooltip_div.innerHTML += `
-        <br><div>${stances[stance_id].randomize_target_count?"Randomly hits up to":"Hits up to"} ${target_count} enemies</div>`;
+        <br><div class='stance_tooltip_hitcount'>${stances[stance_id].randomize_target_count?"Randomly hits up to":"Hits up to"} ${target_count} enemies</div>`;
     }
 
     return tooltip_div;
@@ -2249,6 +2247,14 @@ function create_stance_tooltip_stats(stance) {
 
 function update_stance_tooltip(stance_id) {
     stance_bar_divs[stance_id].querySelector(".stance_tooltip_stats").innerHTML = create_stance_tooltip_stats(stances[stance_id]);
+
+    let target_count = stances[stance_id].target_count;
+    if(target_count > 1){
+        if(stances[stance_id].related_skill) {
+            target_count = target_count + Math.round(target_count * skills[stances[stance_id].related_skill].current_level/skills[stances[stance_id].related_skill].max_level);
+        }
+        stance_bar_divs[stance_id].querySelector(".stance_tooltip_hitcount").innerHTML = `${stances[stance_id].randomize_target_count?"Randomly hits up to":"Hits up to"} ${target_count} enemies</div>`;
+    } 
 }
 
 function update_displayed_stance() {

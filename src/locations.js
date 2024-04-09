@@ -390,8 +390,9 @@ class LocationType{
                 related_skill: "Night vision",
                 effects: {
                     multipliers: {
-                        hit_chance: 0.5,
-                        evasion: 0.5,
+                        //they dont need to be drastic since they apply on top of 'night' penalty
+                        hit_chance: 0.8,
+                        evasion: 0.8,
                     }
                 }
             },
@@ -636,7 +637,7 @@ class LocationType{
     locations["Cave depths"] = new Combat_zone({
         description: "It's dark. And full of rats.", 
         enemy_count: 50, 
-        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 1, xp_gain: 3}],
+        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 2, xp_gain: 3}],
         enemies_list: ["Wolf rat"],
         enemy_group_size: [5,8],
         enemy_stat_variation: 0.2,

@@ -549,7 +549,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                 names: {0: "Quick steps"}, 
                                 description: "A swift and precise technique that abandons strength in favor of greater speed", 
                                 max_level_coefficient: 2,
-                                base_xp_cost: 6,
+                                base_xp_cost: 40,
                                 max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the 'Quick Steps' stance`;
@@ -712,7 +712,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                 xp_scaling: 2,
                 max_level: 20,
                 get_effect_description: () => {
-                    return `Provides a variety of combat bonuses. Reduces extreme darkness penalty by ${Math.round(10*skills["Presence sensing"].current_level*100/skills["Presence sensing"].max_level)/10}%`;
+                    return `Reduces extreme darkness penalty by ${Math.round(10*skills["Presence sensing"].current_level*100/skills["Presence sensing"].max_level)/10}%`;
                 },
                 rewards: {
                     milestones: {

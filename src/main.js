@@ -613,6 +613,11 @@ function fav_stance(stance_id) {
  * @param {List<Enemy>} enemies 
  */
 function set_new_combat({enemies} = {}) {
+    if(!current_location.get_next_enemies){
+        clear_all_enemy_attack_loops();
+        clear_character_attack_loop();
+        return;
+    }
     current_enemies = enemies || current_location.get_next_enemies();
     clear_all_enemy_attack_loops();
 
@@ -720,8 +725,8 @@ function set_character_attack_loop({base_cooldown}) {
     }
 
     let target_count = stances[current_stance].target_count;
-    if(target_count > 1) {
-        target_count = target_count  + Math.round(target_count * skills[stances[current_stance].related_skill].current_level/skills[stances[current_stance].related_skill].max_level);
+    if(target_count > 1 && stances[current_stance].related_skill) {
+        target_count = target_count + Math.round(target_count * skills[stances[current_stance].related_skill].current_level/skills[stances[current_stance].related_skill].max_level);
     }
 
     if(stances[current_stance].randomize_target_count) {
@@ -1184,6 +1189,8 @@ function get_location_rewards(location) {
         log_message(`Obtained additional ${location.repeatable_reward.xp}xp for clearing ${location.name}`, "location_reward");
         add_xp_to_character(location.repeatable_reward.xp);
     }
+
+
 
     //all below: on each clear, so that if something gets added after location was cleared, it will still be unlockable
 
