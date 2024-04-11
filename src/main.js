@@ -49,7 +49,8 @@ let current_enemies = null;
 
 const enemy_attack_loops = {};
 let enemy_attack_cooldowns;
-
+let enemy_timer_variance_accumulator = [];
+let enemy_timers = [];
 let character_attack_loop;
 
 //current location
@@ -633,12 +634,14 @@ function set_new_combat({enemies} = {}) {
         character_attack_cooldown *= cooldown_multiplier;
         for(let i = 0; i < current_enemies.length; i++) {
             enemy_attack_cooldowns[i] *= cooldown_multiplier;
+            enemy_timer_variance_accumulator[i] = 0;
+            enemy_timers[i] = [Date.now(), Date.now()];
         }
     }
 
     //attach loops
     for(let i = 0; i < current_enemies.length; i++) {
-        do_enemy_attack_loop(i);
+        do_enemy_attack_loop(i, 0, true);
     }
 
     set_character_attack_loop({base_cooldown: character_attack_cooldown});
@@ -679,12 +682,20 @@ function reset_combat_loops() {
  * @param {*} enemy_id 
  * @param {*} cooldown 
  */
-function do_enemy_attack_loop(enemy_id, count) {
+function do_enemy_attack_loop(enemy_id, count, is_new = false) {
     count = count || 0;
     update_enemy_attack_bar(enemy_id, count);
 
+    if(is_new) {
+        enemy_timer_variance_accumulator[enemy_id] = 0;
+    }
+
     clearTimeout(enemy_attack_loops[enemy_id]);
     enemy_attack_loops[enemy_id] = setTimeout(() => {
+        enemy_timers[enemy_id][0] = Date.now(); 
+        enemy_timer_variance_accumulator[enemy_id] += ((enemy_timers[enemy_id][0] - enemy_timers[enemy_id][1]) - enemy_attack_cooldowns[enemy_id]*1000/(40*tickrate));
+
+        enemy_timers[enemy_id][1] = Date.now();
         update_enemy_attack_bar(enemy_id, count);
         count++;
         if(count >= 40) {
@@ -692,7 +703,23 @@ function do_enemy_attack_loop(enemy_id, count) {
             do_enemy_combat_action(enemy_id);
         }
         do_enemy_attack_loop(enemy_id, count);
-    }, enemy_attack_cooldowns[enemy_id]*1000/(40*tickrate), count);
+
+
+        if(enemy_timer_variance_accumulator[enemy_id] <= 5/tickrate && enemy_timer_variance_accumulator[enemy_id] >= -5/tickrate) {
+            time_adjustment = time_variance_accumulator;
+        }
+        else {
+            if(enemy_timer_variance_accumulator[enemy_id] > 5/tickrate) {
+                time_adjustment = 5/tickrate;
+            }
+            else {
+                if(enemy_timer_variance_accumulator[enemy_id] < -5/tickrate) {
+                    time_adjustment = -5/tickrate;
+                }
+            }
+        } //limits the maximum correction to +/- 5ms, just to be safe
+
+    }, enemy_attack_cooldowns[enemy_id]*1000/(40*tickrate) - time_adjustment);
 }
 
 function clear_enemy_attack_loop(enemy_id) {
