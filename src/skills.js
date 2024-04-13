@@ -203,6 +203,7 @@ class Skill {
                 flats = this.rewards.milestones[i].stats;
                 multipliers = this.rewards.milestones[i].multipliers;
                 xp_multipliers = this.rewards.milestones[i].xp_multipliers;
+                
                 if (flats) {
                     Object.keys(flats).forEach(stat => {
                         gains.flats[stat] = (gains.flats[stat] || 0) + flats[stat];
@@ -215,12 +216,11 @@ class Skill {
                 }
                 if(xp_multipliers) {
                     Object.keys(xp_multipliers).forEach(multiplier => {
-                        gains.xp_multipliers[multiplier] = (gains.multipliers[multiplier] || 1) * xp_multipliers[multiplier];
+                        gains.xp_multipliers[multiplier] = (gains.xp_multipliers[multiplier] || 1) * xp_multipliers[multiplier];
                     });
                 }
             }
         }
-
         if (gains.multipliers) {
             Object.keys(gains.multipliers).forEach((multiplier) => {
                 gains.multipliers[multiplier] = Math.round(100 * gains.multipliers[multiplier]) / 100;
@@ -1282,7 +1282,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         1: {
                                             stats: {
                                                 agility: 1,
-                                            },
+                                            }
                                         },
                                         3: {
                                             stats: {
@@ -1295,8 +1295,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                             },
                                             multipliers: {
                                                 max_stamina: 1.05,
-                                            }
-                                            
+                                            },                                            
                                         },
                                         7: {
                                             stats: {
@@ -1304,7 +1303,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                             },
                                             multipliers: {
                                                 agility: 1.05,
-                                            }
+                                            },
                                         },
                                         10: {
                                             stats: {
@@ -1313,13 +1312,13 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                             multipliers: {
                                                 agility: 1.05,
                                                 max_stamina: 1.05,
-                                            }
+                                            },
                                         },
                                         12: {
                                             stats: {
                                                 agility: 2,
                                                 max_stamina: 5
-                                            }
+                                            },
                                         }
                                     }
                                   },
