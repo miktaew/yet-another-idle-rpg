@@ -1795,7 +1795,7 @@ function update_displayed_xp_bonuses() {
 }
 
 function update_displayed_stamina_efficiency() {
-    data_entry_divs.stamina.innerHTML = `<span class="data_entry_name">Stamina efficiency:</span><span class="data_entry_value">${Math.round(10*character.stats.full.stamina_efficiency)/10 || 1}</span>`;
+    data_entry_divs.stamina.innerHTML = `<span class="data_entry_name">Stamina efficiency:</span><span class="data_entry_value">${Math.round(100*character.stats.full.stamina_efficiency)/100 || 1}</span>`;
 }
 
 function update_displayed_dialogue(dialogue_key) {

@@ -307,7 +307,7 @@ character.stats.add_all_skill_level_bonus = function() {
  * multipliers only 
  */
 character.stats.add_all_stance_bonus = function() {
-        const multipliers = stances[current_stance].stat_multipliers;
+        const multipliers = stances[current_stance].getStats();
         Object.keys(character.base_stats).forEach(stat => {
                 if(multipliers[stat]) {
                         character.stats.multiplier.stance[stat] = multipliers[stat] || 1;

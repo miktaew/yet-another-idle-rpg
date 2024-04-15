@@ -1119,7 +1119,8 @@ i {
 	border-bottom: none;
 	cursor: pointer;
 	font-size: 20px;
-	padding: 1px 0px 1px 0px;
+	padding: 3px 0px 0px 0px;
+	background-color: rgba(92, 92, 92, 0.5);
 }
 
 #combat_div {

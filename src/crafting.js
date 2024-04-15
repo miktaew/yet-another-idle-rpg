@@ -3,7 +3,7 @@
 import { item_templates, Weapon } from "./items.js";
 
 /*
-    no recipes, instead items crafted with components
+    no recipes for equipment, instead items crafted with components
     components get their tiers, crafting difficulty is based on the tier
     crafting skill affects resulting quality
     quality is separated into rarities (as explained in items.js)
