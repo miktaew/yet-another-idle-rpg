@@ -1690,13 +1690,20 @@ function update_displayed_combat_stats() {
 
 function update_stat_description(stat) {
     let target;
+
     if(stats_divs[stat]) {
         target = stats_divs[stat].parentNode.children[2].children[1];
-        target.innerHTML = 
-`<br>Breakdown:
-<br>+ ${Math.round(10*character.stats.total_flat[stat])/10}
-<br>x ${Math.round(100*character.stats.total_multiplier[stat])/100}`;
-    
+        if(stat === "crit_rate" || stat === "crit_multiplier") {
+            target.innerHTML = 
+            `<br>Breakdown:
+            <br>+ ${Math.round(100*character.stats.total_flat[stat])/100}
+            <br>x ${Math.round(100*character.stats.total_multiplier[stat])/100}`;
+        } else {
+            target.innerHTML = 
+            `<br>Breakdown:
+            <br>+ ${Math.round(10*character.stats.total_flat[stat])/10}
+            <br>x ${Math.round(100*character.stats.total_multiplier[stat])/100}`;
+        }
     }
     return;
 }

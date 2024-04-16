@@ -570,7 +570,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                 base_xp_cost: 200,
                                 max_level: 30,
                                 get_effect_description: ()=> {
-                                    return `Improves efficiency of the "Wide swing" stance`;
+                                    return `Improves efficiency of the "Broad arc" stance`;
                                 }});
     skills["Defensive measures"] = new Skill({skill_id: "Defensive measures", 
                                 names: {0: "Defensive measures"}, 
