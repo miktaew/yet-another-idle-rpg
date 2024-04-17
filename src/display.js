@@ -544,6 +544,9 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
 
             item_div.classList.add('item_stackable', "inventory_item", 'trader_item');
 
+            const trade_buttons = document.createElement("div");
+            trade_buttons.classList.add("trade_ammount_buttons");
+
             const trade_button_5 = document.createElement("div");
             trade_button_5.classList.add("trade_ammount_button");
             trade_button_5.innerText = "5";
@@ -568,9 +571,11 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
             item_control_div.setAttribute("data-item_value", `${trader.inventory[key].item.getValue()}`);
             
             item_control_div.appendChild(item_div);
-            item_control_div.appendChild(trade_button_5);
-            item_control_div.appendChild(trade_button_10);
-            item_control_div.appendChild(trade_button_max);
+
+            trade_buttons.appendChild(trade_button_5);
+            trade_buttons.appendChild(trade_button_10);
+            trade_buttons.appendChild(trade_button_max);
+            item_control_div.appendChild(trade_buttons);
 
             let item_value_span = document.createElement("span");
             item_value_span.innerHTML = `${format_money(round_item_price(trader.inventory[key].item.getValue() * trader.getProfitMargin()), true)}`;
@@ -603,6 +608,9 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
 
             item_div.appendChild(create_item_tooltip(actual_item));
 
+            const trade_buttons = document.createElement("div");
+            trade_buttons.classList.add("trade_ammount_buttons");
+
             const trade_button_5 = document.createElement("div");
             trade_button_5.classList.add("trade_ammount_button");
             trade_button_5.innerText = "5";
@@ -624,9 +632,10 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
             item_control_div.setAttribute("data-item_count", `${item_count}`);
             item_control_div.appendChild(item_div);
 
-            item_control_div.appendChild(trade_button_5);
-            item_control_div.appendChild(trade_button_10);
-            item_control_div.appendChild(trade_button_max);
+            trade_buttons.appendChild(trade_button_5);
+            trade_buttons.appendChild(trade_button_10);
+            trade_buttons.appendChild(trade_button_max);
+            item_control_div.appendChild(trade_buttons);
 
             var item_value_span = document.createElement("span");
             item_value_span.innerHTML = `${format_money(actual_item.getValue(), true)}`;
@@ -932,6 +941,9 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
 
             item_div.appendChild(create_item_tooltip(character.inventory[key].item));
 
+            const trade_buttons = document.createElement("div");
+            trade_buttons.classList.add("trade_ammount_buttons");
+
             const trade_button_5 = document.createElement("div");
             trade_button_5.classList.add("trade_ammount_button");
             trade_button_5.innerText = "5";
@@ -967,9 +979,10 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
                 item_div.classList.add("item_book");
             }
 
-            item_control_div.appendChild(trade_button_5);
-            item_control_div.appendChild(trade_button_10);
-            item_control_div.appendChild(trade_button_max);
+            trade_buttons.appendChild(trade_button_5);
+            trade_buttons.appendChild(trade_button_10);
+            trade_buttons.appendChild(trade_button_max);
+            item_control_div.appendChild(trade_buttons);
 
             let item_value_span = document.createElement("span");
             item_value_span.innerHTML = `${format_money(character.inventory[key].item.getValue(), true)}`;
@@ -1045,6 +1058,9 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
 
                 item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
 
+                const trade_buttons = document.createElement("div");
+                trade_buttons.classList.add("trade_ammount_buttons");
+                
                 const trade_button_5 = document.createElement("div");
                 trade_button_5.classList.add("trade_ammount_button");
                 trade_button_5.innerText = "5";
@@ -1066,9 +1082,10 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
                 item_control_div.setAttribute("data-item_value", `${actual_item.getValue()}`);
                 item_control_div.appendChild(item_div);
 
-                item_control_div.appendChild(trade_button_5);
-                item_control_div.appendChild(trade_button_10);
-                item_control_div.appendChild(trade_button_max);
+                trade_buttons.appendChild(trade_button_5);
+                trade_buttons.appendChild(trade_button_10);
+                trade_buttons.appendChild(trade_button_max);
+                item_control_div.appendChild(trade_buttons);
 
                 let item_value_span = document.createElement("span");
                 item_value_span.innerHTML = `${format_money(round_item_price(actual_item.getValue() * traders[current_trader].getProfitMargin()), true)}`;
@@ -1652,7 +1669,6 @@ function update_displayed_stats() { //updates displayed stats
             stats_divs[key].innerHTML = `${(character.stats.full[key]).toFixed(1)}`;
         }
         update_stat_description(key);
-        
     });
 }
 
@@ -1860,8 +1876,8 @@ function start_activity_display(current_activity) {
 
     const action_xp_div = document.createElement("div");
     if(current_activity.activity.base_skills_names) {
-        action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${skills[current_activity.activity.base_skills_names].name()}`+
-        ` (${Math.round(10000*skills[current_activity.activity.base_skills_names].current_xp/skills[current_activity.activity.base_skills_names].xp_to_next_lvl)/100}%)`;
+        const needed_xp = skills[current_activity.activity.base_skills_names].current_level == skills[current_activity.activity.base_skills_names].max_level? "Max": `${Math.round(10000*skills[current_activity.activity.base_skills_names].current_xp/skills[current_activity.activity.base_skills_names].xp_to_next_lvl)/100}%`
+        action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${skills[current_activity.activity.base_skills_names].name()} (${needed_xp})`;
     }
     else {
         console.warn(`Activity "${current_activity.activity.name}" has no skills assigned!`);

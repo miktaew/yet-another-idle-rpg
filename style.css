@@ -66,13 +66,13 @@
 	--actions_div_top: var(--actions_div_top_default);
 
 	--options_action_textsize: 16px;
-
 	--location_name_div_width: 250px;
 }
 
 body {
 	background-color: #05040f;
-	font-family: sans-serif;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: normal;
 	cursor: default;
 	color: white;
 	-webkit-touch-callout: none;
@@ -299,17 +299,6 @@ body {
 	padding-top: 2px;
 }
 
-.equipped_item_control .inventory_equipped_item {
-	color: gold;
-}
-
-.inventory_equipped_item {
-	display: inline-block;
-	width: 256px; 
-	font-weight: bold;
-	float: left;
-}
-
 .inventory_item_control {
 	border-bottom: 1px dotted white;
 }
@@ -489,7 +478,7 @@ body {
 .item_value {
 	text-align: right;
 	font-size: 13px;
-	width: 60px;
+	width: 59px;
 	border-left: 1px solid white;
 	margin-left: 4px;
 	padding-left: 4px;
@@ -513,16 +502,29 @@ body {
 }
 
 .item_equippable {
-	width: 271px;
+	width: 272px;
 }
 
 .trade_item_equippable {
-	width: 319px;
+	width: 320px;
 }
 
+.equipped_item_control .inventory_equipped_item {
+	color: gold;
+}
+
+.inventory_equipped_item {
+	width: 256px; 
+	font-weight: bold;
+	float: left;
+}
+
+
+/*
 .character_item_control, .equipped_item_control {
 	width: 100%;
 }
+*/
 
 .character_item_control.item_to_trade {
 	background-color: rgba(0, 128, 0, 0.4);
@@ -531,8 +533,6 @@ body {
 .item_stackable.item_other, .item_stackable.item_loot{
 	width: var(--item_other_width);
 }
-
-
 
 .character_item_equippable {
 	display: var(--equipment_display);
@@ -744,21 +744,24 @@ i {
 }
 
 .trade_ammount_button {
-	display: var(--trade_ammount_button_display);
 	cursor: pointer;
 	font-weight: bold;
 	font-size: 14px;
-	max-width: 24px;
-	min-width: fit-content;
+	width: fit-content;
 	padding-left: 5px;
+	float: left;
 }
-
+.trade_ammount_buttons {
+	display: var(--trade_ammount_button_display);
+	width: 55px;
+	vertical-align: bottom;
+}
 .trader_item_control  .item_stackable {
 	width: 265px;
 }
 
 .trader_item {
-	width: 319px;
+	width: 320px;
 }
 
 .trader_item_other, .trader_item_loot {
@@ -1120,7 +1123,7 @@ i {
 	cursor: pointer;
 	font-size: 20px;
 	padding: 3px 0px 0px 0px;
-	background-color: rgba(92, 92, 92, 0.5);
+	background-color: rgba(255, 241, 117, 0.2);
 }
 
 #combat_div {
@@ -1640,7 +1643,6 @@ i {
 	width: 261px;
 	float: left;
 	margin: 1px;
-	
 }
 
 #trader_cost_mult {

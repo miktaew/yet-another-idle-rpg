@@ -1243,7 +1243,7 @@
                     //calculate vertical position so it doesnt go under bottom edge
                     
                     if(!hovered_element.classList.contains("inventory_item_control")){
-                        if(hovered_element.classList.contains("trade_ammount_button") 
+                        if(hovered_element.classList.contains("trade_ammount_buttons") 
                             || hovered_element.classList.contains("inventory_item") 
                             || hovered_element.classList.contains("item_controls") 
                             || hovered_element.classList.contains("item_use_button") 
@@ -1251,7 +1251,7 @@
                             )
                         {
                             hovered_element = hovered_element.parentNode;
-                        } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip")) {
+                        } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip") || hovered_element.classList.contains("trade_ammount_button")) {
                             hovered_element = hovered_element.parentNode.parentNode;
                         } else if(hovered_element.nodeName === "SPAN") {
                             hovered_element = hovered_element.parentNode.parentNode.parentNode;
@@ -1286,12 +1286,12 @@
 
                     var hovered_element = event.target;
                     if(!hovered_element.classList.contains("trader_item_control")){
-                        if(hovered_element.classList.contains("trade_ammount_button") 
+                        if(hovered_element.classList.contains("trade_ammount_buttons") 
                             || hovered_element.classList.contains("trader_item") 
                             || hovered_element.classList.contains("item_value")) 
                         {
                             hovered_element = hovered_element.parentNode;
-                        } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip")) {
+                        } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip") || hovered_element.classList.contains("trade_ammount_button")) {
                             hovered_element = hovered_element.parentNode.parentNode;
                         } else if(hovered_element.classList.contains("item_slot") || hovered_element.nodeName === "SPAN") {
                             hovered_element = hovered_element.parentNode.parentNode.parentNode;
