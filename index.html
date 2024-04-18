@@ -1579,6 +1579,9 @@
                 trader_inventory_div.addEventListener('click', (event)=>move_trade_item(event, "trader"), false);
                 function move_trade_item(event, target) {
                     let clicked_element = event.target;
+                    if(clicked_element.isEqualNode(trader_inventory_div) || clicked_element.isEqualNode(inventory_div)) {
+                        return;
+                    }
 
                     if(!in_trade || clicked_element.classList.contains("equip_item_button") || clicked_element.classList.contains("unequip_item_button")) {
                         return;
@@ -1586,22 +1589,18 @@
 
                     let number_to_move = 1;
 
+                    if(clicked_element.classList.contains("trade_ammount_button")){
+                        number_to_move = Number(clicked_element.getAttribute("data-trade_ammount"));
+                    }
+
                     //reassignes clicked element to the one with inventory_item_control class 
-                    if(!clicked_element.classList.contains("inventory_item_control")) {
-                        if(clicked_element.classList.contains("inventory_item") || clicked_element.classList.contains("item_value")) {
-                            clicked_element = clicked_element.parentNode; 
-                        } else if(clicked_element.classList.contains("inventory_item_name")) {
-                            clicked_element = clicked_element.parentNode.parentNode; 
-                        } else if( clicked_element.classList.contains("trade_ammount_button")){
-                            number_to_move = Number(clicked_element.getAttribute("data-trade_ammount"));
-                            clicked_element = clicked_element.parentNode.parentNode; 
-                        } else if(clicked_element.classList.contains("trade_ammount_buttons")) {
-                            clicked_element = clicked_element.parentNode; 
-                        } else if(clicked_element.nodeName === "SPAN") {
-                            clicked_element = clicked_element.parentNode.parentNode.parentNode;
-                        } else {
+                    while(!clicked_element.classList.contains("inventory_item_control")) {
+                        if(clicked_element.id === "global_content") {
+                            console.log("You clicked something that can't be traded");
                             return;
                         }
+                        
+                        clicked_element = clicked_element.parentNode;
                     }
 
                     if(clicked_element.classList.contains("equipped_item_control")) {
