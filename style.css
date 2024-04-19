@@ -24,7 +24,7 @@
 	--item_use_button_display: inline-block;
 	 
 	--item_other_width_default: 319px; /* value for out of trade */
-	--item_other_width_trade: 265px; /* value for in trade */
+	--item_other_width_trade: 264px; /* value for in trade */
 	--item_other_width: var(--item_other_width_default); /* modified in index.html on trade start/end to fit the buttons */
 
 	--item_stackable_width: 280px;
@@ -478,7 +478,7 @@ body {
 .item_value {
 	text-align: right;
 	font-size: 13px;
-	width: 59px;
+	width: 55px;
 	border-left: 1px solid white;
 	margin-left: 4px;
 	padding-left: 4px;
@@ -518,13 +518,6 @@ body {
 	font-weight: bold;
 	float: left;
 }
-
-
-/*
-.character_item_control, .equipped_item_control {
-	width: 100%;
-}
-*/
 
 .character_item_control.item_to_trade {
 	background-color: rgba(0, 128, 0, 0.4);
@@ -1669,7 +1662,6 @@ i {
 	padding-right: 5px;
 }
 
-
 #trade_price_text {
 	display: inline-block;
 	width: 80px;
@@ -1685,7 +1677,7 @@ i {
 
 /* scrollbar */
 ::-webkit-scrollbar {
-	width: 10px;
+	width: 15px;
 	height: 10px;;
   }
 
