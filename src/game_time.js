@@ -58,27 +58,18 @@ function Game_time(new_time) {
         switch(this.day_count % 7) {
             case 0:
                 return "Sunday";
-                break;
             case 1: 
                 return "Monday";
-                break;
             case 2:
                 return "Tuesday";
-                break;
             case 3: 
                 return "Wednesday";
-                break;
             case 4:
                 return "Thursday";
-                break;
             case 5:
                 return "Friday";
-                break;
             case 6:
                 return "Saturday";
-                break;
-            default:
-                return x;
         }
     }	
 
@@ -120,19 +111,19 @@ function format_time(data) { //{time, long_names?}
 
     let formatted_time = '';
     if(data.time.years > 0) {
-        formatted_time += data.long_names? `${data.time.year} years` : `${data.time.year} Y`;
+        formatted_time += data.long_names? `${data.time.year} years ` : `${data.time.year}Y `;
     }
     if(data.time.months > 0) {
-        formatted_time += data.long_names? `${data.time.months} months` : `${data.time.months} M`;
+        formatted_time += data.long_names? `${data.time.months} months ` : `${data.time.months}M `;
     }
     if(data.time.days > 0) {
-        formatted_time += data.long_names? `${data.time.days} days` : `${data.time.days} D`;
+        formatted_time += data.long_names? `${data.time.days} days ` : `${data.time.days}D `;
     }
     if(data.time.hours > 0) {
-        formatted_time += data.long_names? `${data.time.hours} hours` : `${data.time.hours} h`;
+        formatted_time += data.long_names? `${data.time.hours} hours ` : `${data.time.hours}h `;
     }
     if(data.time.minutes > 0) {
-        formatted_time += data.long_names? `${data.time.minutes} minutes` : `${data.time.minutes} m`;
+        formatted_time += data.long_names? `${data.time.minutes} minutes ` : `${data.time.minutes}m `;
     }
 
     return formatted_time;

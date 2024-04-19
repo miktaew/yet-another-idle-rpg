@@ -14,7 +14,7 @@ class InventoryHaver {
      */
     add_to_inventory(items) {
         for(let i = 0; i < items.length; i++){
-            if(!this.inventory.hasOwnProperty(items[i].item.getName())) //not in inventory
+            if(!(items[i].item.getName() in this.inventory)) //not in inventory
             {
                 if(items[i].item.stackable)
                 {
@@ -50,8 +50,8 @@ class InventoryHaver {
      */
     remove_from_inventory({item_name, item_count, item_id}) {
 
-        if(this.inventory.hasOwnProperty(item_name)) { //check if its in inventory, just in case, probably not needed
-            if(this.inventory[item_name].hasOwnProperty("item")) { //stackable
+        if(item_name in this.inventory) { //check if its in inventory, just in case, probably not needed
+            if("item" in this.inventory[item_name]) { //stackable
     
                 if(typeof item_count === "number" && Number.isInteger(item_count) && item_count >= 1) 
                 {

@@ -3,6 +3,7 @@
 import { enemy_templates, Enemy } from "./enemies.js";
 import { dialogues as dialoguesList} from "./dialogues.js";
 import { skills } from "./skills.js";
+import { current_game_time } from "./game_time.js";
 const locations = {};
 const location_types = {};
 //contains all the created locations
@@ -13,19 +14,26 @@ class Location {
                 description, 
                 connected_locations, 
                 is_unlocked = true, 
+                is_finished = false,
                 dialogues = [], 
                 traders = [],
                 types = [], //{type, xp per tick}
                 sleeping = null, //{text to start, xp per tick},
                 light_level = "normal",
+                getDescription,
+                background_noises = [],
+                getBackgroundNoises,
             }) {
-        /* always safe
-    
-        */
+        // always a safe zone
+
         this.name = name; //needs to be the same as key in locations
         this.description = description;
+        this.getDescription = getDescription || function(){return description;}
+        this.background_noises = background_noises;
+        this.getBackgroundNoises = getBackgroundNoises || function(){return background_noises;}
         this.connected_locations = connected_locations; //a list
         this.is_unlocked = is_unlocked;
+        this.is_finished = is_finished; //for when it's in any way or form "completed" and player shouldn't be allowed back
         this.dialogues = dialogues;
         this.traders = traders;
         this.activities = {};
@@ -43,7 +51,9 @@ class Location {
 class Combat_zone {
     constructor({name, 
                  description, 
+                 getDescription,
                  is_unlocked = true, 
+                 is_finished = false,
                  types = [], //{type, xp_gain}
                  enemy_groups_list = [],
                  enemies_list = [], 
@@ -53,12 +63,19 @@ class Combat_zone {
                  parent_location, 
                  leave_text,
                  first_reward = {},
-                 repeatable_reward = {}, 
+                 repeatable_reward = {},
+                 otherUnlocks,
+                 unlock_text,
+                 is_challenge = false,
                 }) {
 
         this.name = name;
+        this.unlock_text = unlock_text;
         this.description = description;
+        this.getDescription = getDescription || function(){return description;}
+        this.otherUnlocks = otherUnlocks || function() {return;}
         this.is_unlocked = is_unlocked;
+        this.is_finished = is_finished;
         this.types = types; //special properties of the location, e.g. "narrow" or "dark"
         this.enemy_groups_list = enemy_groups_list; //predefined enemy teams, names only
         this.enemies_list = enemies_list; //possible enemies (to be used if there's no enemy_groups_list), names only
@@ -104,6 +121,9 @@ class Combat_zone {
         this.first_reward = first_reward; //reward for first clear
         this.repeatable_reward = repeatable_reward; //reward for each clear, including first; all unlocks should be in this, just in case
 
+        this.is_challenge = is_challenge;
+        //challenges can be completed only once 
+
         //skills and their xp gain on every tick, based on location types;
         this.gained_skills = this.types
             ?.map(type => {return {skill: skills[location_types[type.type].stages[type.stage || 1].related_skill], xp: type.xp_gain}})
@@ -147,33 +167,41 @@ class Combat_zone {
 
                 const base = 1 + variation;
                 const vary = 2 * variation;
-                newEnemy = new Enemy({name: enemy.name, description: enemy.description, xp_value: enemy.xp_value,
-                                            stats: {
-                                                health: Math.round(enemy.stats.health * (base - Math.random() * vary)),
-                                                attack: Math.round(enemy.stats.attack * (base - Math.random() * vary)),
-                                                agility: Math.round(enemy.stats.agility * (base - Math.random() * vary)),
-                                                dexterity: Math.round(enemy.stats.dexterity * (base - Math.random() * vary)),
-                                                magic: Math.round(enemy.stats.magic * (base - Math.random() * vary)),
-                                                intuition: Math.round(enemy.stats.intuition * (base - Math.random() * vary)),
-                                                attack_speed: Math.round(enemy.stats.attack_speed * (base - Math.random() * vary) * 100) / 100,
-                                                defense: Math.round(enemy.stats.defense * (base - Math.random() * vary))
-                                            },
-                                            loot_list: enemy.loot_list,
-                                        });
+                newEnemy = new Enemy({
+                                        name: enemy.name, 
+                                        description: enemy.description, 
+                                        xp_value: enemy.xp_value,
+                                        stats: {
+                                            health: Math.round(enemy.stats.health * (base - Math.random() * vary)),
+                                            attack: Math.round(enemy.stats.attack * (base - Math.random() * vary)),
+                                            agility: Math.round(enemy.stats.agility * (base - Math.random() * vary)),
+                                            dexterity: Math.round(enemy.stats.dexterity * (base - Math.random() * vary)),
+                                            magic: Math.round(enemy.stats.magic * (base - Math.random() * vary)),
+                                            intuition: Math.round(enemy.stats.intuition * (base - Math.random() * vary)),
+                                            attack_speed: Math.round(enemy.stats.attack_speed * (base - Math.random() * vary) * 100) / 100,
+                                            defense: Math.round(enemy.stats.defense * (base - Math.random() * vary))
+                                        },
+                                        loot_list: enemy.loot_list,
+                                        add_to_bestiary: enemy.add_to_bestiary,
+                                    });
 
             } else {
-                newEnemy = new Enemy({name: enemy.name, description: enemy.description, xp_value: enemy.xp_value,
-                    stats: {
-                        health: enemy.stats.health,
-                        attack: enemy.stats.attack,
-                        agility: enemy.stats.agility,
-                        dexterity: enemy.stats.dexterity,
-                        magic: enemy.stats.magic,
-                        intuition: enemy.stats.intuition,
-                        attack_speed: enemy.stats.attack_speed,
-                        defense: enemy.stats.defense
-                    },
-                    loot_list: enemy.loot_list,
+                newEnemy = new Enemy({
+                        name: enemy.name, 
+                        description: enemy.description, 
+                        xp_value: enemy.xp_value,
+                        stats: {
+                            health: enemy.stats.health,
+                            attack: enemy.stats.attack,
+                            agility: enemy.stats.agility,
+                            dexterity: enemy.stats.dexterity,
+                            magic: enemy.stats.magic,
+                            intuition: enemy.stats.intuition,
+                            attack_speed: enemy.stats.attack_speed,
+                            defense: enemy.stats.defense
+                        },
+                        loot_list: enemy.loot_list,
+                        add_to_bestiary: enemy.add_to_bestiary,
                 });
             }
             newEnemy.is_alive = true;
@@ -217,6 +245,50 @@ class Combat_zone {
     }
 }
 
+class Challenge_zone extends Combat_zone {
+    constructor({name, 
+        description, 
+        getDescription,
+        is_unlocked = true, 
+        types = [], //{type, xp_gain}
+        enemy_groups_list = [],
+        enemies_list = [], 
+        enemy_group_size = [1,1],
+        enemy_count = 30,
+        parent_location, 
+        leave_text,
+        first_reward = {},
+        repeatable_reward = {},
+        otherUnlocks,
+        is_finished,
+        unlock_text,
+       }) 
+    {
+        super(
+            {   
+                name, 
+                description, 
+                getDescription, 
+                is_unlocked, 
+                types, 
+                enemy_groups_list, 
+                enemies_list, 
+                enemy_group_size, 
+                enemy_count, 
+                enemy_stat_variation: 0, 
+                parent_location,
+                leave_text,
+                first_reward,
+                repeatable_reward,
+                is_challenge: true,
+                otherUnlocks,
+                is_finished,
+                unlock_text
+            }
+        )
+    }
+}
+
 class LocationActivity{
     constructor({activity, 
                  starting_text, 
@@ -226,6 +298,7 @@ class LocationActivity{
                  infinite = false,
                  availability_time,
                  skill_xp_per_tick = 1,
+                 unlock_text,
                  }) 
     {
         this.activity = activity; //name of activity from activities.js
@@ -233,6 +306,7 @@ class LocationActivity{
 
         this.get_payment = get_payment;
         this.is_unlocked = is_unlocked;
+        this.unlock_text = unlock_text;
         this.working_period = working_period; //if exists -> time that needs to be worked to earn anything; only for jobs
         this.infinite = infinite; //if true -> can be done 24/7, otherwise requires availability time
         if(this.infinite && availability_time) {
@@ -307,29 +381,28 @@ class LocationType{
         name: "dark",
         stages: {
             1: {
-                description: "A place where it's always as dark as during the night",
+                description: "A place where it's always as dark as during a bright night",
                 related_skill: "Night vision",
                 //no effects here, since in this case they are provided via the overall "night" penalty
             },
             2: {
-                description: "An extremely dark place, darker than any night",
-                //TODO: use some other skill for seeing in places with no light whatsoever
+                description: "An extremely dark place, darker than most of the nights",
                 related_skill: "Night vision",
                 effects: {
                     multipliers: {
-                        hit_chance: 0.5,
-                        evasion: 0.5,
+                        //they dont need to be drastic since they apply on top of 'night' penalty
+                        hit_chance: 0.8,
+                        evasion: 0.8,
                     }
                 }
             },
             3: {
                 description: "Pure darkness with not even a tiniest flicker of light",
-                //TODO: use some other skill for seeing in places with no light whatsoever
                 related_skill: "Presence sensing",
                 effects: {
                     multipliers: {
-                        hit_chance: 0.1,
-                        evasion: 0.1,
+                        hit_chance: 0.15,
+                        evasion: 0.15,
                     }
                 }
             }
@@ -445,7 +518,34 @@ class LocationType{
 (function(){ 
     locations["Village"] = new Location({ 
         connected_locations: [], 
-        description: "Medium-sized village surrounded by many fields, some of them infested by rats. Other than that, there's nothing interesting around.", 
+        getDescription: function() {
+            if(locations["Infested field"].enemy_groups_killed >= 5 * locations["Infested field"].enemy_count) { 
+                return "Medium-sized village built near a small river. It's surrounded by many fields, a few of them infested by huge rats which, while an annoyance, don't seem possible to fully eradicate. Other than that, there's nothing interesting around";
+            }
+            else if(locations["Infested field"].enemy_groups_killed >= 2 * locations["Infested field"].enemy_count) {
+                return "Medium-sized village built near a small river. It's surrounded by many fields, many of them infested by huge rats. Other than that, there's nothing interesting around";
+            } else {
+                return "Medium-sized village built near a small river. It's surrounded by many fields, most of them infested by huge rats. Other than that, there's nothing interesting around"; 
+            }
+        },
+        getBackgroundNoises: function() {
+            let noises = ["*You hear some rustling*"];
+            if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
+                noises.push("Anyone seen my cow?", "Mooooo!", "Tomorrow I'm gonna fix the roof", "Look, a bird!");
+
+                if(locations["Infested field"].enemy_groups_killed <= 3) {
+                    noises.push("These nasty rats almost ate my cat!");
+                }
+            }
+
+            if(current_game_time.hour > 3 && current_game_time.hour < 10) {
+                noises.push("♫♫ Heigh ho, heigh ho, it's off to work I go~ ♫♫", "Cock-a-doodle-doo!");
+            } else if(current_game_time.hour > 18 && current_game_time.hour < 22) {
+                noises.push("♫♫ Heigh ho, heigh ho, it's home from work I go~ ♫♫");
+            } 
+
+            return noises;
+        },
         dialogues: ["village elder", "village guard"],
         traders: ["village trader"],
         name: "Village", 
@@ -486,7 +586,26 @@ class LocationType{
 
     locations["Nearby cave"] = new Location({ 
         connected_locations: [{location: locations["Village"], custom_text: "Go outside and to the village"}], 
-        description: "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. You can hear sounds of rats from.", 
+        getDescription: function() {
+            if(locations["Pitch black tunnel"].enemy_groups_killed >= locations["Pitch black tunnel"].enemy_count) { 
+                return "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured a decent space and many of the tunnels. It seems like you almost reached the deepest part.";
+            }
+            else if(locations["Hidden tunnel"].enemy_groups_killed >= locations["Hidden tunnel"].enemy_count) { 
+                return "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured a major space and some tunnels, but there are still more places left to clear out.";
+            }
+            else if(locations["Cave depths"].enemy_groups_killed >= locations["Cave depths"].enemy_count) { 
+                return "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured a decent space and even a few tunnels, yet somehow you can still hear the sounds of the wolf rats.";
+            }
+            else if(locations["Cave room"].enemy_groups_killed >= locations["Cave room"].enemy_count) {
+                return "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured some space, but you can hear more wolf rats in some deeper tunnels.";
+            } else {
+                return "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. You can hear sounds of wolf rats from the nearby room.";
+            }
+        },
+        getBackgroundNoises: function() {
+            let noises = ["*You hear rocks rumbling somewhere*", "Squeak!", ];
+            return noises;
+        },
         name: "Nearby cave",
         is_unlocked: false,
     });
@@ -508,8 +627,9 @@ class LocationType{
             xp: 20,
         },
         repeatable_reward: {
-            locations: ["Cave depths"],
+            locations: [{location: "Cave depths"}],
             xp: 10,
+            activities: [{location:"Nearby cave", activity:"weightlifting"}, {location:"Village", activity:"balancing"}],
         }
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Cave room"]});
@@ -517,7 +637,7 @@ class LocationType{
     locations["Cave depths"] = new Combat_zone({
         description: "It's dark. And full of rats.", 
         enemy_count: 50, 
-        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 1, xp_gain: 3}],
+        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 2, xp_gain: 3}],
         enemies_list: ["Wolf rat"],
         enemy_group_size: [5,8],
         enemy_stat_variation: 0.2,
@@ -530,15 +650,61 @@ class LocationType{
         },
         repeatable_reward: {
             textlines: [{dialogue: "village elder", lines: ["cleared cave"]}],
+            locations: [{location: "Suspicious wall", required_clears: 4}],
             xp: 15,
         }
     });
-    locations["Nearby cave"].connected_locations.push({location: locations["Cave depths"]});
+    
+    locations["Hidden tunnel"] = new Combat_zone({
+        description: "There is, in fact, even more rats here.", 
+        enemy_count: 50, 
+        types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 3, xp_gain: 1}],
+        enemies_list: ["Elite wolf rat"],
+        enemy_group_size: [2,2],
+        enemy_stat_variation: 0.2,
+        is_unlocked: false, 
+        name: "Hidden tunnel", 
+        leave_text: "Retreat for now",
+        parent_location: locations["Nearby cave"],
+        first_reward: {
+            xp: 100,
+        },
+        repeatable_reward: {
+            locations: [{location: "Pitch black tunnel"}],
+            xp: 50,
+        },
+        unlock_text: "As the wall falls apart, you find yourself in front of a new tunnel, leading even deeper. And of course, it's full of wolf rats."
+    });
+    locations["Pitch black tunnel"] = new Combat_zone({
+        description: "There is no light here. Only rats.", 
+        enemy_count: 50, 
+        types: [{type: "narrow", stage: 1,  xp_gain: 6}, {type: "dark", stage: 3, xp_gain: 3}],
+        enemies_list: ["Elite wolf rat"],
+        enemy_group_size: [6,8],
+        enemy_stat_variation: 0.2,
+        is_unlocked: false, 
+        name: "Pitch black tunnel", 
+        leave_text: "Retreat for now",
+        parent_location: locations["Nearby cave"],
+        first_reward: {
+            xp: 200,
+        },
+        repeatable_reward: {
+            xp: 100,
+        },
+        unlock_text: "As you keep going deeper, you barely notice a pitch black hole. Not even a tiniest speck of light reaches it."
+    });
+    locations["Nearby cave"].connected_locations.push({location: locations["Cave depths"]}, {location: locations["Hidden tunnel"], custom_text: "Enter the hidden tunnel"}, {location: locations["Pitch black tunnel"], custom_text: "Go into the pitch black tunnel"})
 
     locations["Forest road"] = new Location({ 
         connected_locations: [{location: locations["Village"]}],
-        description: "Shabby road leading through a dark forest, the only way to leave the village",
+        description: "Old trodden road leading through a dark forest, the only path connecting village to the town. You can hear some animals from the surrounding woods.",
         name: "Forest road",
+        getBackgroundNoises: function() {
+            let noises = ["*You hear some rustling*", "Roar!", "*You almost tripped on some roots*", "*You hear some animal running away*"];
+
+            return noises;
+        },
         is_unlocked: false,
     });
     locations["Village"].connected_locations.push({location: locations["Forest road"], custom_text: "Leave the village"});
@@ -554,7 +720,8 @@ class LocationType{
         },
         repeatable_reward: {
             xp: 20,
-        }
+            locations: [{location:"Deep forest"}]
+        },
     });
     locations["Forest road"].connected_locations.push({location: locations["Forest"], custom_text: "Leave the safe path"});
 
@@ -567,29 +734,154 @@ class LocationType{
         name: "Deep forest", 
         parent_location: locations["Forest road"],
         first_reward: {
-            xp: 50,
+            xp: 70,
         },
         repeatable_reward: {
-            xp: 25,
+            xp: 35,
         }
     });
     locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture deeper into the woods"});
-    locations["Forest"].repeatable_reward.locations = [locations["Deep forest"]];
 
     locations["Town outskirts"] = new Location({ 
-        connected_locations: [{location: locations["Forest road"]}],
-        description: "You can see a tall stone wall, surrounded by a green open field.",
+        connected_locations: [{location: locations["Forest road"], custom_text: "Return to the forest"}],
+        description: "The town is surrounded by a tall stone wall. The only gate seems to be closed, with a lone guard outside. You can see farms to the north and slums to the south.",
         name: "Town outskirts",
         is_unlocked: true,
+        dialogues: ["gate guard"],
     });
-    locations["Forest road"].connected_locations.push({location: locations["Town outskirts"], custom_text: "Leave the forest"});
+    locations["Forest road"].connected_locations.push({location: locations["Town outskirts"], custom_text: "Go towards the town"});
+
+    locations["Slums"] = new Location({ 
+        connected_locations: [{location: locations["Town outskirts"]}],
+        description: "A wild settlement next to city walls, filled with decaying buildings and criminals",
+        name: "Slums",
+        is_unlocked: true,
+        dialogues: ["suspicious man"],
+        traders: ["suspicious trader"],
+        getBackgroundNoises: function() {
+            let noises = ["Cough cough", "*You hear a scream*", "*You hear someone sobbing*"];
+
+            if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
+                noises.push("Please, do you have a coin to spare?");
+            } else {
+                noises.push("*Sounds of someone getting repeatedly stabbed*", "Scammed some fools for money today, time to get drunk");
+            }
+            return noises;
+        },
+    });
+    locations["Town farms"] = new Location({ 
+        connected_locations: [{location: locations["Town outskirts"]}],
+        description: "Semi-private farms under jurisdiction of the city council. Full of life and sounds of heavy work.",
+        name: "Town farms",
+        is_unlocked: true,
+        dialogues: ["farm supervisor"],
+        getBackgroundNoises: function() {
+            let noises = [];
+            if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
+                noises.push("Mooooo!", "Look, a bird!", "Bark bark!", "*You notice a goat staring at you menacingly*", "Neigh!", "Oink oink");
+            } else {
+                noises.push("*You can hear some rustling*", "*You can hear snoring workers*");
+            }
+
+            if(current_game_time.hour > 3 && current_game_time.hour < 10) {
+                noises.push("♫♫ Heigh ho, heigh ho, it's off to work I go~ ♫♫", "Cock-a-doodle-doo!");
+            } else if(current_game_time.hour > 18 && current_game_time.hour < 22) {
+                noises.push("♫♫ Heigh ho, heigh ho, it's home from work I go~ ♫♫");
+            } 
+
+            return noises;
+        },
+    });
+
+    locations["Town outskirts"].connected_locations.push({location: locations["Town farms"]}, {location: locations["Slums"]});
+})();
+
+//challenge zones
+(function(){
+    locations["Sparring with the village guard (heavy)"] = new Challenge_zone({
+        description: "He's showing you a technique that makes his attacks slow but deadly",
+        enemy_count: 1, 
+        enemies_list: ["Village guard (heavy)"],
+        enemy_group_size: [1,1],
+        is_unlocked: false, 
+        name: "Sparring with the village guard (heavy)", 
+        leave_text: "Give up",
+        parent_location: locations["Village"],
+        first_reward: {
+            xp: 30,
+        },
+        repeatable_reward: {
+            textlines: [{dialogue: "village guard", lines: ["heavy"]}],
+        },
+        unlock_text: "You can now spar with the guard (heavy stance) in the Village"
+    });
+    locations["Sparring with the village guard (quick)"] = new Challenge_zone({
+        description: "He's showing you a technique that makes his attacks slow but deadly",
+        enemy_count: 1, 
+        enemies_list: ["Village guard (quick)"],
+        enemy_group_size: [1,1],
+        is_unlocked: false, 
+        name: "Sparring with the village guard (quick)", 
+        leave_text: "Give up",
+        parent_location: locations["Village"],
+        first_reward: {
+            xp: 30,
+        },
+        repeatable_reward: {
+            textlines: [{dialogue: "village guard", lines: ["quick"]}],
+        },
+        unlock_text: "You can now spar with the guard (quick stance) in the Village"
+    });
+    locations["Village"].connected_locations.push(
+        {location: locations["Sparring with the village guard (heavy)"], custom_text: "Spar with the guard [heavy]"},
+        {location: locations["Sparring with the village guard (quick)"], custom_text: "Spar with the guard [quick]"}
+    );
+
+    locations["Suspicious wall"] = new Challenge_zone({
+        description: "It can be broken with enough force, you can feel it", 
+        enemy_count: 1, 
+        types: [],
+        enemies_list: ["Suspicious wall"],
+        enemy_group_size: [1,1],
+        enemy_stat_variation: 0,
+        is_unlocked: false, 
+        name: "Suspicious wall", 
+        leave_text: "Leave it for now",
+        parent_location: locations["Nearby cave"],
+        repeatable_reward: {
+            locations: [{location: "Hidden tunnel"}],
+            textlines: [{dialogue: "village elder", lines: ["new tunnel"]}],
+            xp: 20,
+        },
+        unlock_text: "At some point, one of wolf rats tries to escape through a previously unnoticed hole in a nearby wall. There might be another tunnel behind it!"
+    });
+    locations["Nearby cave"].connected_locations.push({location: locations["Suspicious wall"], custom_text: "Try to break the suspicious wall"});
+
+    locations["Fight off the assailant"] = new Challenge_zone({
+        description: "He attacked you out of nowhere", 
+        enemy_count: 1, 
+        types: [],
+        enemies_list: ["Suspicious man"],
+        enemy_group_size: [1,1],
+        enemy_stat_variation: 0,
+        is_unlocked: false, 
+        name: "Fight off the assailant", 
+        leave_text: "Run away for now",
+        parent_location: locations["Slums"],
+        repeatable_reward: {
+            textlines: [{dialogue: "suspicious man", lines: ["defeated"]}],
+            xp: 40,
+        },
+        unlock_text: "Defend yourself!"
+    });
+    locations["Slums"].connected_locations.push({location: locations["Fight off the assailant"], custom_text: "Fight off the suspicious man"});
 })();
 
 //add activities
 (function(){
     locations["Village"].activities = {
-        "plowing the fields": new LocationActivity({
-            activity: "plowing the fields",
+        "fieldwork": new LocationActivity({
+            activity: "fieldwork",
             starting_text: "Work on the fields",
             get_payment: () => {
                 return 10 + Math.round(15 * skills["Farming"].current_level/skills["Farming"].max_level);
@@ -613,6 +905,21 @@ class LocationType{
             skill_xp_per_tick: 1,
             is_unlocked: false,
         }),
+        "balancing": new LocationActivity({
+            activity: "balancing",
+            infinite: true,
+            starting_text: "Try to keep your balance on rocks in the river",
+            unlock_text: "All this fighting while surrounded by stone and rocks gives you a new idea",
+            skill_xp_per_tick: 1,
+            is_unlocked: false,
+        }),
+        "meditating": new LocationActivity({
+            activity: "meditating",
+            infinite: true,
+            starting_text: "Sit down and meditate",
+            skill_xp_per_tick: 1,
+            is_unlocked: true,
+        }),
         "patrolling": new LocationActivity({
             activity: "patrolling",
             starting_text: "Go on a patrol around the village.",
@@ -623,6 +930,15 @@ class LocationType{
             skill_xp_per_tick: 1
         })
     };
+    locations["Nearby cave"].activities = {
+        "weightlifting": new LocationActivity({
+            activity: "weightlifting",
+            infinite: true,
+            starting_text: "Try lifting some of the rocks",
+            skill_xp_per_tick: 3,
+            is_unlocked: false
+        }),
+    };
     locations["Forest road"].activities = {
         "running": new LocationActivity({
             activity: "running",
@@ -630,9 +946,21 @@ class LocationType{
             starting_text: "Go for a run through the forest",
             skill_xp_per_tick: 3,
         }),
-    }
+    };
+    locations["Town farms"].activities = {
+        "fieldwork": new LocationActivity({
+            activity: "fieldwork",
+            starting_text: "Work on the fields",
+            get_payment: () => {
+                return 20 + Math.round(20 * skills["Farming"].current_level/skills["Farming"].max_level);
+            },
+            is_unlocked: false,
+            working_period: 60*2,
+            availability_time: {start: 6, end: 20},
+            skill_xp_per_tick: 2,
+        }),
+    };
 })();
-
 
 export {locations, location_types};
 

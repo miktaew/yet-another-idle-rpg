@@ -13,7 +13,8 @@ class Enemy {
                  stats, 
                  rank,
                  loot_list = [], 
-                 size = "small"
+                 size = "small",
+                 add_to_bestiary = true
                 }) {
                     
         this.name = name;
@@ -24,6 +25,8 @@ class Enemy {
         //only magic & defense can be 0 in stats, other things will cause issues
         this.stats.max_health = stats.health;
         this.loot_list = loot_list;
+
+        this.add_to_bestiary = add_to_bestiary; //generally set it false only for SOME of challenges and keep true for everything else
 
         if(size !== "small" && size !== "medium" && size !== "large") {
             throw new Error(`No such enemy size option as "size"!`);
@@ -40,6 +43,10 @@ class Enemy {
         
         for (let i = 0; i < this.loot_list.length; i++) {
             item = this.loot_list[i];
+            if(!item_templates[item.item_name]) {
+                console.warn(`Tried to loot an item "${item.item_name}" from "${this.name}", but such an item doesn't exist!`);
+                continue;
+            }
             if (item.chance * this.get_droprate_modifier() >= Math.random()) {
                 // checks if it should drop
                 let item_count = 1;
@@ -53,7 +60,7 @@ class Enemy {
         }
 
         return loot;
-    };
+    }
 
     get_droprate_modifier() {
         let droprate_modifier = 1;
@@ -68,6 +75,7 @@ class Enemy {
     }
 }
 
+//regular enemies
 (function(){
     /*
     lore note:
@@ -102,18 +110,29 @@ class Enemy {
             {item_name: "Rat pelt", chance: 0.01},
         ]
     });
+    enemy_templates["Elite wolf rat"] = new Enemy({
+        name: "Elite wolf rat",
+        description: "Rat with size of a dog, much more ferocious than its relatives",
+        xp_value: 7, 
+        rank: 1,
+        stats: {health: 80, attack: 30, agility: 32, dexterity: 32, intuition: 30, magic: 0, attack_speed: 1.4, defense: 8}, 
+        loot_list: [
+            {item_name: "Rat tail", chance: 0.04},
+            {item_name: "Rat fang", chance: 0.04},
+            {item_name: "Rat pelt", chance: 0.02},
+        ]
+    });
 
     enemy_templates["Starving wolf"] = new Enemy({
         name: "Starving wolf", description: "A large, wild and hungry canine", 
         xp_value: 4, 
         rank: 2,
-        stats: {health: 150, attack: 24, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 8}, 
+        stats: {health: 150, attack: 20, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 12}, 
         loot_list: [
-            /* //those items were removed, so let's keep it in comment for a while
-            {item_name: "Wolf tooth", chance: 0.02, count: {min: 1, max: 2}},
-            {item_name: "Wolf pelt", chance: 0.01}
-            */
-        ]
+            {item_name: "Wolf fang", chance: 0.03},
+            {item_name: "Wolf pelt", chance: 0.01},
+        ],
+        size: "medium",
     });
 
     enemy_templates["Young wolf"] = new Enemy({
@@ -121,12 +140,10 @@ class Enemy {
         description: "A small, wild canine", 
         xp_value: 4, 
         rank: 2,
-        stats: {health: 120, attack: 24, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.4, defense: 4}, 
+        stats: {health: 120, attack: 20, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.4, defense: 6}, 
         loot_list: [
-            /*
-            {item_name: "Wolf tooth", chance: 0.02},
-            {item_name: "Wolf pelt", chance: 0.01}
-            */
+            {item_name: "Wolf fang", chance: 0.03},
+            {item_name: "Wolf pelt", chance: 0.01},
         ],
         size: "small",
     });
@@ -134,17 +151,58 @@ class Enemy {
     enemy_templates["Wolf"] = new Enemy({
         name: "Wolf", 
         description: "A large, wild canine", 
-        xp_value: 6, 
+        xp_value: 5, 
         rank: 3,
-        stats: {health: 200, attack: 40, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.3, defense: 20}, 
+        stats: {health: 200, attack: 30, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.3, defense: 20}, 
         loot_list: [
-            /*
-            {item_name: "Wolf tooth", chance: 0.02, count: {min: 1, max: 3}},
-            {item_name: "Wolf pelt", chance: 0.01}
-            */
+            {item_name: "Wolf fang", chance: 0.04},
+            {item_name: "Wolf pelt", chance: 0.02},
+            {item_name: "High quality wolf fang", chance: 0.002}
         ],
         size: "medium"
     });
 })();
+
+
+//challenge enemies
+(function(){
+    enemy_templates["Village guard (heavy)"] = new Enemy({
+        name: "Village guard (heavy)", 
+        description: "", 
+        add_to_bestiary: false,
+        xp_value: 1,
+        rank: 4,
+        size: "medium",
+        stats: {health: 300, attack: 50, agility: 20, dexterity: 80, magic: 0, intuition: 20, attack_speed: 0.2, defense: 30},
+    });
+    enemy_templates["Village guard (quick)"] = new Enemy({
+        name: "Village guard (quick)", 
+        description: "", 
+        add_to_bestiary: false,
+        xp_value: 1,
+        rank: 4,
+        size: "medium",
+        stats: {health: 300, attack: 20, agility: 20, dexterity: 50, magic: 0, intuition: 20, attack_speed: 2, defense: 10},
+    });
+    enemy_templates["Suspicious wall"] = new Enemy({
+        name: "Suspicious wall", 
+        description: "", 
+        add_to_bestiary: false,
+        xp_value: 1,
+        rank: 1,
+        size: "large",
+        stats: {health: 10000, attack: 0, agility: 0, dexterity: 0, magic: 0, intuition: 0, attack_speed: 0.000001, defense: 100},
+    });
+
+    enemy_templates["Suspicious man"] = new Enemy({
+        name: "Suspicious man", 
+        description: "", 
+        add_to_bestiary: false,
+        xp_value: 1,
+        rank: 5,
+        size: "medium",
+        stats: {health: 400, attack: 60, agility: 60, dexterity: 60, magic: 0, intuition: 60, attack_speed: 2, defense: 30},
+    });
+})()
 
 export {Enemy, enemy_templates, enemy_killcount};

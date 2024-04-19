@@ -1,73 +1,107 @@
 <!DOCTYPE html>
 <html>
 <body>
-    <style>
-        #collapsible {
-            background-color: #eee;
-            color: #444;
-            cursor: pointer;
-            padding: 18px;
-            width: 100%;
-            border: none;
-            text-align: left;
-            outline: none;
-            font-weight: bold;
-            font-size: 16px;
-        }
-        #collapsible:hover, #collapsible.active {
-            background-color: #ccc;
-        }
-        #content {
-            padding: 0 18px;
-            display: none;
-            overflow: hidden;
-            background-color: #f1f1f1;
-        }
-    </style>
+    <head>
+        <script type="module" src = "src/game_version.js"> </script>
+
+        <style>
+            .collapsible {
+                background-color: #eee;
+                color: #444;
+                cursor: pointer;
+                padding: 18px;
+                width: 100%;
+                border: none;
+                text-align: left;
+                outline: none;
+                font-weight: bold;
+                font-size: 16px;
+                border-top: 1px solid gray;
+            }
+            .collapsible:hover, .collapsible.active {
+                background-color: #ccc;
+            }
+            .content {
+                padding: 0 18px;
+                display: none;
+                overflow: hidden;
+                background-color: #f1f1f1;
+            }
+
+            #header {
+                background-color: #eee;
+                color: #444;
+                font-size: 20px;
+                padding: 18px;
+                width: fit-content;
+                border: none;
+                text-align: left;
+                outline: none;
+                font-weight: bold;
+                margin-bottom: 20px;
+                font-family: sans-serif;
+            }
+
+            .separated { 
+                margin-top: 50px;
+                border-top: 4px solid gray;
+            }
+        </style>
+    </head>
 
 <h2>Remember to export!</h2>
 <br>
-<h4>Found a bug? Let me know. Game has a corner on Arcanum's discord server's Proto23 channel, and there's also a post on r/incremental_games discord server</h4>
+<h4>Found a bug? Let me know. Game has a corner on Arcanum's discord server's Proto23 channel (click the "threads" button on top of the channel), and there's also a post on r/incremental_games discord server</h4>
 <h4>Game was heavily inspired by <a href="https://23html.github.io" target="_blank">Proto23</a>. Huge thanks to Corc for creating it!</h4>
 <br>
-As of v0.3.5, content basically ends after leaving the village. 
-You can try fighting the wolves, but they are not expected to be easily beatable at this stage.
-<br><br>
-<h3> Before reading the content below, please keep in mind that the more you know about game mechanics, the less fun it might become (or not)</h3>
+
+<h3> Before reading the content below, please keep in mind that the more you know about game mechanics, the less fun it might become (or maybe not, depends entirely on you)</h3>
 <br><br>
 
-<button type="button" id="collapsible">Some basic concepts and mechanics [click to show]</button>
-<div id="content">
+
+<div id="header">Click on blocks to unfold their content</div>
+
+<button type="button" class="collapsible">Where does current game content end?</button>
+<div class="content">
+    As of <span class="game_version"></span>, content ends on the fight in slums and on 4th area in cave, though that last one is expected to be very challenging (if possible at all)
+</div>
+
+<button type="button" class="collapsible">Economy</button>
+<div class="content">
+    <ul>
+        <li> Money:
+            <ul>
+                <li>
+                    10 W = 1 C, 100 C = 1 S, 100 S = 1 G
+                </li>
+            </ul>
+        </li>
+        <li>
+            Prices
+            <ul>
+                <li>
+                    Traders sell items for prices a lot higher than what they would pay for same item, usually sell price is 200% of buy price.
+                    <br>"Haggling" skill slightly reduces price difference, at max level the value above 100% is cut in half (meaning 200% will turn into 150%, 300% will turn into 200%, etc) 
+                </li>
+            </ul>
+        </li>
+        <li>
+            Market saturation
+            <ul>
+                <li>
+                    As you sell more of enemy loot, its price will slowly go down, stopping at 1/10th of initial value. It applies to all traders. 
+                    <br>The price will recover over time, but it is a very slow process.
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+<button type="button" class="collapsible">Combat</button>
+<div class="content">
     <ul>
         <li>
-            Economy
-            <ul>
-                <li> Money:
-                    <ul>
-                        <li>
-                            10 W = 1 C, 100 C = 1 S, 100 S = 1 G
-                        </li>
-                    </ul>
-                </li>
-                <li>
-                    Trade
-                    <ul>
-                        <li>
-                            As you sell more of enemy loot, its price will slowly go down, stopping at 1/10th of initial value. It applies to all traders. 
-                            <br>The price will recover over time, but it is very slow.
-                        </li>
-                    </ul>
-                </li>
-            </ul>
-        </li><br>
-        <li>Stamina:
-            <ul>
-                <li>When stamina drops to 0, character's attack speed and attack power are cut in half.</li>
-                <li>Penalty can be lowered via the "Persistence" skill, leveled by fighting with no stamina</li>
-                <li>It can also be delayed by raising the max stamina and/or using food items, which provide stamina regeneration in combat</li>
-            </ul>
-        </li><br>
-        <li>AP / EP:
+            AP / EP:
             <ul>
                 <li>Summary of stats and skills that affect the chance to hit/evade. It doesn't include situational modifiers (e.g. from skills based on the type of an enemy), but does include environmental modifiers (e.g. lower EP in "narrow" areas) </li>
                 <li>Scaling is non-linear.</li>
@@ -78,18 +112,20 @@ You can try fighting the wolves, but they are not expected to be easily beatable
                 <li>AP equal to 1/5 of the enemy EP, results in ~5% chance to hit the target. </li>
             </ul> 
         </li><br>
-        <li>Hit / dodge chance
+        <li>
+            Hit / dodge chance
             <ul>
                 <li>Displayed in an enemy during combat</li>
                 <li>They represent ENEMY's chance to hit or to dodge attacks</li>
             </ul> 
         </li><br>
-        <li>Defensive measures
+        <li>
+            Defensive measures
             <ul>
-                <li>"Dodge" will always completely negate damage if it happens.</li>
-                <li>Shield can absorb damage and has very high base chance, but usually won't be strong enough to reduce it to 0, although it is possible.</li>
+                <li>"Dodge", if triggered, will always completely negate damage.</li>
+                <li>Shield can absorb damage and has very high base chance to trigger, but usually won't be strong enough to reduce it to 0, although it is possible.</li>
                 <li>"Defense" provides a flat reduction to damage taken. It is applied after shield dmg reduction.<br>
-                    It can't reduce damage taken to less than 1. However, if less than 1 dmg gets through the shield, that value will be used instead.</li>
+                    It can't reduce damage taken to less than 1. However, if less than 1 dmg gets through the shield, that value will be used instead (meaning a full negation is possible).</li>
             </ul> 
         </li><br>
         <li>
@@ -103,51 +139,87 @@ You can try fighting the wolves, but they are not expected to be easily beatable
                 </li>
             </ul>
         </li><br>
+        <li>Stamina:
+            <ul>
+                <li>When stamina drops to 0, character's attack speed and attack power are cut in half.</li>
+                <li>Penalty can be lowered via the "Persistence" skill, leveled by fighting with no stamina</li>
+                <li>It can also be delayed by raising the max stamina and/or using food items, which provide stamina regeneration in combat</li>
+            </ul>
+        </li><br>
         <li>
-            Area types and day-night:
+            Combat stances:
             <ul>
                 <li>
-                    Some combat areas have special properties, which result in penalties to certain stats. E.g. some areas might not offer enough movement space to properly dodge or make a good swing with weapon
-                    <br>
-                    They usually have a corresponding skill that lowers the penalty and is usually leveled by simply being in such place
+                    Provide different buffs and penalties, being helpful in different situations, in exchange for higher stamina costs.
                 </li>
                 <li>
-                    During night (20 to 4) in normal areas, and whole time in dark areas (e.g. caves), character receives additional penalties to hit/evasion chance.
-                    <br>
-                    This penalty can be reduced with "Night  vision" skill, which gains xp passively just for being in such place
-                    <br>
-                </li><br>
+                    Switching stance mid-combat will reset your attack bar (no cheesing allowed).
+                </li>
             </ul>
         </li>
-        <li>XP points:
+    </ul>
+</div>
+
+<button type="button" class="collapsible">Area types and day-night cycle</button>
+<div class="content">
+    <ul>
+        <li>
+            Certain activities (currently only some jobs) are limited by the time of the day.
+        </li>
+        <li>
+            During night (20 to 4) in normal areas, and whole time in dark areas (e.g. caves), character receives additional penalties to hit/evasion chance.
+            <br>
+            This penalty can be reduced with "Night  vision" skill, which gains xp passively just for being in such place
+            <br>
+        </li><br>
+        <li>
+            Some combat areas have special properties, which result in penalties to certain stats. E.g. some areas might not offer enough movement space to properly dodge or make a good swing with weapon
+            <br>
+            They usually have a corresponding skill that lowers the penalty and is usually leveled by simply being in such place
+        </li>
+        
+    </ul>
+</div>
+<button type="button" class="collapsible">XP points and unlocks</button>
+<div class="content">
+    <ul>
+        <li> XP:
             <ul>
                 <li>Harder enemies generally provide more xp. It is not affected by area modifiers, but is affected by how many enemies are in a group (raised to 0.334, giving x2 in a fight against 8)</li>
                 <li>There is also a lot of bonuses from multiple sources (mainly skill milestones and completed books).</li>
             </ul> 
         </li><br>
-        <li>
-            Parent skills
+        <li> Unlocks: 
             <ul>
-                <li>
-                    They multiply leveling speed of their children if these are of lower level
-                </li>
-                <li>
-                    They stay on the same level as their highest-leveled child
-                </li>
+                <li>New locations and actions can be unlocked by talking with someone, by reaching certain levels in skills and by clearing enemy zones (sometimes it might need to be beaten more than once)</li>
             </ul>
-        </li><br>
+        </li>
+    </ul>
+</div>
+<button type="button" class="collapsible">Parent skills</button>
+<div class="content">
+    <ul>
         <li>
-            Items:
+            They multiply leveling speed of their children if these are of lower level
+        </li>
+        <li>
+            They stay on the same level as their highest-leveled child
+        </li>
+    </ul>
+</div>
+
+<button type="button" class="collapsible">Items</button>
+<div class="content">
+    <ul>
+        <li>
+            Equipment quality 
             <ul>
                 <li>
-                    Equipment quality 
-                    <ul>
-                        <li>
-                            All equippable items come with "quality" parameter. It directly multiplies item's basic bonus (attack for weapons, defense for armors, max block for shields) and value.
-                            <br>
-                            On top of that, higher quality ranks (starting at uncommon, which begins at 100%) provide another multiplier (based solely on rank) to not only basic bonus, but also to all other stats it has.
-                            <br>
-                            <pre>
+                    All equippable items come with "quality" parameter. It directly multiplies item's basic bonus (attack for weapons, defense for armors, max block for shields) and value.
+                    <br>
+                    On top of that, higher quality ranks (starting at uncommon, which begins at 100%) provide another multiplier (based solely on rank) to not only basic bonus, but also to all other stats it has.
+                    <br>
+                    <pre>
 
     quality     rarity         color      additional multiplier
     0-49%       trash          gray       x1
@@ -157,30 +229,37 @@ You can try fighting the wolves, but they are not expected to be easily beatable
     160-199%    epic           purple     x1.6
     200-250%    legendary      orange     x2
 
-                            </pre>
-                        </li>
-                        <li>
-                            <strong>As of version v0.3.5, highest obtainable item quality is 120%</strong>
-                        </li>
-                    </ul>
+                    </pre>
+                </li>
+                <li>
+                    <strong>As of version <span class="game_version"></span>, highest obtainable item quality is 120%</strong>
                 </li>
             </ul>
         </li>
     </ul>
 </div>
 
-<script>
-    const btn = document.getElementById("collapsible");
-    const content = document.getElementById("content");
+<button type="button" class="collapsible separated">Supporting the game</button>
+<div class="content">
+    If you liked the game and have a github account, consider giving a star to the repository <a href="https://github.com/miktaew/yet-another-idle-rpg" target="_blank">https://github.com/miktaew/yet-another-idle-rpg</a> 
+</div>
 
-    btn.addEventListener("click", () => {
-        btn.classList.toggle("active");
-        if (content.style.display !== "block"){
-          content.style.display = "block";
-        } else {
-          content.style.display = "none";
-        }
-    });
+<script>
+    const btns = document.getElementsByClassName("collapsible");
+    //const content = document.getElementById("content");
+
+    for(let i = 0; i < btns.length; i++) {
+        btns[i].addEventListener("click", () => {
+            btns[i].classList.toggle("active");
+            const content = btns[i].nextElementSibling;
+            if (content.style.display !== "block"){
+                content.style.display = "block";
+            } else {
+                content.style.display = "none";
+            }
+        });
+    }
+    
 </script>
 
 </body>

@@ -4,7 +4,7 @@ import { traders } from "./traders.js";
 import { current_trader, to_buy, to_sell } from "./trade.js";
 import { skills, get_unlocked_skill_rewards, get_next_skill_milestone } from "./skills.js";
 import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain } from "./character.js";
-import { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, get_current_book, last_location_with_bed, last_combat_location } from "./main.js";
+import { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, get_current_book, last_location_with_bed, last_combat_location, faved_stances, selected_stance } from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time } from "./game_time.js";
@@ -12,8 +12,9 @@ import { book_stats, item_templates } from "./items.js";
 import { location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
 import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price } from "./misc.js"
+import { stances } from "./combat_stances.js";
 
-var activity_anim; //for the activity animation interval
+let activity_anim; //for the activity animation interval
 
 //location actions & trade
 const action_div = document.getElementById("location_actions_div");
@@ -57,14 +58,17 @@ const time_field = document.getElementById("time_div");
 const skill_bar_divs = {};
 const skill_list = document.getElementById("skill_list");
 
+const stance_bar_divs = {};
+const stance_list = document.getElementById("stance_list");
+
 const bestiary_entry_divs = {};
 const bestiary_list = document.getElementById("bestiary_list");
 
 const data_entry_divs = {
                             character: document.getElementById("character_xp_multiplier"),
-                            skills: document.getElementById("skills_xp_multiplier") 
+                            skills: document.getElementById("skills_xp_multiplier"),
+                            stamina: document.getElementById("stamina_efficiency_multiplier")
                         };
-const data_list = document.getElementById("data_list");
 
 let skill_sorting = "name";
 let skill_sorting_direction = "asc";
@@ -79,7 +83,8 @@ const message_count = {
     message_combat: 0,
     message_unlocks: 0,
     message_loot: 0,
-    message_events: 0
+    message_events: 0,
+    message_background: 0,
 };
 
 const stats_divs = {strength: document.getElementById("strength_slot"), agility: document.getElementById("agility_slot"),
@@ -90,7 +95,7 @@ const stats_divs = {strength: document.getElementById("strength_slot"), agility:
                     crit_multiplier: document.getElementById("crit_multiplier_slot")
                     };
 
-const other_combat_divs = {offensive_points: document.getElementById("hit_chance_slot"), defensive_action: document.getElementById("defensive_action_slot"),
+const other_combat_divs = {attack_points: document.getElementById("hit_chance_slot"), defensive_action: document.getElementById("defensive_action_slot"),
                            defensive_points: document.getElementById("defensive_action_chance_slot")
                           };
 
@@ -148,7 +153,7 @@ function create_item_tooltip(item, options) {
         //if a shield
         if(item.offhand_type === "shield") {
             item_tooltip.innerHTML += 
-            `<br><br><b>[shield]</b><br><br>Can block up to ${item.getShieldStrength()} damage`;
+            `<br><br><b>[shield]</b><br><br>Can block up to ${Math.round(10*item.getShieldStrength()*(character.stats.total_multiplier.block_strength))/10} damage [base: ${item.getShieldStrength()}]`;
         }
         else if(item.equip_slot === "weapon") {
             item_tooltip.innerHTML += `<br><br>Type: <b>${item.weapon_type}</b>`;
@@ -333,12 +338,17 @@ function end_activity_animation() {
             group_to_add = "message_events";
             class_to_add = "message_notification";
             break;
+        case "background":
+            message_count.message_background +=1;
+            group_to_add = "message_background";
+            class_to_add = "message_background";
     }
 
     if(group_to_add === "message_combat" && message_count.message_combat > 80
     || group_to_add === "message_loot" && message_count.message_loot > 20
     || group_to_add === "message_unlocks" && message_count.message_unlocks > 40
     || group_to_add === "message_events" && message_count.message_events > 20
+    || group_to_add === "message_background" && message_count.message_background > 20
     ) {
         // find first child with specified group
         // delete it
@@ -414,6 +424,7 @@ function log_loot(loot_list) {
 }
 
 function start_activity_animation(settings) {
+    clearInterval(end_activity_animation);
     activity_anim = setInterval(() => { //sets a tiny little "animation" for activity text
         const action_status_div = document.getElementById("action_status_div");
         let end = "";
@@ -446,6 +457,37 @@ function update_displayed_trader() {
 
 function update_displayed_money() {
     document.getElementById("money_div").innerHTML = `Your purse contains: ${format_money(character.money)}`;
+}
+
+/**
+ * 
+ * @returns {HTMLElement}
+ */
+function create_trade_buttons() {
+
+    const trade_buttons = document.createElement("div");
+    trade_buttons.classList.add("trade_ammount_buttons");
+
+    const trade_button_5 = document.createElement("div");
+    trade_button_5.classList.add("trade_ammount_button");
+    trade_button_5.innerText = "5";
+    trade_button_5.setAttribute("data-trade_ammount", 5);
+
+    const trade_button_10 = document.createElement("div");
+    trade_button_10.classList.add("trade_ammount_button");
+    trade_button_10.innerText = "10";
+    trade_button_10.setAttribute("data-trade_ammount", 10);
+
+    const trade_button_max = document.createElement("div");
+    trade_button_max.classList.add("trade_ammount_button");
+    trade_button_max.innerText = "all";
+    trade_button_max.setAttribute("data-trade_ammount", Infinity);
+
+    trade_buttons.appendChild(trade_button_5);
+    trade_buttons.appendChild(trade_button_10);
+    trade_buttons.appendChild(trade_button_max);
+
+    return trade_buttons;
 }
 
 function update_displayed_trader_inventory({trader_sorting} = {}) {
@@ -533,16 +575,6 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
 
             item_div.classList.add('item_stackable', "inventory_item", 'trader_item');
 
-            const trade_button_5 = document.createElement("div");
-            trade_button_5.classList.add("trade_ammount_button");
-            trade_button_5.innerText = "5";
-            trade_button_5.setAttribute("data-trade_ammount", 5);
-
-            const trade_button_10 = document.createElement("div");
-            trade_button_10.classList.add("trade_ammount_button");
-            trade_button_10.innerText = "10";
-            trade_button_10.setAttribute("data-trade_ammount", 10);
-
             item_div.appendChild(create_item_tooltip(trader.inventory[key].item, {trader: true}));
 
 
@@ -552,10 +584,9 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
             item_control_div.setAttribute("data-item_value", `${trader.inventory[key].item.getValue()}`);
             
             item_control_div.appendChild(item_div);
-            item_control_div.appendChild(trade_button_5);
-            item_control_div.appendChild(trade_button_10);
+            item_control_div.appendChild(create_trade_buttons());
 
-            var item_value_span = document.createElement("span");
+            let item_value_span = document.createElement("span");
             item_value_span.innerHTML = `${format_money(round_item_price(trader.inventory[key].item.getValue() * trader.getProfitMargin()), true)}`;
             item_value_span.classList.add("item_value", "item_controls");
             item_control_div.appendChild(item_value_span);
@@ -586,24 +617,13 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
 
             item_div.appendChild(create_item_tooltip(actual_item));
 
-            const trade_button_5 = document.createElement("div");
-            trade_button_5.classList.add("trade_ammount_button");
-            trade_button_5.innerText = "5";
-            trade_button_5.setAttribute("data-trade_ammount", 5);
-
-            const trade_button_10 = document.createElement("div");
-            trade_button_10.classList.add("trade_ammount_button");
-            trade_button_10.innerText = "10";
-            trade_button_10.setAttribute("data-trade_ammount", 10);
-
             item_control_div.classList.add('item_to_trade', 'trader_item_control', 'inventory_item_control', `trader_item_${actual_item.item_type.toLowerCase()}`);
             item_control_div.setAttribute("data-trader_item", `${actual_item.name}`);
             item_control_div.setAttribute("data-item_value", `${actual_item.getValue()}`);
             item_control_div.setAttribute("data-item_count", `${item_count}`);
             item_control_div.appendChild(item_div);
 
-            item_control_div.appendChild(trade_button_5);
-            item_control_div.appendChild(trade_button_10);
+            item_control_div.appendChild(create_trade_buttons());
 
             var item_value_span = document.createElement("span");
             item_value_span.innerHTML = `${format_money(actual_item.getValue(), true)}`;
@@ -633,7 +653,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
             item_control_div.setAttribute("data-item_value", `${actual_item.getValue()}`);
             item_control_div.appendChild(item_div);
 
-            var item_value_span = document.createElement("span");
+            let item_value_span = document.createElement("span");
             item_value_span.innerHTML = `${format_money(actual_item.getValue(), true)}`;
             item_value_span.classList.add("item_value", "item_controls");
             item_control_div.appendChild(item_value_span);
@@ -759,8 +779,18 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
             }
             else if(name_a > name_b) {
                 return plus;
-            } else {
+            } else if(name_a < name_b) {
                 return minus;
+            } else {
+                //if same name, sort based on price (to avoid awkward position changing on some occasions)
+                let value_a = Number.parseInt(a.getAttribute(`data-item_value`));
+                let value_b = Number.parseInt(b.getAttribute(`data-item_value`));
+                
+                if(value_a > value_b) {
+                    return plus;
+                } else {
+                    return minus;
+                }
             }
 
         } else if(sort_by === "price") {
@@ -848,7 +878,7 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
                 item_equip_span.classList.add("equip_item_button", "item_controls");
                 item_control_div.appendChild(item_equip_span);
 
-                var item_value_span = document.createElement("span");
+                let item_value_span = document.createElement("span");
 
                 item_value_span.innerHTML = `${format_money(character.inventory[key][i].getValue(), true)}`;
                 item_value_span.classList.add("item_value", "item_controls");
@@ -899,16 +929,6 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
 
             item_div.appendChild(create_item_tooltip(character.inventory[key].item));
 
-            const trade_button_5 = document.createElement("div");
-            trade_button_5.classList.add("trade_ammount_button");
-            trade_button_5.innerText = "5";
-            trade_button_5.setAttribute("data-trade_ammount", 5);
-
-            const trade_button_10 = document.createElement("div");
-            trade_button_10.classList.add("trade_ammount_button");
-            trade_button_10.innerText = "10";
-            trade_button_10.setAttribute("data-trade_ammount", 10);
-
             item_control_div.classList.add('inventory_item_control', 'character_item_control', `character_item_${character.inventory[key].item.item_type.toLowerCase()}`);
             item_control_div.setAttribute("data-character_item", `${character.inventory[key].item.name}`)
             item_control_div.setAttribute("data-item_count", `${item_count}`)
@@ -929,10 +949,9 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
                 item_div.classList.add("item_book");
             }
 
-            item_control_div.appendChild(trade_button_5);
-            item_control_div.appendChild(trade_button_10);
+            item_control_div.appendChild(create_trade_buttons());
 
-            var item_value_span = document.createElement("span");
+            let item_value_span = document.createElement("span");
             item_value_span.innerHTML = `${format_money(character.inventory[key].item.getValue(), true)}`;
             item_value_span.classList.add("item_value", "item_controls");
             item_control_div.appendChild(item_value_span);
@@ -1006,26 +1025,15 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
 
                 item_div.appendChild(create_item_tooltip(actual_item, {trader: true}));
 
-                const trade_button_5 = document.createElement("div");
-                trade_button_5.classList.add("trade_ammount_button");
-                trade_button_5.innerText = "5";
-                trade_button_5.setAttribute("data-trade_ammount", 5);
-
-                const trade_button_10 = document.createElement("div");
-                trade_button_10.classList.add("trade_ammount_button");
-                trade_button_10.innerText = "10";
-                trade_button_10.setAttribute("data-trade_ammount", 10);
-
                 item_control_div.classList.add('item_to_trade', 'character_item_control', 'inventory_item_control', `character_item_${actual_item.item_type.toLowerCase()}`);
                 item_control_div.setAttribute("data-character_item", `${actual_item.name}`);
                 item_control_div.setAttribute("data-item_count", `${item_count}`);
                 item_control_div.setAttribute("data-item_value", `${actual_item.getValue()}`);
                 item_control_div.appendChild(item_div);
 
-                item_control_div.appendChild(trade_button_5);
-                item_control_div.appendChild(trade_button_10);
+                item_control_div.appendChild(create_trade_buttons());
 
-                var item_value_span = document.createElement("span");
+                let item_value_span = document.createElement("span");
                 item_value_span.innerHTML = `${format_money(round_item_price(actual_item.getValue() * traders[current_trader].getProfitMargin()), true)}`;
                 item_value_span.classList.add("item_value", "item_controls");
                 item_control_div.appendChild(item_value_span);
@@ -1053,7 +1061,7 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
                 item_control_div.setAttribute("data-item_value", `${actual_item.getValue()}`);
                 item_control_div.appendChild(item_div);
 
-                var item_value_span = document.createElement("span");
+                let item_value_span = document.createElement("span");
                 item_value_span.innerHTML = `${format_money(round_item_price(actual_item.getValue() * traders[current_trader].getProfitMargin()/10)*10, true)}`;
                 item_value_span.classList.add("item_value", "item_controls");
                 item_control_div.appendChild(item_value_span);
@@ -1063,7 +1071,9 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
         }
     }
 
-    sort_displayed_inventory({target: "character", sort_by: character_sorting, direction: sorting_direction});
+    if(!item_name) {
+        sort_displayed_inventory({target: "character", sort_by: character_sorting, direction: sorting_direction});
+    }
 }
 
 /**
@@ -1170,15 +1180,31 @@ function update_displayed_normal_location(location) {
     combat_div.style.display = "none";
     location_tooltip.innerText = "";
 
+    document.documentElement.style.setProperty('--location_desc_tooltip_visibility', "hidden");
+
     enemy_count_div.style.display = "none";
     document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_default'));
     document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_default'));
     character_attack_bar.parentNode.style.display = "none";
-    
+
     ////////////////////////////////////
     //add buttons for starting dialogues
 
-    const available_dialogues = location.dialogues.filter(dialogue => dialogues[dialogue].is_unlocked && !dialogues[dialogue].is_finished);
+    const available_dialogues = location.dialogues.filter(dialogue => {
+        if(!dialogues[dialogue].is_unlocked || dialogues[dialogue].is_finished) {
+            return false;
+        } else {
+            let lines_available = false;
+            Object.keys(dialogues[dialogue].textlines).forEach(line => {
+                if(lines_available) {
+                    return;
+                } else {
+                    lines_available = dialogues[dialogue].textlines[line].is_unlocked && !dialogues[dialogue].textlines[line].is_finished;
+                }
+            });
+            return lines_available;
+        }
+    });
 
     if(available_dialogues.length > 2) {
         //there's multiple -> add a choice to location actions that will show all available dialogues        
@@ -1205,7 +1231,7 @@ function update_displayed_normal_location(location) {
         traders_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "trade"})');
         traders_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Visit a merchant';
         action_div.appendChild(traders_button);
-    } else if (available_traders.length <= 2) {
+    } else if (available_traders.length > 0) {
         action_div.append(...create_location_choices({location: location, category: "trade"}));
     }
 
@@ -1214,7 +1240,8 @@ function update_displayed_normal_location(location) {
 
     const available_jobs = Object.values(location.activities).filter(activity => activities[activity.activity].type === "JOB" 
                                                                     && activities[activity.activity].is_unlocked
-                                                                    && activity.is_unlocked);
+                                                                    && activity.is_unlocked
+                                                                    && activities[activity.activity].base_skills_names.filter(skill => !skills[skill].is_unlocked).length == 0);
 
     if(available_jobs.length > 2) {     
         const jobs_button = document.createElement("div");
@@ -1232,7 +1259,8 @@ function update_displayed_normal_location(location) {
 
     const available_trainings = Object.values(location.activities).filter(activity => activities[activity.activity].type === "TRAINING" 
                                                                     && activities[activity.activity].is_unlocked
-                                                                    && activity.is_unlocked);
+                                                                    && activity.is_unlocked
+                                                                    && activities[activity.activity].base_skills_names.filter(skill => !skills[skill].is_unlocked).length == 0);
     if(available_trainings.length > 2) {     
         const trainings_button = document.createElement("div");
         trainings_button.setAttribute("data-location", location.name);
@@ -1257,10 +1285,16 @@ function update_displayed_normal_location(location) {
         action_div.appendChild(start_sleeping_div);
     }
     
+    ////////////////////////////
+    //add buttons for challenges
+    //not getting foldered since having too many is not expected
+    action_div.append(...create_location_choices({location: location, category: "challenge"}));
+
+
     /////////////////////////////////
     //add butttons to change location
 
-    const available_locations = location.connected_locations.filter(location => location.location.is_unlocked);
+    const available_locations = location.connected_locations.filter(location => {if(location.location.is_unlocked && !location.location.is_finished && !location.location.is_challenge) return true});
 
     if(available_locations.length > 3 && (location.sleeping + available_trainings.length + available_jobs.length +  available_traders.length + available_dialogues.length) > 2) {
         const locations_button = document.createElement("div");
@@ -1274,7 +1308,7 @@ function update_displayed_normal_location(location) {
     }
 
     location_name_span.innerText = current_location.name;
-    document.getElementById("location_description_div").innerText = current_location.description;
+    document.getElementById("location_description_div").innerText = current_location.getDescription();
 }
 
 /**
@@ -1291,6 +1325,21 @@ function create_location_choices({location, category, add_icons = true, is_comba
             if(!dialogues[location.dialogues[i]].is_unlocked || dialogues[location.dialogues[i]].is_finished) { //skip if dialogue is not available
                 continue;
             } 
+
+            const lines_available = location.dialogues.filter(dialogue => {
+                    let lines_available = false;
+                    Object.keys(dialogues[dialogue].textlines).forEach(line => {
+                        if(lines_available) {
+                            return;
+                        } else {
+                            lines_available = dialogues[dialogue].textlines[line].is_unlocked && !dialogues[dialogue].textlines[line].is_finished;
+                        }
+                    });
+                    return lines_available;
+            }).length > 0;
+            if(!lines_available) {
+                continue;
+            }
             
             const dialogue_div = document.createElement("div");
     
@@ -1360,7 +1409,8 @@ function create_location_choices({location, category, add_icons = true, is_comba
         Object.keys(location.activities).forEach(key => {
             if(!activities[location.activities[key].activity]?.is_unlocked 
                 || !location.activities[key]?.is_unlocked 
-                || activities[location.activities[key].activity].type === "JOB") 
+                || activities[location.activities[key].activity].type === "JOB"
+                || activities[location.activities[key].activity].base_skills_names.filter(skill => !skills[skill].is_unlocked).length > 0) 
             {
                 return;
             }
@@ -1378,9 +1428,13 @@ function create_location_choices({location, category, add_icons = true, is_comba
     } else if (category === "travel") {
         if(!is_combat){
             for(let i = 0; i < location.connected_locations.length; i++) { 
-
-                if(location.connected_locations[i].location.is_unlocked == false) { //skip if not unlocked
+                
+                if(location.connected_locations[i].location.is_unlocked == false || location.connected_locations[i].location.is_finished) { //skip if not unlocked or if finished
                     continue;
+                }
+                if(location.connected_locations[i].location.is_challenge) {
+                    continue;
+                    //challenges displayed separately
                 }
 
                 const action = document.createElement("div");
@@ -1453,6 +1507,26 @@ function create_location_choices({location, category, add_icons = true, is_comba
         }
 
         choice_list.sort((a,b) => b.classList.contains("travel_normal") - a.classList.contains("travel_normal"));
+    } else if (category === "challenge") {
+        const available_challenges = location.connected_locations.filter(location => {if(location.location.is_challenge && location.location.is_unlocked && !location.location.is_finished) return true});
+       
+        for(let i = 0; i < available_challenges.length; i++) { 
+            const action = document.createElement("div");
+
+            action.classList.add("travel_combat");
+            if("custom_text" in available_challenges[i]) {
+                action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + available_challenges[i].custom_text;
+            }
+            else {
+                action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + "Enter the " + available_challenges[i].location.name;
+            }
+            
+            action.classList.add("action_travel");
+            action.setAttribute("data-travel", available_challenges[i].location.name);
+            action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
+    
+            choice_list.push(action);
+        }
     }
 
     return choice_list;
@@ -1469,6 +1543,7 @@ function update_displayed_location_choices({location_name, category, add_icons, 
 
 function update_displayed_combat_location(location) {
 
+    document.documentElement.style.setProperty('--location_desc_tooltip_visibility', "visible");
     clear_action_div();
     location_types_div.innerHTML = "";
     let action;
@@ -1489,17 +1564,21 @@ function update_displayed_combat_location(location) {
 
 
     location_name_span.innerText = current_location.name;
-    //ADD tooltip with description to this!
+    if(current_location.types.length == 0) {
+        document.documentElement.style.setProperty('--location_name_div_width', '390px');
+    } else {
+        document.documentElement.style.setProperty('--location_name_div_width', '250px');
+    }
 
-    location_tooltip.innerText = current_location.description;
+    location_tooltip.innerText = current_location.getDescription();
     location_tooltip.classList.add("location_tooltip");
     
-    document.getElementById("location_description_div").innerText = current_location.description;
+    document.getElementById("location_description_div").innerText = current_location.getDescription();
 
     //add location types to display
     for(let i = 0; i < current_location.types?.length; i++) {
         const type_div = document.createElement("div");
-        type_div.innerHTML = current_location.types[i].type;
+        type_div.innerHTML = current_location.types[i].type + (current_location.types[i].stage>1?` ${"I".repeat(current_location.types[i].stage)}`:"");
         type_div.classList.add("location_type_div");
 
         const type_tooltip = document.createElement("div");
@@ -1512,7 +1591,7 @@ function update_displayed_combat_location(location) {
 }
 
 function update_displayed_health() { //call it when using healing items, resting or getting hit
-    current_health_value_div.innerText = (Math.round(character.stats.full.health*10)/10) + "/" + character.stats.full.max_health + " hp";
+    current_health_value_div.innerText = Math.round(character.stats.full.health) + "/" + Math.round(character.stats.full.max_health) + " hp";
     current_health_bar.style.width = (character.stats.full.health*100/character.stats.full.max_health).toString() +"%";
 }
 function update_displayed_stamina() { //call it when eating, resting or fighting
@@ -1535,6 +1614,7 @@ function update_displayed_stats() { //updates displayed stats
         else {
             stats_divs[key].innerHTML = `${(character.stats.full[key]).toFixed(1)}`;
         }
+        update_stat_description(key);
     });
 }
 
@@ -1542,13 +1622,13 @@ function update_displayed_combat_stats() {
     const attack_stats = document.getElementById("attack_stats");
 
     const ap = Math.round(character.combat_stats.attack_points);
-    other_combat_divs.offensive_points.innerHTML = `${ap}`;
+    other_combat_divs.attack_points.innerHTML = `${ap}`;
 
     if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
         const dp = (character.combat_stats.block_chance*100).toFixed(1)
         other_combat_divs.defensive_action.innerHTML = "Block :";
         other_combat_divs.defensive_points.innerHTML = `${dp}%`;
-        other_combat_divs.defensive_points.parentNode.children[2].innerHTML = "Chance to block an attack";
+        other_combat_divs.defensive_points.parentNode.children[2].children[0].innerHTML = "Chance to block an attack";
 
         attack_stats.children[3].innerHTML = `Block : ${Math.round(dp)}%`;
     }
@@ -1556,16 +1636,38 @@ function update_displayed_combat_stats() {
         const ep = Math.round(character.combat_stats.evasion_points);
         other_combat_divs.defensive_action.innerHTML = "EP : ";
         other_combat_divs.defensive_points.innerHTML = `${ep}`;
-        other_combat_divs.defensive_points.parentNode.children[2].innerHTML = 
+        other_combat_divs.defensive_points.parentNode.children[2].children[0].innerHTML = 
         "Evasion points, a total value of everything that contributes to the evasion chance, except for some situational skills and modifiers";
 
         attack_stats.children[3].innerHTML = `EP: ${Math.round(ep)} `;
     }
+    update_stat_description("defensive_points");
+    update_stat_description("attack_points");
 
     attack_stats.children[0].innerHTML = `Atk pwr: ${Math.round(character.get_attack_power()*10)/10}`;
     attack_stats.children[1].innerHTML = `Atk spd: ${Math.round(character.get_attack_speed()*100)/100}`;
     attack_stats.children[2].innerHTML = `AP  ${Math.round(ap)}`;
     attack_stats.children[4].innerHTML = `Def: ${Math.round(character.stats.full.defense)} `;
+}
+
+function update_stat_description(stat) {
+    let target;
+
+    if(stats_divs[stat]) {
+        target = stats_divs[stat].parentNode.children[2].children[1];
+        if(stat === "crit_rate" || stat === "crit_multiplier") {
+            target.innerHTML = 
+            `<br>Breakdown:
+            <br>+ ${Math.round(100*character.stats.total_flat[stat])/100}
+            <br>x ${Math.round(100*character.stats.total_multiplier[stat])/100}`;
+        } else {
+            target.innerHTML = 
+            `<br>Breakdown:
+            <br>+ ${Math.round(10*character.stats.total_flat[stat])/10}
+            <br>x ${Math.round(100*character.stats.total_multiplier[stat])/100}`;
+        }
+    }
+    return;
 }
 
 function update_displayed_effects() {
@@ -1602,7 +1704,11 @@ function update_displayed_effect_durations() {
 }
 
 function update_displayed_time() {
-    time_field.innerHTML = current_game_time.toString();
+    if(current_game_time.hour >= 20 || current_game_time.hour < 4) {
+        time_field.innerHTML = current_game_time.toString() + '<span class="material-icons icon icon_night">nightlight_round</span>';
+    } else {
+        time_field.innerHTML = current_game_time.toString() + '<span class="material-icons icon icon_day">light_mode</span>';
+    }
 }
 
 /** 
@@ -1655,6 +1761,10 @@ function update_displayed_character_xp(did_level = false) {
 function update_displayed_xp_bonuses() {
     data_entry_divs.character.innerHTML = `<span class="data_entry_name">Base hero xp gain:</span><span class="data_entry_value">x${Math.round(100*get_hero_xp_gain())/100}</span>`;
     data_entry_divs.skills.innerHTML = `<span class="data_entry_name">Base skill xp gain:</span><span class="data_entry_value">x${Math.round(100*get_skills_overall_xp_gain())/100}</span>`;
+}
+
+function update_displayed_stamina_efficiency() {
+    data_entry_divs.stamina.innerHTML = `<span class="data_entry_name">Stamina efficiency:</span><span class="data_entry_value">${Math.round(100*character.stats.full.stamina_efficiency)/100 || 1}</span>`;
 }
 
 function update_displayed_dialogue(dialogue_key) {
@@ -1712,7 +1822,8 @@ function start_activity_display(current_activity) {
 
     const action_xp_div = document.createElement("div");
     if(current_activity.activity.base_skills_names) {
-        action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${current_activity.activity.base_skills_names.toString().replace(",", ", ")}`;
+        const needed_xp = skills[current_activity.activity.base_skills_names].current_level == skills[current_activity.activity.base_skills_names].max_level? "Max": `${Math.round(10000*skills[current_activity.activity.base_skills_names].current_xp/skills[current_activity.activity.base_skills_names].xp_to_next_lvl)/100}%`
+        action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${skills[current_activity.activity.base_skills_names].name()} (${needed_xp})`;
     }
     else {
         console.warn(`Activity "${current_activity.activity.name}" has no skills assigned!`);
@@ -1743,14 +1854,22 @@ function start_activity_display(current_activity) {
      action_div.appendChild(action_xp_div);
      action_div.appendChild(action_end_div);
 
-     if(current_activity.activity.type === "JOB" && !enough_time_for_earnings(current_activity) && !document.getElementById("not_enough_time_for_earnings_div")) {
-                            const time_info_div = document.createElement("div");
-                            time_info_div.id = "not_enough_time_for_earnings_div";
-                            time_info_div.innerHTML = `There's not enough time left to earn more, but ${character.name} might still learn something...`;
-                            action_div.insertBefore(time_info_div, action_div.children[2]);
-                        }
+     if(current_activity.activity.type === "JOB") 
+     {
+        const time_info_div = document.createElement("div");
+        time_info_div.id = "time_for_earnings_div";
+        
 
-     start_activity_animation();
+        if(!enough_time_for_earnings(current_activity)) {
+            time_info_div.innerHTML = `There's not enough time left to earn more, but ${character.name} might still learn something...`;
+        }
+        else {
+            time_info_div.innerHTML = `Next earnings in: ${format_time({time: {minutes: current_activity.working_period - current_activity.working_time}})}`;
+        }
+        action_div.insertBefore(time_info_div, action_div.children[2]);
+    }
+
+    start_activity_animation();
 }
 
 function start_sleeping_display(){
@@ -1805,6 +1924,10 @@ function start_reading_display(title) {
  * @param {Skill} skill 
  */
 function create_new_skill_bar(skill) {
+    if(skill_bar_divs[skill.skill_id]) {
+        console.warn(`Tried to create a skillbar for skill "${skill.skill_id}", but it already has one!`);
+        return;
+    }
     skill_bar_divs[skill.skill_id] = document.createElement("div");
 
     const skill_bar_max = document.createElement("div");
@@ -1987,6 +2110,174 @@ function sort_displayed_skills({sort_by="name", change_direction=false}) {
 
 
     }).forEach(node=>skill_list.appendChild(node));
+}
+
+/**
+ * @description updates the list of stances, 
+ */
+function update_displayed_stance_list() {
+    while(stance_list.firstChild) {
+        stance_list.removeChild(stance_list.lastChild);
+    }
+    Object.keys(stance_bar_divs).forEach(bar => {
+        delete stance_bar_divs[bar];
+    })
+
+    stance_list.innerHTML = 
+    `<tr class="stance_list_entry stance_list_header">
+        <th class="stance_list_header stance_list_header_fav">Fav</th>
+        <th class="stance_list_header stance_list_header_select">Select</th>
+        <th class="stance_list_header stance_list_header_name">Name</th>
+    </tr>`
+
+    Object.keys(stances).forEach(stance => {
+        if(stances[stance].is_unlocked) {
+            stance_bar_divs[stance] = document.createElement("tr");
+            stance_bar_divs[stance].classList.add("stance_list_entry");
+            stance_bar_divs[stance].dataset.stance = stance;
+
+            const fav_selection = `<td class="stances_button stances_button_checkbox"><input type="checkbox" id="stances_fav_${stance}" name="stance_fav_selection" onclick="fav_stance('${stance}')"></td>`;
+            const stance_selection = `<td class="stances_button stances_button_radio"><input type="radio" id="stances_select_${stance}" name="stance_list_selection" onclick="select_stance('${stance}')"></td>`;
+            const stance_info = 
+                `<td class="stances_name"><label for="stances_select_${stance}">${stances[stance].name}</td>`
+
+            stance_bar_divs[stance].innerHTML = fav_selection;
+            stance_bar_divs[stance].innerHTML += stance_selection;
+            stance_bar_divs[stance].innerHTML += stance_info
+
+            stance_bar_divs[stance].appendChild(create_stance_tooltip(stance));
+            stance_list.append(stance_bar_divs[stance]);
+        }
+    });
+
+    //different stamina cost: cheaper first; same stamina cost: sort alphabetically
+    [...stance_list.children].sort((a,b)=>{
+        const stance_a = stances[a.getAttribute("data-stance")];
+        const stance_b = stances[b.getAttribute("data-stance")];
+        if(!stance_b) {
+            return 1;
+        } else if(!stance_a) {
+            return -1;
+        }
+
+        if(!stance_a || !stance_b || !stance_a.is_unlocked || !stance_b.is_unlocked) {
+            console.error(`No such stance as either '${stance_a}' or '${stance_b}', or at least one of them is not yet unlocked!`);
+        }
+        
+        if(stance_a.stamina_cost < stance_b.stamina_cost) {
+            return -1;
+        } else if(stance_a.stamina_cost > stance_b.stamina_cost) {
+            return 1;
+        } else {
+            if(stance_a.name > stance_b.name) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+    }).forEach(node=>stance_list.appendChild(node));
+
+
+    update_displayed_stance();
+    update_displayed_faved_stances();
+}
+
+function create_stance_tooltip(stance_id) {
+    const tooltip_div = document.createElement("div");
+    tooltip_div.classList.add("stance_tooltip");
+    tooltip_div.innerHTML = 
+    `<div>${stances[stance_id].name}</div><br>
+    <div>${stances[stance_id].getDescription()}</div><br>
+    <div>Stamina cost: ${stances[stance_id].stamina_cost}</div>
+    <div class='stance_tooltip_stats'>${create_stance_tooltip_stats(stances[stance_id])}</div`;
+
+    let target_count = stances[stance_id].target_count;
+    if(target_count > 1 && stances[stance_id].related_skill) {
+        target_count = target_count + Math.round(target_count * skills[stances[stance_id].related_skill].current_level/skills[stances[stance_id].related_skill].max_level);
+    }
+
+    if(target_count > 1) {
+        tooltip_div.innerHTML += `
+        <br><div class='stance_tooltip_hitcount'>${stances[stance_id].randomize_target_count?"Randomly hits up to":"Hits up to"} ${target_count} enemies</div>`;
+    }
+
+    return tooltip_div;
+}
+
+function create_stance_tooltip_stats(stance) {
+    let desc = "";
+    const stats = stance.getStats()
+    Object.keys(stats).forEach(stat => {
+        desc += `<br>x${Math.round(100*stats[stat])/100} ${stat_names[stat]}`;
+    });
+
+    return desc;
+}
+
+function update_stance_tooltip(stance_id) {
+    stance_bar_divs[stance_id].querySelector(".stance_tooltip_stats").innerHTML = create_stance_tooltip_stats(stances[stance_id]);
+
+    let target_count = stances[stance_id].target_count;
+    if(target_count > 1){
+        if(stances[stance_id].related_skill) {
+            target_count = target_count + Math.round(target_count * skills[stances[stance_id].related_skill].current_level/skills[stances[stance_id].related_skill].max_level);
+        }
+        stance_bar_divs[stance_id].querySelector(".stance_tooltip_hitcount").innerHTML = `${stances[stance_id].randomize_target_count?"Randomly hits up to":"Hits up to"} ${target_count} enemies</div>`;
+    } 
+}
+
+function update_displayed_stance() {
+    stance_bar_divs[selected_stance].children[1].children[0].checked = true;
+    document.getElementById("character_stance_name").children[0].innerHTML = stances[selected_stance].name;
+
+    const selection = document.getElementById("character_stance_selection");
+    if(selection.children && selection.querySelector(`[data-stance='${selected_stance}']`)) {
+        selection.querySelector(`[data-stance='${selected_stance}']`).children[0].checked = true;
+    }
+}
+
+function update_displayed_faved_stances() {
+    
+    const list = document.getElementById("character_stance_selection");
+    list.innerHTML = "";
+    Object.keys(faved_stances).forEach(stance => {
+        stance_bar_divs[stance].children[0].children[0].checked = true;
+
+        const node = 
+        `<div data-stance="${stance}"><input type="radio" id="stances_quick_select_${stance}" name="stance_quick_selection" onclick="select_stance('${stance}')">
+         <label for="stances_quick_select_${stance}">${stances[stance].name}</div>`;
+        list.innerHTML += node;
+    });
+
+
+    //different stamina cost: cheaper first; same stamina cost: sort alphabetically
+    [...list.children].sort((a,b)=>{
+        const stance_a = stances[a.getAttribute("data-stance")];
+        const stance_b = stances[b.getAttribute("data-stance")];
+
+        if(!stance_a || !stance_b || !stance_a.is_unlocked || !stance_b.is_unlocked) {
+            console.error(`No such stance as either '${stance_a}' or '${stance_b}', or at least one of them is not yet unlocked!`);
+        }
+        
+        if(stance_a.stamina_cost < stance_b.stamina_cost) {
+            return -1;
+        } else if(stance_a.stamina_cost > stance_b.stamina_cost) {
+            return 1;
+        } else {
+            if(stance_a.name > stance_b.name) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+    }).forEach(node=>list.appendChild(node));
+
+    //mark selected stance as checked in quick selection
+
+    const selection = document.getElementById("character_stance_selection");
+    if(selection.children && selection.querySelector(`[data-stance='${selected_stance}']`)) {
+        selection.querySelector(`[data-stance='${selected_stance}']`).children[0].checked = true;
+    }
 }
 
 /**
@@ -2205,14 +2496,20 @@ function clear_bestiary() {
     });
 }
 
-function update_displayed_ongoing_activity(current_activity){
+function update_displayed_ongoing_activity(current_activity, is_job){
+    if(is_job) {
     document.getElementById("action_end_earnings").innerHTML = `(earnings: ${format_money(current_activity.earnings)})`
-    if(!enough_time_for_earnings(current_activity) && !document.getElementById("not_enough_time_for_earnings_div")) {
-        const time_info_div = document.createElement("div");
-        time_info_div.id = "not_enough_time_for_earnings_div";
-        time_info_div.innerHTML = `There's not enough time left to earn more, but ${character.name} might still learn something...`;
-        action_div.insertBefore(time_info_div, action_div.children[2]);
+        const time_info_div = document.getElementById("time_for_earnings_div");
+        
+        if(!enough_time_for_earnings(current_activity)) {
+            time_info_div.innerHTML = `There's not enough time left to earn more, but ${character.name} might still learn something...`;
+        } else {
+            time_info_div.innerHTML = `Next earnings in: ${format_time({time: {minutes: current_activity.working_period - current_activity.working_time%current_activity.working_period}})}`;
+        }
     }
+    const action_xp_div = document.getElementById("action_xp_div");
+    const needed_xp = skills[current_activity.activity.base_skills_names].current_level == skills[current_activity.activity.base_skills_names].max_level? "Max": `${Math.round(10000*skills[current_activity.activity.base_skills_names].current_xp/skills[current_activity.activity.base_skills_names].xp_to_next_lvl)/100}%`
+    action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${skills[current_activity.activity.base_skills_names].name()} (${needed_xp})`;
 }
 
 function clear_skill_list(){
@@ -2223,11 +2520,11 @@ function clear_skill_list(){
 }
 
 function update_enemy_attack_bar(enemy_id, num) {
-    enemies_div.children[enemy_id].querySelector(".enemy_attack_bar").style.width = `${num*2.5}%`;
+    enemies_div.children[enemy_id].querySelector(".enemy_attack_bar").style.width = `${Math.min(num*2.6,100)}%`;
 }
 
 function update_character_attack_bar(num) {
-    character_attack_bar.style.width = `${num*2.5}%`;
+    character_attack_bar.style.width = `${Math.min(num*2.6,100)}%`;
 }
 
 export {
@@ -2277,5 +2574,10 @@ export {
     clear_bestiary,
     start_reading_display,
     sort_displayed_skills,
-    update_displayed_xp_bonuses
+    update_displayed_xp_bonuses,
+    update_displayed_stance_list,
+    update_displayed_stamina_efficiency,
+    update_displayed_stance,
+    update_displayed_faved_stances,
+    update_stance_tooltip
 }

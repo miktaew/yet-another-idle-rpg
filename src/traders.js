@@ -13,10 +13,11 @@ class Trader extends InventoryHaver {
     constructor({name,
                  trade_text = `Trade with ${name}`,
                  location_name,
-                 refresh_time = 7,
+                 refresh_time = 4,
                  refresh_shift = 0,
                  inventory_template,
-                 profit_margin = 2
+                 profit_margin = 2,
+                 is_unlocked = true,
                 }) 
     {
         super();
@@ -39,6 +40,7 @@ class Trader extends InventoryHaver {
         this.profit_margin = profit_margin;
         //how much more expensive are the trader's items than their actual value, with default being 2 (so 2x more)
         //don't make it too low to prevent easy xp grinding for the haggling skill
+        this.is_unlocked = is_unlocked;
     }
     
     /**
@@ -55,7 +57,7 @@ class Trader extends InventoryHaver {
         }
         //otherwise do nothing
         return false;
-    };
+    }
 
     /**
      * checks if enough time passed since last refresh
@@ -63,7 +65,7 @@ class Trader extends InventoryHaver {
      */
     can_refresh() {
         return (this.last_refresh < 0 || current_game_time.day_count - (this.last_refresh + this.refresh_shift) >= this.refresh_time);
-    };
+    }
 
     /**
      * creates new choice of items for the trader, based on assigned inventory template
@@ -78,8 +80,7 @@ class Trader extends InventoryHaver {
                 var item_count = inventory_template[i].count.length == 1 ?
                     inventory_template[i].count[0] : Math.round(Math.random() *
                         (inventory_template[i].count[1] - inventory_template[i].count[0]) + inventory_template[i].count[0]);
-
-                if (item_templates[inventory_template[i].item_name].stackable) { 
+                if(item_templates[inventory_template[i].item_name].stackable) { 
                     //stackable, so add one object with item_count
                     inventory[inventory_template[i].item_name] = { item: getItem(item_templates[inventory_template[i].item_name]), count: item_count };
                 }
@@ -100,7 +101,7 @@ class Trader extends InventoryHaver {
 
         //just add items based on their chances and counts in inventory_template
         return inventory;
-    };
+    }
 
     /**
      * 
@@ -138,42 +139,86 @@ class TradeItem {
     }
 }
 
-traders["village trader"] = new Trader({
-    name: "village trader",
-    inventory_template: "Basic",
-    is_unlocked: false,
-    location_name: "Village",
-});
-inventory_templates["Basic"] = 
-[
-        new TradeItem({item_name: "Cheap iron spear", count: [1], quality: [0.4, 0.9], chance: 0.8}),
-        new TradeItem({item_name: "Cheap iron dagger", count: [1], quality: [0.4, 0.9], chance: 0.8}),
-        new TradeItem({item_name: "Cheap iron sword", count: [1], quality: [0.4, 0.9], chance: 0.8}),
-        new TradeItem({item_name: "Cheap iron axe", count: [1], quality: [0.4, 0.9], chance: 0.8}),
-        new TradeItem({item_name: "Cheap iron battle hammer", count: [1], quality: [0.4, 0.9], chance: 0.8}),
+//create traders
+(function(){
+    traders["village trader"] = new Trader({
+        name: "village trader",
+        inventory_template: "Basic",
+        is_unlocked: false,
+        location_name: "Village",
+    });
+    traders["suspicious trader"] = new Trader({
+        name: "suspicious trader",
+        inventory_template: "Basic plus",
+        is_unlocked: true,
+        location_name: "Slums",
+        profit_margin: 3,
+    });
+})();
 
-        new TradeItem({item_name: "Cheap iron spear", count: [1], quality: [0.91, 1.2], chance: 0.4}),
-        new TradeItem({item_name: "Cheap iron dagger", count: [1], quality: [0.91, 1.2], chance: 0.4}),
-        new TradeItem({item_name: "Cheap iron sword", count: [1], quality: [0.91, 1.2], chance: 0.4}),
-        new TradeItem({item_name: "Cheap iron axe", count: [1], quality: [0.91, 1.2], chance: 0.4}),
-        new TradeItem({item_name: "Cheap iron battle hammer", count: [1], quality: [0.91, 1.2], chance: 0.4}),
+//create inventory templates
+(function(){
+    inventory_templates["Basic"] = 
+    [
+            new TradeItem({item_name: "Cheap iron spear", count: [1], quality: [0.4, 0.9], chance: 0.8}),
+            new TradeItem({item_name: "Cheap iron dagger", count: [1], quality: [0.4, 0.9], chance: 0.8}),
+            new TradeItem({item_name: "Cheap iron sword", count: [1], quality: [0.4, 0.9], chance: 0.8}),
+            new TradeItem({item_name: "Cheap iron axe", count: [1], quality: [0.4, 0.9], chance: 0.8}),
+            new TradeItem({item_name: "Cheap iron battle hammer", count: [1], quality: [0.4, 0.9], chance: 0.8}),
 
-        new TradeItem({item_name: "Cheap wooden shield", count: [1], quality: [0.4, 0.9]}),
-        new TradeItem({item_name: "Cheap wooden shield", count: [1], chance: 0.8, quality: [0.91, 1.2]}),
-        new TradeItem({item_name: "Crude wooden shield", count: [1], chance: 0.7, quality: [0.4, 0.9]}),
-        new TradeItem({item_name: "Crude wooden shield", count: [1], chance: 0.4, quality: [0.91, 1.2]}),
+            new TradeItem({item_name: "Cheap iron spear", count: [1], quality: [0.91, 1.2], chance: 0.4}),
+            new TradeItem({item_name: "Cheap iron dagger", count: [1], quality: [0.91, 1.2], chance: 0.4}),
+            new TradeItem({item_name: "Cheap iron sword", count: [1], quality: [0.91, 1.2], chance: 0.4}),
+            new TradeItem({item_name: "Cheap iron axe", count: [1], quality: [0.91, 1.2], chance: 0.4}),
+            new TradeItem({item_name: "Cheap iron battle hammer", count: [1], quality: [0.91, 1.2], chance: 0.4}),
 
-        new TradeItem({item_name: "Cheap leather vest", count: [1], quality: [0.4, 0.9]}),
-        new TradeItem({item_name: "Cheap leather vest", count: [1], chance: 0.5, quality: [0.91, 1.2]}),
-        new TradeItem({item_name: "Cheap leather pants", count: [1], quality: [0.4, 0.9]}),
-        new TradeItem({item_name: "Cheap leather pants", count: [1], chance: 0.5, quality: [0.91, 1.2]}),
+            new TradeItem({item_name: "Cheap wooden shield", count: [1], quality: [0.4, 0.9]}),
+            new TradeItem({item_name: "Cheap wooden shield", count: [1], chance: 0.8, quality: [0.91, 1.2]}),
+            new TradeItem({item_name: "Crude wooden shield", count: [1], chance: 0.7, quality: [0.4, 0.9]}),
+            new TradeItem({item_name: "Crude wooden shield", count: [1], chance: 0.4, quality: [0.91, 1.2]}),
 
-        new TradeItem({item_name: "Stale bread", count: [4,10]}),
-        new TradeItem({item_name: "Fresh bread", count: [2,5]}),
-        new TradeItem({item_name: "Weak healing powder", count: [2,5]}),
+            new TradeItem({item_name: "Cheap leather vest", count: [1], quality: [0.4, 0.9]}),
+            new TradeItem({item_name: "Cheap leather vest", count: [1], chance: 0.5, quality: [0.91, 1.2]}),
+            new TradeItem({item_name: "Cheap leather pants", count: [1], quality: [0.4, 0.9]}),
+            new TradeItem({item_name: "Cheap leather pants", count: [1], chance: 0.5, quality: [0.91, 1.2]}),
 
-        new TradeItem({item_name: "ABC for kids", count: [1], chance: 1}),
-        new TradeItem({item_name: "Old combat manual", count: [1], chance: 0.5}),
-];
+            new TradeItem({item_name: "Stale bread", count: [4,10]}),
+            new TradeItem({item_name: "Fresh bread", count: [2,5]}),
+            new TradeItem({item_name: "Weak healing powder", count: [2,5]}),
 
+            new TradeItem({item_name: "ABC for kids", count: [1], chance: 1}),
+            new TradeItem({item_name: "Old combat manual", count: [1], chance: 0.5}),
+    ];
+
+    inventory_templates["Basic plus"] = 
+    [
+            new TradeItem({item_name: "Iron spear", count: [1], quality: [0.4, 0.8], chance: 0.8}),
+            new TradeItem({item_name: "Iron dagger", count: [1], quality: [0.4, 0.8], chance: 0.8}),
+            new TradeItem({item_name: "Iron sword", count: [1], quality: [0.4, 0.8], chance: 0.8}),
+            new TradeItem({item_name: "Iron axe", count: [1], quality: [0.4, 0.8], chance: 0.8}),
+            new TradeItem({item_name: "Iron battle hammer", count: [1], quality: [0.4, 0.8], chance: 0.8}),
+
+            new TradeItem({item_name: "Iron spear", count: [1], quality: [0.81, 1.2], chance: 0.8}),
+            new TradeItem({item_name: "Iron dagger", count: [1], quality: [0.81, 1.2], chance: 0.8}),
+            new TradeItem({item_name: "Iron sword", count: [1], quality: [0.81, 1.2], chance: 0.8}),
+            new TradeItem({item_name: "Iron axe", count: [1], quality: [0.81, 1.2], chance: 0.8}),
+            new TradeItem({item_name: "Iron battle hammer", count: [1], quality: [0.81, 1.2], chance: 0.8}),
+
+            new TradeItem({item_name: "Wooden shield", count: [1], quality: [0.4, 0.8]}),
+            new TradeItem({item_name: "Wooden shield", count: [1], chance: 0.8, quality: [0.81, 1.2]}),
+
+            new TradeItem({item_name: "Leather vest", count: [1], quality: [0.4, 0.8]}),
+            new TradeItem({item_name: "Leather vest", count: [1], chance: 0.8, quality: [0.81, 1.2]}),
+            new TradeItem({item_name: "Leather pants", count: [1], quality: [0.4, 0.8]}),
+            new TradeItem({item_name: "Leather pants", count: [1], chance: 0.8, quality: [0.81, 1.2]}),
+            new TradeItem({item_name: "Leather hat", count: [1], quality: [0.4, 0.8]}),
+            new TradeItem({item_name: "Leather hat", count: [1], chance: 0.8, quality: [0.81, 1.2]}),
+
+            new TradeItem({item_name: "Stale bread", count: [4,10]}),
+            new TradeItem({item_name: "Fresh bread", count: [2,5]}),
+            new TradeItem({item_name: "Weak healing powder", count: [2,5]}),
+
+            new TradeItem({item_name: "Twist liek a snek", count: [1], chance: 0.7}),
+    ];
+})();
 export {traders};

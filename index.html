@@ -77,11 +77,11 @@
                     <div id = "money_div">  </div>
                     <div id = "inventory_content_div"> </div>
 
-                    <div id = "inventory_sorting_div">
+                    <div id = "inventory_sorting_div" class="activable_buttons">
                         <div id = "inventory_sort_by_name" class = "character_sorting_button active_selection_button" onclick='sortCharacterInventory("name")'> Sort by name </div>
                         <div id = "inventory_sort_by_price" class = "character_sorting_button" onclick='sortCharacterInventory("price")'> Sort by value </div>
                     </div>
-                    <div id = "inventory_control_div">
+                    <div id = "inventory_control_div" class="activable_buttons">
                         <div id = "inventory_show_all" class = "inventory_control_button active_selection_button" onclick = "showAllItems()"> All </div>
                         <div id = "inventory_show_equipment" class = "inventory_control_button" onclick = "showOnlyEquipment()"> Equipment </div>
                         <div id = "inventory_show_consumable" class = "inventory_control_button" onclick = "showOnlyConsumables()"> Usable </div>
@@ -137,8 +137,11 @@
                     </div>
                 
                 
-                    <div id = "character_attack_name">
-                        normal stance
+                    <div id = "character_stance_name">
+                        <span>Normal stance</span>
+                        <div id = "character_stance_selection">
+                        
+                        </div>
                     </div>
                     <div id = "character_attack_bar">
 
@@ -522,7 +525,7 @@
                     </div>
 
                     <div id = "trade_div">
-                        <div id = "trader_sorting_buttons"> 
+                        <div id = "trader_sorting_buttons" class="activable_buttons"> 
                             <div id = "trader_sort_by_name" class = "trader_sorting_button active_selection_button" onclick='sortTraderInventory("name")'>
                                 Sort by name
                             </div>
@@ -530,7 +533,7 @@
                                 Sort by value
                             </div>
                         </div>
-                        <div id = "trader_category_buttons">
+                        <div id = "trader_category_buttons" class="activable_buttons">
                             <div id = "trader_category_all" class = "trader_category_button active_selection_button" onclick='showAllTraderItems()'>
                                 all
                             </div>
@@ -588,24 +591,36 @@
                             <div class = "stat_slot_div"> 
                                 <div class = "stat_name"> Strength: </div>
                                 <div class = "stat_value" id = "strength_slot"></div> 
-                                <span class = "stat_tooltip"> Your strength. It affects power of physical attacks </span>
+                                <div class = "stat_tooltip"> 
+                                    <div>Your strength. It affects power of physical attacks</div>
+                                    <div class="stat_breakdown"></div>
+                             </div>
                             </div>
                             <div class = "stat_slot_div"> 
                                 <div class = "stat_name"> Agility: </div>
                                 <div class = "stat_value" id = "agility_slot"></div> 
-                                <span class = "stat_tooltip"> Your agility. It affects your evasion chance </span>
+                                <div class = "stat_tooltip"> 
+                                    <div>Your agility. It affects your evasion chance</div>
+                                    <div class="stat_breakdown"></div>
+                                </div>
                             </div>
                         </div>
                         <div class = "grid_container">
                             <div class = "stat_slot_div"> 
                                 <div class = "stat_name"> Dexterity: </div>
                                 <div class = "stat_value" id = "dexterity_slot"></div> 
-                                <span class = "stat_tooltip"> Your dexterity. It affects your chance to hit target </span>
+                                <div class = "stat_tooltip"> 
+                                    <div> Your dexterity. It affects your chance to hit target </div>
+                                    <div class="stat_breakdown"></div>
+                                </div>
                             </div>
                             <div class = "stat_slot_div"> 
                                 <div class = "stat_name"> Intuition </div>
                                 <div class = "stat_value" id = "intuition_slot"></div> 
-                                <span class = "stat_tooltip"> Your intuition. It's necessary for magic, while also providing slight bonus to hit chance and evasion </span>
+                                <div class = "stat_tooltip"> 
+                                    <div>Your intuition. It's necessary for magic, while also providing slight bonus to hit chance and evasion </div>
+                                    <div class="stat_breakdown"></div>
+                                </div>
                             </div>
                             
                         </div>
@@ -614,12 +629,18 @@
                             <div class = "stat_slot_div"> 
                                 <div class = "stat_name"> Defense: </div>
                                 <div class = "stat_value" id = "defense_slot"></div> 
-                                <span class = "stat_tooltip"> Your defense. Based on worn equipment, lowers damage taken </span>
+                                <div class = "stat_tooltip"> 
+                                    <div>Your defense. Based on worn equipment, lowers damage taken </div>
+                                    <div class="stat_breakdown"></div>
+                                </div>
                             </div>
                             <div class = "stat_slot_div"> 
                                 <div class = "stat_name"> Magic: </div>
                                 <div class = "stat_value" id = "magic_slot"></div> 
-                                <span class = "stat_tooltip"> Your magic power. It affects damage of magic attacks </span>
+                                <div class = "stat_tooltip"> 
+                                    <div>Your magic power. It affects the power of spells </div>
+                                    <div class="stat_breakdown"></div>
+                                </div>
                             </div>
                             
                         </div>
@@ -627,12 +648,18 @@
                             <div class = "stat_slot_div"> 
                                 <div class = "stat_name"> Atk power: </div>
                                 <div class = "stat_value" id = "attack_power_slot"></div> 
-                                <span class = "stat_tooltip"> Attack power. Based on weapon statistics, strength and/or magic </span>
+                                <div class = "stat_tooltip"> 
+                                    <div>Attack power. Based on weapon statistics, strength and/or magic </div>
+                                    <div class="stat_breakdown"></div>
+                                </div>
                             </div>
                             <div class = "stat_slot_div"> 
                                 <div class = "stat_name"> Atk spd: </div>
                                 <div class = "stat_value" id = "attack_speed_slot"></div> 
-                                <span class = "stat_tooltip"> Attack speed. Directly affects the attack frequency </span>
+                                <div class = "stat_tooltip"> 
+                                    <div>Attack speed. Directly affects the attack frequency </div>
+                                    <div class="stat_breakdown"></div>
+                                </div>
                             </div>
                             
                             
@@ -641,27 +668,38 @@
                             <div class = "stat_slot_div"> 
                                 <div class = "stat_name"> Crit rate: </div>
                                 <div class = "stat_value" id = "crit_rate_slot"></div> 
-                                <span class = "stat_tooltip"> Your chance for critical attack </span>
+                                <div class = "stat_tooltip">
+                                    <div> Your chance for critical attack </div>
+                                    <div class="stat_breakdown"></div>
+                                </div>
                             </div>
                             <div class = "stat_slot_div"> 
                                 <div class = "stat_name"> Crit mult: </div>
                                 <div class = "stat_value" id = "crit_multiplier_slot"></div> 
-                                <span class = "stat_tooltip"> Damage of your critical attacks </span>
+                                <div class = "stat_tooltip"> 
+                                    <div>Damage of your critical attacks </div>
+                                    <div class="stat_breakdown"></div>
+                                </div>
                             </div>
                         </div>
                         <div class = "grid_container">
                             <div class = "stat_slot_div"> 
                                 <div class = "stat_name"> AP: </div>
                                 <div class = "stat_value" id = "hit_chance_slot"></div> 
-                                <span class = "stat_tooltip"> 
-                                    Attack points, a total value of everything that contributes to the chance to hit an enemy, except for some situational skills and modifiers. </span>
+                                <div class = "stat_tooltip"> 
+                                    <div> Attack points, a total value of everything that contributes to the chance to hit an enemy, except for some situational skills and modifiers. </div>
+                                    <div class="stat_breakdown"></div>
+                                </div>
                             </div>
                             <div class = "stat_slot_div" id = "defensive_action_chance"> 
                                 <div class = "stat_name" id = "defensive_action_slot"> </div>
                                 <div class = "stat_value" id = "defensive_action_chance_slot"></div> 
 
                                 <!-- tooltip content is set in display.js-->
-                                <span class = "stat_tooltip"> </span>
+                                <div class = "stat_tooltip">
+                                    <div></div>
+                                    <div></div>
+                                </div>
                             </div>
                         </div>
 
@@ -695,7 +733,7 @@
 
                     </div>
 
-                    <div id = "character_control_div">
+                    <div id = "character_control_div" class="activable_buttons">
                         <div id = "character_show_stats" class = "character_control_button active_selection_button" onclick = "showCharacterStats()"> Stats </div>
                         <div id = "character_show_equipment" class = "character_control_button" onclick = "showCharacterEquipment()"> Equipment </div>
                         <div id = "character_show_tools" class = "character_control_button" onclick = "showCharacterTools()"> Tools </div>
@@ -704,13 +742,9 @@
 
                 <div id="skills_and_stances_div" class="box_div">
                     <div id = "skill_list_div">
-                            <div id = "skill_list_header">
-                                = Skills =
-                            </div>
                             <div id = "skill_list">
-
                             </div>
-                            <div id = "skill_sorting_buttons"> 
+                            <div id = "skill_sorting_buttons" class="activable_buttons"> 
                                 <div id = "skill_sort_by_name" class = "skill_sorting_button active_selection_button" onclick='sortSkills({sort_by:"name"})'>
                                     Sort by name
                                 </div>
@@ -720,10 +754,23 @@
                             </div>
                     </div>
                     <div id = "stance_list_div">
-
+                        <table id = "stance_list">
+                        </table>
                     </div>
-                    <div id = "skill_and_stance_control_div">
-
+                    <div id = "magic_list_div">
+                        <div id = "magic_list">
+                        </div>
+                    </div>
+                    <div id = "skill_and_stance_control_div" class="activable_buttons">
+                        <div id="show_skills" class="skill_stance_control_button active_selection_button" onclick="showSkills()">
+                            Skills
+                        </div>
+                        <div id="show_stances" class="skill_stance_control_button" onclick="showStances()">
+                            Stances
+                        </div>
+                        <div id="show_magic" class="skill_stance_control_button" onclick="showMagic()">
+                            Magic
+                        </div>
                     </div>
                 </div>
 
@@ -737,27 +784,22 @@
                         </div>
                     </div>
                     <div id = "bestiary_box_div">
-                        <div id="bestiary_header">
-                            = Bestiary =
-                        </div>
                         <div id = "bestiary_list">
 
                         </div>
                         
                     </div>
                     <div id = "data_box_div">
-                        <div id="data_header">
-                            = Data =
-                        </div>
                         <div id = "data_list">
                             <div id = "data_xp">
                                 <div id = "character_xp_multiplier" class="data_entry"></div>
                                 <div id = "skills_xp_multiplier" class="data_entry"></div>
+                                <div id = "stamina_efficiency_multiplier" class="data_entry"></div>
                             </div>
                         </div>
                     </div>
 
-                    <div id = "journal_control_div">
+                    <div id = "journal_control_div" class="activable_buttons">
                         <div id = "journal_show_quests" class = "journal_control_button" onclick = "showQuests()"> Quests </div>
                         <div id = "journal_show_bestiary" class = "journal_control_button active_selection_button" onclick = "showBestiary()"> Bestiary </div>
                         <div id = "journal_show_data" class = "journal_control_button" onclick = "showData()"> Data </div>
@@ -785,12 +827,15 @@
                     <div id = "message_show_loot" class = "message_control_button active_selection_button" onclick = "showLootMessages()">
                         Loot
                     </div>
+                    <div id = "message_show_background" class = "message_control_button active_selection_button" onclick = "showBackgroundMessages()">
+                        Background
+                    </div>
                     
                 </div>
             </div>
         </div>
 
-        <div id = "page_selection">
+        <div id = "page_selection" class="activable_buttons">
             <div id = "area_page_button" class = "page_selection_button active_selection_button" onclick = "showAreaPage()">
                 Area / Combat
             </div>
@@ -805,9 +850,9 @@
             <label id = "load_from_file_button" class = "sl_button" for = "saved_file_input"> Import </label> 
             <input id = "saved_file_input" type='file' accept = 'text/plain' onchange = 'loadProgress(event)'>	
 
-            <div id = "changelog_button" class = "game_info"><a href="changelog.txt" target="_blank"></a></div>
+            <div id = "options_button" class = "game_info" onclick="openOptions()"><span><i class="material-icons">settings</i></span></div>
+            <div id = "changelog_button" class = "game_info"><a href="changelog.html" target="_blank"></a></div>
             <div id = "help_button" class = "game_info"><a href="help.html" target="_blank"><i class="material-icons">help_outline</i></a></div>
-            <div id = "options_button" class = "game_info" onclick="openOptions()"><a><i class="material-icons">settings</i></a></div>
             
         </div>
 
@@ -917,6 +962,15 @@
                     document.documentElement.style.setProperty('--message_events_display', 'inline-block');
                 }
             }
+
+            function showBackgroundMessages() {
+                console.log(document.documentElement.style.getPropertyValue('--message_background_display'));
+                if(document.documentElement.style.getPropertyValue('--message_background_display') !== "none") {
+                    document.documentElement.style.setProperty('--message_background_display', 'none');
+                } else {
+                    document.documentElement.style.setProperty('--message_background_display', 'inline-block');
+                }
+            }
             
             function showData() {
                 document.getElementById("data_box_div").style.display = "block";
@@ -970,6 +1024,25 @@
                 document.getElementById("character_tools_div").style.display = "grid";
             }
 
+
+            function showSkills() {
+                document.getElementById("skill_list_div").style.display = "block";
+                document.getElementById("stance_list_div").style.display = "none";
+                document.getElementById("magic_list_div").style.display = "none";
+            }
+
+            function showStances() {
+                document.getElementById("skill_list_div").style.display = "none";
+                document.getElementById("stance_list_div").style.display = "block";
+                document.getElementById("magic_list_div").style.display = "none";
+            }
+
+            function showMagic() {
+                document.getElementById("skill_list_div").style.display = "none";
+                document.getElementById("stance_list_div").style.display = "none";
+                document.getElementById("magic_list_div").style.display = "block";
+            }
+
             var in_trade = false;
             var total_price;
             const trade_price_value = document.getElementById("trade_price_value");
@@ -999,6 +1072,7 @@
                 document.documentElement.style.setProperty('--trade_ammount_button_display', 'inline-block');
                 document.documentElement.style.setProperty('--item_use_button_display', 'none');
                 document.documentElement.style.setProperty('--item_other_width', getComputedStyle(document.body).getPropertyValue('--item_other_width_trade'));
+                document.documentElement.style.setProperty('--item_stackable_width', getComputedStyle(document.body).getPropertyValue('--item_other_width_trade'));
                 document.documentElement.style.setProperty('--inventory_div_display', 'block');
 
                 start_trade(trader_key);
@@ -1010,6 +1084,7 @@
                 document.documentElement.style.setProperty('--trade_ammount_button_display', 'none');
                 document.documentElement.style.setProperty('--item_use_button_display', 'inline-block');
                 document.documentElement.style.setProperty('--item_other_width', getComputedStyle(document.body).getPropertyValue('--item_other_width_default'));
+                document.documentElement.style.setProperty('--item_stackable_width', getComputedStyle(document.body).getPropertyValue('--item_stackable_width_default'));
                 
                 document.documentElement.style.setProperty('--inventory_div_display', 'none');
 
@@ -1103,6 +1178,10 @@
                 }
             }
 
+            function select_stance(stance_id) {
+                change_stance(stance_id);
+            }
+
             function prepareGame() { //called on body loaded
                 document.getElementById("changelog_button").children[0].innerHTML = get_game_version();
 
@@ -1145,7 +1224,7 @@
                 function move_item_tooltip(event) {
                     var hovered_element = event.target;
                     
-                    if( !( hovered_element.classList.contains("inventory_item_control") 
+                    if(!(hovered_element.classList.contains("inventory_item_control") 
                         || hovered_element.classList.contains("trade_ammount_button")
                         || hovered_element.classList.contains("inventory_item") 
                         || hovered_element.classList.contains("item_controls") 
@@ -1164,7 +1243,7 @@
                     //calculate vertical position so it doesnt go under bottom edge
                     
                     if(!hovered_element.classList.contains("inventory_item_control")){
-                        if(hovered_element.classList.contains("trade_ammount_button") 
+                        if(hovered_element.classList.contains("trade_ammount_buttons") 
                             || hovered_element.classList.contains("inventory_item") 
                             || hovered_element.classList.contains("item_controls") 
                             || hovered_element.classList.contains("item_use_button") 
@@ -1172,7 +1251,7 @@
                             )
                         {
                             hovered_element = hovered_element.parentNode;
-                        } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip")) {
+                        } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip") || hovered_element.classList.contains("trade_ammount_button")) {
                             hovered_element = hovered_element.parentNode.parentNode;
                         } else if(hovered_element.nodeName === "SPAN") {
                             hovered_element = hovered_element.parentNode.parentNode.parentNode;
@@ -1207,12 +1286,12 @@
 
                     var hovered_element = event.target;
                     if(!hovered_element.classList.contains("trader_item_control")){
-                        if(hovered_element.classList.contains("trade_ammount_button") 
+                        if(hovered_element.classList.contains("trade_ammount_buttons") 
                             || hovered_element.classList.contains("trader_item") 
                             || hovered_element.classList.contains("item_value")) 
                         {
                             hovered_element = hovered_element.parentNode;
-                        } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip")) {
+                        } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip") || hovered_element.classList.contains("trade_ammount_button")) {
                             hovered_element = hovered_element.parentNode.parentNode;
                         } else if(hovered_element.classList.contains("item_slot") || hovered_element.nodeName === "SPAN") {
                             hovered_element = hovered_element.parentNode.parentNode.parentNode;
@@ -1296,7 +1375,6 @@
                 skills_div.addEventListener('mousemove', move_skill_tooltip, false);
                 function move_skill_tooltip(event) {
                     var hovered_element = event.target;
-
                     if(!hovered_element.classList.contains("skill_div")) {
                         if(hovered_element.classList.contains("skill_bar_max")) {
                             hovered_element = hovered_element.parentNode;
@@ -1307,7 +1385,7 @@
                         } else {
                             return;
                         }
-                    } 
+                    }
 
                     const tooltip_width = hovered_element.children[0].children[2].scrollWidth;
                     const tooltip_height = hovered_element.children[0].children[2].scrollHeight;
@@ -1330,9 +1408,54 @@
                     }
 
                     if(event.pageY > bottom_edge_position - 22) {
-                        document.documentElement.style.setProperty('--skill_tooltip_top', `${bottom_edge_position - 372}px`);
+                        document.documentElement.style.setProperty('--skill_tooltip_top', `${bottom_edge_position - 382}px`);
                     } else {
-                        document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 350}px`);
+                        document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 360}px`);
+                    }
+                }
+
+                //stance tooltips
+                const stances_tab = document.getElementById("stance_list");
+                stances_tab.addEventListener('mousemove', move_stance_tooltip, false);
+                function move_stance_tooltip(event) {
+                    let hovered_element = event.target;
+
+                    if(hovered_element.classList.contains("stance_list_header")) {
+                        return;
+                    }else if(!hovered_element.classList.contains("stance_list_entry")) {
+                        if(hovered_element.classList.contains("stances_button") || hovered_element.classList.contains("stances_name")) {
+                            hovered_element = hovered_element.parentNode;
+                        } else if(hovered_element.nodeName === "LABEL" || hovered_element.nodeName === "INPUT") {
+                            hovered_element = hovered_element.parentNode.parentNode;
+                        } else {
+                            return;
+                        }
+                    } 
+
+                    const tooltip_width = hovered_element.children[3].scrollWidth;
+                    const tooltip_height = hovered_element.children[3].scrollHeight;
+                    
+                    const body = document.getElementsByTagName("body")[0];
+                    const scrollbar_Y_visible = (body.scrollHeight - body.clientHeight) > 0;
+                    const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
+
+                    const right_edge_position = 
+                        window.innerWidth - tooltip_width -  23 + window.scrollX - (scrollbar_Y_visible?10:0);
+                    const bottom_edge_position = 
+                        window.innerHeight - tooltip_height + window.scrollY - 33 - (scrollbar_X_visible?10:0);
+                    
+                    //size of window - size of tooltip + scrolling position - 23 (not sure where it comes from) - 10 (for scrollbar if its visible)
+
+                    if(event.pageX > right_edge_position) {
+                        document.documentElement.style.setProperty('--stance_tooltip_left', `${right_edge_position - 400}px`);
+                    } else {
+                        document.documentElement.style.setProperty('--stance_tooltip_left', `${event.pageX - 400}px`);
+                    }
+
+                    if(event.pageY > bottom_edge_position - 22) {
+                        document.documentElement.style.setProperty('--stance_tooltip_top', `${bottom_edge_position - 382}px`);
+                    } else {
+                        document.documentElement.style.setProperty('--stance_tooltip_top', `${event.pageY - 360}px`);
                     }
                 }
 
@@ -1456,6 +1579,9 @@
                 trader_inventory_div.addEventListener('click', (event)=>move_trade_item(event, "trader"), false);
                 function move_trade_item(event, target) {
                     let clicked_element = event.target;
+                    if(clicked_element.isEqualNode(trader_inventory_div) || clicked_element.isEqualNode(inventory_div)) {
+                        return;
+                    }
 
                     if(!in_trade || clicked_element.classList.contains("equip_item_button") || clicked_element.classList.contains("unequip_item_button")) {
                         return;
@@ -1463,20 +1589,18 @@
 
                     let number_to_move = 1;
 
+                    if(clicked_element.classList.contains("trade_ammount_button")){
+                        number_to_move = Number(clicked_element.getAttribute("data-trade_ammount"));
+                    }
+
                     //reassignes clicked element to the one with inventory_item_control class 
-                    if(!clicked_element.classList.contains("inventory_item_control")) {
-                        if(clicked_element.classList.contains("inventory_item") || clicked_element.classList.contains("item_value")) {
-                            clicked_element = clicked_element.parentNode; 
-                        } else if(clicked_element.classList.contains("inventory_item_name")) {
-                            clicked_element = clicked_element.parentNode.parentNode; 
-                        } else if(clicked_element.classList.contains("trade_ammount_button")) {
-                            number_to_move = Number(clicked_element.getAttribute("data-trade_ammount"));
-                            clicked_element = clicked_element.parentNode; 
-                        } else if(clicked_element.nodeName === "SPAN") {
-                            clicked_element = clicked_element.parentNode.parentNode.parentNode; 
-                        } else {
+                    while(!clicked_element.classList.contains("inventory_item_control")) {
+                        if(clicked_element.id === "global_content") {
+                            console.log("You clicked something that can't be traded");
                             return;
                         }
+                        
+                        clicked_element = clicked_element.parentNode;
                     }
 
                     if(clicked_element.classList.contains("equipped_item_control")) {
@@ -1516,18 +1640,10 @@
 
                 //set colors for active selection buttons
                 //for stuff where only 1 can be active
-                document.getElementById("inventory_control_div").addEventListener("click", set_active_button);
-                document.getElementById("character_control_div").addEventListener("click", set_active_button);
-                document.getElementById("trader_sort_by_name").addEventListener("click", set_active_button);
-                document.getElementById("trader_sort_by_price").addEventListener("click", set_active_button);
-                document.getElementById("inventory_sorting_div").addEventListener("click", set_active_button);
-                document.getElementById("trader_category_buttons").addEventListener("click", set_active_button);
-                document.getElementById("page_selection").addEventListener("click", set_active_button);
-                document.getElementById("journal_control_div").addEventListener("click", set_active_button);
-                document.getElementById("skill_sorting_buttons").addEventListener("click", set_active_button);
+                Array.from(document.getElementsByClassName("activable_buttons")).forEach(element => element.addEventListener("click", set_active_button));
                 function set_active_button(event) {
                     //based on assumption none of them has child elements
-                    //alternatively just give all control buttons some attribute that could be then checked for
+                    //alternatively just give all control buttons some attribute that could be then checked for?
                     var clicked_element = event.target;
                     if(clicked_element.children.length == 0) {
                         for(let i = 0; i < clicked_element.parentNode.children.length; i++) {
@@ -1550,6 +1666,16 @@
                         }
                     }
                 }
+
+                document.getElementById("stance_list").addEventListener("click", event => {
+                    if(event.target.classList.contains("stances_button_radio")) {
+                        event.target.children[0].click();
+                    } else if(event.target.classList.contains("stances_name")) {
+                        event.target.parentNode.children[1].children[0].click();
+                    } else if(event.target.classList.contains("stances_button_checkbox")) {
+                        event.target.children[0].click();
+                    }
+                });
             }
         </script> 
     </body>
