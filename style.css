@@ -109,12 +109,6 @@ body {
 	font-size: 12px;
 }
 
-.message_default {
-	/*
-	color: white;
-	*/
- }
-
  .message_items_obtained {
 	 color: gold;
 	 font-weight: bold;
@@ -478,7 +472,7 @@ body {
 .item_value {
 	text-align: right;
 	font-size: 13px;
-	width: 55px;
+	width: 54px;
 	border-left: 1px solid white;
 	margin-left: 4px;
 	padding-left: 4px;

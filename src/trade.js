@@ -249,7 +249,7 @@ function add_to_selling_list(selected_item) {
         }
 
         //value = item_templates[selected_item.item.split(' #')[0]].getValue() * selected_item.count;
-
+        
         to_sell.value += value;
         return value;
 

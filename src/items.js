@@ -78,14 +78,14 @@ function recoverItemPrices(count=1) {
 }
 
 
-function getLootPriceModifier(how_many_sold) {
+function getLootPriceModifier(value, how_many_sold) {
     let modifier = 1;
     if(how_many_sold >= 999) {
         modifier = 0.1;
     } else if(how_many_sold) {
         modifier = modifier * 111/(111+how_many_sold);
     }
-    return modifier;
+    return Math.round(value*modifier)/value;
 }
 
 /**
@@ -102,7 +102,7 @@ function getLootPriceModifierMultiple(value, start_count, how_many_to_sell) {
         rounding is necessary to make it be a proper fraction of the value
         otherwise, there might be cases where trading too much of an item results in small deviation from what it should be
         */
-        sum += Math.round(value*getLootPriceModifier(i))/value;
+        sum += getLootPriceModifier(value, i);
     }
     return sum;
 }
@@ -127,7 +127,8 @@ class Item {
             return round_item_price(this.value);
         }
         else {
-            return Math.max(1, round_item_price(Math.ceil(this.value * getLootPriceModifier((Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)))));
+            
+            return Math.max(1, round_item_price(Math.ceil(this.value * getLootPriceModifier(this.value,(Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)))));
         }
     }
 
