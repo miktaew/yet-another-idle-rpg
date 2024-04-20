@@ -626,7 +626,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                                     },
                                                     8: {
                                                         xp_multipliers: {
-                                                            all_skill: 1.2,
+                                                            all_skill: 1.1,
                                                         }
                                                     }
                                                 }
@@ -743,7 +743,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                         4: {    
                             xp_multipliers: 
                             {
-                                all_skill: 1.1,
+                                all_skill: 1.05,
                             },
                             multipliers: {
                                 intuition: 1.1,
@@ -751,7 +751,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                         },
                         5: {
                             xp_multipliers: {
-                                all: 1.1,
+                                all: 1.05,
                             }
                         }
                     }
@@ -822,7 +822,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         5: {
                                             stats: {
                                                 "strength": 1,
-                                                "crit_rate": 0.02,
+                                                "crit_rate": 0.01,
                                             },
                                         },
                                         7: {
@@ -913,7 +913,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         5: {
                                             stats: {
                                                 "strength": 1,
-                                                "crit_rate": 0.02,
+                                                "crit_rate": 0.01,
                                             },
                                         },
                                         7: {
@@ -1003,7 +1003,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         5: {
                                             stats: {
                                                 "crit_multiplier": 0.1,
-                                                "crit_rate": 0.02,
+                                                "crit_rate": 0.01,
                                             },
                                         },
                                         7: {
@@ -1013,7 +1013,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         },
                                         10: {
                                             stats: {
-                                                "crit_rate": 0.03,
+                                                "crit_rate": 0.02,
                                                 "crit_multiplier": 0.1, 
                                             },
                                         },
@@ -1124,7 +1124,6 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         }
                                     }
                                 }});
-
 })();
 
 //non-work activity related
@@ -1175,7 +1174,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                                     "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
-                                                    all: 1.1,
+                                                    all: 1.05,
                                                     "Meditation": 1.1,
                                                 }
                                             },
@@ -1187,7 +1186,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                                     "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
-                                                    all: 1.1,
+                                                    all: 1.05,
                                                 }
                                             },
                                             10: {
@@ -1237,7 +1236,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         5: {
                                             xp_multipliers: {
                                                 "Sleeping": 1.1,
-                                                "Presence sensing": 1.1,
+                                                "Presence sensing": 1.05,
                                             }
                                         },
                                         6: {
@@ -1252,7 +1251,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                             xp_multipliers: {
                                                 all: 1.05,
                                                 "Sleeping": 1.1,
-                                                "Presence sensing": 1.1,
+                                                "Presence sensing": 1.05,
                                             }
                                         },
                                         10: {
@@ -1264,7 +1263,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                             },
                                             xp_multipliers: {
                                                 all: 1.1,
-                                                "Sleeping": 1.2,
+                                                "Sleeping": 1.1,
                                                 "Presence sensing": 1.1,
                                             }
                                         }
@@ -1452,6 +1451,12 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                 intuition: 1.05,
                 max_stamina: 1.05,
               }
+          },
+          12: {
+            stats: {
+                agility: 1,
+                strength: 1,
+            }
           }
       }
     },
@@ -1534,6 +1539,11 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                     multipliers: {
                         max_health: 1.02,
                     }
+                },
+                12: {
+                    multipliers: {
+                        max_health: 1.02,
+                    }
                 }
             }
         }
@@ -1566,25 +1576,33 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                         max_stamina: 10,
                     },
                     xp_multipliers: {
-                        hero: 1.1,
+                        hero: 1.05,
                     }
                 },
                 6: {
                     stats: {
-                        max_stamina: 20,
+                        max_stamina: 10,
                     },
                     xp_multipliers: {
-                        all: 1.1,
+                        all: 1.05,
                     }
                 },
                 8: {
                     stats: {
+                        max_stamina: 15,
+                    },
+                    xp_multipliers: {
+                        all: 1.05,
+                    }
+                },
+                10: {
+                    stats: {
                         max_stamina: 20,
                     },
                     xp_multipliers: {
-                        all: 1.1,
+                        all: 1.05,
                     }
-                },
+                }
 
             }
         },

@@ -1081,7 +1081,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     }
 
     if(use_bonus) {
-        xp_to_add = xp_to_add * get_skill_xp_gain(skill.id);
+        xp_to_add = xp_to_add * get_skill_xp_gain(skill.skill_id);
 
         if(skill.parent_skill) {
             xp_to_add *= skill.get_parent_xp_multiplier();
