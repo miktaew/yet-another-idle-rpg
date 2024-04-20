@@ -788,9 +788,21 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
         update_character_attack_bar(count);
         count++;
         if(count >= 40) {
+            let leveled = false;
+
             for(let i = 0; i < targets.length; i++) {
                 count = 0;
+
+                if(stances[current_stance].related_skill) {
+                    leveled = add_xp_to_skill({skill: skills[stances[current_stance].related_skill], xp_to_add: targets[i].xp_value/targets.length});
+                }
+
                 do_character_combat_action({target: targets[i], attack_power});
+            }
+
+            if(leveled) {
+                update_stance_tooltip(current_stance);
+                update_character_stats();
             }
 
             if(current_enemies.filter(enemy => enemy.is_alive).length != 0) { //set next loop if there's still an enemy left;
@@ -955,13 +967,6 @@ function do_character_combat_action({target, attack_power}) {
     let hit_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/4); // down to ~ 60% if there's full 8 enemies
     
     add_xp_to_skill({skill: skills["Combat"], xp_to_add: target.xp_value});
-    if(stances[current_stance].related_skill) {
-        let leveled = add_xp_to_skill({skill: skills[stances[current_stance].related_skill], xp_to_add: target.xp_value});
-        if(leveled) {
-            update_stance_tooltip(current_stance);
-            update_character_stats();
-        }
-    }
 
     if(target.size === "small") {
         add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: target.xp_value});
