@@ -548,6 +548,8 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
     skills["Stance mastery"] = new Skill({skill_id: "Stance mastery", 
                                     names: {0: "Stance proficiency", 10: "Stance mastery"}, 
                                     description: "Knowledge on how to apply different stances in combat",
+                                    base_xp_cost: 60,
+                                    max_level: 30,
                                     get_effect_description: ()=> {
                                         return `Increases xp gains of all combat stance skills of level lower than this, x1.1 per level of difference`;
                                     },
@@ -597,7 +599,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                 parent_skill: "Stance mastery",
                                 description: "A wild and dangerous technique that focuses on dealing as much damage as possible, while completely ignoring own defense", 
                                 max_level_coefficient: 2,
-                                base_xp_cost: 200,
+                                base_xp_cost: 60,
                                 max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the 'Berserker's Stride' stance`;
