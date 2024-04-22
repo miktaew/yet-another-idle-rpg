@@ -528,7 +528,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
                 item_control_div.setAttribute("data-item_value", `${trader.inventory[key][i].getValue()}`);
                 item_control_div.appendChild(item_div);
 
-                var item_value_span = document.createElement("span");
+                let item_value_span = document.createElement("span");
                 item_value_span.innerHTML = `${format_money(round_item_price(trader.inventory[key][i].getValue() * trader.getProfitMargin()), true)}`;
                 item_value_span.classList.add("item_value", "item_controls");
                 item_control_div.appendChild(item_value_span);

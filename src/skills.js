@@ -378,7 +378,7 @@ function format_skill_rewards(milestone){
                                 }});
     
     skills["Pest killer"] = new Skill({skill_id: "Pest killer", 
-                                names: {0: "Pest killer"}, 
+                                names: {0: "Pest killer", 15: "Pest slayer"}, 
                                 description: "Small enemies might not seem very dangerous, but it's not that easy to hit them!", 
                                 max_level_coefficient: 2,
                                 base_xp_cost: 100,
@@ -415,7 +415,7 @@ function format_skill_rewards(milestone){
                             });    
                                 
     skills["Giant slayer"] = new Skill({skill_id: "Giant slayer", 
-                                names: {0: "Giant slayer"}, 
+                                names: {0: "Giant killer", 15: "Giant slayer"}, 
                                 description: "Large opponents might seem scary, but just don't get hit and you should be fine!", 
                                 max_level_coefficient: 2,
                                 get_effect_description: ()=> {
@@ -482,7 +482,7 @@ function format_skill_rewards(milestone){
                                     }});
     
      skills["Unarmed"] = new Skill({skill_id: "Unarmed", 
-                                    names: {0: "Unarmed"}, 
+                                    names: {0: "Unarmed", 10: "Brawling", 20: "Martial arts"}, 
                                     description: "It's definitely, unquestionably, undoubtedly better to just use a weapon instead of doing this. But sure, why not?",
                                     get_effect_description: ()=> {
                                         return `Multiplies damage dealt in unarmed combat by ${Math.round(skills["Unarmed"].get_coefficient("multiplicative")*1000)/1000}. 
@@ -545,35 +545,48 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
 
 //combat stances
 (function(){
+    skills["Stance mastery"] = new Skill({skill_id: "Stance mastery", 
+                                    names: {0: "Stance proficiency", 10: "Stance mastery"}, 
+                                    description: "Knowledge on how to apply different stances in combat",
+                                    base_xp_cost: 60,
+                                    max_level: 30,
+                                    get_effect_description: ()=> {
+                                        return `Increases xp gains of all combat stance skills of level lower than this, x1.1 per level of difference`;
+                                    },
+                                });
     skills["Quick steps"] = new Skill({skill_id: "Quick steps", 
                                 names: {0: "Quick steps"}, 
+                                parent_skill: "Stance mastery",
                                 description: "A swift and precise technique that abandons strength in favor of greater speed", 
                                 max_level_coefficient: 2,
-                                base_xp_cost: 40,
+                                base_xp_cost: 60,
                                 max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the 'Quick Steps' stance`;
                                 }});
     skills["Heavy strike"] = new Skill({skill_id: "Heavy strike", 
                                 names: {0: "Crushing force"}, 
+                                parent_skill: "Stance mastery",
                                 description: "A powerful and dangerous technique that abandons speed in favor of overwhelmingly strong attacks", 
                                 max_level_coefficient: 2,
-                                base_xp_cost: 40,
+                                base_xp_cost: 60,
                                 max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the "Crushing force" stance`;
                                 }});
     skills["Wide swing"] = new Skill({skill_id: "Wide swing", 
                                 names: {0: "Broad arc"}, 
+                                parent_skill: "Stance mastery",
                                 description: "A special technique that allows striking multiple enemies at once, although at a cost of lower damage", 
                                 max_level_coefficient: 2,
-                                base_xp_cost: 200,
+                                base_xp_cost: 60,
                                 max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the "Broad arc" stance`;
                                 }});
     skills["Defensive measures"] = new Skill({skill_id: "Defensive measures", 
                                 names: {0: "Defensive measures"}, 
+                                parent_skill: "Stance mastery",
                                 description: "A careful technique focused much more on defense than on attacking", 
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
@@ -583,15 +596,17 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                 }});
     skills["Berserker's stride"] = new Skill({skill_id: "Berserker's stride", 
                                 names: {0: "Berserker's stride"}, 
+                                parent_skill: "Stance mastery",
                                 description: "A wild and dangerous technique that focuses on dealing as much damage as possible, while completely ignoring own defense", 
                                 max_level_coefficient: 2,
-                                base_xp_cost: 200,
+                                base_xp_cost: 60,
                                 max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the 'Berserker's Stride' stance`;
                                 }});                  
     skills["Flowing water"] = new Skill({skill_id: "Flowing water", 
                                 names: {0: "Flowing water"}, 
+                                parent_skill: "Stance mastery",
                                 description: "A wild and dangerous technique that focuses on dealing as much damage as possible, while completely ignoring own defense", 
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
@@ -626,7 +641,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                                     },
                                                     8: {
                                                         xp_multipliers: {
-                                                            all_skill: 1.2,
+                                                            all_skill: 1.1,
                                                         }
                                                     }
                                                 }
@@ -743,7 +758,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                         4: {    
                             xp_multipliers: 
                             {
-                                all_skill: 1.1,
+                                all_skill: 1.05,
                             },
                             multipliers: {
                                 intuition: 1.1,
@@ -751,7 +766,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                         },
                         5: {
                             xp_multipliers: {
-                                all: 1.1,
+                                all: 1.05,
                             }
                         }
                     }
@@ -794,8 +809,8 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
 //weapon skills
 (function(){
     skills["Weapon mastery"] = new Skill({skill_id: "Weapon mastery", 
-                                    names: {0: "Weapon mastery"}, 
-                                    description: "Mastery of all weapons", 
+                                    names: {0: "Weapon proficiency", 15: "Weapon mastery"}, 
+                                    description: "Knowledge of all weapons", 
                                     get_effect_description: ()=> {
                                         return `Increases xp gains of all weapon skills of level lower than this, x1.1 per level of difference`;
                                     },
@@ -822,7 +837,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         5: {
                                             stats: {
                                                 "strength": 1,
-                                                "crit_rate": 0.02,
+                                                "crit_rate": 0.01,
                                             },
                                         },
                                         7: {
@@ -913,7 +928,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         5: {
                                             stats: {
                                                 "strength": 1,
-                                                "crit_rate": 0.02,
+                                                "crit_rate": 0.01,
                                             },
                                         },
                                         7: {
@@ -1003,7 +1018,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         5: {
                                             stats: {
                                                 "crit_multiplier": 0.1,
-                                                "crit_rate": 0.02,
+                                                "crit_rate": 0.01,
                                             },
                                         },
                                         7: {
@@ -1013,7 +1028,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         },
                                         10: {
                                             stats: {
-                                                "crit_rate": 0.03,
+                                                "crit_rate": 0.02,
                                                 "crit_multiplier": 0.1, 
                                             },
                                         },
@@ -1124,7 +1139,6 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         }
                                     }
                                 }});
-
 })();
 
 //non-work activity related
@@ -1175,7 +1189,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                                     "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
-                                                    all: 1.1,
+                                                    all: 1.05,
                                                     "Meditation": 1.1,
                                                 }
                                             },
@@ -1187,7 +1201,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                                     "max_health": 1.05,
                                                 },
                                                 xp_multipliers: {
-                                                    all: 1.1,
+                                                    all: 1.05,
                                                 }
                                             },
                                             10: {
@@ -1237,7 +1251,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         5: {
                                             xp_multipliers: {
                                                 "Sleeping": 1.1,
-                                                "Presence sensing": 1.1,
+                                                "Presence sensing": 1.05,
                                             }
                                         },
                                         6: {
@@ -1252,7 +1266,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                             xp_multipliers: {
                                                 all: 1.05,
                                                 "Sleeping": 1.1,
-                                                "Presence sensing": 1.1,
+                                                "Presence sensing": 1.05,
                                             }
                                         },
                                         10: {
@@ -1264,7 +1278,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                             },
                                             xp_multipliers: {
                                                 all: 1.1,
-                                                "Sleeping": 1.2,
+                                                "Sleeping": 1.1,
                                                 "Presence sensing": 1.1,
                                             }
                                         }
@@ -1452,6 +1466,12 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                 intuition: 1.05,
                 max_stamina: 1.05,
               }
+          },
+          12: {
+            stats: {
+                agility: 1,
+                strength: 1,
+            }
           }
       }
     },
@@ -1534,6 +1554,11 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                     multipliers: {
                         max_health: 1.02,
                     }
+                },
+                12: {
+                    multipliers: {
+                        max_health: 1.02,
+                    }
                 }
             }
         }
@@ -1549,7 +1574,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
         base_xp_cost: 60,
         max_level: 30,
         get_effect_description: ()=> {
-            return `Reduces low stamina penalty by ${Math.round(skills["Persistence"].get_level_bonus()*100000)/1000} percentage points`;
+            return `Increases low stamina stat multiplier to x${(50+Math.round(skills["Persistence"].get_level_bonus()*100000)/1000)/100} (originally x0.5)`;
         },
         rewards: {
             milestones: {
@@ -1566,25 +1591,33 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                         max_stamina: 10,
                     },
                     xp_multipliers: {
-                        hero: 1.1,
+                        hero: 1.05,
                     }
                 },
                 6: {
                     stats: {
-                        max_stamina: 20,
+                        max_stamina: 10,
                     },
                     xp_multipliers: {
-                        all: 1.1,
+                        all: 1.05,
                     }
                 },
                 8: {
                     stats: {
+                        max_stamina: 15,
+                    },
+                    xp_multipliers: {
+                        all: 1.05,
+                    }
+                },
+                10: {
+                    stats: {
                         max_stamina: 20,
                     },
                     xp_multipliers: {
-                        all: 1.1,
+                        all: 1.05,
                     }
-                },
+                }
 
             }
         },
