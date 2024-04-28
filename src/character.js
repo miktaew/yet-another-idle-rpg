@@ -38,7 +38,7 @@ character.base_stats = {
         magic: 0, 
         attack_speed: 1, 
         crit_rate: 0.05, 
-        crit_multiplier: 1.4, 
+        crit_multiplier: 1.2, 
         attack_power: 0, 
         defense: 0,
         block_strength: 0,
@@ -284,7 +284,7 @@ character.stats.add_all_equipment_bonus = function() {
 
         //add unarmed speed bonus (technically a bonus from equipment, or rather lack of it)
         if(character.equipment.weapon == null) {
-                character.stats.multiplier.equipment.attack_speed = (character.stats.multiplier.equipment.attack_speed || 1) * (skills["Unarmed"].get_coefficient("multiplicative")**0.5);
+                character.stats.multiplier.equipment.attack_speed = (character.stats.multiplier.equipment.attack_speed || 1) * (skills["Unarmed"].get_coefficient("multiplicative")**0.3333);
         } 
 }
 

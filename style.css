@@ -8,7 +8,8 @@
 	--consumables_display: inline-block;
 	--other_display: inline-block;
 
-	--inventory_div_display: none;
+	--inventory_div_display: block;
+	--character_combat_div_display: none;
 
 	--trader_equipment_display: inline-block;
 	--trader_consumable_display: inline-block;
@@ -57,9 +58,8 @@
 	--bestiary_entry_tooltip_top: 0px;
 	--bestiary_entry_tooltip_left: 0px;
 
-	/* for #location_related_div */
-	--actions_div_height_default: 400px;
-	--actions_div_height_combat: 100px;
+	--actions_div_height_default: 420px;
+	--actions_div_height_combat: 120px;
 	--actions_div_height: var(--actions_div_height_default);
 	--actions_div_top_default: 340px;
 	--actions_div_top_combat: 640px;
@@ -180,6 +180,8 @@ body {
 	text-align: center;
 	display: inline-block;
 	font-size: 20px;
+	top: -40px;
+	position: relative;
  }
 
  #hard_reset_button:hover {
@@ -200,7 +202,7 @@ body {
 	display: var(--options_display);
 	position: fixed;
 	background-image: var(--options_gradient);
-	width: 500px;
+	width: 600px;
 	height: 200px;
 	border: 4px solid blueviolet;
 	z-index: 2;
@@ -218,7 +220,7 @@ body {
  #close_options {
 	font-size: 40px;
 	position: relative;
-	left: 448px;
+	left: 548px;
 	top: 2px;
 	width: 50px;
 	height: 50px;
@@ -517,7 +519,7 @@ body {
 	background-color: rgba(0, 128, 0, 0.4);
 }
 
-.item_stackable.item_other, .item_stackable.item_loot{
+.item_stackable.item_other, .item_stackable.item_loot, .item_stackable.item_material{
 	width: var(--item_other_width);
 }
 
@@ -529,7 +531,7 @@ body {
 	display: var(--consumables_display);
 }
 
-.character_item_other, .character_item_loot {
+.character_item_other, .character_item_loot, .character_item_material {
 	display: var(--other_display);
 }
 
@@ -751,7 +753,7 @@ i {
 	width: 320px;
 }
 
-.trader_item_other, .trader_item_loot {
+.trader_item_other, .trader_item_loot, .trader_item_material {
 	display: var(--trader_other_display);
 }
 .trader_item_equippable {
@@ -761,17 +763,28 @@ i {
 	display: var(--trader_consumable_display);
 }
 
-.page_selection_button {
-	width: 50%;
+#inventory_combat_switch_selection {
+	width: 400px;
+	text-align: center;
+	position: absolute;
+	top: 340px;
+	background-color: #202044;
+	float: left;
+}
+
+#switch_to_inventory {
+	float:left;
+	border-right: 2px solid gray;
+}
+#switch_to_combat {
+	border-left: 2px solid gray;
+}
+#switch_to_inventory, #switch_to_combat {
+	width: 198px;
+	cursor: pointer;
+	display: inline-block;
 	font-size: 20px;
 	font-weight: bold;
-	text-align: center;
-	position: relative;
-	padding-top: 6px;
-	padding-bottom: 6px;
-	background-color: #202044;
-	cursor: pointer;
-	float: left;
 }
 
 .coin{
@@ -792,23 +805,6 @@ i {
 
 .coin_gold{
 	color:gold;
-}
-
-#page_selection {
-	position: absolute;
-	top: 5px;
-	width: 1241px;
-}
-
-#area_page {
-	position: absolute;
-	top: 20px;
-}
-
-#character_page {
-	position: absolute;
-	top: 20px;
-	visibility: hidden;
 }
 
 .skill_sorting_button {
@@ -1063,23 +1059,11 @@ i {
 	width: 200px;
 	background-color: #232f47;
 }
-		#character_effects_character_page {
+		#character_effects{
 			position: absolute;
 			top: 168px;
 			left: 100px;
 		}
-		#character_effects_area_page {
-			position: absolute;
-			top: 115px;
-			left: 0px;
-			width: 396px;
-			border-top: 0px;
-			padding: 2px;
-		}
-				#character_effects_area_page div {
-					margin: auto;
-				}
-
 
 #effects_div div{
 	display: inline-block;
@@ -1115,10 +1099,10 @@ i {
 
 #combat_div {
 	width: 400px;
-	height: 585px;
+	height: 560px;
 	position: relative;
 	left: 410px;
-	top: 45px;
+	top: 68px;
 }
 		.enemy_div {
 			color: white;
@@ -1183,7 +1167,8 @@ i {
 
 	#character_combat_management{
 		width: 400px;
-		top: 177px;
+		top: 366px;
+		display: var(--character_combat_div_display);
 	}
 		#character_stance_name {
 			padding: 3px;
@@ -1239,7 +1224,7 @@ i {
 }
 
 #inventory_content_div {
-	height: 326px;
+	height: 346px;
 	overflow-y: scroll;
 	overflow-x: visible;
 }
@@ -1247,21 +1232,21 @@ i {
 #inventory_control_div {
 	font-size: 20px;
 	position: absolute;
-	top: 369px;
+	top: 389px;
 }
 
 #inventory_div {
 	width: 400px;
-	height: 400px;
-	top: 360px;
+	height: 420px;
+	top: 340px;
 	display: var(--inventory_div_display);
 }
 
 #journal_div {
-	top: 53px;
 	width: 400px;
-	left: 410px;
-	height: 277px;
+	left: 820px;
+	height: 330px;
+	top: 0px
 }
 
 	#quests_header {
@@ -1273,8 +1258,6 @@ i {
 
 	#journal_control_div {
 		font-size: 20px;
-		position: absolute;
-		top: 254px;
 	}
 		.journal_control_button{
 			float: left;
@@ -1346,18 +1329,18 @@ i {
 }
 
 #skills_and_stances_div {
-	left: 410px;
+	left: 820px;
 	top: 340px;
 	width: 400px;
-	height: 400px;
+	height: 420px;
 }
 
 #skill_list_div, #stance_list_div, #magic_list_div {
-	height: 369px;
+	height: 389px;
 }
 		#skill_list {
 			overflow-y: scroll;
-			height: 346px;
+			height: 366px;
 			padding-bottom:3px;
 		}
 
@@ -1428,22 +1411,16 @@ i {
 
 #location_div {
 	width: 400px;
-	height: 287px;
+	height: 263px;
 	left: 410px;
-	top: 46px;
+	top: 70px;
 	border-top: 0px;
 }
-
 		#location_description_div {
-			border-bottom: 4px solid gray;
 			height: 113px;
 			font-style: italic;
 			color: rgb(224, 224, 224);
 			padding: 5px;
-		}
-
-		#location_picture_div {
-			height: 160px;
 		}
 
 #time_and_location {
@@ -1454,6 +1431,7 @@ i {
 		#location_name_div {
 			padding: 4px;
 			width: var(--location_name_div_width);
+			height:fit-content;
 			float: left;
 			z-index: 2;
 		}
@@ -1534,7 +1512,8 @@ i {
 #main_content {
     position: absolute;
 	background-image: var(--background_gradient);
-	top: 40px;
+	top: 5px;
+	left: 5px;
 
 	/*
 	kinda necessary to set size, just for background gradient to render properly,
@@ -1545,9 +1524,10 @@ i {
 }
 
 #message_log_div {
+	top: 0px;
 	width: 400px;
 	height: 760px;
-	left: 820px;
+	left: 1230px;
 	padding-right: 15px;
 	margin-bottom: 20px;
 }
@@ -1618,7 +1598,7 @@ i {
 }
 
 #trader_inventory_div {
-    height: 291px;
+    height: 311px;
 	width: 100%;
 	overflow-y: scroll;
 }

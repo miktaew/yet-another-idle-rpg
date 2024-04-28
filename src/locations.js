@@ -23,6 +23,8 @@ class Location {
                 getDescription,
                 background_noises = [],
                 getBackgroundNoises,
+                smelting = null,
+                crafting = null,
             }) {
         // always a safe zone
 
@@ -45,6 +47,9 @@ class Location {
             }
         }
         this.light_level = light_level; //not really used for this type
+        this.smelting = smelting;
+        this.crafting = crafting;
+        /* {is_unlocked: true} */
     }
 }
 
@@ -183,25 +188,26 @@ class Combat_zone {
                                         },
                                         loot_list: enemy.loot_list,
                                         add_to_bestiary: enemy.add_to_bestiary,
+                                        size: enemy.size,
                                     });
 
             } else {
-                newEnemy = new Enemy({
-                        name: enemy.name, 
-                        description: enemy.description, 
-                        xp_value: enemy.xp_value,
-                        stats: {
-                            health: enemy.stats.health,
-                            attack: enemy.stats.attack,
-                            agility: enemy.stats.agility,
-                            dexterity: enemy.stats.dexterity,
-                            magic: enemy.stats.magic,
-                            intuition: enemy.stats.intuition,
-                            attack_speed: enemy.stats.attack_speed,
-                            defense: enemy.stats.defense
-                        },
-                        loot_list: enemy.loot_list,
-                        add_to_bestiary: enemy.add_to_bestiary,
+                newEnemy = new Enemy({name: enemy.name, 
+                    description: enemy.description, 
+                    xp_value: enemy.xp_value,
+                    stats: {
+                        health: enemy.stats.health,
+                        attack: enemy.stats.attack,
+                        agility: enemy.stats.agility,
+                        dexterity: enemy.stats.dexterity,
+                        magic: enemy.stats.magic,
+                        intuition: enemy.stats.intuition,
+                        attack_speed: enemy.stats.attack_speed,
+                        defense: enemy.stats.defense
+                    },
+                    loot_list: enemy.loot_list,
+                    add_to_bestiary: enemy.add_to_bestiary,
+                    size: enemy.size
                 });
             }
             newEnemy.is_alive = true;
@@ -549,6 +555,8 @@ class LocationType{
         dialogues: ["village elder", "village guard"],
         traders: ["village trader"],
         name: "Village", 
+        smelting: {is_unlocked: false},
+        has_crafting: {is_unlocked: false},
     });
 
     locations["Shack"] = new Location({

@@ -170,12 +170,16 @@ class Skill {
                     }
                     if (gains.xp_multipliers) {
                         Object.keys(gains.xp_multipliers).forEach(xp_multiplier => {
+                            let name;
                             if(xp_multiplier !== "all" && xp_multiplier !== "hero" && xp_multiplier !== "all_skill") {
+                                name = skills[xp_multiplier].name();
                                 if(!skills[xp_multiplier]) {
                                     console.warn(`Skill ${this.skill_id} tried to reward an xp multiplier for something that doesn't exist: ${xp_multiplier}. I could be a misspelled skill name`);
                                 }
+                            } else {
+                                name = xp_multiplier.replace("_"," ");
                             }
-                            message += `<br> x${gains.xp_multipliers[xp_multiplier]} ${xp_multiplier.replace("_"," ")} xp gain`;
+                            message += `<br> x${gains.xp_multipliers[xp_multiplier]} ${name} xp gain`;
                         });
                     }
                 }
@@ -342,13 +346,25 @@ function format_skill_rewards(milestone){
     }
     if(milestone.xp_multipliers) {
         const xp_multipliers = Object.keys(milestone.xp_multipliers);
-        if(formatted) {
-            formatted += `, x${milestone.xp_multipliers[xp_multipliers[0]]} ${xp_multipliers[0].replace("_"," ")} xp gain`;
+        let name;
+        if(xp_multipliers[0] !== "all" && xp_multipliers[0] !== "hero" && xp_multipliers[0] !== "all_skill") {
+            name = skills[xp_multipliers[0]].name();
         } else {
-            formatted = `x${milestone.xp_multipliers[xp_multipliers[0]]} ${xp_multipliers[0].replace("_"," ")} xp gain`;
+            name = xp_multipliers[0].replace("_"," ");
+        }
+        if(formatted) {
+            formatted += `, x${milestone.xp_multipliers[xp_multipliers[0]]} ${name} xp gain`;
+        } else {
+            formatted = `x${milestone.xp_multipliers[xp_multipliers[0]]} ${name} xp gain`;
         }
         for(let i = 1; i < xp_multipliers.length; i++) {
-            formatted += `, x${milestone.xp_multipliers[xp_multipliers[i]]} ${xp_multipliers[i].replace("_"," ")} xp gain`;
+            let name;
+            if(xp_multipliers[i] !== "all" && xp_multipliers[i] !== "hero" && xp_multipliers[i] !== "all_skill") {
+                name = skills[xp_multipliers[i]].name();
+            } else {
+                name = xp_multipliers[i].replace("_"," ");
+            }
+            formatted += `, x${milestone.xp_multipliers[xp_multipliers[i]]} ${name} xp gain`;
         }
     }
     if(milestone.unlocks) {
@@ -486,7 +502,7 @@ function format_skill_rewards(milestone){
                                     description: "It's definitely, unquestionably, undoubtedly better to just use a weapon instead of doing this. But sure, why not?",
                                     get_effect_description: ()=> {
                                         return `Multiplies damage dealt in unarmed combat by ${Math.round(skills["Unarmed"].get_coefficient("multiplicative")*1000)/1000}. 
-Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get_coefficient("multiplicative")**0.5)*1000)/1000}`;
+Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
                                     },
                                     max_level_coefficient: 64, //even with 8x more it's still gonna be worse than just using a weapon lol
                                     rewards: {

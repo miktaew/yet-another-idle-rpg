@@ -77,7 +77,6 @@ function recoverItemPrices(count=1) {
     })
 }
 
-
 function getLootPriceModifier(value, how_many_sold) {
     let modifier = 1;
     if(how_many_sold >= 999) {
@@ -162,6 +161,16 @@ class OtherItem extends Item {
         this.stackable = true;
         this.saturates_market = item_data.saturates_market;
         this.price_recovers = item_data.price_recovers;
+    }
+}
+
+class Material extends OtherItem {
+    constructor(item_data) {
+        super(item_data);
+        this.item_type = "MATERIAL";
+        this.saturates_market = true;
+        this.price_recovers = true;
+        this.material_type = item_data.material_type;
     }
 }
 
@@ -583,6 +592,8 @@ function getItem(item_data) {
                 return new ShieldComponent(item_data);
             else
                 return new OtherItem(item_data);
+        case "MATERIAL":
+            return new Material(item_data);
         default:
             throw new Error(`Wrong item type: ${item_data.item_type}`);
     }
@@ -604,7 +615,7 @@ book_stats["Old combat manual"] = new BookData({
     literacy_xp_rate: 1,
     rewards: {
         xp_multipliers: {
-            combat: 1.2,
+            Combat: 1.2,
         }
     },
 });
@@ -639,28 +650,12 @@ item_templates["Twist liek a snek"] = new Book({
 });
 
 
-//miscellaneous:
+//miscellaneous and loot:
 (function(){
-    item_templates["Rat tail"] = new OtherItem({
-        name: "Rat tail", 
-        description: "Tail of a huge rat, doesn't seem very useful, but maybe someone would buy it", 
-        value: 8,
-        saturates_market: true,
-        price_recovers: true,
-    });
-
     item_templates["Rat fang"] = new OtherItem({
         name: "Rat fang", 
         description: "Fang of a huge rat, not very sharp, but can still pierce a human skin if enough force is applied", 
         value: 8,
-        saturates_market: true,
-        price_recovers: true,
-    });
-
-    item_templates["Rat pelt"] = new OtherItem({
-        name: "Rat pelt", 
-        description: "Pelt of a huge rat. Fur has terrible quality, but maybe leather could be used for something if you gather more?", 
-        value: 15,
         saturates_market: true,
         price_recovers: true,
     });
@@ -672,21 +667,118 @@ item_templates["Twist liek a snek"] = new Book({
         saturates_market: true,
         price_recovers: true,
     });
+})();
 
-    item_templates["High quality wolf fang"] = new OtherItem({
+//lootable materials
+(function(){
+    item_templates["Rat tail"] = new Material({
+        name: "Rat tail", 
+        description: "Tail of a huge rat. Doesn't seem very useful, but maybe some meat could be recovered from it", 
+        value: 4,
+        price_recovers: true,
+        material_type: "meat-able",
+    });
+    item_templates["Rat pelt"] = new Material({
+        name: "Rat pelt", 
+        description: "Pelt of a huge rat. Fur has terrible quality, but maybe leather could be used for something if you gather more?", 
+        value: 10,
+        price_recovers: true,
+        material_type: "pelt",
+    });
+    item_templates["High quality wolf fang"] = new Material({
         name: "High quality wolf fang", 
         description: "Fang of a wild wolf. Very sharp and doesn't seem to have any signs of damage. You feel like it might be of some use, one day.", 
         value: 15,
-        saturates_market: true,
         price_recovers: true,
+        material_type: "miscellaneous",
     });
-
-    item_templates["Wolf pelt"] = new OtherItem({
+    item_templates["Wolf pelt"] = new Material({
         name: "Wolf pelt", 
         description: "Pelt of a wild wolf. It's a bit damaged so it won't fetch a great price, but the leather itself could be useful.", 
         value: 20,
+        price_recovers: true,
+        material_type: "pelt",
+    });
+
+})();
+
+//gatherable materials
+(function(){
+    item_templates["Low quality iron ore"] = new Material({
+        name: "Low quality iron ore", 
+        description: "Iron content is rather low and there are a lot of problematic components that can't be fully removed, which will affect created materials.", 
+        value: 3,
         saturates_market: true,
         price_recovers: true,
+        material_type: "raw metal",
+    });
+    item_templates["Iron ore"] = new Material({
+        name: "Iron ore", 
+        description: "It has a decent iron content and can be smelt into market-quality iron.", 
+        value: 5,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "raw metal",
+    });
+    item_templates["Piece of rough wood"] = new Material({
+        name: "Piece of rough wood", 
+        description: "Not very strong, but easy to work with.", 
+        value: 1,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "piece of wood",
+    });
+    item_templates["Piece of ash wood"] = new Material({
+        name: "Piece of ash wood", 
+        description: "Strong yet elastic, it's a great crafting material.", 
+        value: 4,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "piece of wood",
+    });
+})();
+
+//processed materials
+(function(){
+    item_templates["Low quality iron bar"] = new Material({
+        name: "Low quality iron bar", 
+        description: "It has a lot of impurities, resulting in it being noticeably weaker than standard product.", 
+        value: 10,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "metal",
+    });
+    item_templates["Iron bar"] = new Material({
+        name: "Iron bar", 
+        description: "It doesn't suffer from any excessive impurities and can be used without worries.", 
+        value: 20,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "metal",
+    });
+    item_templates["Piece of wolf rat leather"] = new Material({
+        name: "Piece of wolf rat leather",
+        description: "It's slightly damaged and a bit too thin.",
+        value: 4,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "piece of leather",
+    });
+    item_templates["Piece of wolf leather"] = new Material({
+        name: "Piece of wolf leather", 
+        description: "Somewhat strong, should offer some protection",
+        value: 8,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "piece of leather",
+    });
+    item_templates["Scraps of wolf rat meat"] = new Material({
+        name: "Scraps of wolf rat meat", 
+        description: "Ignoring where they come from and all the attached diseases, they actually look edible. Just remember to cook it first.",
+        value: 8,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "meat",
     });
 })();
 
@@ -726,7 +818,7 @@ item_templates["Twist liek a snek"] = new Book({
         value: 200,
         component_tier: 2,
         name_prefix: "Iron",
-        attack_value: 9,
+        attack_value: 8,
         stats: {
             crit_rate: {
                 flat: 0.1,
@@ -761,7 +853,7 @@ item_templates["Twist liek a snek"] = new Book({
         value: 260,
         name_prefix: "Iron",
         component_tier: 2,
-        attack_value: 15,
+        attack_value: 13,
         stats: {
             attack_speed: {
                 multiplier: 1.15,
@@ -790,7 +882,7 @@ item_templates["Twist liek a snek"] = new Book({
         value: 260,
         name_prefix: "Iron",
         component_tier: 1,
-        attack_value: 18,
+        attack_value: 16,
         stats: {
             attack_speed: {
                 multiplier: 0.95,
@@ -817,7 +909,7 @@ item_templates["Twist liek a snek"] = new Book({
         value: 260,
         name_prefix: "Iron",
         component_tier: 2,
-        attack_value: 22,
+        attack_value: 19,
         stats: {
             attack_speed: {
                 multiplier: 0.85,

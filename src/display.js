@@ -4,7 +4,12 @@ import { traders } from "./traders.js";
 import { current_trader, to_buy, to_sell } from "./trade.js";
 import { skills, get_unlocked_skill_rewards, get_next_skill_milestone } from "./skills.js";
 import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain } from "./character.js";
-import { current_enemies, can_work, current_location, active_effects, enough_time_for_earnings, get_current_book, last_location_with_bed, last_combat_location, faved_stances, selected_stance } from "./main.js";
+import { current_enemies, options, 
+    can_work, current_location, 
+    active_effects, enough_time_for_earnings, 
+    get_current_book, last_location_with_bed, 
+    last_combat_location, faved_stances, 
+    selected_stance } from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time } from "./game_time.js";
@@ -37,7 +42,7 @@ const enemies_div = document.getElementById("enemies_div");
 
 const enemy_count_div = document.getElementById("enemy_count_div");
 
-//character healt display
+//character health display
 const current_health_value_div = document.getElementById("character_health_value");
 const current_health_bar = document.getElementById("character_healthbar_current");
 
@@ -63,6 +68,9 @@ const stance_list = document.getElementById("stance_list");
 
 const bestiary_entry_divs = {};
 const bestiary_list = document.getElementById("bestiary_list");
+
+const combat_switch = document.getElementById("switch_to_combat")
+const inventory_switch = document.getElementById("switch_to_inventory")
 
 const data_entry_divs = {
                             character: document.getElementById("character_xp_multiplier"),
@@ -389,13 +397,26 @@ function format_rewards(rewards) {
     }
     if(rewards.xp_multipliers) {
         const xp_multipliers = Object.keys(rewards.xp_multipliers);
-        if(formatted) {
-            formatted += `, x${rewards.xp_multipliers[xp_multipliers[0]]} ${xp_multipliers[0]} xp gain`;
+        let name;
+        if(xp_multipliers[0] !== "all" && xp_multipliers[0] !== "hero" && xp_multipliers[0] !== "all_skill") {
+            name = skills[xp_multipliers[0]].name();
         } else {
-            formatted = `x${rewards.xp_multipliers[xp_multipliers[0]]} ${xp_multipliers[0]} xp gain`;
+            name = xp_multipliers[0].replace("_"," ");
+        }
+
+        if(formatted) {
+            formatted += `, x${rewards.xp_multipliers[xp_multipliers[0]]} ${name} xp gain`;
+        } else {
+            formatted = `x${rewards.xp_multipliers[xp_multipliers[0]]} ${name} xp gain`;
         }
         for(let i = 1; i < xp_multipliers.length; i++) {
-            formatted += `, x${rewards.xp_multipliers[xp_multipliers[i]]} ${xp_multipliers[i]} xp gain`;
+            let name;
+            if(xp_multipliers[i] !== "all" && xp_multipliers[i] !== "hero" && xp_multipliers[i] !== "all_skill") {
+                name = skills[xp_multipliers[i]].name();
+            } else {
+                name = xp_multipliers[i].replace("_"," ");
+            }
+            formatted += `, x${rewards.xp_multipliers[xp_multipliers[i]]} ${name} xp gain`;
         }
     }
     return formatted;
@@ -1185,8 +1206,12 @@ function update_displayed_normal_location(location) {
     enemy_count_div.style.display = "none";
     document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_default'));
     document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_default'));
-    character_attack_bar.parentNode.style.display = "none";
-
+    
+    inventory_switch.click();
+    combat_switch.style.pointerEvents = "none";
+    combat_switch.style.cursor = "default";
+    combat_switch.style.color = "gray";
+    
     ////////////////////////////////////
     //add buttons for starting dialogues
 
@@ -1550,7 +1575,13 @@ function update_displayed_combat_location(location) {
 
     enemy_count_div.style.display = "block";
     combat_div.style.display = "block";
-    character_attack_bar.parentNode.style.display = "block";
+
+    if(!options.disable_combat_autoswitch) {
+        combat_switch.click();
+    }
+    combat_switch.style.pointerEvents = "auto";
+    combat_switch.style.cursor = "pointer";
+    combat_switch.style.color = "white";
 
     document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_combat'));
     document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_combat'));
@@ -1655,17 +1686,26 @@ function update_stat_description(stat) {
 
     if(stats_divs[stat]) {
         target = stats_divs[stat].parentNode.children[2].children[1];
-        if(stat === "crit_rate" || stat === "crit_multiplier") {
+        if(stat !== "attack_power") {
             target.innerHTML = 
             `<br>Breakdown:
-            <br>+ ${Math.round(100*character.stats.total_flat[stat])/100}
-            <br>x ${Math.round(100*character.stats.total_multiplier[stat])/100}`;
+            <br>Base value: ${Math.round(100*character.base_stats[stat])/100}`;
         } else {
             target.innerHTML = 
             `<br>Breakdown:
-            <br>+ ${Math.round(10*character.stats.total_flat[stat])/10}
-            <br>x ${Math.round(100*character.stats.total_multiplier[stat])/100}`;
+            <br>Base value (str * weapon): ${Math.round(100* character.stats.total_flat.attack_power)/100}`;
         }
+
+        Object.keys(character.stats.flat).forEach(stat_type => {
+            if(character.stats.flat[stat_type][stat] && character.stats.flat[stat_type][stat] !== 0) {
+                target.innerHTML += `<br>${capitalize_first_letter(stat_type.replace("_"," "))}: +${Math.round(100*character.stats.flat[stat_type][stat])/100}`;
+            }
+        });
+        Object.keys(character.stats.multiplier).forEach(stat_type => {
+            if(character.stats.multiplier[stat_type][stat] && character.stats.multiplier[stat_type][stat] !== 1) {
+                target.innerHTML += `<br>${capitalize_first_letter(stat_type.replace("_"," "))}: x${Math.round(100*character.stats.multiplier[stat_type][stat])/100}`;
+            }
+        });
     }
     return;
 }
@@ -2022,25 +2062,33 @@ function update_displayed_skill_bar(skill, leveled_up) {
     skill_bar_divs[skill.skill_id].children[0].children[1].style.width = `${100*skill.current_xp/skill.xp_to_next_lvl}%`;
     //skill_bar_current
 
-    if(get_unlocked_skill_rewards(skill.skill_id)) {
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[4].innerHTML  = `<br>${get_unlocked_skill_rewards(skill.skill_id)}`;
-    }
-
-    if(typeof get_next_skill_milestone(skill.skill_id) !== "undefined") {
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[5].innerHTML  = `lvl ${get_next_skill_milestone(skill.skill_id)}: ???`;
-    } else {
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[5].innerHTML = "";
-    }
-
-    if(typeof skill.get_effect_description !== "undefined")
-    {
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[3].innerHTML = `${skill.get_effect_description()}`;
-        //tooltip_effect
-    }
-
     if(leveled_up) {
+        if(get_unlocked_skill_rewards(skill.skill_id)) {
+            skill_bar_divs[skill.skill_id].children[0].children[2].children[4].innerHTML  = `<br>${get_unlocked_skill_rewards(skill.skill_id)}`;
+        }
+    
+        if(typeof get_next_skill_milestone(skill.skill_id) !== "undefined") {
+            skill_bar_divs[skill.skill_id].children[0].children[2].children[5].innerHTML  = `lvl ${get_next_skill_milestone(skill.skill_id)}: ???`;
+        } else {
+            skill_bar_divs[skill.skill_id].children[0].children[2].children[5].innerHTML = "";
+        }
+    
+        if(typeof skill.get_effect_description !== "undefined")
+        {
+            skill_bar_divs[skill.skill_id].children[0].children[2].children[3].innerHTML = `${skill.get_effect_description()}`;
+            //tooltip_effect
+        }
+
         sort_displayed_skills({sort_by: skill_sorting}); //in case of a name change on levelup
     }
+}
+
+function update_displayed_skill_tooltips() {
+    Object.keys(skills).forEach(skill_id => {
+        if(skill_bar_divs[skill_id] && get_unlocked_skill_rewards(skill_id)) {
+            skill_bar_divs[skill_id].children[0].children[2].children[4].innerHTML  = `<br>${get_unlocked_skill_rewards(skill_id)}`;
+        }
+    });
 }
 
 function update_displayed_skill_description(skill) {
@@ -2579,5 +2627,6 @@ export {
     update_displayed_stamina_efficiency,
     update_displayed_stance,
     update_displayed_faved_stances,
-    update_stance_tooltip
+    update_stance_tooltip,
+    update_displayed_skill_tooltips
 }

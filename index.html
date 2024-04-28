@@ -72,6 +72,18 @@
                     </div>
                 </div>
 
+                <div id = "time_and_location" class = "box_div">
+                    <div id = "time_div"> </div>
+                    
+                    <div id = "location_name_div">
+                        <span id = "location_name_span"></span>
+                        <span id = "location_name_tooltip"></span>
+                    </div>
+                    <div id = "location_types_div">
+                        
+                    </div>
+                </div>
+
                 <!-- inventory list -->
                 <div id = "inventory_div" class = "box_div"> 
                     <div id = "money_div">  </div>
@@ -89,31 +101,7 @@
                     </div>
                 </div>
 
-                <div id = "time_and_location" class = "box_div">
-                    <div id = "time_div"> </div>
-                    
-                    <div id = "location_name_div">
-                        <span id = "location_name_span"></span>
-                        <span id = "location_name_tooltip"></span>
-                    </div>
-                    <div id = "location_types_div">
-                        
-                    </div>
-                </div>
-
-            </div>
-
-            <div id = "area_page">
-
-                <div id = "character_effects_area_page" class = "box_div">
-                    <div id = "effects_div">
-                        <div> Active effects: </div>
-                        <div id = "active_effect_count"> 0 </div>
-                    </div>
-                </div>
-
-                <div id = "character_combat_management" class = "box_div">
-                    
+                <div id = "character_combat_management" class = "box_div">            
                     <div id = "attack_stats">
                         <div class = "attack_stat attack_stat_long">
 
@@ -135,8 +123,6 @@
                             
                         </div>
                     </div>
-                
-                
                     <div id = "character_stance_name">
                         <span>Normal stance</span>
                         <div id = "character_stance_selection">
@@ -147,12 +133,16 @@
 
                     </div>
                 </div>
+
+                <div id = "inventory_combat_switch_selection" class="activable_buttons box_div">
+                    <div id="switch_to_inventory" class="active_selection_button" onclick="switchToInventory()">Inventory
+                    </div>
+                    <div id="switch_to_combat" onclick="switchToCombat()">Combat</div>
+                </div>
+
                 <!-- location info (name, type[safe/combat], weather, time, etc?)-->
                 <div id = "location_div" class = "box_div"> 
                     <div id = "location_description_div">
-                        
-                    </div>
-                    <div id = "location_picture_div" >
                         
                     </div>
                 </div>
@@ -576,11 +566,72 @@
                         </div>
                     </div>
                 </div>
-            
-            </div>
 
-            <div id = "character_page">
-                
+                <div id="skills_and_stances_div" class="box_div">
+                    <div id = "skill_list_div">
+                            <div id = "skill_list">
+                            </div>
+                            <div id = "skill_sorting_buttons" class="activable_buttons"> 
+                                <div id = "skill_sort_by_name" class = "skill_sorting_button active_selection_button" onclick='sortSkills({sort_by:"name"})'>
+                                    Sort by name
+                                </div>
+                                <div id = "skill_sort_by_level" class = "skill_sorting_button" onclick='sortSkills({sort_by:"level"})'>
+                                    Sort by level
+                                </div>
+                            </div>
+                    </div>
+                    <div id = "stance_list_div">
+                        <table id = "stance_list">
+                        </table>
+                    </div>
+                    <div id = "magic_list_div">
+                        <div id = "magic_list">
+                        </div>
+                    </div>
+                    <div id = "skill_and_stance_control_div" class="activable_buttons">
+                        <div id="show_skills" class="skill_stance_control_button active_selection_button" onclick="showSkills()">
+                            Skills
+                        </div>
+                        <div id="show_stances" class="skill_stance_control_button" onclick="showStances()">
+                            Stances
+                        </div>
+                        <div id="show_magic" class="skill_stance_control_button" onclick="showMagic()">
+                            Magic
+                        </div>
+                    </div>
+                </div>
+
+                <div id = "journal_div" class = "box_div">
+                    <div id = "journal_control_div" class="activable_buttons">
+                        <div id = "journal_show_quests" class = "journal_control_button" onclick = "showQuests()"> Quests </div>
+                        <div id = "journal_show_bestiary" class = "journal_control_button active_selection_button" onclick = "showBestiary()"> Bestiary </div>
+                        <div id = "journal_show_data" class = "journal_control_button" onclick = "showData()"> Data </div>
+                    </div>
+                    <div id = "quests_box_div">
+                        <div id = "quests_header">
+                            = Quests =
+                        </div>
+                        <div id = "quest_list">
+
+                        </div>
+                    </div>
+                    <div id = "bestiary_box_div">
+                        <div id = "bestiary_list">
+
+                        </div>
+                        
+                    </div>
+                    <div id = "data_box_div">
+                        <div id = "data_list">
+                            <div id = "data_xp">
+                                <div id = "character_xp_multiplier" class="data_entry"></div>
+                                <div id = "skills_xp_multiplier" class="data_entry"></div>
+                                <div id = "stamina_efficiency_multiplier" class="data_entry"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- character stats and equipment-->
                 <div id = "character_div" class = "box_div"> 
                     <div id = "character_stats_div"> 
@@ -703,8 +754,11 @@
                             </div>
                         </div>
 
-                        <div id = "character_effects_character_page">
-
+                        <div id = "character_effects">
+                            <div id = "effects_div">
+                                <div> Active effects: </div>
+                                <div id = "active_effect_count"> 0 </div>
+                            </div>
                         </div>
 
                     </div>
@@ -740,73 +794,6 @@
                     </div>
                 </div>
 
-                <div id="skills_and_stances_div" class="box_div">
-                    <div id = "skill_list_div">
-                            <div id = "skill_list">
-                            </div>
-                            <div id = "skill_sorting_buttons" class="activable_buttons"> 
-                                <div id = "skill_sort_by_name" class = "skill_sorting_button active_selection_button" onclick='sortSkills({sort_by:"name"})'>
-                                    Sort by name
-                                </div>
-                                <div id = "skill_sort_by_level" class = "skill_sorting_button" onclick='sortSkills({sort_by:"level"})'>
-                                    Sort by level
-                                </div>
-                            </div>
-                    </div>
-                    <div id = "stance_list_div">
-                        <table id = "stance_list">
-                        </table>
-                    </div>
-                    <div id = "magic_list_div">
-                        <div id = "magic_list">
-                        </div>
-                    </div>
-                    <div id = "skill_and_stance_control_div" class="activable_buttons">
-                        <div id="show_skills" class="skill_stance_control_button active_selection_button" onclick="showSkills()">
-                            Skills
-                        </div>
-                        <div id="show_stances" class="skill_stance_control_button" onclick="showStances()">
-                            Stances
-                        </div>
-                        <div id="show_magic" class="skill_stance_control_button" onclick="showMagic()">
-                            Magic
-                        </div>
-                    </div>
-                </div>
-
-                <div id = "journal_div" class = "box_div">
-                    <div id = "quests_box_div">
-                        <div id = "quests_header">
-                            = Quests =
-                        </div>
-                        <div id = "quest_list">
-
-                        </div>
-                    </div>
-                    <div id = "bestiary_box_div">
-                        <div id = "bestiary_list">
-
-                        </div>
-                        
-                    </div>
-                    <div id = "data_box_div">
-                        <div id = "data_list">
-                            <div id = "data_xp">
-                                <div id = "character_xp_multiplier" class="data_entry"></div>
-                                <div id = "skills_xp_multiplier" class="data_entry"></div>
-                                <div id = "stamina_efficiency_multiplier" class="data_entry"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id = "journal_control_div" class="activable_buttons">
-                        <div id = "journal_show_quests" class = "journal_control_button" onclick = "showQuests()"> Quests </div>
-                        <div id = "journal_show_bestiary" class = "journal_control_button active_selection_button" onclick = "showBestiary()"> Bestiary </div>
-                        <div id = "journal_show_data" class = "journal_control_button" onclick = "showData()"> Data </div>
-                    </div>
-                </div>
-
-            </div>
 
             <!-- message log -->
             <div id = "message_log_div" class = "box_div">
@@ -832,15 +819,6 @@
                     </div>
                     
                 </div>
-            </div>
-        </div>
-
-        <div id = "page_selection" class="activable_buttons">
-            <div id = "area_page_button" class = "page_selection_button active_selection_button" onclick = "showAreaPage()">
-                Area / Combat
-            </div>
-            <div id = "character_page_button" class = "page_selection_button" onclick = "showCharacterPage()">
-                Character
             </div>
         </div>
 
@@ -870,6 +848,10 @@
                 <div class="options_choice">
                     <input type="checkbox" id="options_save_messagelog_settings" name="options_save_messagelog_settings" value="options_save_messagelog_settings" onclick = "option_remember_filters()"/>
                     <label for="options_save_messagelog_settings">Remember message log filters</label>
+                </div>
+                <div class="options_choice">
+                    <input type="checkbox" id="options_dont_autoswitch_to_combat" name="options_dont_autoswitch_to_combat" value="options_dont_autoswitch_to_combat" onclick = "option_combat_autoswitch()"/>
+                    <label for="options_dont_autoswitch_to_combat">Don't autoswitch out from inventory when starting combat</label>
                 </div>
             </div>
             <div id = "hard_reset_button" onclick = "hardReset()"> Hard reset the game </div>
@@ -988,24 +970,6 @@
                 document.getElementById("bestiary_box_div").style.display = "block";
             }
 
-
-            function showAreaPage() {
-                document.getElementById("character_page").style.visibility = "hidden";
-                document.getElementById("area_page").style.visibility = "visible";
-                document.getElementById("character_effects_area_page").appendChild(document.getElementById("effects_div"));
-                
-                if(!is_in_trade()) {
-                    document.documentElement.style.setProperty('--inventory_div_display', 'none');
-                }
-            }
-
-            function showCharacterPage() {
-                document.getElementById("character_page").style.visibility = "visible";
-                document.getElementById("area_page").style.visibility = "hidden";
-                document.getElementById("character_effects_character_page").appendChild(document.getElementById("effects_div"));
-                document.documentElement.style.setProperty('--inventory_div_display', 'block'); //just make sure it's always visible on this page
-            }
-
             function showCharacterStats() {
                 document.getElementById("character_equipment_div").style.display = "none";
                 document.getElementById("character_stats_div").style.display = '';
@@ -1024,7 +988,6 @@
                 document.getElementById("character_tools_div").style.display = "grid";
             }
 
-
             function showSkills() {
                 document.getElementById("skill_list_div").style.display = "block";
                 document.getElementById("stance_list_div").style.display = "none";
@@ -1041,6 +1004,15 @@
                 document.getElementById("skill_list_div").style.display = "none";
                 document.getElementById("stance_list_div").style.display = "none";
                 document.getElementById("magic_list_div").style.display = "block";
+            }
+
+            function switchToCombat() {
+                document.documentElement.style.setProperty('--inventory_div_display', 'none');
+                document.documentElement.style.setProperty('--character_combat_div_display', 'block');
+            }
+            function switchToInventory() {
+                document.documentElement.style.setProperty('--inventory_div_display', 'block');
+                document.documentElement.style.setProperty('--character_combat_div_display', 'none');
             }
 
             var in_trade = false;
@@ -1073,7 +1045,6 @@
                 document.documentElement.style.setProperty('--item_use_button_display', 'none');
                 document.documentElement.style.setProperty('--item_other_width', getComputedStyle(document.body).getPropertyValue('--item_other_width_trade'));
                 document.documentElement.style.setProperty('--item_stackable_width', getComputedStyle(document.body).getPropertyValue('--item_other_width_trade'));
-                document.documentElement.style.setProperty('--inventory_div_display', 'block');
 
                 start_trade(trader_key);
             }
@@ -1085,8 +1056,6 @@
                 document.documentElement.style.setProperty('--item_use_button_display', 'inline-block');
                 document.documentElement.style.setProperty('--item_other_width', getComputedStyle(document.body).getPropertyValue('--item_other_width_default'));
                 document.documentElement.style.setProperty('--item_stackable_width', getComputedStyle(document.body).getPropertyValue('--item_stackable_width_default'));
-                
-                document.documentElement.style.setProperty('--inventory_div_display', 'none');
 
                 const accept_button = document.getElementById("accept_trade_button");
                 accept_button.style.cursor = "pointer";
@@ -1387,30 +1356,22 @@
                         }
                     }
 
-                    const tooltip_width = hovered_element.children[0].children[2].scrollWidth;
                     const tooltip_height = hovered_element.children[0].children[2].scrollHeight;
                     
                     const body = document.getElementsByTagName("body")[0];
-                    const scrollbar_Y_visible = (body.scrollHeight - body.clientHeight) > 0;
                     const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
 
-                    const right_edge_position = 
-                        window.innerWidth - tooltip_width -  23 + window.scrollX - (scrollbar_Y_visible?10:0);
                     const bottom_edge_position = 
                         window.innerHeight - tooltip_height + window.scrollY - 33 - (scrollbar_X_visible?10:0);
                     
                     //size of window - size of tooltip + scrolling position - 23 (not sure where it comes from) - 10 (for scrollbar if its visible)
 
-                    if(event.pageX > right_edge_position) {
-                        document.documentElement.style.setProperty('--skill_tooltip_left', `${right_edge_position - 400}px`);
-                    } else {
-                        document.documentElement.style.setProperty('--skill_tooltip_left', `${event.pageX - 400}px`);
-                    }
+                    document.documentElement.style.setProperty('--skill_tooltip_left', `${event.pageX - 1150}px`);
 
-                    if(event.pageY > bottom_edge_position - 22) {
-                        document.documentElement.style.setProperty('--skill_tooltip_top', `${bottom_edge_position - 382}px`);
+                    if(event.pageY > bottom_edge_position) {
+                        document.documentElement.style.setProperty('--skill_tooltip_top', `${bottom_edge_position - 380}px`);
                     } else {
-                        document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 360}px`);
+                        document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 380}px`);
                     }
                 }
 
@@ -1432,30 +1393,23 @@
                         }
                     } 
 
-                    const tooltip_width = hovered_element.children[3].scrollWidth;
                     const tooltip_height = hovered_element.children[3].scrollHeight;
                     
                     const body = document.getElementsByTagName("body")[0];
-                    const scrollbar_Y_visible = (body.scrollHeight - body.clientHeight) > 0;
                     const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
 
-                    const right_edge_position = 
-                        window.innerWidth - tooltip_width -  23 + window.scrollX - (scrollbar_Y_visible?10:0);
                     const bottom_edge_position = 
                         window.innerHeight - tooltip_height + window.scrollY - 33 - (scrollbar_X_visible?10:0);
                     
                     //size of window - size of tooltip + scrolling position - 23 (not sure where it comes from) - 10 (for scrollbar if its visible)
 
-                    if(event.pageX > right_edge_position) {
-                        document.documentElement.style.setProperty('--stance_tooltip_left', `${right_edge_position - 400}px`);
-                    } else {
-                        document.documentElement.style.setProperty('--stance_tooltip_left', `${event.pageX - 400}px`);
-                    }
+                    
+                    document.documentElement.style.setProperty('--stance_tooltip_left', `${event.pageX - 1150}px`);
 
-                    if(event.pageY > bottom_edge_position - 22) {
-                        document.documentElement.style.setProperty('--stance_tooltip_top', `${bottom_edge_position - 382}px`);
+                    if(event.pageY > bottom_edge_position) {
+                        document.documentElement.style.setProperty('--stance_tooltip_top', `${bottom_edge_position - 380}px`);
                     } else {
-                        document.documentElement.style.setProperty('--stance_tooltip_top', `${event.pageY - 360}px`);
+                        document.documentElement.style.setProperty('--stance_tooltip_top', `${event.pageY - 380}px`);
                     }
                 }
 
@@ -1519,7 +1473,7 @@
                 const bestiary_box_div = document.getElementById("bestiary_box_div");
                 bestiary_box_div.addEventListener('mousemove', move_bestiary_entry_tooltip, false);
                 function move_bestiary_entry_tooltip(event) {
-                    var hovered_element = event.target;
+                    let hovered_element = event.target;
 
                     if(!hovered_element.classList.contains("bestiary_entry_div")) {
                         if(hovered_element.classList.contains("bestiary_entry_name") || hovered_element.classList.contains("bestiary_entry_kill_count")) {
@@ -1528,30 +1482,20 @@
                             return;
                         }
                     } 
-                    const tooltip_width = hovered_element.children[0].scrollWidth;
                     const tooltip_height = hovered_element.children[0].scrollHeight;
                     
                     const body = document.getElementsByTagName("body")[0];
-                    const scrollbar_Y_visible = (body.scrollHeight - body.clientHeight) > 0;
                     const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
 
-                    const right_edge_position = 
-                        window.innerWidth - tooltip_width -  23 + window.scrollX - (scrollbar_Y_visible?10:0);
                     const bottom_edge_position = 
                         window.innerHeight - tooltip_height + window.scrollY - 33 - (scrollbar_X_visible?10:0);
                     
-                    //size of window - size of tooltip + scrolling position - 23 (not sure where it comes from) - 10 (for scrollbar if its visible)
-
-                    if(event.pageX > right_edge_position - 10) {
-                        document.documentElement.style.setProperty('--bestiary_entry_tooltip_left', `${right_edge_position - 410}px`);
-                    } else {
-                        document.documentElement.style.setProperty('--bestiary_entry_tooltip_left', `${event.pageX - 400}px`);
-                    }
+                    document.documentElement.style.setProperty('--bestiary_entry_tooltip_left', `${event.pageX - 1250}px`);
 
                     if(event.pageY > bottom_edge_position) {
-                        document.documentElement.style.setProperty('--bestiary_entry_tooltip_top', `${bottom_edge_position - 100}px`);
+                        document.documentElement.style.setProperty('--bestiary_entry_tooltip_top', `${bottom_edge_position}px`);
                     } else {
-                        document.documentElement.style.setProperty('--bestiary_entry_tooltip_top', `${event.pageY - 100}px`);
+                        document.documentElement.style.setProperty('--bestiary_entry_tooltip_top', `${event.pageY}px`);
                     }
                 }
 

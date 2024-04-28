@@ -36,7 +36,8 @@ import { end_activity_animation,
          update_bestiary_entry,
          start_reading_display,
          update_displayed_xp_bonuses, 
-         update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain, update_displayed_stance_list, update_displayed_stamina_efficiency, update_displayed_stance, update_displayed_faved_stances, update_stance_tooltip
+         update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain, update_displayed_stance_list, update_displayed_stamina_efficiency, update_displayed_stance, update_displayed_faved_stances, update_stance_tooltip,
+         update_displayed_skill_tooltips
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -99,6 +100,7 @@ const options = {
     auto_return_to_bed: false,
     remember_message_log_filters: false,
     remember_sorting_options: false,
+    combat_disable_autoswitch: false,
 };
 
 let message_log_filters = {
@@ -193,6 +195,20 @@ function option_remember_filters(option) {
             document.documentElement.style.setProperty('--message_loot_display', 'none');
             document.getElementById("message_show_loot").classList.remove("active_selection_button");
         }
+    }
+}
+
+function option_combat_autoswitch(option) {
+    const checkbox = document.getElementById("options_dont_autoswitch_to_combat");
+
+    if(checkbox.checked || option) {
+        options.disable_combat_autoswitch = true;
+    } else {
+        options.disable_combat_autoswitch = false;
+    }
+
+    if(option) {
+        checkbox.checked = option;
     }
 }
 
@@ -1121,13 +1137,14 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
 
     if(is_visible) 
     {
-        update_displayed_skill_bar(skill, false);
+        
     
         if(typeof message !== "undefined"){ 
         //not undefined => levelup happened and levelup message was returned
             leveled = true;
 
             update_displayed_skill_bar(skill, true);
+
             if(typeof should_info === "undefined" || should_info)
             {
                 log_message(message, "skill_raised");
@@ -1165,6 +1182,10 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 }
             }
 
+            update_displayed_skill_tooltips();
+
+        } else {
+            update_displayed_skill_bar(skill, false);
         }
     } else {
         update_displayed_skill_bar(skill, false);
@@ -1172,6 +1193,9 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
 
     if(gains) { 
         character.stats.add_skill_milestone_bonus(gains);
+        if(skill.skill_id === "Unarmed") {
+            character.stats.add_all_equipment_bonus();
+        }
         update_character_stats();
     }
 
@@ -1520,6 +1544,9 @@ function load(save_data) {
     options.auto_return_to_bed = save_data.options?.auto_return_to_bed;
     option_bed_return(options.auto_return_to_bed);
 
+    options.disable_combat_autoswitch = save_data.options?.disable_combat_autoswitch;
+    option_combat_autoswitch(options.disable_combat_autoswitch);
+
     options.remember_message_log_filters = save_data.options?.remember_message_log_filters;
     if(save_data.message_filters) {
         message_log_filters = save_data.message_filters;
@@ -1743,7 +1770,7 @@ function load(save_data) {
                 if(item_templates[key].item_type === "USABLE") {
                     save_data.character.inventory[key].item.use_effect = item_templates[key].use_effect;
                 }
-                item_list.push({item: getItem(save_data.character.inventory[key].item), count: save_data.character.inventory[key].count});
+                item_list.push({item: getItem(item_templates[save_data.character.inventory[key].item.name]), count: save_data.character.inventory[key].count});
             } else {
                 console.warn(`Inventory item "${key}" couldn't be found!`);
                 return;
@@ -1860,7 +1887,7 @@ function load(save_data) {
                         } else if(item_templates[key].item_type === "USABLE") {
                             save_data.traders[trader].inventory[key].item.use_effect = item_templates[key].use_effect;
                         }
-                        trader_item_list.push({item: getItem(save_data.traders[trader].inventory[key].item), count: save_data.traders[trader].inventory[key].count});
+                        trader_item_list.push({item: getItem(item_templates[save_data.traders[trader].inventory[key].item.name]), count: save_data.traders[trader].inventory[key].count});
                     }
                 });
             }
@@ -2105,7 +2132,7 @@ function update() {
 
             const sounds = current_location.getBackgroundNoises();
             if(sounds.length > 0){
-                if(Math.random() < 1/450) {
+                if(Math.random() < 1/600) {
                     log_message(`"${sounds[Math.floor(Math.random()*sounds.length)]}"`, "background");
                 }
             }
@@ -2252,6 +2279,7 @@ window.fav_stance = fav_stance;
 
 window.option_uniform_textsize = option_uniform_textsize;
 window.option_bed_return = option_bed_return;
+window.option_combat_autoswitch = option_combat_autoswitch;
 window.option_remember_filters = option_remember_filters;
 
 window.save_to_localStorage = save_to_localStorage;
@@ -2298,4 +2326,4 @@ export { current_enemies, can_work,
         last_location_with_bed, 
         last_combat_location, 
         current_stance, selected_stance,
-        faved_stances };
+        faved_stances, options };
