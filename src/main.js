@@ -1099,6 +1099,9 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     let leveled = false;
     if(xp_to_add == 0) {
         return leveled;
+    } else if(xp_to_add < 0) {
+        console.error(`Tried to add negative xp to skill ${skill.skill_id}`);
+        return leveled;
     }
 
     if(use_bonus) {

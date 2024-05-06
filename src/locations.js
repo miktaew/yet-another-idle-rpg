@@ -305,6 +305,7 @@ class LocationActivity{
                  availability_time,
                  skill_xp_per_tick = 1,
                  unlock_text,
+                 gained_resources = {},
                  }) 
     {
         this.activity = activity; //name of activity from activities.js
@@ -325,6 +326,11 @@ class LocationActivity{
         
         this.skill_xp_per_tick = skill_xp_per_tick; //skill xp gained per game tick (default -> 1 in-game minute)
 
+        this.gained_resources = gained_resources; 
+        //{resource: [{name, ammount: [[min,max], [min,max]], chance: [min,max]}], time_period: [min,max], skill_required: [min_efficiency, max_efficiency]}
+        //every 2-value array is oriented [starting_value, value_with_required_skill_level], except for subarrays of ammount (which are for randomizing gained item count) and for skill_required
+        //                                                                                   (ammount array itself follows the mentioned orientation)
+        //value start scaling after reaching min_efficiency skill lvl, before that they are just all at min
         }
 }
 
@@ -936,7 +942,19 @@ class LocationType{
             infinite: true,
             working_period: 60*2,
             skill_xp_per_tick: 1
-        })
+        }),
+        "woodcutting": new LocationActivity({
+            activity: "woodcutting",
+            infinite: true,
+            starting_text: "Gather some wood around the village",
+            skill_xp_per_tick: 1,
+            is_unlocked: true,
+            gained_resources: {
+                resources: [{name: "Piece of rough wood", ammount: [[1,1], [1,1]], chance: [0.3, 0.8]}], 
+                time_period: [60, 30],
+                skill_required: [1, 10],
+            }
+        }),
     };
     locations["Nearby cave"].activities = {
         "weightlifting": new LocationActivity({

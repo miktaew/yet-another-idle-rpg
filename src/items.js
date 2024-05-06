@@ -1188,7 +1188,7 @@ item_templates["Twist liek a snek"] = new Book({
 
     item_templates["Weak healing powder"] = new UsableItem({
         name: "Weak healing powder", description: "Not very potent, but can still make body heal noticeably faster", 
-        value: 80,
+        value: 50,
         use_effect: {
             health_regeneration: {
                 flat: 1,

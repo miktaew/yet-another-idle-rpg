@@ -120,7 +120,7 @@ class Gathering extends Training {
     });
     activities["woodcutting"] = new Gathering({
         name: "woodcutting",
-        action_text: "Swinging the axe",
+        action_text: "Gathering wood",
         description: "Chop chop",
         base_skills_names: ["Woodcutting"],
         is_unlocked: true,

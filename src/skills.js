@@ -1506,6 +1506,25 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
   });
 })();
 
+//resource gathering related
+(function(){
+    skills["Woodcutting"] = new Skill({skill_id: "Woodcutting", 
+        names: {0: "Woodcutting"}, 
+        description: "Get better with chopping the wood",
+        base_xp_cost: 40,
+        max_level: 10,
+        xp_scaling: 1.6,
+    });
+
+    skills["Mining"] = new Skill({skill_id: "Mining",
+        names: {0: "Mining"}, 
+        description: "Get better with mining the ores",
+        base_xp_cost: 40,
+        max_level: 10,
+        xp_scaling: 1.6,
+    });
+})();
+
 //crafting skills
 
 (function(){
