@@ -1511,7 +1511,8 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
     skills["Woodcutting"] = new Skill({skill_id: "Woodcutting", 
         names: {0: "Woodcutting"}, 
         description: "Get better with chopping the wood",
-        base_xp_cost: 40,
+        base_xp_cost: 10,
+        visibility_treshold: 4,
         max_level: 10,
         xp_scaling: 1.6,
     });
@@ -1519,7 +1520,8 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
     skills["Mining"] = new Skill({skill_id: "Mining",
         names: {0: "Mining"}, 
         description: "Get better with mining the ores",
-        base_xp_cost: 40,
+        base_xp_cost: 10,
+        visibility_treshold: 4,
         max_level: 10,
         xp_scaling: 1.6,
     });
@@ -1561,7 +1563,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
         skill_id: "Iron skin",
         names: {0: "Tough skin", 5: "Wooden skin", 10: "Iron skin"},
         description: "As it gets damaged, your skin regenerates to be tougher and tougher",
-        base_xp_cost: 160,
+        base_xp_cost: 400,
         xp_scaling: 1.9,
         max_level: 30,
         max_level_bonus: 30,
@@ -1623,7 +1625,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                 },
                 4: {
                     stats: {
-                        max_stamina: 10,
+                        max_stamina: 5,
                     },
                     xp_multipliers: {
                         hero: 1.05,
@@ -1639,7 +1641,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                 },
                 8: {
                     stats: {
-                        max_stamina: 15,
+                        max_stamina: 10,
                     },
                     xp_multipliers: {
                         all: 1.05,
@@ -1647,7 +1649,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                 },
                 10: {
                     stats: {
-                        max_stamina: 20,
+                        max_stamina: 10,
                     },
                     xp_multipliers: {
                         all: 1.05,

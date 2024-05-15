@@ -305,7 +305,7 @@ class LocationActivity{
                  availability_time,
                  skill_xp_per_tick = 1,
                  unlock_text,
-                 gained_resources = {},
+                 gained_resources,
                  }) 
     {
         this.activity = activity; //name of activity from activities.js
@@ -331,6 +331,7 @@ class LocationActivity{
         //every 2-value array is oriented [starting_value, value_with_required_skill_level], except for subarrays of ammount (which are for randomizing gained item count) and for skill_required
         //                                                                                   (ammount array itself follows the mentioned orientation)
         //value start scaling after reaching min_efficiency skill lvl, before that they are just all at min
+        //skill required refers to level of every skill
         }
 }
 
@@ -946,7 +947,7 @@ class LocationType{
         "woodcutting": new LocationActivity({
             activity: "woodcutting",
             infinite: true,
-            starting_text: "Gather some wood around the village",
+            starting_text: "Gather some wood on the outskirts",
             skill_xp_per_tick: 1,
             is_unlocked: true,
             gained_resources: {

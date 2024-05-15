@@ -10,7 +10,7 @@ class InventoryHaver {
 
     /**
      * @description adds items from the list to inventory; don't use this method directly, there are other methods that call this one and take care of display
-     * @param {*} items - [{item, count},...]
+     * @param {Array} items - [{item, count},...]
      */
     add_to_inventory(items) {
         for(let i = 0; i < items.length; i++){

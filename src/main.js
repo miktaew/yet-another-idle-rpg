@@ -255,6 +255,10 @@ function change_location(location_name) {
 function start_activity(selected_activity) {
     current_activity = Object.assign({},current_location.activities[selected_activity]);
     current_activity.name = current_activity.activity;
+
+    if(!activities[current_activity.activity]) {
+        throw `No such activity as ${current_activity.activity} could be found`;
+    }
     current_activity.activity = activities[current_activity.activity];
 
     if(activities[current_activity.name].type === "JOB") {
@@ -266,17 +270,22 @@ function start_activity(selected_activity) {
         current_activity.earnings = 0;
         current_activity.working_time = 0;
 
-        if(!current_activity.activity) {
-            throw "Job option not found!";
-        }
     } else if(activities[current_activity.name].type === "TRAINING") {
-        if(!current_activity.activity) {
-            throw "Training option not found!";
-        }
+        //
     } else if(activities[current_activity.name].type === "GATHERING") { 
-        if(!current_activity.activity) {
-            throw `"${activities[current_activity.name].type}" is not a valid activity type!`;
-        } 
+        //
+    } else throw `"${activities[current_activity.name].type}" is not a valid activity type!`;
+
+    current_activity.gathering_time = 0;
+    if(current_activity.gained_resources) {
+        let skill_level_sum = 0;
+        for(let i = 0; i < current_activity.activity.base_skills_names?.length; i++) {
+            skill_level_sum += Math.min(current_activity.gained_resources.skill_required[1],Math.max(current_activity.gained_resources.skill_required[0],skills[current_activity.activity.base_skills_names[i]].current_level));
+        }
+
+        let skill_modifier = ((skill_level_sum/current_activity.activity.base_skills_names?.length) ** 1.5) || 1;
+
+        current_activity.gathering_time_needed = current_activity.gathering_time[0]-(current_activity.gathering_time[0]-current_activity.gathering_time[1])*skill_modifier;
     }
 
     start_activity_display(current_activity);
@@ -934,7 +943,7 @@ function do_enemy_combat_action(enemy_id) {
     {
         add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: attacker.xp_value});
     } else {
-        add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: attacker.xp_value/2});
+        add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: Math.sqrt(attacker.xp_value)/2});
     }
 
     let {damage_taken, fainted} = character.take_damage({damage_value: damage_dealt});
@@ -1424,7 +1433,9 @@ function create_save() {
         if(current_activity) {
             save_data["current_activity"] = {activity: current_activity.activity.name, 
                                              working_time: current_activity.working_time, 
-                                             earnings: current_activity.earnings};
+                                             earnings: current_activity.earnings,
+                                             gathering_time: current_activity.gathering_time,
+                                            };
         }
         
         save_data["dialogues"] = {};
@@ -1992,6 +2003,8 @@ function load(save_data) {
                 current_activity.earnings = save_data.current_activity.earnings * ((is_from_before_eco_rework == 1)*10 || 1);
                 document.getElementById("action_end_earnings").innerHTML = `(earnings: ${format_money(current_activity.earnings)})`;
             }
+
+            current_activity.gathering_time = save_data.current_activity.gathering_time;
             
         } else {
             console.warn("Couldn't find saved activity! It might have been removed");
@@ -2092,8 +2105,50 @@ function update() {
             if(current_activity) { //in activity
 
                 //add xp to all related skills
-                for(let i = 0; i < current_activity.activity.base_skills_names?.length; i++) {
-                    add_xp_to_skill({skill: skills[current_activity.activity.base_skills_names[i]], xp_to_add: current_activity.skill_xp_per_tick});
+                if(current_activity.activity.type !== "GATHERING"){
+                    for(let i = 0; i < current_activity.activity.base_skills_names?.length; i++) {
+                        add_xp_to_skill({skill: skills[current_activity.activity.base_skills_names[i]], xp_to_add: current_activity.skill_xp_per_tick});
+                    }
+                }
+
+                current_activity.gathering_time += 1;
+                if(current_activity.gained_resources)
+                {
+                    if(current_activity.gathering_time >= current_activity.gathering_time_needed) { 
+
+                        if(current_activity.activity.type === "GATHERING"){
+                            for(let i = 0; i < current_activity.activity.base_skills_names?.length; i++) {
+                                add_xp_to_skill({skill: skills[current_activity.activity.base_skills_names[i]], xp_to_add: current_activity.skill_xp_per_tick});
+                            }
+                        }
+
+                        let skill_level_sum = 0;
+                        for(let i = 0; i < current_activity.activity.base_skills_names?.length; i++) {
+                            skill_level_sum += Math.min(current_activity.gained_resources.skill_required[1],Math.max(current_activity.gained_resources.skill_required[0],skills[current_activity.activity.base_skills_names[i]].current_level))/current_activity.gained_resources.skill_required[1];
+                        }
+                        let skill_modifier = ((skill_level_sum/current_activity.activity.base_skills_names?.length) ** 1.5) || 1;
+
+                        current_activity.gathering_time_needed = current_activity.gathering_time[0]-(current_activity.gathering_time[0]-current_activity.gathering_time[1])*skill_modifier;
+                        
+                        const items = [];
+
+                        Object.values(current_activity.gained_resources.resources).forEach(resource => {
+                            const chance = resource.chance[0]+(resource.chance[1]-resource.chance[0])*skill_modifier;
+                            if(Math.random() > chance) {
+                                const min = Math.round(resource.ammount[0][0]+(resource.ammount[1][0]-resource.ammount[0][0])*skill_modifier);
+                                const max = Math.round(resource.ammount[0][1]+(resource.ammount[1][1]-resource.ammount[0][1])*skill_modifier);
+                                const count = Math.floor(Math.random() * (max - min + 1)) + min;
+                                
+                                items.push({item: item_templates[resource.name], count: count});
+                            }
+                        });
+
+                        if(items.length > 0) {
+                            log_loot(items, false);
+                            add_to_character_inventory(items);
+                        }
+                        current_activity.gathering_time = 0;
+                    }
                 }
 
                 //if job: payment

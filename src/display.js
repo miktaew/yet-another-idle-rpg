@@ -428,20 +428,23 @@ function clear_message_log() {
     }
 }
 
-function log_loot(loot_list) {
+/**
+ * @param {Array} loot_list [{item, count},...] 
+ */
+function log_loot(loot_list, is_combat=true) {
     
     if(loot_list.length == 0) {
         return;
     }
 
-    var message = "Looted " + loot_list[0]["item"]["name"] + " x" + loot_list[0]["count"];
+    let message = `${is_combat?"Looted":"Gained"} "` + loot_list[0]["item"]["name"] + `" x` + loot_list[0]["count"];
     if(loot_list.length > 1) {
         for(let i = 1; i < loot_list.length; i++) {
-            message += (", " + loot_list[i]["item"]["name"] + " x" + loot_list[i]["count"]);
+            message += (`, "` + loot_list[i]["item"]["name"] + `" x` + loot_list[i]["count"]);
         }
-    } //this looks terrible
+    }
 
-    log_message(message, "combat_loot");   
+    log_message(message, `${is_combat?"combat_loot":"gathered_loot"}`);
 }
 
 function start_activity_animation(settings) {
@@ -1297,6 +1300,24 @@ function update_displayed_normal_location(location) {
         action_div.append(...create_location_choices({location: location, category: "train"}));
     }
 
+    ////////////////////////////////
+    //add buttons to start gathering
+
+    const available_gatherings = Object.values(location.activities).filter(activity => activities[activity.activity].type === "GATHERING" 
+                                                                    && activities[activity.activity].is_unlocked
+                                                                    && activity.is_unlocked
+                                                                    && activities[activity.activity].base_skills_names.filter(skill => !skills[skill].is_unlocked).length == 0);
+    if(available_gatherings.length > 2) {     
+        const gatherings_button = document.createElement("div");
+        gatherings_button.setAttribute("data-location", location.name);
+        gatherings_button.classList.add("location_choices");
+        gatherings_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "gather"})');
+        gatherings_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Gather some resources';
+        action_div.appendChild(gatherings_button);
+    } else if (available_gatherings.length <= 2) {
+        action_div.append(...create_location_choices({location: location, category: "gather"}));
+    }
+
     ///////////////////////////
     //add button to go to sleep
 
@@ -1397,7 +1418,7 @@ function create_location_choices({location, category, add_icons = true, is_comba
         Object.keys(location.activities).forEach(key => {
             if(!activities[location.activities[key].activity]?.is_unlocked 
                 || !location.activities[key]?.is_unlocked 
-                || activities[location.activities[key].activity].type === "TRAINING") 
+                || activities[location.activities[key].activity].type !== "JOB") 
             {
                 return;
             }
@@ -1424,7 +1445,6 @@ function create_location_choices({location, category, add_icons = true, is_comba
                     `${format_time({time: {minutes: location.activities[key].working_period}})} worked`;
             
 
-
             activity_div.appendChild(job_tooltip);
     
             activity_div.innerHTML += location.activities[key].starting_text;
@@ -1434,7 +1454,7 @@ function create_location_choices({location, category, add_icons = true, is_comba
         Object.keys(location.activities).forEach(key => {
             if(!activities[location.activities[key].activity]?.is_unlocked 
                 || !location.activities[key]?.is_unlocked 
-                || activities[location.activities[key].activity].type === "JOB"
+                || activities[location.activities[key].activity].type !== "TRAINING"
                 || activities[location.activities[key].activity].base_skills_names.filter(skill => !skills[skill].is_unlocked).length > 0) 
             {
                 return;
@@ -1446,6 +1466,33 @@ function create_location_choices({location, category, add_icons = true, is_comba
             activity_div.classList.add("activity_div", "start_activity");
             activity_div.setAttribute("data-activity", key);
             activity_div.setAttribute("onclick", "start_activity(this.getAttribute('data-activity'));");
+    
+            activity_div.innerHTML += location.activities[key].starting_text;
+            choice_list.push(activity_div);
+        });
+    } else if (category === "gather") {
+        Object.keys(location.activities).forEach(key => {
+            if(!activities[location.activities[key].activity]?.is_unlocked 
+                || !location.activities[key]?.is_unlocked 
+                || activities[location.activities[key].activity].type !== "GATHERING"
+                || activities[location.activities[key].activity].base_skills_names.filter(skill => !skills[skill].is_unlocked).length > 0) 
+            {
+                return;
+            }
+
+            const activity_div = document.createElement("div");
+
+            activity_div.innerHTML = `<i class="material-icons">fitness_center</i>  `;
+            activity_div.classList.add("activity_div", "start_activity");
+            activity_div.setAttribute("data-activity", key);
+            activity_div.setAttribute("onclick", "start_activity(this.getAttribute('data-activity'));");
+
+            const gathering_tooltip = document.createElement("div");
+            gathering_tooltip.classList.add("job_tooltip");
+
+            gathering_tooltip.innerHTML += `Chance to find [UNSPECIFIED ITEMS] per every [UNSPECIFIED TIME]`;
+
+            activity_div.appendChild(gathering_tooltip);
     
             activity_div.innerHTML += location.activities[key].starting_text;
             choice_list.push(activity_div);
@@ -2557,7 +2604,7 @@ function update_displayed_ongoing_activity(current_activity, is_job){
     }
     const action_xp_div = document.getElementById("action_xp_div");
     const needed_xp = skills[current_activity.activity.base_skills_names].current_level == skills[current_activity.activity.base_skills_names].max_level? "Max": `${Math.round(10000*skills[current_activity.activity.base_skills_names].current_xp/skills[current_activity.activity.base_skills_names].xp_to_next_lvl)/100}%`
-    action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${skills[current_activity.activity.base_skills_names].name()} (${needed_xp})`;
+    action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per in-game minute to ${skills[current_activity.activity.base_skills_names].name()} (${needed_xp})`;
 }
 
 function clear_skill_list(){

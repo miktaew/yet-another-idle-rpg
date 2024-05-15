@@ -151,7 +151,7 @@ character.get_level_bonus = function (level) {
                 }
 
                 gained_hp += 10 * Math.ceil(i/10);
-                gained_stamina += 5//5 * Math.ceil(i/10);
+                gained_stamina += 5; //5 * Math.ceil(i/10) ?;
         }
 
         character.stats.flat.level.max_health = (character.stats.flat.level.max_health || 0) + gained_hp;
@@ -459,6 +459,9 @@ character.get_character_money = function () {
         return character.money;
 }
 
+/**
+ * @param {Array} items [{item, count},...] 
+ */
 function add_to_character_inventory(items) {
         character.add_to_inventory(items);
         update_displayed_character_inventory();

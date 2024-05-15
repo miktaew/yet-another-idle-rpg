@@ -53,10 +53,14 @@ class Gathering extends Training {
         super({name, description, action_text, base_skills_names, is_unlocked});
         this.type = "GATHERING";
         this.required_tool_type = required_tool_type;
-        //drops would be defined in Location
-        //anyway, this waits for crafting to be implemented
+        //drops are defined in locations
     }
 }
+/*
+    All 3 types of activity can yield loot.
+    For trainings and jobs, it doesn't require a tool and is a small bonus of top of xp/money, plus their skills get xp every tick.
+    For gatherings, tools are required and loot is the main focus, plus their skills get xp when work period is finished
+*/
 
 //jobs
 (function(){
