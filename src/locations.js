@@ -4,6 +4,7 @@ import { enemy_templates, Enemy } from "./enemies.js";
 import { dialogues as dialoguesList} from "./dialogues.js";
 import { skills } from "./skills.js";
 import { current_game_time } from "./game_time.js";
+import { activities } from "./activities.js";
 const locations = {};
 const location_types = {};
 //contains all the created locations
@@ -296,7 +297,7 @@ class Challenge_zone extends Combat_zone {
 }
 
 class LocationActivity{
-    constructor({activity, 
+    constructor({activity_name, 
                  starting_text, 
                  get_payment = ()=>{return 1},
                  is_unlocked = true, 
@@ -308,7 +309,7 @@ class LocationActivity{
                  gained_resources,
                  }) 
     {
-        this.activity = activity; //name of activity from activities.js
+        this.activity_name = activity_name; //name of activity from activities.js
         this.starting_text = starting_text; //text displayed on button to start action
 
         this.get_payment = get_payment;
@@ -327,12 +328,38 @@ class LocationActivity{
         this.skill_xp_per_tick = skill_xp_per_tick; //skill xp gained per game tick (default -> 1 in-game minute)
 
         this.gained_resources = gained_resources; 
-        //{resource: [{name, ammount: [[min,max], [min,max]], chance: [min,max]}], time_period: [min,max], skill_required: [min_efficiency, max_efficiency]}
+        //{scales_with_skill: boolean, resource: [{name, ammount: [[min,max], [min,max]], chance: [min,max]}], time_period: [min,max], skill_required: [min_efficiency, max_efficiency]}
         //every 2-value array is oriented [starting_value, value_with_required_skill_level], except for subarrays of ammount (which are for randomizing gained item count) and for skill_required
         //                                                                                   (ammount array itself follows the mentioned orientation)
         //value start scaling after reaching min_efficiency skill lvl, before that they are just all at min
         //skill required refers to level of every skill
+        //if scales_with_skill is false, scalings will be ignored and first value will be used
         }
+
+    getActivityEfficiency = function() {
+        let skill_modifier = 1;
+        if(this.gained_resources.scales_with_skill){
+            let skill_level_sum = 0;
+            for(let i = 0; i < activities[this.activity_name].base_skills_names?.length; i++) {
+                skill_level_sum += Math.min(
+                    this.gained_resources.skill_required[1], Math.max(0,skills[activities[this.activity_name].base_skills_names[i]].current_level-this.gained_resources.skill_required[0]))/this.gained_resources.skill_required[1];
+            }
+
+            skill_modifier = ((skill_level_sum/activities[this.activity_name].base_skills_names?.length)**1.1) ?? 1;
+        }
+        const gathering_time_needed = this.gained_resources.time_period[0]-(this.gained_resources.time_period[0]-this.gained_resources.time_period[1])*skill_modifier;
+
+        const gained_resources = [];
+
+        for(let i = 0; i < this.gained_resources.resources.length; i++) {
+            const chance = this.gained_resources.resources[i].chance[0]+(this.gained_resources.resources[i].chance[1]-this.gained_resources.resources[i].chance[0])*skill_modifier;
+            const min = Math.round(this.gained_resources.resources[i].ammount[0][0]+(this.gained_resources.resources[i].ammount[1][0]-this.gained_resources.resources[i].ammount[0][0])*skill_modifier);
+            const max = Math.round(this.gained_resources.resources[i].ammount[0][1]+(this.gained_resources.resources[i].ammount[1][1]-this.gained_resources.resources[i].ammount[0][1])*skill_modifier);
+            gained_resources.push({name: this.gained_resources.resources[i].name, count: [min,max], chance: chance});
+        }
+
+        return {gathering_time_needed, gained_resources};
+    }
 }
 
 class LocationType{
@@ -644,7 +671,7 @@ class LocationType{
         repeatable_reward: {
             locations: [{location: "Cave depths"}],
             xp: 10,
-            activities: [{location:"Nearby cave", activity:"weightlifting"}, {location:"Village", activity:"balancing"}],
+            activities: [{location:"Nearby cave", activity:"weightlifting"}, {location:"Nearby cave", activity:"mining"}, {location:"Village", activity:"balancing"}],
         }
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Cave room"]});
@@ -687,6 +714,7 @@ class LocationType{
         repeatable_reward: {
             locations: [{location: "Pitch black tunnel"}],
             xp: 50,
+            activities: [{location:"Nearby cave", activity:"mining2"}],
         },
         unlock_text: "As the wall falls apart, you find yourself in front of a new tunnel, leading even deeper. And of course, it's full of wolf rats."
     });
@@ -896,7 +924,7 @@ class LocationType{
 (function(){
     locations["Village"].activities = {
         "fieldwork": new LocationActivity({
-            activity: "fieldwork",
+            activity_name: "fieldwork",
             starting_text: "Work on the fields",
             get_payment: () => {
                 return 10 + Math.round(15 * skills["Farming"].current_level/skills["Farming"].max_level);
@@ -907,21 +935,21 @@ class LocationType{
             skill_xp_per_tick: 1, 
         }),
         "running": new LocationActivity({
-            activity: "running",
+            activity_name: "running",
             infinite: true,
             starting_text: "Go for a run around the village",
             skill_xp_per_tick: 1,
             is_unlocked: false,
         }),
         "weightlifting": new LocationActivity({
-            activity: "weightlifting",
+            activity_name: "weightlifting",
             infinite: true,
             starting_text: "Try to carry some bags of grain",
             skill_xp_per_tick: 1,
             is_unlocked: false,
         }),
         "balancing": new LocationActivity({
-            activity: "balancing",
+            activity_name: "balancing",
             infinite: true,
             starting_text: "Try to keep your balance on rocks in the river",
             unlock_text: "All this fighting while surrounded by stone and rocks gives you a new idea",
@@ -929,14 +957,14 @@ class LocationType{
             is_unlocked: false,
         }),
         "meditating": new LocationActivity({
-            activity: "meditating",
+            activity_name: "meditating",
             infinite: true,
             starting_text: "Sit down and meditate",
             skill_xp_per_tick: 1,
             is_unlocked: true,
         }),
         "patrolling": new LocationActivity({
-            activity: "patrolling",
+            activity_name: "patrolling",
             starting_text: "Go on a patrol around the village.",
             get_payment: () => {return 30},
             is_unlocked: false,
@@ -945,38 +973,80 @@ class LocationType{
             skill_xp_per_tick: 1
         }),
         "woodcutting": new LocationActivity({
-            activity: "woodcutting",
+            activity_name: "woodcutting",
             infinite: true,
             starting_text: "Gather some wood on the outskirts",
             skill_xp_per_tick: 1,
             is_unlocked: true,
             gained_resources: {
-                resources: [{name: "Piece of rough wood", ammount: [[1,1], [1,1]], chance: [0.3, 0.8]}], 
+                resources: [{name: "Piece of rough wood", ammount: [[1,1], [1,1]], chance: [0.3, 0.7]}], 
                 time_period: [60, 30],
-                skill_required: [1, 10],
+                skill_required: [0, 10],
+                scales_with_skill: true,
             }
         }),
     };
     locations["Nearby cave"].activities = {
         "weightlifting": new LocationActivity({
-            activity: "weightlifting",
+            activity_name: "weightlifting",
             infinite: true,
             starting_text: "Try lifting some of the rocks",
             skill_xp_per_tick: 3,
             is_unlocked: false
         }),
+        "mining": new LocationActivity({
+            activity_name: "mining",
+            infinite: true,
+            starting_text: "Try to mine for some ore",
+            skill_xp_per_tick: 1,
+            is_unlocked: false,
+            gained_resources: {
+                resources: [{name: "Low quality iron ore", ammount: [[1,1], [1,1]], chance: [0.3, 0.7]}], 
+                time_period: [60, 30],
+                skill_required: [0, 10],
+                scales_with_skill: true,
+            },
+            unlock_text: "As you clear the area of wolf rats, you notice a vein of an iron ore",
+        }),
+        "mining2": new LocationActivity({
+            activity_name: "mining",
+            infinite: true,
+            starting_text: "Try to mine for some ore",
+            skill_xp_per_tick: 3,
+            is_unlocked: false,
+            gained_resources: {
+                resources: [{name: "Iron ore", ammount: [[1,1], [1,1]], chance: [0.1, 0.6]}], 
+                time_period: [120, 40],
+                skill_required: [7, 17],
+                scales_with_skill: true,
+            },
+            unlock_text: "Going deeper, you find a vein of an iron ore that seems to be of much higher quality",
+        }),
     };
     locations["Forest road"].activities = {
         "running": new LocationActivity({
-            activity: "running",
+            activity_name: "running",
             infinite: true,
             starting_text: "Go for a run through the forest",
             skill_xp_per_tick: 3,
         }),
+        "woodcutting": new LocationActivity({
+            activity_name: "woodcutting",
+            infinite: true,
+            starting_text: "Gather some wood from nearby trees",
+            skill_xp_per_tick: 3,
+            is_unlocked: false,
+            gained_resources: {
+                resources: [{name: "Piece of ash wood", ammount: [[1,1], [1,1]], chance: [0.01, 0.6]}],
+                time_period: [120, 40],
+                skill_required: [10, 20],
+                scales_with_skill: true,
+            }
+        }),
     };
     locations["Town farms"].activities = {
         "fieldwork": new LocationActivity({
-            activity: "fieldwork",
+            activity_name: "fieldwork",
             starting_text: "Work on the fields",
             get_payment: () => {
                 return 20 + Math.round(20 * skills["Farming"].current_level/skills["Farming"].max_level);

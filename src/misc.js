@@ -35,7 +35,7 @@ function format_reading_time(time) {
         return '1 hour';
     }
     else {
-        return `${time} minutes`;
+        return `${Math.round(time)} minutes`;
     }
 }
 

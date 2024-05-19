@@ -331,7 +331,7 @@ body {
 	padding: 5px;
 	position: absolute;
 	z-index: 1000;
-	width: 250px;
+	width: 200px;
 	pointer-events: none;
 }
 
@@ -343,6 +343,7 @@ body {
 	top: var(--job_tooltip_top);
 	left: var(--job_tooltip_left);
 	font-size: 16px;
+	width: 250px;
 }
 
 .equipment_slot_div:hover .item_tooltip, .trader_item_control:hover .item_tooltip, .inventory_item_control:hover .item_tooltip, 
@@ -391,8 +392,18 @@ body {
 			display: block;
 		}
 
+		.skill_id {
+			color: rgb(190, 190, 190);
+			font-style: italic;
+		}
+
 #skill_list_div {
 	display: block;
+}
+
+.activity_efficiency_info {
+	color: rgb(190, 190, 190);
+	font-style: italic;
 }
 
 #magic_list_div {
@@ -853,6 +864,22 @@ i {
 #action_end_text, #action_end_earnings {
 	display: inline;
 	font-size: var(--options_action_textsize);
+}
+
+#gathering_progress_bar {
+	height: 30px;
+	background-color: purple;
+	width: 0px;
+}
+
+#gathering_progress_bar_max {
+	width: 100%;
+	border-bottom: 1px solid white;
+	background-color: rgba(48, 0, 48, 0.596);
+}
+
+#location_actions_div :not(#action_end_div):hover #gathering_tooltip{
+	display: block;
 }
 
 #action_end_earnings {

@@ -37,7 +37,8 @@ import { end_activity_animation,
          start_reading_display,
          update_displayed_xp_bonuses, 
          update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain, update_displayed_stance_list, update_displayed_stamina_efficiency, update_displayed_stance, update_displayed_faved_stances, update_stance_tooltip,
-         update_displayed_skill_tooltips
+         update_displayed_skill_tooltips,
+         update_gathering_tooltip
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -254,14 +255,13 @@ function change_location(location_name) {
  */
 function start_activity(selected_activity) {
     current_activity = Object.assign({},current_location.activities[selected_activity]);
-    current_activity.name = current_activity.activity;
+    current_activity.id = selected_activity;
 
-    if(!activities[current_activity.activity]) {
-        throw `No such activity as ${current_activity.activity} could be found`;
+    if(!activities[current_activity.activity_name]) {
+        throw `No such activity as ${current_activity.activity_name} could be found`;
     }
-    current_activity.activity = activities[current_activity.activity];
 
-    if(activities[current_activity.name].type === "JOB") {
+    if(activities[current_activity.activity_name].type === "JOB") {
         if(!can_work(current_activity)) {
             current_activity = null;
             return;
@@ -270,22 +270,15 @@ function start_activity(selected_activity) {
         current_activity.earnings = 0;
         current_activity.working_time = 0;
 
-    } else if(activities[current_activity.name].type === "TRAINING") {
+    } else if(activities[current_activity.activity_name].type === "TRAINING") {
         //
-    } else if(activities[current_activity.name].type === "GATHERING") { 
+    } else if(activities[current_activity.activity_name].type === "GATHERING") { 
         //
-    } else throw `"${activities[current_activity.name].type}" is not a valid activity type!`;
+    } else throw `"${activities[current_activity.activity_name].type}" is not a valid activity type!`;
 
     current_activity.gathering_time = 0;
     if(current_activity.gained_resources) {
-        let skill_level_sum = 0;
-        for(let i = 0; i < current_activity.activity.base_skills_names?.length; i++) {
-            skill_level_sum += Math.min(current_activity.gained_resources.skill_required[1],Math.max(current_activity.gained_resources.skill_required[0],skills[current_activity.activity.base_skills_names[i]].current_level));
-        }
-
-        let skill_modifier = ((skill_level_sum/current_activity.activity.base_skills_names?.length) ** 1.5) || 1;
-
-        current_activity.gathering_time_needed = current_activity.gathering_time[0]-(current_activity.gathering_time[0]-current_activity.gathering_time[1])*skill_modifier;
+        current_activity.gathering_time_needed = current_activity.getActivityEfficiency().gathering_time_needed;
     }
 
     start_activity_display(current_activity);
@@ -813,21 +806,20 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
         update_character_attack_bar(count);
         count++;
         if(count >= 40) {
+            count = 0;
             let leveled = false;
 
             for(let i = 0; i < targets.length; i++) {
-                count = 0;
-
-                if(stances[current_stance].related_skill) {
-                    leveled = add_xp_to_skill({skill: skills[stances[current_stance].related_skill], xp_to_add: targets[i].xp_value/targets.length});
-                }
-
                 do_character_combat_action({target: targets[i], attack_power});
             }
 
-            if(leveled) {
-                update_stance_tooltip(current_stance);
-                update_character_stats();
+            if(stances[current_stance].related_skill) {
+                leveled = add_xp_to_skill({skill: skills[stances[current_stance].related_skill], xp_to_add: targets.reduce((sum,enemy)=>sum+enemy.xp_value,0)/targets.length});
+                
+                if(leveled) {
+                    update_stance_tooltip(current_stance);
+                    update_character_stats();
+                }
             }
 
             if(current_enemies.filter(enemy => enemy.is_alive).length != 0) { //set next loop if there's still an enemy left;
@@ -1417,7 +1409,7 @@ function create_save() {
                 save_data["locations"][key]["unlocked_activities"] = []
                 Object.keys(locations[key].activities).forEach(activity_key => {
                     if(locations[key].activities[activity_key].is_unlocked) {
-                        save_data["locations"][key]["unlocked_activities"].push(locations[key].activities[activity_key].activity);
+                        save_data["locations"][key]["unlocked_activities"].push(locations[key].activities[activity_key].activity_name);
                     }
                 });
             }
@@ -1430,8 +1422,9 @@ function create_save() {
             }
         }); //save activities' unlocked status (this is separate from unlock status in location)
 
+        //console.log(current_activity);
         if(current_activity) {
-            save_data["current_activity"] = {activity: current_activity.activity.name, 
+            save_data["current_activity"] = {activity_id: current_activity.id, 
                                              working_time: current_activity.working_time, 
                                              earnings: current_activity.earnings,
                                              gathering_time: current_activity.gathering_time,
@@ -1994,8 +1987,7 @@ function load(save_data) {
     //set activity if any saved
     if(save_data.current_activity) {
         //search for it in location from save_data
-        const activity_id = save_data.current_activity.activity;
-
+        const activity_id = save_data.current_activity.activity_id;
         if(typeof activity_id !== "undefined" && current_location.activities[activity_id]) {
             start_activity(activity_id);
             if(activities[activity_id].type === "JOB") {
@@ -2105,9 +2097,9 @@ function update() {
             if(current_activity) { //in activity
 
                 //add xp to all related skills
-                if(current_activity.activity.type !== "GATHERING"){
-                    for(let i = 0; i < current_activity.activity.base_skills_names?.length; i++) {
-                        add_xp_to_skill({skill: skills[current_activity.activity.base_skills_names[i]], xp_to_add: current_activity.skill_xp_per_tick});
+                if(activities[current_activity.activity_name].type !== "GATHERING"){
+                    for(let i = 0; i < activities[current_activity.activity_name].base_skills_names?.length; i++) {
+                        add_xp_to_skill({skill: skills[activities[current_activity.activity_name].base_skills_names[i]], xp_to_add: current_activity.skill_xp_per_tick});
                     }
                 }
 
@@ -2116,32 +2108,28 @@ function update() {
                 {
                     if(current_activity.gathering_time >= current_activity.gathering_time_needed) { 
 
-                        if(current_activity.activity.type === "GATHERING"){
-                            for(let i = 0; i < current_activity.activity.base_skills_names?.length; i++) {
-                                add_xp_to_skill({skill: skills[current_activity.activity.base_skills_names[i]], xp_to_add: current_activity.skill_xp_per_tick});
+                        let leveled = false;
+                        if(activities[current_activity.activity_name].type === "GATHERING"){
+                            for(let i = 0; i < activities[current_activity.activity_name].base_skills_names?.length; i++) {
+                                leveled = add_xp_to_skill({skill: skills[activities[current_activity.activity_name].base_skills_names[i]], xp_to_add: current_activity.skill_xp_per_tick}) || leveled;
+                            }
+                            
+                            if(leveled) {
+                                update_gathering_tooltip(current_activity);
                             }
                         }
+                        const {gathering_time_needed, gained_resources} = current_activity.getActivityEfficiency();
 
-                        let skill_level_sum = 0;
-                        for(let i = 0; i < current_activity.activity.base_skills_names?.length; i++) {
-                            skill_level_sum += Math.min(current_activity.gained_resources.skill_required[1],Math.max(current_activity.gained_resources.skill_required[0],skills[current_activity.activity.base_skills_names[i]].current_level))/current_activity.gained_resources.skill_required[1];
-                        }
-                        let skill_modifier = ((skill_level_sum/current_activity.activity.base_skills_names?.length) ** 1.5) || 1;
+                        current_activity.gathering_time_needed = gathering_time_needed;
 
-                        current_activity.gathering_time_needed = current_activity.gathering_time[0]-(current_activity.gathering_time[0]-current_activity.gathering_time[1])*skill_modifier;
-                        
                         const items = [];
 
-                        Object.values(current_activity.gained_resources.resources).forEach(resource => {
-                            const chance = resource.chance[0]+(resource.chance[1]-resource.chance[0])*skill_modifier;
-                            if(Math.random() > chance) {
-                                const min = Math.round(resource.ammount[0][0]+(resource.ammount[1][0]-resource.ammount[0][0])*skill_modifier);
-                                const max = Math.round(resource.ammount[0][1]+(resource.ammount[1][1]-resource.ammount[0][1])*skill_modifier);
-                                const count = Math.floor(Math.random() * (max - min + 1)) + min;
-                                
-                                items.push({item: item_templates[resource.name], count: count});
+                        for(let i = 0; i < gained_resources.length; i++) {
+                            if(Math.random() > gained_resources[i].chance) {
+                                const count = Math.floor(Math.random()*(gained_resources[i].count[1]-gained_resources[i].count[0]+1))+gained_resources[i].count[0];
+                                items.push({item: item_templates[gained_resources[i].name], count: count});
                             }
-                        });
+                        }
 
                         if(items.length > 0) {
                             log_loot(items, false);
@@ -2152,7 +2140,7 @@ function update() {
                 }
 
                 //if job: payment
-                if(current_activity.activity.type === "JOB") {
+                if(activities[current_activity.activity_name].type === "JOB") {
                     current_activity.working_time += 1;
 
                     if(current_activity.working_time % current_activity.working_period == 0) { 
@@ -2175,7 +2163,7 @@ function update() {
                 for(let i = 0; i < divs.length; i++) {
                     const activity = current_location.activities[divs[i].getAttribute("data-activity")];
 
-                    if(activities[activity.activity].type === "JOB") {
+                    if(activities[activity.activity_name].type === "JOB") {
                         if(can_work(activity)) {
                             divs[i].classList.remove("activity_unavailable");
                             divs[i].classList.add("start_activity");

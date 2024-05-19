@@ -436,7 +436,7 @@ character.take_damage = function ({damage_value, can_faint = true, give_skill_xp
                 damage_taken = Math.max(Math.ceil(10*damage_value)/10, 0);
         }
         else {
-                damage_taken = Math.round(10*Math.max(damage_value - character.stats.full.defense, 1))/10;
+                damage_taken = Math.round(10*Math.max(damage_value - character.stats.full.defense, damage_value*0.1))/10;
         }
 
         character.stats.full.health -= damage_taken;

@@ -1266,11 +1266,10 @@ function update_displayed_normal_location(location) {
     ///////////////////////////
     //add buttons to start jobs
 
-    const available_jobs = Object.values(location.activities).filter(activity => activities[activity.activity].type === "JOB" 
-                                                                    && activities[activity.activity].is_unlocked
+    const available_jobs = Object.values(location.activities).filter(activity => activities[activity.activity_name].type === "JOB" 
+                                                                    && activities[activity.activity_name].is_unlocked
                                                                     && activity.is_unlocked
-                                                                    && activities[activity.activity].base_skills_names.filter(skill => !skills[skill].is_unlocked).length == 0);
-
+                                                                    && activities[activity.activity_name].base_skills_names.filter(skill => !skills[skill].is_unlocked).length == 0);
     if(available_jobs.length > 2) {     
         const jobs_button = document.createElement("div");
         jobs_button.setAttribute("data-location", location.name);
@@ -1285,10 +1284,10 @@ function update_displayed_normal_location(location) {
     ///////////////////////////////
     //add buttons to start training
 
-    const available_trainings = Object.values(location.activities).filter(activity => activities[activity.activity].type === "TRAINING" 
-                                                                    && activities[activity.activity].is_unlocked
+    const available_trainings = Object.values(location.activities).filter(activity => activities[activity.activity_name].type === "TRAINING" 
+                                                                    && activities[activity.activity_name].is_unlocked
                                                                     && activity.is_unlocked
-                                                                    && activities[activity.activity].base_skills_names.filter(skill => !skills[skill].is_unlocked).length == 0);
+                                                                    && activities[activity.activity_name].base_skills_names.filter(skill => !skills[skill].is_unlocked).length == 0);
     if(available_trainings.length > 2) {     
         const trainings_button = document.createElement("div");
         trainings_button.setAttribute("data-location", location.name);
@@ -1303,10 +1302,10 @@ function update_displayed_normal_location(location) {
     ////////////////////////////////
     //add buttons to start gathering
 
-    const available_gatherings = Object.values(location.activities).filter(activity => activities[activity.activity].type === "GATHERING" 
-                                                                    && activities[activity.activity].is_unlocked
+    const available_gatherings = Object.values(location.activities).filter(activity => activities[activity.activity_name].type === "GATHERING" 
+                                                                    && activities[activity.activity_name].is_unlocked
                                                                     && activity.is_unlocked
-                                                                    && activities[activity.activity].base_skills_names.filter(skill => !skills[skill].is_unlocked).length == 0);
+                                                                    && activities[activity.activity_name].base_skills_names.filter(skill => !skills[skill].is_unlocked).length == 0);
     if(available_gatherings.length > 2) {     
         const gatherings_button = document.createElement("div");
         gatherings_button.setAttribute("data-location", location.name);
@@ -1416,9 +1415,9 @@ function create_location_choices({location, category, add_icons = true, is_comba
         }
     } else if (category === "work") {
         Object.keys(location.activities).forEach(key => {
-            if(!activities[location.activities[key].activity]?.is_unlocked 
+            if(!activities[location.activities[key].activity_name]?.is_unlocked 
                 || !location.activities[key]?.is_unlocked 
-                || activities[location.activities[key].activity].type !== "JOB") 
+                || activities[location.activities[key].activity_name].type !== "JOB") 
             {
                 return;
             }
@@ -1452,10 +1451,10 @@ function create_location_choices({location, category, add_icons = true, is_comba
         });
     } else if (category === "train") {
         Object.keys(location.activities).forEach(key => {
-            if(!activities[location.activities[key].activity]?.is_unlocked 
+            if(!activities[location.activities[key].activity_name]?.is_unlocked 
                 || !location.activities[key]?.is_unlocked 
-                || activities[location.activities[key].activity].type !== "TRAINING"
-                || activities[location.activities[key].activity].base_skills_names.filter(skill => !skills[skill].is_unlocked).length > 0) 
+                || activities[location.activities[key].activity_name].type !== "TRAINING"
+                || activities[location.activities[key].activity_name].base_skills_names.filter(skill => !skills[skill].is_unlocked).length > 0) 
             {
                 return;
             }
@@ -1472,10 +1471,10 @@ function create_location_choices({location, category, add_icons = true, is_comba
         });
     } else if (category === "gather") {
         Object.keys(location.activities).forEach(key => {
-            if(!activities[location.activities[key].activity]?.is_unlocked 
+            if(!activities[location.activities[key].activity_name]?.is_unlocked 
                 || !location.activities[key]?.is_unlocked 
-                || activities[location.activities[key].activity].type !== "GATHERING"
-                || activities[location.activities[key].activity].base_skills_names.filter(skill => !skills[skill].is_unlocked).length > 0) 
+                || activities[location.activities[key].activity_name].type !== "GATHERING"
+                || activities[location.activities[key].activity_name].base_skills_names.filter(skill => !skills[skill].is_unlocked).length > 0) 
             {
                 return;
             }
@@ -1487,12 +1486,7 @@ function create_location_choices({location, category, add_icons = true, is_comba
             activity_div.setAttribute("data-activity", key);
             activity_div.setAttribute("onclick", "start_activity(this.getAttribute('data-activity'));");
 
-            const gathering_tooltip = document.createElement("div");
-            gathering_tooltip.classList.add("job_tooltip");
-
-            gathering_tooltip.innerHTML += `Chance to find [UNSPECIFIED ITEMS] per every [UNSPECIFIED TIME]`;
-
-            activity_div.appendChild(gathering_tooltip);
+            activity_div.appendChild(create_gathering_tooltip(location.activities[key]));
     
             activity_div.innerHTML += location.activities[key].starting_text;
             choice_list.push(activity_div);
@@ -1665,6 +1659,52 @@ function update_displayed_combat_location(location) {
 
         type_div.appendChild(type_tooltip);
         location_types_div.appendChild(type_div);
+    }
+}
+
+/**
+ * 
+ * @param {LocationActivity} location_activity 
+ */
+function create_gathering_tooltip(location_activity) {
+    const gathering_tooltip = document.createElement("div");
+    gathering_tooltip.id = "gathering_tooltip";
+    gathering_tooltip.classList.add("job_tooltip");
+
+    const {gathering_time_needed, gained_resources} = location_activity.getActivityEfficiency();
+
+    let skill_names = "";
+    for(let i = 0; i < activities[location_activity.activity_name].base_skills_names.length; i++) {
+        skill_names += skills[activities[location_activity.activity_name].base_skills_names[i]].name();
+    }
+
+    if(location_activity.gained_resources.scales_with_skill) {
+        gathering_tooltip.innerHTML = `<span class="activity_efficiency_info">Efficiency scaling:<br>"${skill_names}" skill lvl ${location_activity.gained_resources.skill_required[0]} to ${location_activity.gained_resources.skill_required[1]}</span><br><br>`;
+    }
+
+    gathering_tooltip.innerHTML += `Every ${format_reading_time(gathering_time_needed)}, chance to find:`;
+    for(let i = 0; i < gained_resources.length; i++) {
+        gathering_tooltip.innerHTML += `<br>x${gained_resources[i].count[0]===gained_resources[i].count[1]?gained_resources[i].count[0]:`${gained_resources[i].count[0]}-${gained_resources[i].count[1]}`} "${gained_resources[i].name}" at ${Math.round(100*gained_resources[i].chance)}%`;
+    }
+
+    return gathering_tooltip;
+}
+
+function update_gathering_tooltip(current_activity) {
+    const gathering_tooltip = document.getElementById("gathering_tooltip");
+    const {gathering_time_needed, gained_resources} = current_activity.getActivityEfficiency();
+
+    let skill_names = "";
+    for(let i = 0; i < activities[current_activity.activity_name].base_skills_names.length; i++) {
+        skill_names += skills[activities[current_activity.activity_name].base_skills_names[i]].name();
+    }
+
+    if(current_activity.gained_resources.scales_with_skill) {
+        gathering_tooltip.innerHTML = `<span class="activity_efficiency_info">Efficiency scaling:<br>"${skill_names}" skill lvl ${current_activity.gained_resources.skill_required[0]} to ${current_activity.gained_resources.skill_required[1]}</span><br><br>`;
+    }
+    gathering_tooltip.innerHTML += `Every ${format_reading_time(gathering_time_needed)}, chance to find:`;
+    for(let i = 0; i < gained_resources.length; i++) {
+        gathering_tooltip.innerHTML += `<br>x${gained_resources[i].count[0]===gained_resources[i].count[1]?gained_resources[i].count[0]:`${gained_resources[i].count[0]}-${gained_resources[i].count[1]}`} "${gained_resources[i].name}" at ${Math.round(100*gained_resources[i].chance)}%`;
     }
 }
 
@@ -1904,16 +1944,19 @@ function exit_displayed_trade() {
 function start_activity_display(current_activity) {
     clear_action_div();
     const action_status_div = document.createElement("div");
-    action_status_div.innerText = current_activity.activity.action_text;
+    action_status_div.innerText = activities[current_activity.activity_name].action_text;
     action_status_div.id = "action_status_div";
-
     const action_xp_div = document.createElement("div");
-    if(current_activity.activity.base_skills_names) {
-        const needed_xp = skills[current_activity.activity.base_skills_names].current_level == skills[current_activity.activity.base_skills_names].max_level? "Max": `${Math.round(10000*skills[current_activity.activity.base_skills_names].current_xp/skills[current_activity.activity.base_skills_names].xp_to_next_lvl)/100}%`
-        action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${skills[current_activity.activity.base_skills_names].name()} (${needed_xp})`;
+    if(activities[current_activity.activity_name].base_skills_names) {
+        const needed_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.round(10000*skills[activities[current_activity.activity_name].base_skills_names].current_xp/skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)/100}%`
+        if(activities[current_activity.activity_name].type !== "GATHERING") {
+            action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${needed_xp})`;
+        } else {
+            action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per gathering cycle to ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${needed_xp})`;
+        }
     }
     else {
-        console.warn(`Activity "${current_activity.activity.name}" has no skills assigned!`);
+        console.warn(`Activity "${current_activity.activity_name}" has no skills assigned!`);
     }
     action_xp_div.id = "action_xp_div";
 
@@ -1923,13 +1966,13 @@ function start_activity_display(current_activity) {
 
 
     const action_end_text = document.createElement("div");
-    action_end_text.innerText = `Finish ${current_activity.name}`;
+    action_end_text.innerText = `Finish ${current_activity.activity_name}`;
     action_end_text.id = "action_end_text";
 
-    
+
     action_end_div.appendChild(action_end_text);
 
-    if(current_activity.activity.type === "JOB") {
+    if(activities[current_activity.activity_name].type === "JOB") {
         const action_end_earnings = document.createElement("div");
         action_end_earnings.innerHTML = `(earnings: ${format_money(0)})`;
         action_end_earnings.id = "action_end_earnings";
@@ -1937,15 +1980,26 @@ function start_activity_display(current_activity) {
         action_end_div.appendChild(action_end_earnings);
     }
 
-     action_div.appendChild(action_status_div);
-     action_div.appendChild(action_xp_div);
-     action_div.appendChild(action_end_div);
+    action_div.appendChild(action_status_div);
+    action_div.appendChild(action_xp_div);
 
-     if(current_activity.activity.type === "JOB") 
-     {
+    if(current_activity.gained_resources) {
+        const action_progress_bar_max = document.createElement("div");
+        const action_progress_bar = document.createElement("div");
+        action_progress_bar_max.appendChild(action_progress_bar);
+        action_progress_bar.id = "gathering_progress_bar";
+        action_progress_bar.style.width = 385*current_activity.gathering_time/current_activity.gathering_time_needed+"px";
+        action_progress_bar_max.id = "gathering_progress_bar_max";
+        action_div.appendChild(action_progress_bar_max);
+        action_progress_bar_max.appendChild(create_gathering_tooltip(current_activity));
+    }
+    
+    action_div.appendChild(action_end_div);
+
+    if(activities[current_activity.activity_name].type === "JOB") 
+    {
         const time_info_div = document.createElement("div");
         time_info_div.id = "time_for_earnings_div";
-        
 
         if(!enough_time_for_earnings(current_activity)) {
             time_info_div.innerHTML = `There's not enough time left to earn more, but ${character.name} might still learn something...`;
@@ -1957,6 +2011,30 @@ function start_activity_display(current_activity) {
     }
 
     start_activity_animation();
+}
+
+function update_displayed_ongoing_activity(current_activity, is_job){
+    if(is_job) {
+        document.getElementById("action_end_earnings").innerHTML = `(earnings: ${format_money(current_activity.earnings)})`
+        const time_info_div = document.getElementById("time_for_earnings_div");
+        
+        if(!enough_time_for_earnings(current_activity)) {
+            time_info_div.innerHTML = `There's not enough time left to earn more, but ${character.name} might still learn something...`;
+        } else {
+            time_info_div.innerHTML = `Next earnings in: ${format_time({time: {minutes: current_activity.working_period - current_activity.working_time%current_activity.working_period}})}`;
+        }
+    }
+    const action_xp_div = document.getElementById("action_xp_div");
+    const needed_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.round(10000*skills[activities[current_activity.activity_name].base_skills_names].current_xp/skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)/100}%`
+    
+    if(activities[current_activity.activity_name].type !== "GATHERING") {
+        action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per in-game minute to ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${needed_xp})`;
+    } else {
+        action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per gathering cycle to ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${needed_xp})`;
+    }
+    if(current_activity.gained_resources) {
+        document.getElementById("gathering_progress_bar").style.width = 385*current_activity.gathering_time/current_activity.gathering_time_needed+"px";
+    }
 }
 
 function start_sleeping_display(){
@@ -2051,10 +2129,12 @@ function create_new_skill_bar(skill) {
     skill_tooltip.appendChild(tooltip_milestones);
     skill_tooltip.appendChild(tooltip_next);
 
+    tooltip_desc.innerHTML = `<span class="skill_id">id: "${skill.skill_id}"</span><br><br>${skill.description}`;
+    if(skill.get_effect_description()) {
+        tooltip_desc.innerHTML += `<br><br>`;
+    }
     if(skill.parent_skill) {
-        tooltip_desc.innerHTML = `${skill.description}<br><br>Parent skill: ${skill.parent_skill}<br><br>`; 
-    } else {
-        tooltip_desc.innerHTML = `${skill.description}<br><br>`; 
+        tooltip_desc.innerHTML += `Parent skill: ${skill.parent_skill}<br><br>`; 
     }
     
     skill_bar_max.appendChild(skill_bar_text);
@@ -2591,22 +2671,6 @@ function clear_bestiary() {
     });
 }
 
-function update_displayed_ongoing_activity(current_activity, is_job){
-    if(is_job) {
-    document.getElementById("action_end_earnings").innerHTML = `(earnings: ${format_money(current_activity.earnings)})`
-        const time_info_div = document.getElementById("time_for_earnings_div");
-        
-        if(!enough_time_for_earnings(current_activity)) {
-            time_info_div.innerHTML = `There's not enough time left to earn more, but ${character.name} might still learn something...`;
-        } else {
-            time_info_div.innerHTML = `Next earnings in: ${format_time({time: {minutes: current_activity.working_period - current_activity.working_time%current_activity.working_period}})}`;
-        }
-    }
-    const action_xp_div = document.getElementById("action_xp_div");
-    const needed_xp = skills[current_activity.activity.base_skills_names].current_level == skills[current_activity.activity.base_skills_names].max_level? "Max": `${Math.round(10000*skills[current_activity.activity.base_skills_names].current_xp/skills[current_activity.activity.base_skills_names].xp_to_next_lvl)/100}%`
-    action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per in-game minute to ${skills[current_activity.activity.base_skills_names].name()} (${needed_xp})`;
-}
-
 function clear_skill_list(){
     while(skill_list.firstChild) {
         skill_list.removeChild(skill_list.lastChild);
@@ -2675,5 +2739,6 @@ export {
     update_displayed_stance,
     update_displayed_faved_stances,
     update_stance_tooltip,
-    update_displayed_skill_tooltips
+    update_displayed_skill_tooltips,
+    update_gathering_tooltip
 }

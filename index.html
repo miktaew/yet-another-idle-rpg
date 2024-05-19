@@ -1330,14 +1330,13 @@
                     }
                 }
 
-                //activities tooltips
+                //activities tooltips (including the tooltip for resource gathering, since it shares a class with them)
                 const location_actions_div = document.getElementById("location_actions_div");
                 location_actions_div.addEventListener('mousemove', move_activity_tooltip, false);
                 function move_activity_tooltip(event) {
                     document.documentElement.style.setProperty('--job_tooltip_top', `${event.pageY - 410}px`);
                     document.documentElement.style.setProperty('--job_tooltip_left', `${event.pageX - 420}px`);
                 }
-
 
                 //skill tooltips
                 const skills_div = document.getElementById("skill_list_div");
