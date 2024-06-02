@@ -671,6 +671,30 @@ body {
 	clear: both;
 }
 
+#crafting_window {
+	visibility: hidden;
+}
+
+	#crafting_mainpage_buttons {
+		font-size: 20px;
+		position: absolute;
+		top: 0px;
+	}
+		.crafting_mainpage_button {
+			float:left;
+			padding: 3px;
+			padding-left: 5px;
+			padding-right: 5px;
+			min-width: 63px;
+			max-width: fit-content;
+			text-align: center;
+			outline: 1px solid white;
+			margin: 1px;
+			cursor: pointer;
+		}
+
+	
+
 .sl_button {
 	width: fit-content;
 	padding: 10px 10px;

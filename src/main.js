@@ -11,10 +11,10 @@ import { is_in_trade, start_trade, cancel_trade, accept_trade, exit_trade, add_t
          add_to_buying_list, remove_from_buying_list, add_to_selling_list, remove_from_selling_list} from "./trade.js";
 import { character, 
          add_to_character_inventory, remove_from_character_inventory,
-         equip_item_from_inventory, unequip_item, equip_item, 
-         update_combat_stats,
+         equip_item_from_inventory, unequip_item, equip_item,
          update_character_stats,
-         get_skill_xp_gain, } from "./character.js";
+         get_skill_xp_gain,
+         add_location_penalties, } from "./character.js";
 import { activities } from "./activities.js";
 import { end_activity_animation, 
          update_displayed_character_inventory, update_displayed_trader_inventory, sort_displayed_inventory, sort_displayed_skills,
@@ -38,7 +38,9 @@ import { end_activity_animation,
          update_displayed_xp_bonuses, 
          update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain, update_displayed_stance_list, update_displayed_stamina_efficiency, update_displayed_stance, update_displayed_faved_stances, update_stance_tooltip,
          update_displayed_skill_tooltips,
-         update_gathering_tooltip
+         update_gathering_tooltip,
+         open_crafting_window,
+         update_displayed_location_types
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -235,7 +237,7 @@ function change_location(location_name) {
     
     current_location = location;
 
-    update_combat_stats();
+    update_character_stats();
 
     if("connected_locations" in current_location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
         update_displayed_normal_location(current_location);
@@ -851,7 +853,7 @@ function clear_all_enemy_attack_loops() {
 function start_combat() {
     if(current_enemies == null) {
         set_new_combat();
-        update_combat_stats();
+        add_location_penalties();
     }
 }
 
@@ -906,7 +908,7 @@ function do_enemy_combat_action(enemy_id) {
             add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value/2});
          }
     } else { // HAS NO SHIELD
-        const hit_chance = get_hit_chance(attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1), character.combat_stats.evasion_points)/evasion_chance_modifier;
+        const hit_chance = get_hit_chance(attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1), character.stats.full.evasion_points)/evasion_chance_modifier;
 
         if(hit_chance < Math.random()) { //EVADED ATTACK
             const xp_to_add = character.wears_armor() ? attacker.xp_value : attacker.xp_value * 1.5; 
@@ -992,7 +994,7 @@ function do_character_combat_action({target, attack_power}) {
         add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: target.xp_value});
     }
 
-    const hit_chance = get_hit_chance(character.combat_stats.attack_points, target.stats.agility * Math.sqrt(target.stats.intuition ?? 1)) * hit_chance_modifier;
+    const hit_chance = get_hit_chance(character.stats.full.attack_points, target.stats.agility * Math.sqrt(target.stats.intuition ?? 1)) * hit_chance_modifier;
 
     if(hit_chance > Math.random()) {//hero's attack hits
 
@@ -2043,8 +2045,7 @@ function load_from_localstorage() {
 //update game time
 function update_timer() {
     current_game_time.go_up(is_sleeping ? 6 : 1);
-    update_combat_stats(); //yep, done every second, gotta try to optimize it at some point
-    //honestly unsure if it's still needed
+    update_character_stats(); //done every second, mostly because of daynight cycle; gotta optimize it at some point
     update_displayed_time();
 }
 
@@ -2236,8 +2237,12 @@ function update() {
         //add xp to proper skills based on location types
         if(current_location) {
             const skills = current_location.gained_skills;
+            let leveled = false;
             for(let i = 0; i < skills?.length; i++) {
-                add_xp_to_skill({skill: current_location.gained_skills[i].skill, xp_to_add: current_location.gained_skills[i].xp});
+                leveled = add_xp_to_skill({skill: current_location.gained_skills[i].skill, xp_to_add: current_location.gained_skills[i].xp}) || leveled;
+            }
+            if(leveled){
+                update_displayed_location_types(current_location);
             }
         }
 
@@ -2323,6 +2328,8 @@ window.sort_displayed_skills = sort_displayed_skills;
 window.change_stance = change_stance;
 window.fav_stance = fav_stance;
 
+window.openCraftingWindow = open_crafting_window;
+
 window.option_uniform_textsize = option_uniform_textsize;
 window.option_bed_return = option_bed_return;
 window.option_combat_autoswitch = option_combat_autoswitch;
@@ -2335,7 +2342,7 @@ window.get_game_version = get_game_version;
 
 if("save data" in localStorage) {
     load_from_localstorage();
-    update_combat_stats();
+    update_character_stats();
     update_displayed_xp_bonuses();
 }
 else {

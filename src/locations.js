@@ -24,7 +24,6 @@ class Location {
                 getDescription,
                 background_noises = [],
                 getBackgroundNoises,
-                smelting = null,
                 crafting = null,
             }) {
         // always a safe zone
@@ -48,9 +47,8 @@ class Location {
             }
         }
         this.light_level = light_level; //not really used for this type
-        this.smelting = smelting;
         this.crafting = crafting;
-        /* {is_unlocked: true} */
+        /* {is_unlocked: Boolean, use_text: String} */
     }
 }
 
@@ -242,7 +240,7 @@ class Combat_zone {
                 effects.multipliers[effect] = (effects.multipliers[effect] || 1) * type.effects.multipliers[effect];
                 
                 hero_effects.multipliers[effect] = (hero_effects.multipliers[effect] || 1) 
-                        * (type.effects.multipliers[effect] + (1 - type.effects.multipliers[effect])*(skill.current_level/skill.max_level));
+                        * (type.effects.multipliers[effect] + (1 - type.effects.multipliers[effect])*(skill.current_level/skill.max_level)**1.7);
             })
         }
 
@@ -400,8 +398,8 @@ class LocationType{
                 related_skill: "Dazzle resistance",
                 effects: {
                     multipliers: {
-                        hit_chance: 0.5,
-                        evasion: 0.5,
+                        attack_points: 0.5,
+                        evasion_points: 0.5,
                     }
                 }
             },
@@ -410,8 +408,8 @@ class LocationType{
                 related_skill: "Dazzle resistance",
                 effects: {
                     multipliers: {
-                        hit_chance: 0.1,
-                        evasion: 0.1,
+                        attack_points: 0.1,
+                        evasion_points: 0.1,
                     }
                 }
             }
@@ -431,8 +429,8 @@ class LocationType{
                 effects: {
                     multipliers: {
                         //they dont need to be drastic since they apply on top of 'night' penalty
-                        hit_chance: 0.8,
-                        evasion: 0.8,
+                        attack_points: 0.8,
+                        evasion_points: 0.8,
                     }
                 }
             },
@@ -441,8 +439,8 @@ class LocationType{
                 related_skill: "Presence sensing",
                 effects: {
                     multipliers: {
-                        hit_chance: 0.15,
-                        evasion: 0.15,
+                        attack_points: 0.15,
+                        evasion_points: 0.15,
                     }
                 }
             }
@@ -456,7 +454,7 @@ class LocationType{
                 related_skill: "Tight maneuvers",
                 effects: {
                     multipliers: {
-                                evasion: 0.333,
+                        evasion_points: 0.333,
                                 }
                         }
                 }
@@ -470,7 +468,7 @@ class LocationType{
                 related_skill: "Spatial awareness",
                 effects: {
                     multipliers: {
-                        evasion: 0.75,
+                        evasion_points: 0.75,
                     }
                 }
             }
@@ -484,8 +482,8 @@ class LocationType{
                 related_skill: "Heat resistance",
                 effects: {
                     multipliers: {
-                        hit_chance: 0.5,
-                        evasion: 0.5,
+                        attack_points: 0.5,
+                        evasion_points: 0.5,
                         stamina: 0.8,
                     }
                 }
@@ -495,8 +493,8 @@ class LocationType{
                 related_skill: "Heat resistance",
                 effects: {
                     multipliers: {
-                        hit_chance: 0.3,
-                        evasion: 0.3,
+                        attack_points: 0.3,
+                        evasion_points: 0.3,
                         stamina: 0.5,
                     }
                 }
@@ -507,8 +505,8 @@ class LocationType{
                 //TODO: environmental damage if resistance is too low
                 effects: {
                     multipliers: {
-                        hit_chance: 0.1,
-                        evasion: 0.1,
+                        attack_points: 0.1,
+                        evasion_points: 0.1,
                         stamina: 0.3,
                     }
                 }
@@ -532,8 +530,8 @@ class LocationType{
                 related_skill: "Cold resistance",
                 effects: {
                     multipliers: {
-                        hit_chance: 0.7,
-                        evasion: 0.7,
+                        attack_points: 0.7,
+                        evasion_points: 0.7,
                         stamina: 0.2,
                     }
                 }
@@ -544,8 +542,8 @@ class LocationType{
                 //TODO: environmental damage if resistance is too low (to both hp and stamina?)
                 effects: {
                     multipliers: {
-                        hit_chance: 0.5,
-                        evasion: 0.5,
+                        attack_points: 0.5,
+                        evasion_points: 0.5,
                         stamina: 0.1,
                     }
                 }
@@ -589,8 +587,7 @@ class LocationType{
         dialogues: ["village elder", "village guard"],
         traders: ["village trader"],
         name: "Village", 
-        smelting: {is_unlocked: false},
-        has_crafting: {is_unlocked: false},
+        crafting: {is_unlocked: true, use_text: "Try to craft something"},
     });
 
     locations["Shack"] = new Location({

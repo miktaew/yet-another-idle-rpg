@@ -109,7 +109,11 @@ function getLootPriceModifierMultiple(value, start_count, how_many_to_sell) {
 class Item {
     constructor({name,
                 description,
-                value = 0, id}) {
+                value = 0, 
+                id,
+                tags = [],
+                }) 
+    {
         this.name = name; 
         this.description = description;
         this.saturates_market = false;
@@ -119,6 +123,7 @@ class Item {
          * Use .getValue() instead of this
          */
         this.value = value;
+        this.tags = tags;
     }
 
     getValue() {
@@ -171,6 +176,7 @@ class Material extends OtherItem {
         this.saturates_market = true;
         this.price_recovers = true;
         this.material_type = item_data.material_type;
+        this.tags.push("Material");
     }
 }
 
@@ -179,6 +185,7 @@ class ItemComponent extends OtherItem {
         super(item_data);
         this.component_tier = item_data.component_tier || 1;
         this.stats = item_data.stats || {};
+        this.tags.push("Equipment component");
     }
 }
 
@@ -198,6 +205,8 @@ class WeaponComponent extends ItemComponent {
         this.attack_multiplier = item_data.attack_multiplier || 1; //can skip this for weapon heads
 
         this.name_prefix = item_data.name_prefix; //to create a name of an item, e.g. "Sharp iron" used to create spear results in "Sharp iron spear"
+
+        this.tags.push("Weapon component");
     }
 }
 
@@ -212,6 +221,8 @@ class ShieldComponent extends ItemComponent {
         //properties below only matter for shield type component
         this.shield_strength = item_data.shield_strength; 
         this.shield_name = item_data.shield_name || item_data.name;
+
+        this.tags.push("Shield component");
     }
 }
 
@@ -235,6 +246,8 @@ class ArmorComponent extends ItemComponent {
         //only used with external elements; name_prefix/name_suffix are used only if full_armor_name is not provided
         this.name_prefix = item_data.name_prefix;
         this.name_suffix = item_data.name_suffix;
+
+        this.tags.push("Armor component");
     }
 }
 
@@ -244,6 +257,8 @@ class UsableItem extends Item {
         this.item_type = "USABLE";
         this.stackable = true;
         this.use_effect = item_data.use_effect || {};
+
+        this.tags.push("Usable");
     }
 }
 
@@ -259,6 +274,8 @@ class Equippable extends Item {
 
         this.quality = item_data.quality || 1;
         //item quality, value of (0, 1>, set in other place
+
+        this.tags.push("Equippable");
     }
 
     getValue() {
@@ -345,6 +362,7 @@ class Shield extends Equippable {
             throw new Error(`No such shield handle component as: ${item_data.components.handle}`);
         }
         this.components.handle = item_data.components.handle; //only the name
+        this.tags.push("Shield");
     }
 
     getShieldStrength() {
@@ -389,6 +407,8 @@ class Armor extends Equippable {
             throw new Error(`No such external armor element as: ${item_data.components.external}`);
         }
         this.components.external = item_data.components.external; //only the name
+
+        this.tags.push("Armor");
     }
 
     getDefense() {
@@ -474,6 +494,8 @@ class Weapon extends Equippable {
         } else {
             throw new Error(`Combination of elements of types ${item_templates[this.components.handle].component_type} and ${item_templates[this.components.head].component_type} does not exist!`);
         }
+
+        this.tags.push("Weapon");
     }
 
     getAttack(){
@@ -529,6 +551,8 @@ class Book extends Item {
         this.stackable = true;
         this.item_type = "BOOK";
         this.name = item_data.name;
+
+        this.tags.push("Book");
     }
 
     /**

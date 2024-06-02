@@ -54,6 +54,9 @@ const stat_names = {"strength": "str",
                     "attack_power": "attack power",
                     "block_strength": "shield strength",
                     "hit_chance": "hit chance",
+                    "evasion": "EP",
+                    "evasion_points": "EP",
+                    "attack_points": "AP",
                 };
 
 function get_hit_chance(attack_points, evasion_points) {

@@ -1157,8 +1157,8 @@ function update_displayed_enemies() {
                 hero_evasion_chance_modifier *= skills["Giant slayer"].get_coefficient("multiplicative");
             }
         
-            const evasion_chance = 1 - get_hit_chance(character.combat_stats.attack_points, current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition ?? 1)) * hero_hit_chance_modifier;
-            let hit_chance = get_hit_chance(current_enemies[i].stats.dexterity * Math.sqrt(current_enemies[i].stats.intuition ?? 1), character.combat_stats.evasion_points) / hero_evasion_chance_modifier;
+            const evasion_chance = 1 - get_hit_chance(character.stats.full.attack_points, current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition ?? 1)) * hero_hit_chance_modifier;
+            let hit_chance = get_hit_chance(current_enemies[i].stats.dexterity * Math.sqrt(current_enemies[i].stats.intuition ?? 1), character.stats.full.evasion_points) / hero_evasion_chance_modifier;
 
             if(character.equipment["off-hand"]?.offhand_type === "shield") { //has shield
                 hit_chance = 1;
@@ -1336,6 +1336,16 @@ function update_displayed_normal_location(location) {
     action_div.append(...create_location_choices({location: location, category: "challenge"}));
 
 
+    /////////////////////////////
+    //add button to open crafting
+    if(location.crafting?.is_unlocked) {
+        const crafting_button = document.createElement("div");
+        crafting_button.classList.add("location_choices");
+        crafting_button.setAttribute("onclick", 'openCraftingWindow()');
+        crafting_button.innerHTML = `<i class="material-icons">construction</i> ${location.crafting.use_text}`;
+        action_div.appendChild(crafting_button);
+    }
+
     /////////////////////////////////
     //add butttons to change location
 
@@ -1424,7 +1434,7 @@ function create_location_choices({location, category, add_icons = true, is_comba
             
             const activity_div = document.createElement("div");
 
-            activity_div.innerHTML = `<i class="material-icons">construction</i>  `;
+            activity_div.innerHTML = `<i class="material-icons">work_outline</i>  `;
             activity_div.classList.add("activity_div");
             activity_div.setAttribute("data-activity", key);
             activity_div.setAttribute("onclick", "start_activity(this.getAttribute('data-activity'));");
@@ -1481,7 +1491,7 @@ function create_location_choices({location, category, add_icons = true, is_comba
 
             const activity_div = document.createElement("div");
 
-            activity_div.innerHTML = `<i class="material-icons">fitness_center</i>  `;
+            activity_div.innerHTML = `<i class="material-icons">search</i>  `;
             activity_div.classList.add("activity_div", "start_activity");
             activity_div.setAttribute("data-activity", key);
             activity_div.setAttribute("onclick", "start_activity(this.getAttribute('data-activity'));");
@@ -1634,7 +1644,6 @@ function update_displayed_combat_location(location) {
 
     action_div.append(...action);
 
-
     location_name_span.innerText = current_location.name;
     if(current_location.types.length == 0) {
         document.documentElement.style.setProperty('--location_name_div_width', '390px');
@@ -1648,6 +1657,7 @@ function update_displayed_combat_location(location) {
     document.getElementById("location_description_div").innerText = current_location.getDescription();
 
     //add location types to display
+    /*
     for(let i = 0; i < current_location.types?.length; i++) {
         const type_div = document.createElement("div");
         type_div.innerHTML = current_location.types[i].type + (current_location.types[i].stage>1?` ${"I".repeat(current_location.types[i].stage)}`:"");
@@ -1660,6 +1670,54 @@ function update_displayed_combat_location(location) {
         type_div.appendChild(type_tooltip);
         location_types_div.appendChild(type_div);
     }
+    */
+   create_location_types_display(current_location);
+}
+
+function create_location_types_display(current_location){
+    for(let i = 0; i < current_location.types?.length; i++) {
+        const type_div = document.createElement("div");
+
+        type_div.innerHTML = current_location.types[i].type + (current_location.types[i].stage>1?` ${"I".repeat(current_location.types[i].stage)}`:"");
+        type_div.classList.add("location_type_div");
+
+        const type_tooltip = document.createElement("div");
+        type_tooltip.innerHTML = location_types[current_location.types[i].type].stages[current_location.types[i].stage].description;
+        type_tooltip.classList.add("location_type_tooltip");
+
+        const {type, stage} = current_location.types[i];
+        const {effects, related_skill} = location_types[type].stages[stage];
+        const skill = skills[related_skill];
+        if(effects.multipliers) {
+            type_tooltip.innerHTML += `<br>`;
+            Object.keys(effects.multipliers).forEach(stat => {
+                const base = effects.multipliers[stat];
+                const actual = (effects.multipliers[stat] + (1 - effects.multipliers[stat])*(skill.current_level/skill.max_level)**1.7);
+                type_tooltip.innerHTML += `<br>${stat_names[stat]} x${Math.round(1000*actual)/1000}`;
+                if(base != actual) {
+                    type_tooltip.innerHTML += ` [base: x${effects.multipliers[stat]}]`
+                }
+            })
+        } //other effects to be done when/if they are added
+
+        type_div.appendChild(type_tooltip);
+        location_types_div.appendChild(type_div);
+    }
+}
+
+function update_displayed_location_types(current_location){
+    location_types_div.innerHTML = "";
+    create_location_types_display(current_location);
+}
+
+function open_crafting_window() {
+    action_div.style.display = "none";
+    document.getElementById("crafting_window").style.visibility = "visible";
+}
+
+function close_crafting_window() {
+    action_div.style.display = "";
+    update_displayed_normal_location(current_location);
 }
 
 /**
@@ -1734,16 +1792,14 @@ function update_displayed_stats() { //updates displayed stats
         }
         update_stat_description(key);
     });
-}
 
-function update_displayed_combat_stats() {
     const attack_stats = document.getElementById("attack_stats");
 
-    const ap = Math.round(character.combat_stats.attack_points);
+    const ap = Math.round(character.stats.full.attack_points);
     other_combat_divs.attack_points.innerHTML = `${ap}`;
 
     if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") { //HAS SHIELD
-        const dp = (character.combat_stats.block_chance*100).toFixed(1)
+        const dp = (character.stats.full.block_chance*100).toFixed(1)
         other_combat_divs.defensive_action.innerHTML = "Block :";
         other_combat_divs.defensive_points.innerHTML = `${dp}%`;
         other_combat_divs.defensive_points.parentNode.children[2].children[0].innerHTML = "Chance to block an attack";
@@ -1751,7 +1807,7 @@ function update_displayed_combat_stats() {
         attack_stats.children[3].innerHTML = `Block : ${Math.round(dp)}%`;
     }
     else { //NO SHIELD
-        const ep = Math.round(character.combat_stats.evasion_points);
+        const ep = Math.round(character.stats.full.evasion_points);
         other_combat_divs.defensive_action.innerHTML = "EP : ";
         other_combat_divs.defensive_points.innerHTML = `${ep}`;
         other_combat_divs.defensive_points.parentNode.children[2].children[0].innerHTML = 
@@ -1759,6 +1815,7 @@ function update_displayed_combat_stats() {
 
         attack_stats.children[3].innerHTML = `EP: ${Math.round(ep)} `;
     }
+
     update_stat_description("defensive_points");
     update_stat_description("attack_points");
 
@@ -1768,32 +1825,52 @@ function update_displayed_combat_stats() {
     attack_stats.children[4].innerHTML = `Def: ${Math.round(character.stats.full.defense)} `;
 }
 
+
 function update_stat_description(stat) {
     let target;
 
-    if(stats_divs[stat]) {
+    if(stats_divs[stat]){
         target = stats_divs[stat].parentNode.children[2].children[1];
-        if(stat !== "attack_power") {
-            target.innerHTML = 
-            `<br>Breakdown:
-            <br>Base value: ${Math.round(100*character.base_stats[stat])/100}`;
-        } else {
-            target.innerHTML = 
-            `<br>Breakdown:
-            <br>Base value (str * weapon): ${Math.round(100* character.stats.total_flat.attack_power)/100}`;
-        }
-
-        Object.keys(character.stats.flat).forEach(stat_type => {
-            if(character.stats.flat[stat_type][stat] && character.stats.flat[stat_type][stat] !== 0) {
-                target.innerHTML += `<br>${capitalize_first_letter(stat_type.replace("_"," "))}: +${Math.round(100*character.stats.flat[stat_type][stat])/100}`;
-            }
-        });
-        Object.keys(character.stats.multiplier).forEach(stat_type => {
-            if(character.stats.multiplier[stat_type][stat] && character.stats.multiplier[stat_type][stat] !== 1) {
-                target.innerHTML += `<br>${capitalize_first_letter(stat_type.replace("_"," "))}: x${Math.round(100*character.stats.multiplier[stat_type][stat])/100}`;
-            }
-        });
+    } else if(other_combat_divs[stat] && stat !== "defensive_action") {
+        target = other_combat_divs[stat].parentNode.children[2].children[1]; 
+    } else {
+        return;
     }
+
+    if(stat === "attack_power") {
+        target.innerHTML = 
+        `<br>Breakdown:
+        <br>Base value (str * weapon): ${Math.round(100* character.stats.total_flat.attack_power)/100}`;
+    } else if (stat === "attack_points"){
+        target.innerHTML = 
+        `<br>Breakdown:
+        <br>Base value: ${Math.round(100* character.stats.total_flat.attack_points)/100}`;
+    } else if(stat === "defensive_points"){
+        if(character.equipment["off-hand"] != null && character.equipment["off-hand"].offhand_type === "shield") {
+            stat = "block_chance";
+        } else {
+            stat = "evasion_points";
+        }
+        target.innerHTML = 
+            `<br>Breakdown:
+            <br>Base value: ${Math.round(100 * character.stats.total_flat[stat])/100}`;
+    } else {
+        target.innerHTML = 
+        `<br>Breakdown:
+        <br>Base value: ${Math.round(100*character.base_stats[stat])/100}`;
+    }
+
+    Object.keys(character.stats.flat).forEach(stat_type => {
+        if(character.stats.flat[stat_type][stat] && character.stats.flat[stat_type][stat] !== 0) {
+            target.innerHTML += `<br>${capitalize_first_letter(stat_type.replace("_"," "))}: +${Math.round(100*character.stats.flat[stat_type][stat])/100}`;
+        }
+    });
+    Object.keys(character.stats.multiplier).forEach(stat_type => {
+        if(character.stats.multiplier[stat_type][stat] && character.stats.multiplier[stat_type][stat] !== 1) {
+            target.innerHTML += `<br>${capitalize_first_letter(stat_type.replace("_"," "))}: x${Math.round(100*character.stats.multiplier[stat_type][stat])/100}`;
+        }
+    });
+    
     return;
 }
 
@@ -2706,7 +2783,6 @@ export {
     update_displayed_health,
     update_displayed_stamina,
     update_displayed_stats,
-    update_displayed_combat_stats,
     update_displayed_effects,
     update_displayed_effect_durations,
     capitalize_first_letter,
@@ -2740,5 +2816,8 @@ export {
     update_displayed_faved_stances,
     update_stance_tooltip,
     update_displayed_skill_tooltips,
-    update_gathering_tooltip
+    update_gathering_tooltip,
+    open_crafting_window,
+    close_crafting_window,
+    update_displayed_location_types
 }
