@@ -40,7 +40,10 @@ import { end_activity_animation,
          update_displayed_skill_tooltips,
          update_gathering_tooltip,
          open_crafting_window,
-         update_displayed_location_types
+         update_displayed_location_types,
+         close_crafting_window,
+         switch_crafting_recipes_page,
+         switch_crafting_recipes_subpage
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -1536,7 +1539,8 @@ function load(save_data) {
     
     //current enemies are not saved
 
-    //TODO: some loading screen
+    document.getElementById("loading_screen").style.visibility = "visible";
+
     current_game_time.load_time(save_data["current time"]);
     time_field.innerHTML = current_game_time.toString();
     //set game time
@@ -2012,6 +2016,9 @@ function load(save_data) {
         start_reading(save_data.is_reading);
     }
 
+    update_displayed_time();
+    document.getElementById("loading_screen").style.visibility = "hidden";
+
 } //core function for loading
 
 /**
@@ -2329,6 +2336,9 @@ window.change_stance = change_stance;
 window.fav_stance = fav_stance;
 
 window.openCraftingWindow = open_crafting_window;
+window.closeCraftingWindow = close_crafting_window;
+window.switchCraftingRecipesPage = switch_crafting_recipes_page;
+window.switchCraftingRecipesSubpage = switch_crafting_recipes_subpage;
 
 window.option_uniform_textsize = option_uniform_textsize;
 window.option_bed_return = option_bed_return;

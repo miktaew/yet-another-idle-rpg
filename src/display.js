@@ -1712,12 +1712,51 @@ function update_displayed_location_types(current_location){
 
 function open_crafting_window() {
     action_div.style.display = "none";
-    document.getElementById("crafting_window").style.visibility = "visible";
+    document.getElementById("crafting_window").style.display = "block";
+    document.getElementById("crafting_mainpage_buttons").children[0].click();
+    document.getElementById("crafting_mainpage_buttons").parentElement.children[1].children[0].children[0].click();
 }
 
 function close_crafting_window() {
-    action_div.style.display = "";
+    action_div.style.display = "block";
+    document.getElementById("crafting_window").style.display = "none";
     update_displayed_normal_location(current_location);
+}
+
+/**
+ * switches between main pages of crafting menu (crafting, alchemy, cooking, etc)
+ * @param {String} category 
+ */
+function switch_crafting_recipes_page(category) {
+    const elements = document.querySelectorAll('[data-crafting_category]');
+    for(let i = 0; i < elements.length; i++) {
+        
+        if(!elements[i].dataset.crafting_subcategory) {
+            if(elements[i].dataset.crafting_category !== category) {
+                elements[i].style.display = "none";
+            } else {
+                elements[i].style.display = "";
+            }
+        } 
+    }
+}
+
+/**
+ * switches between subpages of a crafting page (items-components-equipment)
+ * @param {String} category 
+ * @param {String} subcategory 
+ */
+function switch_crafting_recipes_subpage(category, subcategory) {
+    const elements = document.querySelectorAll(`[data-crafting_category='${category}'], [data-crafting_subcategory]`);
+    for(let i = 0; i < elements.length; i++) {
+        if(elements[i].dataset.crafting_subcategory) {
+            if(elements[i].dataset.crafting_category === category && elements[i].dataset.crafting_subcategory !== subcategory) {
+                elements[i].style.display = "none";
+            } else {
+                elements[i].style.display = "";
+            } 
+        }
+    }
 }
 
 /**
@@ -2817,7 +2856,9 @@ export {
     update_stance_tooltip,
     update_displayed_skill_tooltips,
     update_gathering_tooltip,
+    update_displayed_location_types,
     open_crafting_window,
     close_crafting_window,
-    update_displayed_location_types
+    switch_crafting_recipes_page,
+    switch_crafting_recipes_subpage,
 }

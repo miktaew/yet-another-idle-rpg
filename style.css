@@ -90,6 +90,21 @@ body {
     }
 }
 
+#loading_screen {
+	visibility: visible;
+	width: 100%;
+	height: 100%;
+	z-index: 1000;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	font-size: 150px;
+	background-color: #1c1c4b;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
 
 .box_div {
 	background-image: var(--background_gradient);
@@ -672,19 +687,19 @@ body {
 }
 
 #crafting_window {
-	visibility: hidden;
+	display: none;
+	height: 400px;
 }
 
 	#crafting_mainpage_buttons {
 		font-size: 20px;
-		position: absolute;
 		top: 0px;
 	}
 		.crafting_mainpage_button {
 			float:left;
 			padding: 3px;
-			padding-left: 5px;
-			padding-right: 5px;
+			padding-left: 2.4px;
+			padding-right: 2.4px;
 			min-width: 63px;
 			max-width: fit-content;
 			text-align: center;
@@ -693,7 +708,26 @@ body {
 			cursor: pointer;
 		}
 
-	
+	.crafting_subpage_buttons {
+		font-size: 18px;
+	}
+		.crafting_subpage_button {
+			padding: 3px 0px 3px 0px;
+			float:left;
+			text-align: center;
+			outline: 1px solid white;
+			cursor: pointer;
+			margin-left: 1px;
+		}
+		.crafting_subpage_button_1 {
+			width: 398px;
+		}
+		.crafting_subpage_button_2 {
+			width: 198.5px;
+		}
+		.crafting_subpage_button_3 {
+			width: 132px;
+		}
 
 .sl_button {
 	width: fit-content;
@@ -1147,6 +1181,20 @@ i {
 	padding: 3px 0px 0px 0px;
 	background-color: rgba(255, 241, 117, 0.2);
 }
+
+#exit_crafting_button {
+	position: absolute;
+	float: left;
+	top: 393px;
+	width: 398px;
+	text-align: center;
+	border: 1px solid white;
+	cursor: pointer;
+	font-size: 20px;
+	padding: 3px 0px 0px 0px;
+	background-color: rgba(255, 241, 117, 0.2);
+}
+
 
 #combat_div {
 	width: 400px;

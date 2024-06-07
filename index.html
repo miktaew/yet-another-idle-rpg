@@ -17,6 +17,10 @@
 
     <body onload = "prepareGame()">
 
+        <div id = "loading_screen">
+            LOADING
+        </div>
+
         <!-- tooltip for active character effects-->
         <div id = "effects_tooltip"> 
             No active effects            
@@ -568,11 +572,67 @@
 
                     <div id = "crafting_window">
                         <div id="crafting_mainpage_buttons" class="activable_buttons">
-                            <div class="crafting_mainpage_button">Craft</div>
-                            <div class="crafting_mainpage_button">Cook</div>
-                            <div class="crafting_mainpage_button">Smelt</div>
-                            <div class="crafting_mainpage_button">Forge</div>
-                            <div class="crafting_mainpage_button">Assemble</div>
+                            <div class="crafting_mainpage_button active_selection_button" onclick="switchCraftingRecipesPage('crafting')">Crafting</div>
+                            <div class="crafting_mainpage_button" onclick="switchCraftingRecipesPage('cooking')">Cooking</div>
+                            <div class="crafting_mainpage_button" onclick="switchCraftingRecipesPage('smelting')">Smelting</div>
+                            <div class="crafting_mainpage_button" onclick="switchCraftingRecipesPage('forging')">Forging</div>
+                            <div class="crafting_mainpage_button" onclick="switchCraftingRecipesPage('alchemy')">Alchemy</div>
+                        </div>
+                        <div class="crafting_category" data-crafting_category="crafting">
+                            <div class="crafting_subpage_buttons activable_buttons">
+                                <div class="crafting_subpage_button crafting_subpage_button_3 active_selection_button" onclick="switchCraftingRecipesSubpage('crafting', 'items')">Items</div>
+                                <div class="crafting_subpage_button crafting_subpage_button_3" onclick="switchCraftingRecipesSubpage('crafting', 'components')">Components</div>
+                                <div class="crafting_subpage_button crafting_subpage_button_3" onclick="switchCraftingRecipesSubpage('crafting', 'equipment')">Equipment</div>
+                            </div>
+                            <div class="crafting_category crafting_recipe_list" data-crafting_category="crafting" data-crafting_subcategory="items">
+                                
+                            </div>
+                            <div class="crafting_category crafting_recipe_list" data-crafting_category="crafting" data-crafting_subcategory="components">
+                                
+                            </div>
+                            <div class="crafting_category crafting_recipe_list" data-crafting_category="crafting" data-crafting_subcategory="equipment">
+                                
+                            </div>
+                        </div>
+                        <div class="crafting_category crafting_recipe_list" data-crafting_category="cooking"  style="display:none">
+                            <div class="crafting_subpage_buttons activable_buttons">
+                                <div class="crafting_subpage_button crafting_subpage_button_1 active_selection_button" onclick="switchCraftingRecipesSubpage('cooking', 'items')">Items</div>
+                            </div>
+                            <div class="crafting_category crafting_recipe_list" data-crafting_category="cooking" data-crafting_subcategory="items">
+                                
+                            </div>
+                        </div>
+                        <div class="crafting_category crafting_recipe_list" data-crafting_category="smelting"  style="display:none">
+                            <div class="crafting_subpage_buttons activable_buttons">
+                                <div class="crafting_subpage_button crafting_subpage_button_1 active_selection_button" onclick="switchCraftingRecipesSubpage('smelting', 'items')">Items</div>
+                            </div>
+                            <div class="crafting_category crafting_recipe_list" data-crafting_category="smelting" data-crafting_subcategory="items">
+
+                            </div>
+                        </div>
+                        <div class="crafting_category" data-crafting_category="forging"  style="display:none">
+                            <div class="crafting_subpage_buttons activable_buttons">
+                                <div class="crafting_subpage_button crafting_subpage_button_2 active_selection_button"  onclick="switchCraftingRecipesSubpage('forging', 'items')">Items</div>
+                                <div class="crafting_subpage_button crafting_subpage_button_2"  onclick="switchCraftingRecipesSubpage('forging', 'components')">Components</div>
+                            </div>
+
+                            <div class="crafting_category crafting_recipe_list" data-crafting_category="forging" data-crafting_subcategory="items">
+
+                            </div>
+                            <div class="crafting_category crafting_recipe_list" data-crafting_category="forging" data-crafting_subcategory="components">
+                                
+                            </div>
+                        </div>
+                        <div class="crafting_category crafting_recipe_list" data-crafting_category="alchemy"  style="display:none">
+                            <div class="crafting_subpage_buttons activable_buttons">
+                                <div class="crafting_subpage_button crafting_subpage_button_1 active_selection_button" onclick="switchCraftingRecipesSubpage('alchemy', 'items')">Items</div>
+                            </div>
+                            <div class="crafting_category crafting_recipe_list" data-crafting_category="alchemy" data-crafting_subcategory="items">
+
+                            </div>
+                        </div>
+                        <div id="exit_crafting_button" onclick="closeCraftingWindow()">
+                            Exit
                         </div>
                     </div>
                 </div>

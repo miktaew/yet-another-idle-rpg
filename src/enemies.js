@@ -14,7 +14,8 @@ class Enemy {
                  rank,
                  loot_list = [], 
                  size = "small",
-                 add_to_bestiary = true
+                 add_to_bestiary = true,
+                 tags = [],
                 }) {
                     
         this.name = name;
@@ -25,6 +26,8 @@ class Enemy {
         //only magic & defense can be 0 in stats, other things will cause issues
         this.stats.max_health = stats.health;
         this.loot_list = loot_list;
+        this.tags = tags;
+        this.tags.push(this.size, "enemy");
 
         this.add_to_bestiary = add_to_bestiary; //generally set it false only for SOME of challenges and keep true for everything else
 
@@ -90,6 +93,8 @@ class Enemy {
         description: "Rat with size of a dog, starved and weakened", 
         xp_value: 1, 
         rank: 1,
+        size: "small",
+        tags: ["living", "beast"],
         stats: {health: 20, attack: 5, agility: 6, dexterity: 4, magic: 0, intuition: 6, attack_speed: 0.8, defense: 1}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
@@ -103,6 +108,8 @@ class Enemy {
         description: "Rat with size of a dog",
         xp_value: 1, 
         rank: 1,
+        size: "small",
+        tags: ["living", "beast"],
         stats: {health: 30, attack: 7, agility: 8, dexterity: 6, intuition: 7, magic: 0, attack_speed: 1, defense: 2}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
@@ -115,6 +122,8 @@ class Enemy {
         description: "Rat with size of a dog, much more ferocious than its relatives",
         xp_value: 4, 
         rank: 1,
+        size: "small",
+        tags: ["living", "beast"],
         stats: {health: 80, attack: 30, agility: 32, dexterity: 32, intuition: 30, magic: 0, attack_speed: 1.4, defense: 8}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
@@ -127,6 +136,7 @@ class Enemy {
         name: "Starving wolf", description: "A large, wild and hungry canine", 
         xp_value: 3, 
         rank: 2,
+        tags: ["living", "beast"],
         stats: {health: 150, attack: 20, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 12}, 
         loot_list: [
             {item_name: "Wolf fang", chance: 0.03},
@@ -140,6 +150,7 @@ class Enemy {
         description: "A small, wild canine", 
         xp_value: 3, 
         rank: 2,
+        tags: ["living", "beast"],
         stats: {health: 120, attack: 20, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.4, defense: 6}, 
         loot_list: [
             {item_name: "Wolf fang", chance: 0.03},
@@ -153,6 +164,7 @@ class Enemy {
         description: "A large, wild canine", 
         xp_value: 4, 
         rank: 3,
+        tags: ["living", "beast"],
         stats: {health: 200, attack: 30, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.3, defense: 20}, 
         loot_list: [
             {item_name: "Wolf fang", chance: 0.04},
@@ -172,6 +184,7 @@ class Enemy {
         add_to_bestiary: false,
         xp_value: 1,
         rank: 4,
+        tags: ["living", "human"],
         size: "medium",
         stats: {health: 300, attack: 50, agility: 20, dexterity: 80, magic: 0, intuition: 20, attack_speed: 0.2, defense: 30},
     });
@@ -181,6 +194,7 @@ class Enemy {
         add_to_bestiary: false,
         xp_value: 1,
         rank: 4,
+        tags: ["living", "human"],
         size: "medium",
         stats: {health: 300, attack: 20, agility: 20, dexterity: 50, magic: 0, intuition: 20, attack_speed: 2, defense: 10},
     });
@@ -190,6 +204,7 @@ class Enemy {
         add_to_bestiary: false,
         xp_value: 1,
         rank: 1,
+        tags: ["unanimate"],
         size: "large",
         stats: {health: 10000, attack: 0, agility: 0, dexterity: 0, magic: 0, intuition: 0, attack_speed: 0.000001, defense: 100},
     });
@@ -200,6 +215,7 @@ class Enemy {
         add_to_bestiary: false,
         xp_value: 1,
         rank: 5,
+        tags: ["living", "human"],
         size: "medium",
         stats: {health: 400, attack: 60, agility: 60, dexterity: 60, magic: 0, intuition: 60, attack_speed: 2, defense: 30},
     });
