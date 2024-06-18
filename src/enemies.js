@@ -169,7 +169,7 @@ class Enemy {
         loot_list: [
             {item_name: "Wolf fang", chance: 0.04},
             {item_name: "Wolf pelt", chance: 0.02},
-            {item_name: "High quality wolf fang", chance: 0.002}
+            {item_name: "High quality wolf fang", chance: 0.0005}
         ],
         size: "medium"
     });

@@ -111,7 +111,7 @@ class Item {
                 description,
                 value = 0, 
                 id,
-                tags = [],
+                tags = {},
                 }) 
     {
         this.name = name; 
@@ -124,6 +124,7 @@ class Item {
          */
         this.value = value;
         this.tags = tags;
+        this.tags["item"] = true;
     }
 
     getValue() {
@@ -176,16 +177,19 @@ class Material extends OtherItem {
         this.saturates_market = true;
         this.price_recovers = true;
         this.material_type = item_data.material_type;
-        this.tags.push("Material");
+        this.tags["material"] = true;
     }
 }
 
-class ItemComponent extends OtherItem {
+class ItemComponent extends Item {
     constructor(item_data) {
         super(item_data);
+        this.item_type = "COMPONENT";
+        this.stackable = false;
         this.component_tier = item_data.component_tier || 1;
         this.stats = item_data.stats || {};
-        this.tags.push("Equipment component");
+        this.tags["equipment component"] = true;
+        this.quality = item_data.quality || 1;
     }
 }
 
@@ -198,7 +202,7 @@ class WeaponComponent extends ItemComponent {
         && item_data.component_type !== "medium handle") {
             throw new Error(`No such weapon component type as ${item_data.component_type}`);
         }
-        this.component_type = item_data.component_type; 
+        this.component_type = item_data.component_type;
         //"short blade", "long blade", "axe blade", "hammer blade" for heads; "short handle", "medium handle", "long handle" for handles
 
         this.attack_value = item_data.attack_value || 0; //can skip this for weapon handles
@@ -206,7 +210,7 @@ class WeaponComponent extends ItemComponent {
 
         this.name_prefix = item_data.name_prefix; //to create a name of an item, e.g. "Sharp iron" used to create spear results in "Sharp iron spear"
 
-        this.tags.push("Weapon component");
+        this.tags["weapon component"] = true;
     }
 }
 
@@ -222,7 +226,7 @@ class ShieldComponent extends ItemComponent {
         this.shield_strength = item_data.shield_strength; 
         this.shield_name = item_data.shield_name || item_data.name;
 
-        this.tags.push("Shield component");
+        this.tags["shield component"] = true;
     }
 }
 
@@ -247,7 +251,7 @@ class ArmorComponent extends ItemComponent {
         this.name_prefix = item_data.name_prefix;
         this.name_suffix = item_data.name_suffix;
 
-        this.tags.push("Armor component");
+        this.tags["armor component"] = true;
     }
 }
 
@@ -258,7 +262,7 @@ class UsableItem extends Item {
         this.stackable = true;
         this.use_effect = item_data.use_effect || {};
 
-        this.tags.push("Usable");
+        this.tags["usable"] = true;
     }
 }
 
@@ -269,13 +273,10 @@ class Equippable extends Item {
         this.stackable = false;
         this.components = {};
 
-        this.equip_effect = item_data.equip_effect || {};
-        // stats gained by equipping, {stats: {}, stat_multipliers: {}}
-
         this.quality = item_data.quality || 1;
         //item quality, value of (0, 1>, set in other place
 
-        this.tags.push("Equippable");
+        this.tags["equippable"] = true;
     }
 
     getValue() {
@@ -320,7 +321,7 @@ class Equippable extends Item {
                 })
             }
 
-            //iterate again and apply rarity bonus if possible
+            //iterate over stats and apply rarity bonus if possible
             Object.keys(stats).forEach(stat => {
                 if(stats[stat].multiplier){
                     if(stats[stat].multiplier >= 1) {
@@ -344,7 +345,43 @@ class Equippable extends Item {
 
         return this.stats;
     }
-    
+}
+
+class Artifact extends Equippable {
+    constructor(item_data) {
+        super(item_data);
+        this.item_type = "EQUIPPABLE";
+        this.stackable = false;
+        this.components = {};
+        this.equip_slot = "artifact";
+        this.stats = item_data.stats;
+
+        this.quality = item_data.quality || 1;
+        //item quality, value of (0, 1>, set in other place
+
+        this.tags["artifact"] = true;
+    }
+
+    getValue() {
+        return this.value;
+    } 
+
+    getRarity(){
+        if(!this.rarity) {
+            if(this.quality < 0.5) this.rarity =  "trash";
+            else if(this.quality < 1.0) this.rarity = "common";
+            else if(this.quality < 1.3) this.rarity = "uncommon";
+            else if(this.quality < 1.6) this.rarity = "rare";
+            else if(this.quality < 2.0) this.rarity = "epic";
+            else if(this.quality < 2.46) this.rarity = "legendary";
+            else this.rarity = "mythical";
+        }
+        return this.rarity;
+    }
+
+    getStats(){
+        return this.stats;
+    }
 }
 
 class Shield extends Equippable {
@@ -362,7 +399,7 @@ class Shield extends Equippable {
             throw new Error(`No such shield handle component as: ${item_data.components.handle}`);
         }
         this.components.handle = item_data.components.handle; //only the name
-        this.tags.push("Shield");
+        this.tags["shield"] = true;
     }
 
     getShieldStrength() {
@@ -408,7 +445,7 @@ class Armor extends Equippable {
         }
         this.components.external = item_data.components.external; //only the name
 
-        this.tags.push("Armor");
+        this.tags["armor"] = true;
     }
 
     getDefense() {
@@ -495,7 +532,8 @@ class Weapon extends Equippable {
             throw new Error(`Combination of elements of types ${item_templates[this.components.handle].component_type} and ${item_templates[this.components.head].component_type} does not exist!`);
         }
 
-        this.tags.push("Weapon");
+        this.tags["weapon"] = true;
+        this.tags[this.weapon_type] = true;
     }
 
     getAttack(){
@@ -552,7 +590,7 @@ class Book extends Item {
         this.item_type = "BOOK";
         this.name = item_data.name;
 
-        this.tags.push("Book");
+        this.tags["book"] = true;
     }
 
     /**
@@ -600,6 +638,8 @@ function getItem(item_data) {
                     return new Weapon(item_data);
                 case "off-hand":
                     return new Shield(item_data);
+                case "artifact":
+                    return new Artifact(item_data);
                 default:
                     return new Armor(item_data);
             }
@@ -608,14 +648,15 @@ function getItem(item_data) {
         case "BOOK":
             return new Book(item_data);
         case "OTHER":
-            if("weapon_types" in item_data) 
+            return new OtherItem(item_data);
+        case "COMPONENT":
+            if(item_data.tags["weapon component"]) 
                 return new WeaponComponent(item_data);
-            else if(item_data.component_type == "external" || item_data.component_type == "internal") 
+            else if(item_data.tags["Armor component"]) 
                 return new ArmorComponent(item_data);
-            else if("component_type" in item_data) 
+            else if(item_data.tags["Shield component"]) 
                 return new ShieldComponent(item_data);
-            else
-                return new OtherItem(item_data);
+            else throw new Error(`Item ${item_data.name} has a wrong component type`);
         case "MATERIAL":
             return new Material(item_data);
         default:
@@ -700,7 +741,7 @@ item_templates["Twist liek a snek"] = new Book({
         description: "Tail of a huge rat. Doesn't seem very useful, but maybe some meat could be recovered from it", 
         value: 4,
         price_recovers: true,
-        material_type: "meat-able",
+        material_type: "meat source",
     });
     item_templates["Rat pelt"] = new Material({
         name: "Rat pelt", 
@@ -905,7 +946,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "axe head",
         value: 260,
         name_prefix: "Iron",
-        component_tier: 1,
+        component_tier: 2,
         attack_value: 16,
         stats: {
             attack_speed: {
@@ -948,6 +989,18 @@ item_templates["Twist liek a snek"] = new Book({
         component_tier: 1,
     });
 
+    item_templates["Short wooden hilt"] = new WeaponComponent({
+        name: "Short wooden hilt", description: "A short handle for a sword or maybe a dagger",
+        component_type: "short handle",
+        value: 75,
+        component_tier: 2,
+        stats: {
+            attack_speed: {
+                multiplier: 1.05,
+            }
+        }
+    });
+
     item_templates["Simple medium wooden handle"] = new WeaponComponent({
         name: "Simple medium wooden handle", description: "A medium handle for an axe or a hammer",
         component_type: "medium handle",
@@ -960,6 +1013,13 @@ item_templates["Twist liek a snek"] = new Book({
         }
     });
 
+    item_templates["Medium wooden handle"] = new WeaponComponent({
+        name: "Medium wooden handle", description: "A medium handle for an axe or a hammer",
+        component_type: "medium handle",
+        value: 90,
+        component_tier: 2,
+    });
+
     item_templates["Simple long wooden shaft"] = new WeaponComponent({
         name: "Simple long wooden shaft", description: "A long shaft for a spear, somewhat uneven",
         component_type: "long handle",
@@ -969,6 +1029,20 @@ item_templates["Twist liek a snek"] = new Book({
         stats: {
             attack_speed: {
                 multiplier: 0.9,
+            }
+        }
+    });
+
+    item_templates["Long wooden shaft"] = new WeaponComponent({
+        name: "Long wooden shaft", 
+        description: "A long shaft for a spear, somewhat uneven",
+        component_type: "long handle",
+        value: 120,
+        component_tier: 1,
+        attack_multiplier: 1.5,
+        stats: {
+            attack_speed: {
+                multiplier: 0.95,
             }
         }
     });
@@ -1186,6 +1260,22 @@ item_templates["Twist liek a snek"] = new Book({
     });
 })();
 
+//trinkets:
+(function(){
+    item_templates["Wolf trophy"] = new Artifact({
+        name: "Wolf trophy",
+        value: 50,
+        stats: {
+            attack_speed: {
+                multiplier: 1.05,
+            },
+            crit_rate: {
+                flat: 0.01,
+            },
+        }
+    });
+})();
+
 //usables:
 (function(){
     item_templates["Stale bread"] = new UsableItem({
@@ -1222,4 +1312,4 @@ item_templates["Twist liek a snek"] = new Book({
     });
 })();
 
-export {item_templates, Item, OtherItem, UsableItem, Armor, Shield, Weapon, getItem, Book, book_stats, loot_sold_count, setLootSoldCount, recoverItemPrices};
+export {item_templates, Item, OtherItem, UsableItem, Armor, Shield, Weapon, Artifact, getItem, Book, book_stats, loot_sold_count, setLootSoldCount, recoverItemPrices};

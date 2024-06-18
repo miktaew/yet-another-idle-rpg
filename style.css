@@ -518,7 +518,7 @@ body {
 	cursor: pointer;
 }
 
-.item_stackable {
+.item_stackable, .item_component {
 	width: var(--item_stackable_width);
 	display: inline-block;
 }
@@ -549,6 +549,10 @@ body {
 	width: var(--item_other_width);
 }
 
+.item_component {
+	width: var(--item_other_width_default);
+}
+
 .character_item_equippable {
 	display: var(--equipment_display);
 }
@@ -557,7 +561,7 @@ body {
 	display: var(--consumables_display);
 }
 
-.character_item_other, .character_item_loot, .character_item_material {
+.character_item_other, .character_item_loot, .character_item_material, .character_item_component {
 	display: var(--other_display);
 }
 
@@ -585,7 +589,7 @@ body {
 	text-align: center;
 	font-size: 14px;
 	width: 100%;
-	height: 32px;
+	height: 28px;
 	margin-bottom: 1px;
 	padding-top: 1px;
 	padding-bottom: 1px;
@@ -602,10 +606,6 @@ body {
 .equipment_slot_empty .item_tooltip {
 	font-size: 14px;
 	font-style: normal;
-}
-
-.amulet_slot_div {
-	height: 16px;
 }
 
 .grid_container {
@@ -728,7 +728,11 @@ body {
 		.crafting_subpage_button_3 {
 			width: 132px;
 		}
-
+		
+.recipe_div {
+	width: 380px;
+}
+	
 .sl_button {
 	width: fit-content;
 	padding: 10px 10px;
@@ -822,7 +826,7 @@ i {
 	width: 320px;
 }
 
-.trader_item_other, .trader_item_loot, .trader_item_material {
+.trader_item_other, .trader_item_loot, .trader_item_material, .trader_item_component {
 	display: var(--trader_other_display);
 }
 .trader_item_equippable {
@@ -1120,7 +1124,7 @@ i {
 	margin: auto;
 	width: 350px;
 	position: relative;
-	top: 5px;
+	top: 24px;
 	display: none;
 }
 
@@ -1323,7 +1327,7 @@ i {
 }
 
 #inventory_content_div {
-	height: 346px;
+	height: 322px;
 	overflow-y: scroll;
 	overflow-x: visible;
 }
@@ -1331,13 +1335,13 @@ i {
 #inventory_control_div {
 	font-size: 20px;
 	position: absolute;
-	top: 389px;
+	top: 364px;
 }
 
 #inventory_div {
 	width: 400px;
-	height: 420px;
-	top: 340px;
+	height: 394px;
+	top: 366px;
 	display: var(--inventory_div_display);
 }
 

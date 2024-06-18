@@ -37,17 +37,21 @@ import { end_activity_animation,
          start_reading_display,
          update_displayed_xp_bonuses, 
          update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain, update_displayed_stance_list, update_displayed_stamina_efficiency, update_displayed_stance, update_displayed_faved_stances, update_stance_tooltip,
-         update_displayed_skill_tooltips,
          update_gathering_tooltip,
          open_crafting_window,
          update_displayed_location_types,
          close_crafting_window,
          switch_crafting_recipes_page,
-         switch_crafting_recipes_subpage
+         switch_crafting_recipes_subpage,
+         create_displayed_crafting_recipes,
+         update_displayed_component_choice,
+         update_displayed_material_choice
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
 import { game_version, get_game_version } from "./game_version.js";
+
+import { use_recipe } from "./crafting.js";
 
 const save_key = "save data";
 
@@ -312,10 +316,10 @@ function end_activity() {
         activity_data.activity.is_unlocked = true;
         
         let message = "";
-        if(locations[activity_data.location].activities[activity_data.activity.activity].unlock_text) {
-           message = locations[activity_data.location].activities[activity_data.activity.activity].unlock_text+":<br>";
+        if(locations[activity_data.location].activities[activity_data.activity.activity_name].unlock_text) {
+           message = locations[activity_data.location].activities[activity_data.activity.activity_name].unlock_text+":<br>";
         }
-        log_message(message + `Unlocked activity "${activity_data.activity.activity}" in location "${activity_data.location}"`, "activity_unlocked");
+        log_message(message + `Unlocked activity "${activity_data.activity.activity_name}" in location "${activity_data.location}"`, "activity_unlocked");
     }
 }
 
@@ -1138,16 +1142,16 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     if(was_hidden && is_visible) 
     {
         create_new_skill_bar(skill);
+        update_displayed_skill_bar(skill, false);
         
         if(typeof should_info === "undefined" || should_info) {
             log_message(`Unlocked new skill: ${skill.name()}`, "skill_raised");
         }
     } 
 
+    
     if(is_visible) 
     {
-        
-    
         if(typeof message !== "undefined"){ 
         //not undefined => levelup happened and levelup message was returned
             leveled = true;
@@ -1191,13 +1195,11 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 }
             }
 
-            update_displayed_skill_tooltips();
-
         } else {
             update_displayed_skill_bar(skill, false);
         }
     } else {
-        update_displayed_skill_bar(skill, false);
+        //
     }
 
     if(gains) { 
@@ -1539,8 +1541,6 @@ function load(save_data) {
     
     //current enemies are not saved
 
-    document.getElementById("loading_screen").style.visibility = "visible";
-
     current_game_time.load_time(save_data["current time"]);
     time_field.innerHTML = current_game_time.toString();
     //set game time
@@ -1678,6 +1678,8 @@ function load(save_data) {
                         const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
                         equip_item(item);
                     }
+                } else if(save_data.character.equipment[key].equip_slot === "artifact") {
+                    equip_item(getItem(save_data.character.equipment[key]));
                 } else {
                     const {quality, equip_slot} = save_data.character.equipment[key];
                     let components;
@@ -1713,7 +1715,7 @@ function load(save_data) {
         if(Array.isArray(save_data.character.inventory[key])) { //is a list of unstackable items (equippables or books), needs to be added 1 by 1
             for(let i = 0; i < save_data.character.inventory[key].length; i++) {
                 try{
-                    if(save_data.character.inventory[key][i].item_type === "EQUIPPABLE")
+                    if(save_data.character.inventory[key][i].item_type === "EQUIPPABLE" )
                     {
                         if(save_data.character.inventory[key][i].equip_slot === "weapon") {
                             
@@ -1752,6 +1754,8 @@ function load(save_data) {
                                 const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
                                 item_list.push({item, count: 1});
                             }
+                        } else if(save_data.character.inventory[key][i].equip_slot === "artifact") {
+                            item_list.push({item: getItem(save_data.character.inventory[key][i]), count: 1});
                         } else {
                             const {quality, equip_slot} = save_data.character.inventory[key][i];
                             let components;
@@ -2017,8 +2021,6 @@ function load(save_data) {
     }
 
     update_displayed_time();
-    document.getElementById("loading_screen").style.visibility = "hidden";
-
 } //core function for loading
 
 /**
@@ -2339,6 +2341,9 @@ window.openCraftingWindow = open_crafting_window;
 window.closeCraftingWindow = close_crafting_window;
 window.switchCraftingRecipesPage = switch_crafting_recipes_page;
 window.switchCraftingRecipesSubpage = switch_crafting_recipes_subpage;
+window.useRecipe = use_recipe;
+window.updateDisplayedComponentChoice = update_displayed_component_choice;
+window.updateDisplayedMaterialChoice = update_displayed_material_choice;
 
 window.option_uniform_textsize = option_uniform_textsize;
 window.option_bed_return = option_bed_return;
@@ -2371,9 +2376,34 @@ else {
 
     update_displayed_stance_list();
     change_stance("normal");
-}
-//checks if there's an existing save file, otherwise just sets up some initial equipment
+} //checks if there's an existing save file, otherwise just sets up some initial equipment
 
+document.getElementById("loading_screen").style.visibility = "hidden";
+
+
+function add_stuff_for_testing() {
+    add_to_character_inventory([
+        {item: getItem({...item_templates["Cheap short iron blade"]})},
+        {item: getItem({...item_templates["Short iron blade"]})},
+        {item: getItem({...item_templates["Cheap long iron blade"]})},
+        {item: getItem({...item_templates["Long iron blade"]})},
+        {item: getItem({...item_templates["Cheap iron axe head"]})},
+        {item: getItem({...item_templates["Iron axe head"]})},
+        {item: getItem({...item_templates["Cheap iron hammer head"]})},
+        {item: getItem({...item_templates["Iron hammer head"]})},
+        {item: getItem({...item_templates["Simple short wooden hilt"]})},
+        {item: getItem({...item_templates["Short wooden hilt"]})},
+        {item: getItem({...item_templates["Simple medium wooden handle"]})},
+        {item: getItem({...item_templates["Medium wooden handle"]})},
+        {item: getItem({...item_templates["Simple long wooden shaft"]})},
+        {item: getItem({...item_templates["Long wooden shaft"]})},
+        {item: getItem(item_templates["Rat fang"]), count: 1}
+    ]);
+}
+
+add_stuff_for_testing();
+
+create_displayed_crafting_recipes();
 update_displayed_equipment();
 run();
 

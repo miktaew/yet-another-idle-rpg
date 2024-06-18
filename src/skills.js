@@ -104,11 +104,12 @@ class Skill {
         if(xp_to_add == 0 || !this.is_unlocked) {
             return;
         }
-        
+        xp_to_add = Math.round(xp_to_add*100)/100;
+
         this.total_xp = Math.round(100*(this.total_xp + xp_to_add))/100;
         if (this.current_level < this.max_level) { //not max lvl
 
-            if (xp_to_add + this.current_xp < this.xp_to_next_lvl) { // no levelup
+            if (Math.round(100*(xp_to_add + this.current_xp))/100 < this.xp_to_next_lvl) { // no levelup
                 this.current_xp = Math.round(100*(this.current_xp + xp_to_add))/100;
             }
             else { //levelup
@@ -120,7 +121,7 @@ class Skill {
                 while (this.total_xp >= this.total_xp_to_next_lvl) {
 
                     level_after_xp += 1;
-                    this.total_xp_to_next_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** (level_after_xp + 1)) / (1 - this.xp_scaling));
+                    this.total_xp_to_next_lvl = Math.round(100*this.base_xp_cost * (1 - this.xp_scaling ** (level_after_xp + 1)) / (1 - this.xp_scaling))/100;
 
                     if(this.rewards?.milestones[level_after_xp]?.unlocks?.skills) {
                         unlocks.skills.push(...this.rewards.milestones[level_after_xp].unlocks.skills);
@@ -129,11 +130,11 @@ class Skill {
                 //probably could be done much more efficiently, but it shouldn't be a problem anyway
 
                 
-                let total_xp_to_previous_lvl = Math.round(this.base_xp_cost * (1 - this.xp_scaling ** level_after_xp) / (1 - this.xp_scaling));
+                let total_xp_to_previous_lvl = Math.round(100*this.base_xp_cost * (1 - this.xp_scaling ** level_after_xp) / (1 - this.xp_scaling))/100;
                 //xp needed for current lvl, same formula but for n-1
 
                 if(level_after_xp == 0) { 
-                    console.warn(`Something went wrong, calculated level of skill: ${this.skill_id} after a levelup was 0.`
+                    console.warn(`Something went wrong, calculated level of skill "${this.skill_id}" after a levelup was 0.`
                     +`\nxp_added: ${xp_to_add};\nprevious level: ${this.current_level};\ntotal xp: ${this.total_xp};`
                     +`\ntotal xp for that level: ${total_xp_to_previous_lvl};\ntotal xp for next level: ${this.total_xp_to_next_lvl}`);
                 }
@@ -141,9 +142,9 @@ class Skill {
                 let gains;
                 if (level_after_xp < this.max_level) { //wont reach max lvl
                     gains = this.get_bonus_stats(level_after_xp);
-                    this.xp_to_next_lvl = Math.round(this.total_xp_to_next_lvl - total_xp_to_previous_lvl);
+                    this.xp_to_next_lvl = Math.round(100*(this.total_xp_to_next_lvl - total_xp_to_previous_lvl))/100;
                     this.current_level = level_after_xp;
-                    this.current_xp = this.total_xp - total_xp_to_previous_lvl;
+                    this.current_xp = Math.round(100*(this.total_xp - total_xp_to_previous_lvl))/100;
                 }
                 else { //will reach max lvl
                     gains = this.get_bonus_stats(this.max_level);
@@ -265,7 +266,7 @@ class Skill {
  * @returns all unlocked leveling rewards, formatted to string
  */
 function get_unlocked_skill_rewards(skill_id) {
-    var unlocked_rewards = '';
+    let unlocked_rewards = '';
     
     if(skills[skill_id].rewards){ //rewards
         const milestones = Object.keys(skills[skill_id].rewards.milestones).filter(level => level <= skills[skill_id].current_level);

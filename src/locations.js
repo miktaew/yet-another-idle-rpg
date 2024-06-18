@@ -229,18 +229,14 @@ class Combat_zone {
                 continue; 
             }
 
-            
-            const skill = skills[type.related_skill];
-
             //iterate over effects each type has 
             //(ok there's really just only 3 that make sense: attack points, evasion points, strength, though maybe also attack speed? mainly the first 2 anyway)
-            //only AP and EP supported for now
             Object.keys(type.effects.multipliers).forEach((effect) => { 
 
                 effects.multipliers[effect] = (effects.multipliers[effect] || 1) * type.effects.multipliers[effect];
                 
-                hero_effects.multipliers[effect] = (hero_effects.multipliers[effect] || 1) 
-                        * (type.effects.multipliers[effect] + (1 - type.effects.multipliers[effect])*(skill.current_level/skill.max_level)**1.7);
+                hero_effects.multipliers[effect] = get_location_type_penalty(this.types[i].type, this.types[i].stage, effect)
+                //(hero_effects.multipliers[effect] || 1) * (type.effects.multipliers[effect] + (1 - type.effects.multipliers[effect])*(skill.current_level/skill.max_level)**1.7);
             })
         }
 
@@ -343,16 +339,18 @@ class LocationActivity{
                     this.gained_resources.skill_required[1], Math.max(0,skills[activities[this.activity_name].base_skills_names[i]].current_level-this.gained_resources.skill_required[0]))/this.gained_resources.skill_required[1];
             }
 
-            skill_modifier = ((skill_level_sum/activities[this.activity_name].base_skills_names?.length)**1.1) ?? 1;
+            skill_modifier = (skill_level_sum/activities[this.activity_name].base_skills_names?.length) ?? 1;
         }
-        const gathering_time_needed = this.gained_resources.time_period[0]-(this.gained_resources.time_period[0]-this.gained_resources.time_period[1])*skill_modifier;
+        const gathering_time_needed = this.gained_resources.time_period[0]*(this.gained_resources.time_period[1]/this.gained_resources.time_period[0])**skill_modifier;
 
         const gained_resources = [];
 
         for(let i = 0; i < this.gained_resources.resources.length; i++) {
-            const chance = this.gained_resources.resources[i].chance[0]+(this.gained_resources.resources[i].chance[1]-this.gained_resources.resources[i].chance[0])*skill_modifier;
-            const min = Math.round(this.gained_resources.resources[i].ammount[0][0]+(this.gained_resources.resources[i].ammount[1][0]-this.gained_resources.resources[i].ammount[0][0])*skill_modifier);
-            const max = Math.round(this.gained_resources.resources[i].ammount[0][1]+(this.gained_resources.resources[i].ammount[1][1]-this.gained_resources.resources[i].ammount[0][1])*skill_modifier);
+
+            const chance = this.gained_resources.resources[i].chance[0]*(this.gained_resources.resources[i].chance[1]/this.gained_resources.resources[i].chance[0])**skill_modifier;
+           
+            const min = Math.round(this.gained_resources.resources[i].ammount[0][0]*(this.gained_resources.resources[i].ammount[1][0]/this.gained_resources.resources[i].ammount[0][0])**skill_modifier);
+            const max = Math.round(this.gained_resources.resources[i].ammount[0][1]*(this.gained_resources.resources[i].ammount[1][1]/this.gained_resources.resources[i].ammount[0][1])**skill_modifier);
             gained_resources.push({name: this.gained_resources.resources[i].name, count: [min,max], chance: chance});
         }
 
@@ -382,6 +380,15 @@ class LocationType{
 
         */
     }
+}
+
+function get_location_type_penalty(type, stage, stat) {
+    
+    const skill = skills[location_types[type].stages[stage].related_skill];
+
+    const base = location_types[type].stages[stage].effects.multipliers[stat];
+
+    return base**(1- skill.current_level/skill.max_level);
 }
 
 //create location types
@@ -1056,7 +1063,7 @@ class LocationType{
     };
 })();
 
-export {locations, location_types};
+export {locations, location_types, get_location_type_penalty};
 
 /*
 TODO:

@@ -40,7 +40,7 @@ character.base_stats = {
         magic: 0, 
         attack_speed: 1, 
         crit_rate: 0.05, 
-        crit_multiplier: 1.2, 
+        crit_multiplier: 1.2,
         attack_power: 0, 
         defense: 0,
         block_strength: 0,
@@ -93,7 +93,7 @@ character.equipment = {
         arms: null, ring: null, 
         weapon: null, "off-hand": null,
         legs: null, feet: null, 
-        amulet: null
+        amulet: null, artifact: null,
 };
 character.money = 0;
 
@@ -511,6 +511,10 @@ function add_to_character_inventory(items) {
         update_displayed_character_inventory();
 }
 
+/**
+ * Removes an item from character's inventory
+ * Takes TWO params, name and either count (for stackables) or inventory id (for unstackables)
+ */
 function remove_from_character_inventory({item_name, item_count, item_id}) {
         character.remove_from_inventory({item_name, item_count, item_id});
         update_displayed_character_inventory();

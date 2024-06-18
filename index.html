@@ -580,7 +580,7 @@
                         </div>
                         <div class="crafting_category" data-crafting_category="crafting">
                             <div class="crafting_subpage_buttons activable_buttons">
-                                <div class="crafting_subpage_button crafting_subpage_button_3 active_selection_button" onclick="switchCraftingRecipesSubpage('crafting', 'items')">Items</div>
+                                <div class="crafting_subpage_button crafting_subpage_button_3 active_selection_button" onclick="switchCraftingRecipesSubpage('crafting', 'items')">Items/trinkets</div>
                                 <div class="crafting_subpage_button crafting_subpage_button_3" onclick="switchCraftingRecipesSubpage('crafting', 'components')">Components</div>
                                 <div class="crafting_subpage_button crafting_subpage_button_3" onclick="switchCraftingRecipesSubpage('crafting', 'equipment')">Equipment</div>
                             </div>
@@ -612,7 +612,7 @@
                         </div>
                         <div class="crafting_category" data-crafting_category="forging"  style="display:none">
                             <div class="crafting_subpage_buttons activable_buttons">
-                                <div class="crafting_subpage_button crafting_subpage_button_2 active_selection_button"  onclick="switchCraftingRecipesSubpage('forging', 'items')">Items</div>
+                                <div class="crafting_subpage_button crafting_subpage_button_2 active_selection_button"  onclick="switchCraftingRecipesSubpage('forging', 'items')">Items/trinkets</div>
                                 <div class="crafting_subpage_button crafting_subpage_button_2"  onclick="switchCraftingRecipesSubpage('forging', 'components')">Components</div>
                             </div>
 
@@ -840,7 +840,7 @@
                         </div>
                         <div class = "grid_container">
                             <div class = "equipment_slot_div" id = "arms_slot"> arms </div>
-                            <div class = "equipment_slot_div" id = "ring_slot"> ring </div>
+                            <div class = "equipment_slot_div" id = "ring_slot"> ring</div>
                         </div>
                         <div class = "grid_container">
                             <div class = "equipment_slot_div" id = "weapon_slot"> weapon </div>
@@ -850,7 +850,10 @@
                             <div class = "equipment_slot_div" id = "legs_slot"> legs </div>
                             <div class = "equipment_slot_div" id = "feet_slot"> feet </div>
                         </div>
-                        <div class = "equipment_slot_div amulet_slot_div" id = "amulet_slot"> amulet </div>
+                        <div class = "grid_container">
+                            <div class = "equipment_slot_div" id = "amulet_slot"> amulet </div>
+                            <div class = "equipment_slot_div" id = "artifact_slot"> artifact </div>
+                        </div>
                     </div>
 
                     <div id = "character_tools_div">
@@ -928,7 +931,6 @@
         </div>
 
         <script>
-
             function openOptions() {
                 if(document.documentElement.style.getPropertyValue("--options_display") !== "block") {
                     document.documentElement.style.setProperty('--options_display', 'block');
@@ -1085,8 +1087,8 @@
                 document.documentElement.style.setProperty('--character_combat_div_display', 'none');
             }
 
-            var in_trade = false;
-            var total_price;
+            let in_trade = false;
+            let total_price;
             const trade_price_value = document.getElementById("trade_price_value");
             let trader_sorting = "name";
             let character_sorting = "name";

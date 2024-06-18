@@ -14,10 +14,11 @@ import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time } from "./game_time.js";
 import { book_stats, item_templates } from "./items.js";
-import { location_types, locations } from "./locations.js";
+import { get_location_type_penalty, location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
 import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price } from "./misc.js"
 import { stances } from "./combat_stances.js";
+import { recipes } from "./crafting_recipes.js";
 
 let activity_anim; //for the activity animation interval
 
@@ -114,8 +115,8 @@ const equipment_slots_divs = {head: document.getElementById("head_slot"), torso:
                               arms: document.getElementById("arms_slot"), ring: document.getElementById("ring_slot"),
                               weapon: document.getElementById("weapon_slot"), "off-hand": document.getElementById("offhand_slot"),
                               legs: document.getElementById("legs_slot"), feet: document.getElementById("feet_slot"),
-                              amulet: document.getElementById("amulet_slot")
-                              };
+                              amulet: document.getElementById("amulet_slot"), artifact: document.getElementById("artifact_slot")
+};
 
 const rarity_colors = {
     trash: "lightgray",
@@ -126,6 +127,28 @@ const rarity_colors = {
     legendary: "purple",
     mythical: "orange"
 }
+
+const crafting_pages = {
+    crafting: {
+        items: document.querySelector(`[data-crafting_category="crafting"] [data-crafting_subcategory="items"]`),
+        components: document.querySelector(`[data-crafting_category="crafting"] [data-crafting_subcategory="components"]`),
+        equipment: document.querySelector(`[data-crafting_category="crafting"] [data-crafting_subcategory="equipment"]`),
+    },
+    cooking: {
+        items: document.querySelector(`[data-crafting_category="cooking"] [data-crafting_subcategory="items"]`),
+    },
+    smelting: {
+        items: document.querySelector(`[data-crafting_category="smelting"] [data-crafting_subcategory="items"]`),
+    },
+    forging: {
+        items: document.querySelector(`[data-crafting_category="forging"] [data-crafting_subcategory="items"]`),
+        components: document.querySelector(`[data-crafting_category="forging"] [data-crafting_subcategory="components"]`),
+    },
+    alchemy: {
+        items: document.querySelector(`[data-crafting_category="alchemy"] [data-crafting_subcategory="items"]`),
+    }
+}
+
 
 function capitalize_first_letter(some_string) {
     return some_string.charAt(0).toUpperCase() + some_string.slice(1);
@@ -585,7 +608,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
             if(trader.inventory[key].item.item_type === "BOOK") {
                 item_name_div.innerHTML = '<span class = "item_category">[Book] </span>';
                 item_name_div.classList.add("inventory_item_name");
-                item_name_div.innerHTML += `<span class = "book_name item_name">"${trader.inventory[key].item.name}"</span><span class="item_count">x${item_count} </span>`;
+                item_name_div.innerHTML += `<span class = "book_name item_name">"${trader.inventory[key].item.name}" </span><span class="item_count">x${item_count} </span>`;
 
                 if(book_stats[trader.inventory[key].item.name].is_finished) {
                     item_div.classList.add("book_finished");
@@ -690,25 +713,6 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
 }
 
 function sort_displayed_inventory({sort_by="name", target = "character", change_direction = false}) {
-
-    /*
-    if(change_direction){
-        if(sort_by && sort_by === skill_sorting) {
-            if(skill_sorting_direction === "asc") {
-                skill_sorting_direction = "desc";
-            } else {
-                skill_sorting_direction = "asc";
-            }
-        } else {
-            if(sort_by === "level") {
-                skill_sorting_direction = "desc";
-            } else {
-                skill_sorting_direction = "asc";
-            }
-        }
-    }
-    */
-
     let plus;
     let minus;
     if(target === "trader") {
@@ -881,26 +885,37 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
                 const item_div = document.createElement("div");
                 const item_name_div = document.createElement("div");
 
-                item_name_div.innerHTML = `<span class = "item_slot" >[${character.inventory[key][i].equip_slot}]</span> <span>${character.inventory[key][i].getName()}</span>`;
-                item_name_div.classList.add("inventory_item_name");
-                item_div.appendChild(item_name_div);
-    
-                item_div.classList.add("inventory_item", "character_item", `item_${character.inventory[key][i].item_type.toLowerCase()}`);
-
                 item_control_div.setAttribute("data-character_item", `${character.inventory[key][i].getName()} #${i}`)
                 item_control_div.setAttribute("data-item_value", `${character.inventory[key][i].getValue()}`);
                 //shouldnt create any problems, as any change to inventory will also call this method, 
                 //so removing/equipping any item wont cause mismatch
-
-                item_div.appendChild(create_item_tooltip(character.inventory[key][i]));
-                item_control_div.classList.add('inventory_item_control', 'character_item_control', `character_item_${character.inventory[key][i].item_type.toLowerCase()}`);
-                item_control_div.appendChild(item_div);
-
                 
-                var item_equip_span = document.createElement("span");
-                item_equip_span.innerHTML = "[equip]";
-                item_equip_span.classList.add("equip_item_button", "item_controls");
-                item_control_div.appendChild(item_equip_span);
+                if(character.inventory[key][i].item_type === "EQUIPPABLE") {
+                    item_name_div.innerHTML = `<span class = "item_slot" >[${character.inventory[key][i].equip_slot}]</span> <span>${character.inventory[key][i].getName()}</span>`;
+                    item_name_div.classList.add("inventory_item_name");
+                    item_div.appendChild(item_name_div);
+
+                    item_div.appendChild(create_item_tooltip(character.inventory[key][i]));
+                    item_control_div.classList.add('inventory_item_control', 'character_item_control', `character_item_${character.inventory[key][i].item_type.toLowerCase()}`);
+                    item_control_div.appendChild(item_div);
+
+                    let item_equip_span = document.createElement("span");
+                    item_equip_span.innerHTML = "[equip]";
+                    item_equip_span.classList.add("equip_item_button", "item_controls");
+                    item_control_div.appendChild(item_equip_span);
+        
+                    item_div.classList.add("inventory_item", "character_item", `item_${character.inventory[key][i].item_type.toLowerCase()}`);
+                } else {
+                    item_name_div.innerHTML = `<span class = "item_category"></span><span class="item_name">${character.inventory[key][i].getName()}</span>`;
+                    item_name_div.classList.add("inventory_item_name");
+                    item_div.appendChild(item_name_div);
+
+                    item_div.appendChild(create_item_tooltip(character.inventory[key][i]));
+                    item_control_div.classList.add('inventory_item_control', 'character_item_control', "character_item_component");
+                    item_control_div.appendChild(item_div);
+        
+                    item_div.classList.add("inventory_item", "character_item", "item_component")
+                }
 
                 let item_value_span = document.createElement("span");
 
@@ -936,7 +951,7 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
             if(character.inventory[key].item.item_type === "BOOK") {
                 item_name_div.innerHTML = '<span class = "item_category">[Book] </span>';
                 item_name_div.classList.add("inventory_item_name");
-                item_name_div.innerHTML += `<span class = "book_name item_name">"${character.inventory[key].item.name}"</span><span class="item_count">x${item_count} </span>`;
+                item_name_div.innerHTML += `<span class = "book_name item_name">"${character.inventory[key].item.name}" </span><span class="item_count">x${item_count} </span>`;
 
                 if(book_stats[character.inventory[key].item.name].is_finished) {
                     item_div.classList.add("book_finished");
@@ -1686,13 +1701,14 @@ function create_location_types_display(current_location){
         type_tooltip.classList.add("location_type_tooltip");
 
         const {type, stage} = current_location.types[i];
-        const {effects, related_skill} = location_types[type].stages[stage];
-        const skill = skills[related_skill];
-        if(effects.multipliers) {
+        const {effects} = location_types[type].stages[stage];
+        
+        if(effects?.multipliers) {
             type_tooltip.innerHTML += `<br>`;
             Object.keys(effects.multipliers).forEach(stat => {
                 const base = effects.multipliers[stat];
-                const actual = (effects.multipliers[stat] + (1 - effects.multipliers[stat])*(skill.current_level/skill.max_level)**1.7);
+                //const actual = (effects.multipliers[stat] + (1 - effects.multipliers[stat])*(skill.current_level/skill.max_level)**1.7);
+                const actual = get_location_type_penalty(type, stage, stat);
                 type_tooltip.innerHTML += `<br>${stat_names[stat]} x${Math.round(1000*actual)/1000}`;
                 if(base != actual) {
                     type_tooltip.innerHTML += ` [base: x${effects.multipliers[stat]}]`
@@ -1714,7 +1730,15 @@ function open_crafting_window() {
     action_div.style.display = "none";
     document.getElementById("crafting_window").style.display = "block";
     document.getElementById("crafting_mainpage_buttons").children[0].click();
-    document.getElementById("crafting_mainpage_buttons").parentElement.children[1].children[0].children[0].click();
+    
+    const elements = document.querySelectorAll(`[data-crafting_subcategory]`);
+    for(let i = 0; i < elements.length; i++) {
+        if(elements[i].dataset.crafting_subcategory !== "items") {
+            elements[i].style.display = "none";
+        } else {
+            elements[i].style.display = "";
+        } 
+    }
 }
 
 function close_crafting_window() {
@@ -1750,13 +1774,174 @@ function switch_crafting_recipes_subpage(category, subcategory) {
     const elements = document.querySelectorAll(`[data-crafting_category='${category}'], [data-crafting_subcategory]`);
     for(let i = 0; i < elements.length; i++) {
         if(elements[i].dataset.crafting_subcategory) {
-            if(elements[i].dataset.crafting_category === category && elements[i].dataset.crafting_subcategory !== subcategory) {
-                elements[i].style.display = "none";
-            } else {
-                elements[i].style.display = "";
-            } 
+            if(elements[i].dataset.crafting_category === category) {
+                if(elements[i].dataset.crafting_subcategory !== subcategory) {
+                    elements[i].style.display = "none";
+                } else {
+                    elements[i].style.display = "";
+                } 
+            }
         }
     }
+}
+
+function create_displayed_crafting_recipes() {
+    Object.keys(recipes).forEach(recipe_category => {
+        Object.keys(recipes[recipe_category]).forEach(recipe_subcategory => {
+            Object.keys(recipes[recipe_category][recipe_subcategory]).forEach(recipe => {
+                add_crafting_recipe_to_display({category: recipe_category, subcategory: recipe_subcategory, recipe_id: recipe});
+            });
+        });
+    });
+}
+
+function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
+    const recipe = recipes[category][subcategory][recipe_id];
+    const recipe_div = document.createElement("div");
+    recipe_div.innerHTML = recipe.name;
+
+    recipe_div.classList.add("recipe_div");
+    recipe_div.dataset.recipe_id = recipe_id;
+
+    if(subcategory === "items") {
+        if(!recipe.get_availability()) {
+            recipe_div.classList.add("recipe_unavailable");
+        }
+
+        recipe_div.addEventListener("click", (event)=>{
+            window.useRecipe(event);
+        });
+    } else if(subcategory === "components") {
+        recipe_div.innerHTML += '<i class="material-icons icon crafting_dropdown_icon"> keyboard_double_arrow_down </i>';
+        const material_selection = document.createElement("div");
+        material_selection.addEventListener("click", ()=>{
+            window.updateDisplayedMaterialChoice({category, recipe_id});
+        });
+
+        const accept_recipe_button = document.createElement("div");
+        accept_recipe_button.innerHTML = "Create";
+        accept_recipe_button.addEventListener("click", (event)=>{
+            window.useRecipe(event);
+        });
+
+        recipe_div.append(material_selection);
+        recipe_div.append(accept_recipe_button);
+
+    } else if(subcategory === "equipment") {
+        recipe_div.innerHTML += '<i class="material-icons icon crafting_dropdown_icon"> keyboard_double_arrow_down </i>';
+
+        const component_selection_1 = document.createElement("div"); //weapon head or internal armor
+        component_selection_1.innerHTML = `<span class="crafting_selection">Select a [${recipe.components[0]}]</span><i class="material-icons icon crafting_dropdown_icon"> keyboard_double_arrow_down </i>`;
+        component_selection_1.addEventListener("click", ()=>{
+            //unfold a list for selection; its content loaded by a different function
+        });
+        const component_1_list = document.createElement("div");
+        component_selection_1.appendChild(component_1_list);
+
+        const component_selection_2 = document.createElement("div"); //weapon handle or external armor
+        component_selection_2.innerHTML = `<span class="crafting_selection">Select a [${recipe.components[1]}]</span><i class="material-icons icon crafting_dropdown_icon"> keyboard_double_arrow_down </i>`;
+        component_selection_2.addEventListener("click", ()=>{
+            //unfold a list for selection; its content loaded by a different function
+        });
+        const component_2_list = document.createElement("div");
+        component_selection_2.appendChild(component_2_list);
+
+        const component_selections = document.createElement("div");
+        component_selections.append(component_selection_1);
+        component_selections.append(component_selection_2);
+
+        recipe_div.addEventListener("click", ()=>{
+            window.updateDisplayedComponentChoice({category, recipe_id});
+        });
+
+        const accept_recipe_button = document.createElement("div");
+        accept_recipe_button.innerHTML = "Create";
+        accept_recipe_button.addEventListener("click", (event)=>{
+            window.useRecipe(event);
+        });
+
+        recipe_div.append(component_selections);
+        recipe_div.append(accept_recipe_button);
+    } else {
+        throw new Error(`No such crafting subcategory as "${subcategory}"`);
+    }
+
+    crafting_pages[category][subcategory].appendChild(recipe_div);
+}
+
+/**
+ * updates all displayed recipes; 
+ * needs to be called whenever something is crafted (in case some recipe became unavailable due to lack of materials) and/or whenever a crafting-related skill levels up
+ */
+function update_displayed_crafting_recipes() {
+    Object.keys(recipes).forEach(recipe_category => {
+        Object.keys(recipes[recipe_category]).forEach(recipe_subcategory => {
+            Object.keys(recipes[recipe_category[recipe_subcategory]]).forEach(recipe => {
+                update_displayed_crafting_recipe({category: recipe_category, subcategory: recipe_subcategory, recipe_id: recipe});
+            })
+        })
+    });
+}
+
+/**
+ * updates description and display color, based on resource availability and skill lvl
+ */
+function update_displayed_crafting_recipe({category, subcategory, recipe_id}) {
+    
+}
+
+function create_recipe_tooltip(recipe) {
+    const tooltip = document.createElement("div");
+
+    //TODO
+
+    return tooltip;
+}
+
+/**
+ * updates the list of selectable components for equipment crafting
+ */
+function update_displayed_component_choice({category, recipe_id}) {
+    
+    const recipe = recipes[category]["equipment"][recipe_id];
+
+    const component_selections_div = crafting_pages[category]["equipment"].querySelector(`[data-recipe_id='${recipe_id}']`).children[1].children;
+    
+    component_selections_div[0].children[2].innerHTML = "";
+    component_selections_div[1].children[2].innerHTML = "";
+
+
+    const components = [];
+    components.push(Object.values(character.inventory).filter(x=>{
+        return recipe.components[0] === x[0].component_type;
+    }));
+
+    components.push(Object.values(character.inventory).filter(x=>{
+        return recipe.components[1] === x[0].component_type;
+    }));
+
+    //todo
+    for(let i = 0; i < 2; i++) {
+        for(let j = 0; j < components[i].length; j++) {
+            for(let k = 0; k < components[i][j].length; k++) {
+                const item_div = document.createElement("div");
+                item_div.innerHTML = `${components[i][j][k].name}, ${100*components[i][j][k].quality}% quality`;
+                component_selections_div[i].children[2].appendChild(item_div);
+
+                //todo: add id (k) and name to data properties
+                //make div selectable
+            }
+        }
+    }
+    
+}
+
+/**
+ * updates the list of selectable materials for component crafting;
+ * displays only the materials available in inventory; those that are in too low number are grayed out and unselectable
+ */
+function update_displayed_material_choice({category, recipe_id}) {
+
 }
 
 /**
@@ -1806,7 +1991,7 @@ function update_gathering_tooltip(current_activity) {
 }
 
 function update_displayed_health() { //call it when using healing items, resting or getting hit
-    current_health_value_div.innerText = Math.round(character.stats.full.health) + "/" + Math.round(character.stats.full.max_health) + " hp";
+    current_health_value_div.innerText = Math.ceil(character.stats.full.health) + "/" + Math.ceil(character.stats.full.max_health) + " hp";
     current_health_bar.style.width = (character.stats.full.health*100/character.stats.full.max_health).toString() +"%";
 }
 function update_displayed_stamina() { //call it when eating, resting or fighting
@@ -2267,7 +2452,7 @@ function create_new_skill_bar(skill) {
     update_displayed_skill_xp_gain(skill);
 }
 
-function update_displayed_skill_bar(skill, leveled_up) {
+function update_displayed_skill_bar(skill, leveled_up=true) {
     /*
     skill_bar divs: 
         skill -> children (1): 
@@ -2305,33 +2490,25 @@ function update_displayed_skill_bar(skill, leveled_up) {
     skill_bar_divs[skill.skill_id].children[0].children[1].style.width = `${100*skill.current_xp/skill.xp_to_next_lvl}%`;
     //skill_bar_current
 
-    if(leveled_up) {
-        if(get_unlocked_skill_rewards(skill.skill_id)) {
-            skill_bar_divs[skill.skill_id].children[0].children[2].children[4].innerHTML  = `<br>${get_unlocked_skill_rewards(skill.skill_id)}`;
-        }
-    
-        if(typeof get_next_skill_milestone(skill.skill_id) !== "undefined") {
-            skill_bar_divs[skill.skill_id].children[0].children[2].children[5].innerHTML  = `lvl ${get_next_skill_milestone(skill.skill_id)}: ???`;
-        } else {
-            skill_bar_divs[skill.skill_id].children[0].children[2].children[5].innerHTML = "";
-        }
-    
-        if(typeof skill.get_effect_description !== "undefined")
-        {
-            skill_bar_divs[skill.skill_id].children[0].children[2].children[3].innerHTML = `${skill.get_effect_description()}`;
-            //tooltip_effect
-        }
+    if(get_unlocked_skill_rewards(skill.skill_id)) {
+        skill_bar_divs[skill.skill_id].children[0].children[2].children[4].innerHTML  = `<br>${get_unlocked_skill_rewards(skill.skill_id)}`;
+    }
 
+    if(typeof get_next_skill_milestone(skill.skill_id) !== "undefined") {
+        skill_bar_divs[skill.skill_id].children[0].children[2].children[5].innerHTML  = `lvl ${get_next_skill_milestone(skill.skill_id)}: ???`;
+    } else {
+        skill_bar_divs[skill.skill_id].children[0].children[2].children[5].innerHTML = "";
+    }
+
+    if(typeof skill.get_effect_description !== "undefined")
+    {
+        skill_bar_divs[skill.skill_id].children[0].children[2].children[3].innerHTML = `${skill.get_effect_description()}`;
+        //tooltip_effect
+    }
+    
+    if(leveled_up) {
         sort_displayed_skills({sort_by: skill_sorting}); //in case of a name change on levelup
     }
-}
-
-function update_displayed_skill_tooltips() {
-    Object.keys(skills).forEach(skill_id => {
-        if(skill_bar_divs[skill_id] && get_unlocked_skill_rewards(skill_id)) {
-            skill_bar_divs[skill_id].children[0].children[2].children[4].innerHTML  = `<br>${get_unlocked_skill_rewards(skill_id)}`;
-        }
-    });
 }
 
 function update_displayed_skill_description(skill) {
@@ -2854,11 +3031,13 @@ export {
     update_displayed_stance,
     update_displayed_faved_stances,
     update_stance_tooltip,
-    update_displayed_skill_tooltips,
     update_gathering_tooltip,
     update_displayed_location_types,
     open_crafting_window,
     close_crafting_window,
     switch_crafting_recipes_page,
     switch_crafting_recipes_subpage,
+    create_displayed_crafting_recipes,
+    update_displayed_component_choice,
+    update_displayed_material_choice
 }
