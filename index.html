@@ -1231,9 +1231,9 @@
                 //(un)equipping items:
                 const inventory_div = document.getElementById("inventory_div");
                 inventory_div.onclick = function(event) {
-                    var clicked_element = event.target;
+                    let clicked_element = event.target;
                     if(clicked_element.classList.contains("equip_item_button")) {
-                        var last_index = clicked_element.parentNode.getAttribute("data-character_item").lastIndexOf(" #"); 
+                        let last_index = clicked_element.parentNode.getAttribute("data-character_item").lastIndexOf(" #"); 
                         //always ends with " #number", so this will get index of that whitespace before "#"
 
                         equip_item({item_name: clicked_element.parentNode.getAttribute("data-character_item").substr(0, last_index), 
@@ -1241,9 +1241,8 @@
                         });
                     }
                     else if(clicked_element.classList.contains("unequip_item_button")) {
-                        var last_index = clicked_element.parentNode.getAttribute("data-character_item").lastIndexOf(" #"); 
+                        let last_index = clicked_element.parentNode.getAttribute("data-character_item").lastIndexOf(" #"); 
                         //always ends with " #slot", so this will get index of that whitespace before "#"
-
                         unequip_item(clicked_element.parentNode.getAttribute("data-character_item").substr(last_index+2));
                     } 
                     else if(clicked_element.classList.contains("item_use_button")) {

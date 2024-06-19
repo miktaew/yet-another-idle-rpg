@@ -531,11 +531,11 @@ body {
 	width: 319px;
 }
 
-.equipped_item_control .inventory_equipped_item {
+.equipped_item_control .equipped_item, .equipped_item_name .item_slot {
 	color: gold;
 }
 
-.inventory_equipped_item {
+.equipped_item {
 	width: 256px; 
 	font-weight: bold;
 	float: left;
