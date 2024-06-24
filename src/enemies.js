@@ -124,7 +124,7 @@ class Enemy {
         rank: 1,
         size: "small",
         tags: ["living", "beast"],
-        stats: {health: 80, attack: 30, agility: 32, dexterity: 32, intuition: 30, magic: 0, attack_speed: 1.4, defense: 8}, 
+        stats: {health: 80, attack: 30, agility: 30, dexterity: 24, intuition: 24, magic: 0, attack_speed: 1.4, defense: 8}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
             {item_name: "Rat fang", chance: 0.04},

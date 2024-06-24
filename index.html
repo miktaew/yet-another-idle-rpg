@@ -594,7 +594,7 @@
                                 
                             </div>
                         </div>
-                        <div class="crafting_category crafting_recipe_list" data-crafting_category="cooking"  style="display:none">
+                        <div class="crafting_category" data-crafting_category="cooking"  style="display:none">
                             <div class="crafting_subpage_buttons activable_buttons">
                                 <div class="crafting_subpage_button crafting_subpage_button_1 active_selection_button" onclick="switchCraftingRecipesSubpage('cooking', 'items')">Items</div>
                             </div>
@@ -602,7 +602,7 @@
                                 
                             </div>
                         </div>
-                        <div class="crafting_category crafting_recipe_list" data-crafting_category="smelting"  style="display:none">
+                        <div class="crafting_category" data-crafting_category="smelting"  style="display:none">
                             <div class="crafting_subpage_buttons activable_buttons">
                                 <div class="crafting_subpage_button crafting_subpage_button_1 active_selection_button" onclick="switchCraftingRecipesSubpage('smelting', 'items')">Items</div>
                             </div>
@@ -623,7 +623,7 @@
                                 
                             </div>
                         </div>
-                        <div class="crafting_category crafting_recipe_list" data-crafting_category="alchemy"  style="display:none">
+                        <div class="crafting_category" data-crafting_category="alchemy"  style="display:none">
                             <div class="crafting_subpage_buttons activable_buttons">
                                 <div class="crafting_subpage_button crafting_subpage_button_1 active_selection_button" onclick="switchCraftingRecipesSubpage('alchemy', 'items')">Items</div>
                             </div>
@@ -876,10 +876,13 @@
                 <div id = "message_controls">
 
                     <div id = "message_show_unlocks" class = "message_control_button active_selection_button" onclick = "showUnlocksMessages()">
-                        Levels and unlocks
+                        Levels / unlocks
                     </div>
                     <div id = "message_show_events" class = "message_control_button active_selection_button" onclick = "showEventsMessages()">
                         Events
+                    </div>
+                    <div id = "message_show_crafting" class = "message_control_button active_selection_button" onclick = "showCraftingMessages()">
+                        Crafting
                     </div>
                     <div id = "message_show_combat" class = "message_control_button active_selection_button" onclick = "showCombatMessages()">
                         Combat
@@ -888,7 +891,7 @@
                         Loot
                     </div>
                     <div id = "message_show_background" class = "message_control_button active_selection_button" onclick = "showBackgroundMessages()">
-                        Background
+                        BGM
                     </div>
                     
                 </div>
@@ -912,7 +915,7 @@
             <div id="options_choices">
                 <div class="options_choice">
                     <input type="checkbox" id="options_textsize" name="options_textsize" value="options_textsize" onclick = "option_uniform_textsize()" />
-                    <label for="options_textsize">Force uniform size of text in action box</label>
+                    <label for="options_textsize">Increase size of text in dialogues</label>
                 </div>
                 <div class="options_choice">
                     <input type="checkbox" id="options_bed_return" name="options_bed_return" value="options_bed_return" onclick = "option_bed_return()"/>
@@ -1014,6 +1017,14 @@
                     document.documentElement.style.setProperty('--message_events_display', 'none');
                 } else {
                     document.documentElement.style.setProperty('--message_events_display', 'inline-block');
+                }
+            }
+
+            function showCraftingMessages() {
+                if(document.documentElement.style.getPropertyValue('--message_crafting_display') !== "none") {
+                    document.documentElement.style.setProperty('--message_crafting_display', 'none');
+                } else {
+                    document.documentElement.style.setProperty('--message_crafting_display', 'inline-block');
                 }
             }
 

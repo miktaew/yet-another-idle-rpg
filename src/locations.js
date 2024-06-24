@@ -1041,7 +1041,7 @@ function get_location_type_penalty(type, stage, stat) {
             skill_xp_per_tick: 3,
             is_unlocked: false,
             gained_resources: {
-                resources: [{name: "Piece of ash wood", ammount: [[1,1], [1,1]], chance: [0.01, 0.6]}],
+                resources: [{name: "Piece of wood", ammount: [[1,1], [1,1]], chance: [0.01, 0.6]}],
                 time_period: [120, 40],
                 skill_required: [10, 20],
                 scales_with_skill: true,

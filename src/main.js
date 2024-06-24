@@ -118,6 +118,7 @@ let message_log_filters = {
     events: true,
     combat: true,
     loot: true,
+    crafting: true,
 };
 
 //enemy crit stats
@@ -204,6 +205,13 @@ function option_remember_filters(option) {
         } else {
             document.documentElement.style.setProperty('--message_loot_display', 'none');
             document.getElementById("message_show_loot").classList.remove("active_selection_button");
+        }
+
+        if(message_log_filters.crafting) {
+            document.documentElement.style.setProperty('--message_crafting_display', 'inline-block');
+        } else {
+            document.documentElement.style.setProperty('--message_crafting_display', 'none');
+            document.getElementById("message_show_crafting").classList.remove("active_selection_button");
         }
     }
 }
@@ -295,7 +303,7 @@ function start_activity(selected_activity) {
 
 function end_activity() {
     
-    log_message(`${character.name} finished ${current_activity.name}`, "activity_finished");
+    log_message(`${character.name} finished ${current_activity.activity_name}`, "activity_finished");
     
     if(current_activity.earnings) {
         character.money += current_activity.earnings;
@@ -2196,15 +2204,15 @@ function update() {
 
         //regenerate hp
         if(active_effects.health_regeneration) {
-            if(character.stats.full.health < character.stats.full.max_health) {
-                character.stats.full.health += active_effects.health_regeneration.flat;
+            
+            character.stats.full.health += active_effects.health_regeneration.flat;
 
-                if(character.stats.full.health > character.stats.full.max_health) {
-                    character.stats.full.health = character.stats.full.max_health
-                }
-
-                update_displayed_health();
+            if(character.stats.full.health > character.stats.full.max_health) {
+                character.stats.full.health = character.stats.full.max_health
             }
+
+            update_displayed_health();
+            
             active_effects.health_regeneration.duration -= 1;
             if(active_effects.health_regeneration.duration <= 0) {
                 delete active_effects.health_regeneration;
@@ -2214,15 +2222,14 @@ function update() {
 
         //regenerate stamina
         if(active_effects.stamina_regeneration) {
-            if(character.stats.full.stamina < character.stats.full.max_stamina) {
-                character.stats.full.stamina += active_effects.stamina_regeneration.flat;
+            character.stats.full.stamina += active_effects.stamina_regeneration.flat;
 
-                if(character.stats.full.stamina > character.stats.full.max_stamina) {
-                    character.stats.full.stamina = character.stats.full.max_stamina
-                }
-
-                update_displayed_stamina();
+            if(character.stats.full.stamina > character.stats.full.max_stamina) {
+                character.stats.full.stamina = character.stats.full.max_stamina
             }
+
+            update_displayed_stamina();
+            
             active_effects.stamina_regeneration.duration -= 1;
             if(active_effects.stamina_regeneration.duration <= 0) {
                 delete active_effects.stamina_regeneration;
@@ -2401,6 +2408,7 @@ function add_stuff_for_testing() {
     ]);
 }
 
+//add_to_character_inventory([{item: getItem(item_templates["Low quality iron bar"]), count: 10}, {item: getItem(item_templates["Iron bar"]), count: 9}]);
 add_stuff_for_testing();
 
 create_displayed_crafting_recipes();

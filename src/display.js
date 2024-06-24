@@ -94,6 +94,7 @@ const message_count = {
     message_loot: 0,
     message_events: 0,
     message_background: 0,
+    message_crafting: 0,
 };
 
 const stats_divs = {strength: document.getElementById("strength_slot"), agility: document.getElementById("agility_slot"),
@@ -191,6 +192,23 @@ function create_item_tooltip(item, options) {
         }
         else {
             item_tooltip.innerHTML += `<br><br>Slot: <b>${item.equip_slot}</b`;
+        }
+
+        if(item.components) {
+            let component_description = `<br><br><span class="item_component_list">`;
+            const components = Object.keys(item.components);
+
+            if(item.components) {
+                component_description += `[${item.components[components[0]]}]`;
+                if(!item.components[components[1]]) {
+                    component_description += `<br>+<br>no [${components[1]}]`;
+                } else {
+                    component_description += `<br>+<br>[${item.components[components[1]]}]`;
+                }
+            }
+
+            component_description += `</span>`;
+            item_tooltip.innerHTML += component_description;
         }
 
         if(item.getAttack) {
@@ -373,6 +391,12 @@ function end_activity_animation() {
             message_count.message_background +=1;
             group_to_add = "message_background";
             class_to_add = "message_background";
+            break;
+        case "crafting":
+            message_count.message_crafting +=1;
+            group_to_add = "message_crafting";
+            class_to_add = "message_crafting";
+            break;
     }
 
     if(group_to_add === "message_combat" && message_count.message_combat > 80
@@ -380,6 +404,7 @@ function end_activity_animation() {
     || group_to_add === "message_unlocks" && message_count.message_unlocks > 40
     || group_to_add === "message_events" && message_count.message_events > 20
     || group_to_add === "message_background" && message_count.message_background > 20
+    || group_to_add === "message_crafting" && message_count.message_background > 20
     ) {
         // find first child with specified group
         // delete it
@@ -917,7 +942,7 @@ function create_inventory_item_div({key, i, item_count, target, is_equipped, tra
                 item_div.classList.add(`${item_class}`, `${target_class_name}`, `item_${target_item[i].item_type.toLowerCase()}`);
             }
         } else {
-            item_name_div.innerHTML = `<span class = "item_category">[component] </span><span class="item_name">${target_item[i].getName()}</span>`;
+            item_name_div.innerHTML = `<span class = "item_category">[Component] </span><span class="item_name">${target_item[i].getName()}</span>`;
             item_name_div.classList.add(`${item_class}_name`);
             item_div.appendChild(item_name_div);
 
@@ -1546,23 +1571,7 @@ function update_displayed_combat_location(location) {
     location_tooltip.classList.add("location_tooltip");
     
     document.getElementById("location_description_div").innerText = current_location.getDescription();
-
-    //add location types to display
-    /*
-    for(let i = 0; i < current_location.types?.length; i++) {
-        const type_div = document.createElement("div");
-        type_div.innerHTML = current_location.types[i].type + (current_location.types[i].stage>1?` ${"I".repeat(current_location.types[i].stage)}`:"");
-        type_div.classList.add("location_type_div");
-
-        const type_tooltip = document.createElement("div");
-        type_tooltip.innerHTML = location_types[current_location.types[i].type].stages[current_location.types[i].stage].description;
-        type_tooltip.classList.add("location_type_tooltip");
-
-        type_div.appendChild(type_tooltip);
-        location_types_div.appendChild(type_div);
-    }
-    */
-   create_location_types_display(current_location);
+    create_location_types_display(current_location);
 }
 
 function create_location_types_display(current_location){
@@ -1607,13 +1616,18 @@ function open_crafting_window() {
     document.getElementById("crafting_window").style.display = "block";
     document.getElementById("crafting_mainpage_buttons").children[0].click();
     
-    const elements = document.querySelectorAll(`[data-crafting_subcategory]`);
+    let elements = document.querySelectorAll(`[data-crafting_subcategory]`);
     for(let i = 0; i < elements.length; i++) {
         if(elements[i].dataset.crafting_subcategory !== "items") {
             elements[i].style.display = "none";
         } else {
             elements[i].style.display = "";
         } 
+    }
+
+    elements = document.getElementsByClassName("crafting_subpage_buttons");
+    for(let i = 0; i < elements.length; i++) {
+        elements[i].children[0].click();
     }
 }
 
@@ -1639,6 +1653,8 @@ function switch_crafting_recipes_page(category) {
             }
         } 
     }
+
+    unexpand_displayed_recipes();
 }
 
 /**
@@ -1659,6 +1675,18 @@ function switch_crafting_recipes_subpage(category, subcategory) {
             }
         }
     }
+
+    unexpand_displayed_recipes();
+}
+
+function unexpand_displayed_recipes() {
+    const classes = ["selected_recipe", "selected_component_list", "selected_component_category"];
+    for(let i = 0; i < classes.length; i++) {
+        const elements = document.getElementsByClassName(classes[i]);
+        for(let j = 0 ; j < elements.length; j++) {
+            elements[j].classList.remove(classes[i]);
+        }
+    }
 }
 
 function create_displayed_crafting_recipes() {
@@ -1674,7 +1702,7 @@ function create_displayed_crafting_recipes() {
 function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
     const recipe = recipes[category][subcategory][recipe_id];
     const recipe_div = document.createElement("div");
-    recipe_div.innerHTML = recipe.name;
+    recipe_div.innerHTML = `<span class="recipe_name">${recipe.name}</span`;
 
     recipe_div.classList.add("recipe_div");
     recipe_div.dataset.recipe_id = recipe_id;
@@ -1685,55 +1713,79 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
         }
 
         recipe_div.addEventListener("click", (event)=>{
-            window.useRecipe(event);
+            if(event.target.classList.contains("recipe_name")) {
+                window.useRecipe(event.target);
+            }
         });
     } else if(subcategory === "components") {
-        recipe_div.innerHTML += '<i class="material-icons icon crafting_dropdown_icon"> keyboard_double_arrow_down </i>';
+        recipe_div.children[0].innerHTML = '<i class="material-icons icon crafting_dropdown_icon"> keyboard_double_arrow_down </i>' + recipe_div.children[0].innerHTML;
         const material_selection = document.createElement("div");
-        material_selection.addEventListener("click", ()=>{
-            window.updateDisplayedMaterialChoice({category, recipe_id});
+        material_selection.classList.add("folded_material_list");
+        recipe_div.addEventListener("click", (event)=>{
+            if(event.target.classList.contains("recipe_name") || event.target.classList.contains("crafting_dropdown_icon")) {
+                window.updateDisplayedMaterialChoice({category, recipe_id});
+                toggle_exclusive_class({element: recipe_div, class_name: "selected_recipe"});
+            }
         });
 
         const accept_recipe_button = document.createElement("div");
         accept_recipe_button.innerHTML = "Create";
+        accept_recipe_button.classList.add("recipe_creation_button");
         accept_recipe_button.addEventListener("click", (event)=>{
-            window.useRecipe(event);
+            window.useRecipe(event.target);
         });
 
         recipe_div.append(material_selection);
         recipe_div.append(accept_recipe_button);
 
     } else if(subcategory === "equipment") {
-        recipe_div.innerHTML += '<i class="material-icons icon crafting_dropdown_icon"> keyboard_double_arrow_down </i>';
+        recipe_div.children[0].innerHTML = '<i class="material-icons icon crafting_dropdown_icon"> keyboard_double_arrow_down </i>' +  recipe_div.children[0].innerHTML;
 
         const component_selection_1 = document.createElement("div"); //weapon head or internal armor
-        component_selection_1.innerHTML = `<span class="crafting_selection">Select a [${recipe.components[0]}]</span><i class="material-icons icon crafting_dropdown_icon"> keyboard_double_arrow_down </i>`;
-        component_selection_1.addEventListener("click", ()=>{
-            //unfold a list for selection; its content loaded by a different function
-        });
+        component_selection_1.innerHTML = `<span class="crafting_selection"><i class="material-icons icon subcrafting_dropdown_icon"> keyboard_double_arrow_down </i>Select a [${recipe.components[0]}]</span>`;
+        
         const component_1_list = document.createElement("div");
+        component_1_list.classList.add("folded_crafting_selection");
         component_selection_1.appendChild(component_1_list);
 
         const component_selection_2 = document.createElement("div"); //weapon handle or external armor
-        component_selection_2.innerHTML = `<span class="crafting_selection">Select a [${recipe.components[1]}]</span><i class="material-icons icon crafting_dropdown_icon"> keyboard_double_arrow_down </i>`;
-        component_selection_2.addEventListener("click", ()=>{
-            //unfold a list for selection; its content loaded by a different function
-        });
+        component_selection_2.innerHTML = `<span class="crafting_selection"><i class="material-icons icon subcrafting_dropdown_icon"> keyboard_double_arrow_down </i>Select a [${recipe.components[1]}]</span>`;
+        
         const component_2_list = document.createElement("div");
+        component_2_list.classList.add("folded_crafting_selection");
         component_selection_2.appendChild(component_2_list);
 
         const component_selections = document.createElement("div");
         component_selections.append(component_selection_1);
         component_selections.append(component_selection_2);
 
-        recipe_div.addEventListener("click", ()=>{
-            window.updateDisplayedComponentChoice({category, recipe_id});
+        recipe_div.addEventListener("click", (event)=>{
+            if(event.target.classList.contains("recipe_name") || event.target.classList.contains("crafting_dropdown_icon")) {
+                toggle_exclusive_class({element: recipe_div, class_name: "selected_recipe"});
+                window.updateDisplayedComponentChoice({category, recipe_id});
+            }
+        });
+
+        component_selection_1.parentNode.children[0].addEventListener("click", (event)=>{
+            //unfold a list for selection; its content already loaded by a different function
+            if(event.target.classList.contains("crafting_selection")) {
+                component_selection_1.children[1].classList.toggle("selected_component_list");
+                component_selection_1.children[0].classList.toggle("selected_component_category");
+            }
+        });
+        component_selection_2.parentNode.children[1].addEventListener("click", (event)=>{
+            //unfold a list for selection; its content already loaded by a different function
+            if(event.target.classList.contains("crafting_selection")) {
+                component_selection_2.children[1].classList.toggle("selected_component_list");
+                component_selection_2.children[0].classList.toggle("selected_component_category");
+            }
         });
 
         const accept_recipe_button = document.createElement("div");
         accept_recipe_button.innerHTML = "Create";
+        accept_recipe_button.classList.add("recipe_creation_button");
         accept_recipe_button.addEventListener("click", (event)=>{
-            window.useRecipe(event);
+            window.useRecipe(event.target);
         });
 
         recipe_div.append(component_selections);
@@ -1778,38 +1830,43 @@ function create_recipe_tooltip(recipe) {
  * updates the list of selectable components for equipment crafting
  */
 function update_displayed_component_choice({category, recipe_id}) {
-    
     const recipe = recipes[category]["equipment"][recipe_id];
 
     const component_selections_div = crafting_pages[category]["equipment"].querySelector(`[data-recipe_id='${recipe_id}']`).children[1].children;
     
-    component_selections_div[0].children[2].innerHTML = "";
-    component_selections_div[1].children[2].innerHTML = "";
+    component_selections_div[0].children[1].innerHTML = "";
+    component_selections_div[1].children[1].innerHTML = "";
 
 
     const components = [];
-    components.push(Object.values(character.inventory).filter(x=>{
-        return recipe.components[0] === x[0].component_type;
+    components.push(Object.values(character.inventory).filter(item=>{
+        return recipe.components[0] === item[0]?.component_type;
     }));
 
-    components.push(Object.values(character.inventory).filter(x=>{
-        return recipe.components[1] === x[0].component_type;
+    components.push(Object.values(character.inventory).filter(item=>{
+        return recipe.components[1] === item[0]?.component_type;
     }));
 
-    //todo
     for(let i = 0; i < 2; i++) {
         for(let j = 0; j < components[i].length; j++) {
             for(let k = 0; k < components[i][j].length; k++) {
                 const item_div = document.createElement("div");
-                item_div.innerHTML = `${components[i][j][k].name}, ${100*components[i][j][k].quality}% quality`;
-                component_selections_div[i].children[2].appendChild(item_div);
-
-                //todo: add id (k) and name to data properties
-                //make div selectable
+                item_div.innerHTML = `<i class="material-icons icon selected_component_icon"> check </i>${components[i][j][k].name}, ${100*components[i][j][k].quality}% quality`;
+                item_div.classList.add("selectable_component");
+                item_div.dataset.item_name = components[i][j][k].id;
+                item_div.dataset.item_id = k; //ids between inventory and 'components' list should match so this is fine
+                
+                item_div.addEventListener("click", ()=>{
+                    toggle_exclusive_class({element: item_div, siblings_only: true, class_name: "selected_component"});
+                    if(item_div.parentElement.parentElement.parentElement.querySelectorAll(".selected_component").length == 2) {
+                        //todo: update display of "Create" button
+                    }
+                })
+                
+                component_selections_div[i].children[1].appendChild(item_div);
             }
         }
     }
-    
 }
 
 /**
@@ -1817,7 +1874,24 @@ function update_displayed_component_choice({category, recipe_id}) {
  * displays only the materials available in inventory; those that are in too low number are grayed out and unselectable
  */
 function update_displayed_material_choice({category, recipe_id}) {
+    const recipe = recipes[category]["components"][recipe_id];
 
+    const material_selections_div = crafting_pages[category]["components"].querySelector(`[data-recipe_id='${recipe_id}']`).children[1];
+    
+    material_selections_div.innerHTML = "";
+
+    const materials = Object.values(character.inventory).filter(item=>{
+        return recipe.materials.filter(material => material.name === item.item?.name).length > 0;
+    });
+
+    for(let i = 0; i < materials.length; i++) {
+        const item_div = document.createElement("div");
+        item_div.innerHTML = `${materials[i].item.name}`;
+        item_div.classList.add("selectable_material");
+        item_div.dataset.item_name = materials[i].item.id;
+        
+        material_selections_div.appendChild(item_div);
+    }
 }
 
 /**
@@ -1984,7 +2058,8 @@ function update_displayed_effects() {
             const effect_desc_div = document.createElement("div");
             const effect_duration_div = document.createElement("div");
 
-            effect_desc_div.innerText = `${capitalize_first_letter(effect.replace("_", " "))} +${active_effects[effect].flat}`;
+            let sign = active_effects[effect].flat > 0 ? "+":"";
+            effect_desc_div.innerText = `${capitalize_first_letter(effect.replace("_", " "))} ${sign}${active_effects[effect].flat}`;
 
             effect_duration_div.innerText = active_effects[effect].duration;
 
@@ -2853,6 +2928,26 @@ function update_enemy_attack_bar(enemy_id, num) {
 
 function update_character_attack_bar(num) {
     character_attack_bar.style.width = `${Math.min(num*2.6,100)}%`;
+}
+
+/**
+ * Toggles a specificed class for target 'element', removing it from any other element that might have had it.
+ * If 'siblings_only' is true, class will be removed only from siblings
+ * @param {Object} params
+ * @param {HTMLElement} params.element
+ * @param {Boolean} [params.siblings_only]
+ * @param {String} params.class_name
+ */
+function toggle_exclusive_class({element, siblings_only=false, class_name}) {
+    const elems = siblings_only?element.parentNode.querySelectorAll(`.${class_name}`):document.getElementsByClassName(class_name);
+    const has_class = element.classList.contains(class_name);
+    for(let i = 0; i < elems.length; i++) {
+        elems[i].classList.remove(class_name);
+    }
+
+    if(!has_class) {
+        element.classList.add(class_name);
+    }
 }
 
 export {

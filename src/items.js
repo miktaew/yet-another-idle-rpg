@@ -366,19 +366,6 @@ class Artifact extends Equippable {
         return this.value;
     } 
 
-    getRarity(){
-        if(!this.rarity) {
-            if(this.quality < 0.5) this.rarity =  "trash";
-            else if(this.quality < 1.0) this.rarity = "common";
-            else if(this.quality < 1.3) this.rarity = "uncommon";
-            else if(this.quality < 1.6) this.rarity = "rare";
-            else if(this.quality < 2.0) this.rarity = "epic";
-            else if(this.quality < 2.46) this.rarity = "legendary";
-            else this.rarity = "mythical";
-        }
-        return this.rarity;
-    }
-
     getStats(){
         return this.stats;
     }
@@ -732,6 +719,14 @@ item_templates["Twist liek a snek"] = new Book({
         saturates_market: true,
         price_recovers: true,
     });
+
+    item_templates["Rat meat chunks"] = new OtherItem({
+        name: "Rat meat chunks", 
+        description: "Eww", 
+        value: 8,
+        saturates_market: true,
+        price_recovers: true,
+    });
 })();
 
 //lootable materials
@@ -793,10 +788,18 @@ item_templates["Twist liek a snek"] = new Book({
         price_recovers: true,
         material_type: "piece of wood",
     });
+    item_templates["Piece of wood"] = new Material({
+        name: "Piece of wood", 
+        description: "Average quality wood, useful for crafting thanks to flexible uses.", 
+        value: 4,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "piece of wood",
+    });
     item_templates["Piece of ash wood"] = new Material({
         name: "Piece of ash wood", 
         description: "Strong yet elastic, it's a great crafting material.", 
-        value: 4,
+        value: 7,
         saturates_market: true,
         price_recovers: true,
         material_type: "piece of wood",
@@ -1290,7 +1293,8 @@ item_templates["Twist liek a snek"] = new Book({
     });
 
     item_templates["Fresh bread"] = new UsableItem({
-        name: "Fresh bread", description: "Freshly baked bread, delicious", 
+        name: "Fresh bread", 
+        description: "Freshly baked bread, delicious", 
         value: 40,
         use_effect: {
             stamina_regeneration: {
@@ -1301,13 +1305,30 @@ item_templates["Twist liek a snek"] = new Book({
     });
 
     item_templates["Weak healing powder"] = new UsableItem({
-        name: "Weak healing powder", description: "Not very potent, but can still make body heal noticeably faster", 
+        name: "Weak healing powder", 
+        description: "Not very potent, but can still make body heal noticeably faster", 
         value: 50,
         use_effect: {
             health_regeneration: {
                 flat: 1,
                 duration: 120,
             },
+        }
+    });
+
+    item_templates["Roasted rat meat"] = new UsableItem({
+        name: "Roasted rat meat", 
+        description: "Smell might be fine now, but it still seems like a bad idea to eat it",
+        value: 20,
+        use_effect: {
+            stamina_regeneration: {
+                flat: 2,
+                duration: 30,
+            },
+            health_regeneration: {
+                flat: -0.5,
+                duration: 30,
+            }
         }
     });
 })();

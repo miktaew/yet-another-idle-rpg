@@ -20,6 +20,7 @@
 	--message_loot_display: inline-block;
 	--message_events_display: inline-block;
 	--message_background_display: inline-block;
+	--message_crafting_display: inline-block;
 
 	--trade_ammount_button_display: none;
 	--item_use_button_display: inline-block;
@@ -67,6 +68,8 @@
 
 	--options_action_textsize: 16px;
 	--location_name_div_width: 250px;
+
+	--active_button_color: #435270;
 }
 
 body {
@@ -553,6 +556,11 @@ body {
 	width: var(--item_other_width_default);
 }
 
+.item_component_list {
+	color: rgb(190, 190, 190);
+	font-style: italic;
+}
+
 .character_item_equippable {
 	display: var(--equipment_display);
 }
@@ -728,9 +736,85 @@ body {
 		.crafting_subpage_button_3 {
 			width: 132px;
 		}
+
+.crafting_recipe_list {
+	width: 100%;
+	height: 333px;
+	position: absolute;
+	top: 60px;
+	overflow-y: scroll;
+}
 		
 .recipe_div {
-	width: 380px;
+	width: 376px;
+	border-bottom: 2px dashed white;
+	font-size: 16px;
+	padding: 2px;
+}
+
+.recipe_name:hover, .selected_recipe .recipe_name, .crafting_selection:hover, .selected_component_category, .selected_component, .selectable_component:hover {
+	background-color: var(--active_button_color);
+}
+
+.selected_component_icon {
+	visibility: hidden;
+}
+
+.selected_component .selected_component_icon {
+	visibility: visible;
+}
+
+.selected_recipe .recipe_name {
+	border-bottom: 1px dashed white;
+}
+
+.recipe_creation_button {
+	display: none;
+	font-size: 18px;
+	padding: 3px 0px 3px 0px;
+	background-color: rgba(128, 128, 128, 0.5);
+	text-align: center;
+}
+.selected_recipe .recipe_creation_button {
+	display: block;
+}
+.recipe_div:not(.selected_recipe) > div > div > div {
+	display: none;
+}
+
+.crafting_selection {
+	display: none;
+	border-bottom: 1px solid white;
+	padding: 3px;
+}
+.selectable_component {
+	border-bottom: 1px dotted white;
+	padding: 3px;
+	padding-left: 10px;
+}
+.selected_recipe .crafting_selection {
+	display: block;
+}
+
+.recipe_name {
+	display: block;
+	padding-bottom: 5px;
+}
+
+.folded_crafting_selection, .folded_material_list {
+	display: none;
+}
+
+.selected_recipe .folded_material_list {
+	display: block;
+}
+
+.selected_recipe .crafting_dropdown_icon, .selected_component_category .subcrafting_dropdown_icon {
+	transform: rotate(180deg);
+}
+
+.selected_component_list, .selected_material_list {
+	display: block;
 }
 	
 .sl_button {
@@ -797,7 +881,7 @@ i {
 
 .character_control_button:hover, .inventory_control_button:hover, 
 .trader_category_button:hover, .trader_sorting_button:hover, .active_selection_button, .character_sorting_button:hover {
-	background-color: #435270 !important;
+	background-color: var(--active_button_color) !important;
 	background-image: none;
 }
 
@@ -1651,7 +1735,7 @@ i {
 			padding: 3px;
 			padding-left: 4px;
 			padding-right: 4px;
-			min-width: 38.3px;
+			min-width: 40px;
 			text-align: center;
 			outline: 1px solid white;
 			margin: 1px;
@@ -1671,6 +1755,9 @@ i {
 	}
 	.message_background {
 		display: var(--message_background_display);
+	}
+	.message_crafting {
+		display: var(--message_crafting_display);
 	}
 
 #money_div {
