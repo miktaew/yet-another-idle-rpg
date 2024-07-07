@@ -1,7 +1,7 @@
 "use strict";
 
 import { InventoryHaver } from "./inventory.js";
-import { skills } from "./skills.js";
+import { skills, weapon_type_to_skill } from "./skills.js";
 import { update_displayed_character_inventory, update_displayed_equipment, 
          update_displayed_stats,
          update_displayed_health, update_displayed_stamina, 
@@ -290,10 +290,15 @@ character.stats.add_all_equipment_bonus = function() {
                 });
         });
 
-        //add unarmed speed bonus (technically a bonus from equipment, or rather lack of it)
+        //add weapon speed bonus (technically a bonus related to equipment, so its in this function)
         if(character.equipment.weapon == null) {
-                character.stats.multiplier.equipment.attack_speed = (character.stats.multiplier.equipment.attack_speed || 1) * (skills["Unarmed"].get_coefficient("multiplicative")**0.3333);
-        } 
+                character.stats.multiplier.skills.attack_power = skills["Unarmed"].get_coefficient();
+                character.stats.multiplier.skills.attack_speed = (skills["Unarmed"].get_coefficient("multiplicative")**0.3333);
+                character.stats.multiplier.skills.attack_points = (skills["Unarmed"].get_coefficient("multiplicative")**0.3333);
+        } else {
+                character.stats.multiplier.skills.attack_power = skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]].get_coefficient();
+                character.stats.multiplier.skills.attack_points = skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]].get_coefficient()**0.3333;
+        }
 }
 
 /**

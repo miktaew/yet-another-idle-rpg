@@ -1237,6 +1237,10 @@
             function prepareGame() { //called on body loaded
                 document.getElementById("changelog_button").children[0].innerHTML = get_game_version();
 
+                let tooltip_move_ticks = 60;
+                let item_tooltip_wait = 0;
+                let trader_item_tooltip_wait = 0;
+
                 //mostly sets up event listeners
                 /////////////////////
                 //(un)equipping items:
@@ -1272,106 +1276,114 @@
                 ///////////////
                 //character item tooltips
                 inventory_div.addEventListener('mousemove', move_item_tooltip, false);
+            
                 function move_item_tooltip(event) {
-                    var hovered_element = event.target;
-                    
-                    if(!(hovered_element.classList.contains("inventory_item_control") 
-                        || hovered_element.classList.contains("trade_ammount_button")
-                        || hovered_element.classList.contains("inventory_item") 
-                        || hovered_element.classList.contains("item_controls") 
-                        || hovered_element.classList.contains("item_use_button") 
-                        || hovered_element.classList.contains("item_read_button") 
-                        || hovered_element.classList.contains("inventory_item_name") 
-                        || hovered_element.classList.contains("item_tooltip")
-                        || hovered_element.nodeName === "SPAN"
-                        )) {
-                        return;
-                    }
-
-                    //set horizontal position
-                    document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX - 20}px`);
-
-                    //calculate vertical position so it doesnt go under bottom edge
-                    
-                    if(!hovered_element.classList.contains("inventory_item_control")){
-                        if(hovered_element.classList.contains("trade_ammount_buttons") 
+                    if(Date.now() >= item_tooltip_wait) {
+                        let hovered_element = event.target;
+                        
+                        if(!(hovered_element.classList.contains("inventory_item_control") 
+                            || hovered_element.classList.contains("trade_ammount_button")
                             || hovered_element.classList.contains("inventory_item") 
                             || hovered_element.classList.contains("item_controls") 
                             || hovered_element.classList.contains("item_use_button") 
-                            || hovered_element.classList.contains("item_read_button")
-                            )
-                        {
-                            hovered_element = hovered_element.parentNode;
-                        } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip") || hovered_element.classList.contains("trade_ammount_button")) {
-                            hovered_element = hovered_element.parentNode.parentNode;
-                        } else if(hovered_element.nodeName === "SPAN") {
-                            hovered_element = hovered_element.parentNode.parentNode.parentNode;
+                            || hovered_element.classList.contains("item_read_button") 
+                            || hovered_element.classList.contains("inventory_item_name") 
+                            || hovered_element.classList.contains("item_tooltip")
+                            || hovered_element.classList.contains("equipped_item_name")
+                            || hovered_element.nodeName === "SPAN"
+                            )) {
+                            return;
                         }
+
+                        //set horizontal position
+                        document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX - 20}px`);
+
+                        //calculate vertical position so it doesnt go under bottom edge
+                        
+                        if(!hovered_element.classList.contains("inventory_item_control")){
+                            if(hovered_element.classList.contains("trade_ammount_buttons") 
+                                || hovered_element.classList.contains("inventory_item") 
+                                || hovered_element.classList.contains("item_controls") 
+                                || hovered_element.classList.contains("item_use_button") 
+                                || hovered_element.classList.contains("item_read_button")
+                                )
+                            {
+                                hovered_element = hovered_element.parentNode;
+                            } else if(hovered_element.classList.contains("inventory_item_name")  
+                            || hovered_element.classList.contains("item_tooltip") 
+                            || hovered_element.classList.contains("trade_ammount_button")
+                            || hovered_element.classList.contains("equipped_item_name")) 
+                            {
+                                hovered_element = hovered_element.parentNode.parentNode;
+                            } else if(hovered_element.nodeName === "SPAN") {
+                                hovered_element = hovered_element.parentNode.parentNode.parentNode;
+                            }
+                        }
+                        const tooltip_height = hovered_element.children[0].children[1].scrollHeight;
+
+                        const body = document.getElementsByTagName("body")[0];
+                        const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
+
+                        const bottom_edge_position = 
+                            window.innerHeight - tooltip_height - item_tooltip_margin + window.scrollY + 25 - (scrollbar_X_visible?10:0);
+                        
+                        if(event.pageY > bottom_edge_position) {
+                            document.documentElement.style.setProperty('--item_tooltip_top', `${bottom_edge_position - 400}px`);
+                        } else {
+                            document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 400}px`);
+                        }
+                        item_tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
-
-                    const tooltip_height = hovered_element.children[0].children[1].scrollHeight;
-
-                    const body = document.getElementsByTagName("body")[0];
-                    const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
-
-                    const bottom_edge_position = 
-                        window.innerHeight - tooltip_height - item_tooltip_margin + window.scrollY - 25 - (scrollbar_X_visible?10:0);
-                    
-                    if(event.pageY > bottom_edge_position) {
-                        document.documentElement.style.setProperty('--item_tooltip_top', `${bottom_edge_position - 400}px`);
-                    } else {
-                        document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 400}px`);
-                    }
-                    
                 }
                 
                 //////////////////////
                 //trader item tooltips
-
-                var trader_inventory_div = document.getElementById("trader_inventory_div");
+                const trader_inventory_div = document.getElementById("trader_inventory_div");
                 trader_inventory_div.addEventListener('mousemove', move_trader_item_tooltip, false);
                 function move_trader_item_tooltip(event) {
-                    if(event.target.id === "trader_inventory_div") {
-                        return;
-                    }
-
-                    var hovered_element = event.target;
-                    if(!hovered_element.classList.contains("trader_item_control")){
-                        if(hovered_element.classList.contains("trade_ammount_buttons") 
-                            || hovered_element.classList.contains("trader_item") 
-                            || hovered_element.classList.contains("item_value")) 
-                        {
-                            hovered_element = hovered_element.parentNode;
-                        } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip") || hovered_element.classList.contains("trade_ammount_button")) {
-                            hovered_element = hovered_element.parentNode.parentNode;
-                        } else if(hovered_element.classList.contains("item_slot") || hovered_element.nodeName === "SPAN") {
-                            hovered_element = hovered_element.parentNode.parentNode.parentNode;
+                    if(Date.now() >= trader_item_tooltip_wait) {
+                        if(event.target.id === "trader_inventory_div") {
+                            return;
                         }
-                    }
-                    const tooltip_width = hovered_element.children[0].children[1].scrollWidth;
-                    const tooltip_height = hovered_element.children[0].children[1].scrollHeight;
 
-                    const body = document.getElementsByTagName("body")[0];
-                    const scrollbar_Y_visible = (body.scrollHeight - body.clientHeight) > 0;
-                    const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
+                        var hovered_element = event.target;
+                        if(!hovered_element.classList.contains("trader_item_control")){
+                            if(hovered_element.classList.contains("trade_ammount_buttons") 
+                                || hovered_element.classList.contains("trader_item") 
+                                || hovered_element.classList.contains("item_value")) 
+                            {
+                                hovered_element = hovered_element.parentNode;
+                            } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip") || hovered_element.classList.contains("trade_ammount_button")) {
+                                hovered_element = hovered_element.parentNode.parentNode;
+                            } else if(hovered_element.classList.contains("item_slot") || hovered_element.nodeName === "SPAN") {
+                                hovered_element = hovered_element.parentNode.parentNode.parentNode;
+                            }
+                        }
+                        const tooltip_width = hovered_element.children[0].children[1].scrollWidth;
+                        const tooltip_height = hovered_element.children[0].children[1].scrollHeight;
 
-                    const right_edge_position = 
-                        window.innerWidth - tooltip_width  - item_tooltip_margin + window.scrollX - (scrollbar_Y_visible?10:0);
-                    const bottom_edge_position = 
-                        window.innerHeight - tooltip_height - item_tooltip_margin + window.scrollY - (scrollbar_X_visible?10:0);
-                
-                    if(event.pageX > right_edge_position) {
-                        document.documentElement.style.setProperty('--item_tooltip_left', `${right_edge_position - 420}px`);
-                    } else {
-                        document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX - 420}px`);
-                    }
+                        const body = document.getElementsByTagName("body")[0];
+                        const scrollbar_Y_visible = (body.scrollHeight - body.clientHeight) > 0;
+                        const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
+
+                        const right_edge_position = 
+                            window.innerWidth - tooltip_width  - item_tooltip_margin + window.scrollX - (scrollbar_Y_visible?10:0);
+                        const bottom_edge_position = 
+                            window.innerHeight - tooltip_height - item_tooltip_margin + window.scrollY - (scrollbar_X_visible?10:0);
                     
-                    if(event.pageY > bottom_edge_position) {
-                        document.documentElement.style.setProperty('--item_tooltip_top', `${bottom_edge_position - 400}px`);
-                    } else {
-                        document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 400}px`);
+                        if(event.pageX > right_edge_position) {
+                            document.documentElement.style.setProperty('--item_tooltip_left', `${right_edge_position - 420}px`);
+                        } else {
+                            document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX - 420}px`);
+                        }
+                        
+                        if(event.pageY > bottom_edge_position) {
+                            document.documentElement.style.setProperty('--item_tooltip_top', `${bottom_edge_position - 400}px`);
+                        } else {
+                            document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 400}px`);
+                        }
+                        trader_item_tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
-                    
                 }
 
                 trader_inventory_div.addEventListener('mouseenter', (event) => {
@@ -1381,10 +1393,10 @@
                 //prevents trader item tooltip from initially appearing in wrong spot on some occassions
 
                 //item slots / worn equipment tooltips
-                var equipment_div = document.getElementById("character_equipment_div");
+                let equipment_div = document.getElementById("character_equipment_div");
                 equipment_div.addEventListener('mousemove', move_equipment_tooltip, false);
                 function move_equipment_tooltip(event) {
-                    var hovered_element = event.target;
+                    let hovered_element = event.target;
                     if(hovered_element.classList.contains("equipment_slot_div")){
                         hovered_element.children[0].style.left = event.pageX + "px";
                         hovered_element.children[0].style.top = event.pageY - 130 + "px";
@@ -1392,7 +1404,7 @@
                 }
 
                 //stats tooltips
-                var stats_div = document.getElementById("character_stats_div");
+                let stats_div = document.getElementById("character_stats_div");
                 stats_div.addEventListener('mousemove', move_stat_tooltip, false);
                 function move_stat_tooltip(event) {
 
@@ -1402,7 +1414,7 @@
 
                 //unequip item
                 equipment_div.onclick = function(event) {
-                    var clicked_element = event.target;
+                    let clicked_element = event.target;
                     if(clicked_element.classList.contains("equipment_slot_div") && !clicked_element.classList.contains("equipment_slot_empty"))
                     {
                         unequip_item(clicked_element.id.replace("_slot", ""));
@@ -1424,7 +1436,7 @@
                 const skills_div = document.getElementById("skill_list_div");
                 skills_div.addEventListener('mousemove', move_skill_tooltip, false);
                 function move_skill_tooltip(event) {
-                    var hovered_element = event.target;
+                    let hovered_element = event.target;
                     if(!hovered_element.classList.contains("skill_div")) {
                         if(hovered_element.classList.contains("skill_bar_max")) {
                             hovered_element = hovered_element.parentNode;

@@ -503,7 +503,7 @@ function format_skill_rewards(milestone){
                                     description: "It's definitely, unquestionably, undoubtedly better to just use a weapon instead of doing this. But sure, why not?",
                                     get_effect_description: ()=> {
                                         return `Multiplies damage dealt in unarmed combat by ${Math.round(skills["Unarmed"].get_coefficient("multiplicative")*1000)/1000}. 
-Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
+Multiplies attack speed and attack points in unarmed combat by ${Math.round((skills["Unarmed"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
                                     },
                                     max_level_coefficient: 64, //even with 8x more it's still gonna be worse than just using a weapon lol
                                     rewards: {
@@ -837,7 +837,8 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                   names: {0: "Swordsmanship"}, 
                                   description: "The noble art of swordsmanship", 
                                   get_effect_description: ()=> {
-                                      return `Multiplies damage dealt with swords by ${Math.round(skills["Swords"].get_coefficient("multiplicative")*1000)/1000}`;
+                                      return `Multiplies damage dealt with swords by ${Math.round(skills["Swords"].get_coefficient("multiplicative")*1000)/1000}.
+Multiplies attack points with swords by ${Math.round((skills["Swords"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
                                   },
                                   rewards: {
                                     milestones: {
@@ -883,7 +884,8 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                 names: {0: "Axe combat"}, 
                                 description: "Ability to fight with use of axes", 
                                 get_effect_description: ()=> {
-                                    return `Multiplies damage dealt with axes by ${Math.round(skills["Axes"].get_coefficient("multiplicative")*1000)/1000}`;
+                                    return `Multiplies damage dealt with axes by ${Math.round(skills["Axes"].get_coefficient("multiplicative")*1000)/1000}.
+Multiplies attack points with axes by ${Math.round((skills["Axes"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
                                 },
                                 rewards: {
                                     milestones: {
@@ -928,7 +930,8 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                 names: {0: "Spearmanship"}, 
                                 description: "The ability to fight with the most deadly weapon in the history", 
                                 get_effect_description: ()=> {
-                                    return `Multiplies damage dealt with spears by ${Math.round(skills["Spears"].get_coefficient("multiplicative")*1000)/1000}`;
+                                    return `Multiplies damage dealt with spears by ${Math.round(skills["Spears"].get_coefficient("multiplicative")*1000)/1000}.
+Multiplies attack points with spears by ${Math.round((skills["Spears"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
                                 },
                                 rewards: {
                                     milestones: {
@@ -973,7 +976,8 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                         names: {0: "Hammer combat"}, 
                                         description: "Ability to fight with use of battle hammers. Why bother trying to cut someone, when you can just crack all their bones?", 
                                         get_effect_description: ()=> {
-                                            return `Multiplies damage dealt with battle hammers by ${Math.round(skills["Hammers"].get_coefficient("multiplicative")*1000)/1000}`;
+                                            return `Multiplies damage dealt with battle hammers by ${Math.round(skills["Hammers"].get_coefficient("multiplicative")*1000)/1000}.
+Multiplies attack points with hammers by ${Math.round((skills["Hammers"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
                                         },
                                         rewards: {
                                             milestones: {
@@ -1018,7 +1022,8 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
                                 names: {0: "Dagger combat"},
                                 description: "The looked upon art of fighting (and stabbing) with daggers",
                                 get_effect_description: ()=> {
-                                    return `Multiplies damage dealt with daggers by ${Math.round(skills["Daggers"].get_coefficient("multiplicative")*1000)/1000}`;
+                                    return `Multiplies damage dealt with daggers by ${Math.round(skills["Daggers"].get_coefficient("multiplicative")*1000)/1000}.
+Multiplies attack points with daggers by ${Math.round((skills["Daggers"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
                                 },
                                 rewards: {
                                     milestones: {
@@ -1433,8 +1438,8 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
       return `Multiplies strength by ${value}`;
     },
     
-  });
-  skills["Equilibrium"] = new Skill({skill_id: "Equilibrium",
+    });
+    skills["Equilibrium"] = new Skill({skill_id: "Equilibrium",
     description: "Nothing will throw you off your balance (at least the physical one)",
     names: {0: "Equilibrium"},
     max_level: 50,
@@ -1504,7 +1509,7 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
       return `Multiplies agility by ${value}`;
     },
     
-  });
+    });
 })();
 
 //resource gathering related
@@ -1691,10 +1696,10 @@ Multiplies attack speed in unarmed combat by ${Math.round((skills["Unarmed"].get
     skills["Perception"] = new Skill({
         skill_id: "Perception", 
         names: {0: "Perception"}, 
-        description: "Better grasp on your senses allows you to notice small and hidden things", 
+        description: "Better grasp on your senses allows you to notice small and hidden things, as well as to discern the true nature of what you obsere",
         max_level_coefficient: 2,
         get_effect_description: ()=> {
-            return `Increase crit rate and chance to find items when foraging`;
+            return ``;
         },
         rewards: {
             milestones: {

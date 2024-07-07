@@ -102,7 +102,7 @@ stances["defensive"] = new Stance({
     stat_multipliers: {
         attack_power: 0.8,
         agility: 1.2,
-        block_strength: 1.2,
+        block_strength: 1.1,
     },
     target_count: 1,
     stamina_cost: 2,

@@ -45,7 +45,8 @@ import { end_activity_animation,
          switch_crafting_recipes_subpage,
          create_displayed_crafting_recipes,
          update_displayed_component_choice,
-         update_displayed_material_choice
+         update_displayed_material_choice,
+         update_recipe_tooltip
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -491,11 +492,12 @@ function can_work(selected_job) {
  * @returns if there's enough time to earn anything
  */
 function enough_time_for_earnings(selected_job) {
+
     if(!selected_job.infinite) {
         //if enough time for at least 1 working period
         if(selected_job.availability_time.end > selected_job.availability_time.start) {
             //ends on the same day
-            if(current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60
+            if(current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period - selected_job.working_time%selected_job.working_period > selected_job.availability_time.end*60
                 ||  //not enough time left for another work period
                 current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
                 ) {  //too early to start (shouldn't be allowed to start and get here at all)
@@ -506,13 +508,13 @@ function enough_time_for_earnings(selected_job) {
             if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.start*60
                 //timer is past the starting hour, so it's the same day as job starts
                 && 
-                current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60 + 24*60
+                current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period  - selected_job.working_time%selected_job.working_period > selected_job.availability_time.end*60 + 24*60
                 //time available on this day + time available on next day are less than time needed
                 ||
                 current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
                 //timer is less than the starting hour, so it's the next day
                 &&
-                current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period > selected_job.availability_time.end*60
+                current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period  - selected_job.working_time%selected_job.working_period > selected_job.availability_time.end*60
                 //time left on this day is not enough to finish
                 ) {  
                 return false;
@@ -1014,10 +1016,7 @@ function do_character_combat_action({target, attack_power}) {
     if(hit_chance > Math.random()) {//hero's attack hits
 
         if(character.equipment.weapon != null) {
-            damage_dealt = Math.round(
-                                        10 * hero_base_damage * (1.2 - Math.random() * 0.4) 
-                                        * skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]].get_coefficient()
-                                     )/10;
+            damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) )/10;
 
             add_xp_to_skill({skill: skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]], xp_to_add: target.xp_value}); 
 
@@ -1515,6 +1514,7 @@ function create_save() {
             combat: document.documentElement.style.getPropertyValue('--message_combat_display') !== "none",
             loot: document.documentElement.style.getPropertyValue('--message_loot_display') !== "none",
             background: document.documentElement.style.getPropertyValue('--message_background_display') !== "none",
+            crafting: document.documentElement.style.getPropertyValue('--message_crafting_display') !== "none",
         };
 
         return JSON.stringify(save_data);
@@ -1570,7 +1570,9 @@ function load(save_data) {
 
     options.remember_message_log_filters = save_data.options?.remember_message_log_filters;
     if(save_data.message_filters) {
-        message_log_filters = save_data.message_filters;
+        Object.keys(message_log_filters).forEach(filter => {
+            message_log_filters[filter] = save_data.message_filters[filter] ?? true;
+        })
     }
     option_remember_filters(options.remember_message_log_filters);
 
@@ -1688,24 +1690,29 @@ function load(save_data) {
                     }
                 } else if(save_data.character.equipment[key].equip_slot === "artifact") {
                     equip_item(getItem(save_data.character.equipment[key]));
-                } else {
+                } else { //armor
                     const {quality, equip_slot} = save_data.character.equipment[key];
-                    let components;
-                    if(save_data.character.equipment[key].components) {
-                        components = save_data.character.equipment[key].components
-                    } else {
-                        const {internal, external} = save_data.character.equipment[key];
-                        components = {internal, external};
-                    }
-
-                    if(!item_templates[components.internal]){
-                        console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
-                    } else if(components.external && !item_templates[components.external]) {
-                        console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
-                    } else {
-                        const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                    
+                    if(save_data.character.equipment[key].components && save_data.character.equipment[key].components.internal.includes(" [component]")) {
+                        //compatibility for armors from before v0.4.5
+                        const item = getItem({...item_templates[save_data.character.equipment[key].components.internal.replace(" [component]","")], quality: quality});
                         equip_item(item);
                     }
+                    else if(save_data.character.equipment[key].components) {
+                        let components = save_data.character.equipment[key].components;
+                        if(!item_templates[components.internal]){
+                            console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
+                        } else if(components.external && !item_templates[components.external]) {
+                            console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
+                        } else {
+                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                            equip_item(item);
+                        }
+                    } else {
+                        const item = getItem({...item_templates[save_data.character.equipment[key].name], quality: quality});
+                        equip_item(item);
+                    }
+
                 }
             } catch (error) {
                 console.error(error);
@@ -1764,24 +1771,32 @@ function load(save_data) {
                             }
                         } else if(save_data.character.inventory[key][i].equip_slot === "artifact") {
                             item_list.push({item: getItem(save_data.character.inventory[key][i]), count: 1});
-                        } else {
+                        } else { //armor
                             const {quality, equip_slot} = save_data.character.inventory[key][i];
-                            let components;
-                            if(save_data.character.inventory[key][i].components) {
-                                components = save_data.character.inventory[key][i].components
-                            } else {
-                                const {internal, external} = save_data.character.inventory[key][i];
-                                components = {internal, external};
+
+                            
+                            if(save_data.character.inventory[key][i].components && save_data.character.inventory[key][i].components.internal.includes(" [component]")) {
+                                //compatibility for armors from before v0.4.5
+                                const item = getItem({...item_templates[save_data.character.inventory[key][i].components.internal.replace(" [component]","")], quality: quality});
+                                item_list.push({item, count: 1});
                             }
-                            if(!item_templates[components.internal]){
-                                console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
-                            } else if(components.external && !item_templates[components.external]) {
-                                console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
+                            else if(save_data.character.inventory[key][i].components) {
+                                let components = save_data.character.inventory[key][i].components;
+                                if(!item_templates[components.internal]){
+                                    console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
+                                } else if(components.external && !item_templates[components.external]) {
+                                    console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
+                                } else {
+                                    const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                    item_list.push({item, count: 1});
+                                }
                             } else {
-                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                const item = getItem({...item_templates[save_data.character.inventory[key][i].name], quality: quality});
                                 item_list.push({item, count: 1});
                             }
                         }
+                    } else {
+                        item_list.push({item: getItem({...item_templates[save_data.character.inventory[key][i].name], quality: save_data.character.inventory[key][i].quality}), count: 1});
                     }
                 } catch (error) {
                     console.error(error);
@@ -2351,6 +2366,7 @@ window.switchCraftingRecipesSubpage = switch_crafting_recipes_subpage;
 window.useRecipe = use_recipe;
 window.updateDisplayedComponentChoice = update_displayed_component_choice;
 window.updateDisplayedMaterialChoice = update_displayed_material_choice;
+window.updateRecipeTooltip = update_recipe_tooltip;
 
 window.option_uniform_textsize = option_uniform_textsize;
 window.option_bed_return = option_bed_return;
@@ -2404,12 +2420,14 @@ function add_stuff_for_testing() {
         {item: getItem({...item_templates["Medium wooden handle"]})},
         {item: getItem({...item_templates["Simple long wooden shaft"]})},
         {item: getItem({...item_templates["Long wooden shaft"]})},
-        {item: getItem(item_templates["Rat fang"]), count: 1}
+        {item: getItem(item_templates["Rat fang"]), count: 1},
+        //{item: getItem(item_templates["Wolf leather chestplate armor"])},
+        //{item: getItem({...item_templates["Cheap leather vest"]})},
     ]);
 }
 
 //add_to_character_inventory([{item: getItem(item_templates["Low quality iron bar"]), count: 10}, {item: getItem(item_templates["Iron bar"]), count: 9}]);
-add_stuff_for_testing();
+//add_stuff_for_testing();
 
 create_displayed_crafting_recipes();
 update_displayed_equipment();

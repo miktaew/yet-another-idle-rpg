@@ -211,6 +211,7 @@ class WeaponComponent extends ItemComponent {
         this.name_prefix = item_data.name_prefix; //to create a name of an item, e.g. "Sharp iron" used to create spear results in "Sharp iron spear"
 
         this.tags["weapon component"] = true;
+        this.tags["component"] = true;
     }
 }
 
@@ -227,17 +228,24 @@ class ShieldComponent extends ItemComponent {
         this.shield_name = item_data.shield_name || item_data.name;
 
         this.tags["shield component"] = true;
+        this.tags["component"] = true;
     }
 }
 
 class ArmorComponent extends ItemComponent {
     constructor(item_data) {
         super(item_data);
-        if(item_data.component_type !== "external" && item_data.component_type !== "internal") {
+        if(item_data.component_type !== "helmet interior" && item_data.component_type !== "helmet exterior"
+        && item_data.component_type !== "chestplate interior" && item_data.component_type !== "chestplate exterior"
+        && item_data.component_type !== "leg armor interior" && item_data.component_type !== "leg armor exterior"
+        && item_data.component_type !== "glove interior" && item_data.component_type !== "glove exterior") {
+
             throw new Error(`No such armor component type as ${item_data.component_type}`);
         }
         this.component_type = item_data.component_type;
         this.defense_value = item_data.defense_value;
+
+        this.stats = item_data.stats || {};
 
         this.equip_slot = item_data.equip_slot;
 
@@ -252,6 +260,7 @@ class ArmorComponent extends ItemComponent {
         this.name_suffix = item_data.name_suffix;
 
         this.tags["armor component"] = true;
+        this.tags["component"] = true;
     }
 }
 
@@ -273,8 +282,7 @@ class Equippable extends Item {
         this.stackable = false;
         this.components = {};
 
-        this.quality = item_data.quality || 1;
-        //item quality, value of (0, 1>, set in other place
+        this.quality = Math.round(item_data.quality*100)/100 || 1;
 
         this.tags["equippable"] = true;
     }
@@ -296,52 +304,56 @@ class Equippable extends Item {
         return this.rarity;
     }
 
-    getStats(){
+    getStats(quality){
         if(!this.stats) {
-            const stats = {};
+            if(this.components) {
+                const stats = {};
 
-            //iterate over components
-            const components = Object.values(this.components).map(comp => item_templates[comp]).filter(comp => comp);
-            for(let i = 0; i < components.length; i++) {
-                Object.keys(components[i].stats).forEach(stat => {
-                    if(!stats[stat]) {
-                        stats[stat] = {};
+                //iterate over components
+                const components = Object.values(this.components).map(comp => item_templates[comp]).filter(comp => comp);
+                for(let i = 0; i < components.length; i++) {
+                    Object.keys(components[i].stats).forEach(stat => {
+                        if(!stats[stat]) {
+                            stats[stat] = {};
+                        }
+
+                        if(stat === "attack_power" || stat === "defense") { //skip them just in case
+                            return;
+                        }
+
+                        if(components[i].stats[stat].multiplier) {
+                            stats[stat].multiplier = (stats[stat].multiplier || 1) * components[i].stats[stat].multiplier;
+                        }
+                        if(components[i].stats[stat].flat) {
+                            stats[stat].flat = (stats[stat].flat || 0) + components[i].stats[stat].flat;
+                        }
+                    })
+                }
+
+                //iterate over stats and apply rarity bonus if possible
+                Object.keys(stats).forEach(stat => {
+                    if(stats[stat].multiplier){
+                        if(stats[stat].multiplier >= 1) {
+                            stats[stat].multiplier = Math.round(100 * (1 + (stats[stat].multiplier - 1) * rarity_multipliers[quality || this.getRarity()]))/100;
+                        } else {
+                            stats[stat].multiplier = Math.round(100 * stats[stat].multiplier)/100;
+                        }
                     }
 
-                    if(stat === "attack_power" || stat === "defense") { //skip them just in case
-                        return;
+                    if(stats[stat].flat){
+                        if(stats[stat].flat > 0) {
+                            stats[stat].flat = Math.round(100 * stats[stat].flat * rarity_multipliers[quality || this.getRarity()])/100;
+                        } else {
+                            stats[stat].flat = Math.round(100 * stats[stat].flat)/100;
+                        }
                     }
+                });
 
-                    if(components[i].stats[stat].multiplier) {
-                        stats[stat].multiplier = (stats[stat].multiplier || 1) * components[i].stats[stat].multiplier;
-                    }
-                    if(components[i].stats[stat].flat) {
-                        stats[stat].flat = (stats[stat].flat || 0) + components[i].stats[stat].flat;
-                    }
-                })
+                this.stats = {...stats};
+            } else {
+                this.stats = {};
             }
-
-            //iterate over stats and apply rarity bonus if possible
-            Object.keys(stats).forEach(stat => {
-                if(stats[stat].multiplier){
-                    if(stats[stat].multiplier >= 1) {
-                        stats[stat].multiplier = Math.round(100 * (1 + (stats[stat].multiplier - 1) * rarity_multipliers[this.getRarity()]))/100;
-                    } else {
-                        stats[stat].multiplier = Math.round(100 * stats[stat].multiplier)/100;
-                    }
-                }
-
-                if(stats[stat].flat){
-                    if(stats[stat].flat > 0) {
-                        stats[stat].flat = Math.round(100 * stats[stat].flat * rarity_multipliers[this.getRarity()])/100;
-                    } else {
-                        stats[stat].flat = Math.round(100 * stats[stat].flat)/100;
-                    }
-                }
-            });
-
-            this.stats = {...stats};            
-        } 
+        }
 
         return this.stats;
     }
@@ -352,12 +364,9 @@ class Artifact extends Equippable {
         super(item_data);
         this.item_type = "EQUIPPABLE";
         this.stackable = false;
-        this.components = {};
+        this.components = undefined;
         this.equip_slot = "artifact";
         this.stats = item_data.stats;
-
-        this.quality = item_data.quality || 1;
-        //item quality, value of (0, 1>, set in other place
 
         this.tags["artifact"] = true;
     }
@@ -389,19 +398,19 @@ class Shield extends Equippable {
         this.tags["shield"] = true;
     }
 
-    getShieldStrength() {
-        return Math.round(10 * Math.ceil(item_templates[this.components.shield_base].shield_strength * this.quality * rarity_multipliers[this.getRarity()]))/10;
+    getShieldStrength(quality) {
+        return Math.round(10 * Math.ceil(item_templates[this.components.shield_base].shield_strength * (quality || this.quality) * rarity_multipliers[quality || this.getRarity()]))/10;
     }
 
     getName() {
         return item_templates[this.components.shield_base].shield_name;
     }
 
-    getValue() {
+    getValue(quality) {
         if(!this.value) {
             //value of shield base + value of handle, both multiplied by quality and rarity
             this.value = (item_templates[this.components.shield_base].value + item_templates[this.components.handle].value)
-                                  * this.quality * rarity_multipliers[this.getRarity()];
+                                  * (quality || this.quality) * rarity_multipliers[quality || this.getRarity()];
         }
         return round_item_price(this.value);
     } 
@@ -418,40 +427,95 @@ class Armor extends Equippable {
         else use prefix and suffix on internal element
 
     */
+   /**
+    * Takes either {components} or {stats}, with {components} having higher priority. Lack of {components} assumes item is a wearable internal part (clothing)
+    * @param {*} item_data 
+    */
     constructor(item_data) {
         super(item_data);
-        if(!item_templates[item_data.components.internal]) {
-            throw new Error(`No such internal armor element as: ${item_data.components.internal}`);
-        }
-        this.components.internal = item_data.components.internal; //only the name
+        
+        if(item_data.components) {
+            if(!item_templates[item_data.components.internal]) {
+                throw new Error(`No such internal armor element as: ${item_data.components.internal}`);
+            }
 
-        this.equip_slot = item_templates[item_data.components.internal].equip_slot;
+            this.components.internal = item_data.components.internal; //only the name
 
-        if(item_data.external && !item_templates[item_data.external]) {
-            throw new Error(`No such external armor element as: ${item_data.components.external}`);
+            if(item_templates[this.components.internal].component_type === "helmet interior") {
+                this.equip_slot = "head";
+            } else if(item_templates[this.components.internal].component_type === "chestplate interior") {
+                this.equip_slot = "torso";
+            } else if(item_templates[this.components.internal].component_type === "leg armor interior") {
+                this.equip_slot = "legs";
+            } else if(item_templates[this.components.internal].component_type === "glove interior") {
+                this.equip_slot = "arms";
+            } else if(item_templates[this.components.internal].component_type === "shoes interior") {
+                this.equip_slot = "feet";
+            } else {
+                throw new Error(`Component type "${item_templates[this.components.internal].component_type}" doesn't correspond to any armor slot!`);
+            }
+            if(item_data.external && !item_templates[item_data.external]) {
+                throw new Error(`No such external armor element as: ${item_data.components.external}`);
+            }
+            this.components.external = item_data.components.external; //only the name
+        } else { 
+            this.tags["armor component"] = true;
+            this.tags["clothing"] = true;
+            this.stats = item_data.stats || {};
+            delete this.components;
+            
+            if(!item_data.name) {
+                throw new Error(`Component-less item needs to be provided a name!`);
+            }
+            this.name = item_data.name;
+            if(!item_data.value) {
+                throw new Error(`Component-less item "${this.getName()}" needs to be provided a monetary value!`);
+            }
+
+            this.component_type = item_data.component_type;
+            this.value = item_data.value;
+            this.component_tier = item_data.component_tier || 1;
+            this.base_defense = item_data.base_defense;
+
+            if(item_data.component_type === "helmet interior") {
+                this.equip_slot = "head";
+            } else if(item_data.component_type === "chestplate interior") {
+                this.equip_slot = "torso";
+            } else if(item_data.component_type === "leg armor interior") {
+                this.equip_slot = "legs";
+            } else if(item_data.component_type === "glove interior") {
+                this.equip_slot = "arms";
+            } else if(item_data.component_type === "shoes interior") {
+                this.equip_slot = "feet";
+            } else {
+                throw new Error(`Component type "${item_data.component_type}" doesn't correspond to any armor slot!`);
+            }
         }
-        this.components.external = item_data.components.external; //only the name
 
         this.tags["armor"] = true;
     }
 
-    getDefense() {
+    getDefense(quality) {
         if(!this.defense_value) {
-            this.defense_value = Math.ceil(((item_templates[this.components.internal].defense_value || 0) + 
+            if(this.components) {
+                this.defense_value = Math.ceil(((item_templates[this.components.internal].defense_value || 0) + 
                                            (item_templates[this.components.external]?.defense_value || 0 )) 
-                                          * this.quality * rarity_multipliers[this.getRarity()]
-            );
+                                          * (quality || this.quality) * rarity_multipliers[quality || this.getRarity()]
+                );
+            } else {
+                this.defense_value = Math.ceil(this.base_defense || 0)  * (quality || this.quality) * rarity_multipliers[quality || this.getRarity()]
+            }
         }
 
         return this.defense_value;
     }
 
-    getValue() {
+    getValue(quality) {
         if(!this.value) {
             //value of internal + value of external (if present), both multiplied by quality and rarity
             this.value = (item_templates[this.components.internal].value + 
                                    (item_templates[this.components.external]?.value || 0))
-                                  * this.quality * rarity_multipliers[this.getRarity()];
+                                  * (quality || this.quality) * rarity_multipliers[quality || this.getRarity()];
         }
         return round_item_price(this.value);
     } 
@@ -464,7 +528,6 @@ class Armor extends Equippable {
         */
 
         if(!this.name) {
-            
             if(!this.components.external) {
                 this.name = item_templates[this.components.internal].armor_name;
             } else {
@@ -523,21 +586,21 @@ class Weapon extends Equippable {
         this.tags[this.weapon_type] = true;
     }
 
-    getAttack(){
+    getAttack(quality){
         if(!this.attack_power) {
             this.attack_power = Math.ceil(
                 (item_templates[this.components.head].attack_value + item_templates[this.components.handle].attack_value)
                 * item_templates[this.components.head].attack_multiplier * item_templates[this.components.handle].attack_multiplier
-                * this.quality * rarity_multipliers[this.getRarity()]);
+                * (quality || this.quality) * rarity_multipliers[quality || this.getRarity()]);
 
         }
         return this.attack_power;
     }
 
-    getValue() {
+    getValue(quality) {
         if(!this.value) {
             //value of handle + value of head, both multiplied by quality and rarity
-            this.value = (item_templates[this.components.handle].value + item_templates[this.components.head].value) * this.quality * rarity_multipliers[this.getRarity()]
+            this.value = (item_templates[this.components.handle].value + item_templates[this.components.head].value) * (quality || this.quality) * rarity_multipliers[quality || this.getRarity()]
         }
         return round_item_price(this.value);
     } 
@@ -639,9 +702,9 @@ function getItem(item_data) {
         case "COMPONENT":
             if(item_data.tags["weapon component"]) 
                 return new WeaponComponent(item_data);
-            else if(item_data.tags["Armor component"]) 
+            else if(item_data.tags["armor component"]) 
                 return new ArmorComponent(item_data);
-            else if(item_data.tags["Shield component"]) 
+            else if(item_data.tags["shield component"]) 
                 return new ShieldComponent(item_data);
             else throw new Error(`Item ${item_data.name} has a wrong component type`);
         case "MATERIAL":
@@ -747,7 +810,7 @@ item_templates["Twist liek a snek"] = new Book({
     });
     item_templates["High quality wolf fang"] = new Material({
         name: "High quality wolf fang", 
-        description: "Fang of a wild wolf. Very sharp and doesn't seem to have any signs of damage. You feel like it might be of some use, one day.", 
+        description: "Fang of a wild wolf. Very sharp, undamaged and surprisingly clean.", 
         value: 15,
         price_recovers: true,
         material_type: "miscellaneous",
@@ -804,20 +867,58 @@ item_templates["Twist liek a snek"] = new Book({
         price_recovers: true,
         material_type: "piece of wood",
     });
+
+    item_templates["Belmart"] = new Material({
+        name: "Belmart", 
+        description: "Small, round, dark-green leaves with with very good disinfectant properties",
+        value: 8,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "disinfectant herb",
+    });
+
+    item_templates["Golmoon"] = new Material({
+        name: "Golmoon", 
+        description: "Big green-brown leaves that can be applied to wounds to speed up their healing",
+        value: 8,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "healing herb",
+    });
+
+    item_templates["Oneberry"] = new Material({
+        name: "Oneberry", 
+        description: "Small blue berries capable of stimulating body's natural healing",
+        value: 8,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "healing herb",
+    });
+
+    item_templates["Wool"] = new Material({
+        name: "Wool", 
+        description: "A handfull of wool, raw and unprocessed",
+        value: 8,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "raw fabric",
+    });
 })();
 
 //processed materials
 (function(){
-    item_templates["Low quality iron bar"] = new Material({
-        name: "Low quality iron bar", 
+    item_templates["Low quality iron ingot"] = new Material({
+        id: "Low quality iron ingot",
+        name: "Low quality iron ingot", 
         description: "It has a lot of impurities, resulting in it being noticeably weaker than standard product.", 
         value: 10,
         saturates_market: true,
         price_recovers: true,
         material_type: "metal",
     });
-    item_templates["Iron bar"] = new Material({
-        name: "Iron bar", 
+    item_templates["Iron ingot"] = new Material({
+        id: "Iron ingot",
+        name: "Iron ingot", 
         description: "It doesn't suffer from any excessive impurities and can be used without worries.", 
         value: 20,
         saturates_market: true,
@@ -834,11 +935,27 @@ item_templates["Twist liek a snek"] = new Book({
     });
     item_templates["Piece of wolf leather"] = new Material({
         name: "Piece of wolf leather", 
-        description: "Somewhat strong, should offer some protection",
+        description: "Somewhat strong, should offer some protection when turned into armor",
         value: 8,
         saturates_market: true,
         price_recovers: true,
         material_type: "piece of leather",
+    });
+    item_templates["Wool cloth"] = new Material({
+        name: "Piece of wolf leather", 
+        description: "Thick and warm, might possibly absord some punches",
+        value: 8,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "fabric",
+    });
+    item_templates["Iron chainmail"] = new Material({
+        name: "Iron chainmail", 
+        description: "Dozens of tiny iron rings linked together. Nowhere near a wearable form, turning it into armor will still take a lot of effort and focus",
+        value: 12,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "chainmail",
     });
     item_templates["Scraps of wolf rat meat"] = new Material({
         name: "Scraps of wolf rat meat", 
@@ -870,7 +987,7 @@ item_templates["Twist liek a snek"] = new Book({
         attack_value: 5,
         stats: {
             crit_rate: {
-                flat: 0.08,
+                flat: 0.06,
             },
             attack_speed: {
                 multiplier: 1.20,
@@ -1122,85 +1239,306 @@ item_templates["Twist liek a snek"] = new Book({
 
 //armor components:
 (function(){
-    item_templates["Cheap leather vest [component]"] = new ArmorComponent({
-        name: "Cheap leather vest [component]", description: "Vest providing very low protection. Better not to know what's it made from", 
-        value: 200,
-        armor_name: "Cheap leather vest",
-        equip_slot: "torso",
-        component_type: "internal",
+    item_templates["Wolf leather helmet armor"] = new ArmorComponent({
+        name: "Wolf leather helmet armor", 
+        description: "Strenghtened wolf leather, ready to be used as a part of a helmet",
+        component_type: "helmet exterior",
+        value: 300,
+        component_tier: 2,
+        full_armor_name: "Wolf leather helmet",
         defense_value: 2,
-        component_tier: 1,
+        stats: {
+            agility: {
+                multiplier: 0.95,
+            }
+        }
     });
-    item_templates["Leather vest [component]"] = new ArmorComponent({
-        name: "Leather vest [component]", description: "Vest providing a rather low protection.", 
-        value: 500,
-        armor_name: "Leather vest",
-        equip_slot: "torso",
-        component_type: "internal",
+    item_templates["Wolf leather chestplate armor"] = new ArmorComponent({
+        id: "Wolf leather chestplate armor",
+        name: "Wolf leather cuirass",
+        description: "Simple cuirass made of solid wolf leather, all it needs now is something softer to wear under it.",
+        component_type: "chestplate exterior",
+        value: 600,
+        component_tier: 2,
+        full_armor_name: "Wolf leather armor",
         defense_value: 4,
+        stats: {
+            attack_speed: {
+                multiplier: 0.99,
+            },
+            agility: {
+                multiplier: 0.95,
+            }
+        }
+    });
+    item_templates["Wolf leather greaves"] = new ArmorComponent({
+        name: "Wolf leather greaves",
+        description: "Greaves made of thick wolf leather. Just attach them onto some pants and you are ready to go.",
+        component_type: "leg armor exterior",
+        value: 300,
+        component_tier: 2,
+        full_armor_name: "Wolf leather leg armor",
+        defense_value: 2,
+        stats: {
+            attack_speed: {
+                multiplier: 0.99,
+            },
+            agility: {
+                multiplier: 0.95,
+            }
+        }
+    });
+    item_templates["Wolf leather glove armor"] = new ArmorComponent({
+        name: "Wolf leather glove armor",
+        description: "Pieces of wolf leather shaped for gloves.",
+        component_type: "glove exterior",
+        value: 300,
+        component_tier: 2,
+        full_armor_name: "Wolf leather gloves",
+        defense_value: 2,
+        stats: {
+            attack_speed: {
+                multiplier: 0.99,
+            },
+        }
+    });
+
+    item_templates["Iron chainmail helmet"] = new ArmorComponent({
+        name: "Iron chainmail helmet",
+        description: "Best way to keep your head in one piece",
+        component_type: "helmet exterior",
+        value: 400,
+        component_tier: 2,
+        full_armor_name: "Iron chainmail helmet",
+        defense_value: 4,
+        stats: {
+            attack_speed: {
+                multiplier: 0.98,
+            },
+            agility: {
+                multiplier: 0.9,
+            }
+        }
+    });
+    item_templates["Iron chainmail vest"] = new ArmorComponent({
+        name: "Iron chainmail vest",
+        description: "Basic iron chainmail. Nowhere near as strong as a plate armor",
+        component_type: "chestplate exterior",
+        value: 800,
+        component_tier: 2,
+        full_armor_name: "Iron chainmail",
+        defense_value: 8,
+        stats: {
+            attack_speed: {
+                multiplier: 0.98,
+            },
+            agility: {
+                multiplier: 0.9,
+            }
+        }
+    });
+    item_templates["Iron chainmail greaves"] = new ArmorComponent({
+        name: "Iron chainmail greaves",
+        description: "Greaves made of iron chainmail. Just attach them onto some pants and you are ready to go.",
+        component_type: "leg armor exterior",
+        value: 400,
+        component_tier: 2,
+        full_armor_name: "Iron chainmail leg armor",
+        defense_value: 4,
+        stats: {
+            attack_speed: {
+                multiplier: 0.98,
+            },
+            agility: {
+                multiplier: 0.9,
+            }
+        }
+    });
+    item_templates["Iron chainmail glove"] = new ArmorComponent({
+        name: "Iron chainmail glove",
+        description: "Iron chainmail in a form ready to be applied onto a glove.",
+        component_type: "glove exterior",
+        value: 400,
+        component_tier: 2,
+        full_armor_name: "Iron chainmail gloves",
+        defense_value: 4,
+        stats: {
+            attack_speed: {
+                multiplier: 0.98,
+            },
+            agility: {
+                multiplier: 0.9,
+            }
+        }
+    });
+})();
+
+//clothing (functions both as weak armor and as an armor component):
+(function(){
+    item_templates["Cheap leather vest"] = new Armor({
+        name: "Cheap leather vest", 
+        description: "Vest providing very low protection. Better not to know what's it made from", 
+        value: 100,
+        component_type: "chestplate interior",
+        base_defense: 2,
+        component_tier: 1,
+        stats: {
+            attack_speed: {
+                multiplier: 0.99,
+            },
+        }
+    });
+    item_templates["Leather vest"] = new Armor({
+        name: "Leather vest", 
+        description: "Comfortable leather vest, offering a low protection.", 
+        value: 300,
+        component_type: "chestplate interior",
+        base_defense: 2,
+        component_tier: 2,
+        stats: {
+            attack_speed: {
+                multiplier: 0.99,
+            },
+        }
+    });
+
+    item_templates["Cheap leather pants"] = new Armor({
+        name: "Cheap leather pants", 
+        description: "Leather pants made from cheapest resources available.", 
+        value: 100,
+        component_type: "leg armor interior",
+        base_defense: 1,
+        component_tier: 1,
+        stats: {
+            attack_speed: {
+                multiplier: 0.99,
+            },
+        }
+    });
+    item_templates["Leather pants"] = new Armor({
+        name: "Leather pants", 
+        description: "Solid leather pants.", 
+        value: 300,
+        component_type: "leg armor interior",
+        base_defense: 2,
+        component_tier: 2,
+        stats: {
+            attack_speed: {
+                multiplier: 0.99,
+            },
+        }
+    });
+
+    item_templates["Leather hat"] = new Armor({
+        name: "Leather hat", 
+        description: "A nice leather hat to protect your head.", 
+        value: 300,
+        component_type: "helmet interior",
+        base_defense: 2,
+        component_tier: 2,
+        stats: {
+            attack_speed: {
+                multiplier: 0.99,
+            },
+        }
+    });
+
+    item_templates["Leather gloves"] = new Armor({
+        name: "Leather gloves", 
+        description: "Strong leather gloves, perfect for handling rough and sharp objects.", 
+        value: 300,
+        component_type: "glove interior",
+        base_defense: 2,
+        component_tier: 2,
+        stats: {
+            attack_speed: {
+                multiplier: 0.99,
+            },
+            dexterity: {
+                multiplier: 0.99,
+            },
+        }
+    });
+
+    item_templates["Cheap leather shoes"] = new Armor({
+        name: "Cheap leather shoes",
+        description: "Shoes made of thin and cheap leather. Even then, they are in every single aspect better than not having any.", 
+        value: 100,
+        component_type: "shoes interior",
+        base_defense: 0,
+        component_tier: 1,
+        stats: {
+            agility: {
+                multiplier: 1.05,
+            },
+        }
+    });
+    item_templates["Leather shoes"] = new Armor({
+        name: "Leather shoes", 
+        description: "Solid shoes made of leather, a must have for any traveler", 
+        value: 300,
+        component_type: "shoes interior",
+        base_defense: 1,
+        component_tier: 2,
+        stats: {
+            attack_speed: {
+                multiplier: 1.01,
+            },
+            agility: {
+                multiplier: 1.1,
+            },
+        }
+    });
+
+    item_templates["Wool shirt"] = new Armor({
+        name: "Wool shirt",
+        description: "It's thick enough to weaken a blow, but you shouldn't hope for much. On the plus side, it's light and doesn't block your moves.", 
+        value: 300,
+        component_type: "chestplate interior",
+        base_defense: 1,
         component_tier: 2,
     });
 
-    item_templates["Cheap leather pants [component]"] = new ArmorComponent({
-        name: "Cheap leather pants [component]", description: "Pants made of unknown leather. Uncomfortable.", 
-        value: 200,
-        armor_name: "Cheap leather pants",
-        equip_slot: "legs",
-        component_type: "internal",
-        defense_value: 2,
-        component_tier: 1,
+    item_templates["Wool pants"] = new Armor({
+        name: "Wool pants", 
+        description: "Nice woollen pants. Slightly itchy.",
+        value: 100,
+        component_type: "leg armor interior",
+        base_defense: 1,
+        component_tier: 2,
     });
 
-    item_templates["Leather pants [component]"] = new ArmorComponent({
-        name: "Leather pants [component]", description: "Pants made of average quality leather. Slightly uncomfortable.", 
-        value: 500,
-        armor_name: "Leather pants",
-        equip_slot: "legs",
-        component_type: "internal",
-        defense_value: 4,
-        component_tier: 1,
+    item_templates["Wool hat"] = new Armor({
+        name: "Wool hat", 
+        description: "Simple woollen hat to protect your head.",
+        value: 300,
+        component_type: "helmet interior",
+        base_defense: 1,
+        component_tier: 2,
     });
 
-    item_templates["Leather hat [component]"] = new ArmorComponent({
-        name: "Leather hat [component]", description: "A leather hat. Should provide some protection, although it makes your skin itchy.",
-        value: 500,
-        armor_name: "Leather hat",
-        equip_slot: "head",
-        component_type: "internal",
-        defense_value: 4,
-        component_tier: 1,
+    item_templates["Wool gloves"] = new Armor({
+        name: "Wool gloves",
+        description: "Warm and comfy, but they don't provide much protection.",
+        value: 300,
+        component_type: "glove interior",
+        base_defense: 1,
+        component_tier: 2,
+    });
+
+    item_templates["Wool gloves"] = new Armor({
+        name: "Wool gloves",
+        description: "Warm and comfy, but they don't provide much protection.",
+        value: 300,
+        component_type: "glove interior",
+        base_defense: 1,
+        component_tier: 2,
     });
 })();
 
 //armors:
 (function(){
-    item_templates["Cheap leather vest"] = new Armor({
-        components: { 
-            internal: "Cheap leather vest [component]",
-        }
-    });
-    item_templates["Leather vest"] = new Armor({
-        components: { 
-            internal: "Leather vest [component]",
-        }
-    });
-
-    item_templates["Cheap leather pants"] = new Armor({
-        components: {
-            internal: "Cheap leather pants [component]",
-        }
-    });
-    item_templates["Leather pants"] = new Armor({
-        components: {
-            internal: "Leather pants [component]",
-        }
-    });
-
-    item_templates["Leather hat"] = new Armor({
-        components: {
-            internal: "Leather hat [component]",
-        }
-    })
+    //predefined full (int+ext) armors go here
 })();
 
 //shield components:
@@ -1333,4 +1671,11 @@ item_templates["Twist liek a snek"] = new Book({
     });
 })();
 
-export {item_templates, Item, OtherItem, UsableItem, Armor, Shield, Weapon, Artifact, getItem, Book, book_stats, loot_sold_count, setLootSoldCount, recoverItemPrices};
+export {
+    item_templates, 
+    Item, OtherItem, UsableItem, 
+    Armor, Shield, Weapon, Artifact, Book, 
+    WeaponComponent, ArmorComponent, ShieldComponent,
+    getItem, setLootSoldCount, recoverItemPrices,
+    book_stats, loot_sold_count
+};

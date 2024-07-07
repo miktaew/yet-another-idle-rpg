@@ -26,8 +26,11 @@ class Enemy {
         //only magic & defense can be 0 in stats, other things will cause issues
         this.stats.max_health = stats.health;
         this.loot_list = loot_list;
-        this.tags = tags;
-        this.tags.push(this.size, "enemy");
+        this.tags = {};
+        for(let i = 0; i <tags.length; i++) {
+            this.tags[tags[i]] = true;
+        }
+        this.tags[size] = true;
 
         this.add_to_bestiary = add_to_bestiary; //generally set it false only for SOME of challenges and keep true for everything else
 

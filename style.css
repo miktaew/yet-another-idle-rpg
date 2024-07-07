@@ -70,6 +70,7 @@
 	--location_name_div_width: 250px;
 
 	--active_button_color: #435270;
+	--tooltip_background_color: rgba(92, 92, 92, 0.97);
 }
 
 body {
@@ -317,12 +318,12 @@ body {
 	border-bottom: 1px dotted white;
 }
 
-.item_tooltip, .job_tooltip, .location_tooltip {
+.item_tooltip, .job_tooltip, .location_tooltip, .recipe_tooltip {
 	 display: none;
 	 text-align: left;
 	 color: white;
 	 font-weight: normal;
-	 background-color: rgba(92, 92, 92, 0.9);
+	 background-color: var(--tooltip_background_color);
 	 border-radius: 10px;
 	 margin-left: 30px;
 	 margin-top: 20px;
@@ -331,6 +332,11 @@ body {
 	 z-index: 1000;
 	 width: 200px;
 	 pointer-events: none;
+	 font-size: 14px;
+}
+
+.recipe_tooltip {
+	width: 250px;
 }
 
 .location_tooltip {
@@ -342,7 +348,7 @@ body {
 	text-align: left;
 	color: white;
 	font-weight: normal;
-	background-color: rgba(92, 92, 92, 0.9);
+	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
 	margin-left: 30px;
 	margin-top: 20px;
@@ -353,7 +359,7 @@ body {
 	pointer-events: none;
 }
 
-.item_tooltip {
+.item_tooltip, .recipe_tooltip {
 	top: var(--item_tooltip_top);
 	left: var(--item_tooltip_left);
 }
@@ -366,13 +372,13 @@ body {
 
 .equipment_slot_div:hover .item_tooltip, .trader_item_control:hover .item_tooltip, .inventory_item_control:hover .item_tooltip, 
 .equipped_item_control:hover .item_tooltip, .start_activity:hover .job_tooltip, .activity_unavailable:hover .job_tooltip, 
-.effects_div:hover .effects_tooltip, #location_name_div:hover .location_tooltip{
+.effects_div:hover .effects_tooltip, #location_name_div:hover .location_tooltip, .selectable_component:hover .item_tooltip{
 	display: block;
 }
 
 .stat_tooltip {
 	display: none;
-	background-color: rgba(92, 92, 92, 0.9);
+	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
 	padding: 5px;
 	position: absolute;
@@ -392,7 +398,7 @@ body {
 
 .skill_tooltip {
 	display: none;
-	background-color: rgba(92, 92, 92, 0.9);
+	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
 	padding: 5px;
 	position: absolute;
@@ -738,9 +744,8 @@ body {
 		}
 
 .crafting_recipe_list {
-	width: 100%;
 	height: 333px;
-	position: absolute;
+	width:100%;
 	top: 60px;
 	overflow-y: scroll;
 }
@@ -752,15 +757,27 @@ body {
 	padding: 2px;
 }
 
-.recipe_name:hover, .selected_recipe .recipe_name, .crafting_selection:hover, .selected_component_category, .selected_component, .selectable_component:hover {
+.recipe_unavailable {
+	color: gray;
+}
+
+.weapon_recipe + .armor_recipe, .armor_recipe + .clothing_recipe {
+	border-top: 5px solid white;
+}
+
+.recipe_name:hover, .selected_recipe .recipe_name, .crafting_selection:hover, .selected_component_category, .selectable_component:hover, .selectable_material:hover {
 	background-color: var(--active_button_color);
 }
 
-.selected_component_icon {
+.selected_component, .selected_component:hover {
+	background-color: rgba(0, 128, 0, 0.5);
+}
+
+.selected_component_icon, .selected_material_icon {
 	visibility: hidden;
 }
 
-.selected_component .selected_component_icon {
+.selected_component .selected_component_icon, .selected_material .selected_material_icon {
 	visibility: visible;
 }
 
@@ -781,13 +798,34 @@ body {
 .recipe_div:not(.selected_recipe) > div > div > div {
 	display: none;
 }
+.recipe_tooltip {
+	display: none;
+	position: absolute;
+	font-size: 14px;
+}
+.recipe_result {
+	border: 1px solid white;
+	padding: 5px;
+}
+
+.recipe_div:hover .item_recipe_tooltip.recipe_tooltip{
+	display: block;
+}
+
+.recipe_creation_button:hover .recipe_tooltip{
+	display: block;
+}
+
+.selectable_material:hover .recipe_tooltip{
+	display: block;
+}
 
 .crafting_selection {
 	display: none;
 	border-bottom: 1px solid white;
 	padding: 3px;
 }
-.selectable_component {
+.selectable_component, .selectable_material {
 	border-bottom: 1px dotted white;
 	padding: 3px;
 	padding-left: 10px;
@@ -816,7 +854,7 @@ body {
 .selected_component_list, .selected_material_list {
 	display: block;
 }
-	
+
 .sl_button {
 	width: fit-content;
 	padding: 10px 10px;
@@ -1247,7 +1285,7 @@ i {
 	position: absolute;
 	left: 220px;
 	z-index: 1000;
-	background-color: rgba(92, 92, 92, 0.9);
+	background-color: var(--tooltip_background_color);
 	color: white;
 	border-radius: 10px;
 	margin-left: 30px;
@@ -1413,7 +1451,6 @@ i {
 #inventory_content_div {
 	height: 322px;
 	overflow-y: scroll;
-	overflow-x: visible;
 }
 
 #inventory_control_div {
@@ -1470,7 +1507,7 @@ i {
 				height: 255px;
 				display: block;
 				overflow-y: scroll;
-				overflow-x: visible;
+
 			}
 				.bestiary_entry_div, .data_entry {
 					width: 380px;
@@ -1492,7 +1529,7 @@ i {
 
 					.bestiary_entry_tooltip {
 						display: none;
-						background-color: rgba(92, 92, 92, 0.9);
+						background-color: var(--tooltip_background_color);
 						border-radius: 10px;
 						padding: 5px;
 						position: absolute;
@@ -1550,7 +1587,7 @@ i {
 	font-size: 16px;
 	position: absolute;
 	pointer-events: none;
-	background-color: rgba(92, 92, 92, 0.9);
+	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
 	padding: 5px;
 	top: var(--stance_tooltip_top);
@@ -1638,7 +1675,7 @@ i {
 
 				.location_type_tooltip {
 					display: none;
-					background-color: rgba(92, 92, 92, 0.9);
+					background-color: var(--tooltip_background_color);
 					border-radius: 10px;
 					padding: 5px;
 					position: absolute;
@@ -1676,7 +1713,7 @@ i {
 #location_description_tooltip {
 	font-style: italic;
 	display: none;
-	background-color: rgba(92, 92, 92, 0.9);
+	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
 	margin-left: 30px;
 	padding: 5px;

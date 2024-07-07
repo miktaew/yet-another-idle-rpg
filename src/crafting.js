@@ -4,14 +4,15 @@ import { add_to_character_inventory, character, remove_from_character_inventory 
 import { recipes } from "./crafting_recipes.js";
 import { log_message } from "./display.js";
 import { item_templates } from "./items.js";
+import { current_location } from "./main.js";
 
 function use_recipe(target) {
     const category = target.parentNode.parentNode.dataset.crafting_category;
     const subcategory = target.parentNode.parentNode.dataset.crafting_subcategory;
     const recipe_id = target.parentNode.dataset.recipe_id;
+    const station_tier = current_location.crafting.tiers[category];
 
     if(!category || !subcategory || !recipe_id) {
-        console.log(category, subcategory, recipe_id);
         return;
     } else if(!recipes[category][subcategory][recipe_id]) {
         //shouldn't be possible to reach this, but whatever
@@ -21,22 +22,25 @@ function use_recipe(target) {
         const recipe = recipes[category][subcategory][recipe_id];
         const recipe_div = document.querySelector(`[data-crafting_category="${category}"] [data-crafting_subcategory="${subcategory}"] [data-recipe_id="${recipe_id}"]`);
 
+        //TODO: reload all recipes (except current, for comps/eq)
         if(subcategory === "items") {
             
             if(recipe.get_availability()) {
-                const success_chance = recipe.get_success_chance();
-                if(Math.random() < success_chance) {
-                    for(let i = 0; i < recipe.materials.length; i++) {
-                        remove_from_character_inventory({item_name: recipe.materials[i].name, item_count: recipe.materials[i].count});
-                    } 
-    
-                    const {name, count} = recipe.getResult();
-                    add_to_character_inventory([{item: item_templates[name], count: count}]);
-                    
+                const success_chance = recipe.get_success_chance(station_tier);
+                const {result_id, count} = recipe.getResult();
+                
+                for(let i = 0; i < recipe.materials.length; i++) {
+                    remove_from_character_inventory({item_name: recipe.materials[i].material_id, item_count: recipe.materials[i].count});
+                } 
 
-                    //log a message about success
+                if(Math.random() < success_chance) {
+
+                    add_to_character_inventory([{item: item_templates[result_id], count: count}]);
+                    
+                    log_message(`Created ${item_templates[result_id].getName()} x${count}`, "crafting");
+                    //TODO: reload recipe tooltip
                 } else {
-                    //log a message about failing
+                    log_message(`Failed to create ${item_templates[result_id].getName()}!`, "crafting");
                 }
             } else {
                 console.warn(`Tried to use an unavailable recipe!`);
@@ -45,20 +49,33 @@ function use_recipe(target) {
         } else if(subcategory === "components") {
             //read the selected material, pass it as param
 
-            let available = true;
-            //todo: do an additional check if enough of selected material is available
-            
-            if(available) {
-                //todo
-                //remove material from inventory
-                //add_to_character_inventory(recipe.getResult());
-                return true;
+            const material_div = recipe_div.children[1].querySelector(".selected_material");
+            if(!material_div) {
+                return;
             } else {
-                return false;
+                const material_1_name = material_div.dataset.item_name;
+                const recipe_material = recipe.materials.filter(x=> x.material_id===material_1_name)[0];
+
+                if(recipe_material.count <= character.inventory[material_1_name].count) {
+                    const result = recipe.getResult(character.inventory[material_1_name], station_tier);
+                    add_to_character_inventory([{item: result, count: 1}]);
+                    remove_from_character_inventory({item_name: recipe_material.material_id, count: recipe_material.count});
+                    log_message(`Created ${result.getName()} [${result.quality*100}% quality]`, "crafting");
+                    if(character.inventory[material_1_name]){
+                        if(recipe_material.count > character.inventory[material_1_name].count) { 
+                            material_div.classList.remove("selected_material");
+                            material_div.classList.add("unavailable_material");
+                        }
+                    } else {
+                        material_div.remove();
+                    }
+                }
             }
+            
         } else if(subcategory === "equipment") {
             //read the selected components, pass them as params
 
+            //TODO: delete divs of selected components
             const component_1_name = recipe_div.children[1].children[0].children[1].querySelector(".selected_component")?.dataset.item_name;
             const component_1_id = recipe_div.children[1].children[0].children[1].querySelector(".selected_component")?.dataset.item_id;
             
@@ -71,7 +88,7 @@ function use_recipe(target) {
                 if(!character.inventory[component_1_name][component_1_id] || !character.inventory[component_2_name][component_2_id]) {
                     throw new Error(`Tried to create item with components that are not present in the inventory!`);
                 } else {
-                    const result = recipe.getResult(character.inventory[component_1_name][component_1_id], character.inventory[component_2_name][component_2_id]);
+                    const result = recipe.getResult(character.inventory[component_1_name][component_1_id], character.inventory[component_2_name][component_2_id], station_tier);
                     remove_from_character_inventory({item_name: component_1_name, item_id: component_1_id});
                     remove_from_character_inventory({item_name: component_2_name, item_id: component_2_id});
                     add_to_character_inventory([{item: result}]);

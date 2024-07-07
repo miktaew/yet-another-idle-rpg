@@ -594,7 +594,17 @@ function get_location_type_penalty(type, stage, stat) {
         dialogues: ["village elder", "village guard"],
         traders: ["village trader"],
         name: "Village", 
-        crafting: {is_unlocked: true, use_text: "Try to craft something"},
+        crafting: {
+            is_unlocked: true, 
+            use_text: "Try to craft something", 
+            tiers: {
+                crafting: 1,
+                forging: 1,
+                smelting: 1,
+                cooking: 1,
+                alchemy: 1,
+            }
+        },
     });
 
     locations["Shack"] = new Location({
