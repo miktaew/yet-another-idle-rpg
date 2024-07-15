@@ -61,7 +61,7 @@
 
 <button type="button" class="collapsible">Where does current game content end?</button>
 <div class="content">
-    As of <span class="game_version"></span>, content ends on the fight in slums and on 4th area in cave, though that last one is expected to be very challenging
+    As of <span class="game_version"></span>, the final combat area is the 'Mysterious Gate', but it's more of a teaser than something meant to be winnable. Realistically, you are done if you won the fight in slums and on 4th area in cave.
 </div>
 
 <button type="button" class="collapsible">Are magic and/or quests implemented?</button>
@@ -100,16 +100,26 @@
     </ul>
 </div>
 
-<button type="button" class="collapsible">Crafting resources</button>
+<button type="button" class="collapsible">Crafting</button>
 <div class="content">
     <ul>
-        <li> You can obtain them from passive activities in locations and/or as a loot from combat; items that can be used will usually mention it in their descriptions
+        <li> Crafting subcategories:
+            <ul>
+                <li> 
+                    Items: mostly mundane things, such as consumables and materials for further crafting
+                </li>
+                <li>
+                    Components: things that can be assembled into equipment of all kinds.<br>
+                    Their quality doesn't directly translate to equipment stats and so their own statistics are displayed as "base value", as in value that they would contribute to a 100% quality piece of equipment
+                </li>
+                <li>
+                    Equipment: the actual stuff that you can put on. Mostly created from components, with the exception of 'clothing' which functions more like wearable components<br>
+                    Quality is based on skill level, quality of components (for non-clothing equipment) and either tier of components (for non-clothing) or tier of resulting clothing item
+                </li>
+            </ul>
         </li>
-        <li>
-            For passive gathering activities, proper tools are needed - pickaxe for ores, axe for wood, etc
-        </li>
-        <li>
-            For passive gathering activities, time needed, success chance and number of gained items are all affected by skill level
+        <li>You can obtain resources from passive activities in locations and/or as a loot from combat; items that can be used for crafting will often (but not always) mention it in their descriptions<br>
+            For passive gathering activities, things such as time needed, success chance and number of gained items are all affected by skill level
         </li>
     </ul>
 </div>
@@ -142,7 +152,7 @@
                 <li>"Dodge", if triggered, will always completely negate damage.</li>
                 <li>Shield can absorb damage and has very high base chance to trigger, but usually won't be strong enough to reduce it to 0, although it is possible.</li>
                 <li>"Defense" provides a flat reduction to damage taken. It is applied after shield dmg reduction.<br>
-                    It can't reduce damage taken to less than 1. However, if less than 1 dmg gets through the shield, that value will be used instead (meaning a full negation is possible).</li>
+                    It can't reduce damage taken to less than 1 or 10% of original value, whichever is larger. However, if less than that gets through the shield, that value will be used instead, allowing for very small dmg values and/or full negation.</li>
             </ul> 
         </li><br>
         <li>

@@ -167,25 +167,49 @@ function clear_action_div() {
     }
 }
 
+/**
+ * @param {Item} item
+ * @param {Object} options
+ * @param {String} options.class_name
+ * @param {Boolean} options.skip_quality
+ * @param {Array} options.quality array with 1 or 2 values (1 - show only it, instead of item's; 2 - show start comparison between the two)
+ */
 function create_item_tooltip(item, options) {
-    //create tooltip and it's content
     let item_tooltip = document.createElement("span");
-    item_tooltip.classList.add(options && options.css_class || "item_tooltip");
+    item_tooltip.classList.add(options?.class_name || "item_tooltip");
     item_tooltip.innerHTML = create_item_tooltip_content({item, options});
     return item_tooltip;
 }
 
-function create_item_tooltip_content({item, options}) {
+/**
+ * @param {Object} params
+ * @param {Item} params.item
+ * @param {Object} params.options
+ * @param {String} params.options.class_name
+ * @param {Boolean} params.options.skip_quality
+ * @param {Array} params.options.quality array with 1 or 2 values (1 - show only it, instead of item's; 2 - show start comparison between the two)
+ */
+function create_item_tooltip_content({item, options={}}) {
     let item_tooltip = "";
     item_tooltip = `<b>${item.getName()}</b>`;
     if(item.description) {
         item_tooltip += `<br>${item.description}`; 
     }
 
-    //add stats if can be equipped
-    if(item.item_type === "EQUIPPABLE"){
+    let quality = item.quality;
 
-        item_tooltip += `<br><br><b style="color: ${rarity_colors[item.getRarity()]}">Quality: ${Math.round(item.quality*100)}% </b>`;
+    //add stats if can be equipped
+    if(item.item_type === "EQUIPPABLE"){ 
+        if(options?.quality && options.quality[0]) {
+            quality = options.quality[0];
+        }
+
+        if(!options.skip_quality && options?.quality?.length == 2) {
+            item_tooltip += `<br><br><b>Quality: <span style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${Math.round(options.quality[0]*100)}% </span> - <span style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${Math.round(options.quality[1]*100)}% </span></b>`;
+        } else {
+            item_tooltip += `<br><br><b style="color: ${rarity_colors[item.getRarity(quality)]}">Quality: ${Math.round(quality*100)}% </b>`;
+        }
+
 
         if(item.equip_slot === "weapon") {
             item_tooltip += `<br><br>Type: <b>${item.weapon_type}</b>`;
@@ -211,45 +235,80 @@ function create_item_tooltip_content({item, options}) {
             item_tooltip += component_description;
         }
 
-        if(item.getAttack) {
-            item_tooltip += 
-                `<br><br>Attack: ${Math.round(10*item.getAttack())/10}`;
-        } else if(item.getDefense) { 
-            item_tooltip += 
-            `<br><br>Defense: ${Math.round(10*item.getDefense())/10}`;
-        } else if(item.offhand_type === "shield") {
-            item_tooltip += 
-            `<br><br>Can block up to ${Math.round(10*item.getShieldStrength()*(character.stats.total_multiplier.block_strength))/10} damage [base: ${item.getShieldStrength()}]`;
-        }
-        const equip_stats = item.getStats();
-        if(Object.keys(equip_stats).length > 0) {
-            item_tooltip += `<br>`;
-        }
-        Object.keys(equip_stats).forEach(function(effect_key) {
-
-            if(equip_stats[effect_key].flat != null) {
+        if(!options.skip_quality && options?.quality?.length == 2) {
+            if(item.getAttack) {
                 item_tooltip += 
-                `<br>${capitalize_first_letter(effect_key).replace("_"," ")} +${equip_stats[effect_key].flat}`;
+                    `<br><br>Attack: ${Math.round(10*item.getAttack(options.quality[0]), true)/10}-${Math.round(10*item.getAttack(options.quality[1], true))/10}`;
+            } else if(item.getDefense) { 
+                item_tooltip += 
+                `<br><br>Defense: ${Math.round(10*item.getDefense(options.quality[0]))/10}-${Math.round(10*item.getDefense(options.quality[1]))/10}`;
+            } else if(item.offhand_type === "shield") {
+                item_tooltip += 
+                `<br><br>Can block up to: ${Math.round(10*item.getShieldStrength(options.quality[0])*(character.stats.total_multiplier.block_strength))/10}-${Math.round(10*item.getShieldStrength(options.quality[1])*(character.stats.total_multiplier.block_strength))/10} damage [base: ${item.getShieldStrength(options.quality[0])}-${item.getShieldStrength(options.quality[1])}]`;
             }
-            if(equip_stats[effect_key].multiplier != null) {
+
+            const equip_stats_0 = item.getStats(options.quality[0]);
+            const equip_stats_1 = item.getStats(options.quality[1]);
+            if(Object.keys(equip_stats_0).length > 0) {
+                item_tooltip += `<br>`;
+            }
+            Object.keys(equip_stats_0).forEach(effect_key => {
+
+                if(equip_stats_0[effect_key].flat != null) {
+                    item_tooltip += 
+                    `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: +${equip_stats_0[effect_key].flat}-${equip_stats_1[effect_key].flat}`;
+                }
+                if(equip_stats_0[effect_key].multiplier != null) {
+                    item_tooltip += 
+                    `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: x${equip_stats_0[effect_key].multiplier}-${equip_stats_1[effect_key].multiplier}`;
+            }
+            });
+        } else {
+            if(item.getAttack) {
                 item_tooltip += 
-                `<br>${capitalize_first_letter(effect_key).replace("_"," ")} x${equip_stats[effect_key].multiplier}`;
+                    `<br><br>Attack: ${Math.round(10*item.getAttack())/10}`;
+            } else if(item.getDefense) { 
+                item_tooltip += 
+                `<br><br>Defense: ${Math.round(10*item.getDefense())/10}`;
+            } else if(item.offhand_type === "shield") {
+                item_tooltip += 
+                `<br><br>Can block up to: ${Math.round(10*item.getShieldStrength()*(character.stats.total_multiplier.block_strength))/10} damage [base: ${item.getShieldStrength()}]`;
+            }
+
+            const equip_stats = item.getStats();
+            if(Object.keys(equip_stats).length > 0) {
+                item_tooltip += `<br>`;
+            }
+            Object.keys(equip_stats).forEach(function(effect_key) {
+
+                if(equip_stats[effect_key].flat != null) {
+                    item_tooltip += 
+                    `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: +${equip_stats[effect_key].flat}`;
+                }
+                if(equip_stats[effect_key].multiplier != null) {
+                    item_tooltip += 
+                    `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: x${equip_stats[effect_key].multiplier}`;
+            }
+            });
         }
-        });
     } 
     else if (item.item_type === "USABLE") {
 
+        item_tooltip += `<br>`;
         Object.keys(item.use_effect).forEach(function(effect) {
 
-            item_tooltip += `<br><br>Increases ${effect.replace("_", " ")} by`;
+            item_tooltip += `<br>${capitalize_first_letter(effect.replace("_", " "))} `;
 
             if(item.use_effect[effect].flat) {
-                item_tooltip += ` +${item.use_effect[effect].flat}`;
+                const sign_1 = item.use_effect[effect].flat > 0? "+":"";
+                item_tooltip += ` ${sign_1}${item.use_effect[effect].flat}`;
                 if(item.use_effect[effect].percent) {
-                    item_tooltip += ` and +${item.use_effect[effect].percent}%`;
+                    const sign_2 = item.use_effect[effect].percent > 0? "+":"";
+                    item_tooltip += ` and ${sign_2}${item.use_effect[effect].percent}%`;
                 }
             } else if(item.use_effect[effect].percent) {
-                item_tooltip += ` +${item.use_effect[effect].percent}%`;
+                const sign = item.use_effect[effect].percent > 0? "+":"";
+                item_tooltip += ` ${sign}${item.use_effect[effect].percent}%`;
             }
 
             if(item.use_effect[effect].duration) {
@@ -267,32 +326,41 @@ function create_item_tooltip_content({item, options}) {
         }
     }
     else if(item.tags.component) {
+        if(options?.quality && options.quality[0]) {
+            quality = options.quality[0];
+        }
 
+        if(!options.skip_quality && options?.quality?.length == 2) {
+            item_tooltip += `<br><br><b>Quality: <span style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${Math.round(options.quality[0]*100)}% </span> - <span style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${Math.round(options.quality[1]*100)}% </span></b>`;
+        } else {
+            item_tooltip += `<br><br><b style="color: ${rarity_colors[item.getRarity(quality)]}">Quality: ${Math.round(quality*100)}% </b>`;
+        }
         if(Object.keys(item.stats).length > 0 || item?.attack_value !== 0 || item?.attack_multiplier !== 1) {
             item_tooltip += `<br><br>Basic stats: `;
         }
-        if(item?.attack_value !== 0) {
-            item_tooltip += `<br>Attack power + ${item.attack_value}`;
+        if(item?.attack_value) {
+
+            item_tooltip += `<br>Attack power: + ${item.attack_value}`;
         }
-        if(item?.attack_multiplier !== 1) {
-            item_tooltip += `<br>Attack power x ${item.attack_multiplier}`;
+        if(item?.attack_multiplier && item.attack_multiplier !== 1) {
+            item_tooltip += `<br>Size-specific attack power: x${item.attack_multiplier}`;
         }
         Object.keys(item.stats).forEach(function(effect_key) {
 
             if(item.stats[effect_key].flat != null) {
                 item_tooltip += 
-                `<br>${capitalize_first_letter(effect_key).replace("_"," ")} +${item.stats[effect_key].flat}`;
+                `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: +${item.stats[effect_key].flat}`;
             }
             if(item.stats[effect_key].multiplier != null) {
                 item_tooltip += 
-                `<br>${capitalize_first_letter(effect_key).replace("_"," ")} x${item.stats[effect_key].multiplier}`;
+                `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: x${item.stats[effect_key].multiplier}`;
         }
         });
     }
-    item_tooltip += `<br><br>Value: ${format_money(round_item_price(item.getValue() * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}`;
+    item_tooltip += `<br><br>Value: ${format_money(round_item_price(item.getValue(quality) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}`;
 
     if(item.saturates_market) {
-        item_tooltip += ` [originally ${format_money(round_item_price(item.getBaseValue() * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}]`
+        item_tooltip += ` [originally ${format_money(round_item_price(item.getBaseValue(quality) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}]`
     }
 
     return item_tooltip;
@@ -894,6 +962,12 @@ function create_inventory_item_div({key, i, item_count, target, is_equipped, tra
     let target_item;
     let target_class_name;
     let item_class;
+    let options = {};
+    let price_multiplier = 1;
+    if(target === "trader") {
+        options.trader = true;
+        price_multiplier = traders[current_trader].getProfitMargin() || price_multiplier;
+    }
 
     if(is_equipped) {
         target_item = [character.equipment[key]];
@@ -947,7 +1021,7 @@ function create_inventory_item_div({key, i, item_count, target, is_equipped, tra
             item_name_div.classList.add(`${item_class}_name`);
             item_div.appendChild(item_name_div);
 
-            item_div.appendChild(create_item_tooltip(target_item[i]));
+            item_div.appendChild(create_item_tooltip(target_item[i], options));
             item_control_div.classList.add(`${item_class}_control`, `${target_class_name}_control`, `${target_class_name}_${target_item[i].item_type.toLowerCase()}`);
             item_control_div.appendChild(item_div);
             if(typeof trade_index === "undefined" && target !== "trader") {
@@ -974,7 +1048,7 @@ function create_inventory_item_div({key, i, item_count, target, is_equipped, tra
             item_name_div.classList.add(`${item_class}_name`);
             item_div.appendChild(item_name_div);
 
-            item_div.appendChild(create_item_tooltip(target_item[i]));
+            item_div.appendChild(create_item_tooltip(target_item[i], options));
             item_control_div.classList.add(`${item_class}_control`, `${target_class_name}_control`, `${target_class_name}_component`);
             item_control_div.appendChild(item_div);
 
@@ -983,7 +1057,7 @@ function create_inventory_item_div({key, i, item_count, target, is_equipped, tra
 
         let item_value_span = document.createElement("span");
 
-        item_value_span.innerHTML = `${format_money(target_item[i].getValue(), true)}`;
+        item_value_span.innerHTML = `${format_money(target_item[i].getValue()*price_multiplier, true)}`;
         item_value_span.classList.add("item_value", "item_controls");
         item_control_div.appendChild(item_value_span);
     } else if(typeof item_count !== "undefined") {
@@ -1005,7 +1079,7 @@ function create_inventory_item_div({key, i, item_count, target, is_equipped, tra
 
         item_div.classList.add(`${item_class}`, `${target_class_name}`, 'item_stackable', `item_${target_item.item.item_type.toLowerCase()}`);
 
-        item_div.appendChild(create_item_tooltip(target_item.item));
+        item_div.appendChild(create_item_tooltip(target_item.item, options));
 
         item_control_div.classList.add(`${item_class}_control`, `${target_class_name}_control`, `${target_class_name}_${target_item.item.item_type.toLowerCase()}`);
         item_control_div.setAttribute(`data-${target_class_name}`, `${target_item.item.name}`)
@@ -1032,7 +1106,7 @@ function create_inventory_item_div({key, i, item_count, target, is_equipped, tra
         item_control_div.appendChild(create_trade_buttons());
 
         let item_value_span = document.createElement("span");
-        item_value_span.innerHTML = `${format_money(target_item.item.getValue(), true)}`;
+        item_value_span.innerHTML = `${format_money(target_item.item.getValue()*price_multiplier, true)}`;
         item_value_span.classList.add("item_value", "item_controls");
         item_control_div.appendChild(item_value_span);
     }
@@ -1770,6 +1844,7 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
         if(recipe.item_type === "Armor") {
             recipe_div.classList.add("clothing_recipe");
         }
+
         recipe_div.children[0].innerHTML = '<i class="material-icons icon crafting_dropdown_icon"> keyboard_double_arrow_down </i>' + recipe_div.children[0].innerHTML;
         const material_selection = document.createElement("div");
         material_selection.classList.add("folded_material_list");
@@ -1833,6 +1908,7 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
             if(event.target.classList.contains("crafting_selection")) {
                 component_selection_1.children[1].classList.toggle("selected_component_list");
                 component_selection_1.children[0].classList.toggle("selected_component_category");
+                recipe_div.querySelectorAll(".folded_crafting_selection").item(0).lastChild.scrollIntoView({block: "end", inline: "nearest"});
             }
         });
         component_selection_2.parentNode.children[1].addEventListener("click", (event)=>{
@@ -1840,6 +1916,7 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
             if(event.target.classList.contains("crafting_selection")) {
                 component_selection_2.children[1].classList.toggle("selected_component_list");
                 component_selection_2.children[0].classList.toggle("selected_component_category");
+                recipe_div.querySelector(".recipe_creation_button").scrollIntoView({block: "end", inline: "nearest"});
             }
         });
 
@@ -1886,8 +1963,8 @@ function update_displayed_crafting_recipe({category, subcategory, recipe_id}) {
         } else {
             recipe_div.classList.add("recipe_unavailable");
         }
-    } else if(subcategory === "components") {
-        //do nothing, those have neither "create" button nor a tooltip on itself, only on the choices available
+    } else if(subcategory === "components" || recipe.recipe_type === "component") {
+        update_recipe_tooltip({category, subcategory, recipe_id});
     } else if(subcategory === "equipment") {
         update_recipe_tooltip({category, subcategory, recipe_id, material: null, components: []});
     } else {
@@ -1911,7 +1988,7 @@ function create_recipe_tooltip({category, subcategory, recipe_id, material, comp
         tooltip.innerHTML = create_recipe_tooltip_content({category, subcategory, recipe_id, material});
         tooltip.classList.add("component_recipe_tooltip");
     } else if(subcategory === "equipment") {
-        tooltip.innerHTML = create_recipe_tooltip_content({category, subcategory, recipe_id, components});
+        tooltip.innerHTML = create_recipe_tooltip_content({category, subcategory, recipe_id, material, components});
         tooltip.classList.add("equipment_recipe_tooltip");
     } else {
         console.error(`No such crafting subcategory as "${subcategory}"`);
@@ -1920,34 +1997,33 @@ function create_recipe_tooltip({category, subcategory, recipe_id, material, comp
     return tooltip;
 }
 
-function update_recipe_tooltips(){
-
-}
-
-function update_recipe_tooltip({category, subcategory, recipe_id, material, components}) {
+function update_recipe_tooltip({category, subcategory, recipe_id, components}) {
     const tooltip = crafting_pages[category][subcategory].querySelector(`[data-recipe_id="${recipe_id}"]`).querySelector(`.${subcategory}_recipe_tooltip`);
     const recipe = recipes[category][subcategory][recipe_id];
     if(subcategory === "items") {
         tooltip.innerHTML = create_recipe_tooltip_content({category, subcategory, recipe_id});
-    } else if(subcategory === "components") {
-        if(!material) {
-            throw new Error(`Component recipes require passing a material, but recipe "${category}" -> "${subcategory}" -> "${recipe_id}" had none!`);
+    } else if(subcategory === "components" || recipe.recipe_type === "component") {
+        const material_selections_div = crafting_pages[category][subcategory].querySelector(`[data-recipe_id='${recipe_id}']`).children[1];
+
+        for(let i = 0; i < material_selections_div.children.length; i++) {
+            const material_id = material_selections_div.children[i].dataset.item_name;
+            const material_recipe = recipe.materials.filter(material => material.material_id === material_id);
+            
+            material_selections_div.children[i].children[1].innerHTML = create_recipe_tooltip_content({category, subcategory, recipe_id, material: material_recipe[0]});
         }
-        tooltip.innerHTML = create_recipe_tooltip_content({category, subcategory, recipe_id, material});
     } else if(subcategory === "equipment") {
-        if(recipe.recipe_type === "component") {
-            //skip, there is no direct tooltip in this case
-        } else {
-            tooltip.innerHTML = create_recipe_tooltip_content({category, subcategory, recipe_id, components});
-        }
+        tooltip.innerHTML = create_recipe_tooltip_content({category, subcategory, recipe_id, components});
     } else {
         console.error(`No such crafting subcategory as "${subcategory}"`);
     }
-
 }
 
 function create_recipe_tooltip_content({category, subcategory, recipe_id, material, components}) {
+    if(!current_location.crafting) {
+        return;
+    }
     const recipe = recipes[category][subcategory][recipe_id];
+    const station_tier = current_location.crafting.tiers[category];
     let tooltip = "";
     if(subcategory === "items") {
         const success_chance = Math.round(100*recipe.get_success_chance());
@@ -1959,18 +2035,32 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
                 tooltip += `<span style="color:red"><b>${item_templates[recipe.materials[i].material_id].getName()} x${character.inventory[recipe.materials[i].material_id]?.count || 0}/${recipe.materials[i].count}</b></span><br>`;
             }
         }
-        tooltip += `<br>Result:<br><div class="recipe_result">${create_item_tooltip_content({item: item_templates[recipe.getResult().result_id]})}</div>`;
+        tooltip += `<br>Result:<br><div class="recipe_result">${create_item_tooltip_content({item: item_templates[recipe.getResult().result_id], options: {skip_quality: true}})}</div>`;
     } else if(subcategory === "components") {
-        tooltip += `Result:<br><div class="recipe_result">${create_item_tooltip_content({item:item_templates[material.result_id]})}</div>`;
+        //todo: grab and pass quality for this and further conditions
+        tooltip += `Material required:<br>`;
+        if(character.inventory[material.material_id]?.count >= material.count) {
+            tooltip += `<span style="color:lime"><b>${item_templates[material.material_id].getName()} x${character.inventory[material.material_id]?.count || 0}/${material.count}</b></span><br>`;
+        } else {
+            tooltip += `<span style="color:red"><b>${item_templates[material.material_id].getName()} x${character.inventory[material.material_id]?.count || 0}/${material.count}</b></span><br>`;
+        }
+        const quality_range = recipe.get_quality_range(station_tier - item_templates[material.result_id].component_tier);
+        tooltip += `<br>Result:<br><div class="recipe_result">${create_item_tooltip_content({item:item_templates[material.result_id], options: {quality: quality_range}})}</div>`;
     } else if(subcategory === "equipment") {
         if(!components) {
             //it's a componentless equipment recipe, most probably a clothing
-            tooltip += `Result:<br><div class="recipe_result">${create_item_tooltip_content({item:item_templates[material.result_id]})}</div>`;
+            if(character.inventory[material.material_id]?.count >= material.count) {
+                tooltip += `<span style="color:lime"><b>${item_templates[material.material_id].getName()} x${character.inventory[material.material_id]?.count || 0}/${material.count}</b></span><br>`;
+            } else {
+                tooltip += `<span style="color:red"><b>${item_templates[material.material_id].getName()} x${character.inventory[material.material_id]?.count || 0}/${material.count}</b></span><br>`;
+            }
+            const quality_range = recipe.get_quality_range(station_tier - item_templates[material.result_id].component_tier);
+            tooltip += `<br>Result:<br><div class="recipe_result">${create_item_tooltip_content({item:item_templates[material.result_id], options: {quality: quality_range}})}</div>`;
         } else if(components.length < 2) {
             tooltip += `Result:<br><div class="recipe_result">Select one component from each category</div>`;
         } else if(components.length == 2) {
             let item = "";
-            console.log(components[0]);
+
             if(recipe.item_type === "Weapon") {
                 item = new Weapon(
                     {
@@ -2001,8 +2091,9 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
             } else {
                 throw new Error(`Recipe "${category}" -> "${subcategory}" -> "${recipe_id}" has an incorrect item type "${recipe.item_type}"`)
             }
-            //todo: get and pass quality range; modify the create_item_tooltip_content to be capable of showing quality range
-            tooltip += `Result:<br><div class="recipe_result">${create_item_tooltip_content({item})}</div>`;
+
+            const quality_range = recipe.get_quality_range(recipe.get_component_quality_weighted(components[0], components[1]), (station_tier-Math.max(components[0].component_tier, components[1].component_tier)) || 0);
+            tooltip += `Result:<br><div class="recipe_result">${create_item_tooltip_content({item, options: {quality: quality_range}})}</div>`;
         } else {
             throw new Error(`Somehow recipe "${category}" -> "${subcategory}" -> "${recipe_id}" received more components than there should be (${components.length} instead of 2)`)
         }
@@ -2012,8 +2103,6 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
 
     return tooltip;
 }
-
-
 
 /**
  * updates the list of selectable components for equipment crafting
@@ -2045,7 +2134,7 @@ function update_displayed_component_choice({category, recipe_id}) {
                 item_div.classList.add("selectable_component");
                 item_div.dataset.item_name = components[i][j][k].id;
                 item_div.dataset.item_id = k; //ids between inventory and 'components' list should match so this is fine
-                item_div.appendChild(create_item_tooltip(components[i][j][k]));
+                item_div.appendChild(create_item_tooltip(components[i][j][k], {class_name: "recipe_tooltip"}));
                 
                 item_div.addEventListener("click", ()=>{
                     toggle_exclusive_class({element: item_div, siblings_only: true, class_name: "selected_component"});
@@ -2068,6 +2157,7 @@ function update_displayed_component_choice({category, recipe_id}) {
             }
         }
     }
+    recipe_div.querySelector(".recipe_creation_button").scrollIntoView({block: "end", inline: "nearest"});
 }
 
 /**
@@ -2101,6 +2191,34 @@ function update_displayed_material_choice({category, subcategory, recipe_id}) {
         item_div.append(create_recipe_tooltip({category, subcategory, recipe_id, material: material_recipe[0]}));
         material_selections_div.appendChild(item_div);
     }
+    material_selections_div.lastChild.scrollIntoView();
+}
+
+function update_item_recipe_visibility() {
+    Object.keys(recipes).forEach(recipe_category => {
+        Object.keys(recipes[recipe_category]).forEach(recipe_subcategory => {
+            if(recipe_subcategory !== "items") {
+                //no need to deal with other recipe types as they would be folded and will be reloaded on unfolding
+                return;
+            }
+            Object.keys(recipes[recipe_category][recipe_subcategory]).forEach(recipe => {
+                if(!recipe.is_unlocked) {
+                    return;
+                }
+                
+                const recipe_div = crafting_pages[recipe_category][recipe_subcategory].querySelector(`[data-recipe_id="${recipe.id}"`);
+                if(!recipe.get_is_any_material_present()) {
+                    recipe_div.classList.add("recipe_hidden");
+                } else if(!recipe.get_availability) {
+                    recipe_div.classList.add("recipe_unavailable");
+                    recipe_div.classList.remove("recipe_hidden");
+                } else {
+                    recipe_div.classList.remove("recipe_unavailable");
+                    recipe_div.classList.remove("recipe_hidden");
+                }
+            });
+        })
+    });
 }
 
 /**
@@ -2683,7 +2801,7 @@ function update_displayed_skill_xp_gain(skill) {
         return;
     }
     const xp_gain = Math.round(100*skill.get_parent_xp_multiplier()*get_skill_xp_gain(skill.skill_id))/100 || 1;
-    skill_bar_divs[skill.skill_id].children[0].children[2].children[1].innerHTML = `XP gain: x${xp_gain}`;
+    skill_bar_divs[skill.skill_id].children[0].children[2].children[1].innerHTML = `XP gain: x${xp_gain}<br><span>XP cost scaling: x${skill.xp_scaling}</span>`;
 }
 
 function update_all_displayed_skills_xp_gain(){
@@ -3228,5 +3346,7 @@ export {
     create_displayed_crafting_recipes,
     update_displayed_component_choice,
     update_displayed_material_choice,
-    update_recipe_tooltip
+    update_recipe_tooltip,
+    update_displayed_crafting_recipes,
+    update_item_recipe_visibility
 }

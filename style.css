@@ -35,6 +35,9 @@
 	--item_tooltip_top: 0px;
 	--item_tooltip_left: 0px;
 
+	--recipe_tooltip_top: 0px;
+	--recipe_tooltip_left: 0px;
+
 	--job_tooltip_top: 0px;
 	--job_tooltip_left: 0px;
 
@@ -359,9 +362,14 @@ body {
 	pointer-events: none;
 }
 
-.item_tooltip, .recipe_tooltip {
+.item_tooltip {
 	top: var(--item_tooltip_top);
 	left: var(--item_tooltip_left);
+} 
+
+.recipe_tooltip {
+	top: var(--recipe_tooltip_top);
+	left: var(--recipe_tooltip_left);
 }
 .job_tooltip {
 	top: var(--job_tooltip_top);
@@ -816,7 +824,7 @@ body {
 	display: block;
 }
 
-.selectable_material:hover .recipe_tooltip{
+.selectable_material:hover .recipe_tooltip, .selectable_component:hover .recipe_tooltip{
 	display: block;
 }
 

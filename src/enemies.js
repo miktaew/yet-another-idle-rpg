@@ -97,7 +97,7 @@ class Enemy {
         xp_value: 1, 
         rank: 1,
         size: "small",
-        tags: ["living", "beast"],
+        tags: ["living", "beast", "wolf rat", "pest"],
         stats: {health: 20, attack: 5, agility: 6, dexterity: 4, magic: 0, intuition: 6, attack_speed: 0.8, defense: 1}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
@@ -112,7 +112,7 @@ class Enemy {
         xp_value: 1, 
         rank: 1,
         size: "small",
-        tags: ["living", "beast"],
+        tags: ["living", "beast", "wolf rat", "pest"],
         stats: {health: 30, attack: 7, agility: 8, dexterity: 6, intuition: 7, magic: 0, attack_speed: 1, defense: 2}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
@@ -126,13 +126,22 @@ class Enemy {
         xp_value: 4, 
         rank: 1,
         size: "small",
-        tags: ["living", "beast"],
+        tags: ["living", "beast", "wolf rat", "pest"],
         stats: {health: 80, attack: 30, agility: 30, dexterity: 24, intuition: 24, magic: 0, attack_speed: 1.4, defense: 8}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
             {item_name: "Rat fang", chance: 0.04},
             {item_name: "Rat pelt", chance: 0.02},
         ]
+    });
+    enemy_templates["Elite wolf rat guardian"] = new Enemy({
+        name: "Elite wolf rat",
+        description: "It's no longer dog-sized, but rather around the size of an average wolf, with thicker skin and longer claws",
+        xp_value: 10, 
+        rank: 3,
+        size: "medium",
+        tags: ["living", "beast", "wolf rat", "monster"],
+        stats: {health: 300, attack: 40, agility: 30, dexterity: 40, intuition: 50, magic: 0, attack_speed: 1.2, defense: 30},
     });
 
     enemy_templates["Starving wolf"] = new Enemy({

@@ -340,18 +340,27 @@ class Textline {
                 name: "Hello",
                 text: "Hello stranger",
                 unlocks: {
-                    textlines: [{dialogue: "farm supervisor", lines: ["things", "work"]}],
+                    textlines: [{dialogue: "farm supervisor", lines: ["things", "work", "animals"]}],
                 },
                 locks_lines: ["hello"],
             }),
             "work": new Textline({
-                name: "Do you have any work?",
+                name: "Do you have any work with decent pay?",
                 is_unlocked: false,
                 text: "We sure could use more hands. Feel free to help my boys on the fields whenever you have time!",
                 unlocks: {
                     activities: [{location: "Town farms", activity: "fieldwork"}],
                 },
                 locks_lines: ["work"],
+            }),
+            "animals": new Textline({
+                name: "Do you sell anything?",
+                is_unlocked: false,
+                text: "Sorry, I'm not allowed to. I could however let you take some stuff in exchange for physical work, and it just so happens our sheep need shearing.",
+                unlocks: {
+                    activities: [{location: "Town farms", activity: "animal care"}],
+                },
+                locks_lines: ["animals"],
             }),
             "things": new Textline({
                 is_unlocked: false,

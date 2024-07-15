@@ -58,7 +58,7 @@ class Gathering extends Training {
 }
 /*
     All 3 types of activity can yield loot.
-    For trainings and jobs, it doesn't require a tool and is a small bonus of top of xp/money, plus their skills get xp every tick.
+    For trainings and jobs, it doesn't require a tool and is a small bonus on top of xp/money, plus their skills get xp every tick.
     For gatherings, tools are required and loot is the main focus, plus their skills get xp when work period is finished
 */
 
@@ -129,6 +129,15 @@ class Gathering extends Training {
         base_skills_names: ["Woodcutting"],
         is_unlocked: true,
         required_tool_type: "axe",
+    });
+
+    activities["herbalism"] = new Gathering({
+        name: "herbalism",
+        action_text: "Searching for herbs",
+        description: "Look for any useful plants and mushrooms",
+        base_skills_names: ["Herbalism"],
+        is_unlocked: true,
+        required_tool_type: "herb sickle",
     });
 })();
 

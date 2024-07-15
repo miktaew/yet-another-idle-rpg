@@ -14,29 +14,29 @@ class InventoryHaver {
      */
     add_to_inventory(items) {
         for(let i = 0; i < items.length; i++){
-            if(!(items[i].item.getName() in this.inventory)) //not in inventory
+            if(!(items[i].item.id in this.inventory)) //not in inventory
             {
                 if(items[i].item.stackable)
                 {
                     if(!items[i].count) {
                         items[i].count=1;
                     }
-                    this.inventory[items[i].item.getName()] = items[i];
+                    this.inventory[items[i].item.id] = items[i];
                 }
                 else 
                 {
-                    this.inventory[items[i].item.getName()] = [items[i].item];
+                    this.inventory[items[i].item.id] = [items[i].item];
                 }
             }
             else //in inventory 
             {
                 if(items[i].item.stackable)
                 {
-                    this.inventory[items[i].item.getName()].count += (items[i].count || 1);
+                    this.inventory[items[i].item.id].count += (items[i].count || 1);
                 } 
                 else 
                 {
-                    this.inventory[items[i].item.getName()].push(items[i].item);
+                    this.inventory[items[i].item.id].push(items[i].item);
                 }
             }
         }

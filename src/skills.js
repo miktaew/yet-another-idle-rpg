@@ -1120,6 +1120,9 @@ Multiplies attack points with daggers by ${Math.round((skills["Daggers"].get_coe
                                                 strength: 1,
                                                 max_stamina: 2,
                                             },
+                                            xp_multipliers: {
+                                                "Herbalism": 1.05,
+                                            }
                                         },
                                         6: {
                                             stats: {
@@ -1157,6 +1160,10 @@ Multiplies attack points with daggers by ${Math.round((skills["Daggers"].get_coe
                                             multipliers: {
                                                 strength: 1.05,
                                                 dexterity: 1.05,
+                                            },
+                                            xp_multipliers: {
+                                                "Unarmed": 1.1,
+                                                "Herbalism": 1.1,
                                             }
                                         }
                                     }
@@ -1531,6 +1538,15 @@ Multiplies attack points with daggers by ${Math.round((skills["Daggers"].get_coe
         max_level: 10,
         xp_scaling: 1.6,
     });
+
+    skills["Herbalism"] = new Skill({skill_id: "Herbalism",
+        names: {0: "Herbalism"}, 
+        description: "Knowledge of useful plants and mushrooms",
+        base_xp_cost: 10,
+        visibility_treshold: 4,
+        max_level: 10,
+        xp_scaling: 1.6,
+    });
 })();
 
 //crafting skills
@@ -1540,6 +1556,7 @@ Multiplies attack points with daggers by ${Math.round((skills["Daggers"].get_coe
         names: {0: "Crafting"}, 
         description: "The art of preparing different elements and assembling them together",
         base_xp_cost: 40,
+        xp_scaling: 1.5,
         max_level: 60,
     });
     skills["Smelting"] = new Skill({
@@ -1547,6 +1564,7 @@ Multiplies attack points with daggers by ${Math.round((skills["Daggers"].get_coe
         names: {0: "Smelting"}, 
         description: "The art of crafting",
         base_xp_cost: 40,
+        xp_scaling: 1.5,
         max_level: 60,
     });
     skills["Forging"] = new Skill({
@@ -1554,6 +1572,7 @@ Multiplies attack points with daggers by ${Math.round((skills["Daggers"].get_coe
         names: {0: "Forging"}, 
         description: "Turning raw metal into something useful",
         base_xp_cost: 40,
+        xp_scaling: 1.5,
         max_level: 60,
     });
     skills["Cooking"] = new Skill({
@@ -1561,6 +1580,7 @@ Multiplies attack points with daggers by ${Math.round((skills["Daggers"].get_coe
         names: {0: "Cooking"}, 
         description: "Making the unedible edible",
         base_xp_cost: 40,
+        xp_scaling: 1.5,
         max_level: 60,
     });
     skills["Alchemy"] = new Skill({
@@ -1568,24 +1588,7 @@ Multiplies attack points with daggers by ${Math.round((skills["Daggers"].get_coe
         names: {0: "Alchemy"}, 
         description: "Extracting and enhancing useful properties of the ingredies",
         base_xp_cost: 40,
-        max_level: 60,
-    });
-    
-    skills["Weapon crafting"] = new Skill({
-        skill_id: "Weapon crafting", 
-        names: {0: "Weapon crafting"}, 
-        parent_skill: "Crafting",
-        description: "Ability to craft offensive equipment",
-        base_xp_cost: 40,
-        max_level: 60,
-
-    });
-    skills["Armor crafting"] = new Skill({
-        skill_id: "Armor crafting", 
-        names: {0: "Armor crafting"}, 
-        parent_skill: "Crafting",
-        description: "Ability to create protective equipment",
-        base_xp_cost: 40,
+        xp_scaling: 1.5,
         max_level: 60,
     });
 })();

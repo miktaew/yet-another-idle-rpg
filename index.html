@@ -1240,6 +1240,7 @@
                 let tooltip_move_ticks = 60;
                 let item_tooltip_wait = 0;
                 let trader_item_tooltip_wait = 0;
+                let recipe_tooltip_wait = 0;
 
                 //mostly sets up event listeners
                 /////////////////////
@@ -1335,7 +1336,7 @@
                         item_tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
                 }
-                
+
                 //////////////////////
                 //trader item tooltips
                 const trader_inventory_div = document.getElementById("trader_inventory_div");
@@ -1403,6 +1404,63 @@
                     }
                 }
 
+                const crafting_window = document.getElementById("crafting_window");
+                crafting_window.addEventListener('mouseenter', (event) => {
+                    document.documentElement.style.setProperty('--recipe_tooltip_top', `${event.pageY - 370}px`);
+                    document.documentElement.style.setProperty('--recipe_tooltip_left', `${event.pageX - 370}px`);
+                }); 
+
+                crafting_window.addEventListener('mousemove', move_recipe_tooltip, false);
+                function move_recipe_tooltip(event) {
+                    if(Date.now() >= recipe_tooltip_wait) {
+                        let hovered_element = event.target;
+
+                        if(hovered_element.id === "crafting_window" 
+                            || hovered_element.id === "crafting_mainpage_buttons"
+                            || document.getElementById("crafting_mainpage_buttons").contains(hovered_element)
+                            || hovered_element.classList.contains("crafting_category") 
+                            || hovered_element.classList.contains("crafting_subpage_buttons")
+                            || hovered_element.classList.contains("crafting_subpage_button")
+                        ) {
+                            return;
+                        } else {
+                            while(!hovered_element.classList.contains("recipe_div")) {
+                                if(hovered_element.classList.contains("selectable_component")) {
+                                    break;
+                                }
+                                hovered_element = hovered_element.parentNode;
+                                if(hovered_element.id === "crafting_window" || !document.getElementById("crafting_window").contains(hovered_element)) {
+                                    return; //just in case
+                                }
+                            }
+                        }
+
+                        //set horizontal position
+                        document.documentElement.style.setProperty('--recipe_tooltip_left', `${event.pageX - 400}px`);
+                        
+                        let tooltip_height;
+                        if(hovered_element.querySelector(".recipe_creation_button") && !hovered_element.classList.contains("selectable_component")) {
+                            tooltip_height = hovered_element.children[2].children[0].scrollHeight - 250;
+                        } else if(hovered_element.classList.contains("selectable_component")){
+                            tooltip_height = hovered_element.children[1].scrollHeight - 250;
+                        } else {
+                            tooltip_height = hovered_element.children[1].scrollHeight;
+                        }
+                        
+                        const body = document.getElementsByTagName("body")[0];
+                        const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
+
+                        const bottom_edge_position = 
+                            window.innerHeight - tooltip_height + window.scrollY - 230 - (scrollbar_X_visible?10:0);
+                        if(event.pageY > bottom_edge_position) {
+                            document.documentElement.style.setProperty('--recipe_tooltip_top', `${bottom_edge_position - 400}px`);
+                        } else {
+                            document.documentElement.style.setProperty('--recipe_tooltip_top', `${event.pageY - 400}px`);
+                        }
+                        
+                        recipe_tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
+                    }
+                }
                 //stats tooltips
                 let stats_div = document.getElementById("character_stats_div");
                 stats_div.addEventListener('mousemove', move_stat_tooltip, false);

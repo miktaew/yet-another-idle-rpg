@@ -1,7 +1,7 @@
 "use strict";
 
 import { current_game_time } from "./game_time.js";
-import { item_templates, getItem, book_stats, setLootSoldCount, loot_sold_count, recoverItemPrices} from "./items.js";
+import { item_templates, getItem, book_stats, setLootSoldCount, loot_sold_count, recoverItemPrices, rarity_multipliers} from "./items.js";
 import { locations } from "./locations.js";
 import { skills, weapon_type_to_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
@@ -46,15 +46,28 @@ import { end_activity_animation,
          create_displayed_crafting_recipes,
          update_displayed_component_choice,
          update_displayed_material_choice,
-         update_recipe_tooltip
+         update_recipe_tooltip,
+         update_displayed_crafting_recipes,
+         update_item_recipe_visibility
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
+import { recipes } from "./crafting_recipes.js";
 import { game_version, get_game_version } from "./game_version.js";
 
-import { use_recipe } from "./crafting.js";
-
 const save_key = "save data";
+
+const global_flags = {
+    is_crafting_unlocked: false,
+};
+
+//in seconds
+let total_playtime = 0;
+
+let total_deaths = 0;
+let total_crafting_attempts = 0;
+let total_crafting_successes = 0;
+let total_kills = 0;
 
 //current enemy
 let current_enemies = null;
@@ -977,6 +990,7 @@ function do_enemy_combat_action(enemy_id) {
     }
 
     if(fainted) {
+        total_deaths++;
         log_message(character.name + " has lost consciousness", "hero_defeat");
 
         update_displayed_health();
@@ -1045,6 +1059,7 @@ function do_character_combat_action({target, attack_power}) {
         }
 
         if(target.stats.health <= 0) {
+            total_kills++;
             target.stats.health = 0; //to not go negative on displayed value
 
             log_message(target.name + " was defeated", "enemy_defeated");
@@ -1331,6 +1346,127 @@ function clear_enemies() {
     current_enemies = null;
 }
 
+function use_recipe(target) {
+    const category = target.parentNode.parentNode.dataset.crafting_category;
+    const subcategory = target.parentNode.parentNode.dataset.crafting_subcategory;
+    const recipe_id = target.parentNode.dataset.recipe_id;
+    const station_tier = current_location.crafting.tiers[category];
+
+    if(!category || !subcategory || !recipe_id) {
+        return;
+    } else if(!recipes[category][subcategory][recipe_id]) {
+        //shouldn't be possible to reach this, but whatever
+        throw new Error(`Tried to use a recipe that doesn't exist: ${category} -> ${subcategory} -> ${recipe_id}`);
+    } else {
+        const selected_recipe = recipes[category][subcategory][recipe_id];
+        const recipe_div = document.querySelector(`[data-crafting_category="${category}"] [data-crafting_subcategory="${subcategory}"] [data-recipe_id="${recipe_id}"]`);
+        //TODO: reload all recipes when needed
+        let leveled = false;
+        let result;
+        if(subcategory === "items") {
+            if(selected_recipe.get_availability()) {
+                total_crafting_attempts++;
+                const success_chance = selected_recipe.get_success_chance(station_tier);
+                result = selected_recipe.getResult();
+                const {result_id, count} = result;
+                
+                for(let i = 0; i < selected_recipe.materials.length; i++) {
+                    remove_from_character_inventory({item_name: selected_recipe.materials[i].material_id, item_count: selected_recipe.materials[i].count});
+                } 
+                const exp_value = Math.min(100,Math.max(5,selected_recipe.recipe_level[1])); //scale xp with recipe level, at least 5 and at most 100
+                if(Math.random() < success_chance) {
+                    total_crafting_successes++;
+                    add_to_character_inventory([{item: item_templates[result_id], count: count}]);
+                    
+                    log_message(`Created ${item_templates[result_id].getName()} x${count}`, "crafting");
+
+                    leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
+
+
+                    update_item_recipe_visibility();
+
+                } else {
+                    log_message(`Failed to create ${item_templates[result_id].getName()}!`, "crafting");
+
+                    leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value/2});
+                }
+                if(leveled) {
+                    //todo: reload all recipe tooltips
+                }
+            } else {
+                console.warn(`Tried to use an unavailable recipe!`);
+            }
+            
+        } else if(subcategory === "components" || selected_recipe.recipe_type === "component" ) {
+            //read the selected material, pass it as param
+
+            const material_div = recipe_div.children[1].querySelector(".selected_material");
+            if(!material_div) {
+                return;
+            } else {
+                const material_1_name = material_div.dataset.item_name;
+                const recipe_material = selected_recipe.materials.filter(x=> x.material_id===material_1_name)[0];
+
+                if(recipe_material.count <= character.inventory[material_1_name]?.count) {
+                    total_crafting_attempts++;
+                    total_crafting_successes++;
+                    result = selected_recipe.getResult(character.inventory[material_1_name], station_tier);
+                    add_to_character_inventory([{item: result, count: 1}]);
+                    remove_from_character_inventory({item_name: recipe_material.material_id, item_count: recipe_material.count});
+                    log_message(`Created ${result.getName()} [${result.quality*100}% quality]`, "crafting");
+                    const exp_value = Math.min(100,Math.max(5,result.component_tier * 5 * rarity_multipliers[result.getRarity()]));
+                    leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
+                    if(character.inventory[material_1_name]) { 
+                        //if item is still present in inventory + if there's not enough of it = change recipe color
+                        //TODO: same thing for 'items' subcat
+                        if(recipe_material.count > character.inventory[material_1_name].count) { 
+                            material_div.classList.remove("selected_material");
+                            material_div.classList.add("unavailable_material");
+                        }
+                    } else {
+                        material_div.remove();
+                    }
+                } else {
+                    console.log("Tried to create an item without having necessary materials");
+                }
+            }
+            
+        } else if(subcategory === "equipment") {
+            //read the selected components, pass them as params
+            
+            const component_1_name = recipe_div.children[1].children[0].children[1].querySelector(".selected_component")?.dataset.item_name;
+            const component_1_id = recipe_div.children[1].children[0].children[1].querySelector(".selected_component")?.dataset.item_id;
+            
+            const component_2_name = recipe_div.children[1].children[1].children[1].querySelector(".selected_component")?.dataset.item_name;
+            const component_2_id = recipe_div.children[1].children[1].children[1].querySelector(".selected_component")?.dataset.item_id;
+            
+            if(!component_1_id || !component_2_id) {
+                return;
+            } else {
+                if(!character.inventory[component_1_name][component_1_id] || !character.inventory[component_2_name][component_2_id]) {
+                    throw new Error(`Tried to create item with components that are not present in the inventory!`);
+                } else {
+                    total_crafting_attempts++;
+                    total_crafting_successes++;
+                    result = selected_recipe.getResult(character.inventory[component_1_name][component_1_id], character.inventory[component_2_name][component_2_id], station_tier);
+                    remove_from_character_inventory({item_name: component_1_name, item_id: component_1_id});
+                    remove_from_character_inventory({item_name: component_2_name, item_id: component_2_id});
+                    add_to_character_inventory([{item: result}]);
+
+                    log_message(`Created ${result.getName()} [${result.quality*100}% quality]`, "crafting");
+
+                    const exp_value = Math.min(100,Math.max(5,(item_templates[component_1_name].component_tier+item_templates[component_2_name].component_tier) * 2.5 * rarity_multipliers[result.getRarity()]));
+                    leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
+
+                    update_displayed_component_choice({category, recipe_id});
+                }
+            }
+        }
+
+        update_displayed_crafting_recipes();
+    }
+}
+
 function character_equip_item(item_info) {
     equip_item_from_inventory(item_info);
     if(current_enemies) {
@@ -1382,6 +1518,12 @@ function create_save() {
         const save_data = {};
         save_data["game version"] = game_version;
         save_data["current time"] = current_game_time;
+        save_data.total_playtime = total_playtime;
+        save_data.total_deaths = total_deaths;
+        save_data.total_crafting_attempts = total_crafting_attempts;
+        save_data.total_crafting_successes = total_crafting_successes;
+        save_data.total_kills = total_kills;
+        save_data.global_flags = global_flags;
         save_data["character"] = {
                                 name: character.name, titles: character.titles, 
                                 inventory: character.inventory, equipment: character.equipment,
@@ -1552,6 +1694,16 @@ function load(save_data) {
     current_game_time.load_time(save_data["current time"]);
     time_field.innerHTML = current_game_time.toString();
     //set game time
+
+    Object.keys(save_data.global_flags||{}).forEach(flag => {
+        global_flags[flag] = save_data.global_flags[flag];
+    });
+
+    total_playtime = save_data.total_playtime || 0;
+    total_deaths = save_data.total_deaths || 0;
+    total_crafting_attempts = save_data.total_crafting_attempts || 0;
+    total_crafting_successes = save_data.total_crafting_successes || 0;
+    total_deaths = save_data.total_deaths || 0;
 
     name_field.value = save_data.character.name;
     character.name = save_data.character.name;
@@ -1774,7 +1926,6 @@ function load(save_data) {
                         } else { //armor
                             const {quality, equip_slot} = save_data.character.inventory[key][i];
 
-                            
                             if(save_data.character.inventory[key][i].components && save_data.character.inventory[key][i].components.internal.includes(" [component]")) {
                                 //compatibility for armors from before v0.4.5
                                 const item = getItem({...item_templates[save_data.character.inventory[key][i].components.internal.replace(" [component]","")], quality: quality});
@@ -1791,12 +1942,12 @@ function load(save_data) {
                                     item_list.push({item, count: 1});
                                 }
                             } else {
-                                const item = getItem({...item_templates[save_data.character.inventory[key][i].name], quality: quality});
+                                const item = getItem({...item_templates[save_data.character.inventory[key][i].id], quality: quality});
                                 item_list.push({item, count: 1});
                             }
                         }
                     } else {
-                        item_list.push({item: getItem({...item_templates[save_data.character.inventory[key][i].name], quality: save_data.character.inventory[key][i].quality}), count: 1});
+                        item_list.push({item: getItem({...item_templates[save_data.character.inventory[key][i].id], quality: save_data.character.inventory[key][i].quality}), count: 1});
                     }
                 } catch (error) {
                     console.error(error);
@@ -1893,22 +2044,25 @@ function load(save_data) {
                                             const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
                                             trader_item_list.push({item, count: 1});
                                         }
-                                    } else {
-                                        const {quality, equip_slot} = save_data.traders[trader].inventory[key][i];
-                                        let components;
-                                        if(save_data.traders[trader].inventory[key][i].components) {
-                                            components = save_data.traders[trader].inventory[key][i].components
-                                        } else {
-                                            const {internal, external} = save_data.traders[trader].inventory[key][i];
-                                            components = {internal, external};
-                                        }
+                                    } else { //armor
 
-                                        if(!item_templates[components.internal]){
-                                            console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
-                                        } else if(components.external && !item_templates[components.external]) {
-                                            console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
+                                        const {quality, equip_slot} = save_data.traders[trader].inventory[key][i];
+                                        if(save_data.traders[trader].inventory[key][i].components && save_data.traders[trader].inventory[key][i].components.internal.includes(" [component]")) {
+                                            //compatibility for armors from before v0.4.5
+                                            const item = getItem({...item_templates[save_data.traders[trader].inventory[key][i].components.internal.replace(" [component]","")], quality: quality});
+                                            trader_item_list.push({item, count: 1});
+                                        } else if(save_data.traders[trader].inventory[key][i].components) {
+                                            let components = save_data.traders[trader].inventory[key][i].components;
+                                            if(!item_templates[components.internal]){
+                                                console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
+                                            } else if(components.external && !item_templates[components.external]) {
+                                                console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
+                                            } else {
+                                                const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                                trader_item_list.push({item, count: 1});
+                                            }
                                         } else {
-                                            const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+                                            const item = getItem({...item_templates[save_data.character.inventory[key][i].name], quality: quality});
                                             trader_item_list.push({item, count: 1});
                                         }
                                     }
@@ -2220,6 +2374,7 @@ function update() {
         //regenerate hp
         if(active_effects.health_regeneration) {
             
+            character.stats.full.max_health += (character.stats.full.max_health * active_effects.health_regeneration.percent) ?? 0;
             character.stats.full.health += active_effects.health_regeneration.flat;
 
             if(character.stats.full.health > character.stats.full.max_health) {
@@ -2237,6 +2392,7 @@ function update() {
 
         //regenerate stamina
         if(active_effects.stamina_regeneration) {
+            character.stats.full.max_stamina += (character.stats.full.max_stamina * active_effects.stamina_regeneration.percent) ?? 0;
             character.stats.full.stamina += active_effects.stamina_regeneration.flat;
 
             if(character.stats.full.stamina > character.stats.full.max_stamina) {
@@ -2277,6 +2433,7 @@ function update() {
             }
         }
 
+        //limiting maximum adjustment, to avoid any absurd results;
         if(time_variance_accumulator <= 100/tickrate && time_variance_accumulator >= -100/tickrate) {
             time_adjustment = time_variance_accumulator;
         }
@@ -2290,10 +2447,8 @@ function update() {
                 }
             }
         }
-        /*
-        small correction, limiting maximum adjustment;
-        */
 
+        total_playtime += 1/tickrate;
         update();
     }, 1000/tickrate - time_adjustment);
     //uses time_adjustment based on time_variance_accumulator for more precise overall stabilization
@@ -2399,6 +2554,7 @@ else {
 
     update_displayed_stance_list();
     change_stance("normal");
+    change_location("Village");
 } //checks if there's an existing save file, otherwise just sets up some initial equipment
 
 document.getElementById("loading_screen").style.visibility = "hidden";
@@ -2426,8 +2582,17 @@ function add_stuff_for_testing() {
     ]);
 }
 
+function add_all_stuff_to_inventory(){
+    Object.keys(item_templates).forEach(item => {
+        add_to_character_inventory([
+            {item: getItem({...item_templates[item]}), count: 5},
+        ]);
+    })
+}
+
 //add_to_character_inventory([{item: getItem(item_templates["Low quality iron bar"]), count: 10}, {item: getItem(item_templates["Iron bar"]), count: 9}]);
 //add_stuff_for_testing();
+//add_all_stuff_to_inventory();
 
 create_displayed_crafting_recipes();
 update_displayed_equipment();

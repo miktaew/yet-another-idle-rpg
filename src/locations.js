@@ -301,6 +301,7 @@ class LocationActivity{
                  skill_xp_per_tick = 1,
                  unlock_text,
                  gained_resources,
+                 require_tool = true,
                  }) 
     {
         this.activity_name = activity_name; //name of activity from activities.js
@@ -320,6 +321,8 @@ class LocationActivity{
         this.availability_time = availability_time; //if not infinite -> hours between which it's available
         
         this.skill_xp_per_tick = skill_xp_per_tick; //skill xp gained per game tick (default -> 1 in-game minute)
+
+        this.require_tool = require_tool; //if false, can be started without tool equipped
 
         this.gained_resources = gained_resources; 
         //{scales_with_skill: boolean, resource: [{name, ammount: [[min,max], [min,max]], chance: [min,max]}], time_period: [min,max], skill_required: [min_efficiency, max_efficiency]}
@@ -748,10 +751,37 @@ function get_location_type_penalty(type, stage, stat) {
         },
         repeatable_reward: {
             xp: 100,
+            locations: [{location: "Mysterious gate", required_clears: 4}],
         },
         unlock_text: "As you keep going deeper, you barely notice a pitch black hole. Not even a tiniest speck of light reaches it."
     });
-    locations["Nearby cave"].connected_locations.push({location: locations["Cave depths"]}, {location: locations["Hidden tunnel"], custom_text: "Enter the hidden tunnel"}, {location: locations["Pitch black tunnel"], custom_text: "Go into the pitch black tunnel"})
+
+    locations["Mysterious gate"] = new Combat_zone({
+        description: "It's dark. And full of rats.", 
+        enemy_count: 50, 
+        types: [{type: "dark", stage: 3, xp_gain: 5}],
+        enemies_list: ["Elite wolf rat guardian"],
+        enemy_group_size: [6,8],
+        enemy_stat_variation: 0.2,
+        is_unlocked: false,
+        name: "Mysterious gate", 
+        leave_text: "Get away",
+        parent_location: locations["Nearby cave"],
+        first_reward: {
+            xp: 500,
+        },
+        repeatable_reward: {
+            xp: 250,
+        },
+        unlock_text: "After a long and ardous fight, you reach a chamber that ends with a massive stone gate. You can see it's guarded by some kind of wolf rats, but much bigger than the ones you fought until now."
+    });
+
+
+    locations["Nearby cave"].connected_locations.push(
+        {location: locations["Cave depths"]}, 
+        {location: locations["Hidden tunnel"], custom_text: "Enter the hidden tunnel"}, 
+        {location: locations["Pitch black tunnel"], custom_text: "Go into the pitch black tunnel"},
+        {location: locations["Mysterious gate"], custom_text: "Go to the mysterious gate"}),
 
     locations["Forest road"] = new Location({ 
         connected_locations: [{location: locations["Village"]}],
@@ -997,7 +1027,26 @@ function get_location_type_penalty(type, stage, stat) {
                 time_period: [60, 30],
                 skill_required: [0, 10],
                 scales_with_skill: true,
-            }
+            },
+            require_tool: false,
+        }),
+        "herbalism": new LocationActivity({
+            activity_name: "herbalism",
+            infinite: true,
+            starting_text: "Gather useful herbs on the outskirts",
+            skill_xp_per_tick: 1,
+            is_unlocked: true,
+            gained_resources: {
+                resources: [
+                    {name: "Oneberry", ammount: [[1,1], [1,1]], chance: [0.2, 0.5]},
+                    {name: "Golmoon leaf", ammount: [[1,1], [1,1]], chance: [0.3, 0.7]},
+                    {name: "Belmart leaf", ammount: [[1,1], [1,1]], chance: [0.3, 0.7]}
+                ], 
+                time_period: [60, 30],
+                skill_required: [0, 10],
+                scales_with_skill: true,
+            },
+            require_tool: false,
         }),
     };
     locations["Nearby cave"].activities = {

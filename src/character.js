@@ -268,14 +268,6 @@ character.stats.add_all_equipment_bonus = function() {
                 if(character.equipment[slot].getDefense) {
                         character.stats.flat.equipment.defense = (character.stats.flat.equipment.defense || 0) + character.equipment[slot].getDefense();
                 }
-                /*
-                if(character.equipment[slot].getShieldStrength) {
-                        character.stats.flat.equipment.block_strength = (character.stats.flat.equipment.block_strength || 0) + character.equipment[slot].getShieldStrength();
-                }
-                if(character.equipment[slot].getAttack) {
-                        character.stats.multiplier.equipment.attack_power = (character.stats.multiplier.equipment.attack_power || 1) * character.equipment[slot].getAttack();
-                }
-                */
                 let stats = character.equipment[slot].getStats()
 
                 //iterate over stats in slotted item
@@ -485,7 +477,7 @@ character.take_damage = function ({damage_value, can_faint = true, give_skill_xp
                 damage_taken = Math.max(Math.ceil(10*damage_value)/10, 0);
         }
         else {
-                damage_taken = Math.round(10*Math.max(damage_value - character.stats.full.defense, damage_value*0.1))/10;
+                damage_taken = Math.ceil(10*Math.max(damage_value - character.stats.full.defense, damage_value*0.1, 1))/10;
         }
 
         character.stats.full.health -= damage_taken;

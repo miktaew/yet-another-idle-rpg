@@ -67,6 +67,9 @@ class ItemRecipe extends Recipe {
         super({name, id, is_unlocked, recipe_type, result, getResult, recipe_level, recipe_skill});
         this.materials = materials;
         this.success_chance = success_chance;
+        if(this.success_chance[0]==0){
+            this.success_chance[0] = 0.1;
+        }
     }
 
     get_success_chance(station_tier=1) {
@@ -82,6 +85,15 @@ class ItemRecipe extends Recipe {
             }
         }
         return true;
+    }
+
+    get_is_any_material_present() {
+        for(let i = 0; i < this.materials.length; i++) {
+            if(character.inventory[this.materials[i].material_id]) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
@@ -122,7 +134,6 @@ class ComponentRecipe extends ItemRecipe{
     }
 
     get_quality_range(tier = 0) {
-        console.log(tier);
         const skill = skills[this.recipe_skill];
         const quality = (140+(3*skill.current_level-skill.max_level)+(20*tier))/100;
         return [Math.max(0.1,quality-0.1), Math.max(0.1,quality+0.1)]
@@ -154,9 +165,8 @@ class EquipmentRecipe extends Recipe {
         this.components = components;
         this.item_type = item_type;
         this.getResult = function(component_1, component_2, station_tier = 1){
-
-            const skill = skills[this.recipe_skill];
-            let quality = this.get_quality((component_1.quality + component_2.quality)/2, (station_tier-Math.max(component_1.component_tier, component_2.component_tier)) || 0);
+            const comp_quality_weighted = this.get_component_quality_weighted(component_1, component_2);
+            let quality = this.get_quality(comp_quality_weighted, (station_tier-Math.max(component_1.component_tier, component_2.component_tier)) || 0);
             //return based on components used
             if(this.item_type === "Weapon") {
                 return new Weapon(
@@ -172,8 +182,8 @@ class EquipmentRecipe extends Recipe {
                 return new Armor(
                     {
                         components: {
-                            internal: component_1.name,
-                            external: component_2.name,
+                            internal: component_1.id,
+                            external: component_2.id,
                         },
                         quality: quality,
                     }
@@ -182,8 +192,8 @@ class EquipmentRecipe extends Recipe {
                 return new Shield(
                     {
                         components: {
-                            shield_base: component_1.name,
-                            handle: component_2.name,
+                            shield_base: component_1.id,
+                            handle: component_2.id,
                         },
                         quality: quality,
                     }
@@ -196,18 +206,22 @@ class EquipmentRecipe extends Recipe {
 
     get_quality_range(component_quality, tier = 0) {
         const skill = skills[this.recipe_skill];
-        const quality = (40+100*component_quality+(2*skill.current_level-skill.max_level)+20*(tier))/100;
+        const quality = (40+100*component_quality+(3*skill.current_level-skill.max_level)+20*(tier))/100;
         return [Math.max(0.1,quality-0.1), Math.max(0.1,quality+0.1)];
     }
 
     get_quality_cap() {
         const skill = skills[this.recipe_skill];
-        return Math.min(1+2*skill.current_level/skill.max_level,2);
+        return Math.min(1+2*skill.current_level/skill.max_level,2.5);
     }
 
     get_quality(component_quality, tier = 0) {
         const quality_range = this.get_quality_range(component_quality, tier);
         return Math.min(Math.round(100*((quality_range[1]-quality_range[0])*Math.random()+quality_range[0]))/100, this.get_quality_cap());
+    }
+
+    get_component_quality_weighted(component_1, component_2) {
+        return (component_1.quality*component_1.component_tier + component_2.quality*component_2.component_tier)/(component_1.component_tier+component_2.component_tier);
     }
 }
 
@@ -227,6 +241,52 @@ class EquipmentRecipe extends Recipe {
         materials: [
             {material_id: "Low quality iron ingot", count: 3, result_id: "Cheap long iron blade"}, 
             {material_id: "Iron ingot", count: 3, result_id: "Long iron blade"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Forging",
+    });
+    forging_recipes.components["Axe head"] = new ComponentRecipe({
+        name: "Axe head",
+        materials: [
+            {material_id: "Low quality iron ingot", count: 4, result_id: "Cheap iron axe head"}, 
+            {material_id: "Iron ingot", count: 4, result_id: "Iron axe head"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Forging"
+    });
+    forging_recipes.components["Hammer head"] = new ComponentRecipe({
+        name: "Hammer head",
+        materials: [
+            {material_id: "Low quality iron ingot", count: 4, result_id: "Cheap iron hammer head"}, 
+            {material_id: "Iron ingot", count: 4, result_id: "Iron hammer head"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Forging",
+    });
+
+    forging_recipes.components["Short hilt"] = new ComponentRecipe({
+        name: "Short hilt",
+        materials: [
+            {material_id: "Low quality iron ingot", count: 1, result_id: "Cheap short iron hilt"},
+            {material_id: "Iron ingot", count: 1, result_id: "Short iron hilt"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Forging",
+    });
+    forging_recipes.components["Medium handle"] = new ComponentRecipe({
+        name: "Medium handle",
+        materials: [
+            {material_id: "Low quality iron ingot", count: 2, result_id: "Cheap medium iron handle"},
+            {material_id: "Iron ingot", count: 2, result_id: "Medium iron handle"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Forging",
+    });
+    forging_recipes.components["Long shaft"] = new ComponentRecipe({
+        name: "Long shaft",
+        materials: [
+            {material_id: "Low quality iron ingot", count: 4, result_id: "Cheap long iron shaft"},
+            {material_id: "Iron ingot", count: 4, result_id: "Long iron shaft"},
         ],
         item_type: "Component",
         recipe_skill: "Forging",
@@ -305,7 +365,8 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.equipment["Shirt"] = new ComponentRecipe({
         name: "Shirt",
         materials: [
-            {material_id: "Piece of wolf leather", count: 8, result_id: "Leather shirt"},
+            {material_id: "Piece of wolf rat leather", count: 8, result_id: "Cheap leather vest"},
+            {material_id: "Piece of wolf leather", count: 8, result_id: "Leather vest"},
             {material_id: "Wool cloth", count: 8, result_id: "Wool shirt"}
         ],
         item_type: "Armor",
@@ -316,6 +377,7 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.equipment["Pants"] = new ComponentRecipe({
         name: "Pants",
         materials: [
+            {material_id: "Piece of wolf rat leather", count: 4, result_id: "Cheap leather pants"},
             {material_id: "Piece of wolf leather", count: 4, result_id: "Leather pants"},
             {material_id: "Wool cloth", count: 4, result_id: "Wool pants"}
         ],
@@ -338,6 +400,7 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.equipment["Shoes"] = new ComponentRecipe({
         name: "Shoes",
         materials: [
+            {material_id: "Piece of wolf rat leather", count: 4, result_id: "Cheap leather shoes"},
             {material_id: "Piece of wolf leather", count: 4, result_id: "Leather shoes"}
         ],
         item_type: "Armor",
@@ -381,7 +444,7 @@ class EquipmentRecipe extends Recipe {
         recipe_type: "material",
         materials: [{material_id: "Iron ingot", count: 5}], 
         result: {result_id: "Iron chainmail", count: 1},
-        success_chance: [0,1],
+        success_chance: [0.1,1],
         recipe_skill: "Crafting",
         recipe_level: [5,15],
     });
@@ -395,18 +458,68 @@ class EquipmentRecipe extends Recipe {
         recipe_level: [1,5],
         recipe_skill: "Crafting",
     });
+
+    smelting_recipes.items["Low quality iron ingot"] = new ItemRecipe({
+        name: "Low quality iron ingot",
+        recipe_type: "material",
+        materials: [{material_id: "Low quality iron ore", count: 5}], 
+        result: {result_id: "Low quality iron ingot", count: 1},
+        success_chance: [0.4,1],
+        recipe_level: [1,5],
+        recipe_skill: "Smelting",
+    });
+    smelting_recipes.items["Iron ingot"] = new ItemRecipe({
+        name: "Iron ingot",
+        recipe_type: "material",
+        materials: [{material_id: "Iron ore", count: 5}], 
+        result: {result_id: "Iron ingot", count: 1},
+        success_chance: [0.1,1],
+        recipe_level: [5,15],
+        recipe_skill: "Smelting",
+    });
 })();
 
 //consumables
 (function(){
     cooking_recipes.items["Roasted rat meat"] = new ItemRecipe({
         name: "Roasted rat meat",
-        recipe_type: "material",
+        recipe_type: "usable",
         materials: [{material_id: "Rat meat chunks", count: 2}], 
         result: {result_id: "Roasted rat meat", count: 1},
         success_chance: [0.4,1],
         recipe_level: [1,5],
         recipe_skill: "Cooking",
+    });
+    cooking_recipes.items["Roasted purified rat meat"] = new ItemRecipe({
+        name: "Roasted purified rat meat",
+        recipe_type: "usable",
+        materials: [{material_id: "Rat meat chunks", count: 2},
+                    {material_id: "Belmart leaf", count: 1},
+        ],
+        result: {result_id: "Roasted purified rat meat", count: 1},
+        success_chance: [0.1,1],
+        recipe_level: [1,10],
+        recipe_skill: "Cooking",
+    });
+    alchemy_recipes.items["Weak healing powder"] = new ItemRecipe({
+        name: "Weak healing powder",
+        recipe_type: "usable",
+        materials: [{material_id: "Golmoon leaf", count: 5}],
+        result: {result_id: "Weak healing powder", count: 1},
+        success_chance: [0.1,1],
+        recipe_level: [1,10],
+        recipe_skill: "Alchemy",
+    });
+    alchemy_recipes.items["Oneberry juice"] = new ItemRecipe({
+        name: "Oneberry juice",
+        recipe_type: "usable",
+        materials: [{material_id: "Oneberry", count: 10},
+                    {material_id: "Glass phial", count: 1},
+        ],
+        result: {result_id: "Oneberry juice", count: 1},
+        success_chance: [0.1,1],
+        recipe_level: [1,10],
+        recipe_skill: "Alchemy",
     });
 })();
 
