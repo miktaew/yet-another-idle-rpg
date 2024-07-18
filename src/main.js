@@ -1610,7 +1610,6 @@ function create_save() {
             }
         }); //save activities' unlocked status (this is separate from unlock status in location)
 
-        //console.log(current_activity);
         if(current_activity) {
             save_data["current_activity"] = {activity_id: current_activity.id, 
                                              working_time: current_activity.working_time, 
