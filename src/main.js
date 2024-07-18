@@ -948,7 +948,7 @@ function do_enemy_combat_action(enemy_id) {
     damage_dealt = enemy_base_damage * (1.2 - Math.random() * 0.4); //basic 20% deviation for damage
     
     if(character.equipment["off-hand"]?.offhand_type === "shield") { //HAS SHIELD
-        if(character.combat_stats.block_chance > Math.random()) {//BLOCKED THE ATTACK
+        if(character.stats.full.block_chance > Math.random()) {//BLOCKED THE ATTACK
             add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value});
             if(character.stats.total_multiplier.block_strength * character.equipment["off-hand"].getShieldStrength() >= damage_dealt) {
                 log_message(character.name + " blocked an attack", "hero_blocked");
