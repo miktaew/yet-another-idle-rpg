@@ -262,7 +262,7 @@ class Textline {
             "remind2": new Textline({
                 name: "Could you remind me how to improve my creations?",
                 text: "Ahh, that's simple, you just need more experience. This alone will be a great boon to your efforts. For equipment, you might also want to start with better components. "+
-                "After all, even with most perfect assembling you can't turn a bent blade into a legendary sword.",
+                "After all, even with the most perfect assembling you can't turn a bent blade into a legendary sword.",
                 is_unlocked: false,
             }),
             "remind3": new Textline({

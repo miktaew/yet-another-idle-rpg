@@ -344,14 +344,13 @@ class LocationActivity{
 
             skill_modifier = (skill_level_sum/activities[this.activity_name].base_skills_names?.length) ?? 1;
         }
-        const gathering_time_needed = this.gained_resources.time_period[0]*(this.gained_resources.time_period[1]/this.gained_resources.time_period[0])**skill_modifier;
+        const gathering_time_needed = Math.floor(this.gained_resources.time_period[0]*(this.gained_resources.time_period[1]/this.gained_resources.time_period[0])**skill_modifier);
 
         const gained_resources = [];
 
         for(let i = 0; i < this.gained_resources.resources.length; i++) {
 
             const chance = this.gained_resources.resources[i].chance[0]*(this.gained_resources.resources[i].chance[1]/this.gained_resources.resources[i].chance[0])**skill_modifier;
-           
             const min = Math.round(this.gained_resources.resources[i].ammount[0][0]*(this.gained_resources.resources[i].ammount[1][0]/this.gained_resources.resources[i].ammount[0][0])**skill_modifier);
             const max = Math.round(this.gained_resources.resources[i].ammount[0][1]*(this.gained_resources.resources[i].ammount[1][1]/this.gained_resources.resources[i].ammount[0][1])**skill_modifier);
             gained_resources.push({name: this.gained_resources.resources[i].name, count: [min,max], chance: chance});

@@ -2341,7 +2341,7 @@ function update() {
                         const items = [];
 
                         for(let i = 0; i < gained_resources.length; i++) {
-                            if(Math.random() > gained_resources[i].chance) {
+                            if(Math.random() > (1-gained_resources[i].chance)) {
                                 const count = Math.floor(Math.random()*(gained_resources[i].count[1]-gained_resources[i].count[0]+1))+gained_resources[i].count[0];
                                 items.push({item: item_templates[gained_resources[i].name], count: count});
                             }

@@ -503,7 +503,7 @@ function format_skill_rewards(milestone){
                                     description: "It's definitely, unquestionably, undoubtedly better to just use a weapon instead of doing this. But sure, why not?",
                                     get_effect_description: ()=> {
                                         return `Multiplies damage dealt in unarmed combat by ${Math.round(skills["Unarmed"].get_coefficient("multiplicative")*1000)/1000}. 
-Multiplies attack speed and attack points in unarmed combat by ${Math.round((skills["Unarmed"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
+Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarmed"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
                                     },
                                     max_level_coefficient: 64, //even with 8x more it's still gonna be worse than just using a weapon lol
                                     rewards: {
@@ -838,7 +838,7 @@ Multiplies attack speed and attack points in unarmed combat by ${Math.round((ski
                                   description: "The noble art of swordsmanship", 
                                   get_effect_description: ()=> {
                                       return `Multiplies damage dealt with swords by ${Math.round(skills["Swords"].get_coefficient("multiplicative")*1000)/1000}.
-Multiplies attack points with swords by ${Math.round((skills["Swords"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
+Multiplies AP with swords by ${Math.round((skills["Swords"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
                                   },
                                   rewards: {
                                     milestones: {
@@ -885,7 +885,7 @@ Multiplies attack points with swords by ${Math.round((skills["Swords"].get_coeff
                                 description: "Ability to fight with use of axes", 
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with axes by ${Math.round(skills["Axes"].get_coefficient("multiplicative")*1000)/1000}.
-Multiplies attack points with axes by ${Math.round((skills["Axes"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
+Multiplies AP with axes by ${Math.round((skills["Axes"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
                                 },
                                 rewards: {
                                     milestones: {
@@ -931,7 +931,7 @@ Multiplies attack points with axes by ${Math.round((skills["Axes"].get_coefficie
                                 description: "The ability to fight with the most deadly weapon in the history", 
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with spears by ${Math.round(skills["Spears"].get_coefficient("multiplicative")*1000)/1000}.
-Multiplies attack points with spears by ${Math.round((skills["Spears"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
+Multiplies AP with spears by ${Math.round((skills["Spears"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
                                 },
                                 rewards: {
                                     milestones: {
@@ -977,7 +977,7 @@ Multiplies attack points with spears by ${Math.round((skills["Spears"].get_coeff
                                         description: "Ability to fight with use of battle hammers. Why bother trying to cut someone, when you can just crack all their bones?", 
                                         get_effect_description: ()=> {
                                             return `Multiplies damage dealt with battle hammers by ${Math.round(skills["Hammers"].get_coefficient("multiplicative")*1000)/1000}.
-Multiplies attack points with hammers by ${Math.round((skills["Hammers"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
+Multiplies AP with hammers by ${Math.round((skills["Hammers"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
                                         },
                                         rewards: {
                                             milestones: {
@@ -1023,7 +1023,7 @@ Multiplies attack points with hammers by ${Math.round((skills["Hammers"].get_coe
                                 description: "The looked upon art of fighting (and stabbing) with daggers",
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with daggers by ${Math.round(skills["Daggers"].get_coefficient("multiplicative")*1000)/1000}.
-Multiplies attack points with daggers by ${Math.round((skills["Daggers"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
+Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
                                 },
                                 rewards: {
                                     milestones: {
