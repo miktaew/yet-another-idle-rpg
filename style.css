@@ -769,7 +769,12 @@ body {
 	color: gray;
 }
 
-.weapon_recipe + .armor_recipe, .armor_recipe + .clothing_recipe {
+.recipe_hidden {
+	display: none;
+}
+
+
+.weapon_recipe + .shield_recipe, .shield_recipe + .armor_recipe, .armor_recipe + .clothing_recipe {
 	border-top: 5px solid white;
 }
 
@@ -1402,7 +1407,7 @@ i {
 
 	#character_combat_management{
 		width: 400px;
-		top: 366px;
+		top: 386px;
 		display: var(--character_combat_div_display);
 	}
 		#character_stance_name {

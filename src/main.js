@@ -1343,7 +1343,7 @@ function get_location_rewards(location) {
 
     //activities
     for(let i = 0; i < location.repeatable_reward.activities?.length; i++) {
-        if(activities[locations[location.repeatable_reward.activities[i].location].activities[location.repeatable_reward.activities[i].activity]].tags?.gathering 
+        if(locations[location.repeatable_reward.activities[i].location].activities[location.repeatable_reward.activities[i].activity].tags?.gathering 
             && !global_flags.is_gathering_unlocked) {
                 return;
             }
@@ -2095,7 +2095,7 @@ function load(save_data) {
                                                 trader_item_list.push({item, count: 1});
                                             }
                                         } else {
-                                            const item = getItem({...item_templates[save_data.character.inventory[key][i].name], quality: quality});
+                                            const item = getItem({...item_templates[save_data.traders[trader].inventory[key][i].name], quality: quality});
                                             trader_item_list.push({item, count: 1});
                                         }
                                     }
@@ -2331,16 +2331,7 @@ function update() {
                 {
                     if(current_activity.gathering_time >= current_activity.gathering_time_needed) { 
 
-                        let leveled = false;
-                        if(activities[current_activity.activity_name].type === "GATHERING"){
-                            for(let i = 0; i < activities[current_activity.activity_name].base_skills_names?.length; i++) {
-                                leveled = add_xp_to_skill({skill: skills[activities[current_activity.activity_name].base_skills_names[i]], xp_to_add: current_activity.skill_xp_per_tick}) || leveled;
-                            }
-                            
-                            if(leveled) {
-                                update_gathering_tooltip(current_activity);
-                            }
-                        }
+                        
                         const {gathering_time_needed, gained_resources} = current_activity.getActivityEfficiency();
 
                         current_activity.gathering_time_needed = gathering_time_needed;
@@ -2358,6 +2349,18 @@ function update() {
                             log_loot(items, false);
                             add_to_character_inventory(items);
                         }
+
+                        let leveled = false;
+                        if(activities[current_activity.activity_name].type === "GATHERING"){
+                            for(let i = 0; i < activities[current_activity.activity_name].base_skills_names?.length; i++) {
+                                leveled = add_xp_to_skill({skill: skills[activities[current_activity.activity_name].base_skills_names[i]], xp_to_add: current_activity.skill_xp_per_tick}) || leveled;
+                            }
+                            
+                            if(leveled) {
+                                update_gathering_tooltip(current_activity);
+                            }
+                        }
+
                         current_activity.gathering_time = 0;
                     }
                 }

@@ -181,6 +181,16 @@ class TradeItem {
             new TradeItem({item_name: "Cheap leather vest", count: [1], chance: 0.5, quality: [0.91, 1.2]}),
             new TradeItem({item_name: "Cheap leather pants", count: [1], quality: [0.4, 0.9]}),
             new TradeItem({item_name: "Cheap leather pants", count: [1], chance: 0.5, quality: [0.91, 1.2]}),
+            new TradeItem({item_name: "Cheap leather hat", count: [1], quality: [0.4, 0.9]}),
+            new TradeItem({item_name: "Cheap leather hat", count: [1], chance: 0.5, quality: [0.91, 1.2]}),
+
+            new TradeItem({item_name: "Leather vest", count: [1], chance: 0.7, quality: [0.6, 1.2]}),
+            new TradeItem({item_name: "Leather pants", count: [1], chance: 0.7, quality: [0.6, 1.2]}),
+            new TradeItem({item_name: "Leather hat", count: [1], chance: 0.7, quality: [0.6, 1.2]}),
+
+            new TradeItem({item_name: "Wolf leather armor", count: [1], chance: 0.3, quality: [0.6, 1.2]}),
+            new TradeItem({item_name: "Wolf leather pants", count: [1], chance: 0.3, quality: [0.6, 1.2]}),
+            new TradeItem({item_name: "Wolf leather helmet", count: [1], chance: 0.3, quality: [0.6, 1.2]}),
 
             new TradeItem({item_name: "Stale bread", count: [4,10]}),
             new TradeItem({item_name: "Fresh bread", count: [2,5]}),
@@ -208,14 +218,28 @@ class TradeItem {
 
             new TradeItem({item_name: "Wooden shield", count: [1], quality: [0.4, 0.8]}),
             new TradeItem({item_name: "Wooden shield", count: [1], chance: 0.8, quality: [0.81, 1.2]}),
+            new TradeItem({item_name: "Crude iron shield", count: [1], quality: [0.4, 0.8]}),
+            new TradeItem({item_name: "Crude iron shield", count: [1], chance: 0.8, quality: [0.81, 1.2]}),
+            new TradeItem({item_name: "Iron shield", count: [1], chance: 0.6, quality: [0.4, 0.8]}),
+            new TradeItem({item_name: "Iron shield", count: [1], chance: 0.4, quality: [0.81, 1.2]}),
 
-            new TradeItem({item_name: "Leather vest", count: [1], quality: [0.4, 0.8]}),
-            new TradeItem({item_name: "Leather vest", count: [1], chance: 0.8, quality: [0.81, 1.2]}),
-            new TradeItem({item_name: "Leather pants", count: [1], quality: [0.4, 0.8]}),
-            new TradeItem({item_name: "Leather pants", count: [1], chance: 0.8, quality: [0.81, 1.2]}),
-            new TradeItem({item_name: "Leather hat", count: [1], quality: [0.4, 0.8]}),
-            new TradeItem({item_name: "Leather hat", count: [1], chance: 0.8, quality: [0.81, 1.2]}),
+            new TradeItem({item_name: "Leather vest", count: [1], chance: 0.9, quality: [0.81, 1.2]}),
+            new TradeItem({item_name: "Leather pants", count: [1], chance: 0.9, quality: [0.81, 1.2]}),
+            new TradeItem({item_name: "Leather hat", count: [1], chance: 0.9, quality: [0.81, 1.2]}),
 
+            new TradeItem({item_name: "Leather shoes", count: [1], chance: 0.8, quality: [0.91, 1.2]}),
+            new TradeItem({item_name: "Leather gloves", count: [1], chance: 0.8, quality: [0.91, 1.2]}),
+            new TradeItem({item_name: "Wolf leather armor", count: [1], chance: 0.8, quality: [0.91, 1.2]}),
+            new TradeItem({item_name: "Wolf leather pants", count: [1], chance: 0.8, quality: [0.91, 1.2]}),
+            new TradeItem({item_name: "Wolf leather helmet", count: [1], chance: 0.8, quality: [0.91, 1.2]}),
+            
+            new TradeItem({item_name: "Chainmail armor", count: [1], chance: 0.8, quality: [0.4, 0.8]}),
+            new TradeItem({item_name: "Chainmail armor", count: [1], chance: 0.6, quality: [0.81, 1.2]}),
+            new TradeItem({item_name: "Chainmail pants", count: [1], chance: 0.8, quality: [0.4, 0.8]}),
+            new TradeItem({item_name: "Chainmail pants", count: [1], chance: 0.6, quality: [0.81, 1.2]}),
+            new TradeItem({item_name: "Chainmail helmet", count: [1], chance: 0.8, quality: [0.4, 0.8]}),
+            new TradeItem({item_name: "Chainmail helmet", count: [1], chance: 0.6, quality: [0.81, 1.2]}),
+            
             new TradeItem({item_name: "Stale bread", count: [4,10]}),
             new TradeItem({item_name: "Fresh bread", count: [2,5]}),
             new TradeItem({item_name: "Weak healing powder", count: [2,5]}),

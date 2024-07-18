@@ -89,6 +89,7 @@ class ItemRecipe extends Recipe {
 
     get_is_any_material_present() {
         for(let i = 0; i < this.materials.length; i++) {
+            
             if(character.inventory[this.materials[i].material_id]) {
                 return true;
             }
@@ -291,10 +292,97 @@ class EquipmentRecipe extends Recipe {
         item_type: "Component",
         recipe_skill: "Forging",
     });
+
+    crafting_recipes.components["Short hilt"] = new ComponentRecipe({
+        name: "Short hilt",
+        materials: [
+            {material_id: "Piece of rough wood", count: 4, result_id: "Simple short wooden hilt"},
+            {material_id: "Piece of wood", count: 4, result_id: "Short wooden hilt"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Crafting",
+    });
+    crafting_recipes.components["Medium handle"] = new ComponentRecipe({
+        name: "Medium handle",
+        materials: [
+            {material_id: "Piece of rough wood", count: 8, result_id: "Simple medium wooden handle"},
+            {material_id: "Piece of wood", count: 8, result_id: "Medium wooden handle"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Crafting",
+    });
+    crafting_recipes.components["Long shaft"] = new ComponentRecipe({
+        name: "Long shaft",
+        materials: [
+            {material_id: "Piece of rough wood", count: 12, result_id: "Simple long wooden shaft"},
+            {material_id: "Piece of wood", count: 12, result_id: "Long wooden shaft"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Crafting",
+    });
+})();
+
+//shield components
+(()=>{
+    crafting_recipes.components["Shield base"] = new ComponentRecipe({
+        name: "Shield base",
+        materials: [
+            {material_id: "Piece of rough wood", count: 20, result_id: "Crude wooden shield base"}, 
+            {material_id: "Piece of wood", count: 20, result_id: "Wooden shield base"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Crafting",
+        component_type: "shield base",
+    });
+
+    crafting_recipes.components["Shield handle"] = new ComponentRecipe({
+        name: "Shield handle",
+        materials: [
+            {material_id: "Piece of rough wood", count: 5, result_id: "Basic shield handle"}, 
+            {material_id: "Piece of wood", count: 5, result_id: "Wooden shield handle"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Crafting",
+        component_type: "shield handle",
+    });
+
+    forging_recipes.components["Shield base"] = new ComponentRecipe({
+        name: "Shield base",
+        materials: [
+            {material_id: "Low quality iron ingot", count: 5, result_id: "Crude iron shield base"},
+            {material_id: "Iron ingot", count: 5, result_id: "Iron shield base"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Forging",
+        component_type: "shield base",
+    });
+
 })();
 
 //armor components
 (()=>{
+
+    crafting_recipes.components["Helmet exterior"] = new ComponentRecipe({
+        name: "Helmet exterior",
+        materials: [
+            {material_id: "Piece of wolf leather", count: 3, result_id: "Wolf leather helmet armor"}, 
+            {material_id: "Piece of boar leather", count: 3, result_id: "Boar leather helmet armor"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Crafting",
+        component_type: "helmet exterior",
+    });
+
+    forging_recipes.components["Helmet exterior"] = new ComponentRecipe({
+        name: "Helmet exterior",
+        materials: [
+            {material_id: "Iron chainmail", count: 3, result_id: "Iron chainmail helmet"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Forging",
+        component_type: "helmet exterior",
+    });
+    
     crafting_recipes.components["Chestplate exterior"] = new ComponentRecipe({
         name: "Chestplate exterior",
         materials: [
@@ -315,6 +403,70 @@ class EquipmentRecipe extends Recipe {
         recipe_skill: "Forging",
         component_type: "chestplate exterior",
     });
+
+    crafting_recipes.components["Leg armor exterior"] = new ComponentRecipe({
+        name: "Chestplate exterior",
+        materials: [
+            {material_id: "Piece of wolf leather", count: 4, result_id: "Wolf leather greaves"}, 
+            {material_id: "Piece of boar leather", count: 4, result_id: "Boar leather greaves"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Crafting",
+        component_type: "leg armor exterior",
+    });
+
+    forging_recipes.components["Leg armor exterior"] = new ComponentRecipe({
+        name: "Chestplate exterior",
+        materials: [
+            {material_id: "Iron chainmail", count: 4, result_id: "Iron chainmail greaves"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Forging",
+        component_type: "leg armor exterior",
+    });
+
+    crafting_recipes.components["Glove exterior"] = new ComponentRecipe({
+        name: "Glove exterior",
+        materials: [
+            {material_id: "Piece of wolf leather", count: 3, result_id: "Wolf leather glove armor"}, 
+            {material_id: "Piece of boar leather", count: 3, result_id: "Boar leather glove armor"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Crafting",
+        component_type: "glove exterior",
+    });
+
+    forging_recipes.components["Glove exterior"] = new ComponentRecipe({
+        name: "Glove exterior",
+        materials: [
+            {material_id: "Iron chainmail", count: 3, result_id: "Iron chainmail glove"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Forging",
+        component_type: "Glove exterior",
+    });
+
+    crafting_recipes.components["Shoes exterior"] = new ComponentRecipe({
+        name: "Shoes exterior",
+        materials: [
+            {material_id: "Piece of wolf leather", count: 3, result_id: "Wolf leather shoe armor"}, 
+            {material_id: "Piece of boar leather", count: 3, result_id: "Boar leather shoe armor"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Crafting",
+        component_type: "shoes exterior",
+    });
+
+    forging_recipes.components["Shoes exterior"] = new ComponentRecipe({
+        name: "Shoes exterior",
+        materials: [
+            {material_id: "Iron chainmail", count: 3, result_id: "Iron chainmail shoes"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Forging",
+        component_type: "shoes exterior",
+    });
+
 
 })();
 
@@ -346,6 +498,13 @@ class EquipmentRecipe extends Recipe {
         components: ["long blade", "short handle"],
         item_type: "Weapon",
     });
+
+    //full shields
+    crafting_recipes.equipment["Shield"] = new EquipmentRecipe({
+        name: "Shield",
+        components: ["shield base","shield handle"],
+        item_type: "Shield",
+    })
 
     //full armor
     crafting_recipes.equipment["Helmet"] = new EquipmentRecipe({

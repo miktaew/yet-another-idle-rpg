@@ -1055,8 +1055,8 @@ function get_location_type_penalty(type, stage, stat) {
             skill_xp_per_tick: 1,
             is_unlocked: true,
             gained_resources: {
-                resources: [{name: "Piece of rough wood", ammount: [[1,1], [1,1]], chance: [0.3, 0.7]}], 
-                time_period: [60, 30],
+                resources: [{name: "Piece of rough wood", ammount: [[1,1], [1,3]], chance: [0.3, 1]}], 
+                time_period: [20, 10],
                 skill_required: [0, 10],
                 scales_with_skill: true,
             },
@@ -1069,7 +1069,8 @@ function get_location_type_penalty(type, stage, stat) {
             infinite: true,
             starting_text: "Try lifting some of the rocks",
             skill_xp_per_tick: 3,
-            is_unlocked: false
+            is_unlocked: false,
+            unlock_text: "After the fight, you realize there's quite a lot of rocks of different sizes that could be used for exercises",
         }),
         "mining": new LocationActivity({
             activity_name: "mining",
@@ -1079,7 +1080,7 @@ function get_location_type_penalty(type, stage, stat) {
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Low quality iron ore", ammount: [[1,1], [1,1]], chance: [0.3, 0.7]}], 
-                time_period: [60, 30],
+                time_period: [20, 10],
                 skill_required: [0, 10],
                 scales_with_skill: true,
             },
@@ -1093,7 +1094,7 @@ function get_location_type_penalty(type, stage, stat) {
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Iron ore", ammount: [[1,1], [1,1]], chance: [0.1, 0.6]}], 
-                time_period: [120, 40],
+                time_period: [40, 15],
                 skill_required: [7, 17],
                 scales_with_skill: true,
             },
@@ -1114,8 +1115,8 @@ function get_location_type_penalty(type, stage, stat) {
             skill_xp_per_tick: 3,
             is_unlocked: false,
             gained_resources: {
-                resources: [{name: "Piece of wood", ammount: [[1,1], [1,1]], chance: [0.01, 0.6]}],
-                time_period: [120, 40],
+                resources: [{name: "Piece of wood", ammount: [[1,1], [1,3]], chance: [0.1, 1]}],
+                time_period: [40, 15],
                 skill_required: [10, 20],
                 scales_with_skill: true,
             },
@@ -1127,9 +1128,9 @@ function get_location_type_penalty(type, stage, stat) {
             is_unlocked: false,
             gained_resources: {
                 resources: [
-                    {name: "Oneberry", ammount: [[1,1], [1,1]], chance: [0.2, 0.5]},
-                    {name: "Golmoon leaf", ammount: [[1,1], [1,1]], chance: [0.3, 0.7]},
-                    {name: "Belmart leaf", ammount: [[1,1], [1,1]], chance: [0.3, 0.7]}
+                    {name: "Oneberry", ammount: [[1,1], [1,1]], chance: [0.1, 0.5]},
+                    {name: "Golmoon leaf", ammount: [[1,1], [1,1]], chance: [0.1, 0.7]},
+                    {name: "Belmart leaf", ammount: [[1,1], [1,1]], chance: [0.1, 0.7]}
                 ], 
                 time_period: [60, 30],
                 skill_required: [0, 10],

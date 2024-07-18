@@ -1526,7 +1526,6 @@ Multiplies attack points with daggers by ${Math.round((skills["Daggers"].get_coe
         description: "Get better with chopping the wood",
         base_xp_cost: 10,
         visibility_treshold: 4,
-        max_level: 10,
         xp_scaling: 1.6,
     });
 
@@ -1535,7 +1534,6 @@ Multiplies attack points with daggers by ${Math.round((skills["Daggers"].get_coe
         description: "Get better with mining the ores",
         base_xp_cost: 10,
         visibility_treshold: 4,
-        max_level: 10,
         xp_scaling: 1.6,
     });
 
@@ -1544,7 +1542,6 @@ Multiplies attack points with daggers by ${Math.round((skills["Daggers"].get_coe
         description: "Knowledge of useful plants and mushrooms",
         base_xp_cost: 10,
         visibility_treshold: 4,
-        max_level: 10,
         xp_scaling: 1.6,
     });
 })();
