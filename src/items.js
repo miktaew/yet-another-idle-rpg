@@ -389,14 +389,12 @@ class Equippable extends Item {
 class Artifact extends Equippable {
     constructor(item_data) {
         super(item_data);
-        this.item_type = "EQUIPPABLE";
-        this.stackable = false;
         this.components = undefined;
         this.equip_slot = "artifact";
         this.stats = item_data.stats;
 
         this.tags["artifact"] = true;
-                if(!this.id) {
+        if(!this.id) {
             this.id = this.getName();
         }
     }
@@ -408,6 +406,26 @@ class Artifact extends Equippable {
     getStats(){
         return this.stats;
     }
+}
+
+class Tool extends Equippable {
+    constructor(item_data) {
+        super(item_data);
+        this.equip_slot = item_data.equip_slot; //tool type is same as equip slot (axe/pickaxe/herb sickle)
+        this.components = undefined;
+        this.tags["tool"] = true;
+        this.tags[this.equip_slot] = true;
+        if(!this.id) {
+            this.id = this.getName();
+        }
+    }
+    getStats() {
+        return {};
+    }
+
+    getValue() {
+        return this.value;
+    } 
 }
 
 class Shield extends Equippable {
@@ -753,6 +771,10 @@ function getItem(item_data) {
                     return new Shield(item_data);
                 case "artifact":
                     return new Artifact(item_data);
+                case "axe":
+                case "pickaxe":
+                case "sickle":
+                    return new Tool(item_data);
                 default:
                     return new Armor(item_data);
             }
@@ -893,6 +915,28 @@ item_templates["Twist liek a snek"] = new Book({
         material_type: "pelt",
     });
 
+    item_templates["Boar hide"] = new Material({
+        name: "Boar hide", 
+        description: "Thick hide of a wild boar. Too stiff for clothing, but might be useful for an armor",
+        value: 30,
+        price_recovers: true,
+        material_type: "pelt",
+    });
+    item_templates["Boar meat"] = new Material({
+        name: "Wolf pelt", 
+        description: "Fatty meat of a wild boar, all it needs is to be cooked.",
+        value: 20,
+        price_recovers: true,
+        material_type: "meat source",
+    });
+    item_templates["High quality boar tusk"] = new Material({
+        name: "High quality boar tusk", 
+        description: "Tusk of a wild boar. Sharp and long enough to easily kill an adult human", 
+        value: 25,
+        price_recovers: true,
+        material_type: "miscellaneous",
+    });
+
 })();
 
 //gatherable materials
@@ -1007,6 +1051,14 @@ item_templates["Twist liek a snek"] = new Book({
         name: "Piece of wolf leather", 
         description: "Somewhat strong, should offer some protection when turned into armor",
         value: 20,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "piece of leather",
+    });
+    item_templates["Piece of boar leather"] = new Material({
+        name: "Piece of boar leather", 
+        description: "Thick and resistant leather, too stiff for clothes but perfect for armor",
+        value: 30,
         saturates_market: true,
         price_recovers: true,
         material_type: "piece of leather",
@@ -1423,9 +1475,21 @@ item_templates["Twist liek a snek"] = new Book({
         full_armor_name: "Wolf leather armor",
         defense_value: 4,
         stats: {
-            attack_speed: {
-                multiplier: 0.99,
-            },
+            agility: {
+                multiplier: 0.95,
+            }
+        }
+    });
+    item_templates["Boar leather chestplate armor"] = new ArmorComponent({
+        id: "Boar leather chestplate armor",
+        name: "Boar leather cuirass",
+        description: "String cuirass made of boar leather.",
+        component_type: "chestplate exterior",
+        value: 1000,
+        component_tier: 3,
+        full_armor_name: "Boar leather armor",
+        defense_value: 6,
+        stats: {
             agility: {
                 multiplier: 0.95,
             }
@@ -1440,9 +1504,6 @@ item_templates["Twist liek a snek"] = new Book({
         full_armor_name: "Wolf leather leg armor",
         defense_value: 2,
         stats: {
-            attack_speed: {
-                multiplier: 0.99,
-            },
             agility: {
                 multiplier: 0.95,
             }
@@ -1456,11 +1517,6 @@ item_templates["Twist liek a snek"] = new Book({
         component_tier: 2,
         full_armor_name: "Wolf leather gloves",
         defense_value: 2,
-        stats: {
-            attack_speed: {
-                multiplier: 0.99,
-            },
-        }
     });
 
     item_templates["Iron chainmail helmet"] = new ArmorComponent({
@@ -1586,11 +1642,6 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "helmet interior",
         base_defense: 2,
         component_tier: 2,
-        stats: {
-            attack_speed: {
-                multiplier: 0.99,
-            },
-        }
     });
 
     item_templates["Leather gloves"] = new Armor({
@@ -1598,16 +1649,8 @@ item_templates["Twist liek a snek"] = new Book({
         description: "Strong leather gloves, perfect for handling rough and sharp objects.", 
         value: 300,
         component_type: "glove interior",
-        base_defense: 2,
+        base_defense: 1,
         component_tier: 2,
-        stats: {
-            attack_speed: {
-                multiplier: 0.99,
-            },
-            dexterity: {
-                multiplier: 0.99,
-            },
-        }
     });
 
     item_templates["Cheap leather shoes"] = new Armor({
@@ -1647,6 +1690,14 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "chestplate interior",
         base_defense: 1,
         component_tier: 2,
+        stats: {
+            attack_speed: {
+                multiplier: 1.01,
+            },
+            agility: {
+                multiplier: 1.02,
+            },
+        }
     });
 
     item_templates["Wool pants"] = new Armor({
@@ -1665,15 +1716,14 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "helmet interior",
         base_defense: 1,
         component_tier: 2,
-    });
-
-    item_templates["Wool gloves"] = new Armor({
-        name: "Wool gloves",
-        description: "Warm and comfy, but they don't provide much protection.",
-        value: 300,
-        component_type: "glove interior",
-        base_defense: 1,
-        component_tier: 2,
+        stats: {
+            attack_speed: {
+                multiplier: 1.01,
+            },
+            agility: {
+                multiplier: 1.01,
+            },
+        }
     });
 
     item_templates["Wool gloves"] = new Armor({
@@ -1689,6 +1739,12 @@ item_templates["Twist liek a snek"] = new Book({
 //armors:
 (function(){
     //predefined full (int+ext) armors go here
+    item_templates["Leather armor"] = new Armor({
+        components: {
+            internal: "Leather vest",
+            external: "Wolf leather chestplate armor"
+        }
+    });
 })();
 
 //shield components:
@@ -1765,6 +1821,40 @@ item_templates["Twist liek a snek"] = new Book({
             },
         }
     });
+
+    item_templates["Boar trophy"] = new Artifact({
+        name: "Boar trophy",
+        value: 80,
+        stats: {
+            attack_power: {
+                multiplier: 1.1,
+            },
+            crit_multiplier: {
+                flat: 0.2,
+            },
+        }
+    });
+})();
+
+//tools:
+(function(){
+    item_templates["Old pickaxe"] = new Tool({
+        name: "Old pickaxe",
+        value: 10,
+        equip_slot: "pickaxe",
+    });
+
+    item_templates["Old axe"] = new Tool({
+        name: "Old axe",
+        value: 10,
+        equip_slot: "axe",
+    });
+
+    item_templates["Old sickle"] = new Tool({
+        name: "Old sickle",
+        value: 10,
+        equip_slot: "sickle",
+    });
 })();
 
 //usables:
@@ -1810,9 +1900,9 @@ item_templates["Twist liek a snek"] = new Book({
         value: 80,
         use_effect: {
             health_regeneration: {
-                flat: 10,
+                flat: 6,
                 percent: 1,
-                duration: 6,
+                duration: 10,
             },
         }
     });

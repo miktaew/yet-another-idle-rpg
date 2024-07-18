@@ -474,11 +474,20 @@ function get_location_type_penalty(type, stage, stat) {
         name: "open",
         stages: {
             1: {
-                description: "A completely open area where attack can come from any direction",
+                description: "A completely open area where attacks can come from any direction",
                 related_skill: "Spatial awareness",
                 effects: {
                     multipliers: {
                         evasion_points: 0.75,
+                    }
+                }
+            },
+            2: {
+                description: "An area that's completely open and simultanously obstructs your view, making it hard to predict where an attack will come from",
+                related_skill: "Spatial awareness",
+                effects: {
+                    multipliers: {
+                        evasion_points: 0.5,
                     }
                 }
             }
@@ -594,7 +603,7 @@ function get_location_type_penalty(type, stage, stat) {
 
             return noises;
         },
-        dialogues: ["village elder", "village guard"],
+        dialogues: ["village elder", "village guard", "old craftsman"],
         traders: ["village trader"],
         name: "Village", 
         crafting: {
@@ -636,7 +645,9 @@ function get_location_type_penalty(type, stage, stat) {
             xp: 10,
         },
         repeatable_reward: {
-            textlines: [{dialogue: "village elder", lines: ["cleared field"]}],
+            textlines: [
+                {dialogue: "village elder", lines: ["cleared field"]},
+            ],
             xp: 5,
         }
     });
@@ -807,7 +818,8 @@ function get_location_type_penalty(type, stage, stat) {
         },
         repeatable_reward: {
             xp: 20,
-            locations: [{location:"Deep forest"}]
+            locations: [{location:"Deep forest"}],
+            activities: [{location:"Forest road", activity:"herbalism"}],
         },
     });
     locations["Forest road"].connected_locations.push({location: locations["Forest"], custom_text: "Leave the safe path"});
@@ -825,9 +837,29 @@ function get_location_type_penalty(type, stage, stat) {
         },
         repeatable_reward: {
             xp: 35,
+            flag: "is_deep_forest_beaten",
         }
     });
     locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture deeper into the woods"});
+
+    locations["Forest clearing"] = new Combat_zone({
+        description: "A surprisingly big clearing hidden in the northern part of the forest, covered with very tall grass and filled with a mass of wild boars",
+        enemies_list: ["Boar"],
+        enemy_count: 50, 
+        enemy_group_size: [4,7],
+        is_unlocked: false,
+        name: "Deep forest", 
+        types: [{type: "open", stage: 2, xp_gain: 1}],
+        parent_location: locations["Forest road"],
+        first_reward: {
+            xp: 200,
+        },
+        repeatable_reward: {
+            xp: 100,
+            textlines: [{dialogue: "farm supervisior", lines: ["defeated boars"]}],
+        }
+    });
+    locations["Forest road"].connected_locations.push({location: locations["Forest clearing"], custom_text: "Go towards the clearing in the north"});
 
     locations["Town outskirts"] = new Location({ 
         connected_locations: [{location: locations["Forest road"], custom_text: "Return to the forest"}],
@@ -1030,24 +1062,6 @@ function get_location_type_penalty(type, stage, stat) {
             },
             require_tool: false,
         }),
-        "herbalism": new LocationActivity({
-            activity_name: "herbalism",
-            infinite: true,
-            starting_text: "Gather useful herbs on the outskirts",
-            skill_xp_per_tick: 1,
-            is_unlocked: true,
-            gained_resources: {
-                resources: [
-                    {name: "Oneberry", ammount: [[1,1], [1,1]], chance: [0.2, 0.5]},
-                    {name: "Golmoon leaf", ammount: [[1,1], [1,1]], chance: [0.3, 0.7]},
-                    {name: "Belmart leaf", ammount: [[1,1], [1,1]], chance: [0.3, 0.7]}
-                ], 
-                time_period: [60, 30],
-                skill_required: [0, 10],
-                scales_with_skill: true,
-            },
-            require_tool: false,
-        }),
     };
     locations["Nearby cave"].activities = {
         "weightlifting": new LocationActivity({
@@ -1104,7 +1118,25 @@ function get_location_type_penalty(type, stage, stat) {
                 time_period: [120, 40],
                 skill_required: [10, 20],
                 scales_with_skill: true,
-            }
+            },
+        "herbalism": new LocationActivity({
+            activity_name: "herbalism",
+            infinite: true,
+            starting_text: "Gather useful herbs throught the forest",
+            skill_xp_per_tick: 1,
+            is_unlocked: false,
+            gained_resources: {
+                resources: [
+                    {name: "Oneberry", ammount: [[1,1], [1,1]], chance: [0.2, 0.5]},
+                    {name: "Golmoon leaf", ammount: [[1,1], [1,1]], chance: [0.3, 0.7]},
+                    {name: "Belmart leaf", ammount: [[1,1], [1,1]], chance: [0.3, 0.7]}
+                ], 
+                time_period: [60, 30],
+                skill_required: [0, 10],
+                scales_with_skill: true,
+            },
+            require_tool: false,
+        }),
         }),
     };
     locations["Town farms"].activities = {

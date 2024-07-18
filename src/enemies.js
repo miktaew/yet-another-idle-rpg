@@ -127,7 +127,7 @@ class Enemy {
         rank: 1,
         size: "small",
         tags: ["living", "beast", "wolf rat", "pest"],
-        stats: {health: 80, attack: 30, agility: 30, dexterity: 24, intuition: 24, magic: 0, attack_speed: 1.4, defense: 8}, 
+        stats: {health: 80, attack: 32, agility: 30, dexterity: 24, intuition: 24, magic: 0, attack_speed: 1.5, defense: 8}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
             {item_name: "Rat fang", chance: 0.04},
@@ -136,12 +136,12 @@ class Enemy {
     });
     enemy_templates["Elite wolf rat guardian"] = new Enemy({
         name: "Elite wolf rat",
-        description: "It's no longer dog-sized, but rather around the size of an average wolf, with thicker skin and longer claws",
+        description: "It's no longer dog-sized, but rather around the size of an average wolf, with thicker skin, longer claws and pure insanity in the eyes",
         xp_value: 10, 
-        rank: 3,
+        rank: 4,
         size: "medium",
         tags: ["living", "beast", "wolf rat", "monster"],
-        stats: {health: 300, attack: 40, agility: 30, dexterity: 40, intuition: 50, magic: 0, attack_speed: 1.2, defense: 30},
+        stats: {health: 250, attack: 50, agility: 40, dexterity: 40, intuition: 50, magic: 0, attack_speed: 1.2, defense: 30},
     });
 
     enemy_templates["Starving wolf"] = new Enemy({
@@ -149,7 +149,7 @@ class Enemy {
         xp_value: 3, 
         rank: 2,
         tags: ["living", "beast"],
-        stats: {health: 150, attack: 20, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 12}, 
+        stats: {health: 150, attack: 25, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 12}, 
         loot_list: [
             {item_name: "Wolf fang", chance: 0.03},
             {item_name: "Wolf pelt", chance: 0.01},
@@ -163,7 +163,7 @@ class Enemy {
         xp_value: 3, 
         rank: 2,
         tags: ["living", "beast"],
-        stats: {health: 120, attack: 20, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.4, defense: 6}, 
+        stats: {health: 120, attack: 25, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.4, defense: 6}, 
         loot_list: [
             {item_name: "Wolf fang", chance: 0.03},
             {item_name: "Wolf pelt", chance: 0.01},
@@ -177,11 +177,26 @@ class Enemy {
         xp_value: 4, 
         rank: 3,
         tags: ["living", "beast"],
-        stats: {health: 200, attack: 30, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.3, defense: 20}, 
+        stats: {health: 200, attack: 35, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.3, defense: 20}, 
         loot_list: [
             {item_name: "Wolf fang", chance: 0.04},
             {item_name: "Wolf pelt", chance: 0.02},
             {item_name: "High quality wolf fang", chance: 0.0005}
+        ],
+        size: "medium"
+    });
+
+    enemy_templates["Boar"] = new Enemy({
+        name: "Boar", 
+        description: "A large wild creature, with thick skin and large tusks", 
+        xp_value: 8,
+        rank: 4,
+        tags: ["living", "beast"],
+        stats: {health: 300, attack: 40, agility: 30, dexterity: 40, intuition: 40, magic: 0, attack_speed: 1, defense: 25},
+        loot_list: [
+            {item_name: "Boar hide", chance: 0.04},
+            {item_name: "Boar meat", chance: 0.02},
+            {item_name: "High quality boar tusk", chance: 0.0005},
         ],
         size: "medium"
     });

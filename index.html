@@ -857,7 +857,9 @@
                     </div>
 
                     <div id = "character_tools_div">
-
+                        <div class = "equipment_slot_div" id = "axe_slot"> axe </div>
+                        <div class = "equipment_slot_div" id = "pickaxe_slot"> pickaxe </div>
+                        <div class = "equipment_slot_div" id = "sickle_slot"> sickle </div>
                     </div>
 
                     <div id = "character_control_div" class="activable_buttons">
@@ -1238,9 +1240,7 @@
                 document.getElementById("changelog_button").children[0].innerHTML = get_game_version();
 
                 let tooltip_move_ticks = 60;
-                let item_tooltip_wait = 0;
-                let trader_item_tooltip_wait = 0;
-                let recipe_tooltip_wait = 0;
+                let tooltip_wait = 0;
 
                 //mostly sets up event listeners
                 /////////////////////
@@ -1277,9 +1277,8 @@
                 ///////////////
                 //character item tooltips
                 inventory_div.addEventListener('mousemove', move_item_tooltip, false);
-            
                 function move_item_tooltip(event) {
-                    if(Date.now() >= item_tooltip_wait) {
+                    if(Date.now() >= tooltip_wait) {
                         let hovered_element = event.target;
                         
                         if(!(hovered_element.classList.contains("inventory_item_control") 
@@ -1326,14 +1325,14 @@
                         const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
 
                         const bottom_edge_position = 
-                            window.innerHeight - tooltip_height - item_tooltip_margin + window.scrollY + 25 - (scrollbar_X_visible?10:0);
+                            window.innerHeight - tooltip_height - item_tooltip_margin + window.scrollY + 10 - (scrollbar_X_visible?10:0);
                         
                         if(event.pageY > bottom_edge_position) {
                             document.documentElement.style.setProperty('--item_tooltip_top', `${bottom_edge_position - 400}px`);
                         } else {
                             document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 400}px`);
                         }
-                        item_tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
                 }
 
@@ -1342,7 +1341,7 @@
                 const trader_inventory_div = document.getElementById("trader_inventory_div");
                 trader_inventory_div.addEventListener('mousemove', move_trader_item_tooltip, false);
                 function move_trader_item_tooltip(event) {
-                    if(Date.now() >= trader_item_tooltip_wait) {
+                    if(Date.now() >= tooltip_wait) {
                         if(event.target.id === "trader_inventory_div") {
                             return;
                         }
@@ -1383,7 +1382,7 @@
                         } else {
                             document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 400}px`);
                         }
-                        trader_item_tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
                 }
 
@@ -1395,12 +1394,17 @@
 
                 //item slots / worn equipment tooltips
                 let equipment_div = document.getElementById("character_equipment_div");
+                let tools_div = document.getElementById("character_tools_div");
                 equipment_div.addEventListener('mousemove', move_equipment_tooltip, false);
+                tools_div.addEventListener('mousemove', move_equipment_tooltip, false);
                 function move_equipment_tooltip(event) {
-                    let hovered_element = event.target;
-                    if(hovered_element.classList.contains("equipment_slot_div")){
-                        hovered_element.children[0].style.left = event.pageX + "px";
-                        hovered_element.children[0].style.top = event.pageY - 130 + "px";
+                    if(Date.now() >= tooltip_wait) {
+                        let hovered_element = event.target;
+                        if(hovered_element.classList.contains("equipment_slot_div")){
+                            hovered_element.children[0].style.left = event.pageX + "px";
+                            hovered_element.children[0].style.top = event.pageY - 130 + "px";
+                        }
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
                 }
 
@@ -1412,7 +1416,7 @@
 
                 crafting_window.addEventListener('mousemove', move_recipe_tooltip, false);
                 function move_recipe_tooltip(event) {
-                    if(Date.now() >= recipe_tooltip_wait) {
+                    if(Date.now() >= tooltip_wait) {
                         let hovered_element = event.target;
 
                         if(hovered_element.id === "crafting_window" 
@@ -1458,16 +1462,18 @@
                             document.documentElement.style.setProperty('--recipe_tooltip_top', `${event.pageY - 400}px`);
                         }
                         
-                        recipe_tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
                 }
                 //stats tooltips
                 let stats_div = document.getElementById("character_stats_div");
                 stats_div.addEventListener('mousemove', move_stat_tooltip, false);
                 function move_stat_tooltip(event) {
-
-                    document.documentElement.style.setProperty('--stat_tooltip_top', `${event.pageY - 140}px`);
-                    document.documentElement.style.setProperty('--stat_tooltip_left', `${event.pageX}px`);
+                    if(Date.now() >= tooltip_wait) {
+                        document.documentElement.style.setProperty('--stat_tooltip_top', `${event.pageY - 140}px`);
+                        document.documentElement.style.setProperty('--stat_tooltip_left', `${event.pageX}px`);
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
+                    }
                 }
 
                 //unequip item
@@ -1486,43 +1492,49 @@
                 const location_actions_div = document.getElementById("location_actions_div");
                 location_actions_div.addEventListener('mousemove', move_activity_tooltip, false);
                 function move_activity_tooltip(event) {
-                    document.documentElement.style.setProperty('--job_tooltip_top', `${event.pageY - 410}px`);
-                    document.documentElement.style.setProperty('--job_tooltip_left', `${event.pageX - 420}px`);
+                    if(Date.now() >= tooltip_wait) {
+                        document.documentElement.style.setProperty('--job_tooltip_top', `${event.pageY - 410}px`);
+                        document.documentElement.style.setProperty('--job_tooltip_left', `${event.pageX - 420}px`);
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
+                    }
                 }
 
                 //skill tooltips
                 const skills_div = document.getElementById("skill_list_div");
                 skills_div.addEventListener('mousemove', move_skill_tooltip, false);
                 function move_skill_tooltip(event) {
-                    let hovered_element = event.target;
-                    if(!hovered_element.classList.contains("skill_div")) {
-                        if(hovered_element.classList.contains("skill_bar_max")) {
-                            hovered_element = hovered_element.parentNode;
-                        } else if(hovered_element.classList.contains("skill_bar_text") || hovered_element.classList.contains("skill_bar_current")) {
-                            hovered_element = hovered_element.parentNode.parentNode;
-                        } else if(hovered_element.classList.contains("skill_bar_name") || hovered_element.classList.contains("skill_bar_xp")) {
-                            hovered_element = hovered_element.parentNode.parentNode.parentNode;
-                        } else {
-                            return;
+                    if(Date.now() >= tooltip_wait) {
+                        let hovered_element = event.target;
+                        if(!hovered_element.classList.contains("skill_div")) {
+                            if(hovered_element.classList.contains("skill_bar_max")) {
+                                hovered_element = hovered_element.parentNode;
+                            } else if(hovered_element.classList.contains("skill_bar_text") || hovered_element.classList.contains("skill_bar_current")) {
+                                hovered_element = hovered_element.parentNode.parentNode;
+                            } else if(hovered_element.classList.contains("skill_bar_name") || hovered_element.classList.contains("skill_bar_xp")) {
+                                hovered_element = hovered_element.parentNode.parentNode.parentNode;
+                            } else {
+                                return;
+                            }
                         }
-                    }
 
-                    const tooltip_height = hovered_element.children[0].children[2].scrollHeight;
-                    
-                    const body = document.getElementsByTagName("body")[0];
-                    const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
+                        const tooltip_height = hovered_element.children[0].children[2].scrollHeight;
+                        
+                        const body = document.getElementsByTagName("body")[0];
+                        const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
 
-                    const bottom_edge_position = 
-                        window.innerHeight - tooltip_height + window.scrollY - 33 - (scrollbar_X_visible?10:0);
-                    
-                    //size of window - size of tooltip + scrolling position - 23 (not sure where it comes from) - 10 (for scrollbar if its visible)
+                        const bottom_edge_position = 
+                            window.innerHeight - tooltip_height + window.scrollY - 33 - (scrollbar_X_visible?10:0);
+                        
+                        //size of window - size of tooltip + scrolling position - 23 (not sure where it comes from) - 10 (for scrollbar if its visible)
 
-                    document.documentElement.style.setProperty('--skill_tooltip_left', `${event.pageX - 1150}px`);
+                        document.documentElement.style.setProperty('--skill_tooltip_left', `${event.pageX - 1150}px`);
 
-                    if(event.pageY > bottom_edge_position) {
-                        document.documentElement.style.setProperty('--skill_tooltip_top', `${bottom_edge_position - 380}px`);
-                    } else {
-                        document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 380}px`);
+                        if(event.pageY > bottom_edge_position) {
+                            document.documentElement.style.setProperty('--skill_tooltip_top', `${bottom_edge_position - 380}px`);
+                        } else {
+                            document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 380}px`);
+                        }
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
                 }
 
@@ -1530,37 +1542,40 @@
                 const stances_tab = document.getElementById("stance_list");
                 stances_tab.addEventListener('mousemove', move_stance_tooltip, false);
                 function move_stance_tooltip(event) {
-                    let hovered_element = event.target;
+                    if(Date.now() >= tooltip_wait) {
+                        let hovered_element = event.target;
 
-                    if(hovered_element.classList.contains("stance_list_header")) {
-                        return;
-                    }else if(!hovered_element.classList.contains("stance_list_entry")) {
-                        if(hovered_element.classList.contains("stances_button") || hovered_element.classList.contains("stances_name")) {
-                            hovered_element = hovered_element.parentNode;
-                        } else if(hovered_element.nodeName === "LABEL" || hovered_element.nodeName === "INPUT") {
-                            hovered_element = hovered_element.parentNode.parentNode;
-                        } else {
+                        if(hovered_element.classList.contains("stance_list_header")) {
                             return;
+                        }else if(!hovered_element.classList.contains("stance_list_entry")) {
+                            if(hovered_element.classList.contains("stances_button") || hovered_element.classList.contains("stances_name")) {
+                                hovered_element = hovered_element.parentNode;
+                            } else if(hovered_element.nodeName === "LABEL" || hovered_element.nodeName === "INPUT") {
+                                hovered_element = hovered_element.parentNode.parentNode;
+                            } else {
+                                return;
+                            }
+                        } 
+
+                        const tooltip_height = hovered_element.children[3].scrollHeight;
+                        
+                        const body = document.getElementsByTagName("body")[0];
+                        const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
+
+                        const bottom_edge_position = 
+                            window.innerHeight - tooltip_height + window.scrollY - 33 - (scrollbar_X_visible?10:0);
+                        
+                        //size of window - size of tooltip + scrolling position - 23 (not sure where it comes from) - 10 (for scrollbar if its visible)
+
+                        
+                        document.documentElement.style.setProperty('--stance_tooltip_left', `${event.pageX - 1150}px`);
+
+                        if(event.pageY > bottom_edge_position) {
+                            document.documentElement.style.setProperty('--stance_tooltip_top', `${bottom_edge_position - 380}px`);
+                        } else {
+                            document.documentElement.style.setProperty('--stance_tooltip_top', `${event.pageY - 380}px`);
                         }
-                    } 
-
-                    const tooltip_height = hovered_element.children[3].scrollHeight;
-                    
-                    const body = document.getElementsByTagName("body")[0];
-                    const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
-
-                    const bottom_edge_position = 
-                        window.innerHeight - tooltip_height + window.scrollY - 33 - (scrollbar_X_visible?10:0);
-                    
-                    //size of window - size of tooltip + scrolling position - 23 (not sure where it comes from) - 10 (for scrollbar if its visible)
-
-                    
-                    document.documentElement.style.setProperty('--stance_tooltip_left', `${event.pageX - 1150}px`);
-
-                    if(event.pageY > bottom_edge_position) {
-                        document.documentElement.style.setProperty('--stance_tooltip_top', `${bottom_edge_position - 380}px`);
-                    } else {
-                        document.documentElement.style.setProperty('--stance_tooltip_top', `${event.pageY - 380}px`);
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
                 }
 
@@ -1568,85 +1583,94 @@
                 let location_types_div = document.getElementById("location_types_div");
                 location_types_div.addEventListener('mousemove', move_location_type_tooltip, false);
                 function move_location_type_tooltip(event) {
-                    let hovered_element = event.target;
+                    if(Date.now() >= tooltip_wait) {
+                        let hovered_element = event.target;
 
-                    if(!hovered_element.classList.contains("location_type_div")) {
-                        return;
-                    } 
-                    const tooltip_width = hovered_element.children[0].scrollWidth;
-                    
-                    const body = document.getElementsByTagName("body")[0];
-                    const scrollbar_Y_visible = (body.scrollHeight - body.clientHeight) > 0;
+                        if(!hovered_element.classList.contains("location_type_div")) {
+                            return;
+                        } 
+                        const tooltip_width = hovered_element.children[0].scrollWidth;
+                        
+                        const body = document.getElementsByTagName("body")[0];
+                        const scrollbar_Y_visible = (body.scrollHeight - body.clientHeight) > 0;
 
-                    const right_edge_position = 
-                        window.innerWidth - tooltip_width - 23 - 40 + window.scrollX - (scrollbar_Y_visible?10:0);
+                        const right_edge_position = 
+                            window.innerWidth - tooltip_width - 23 - 40 + window.scrollX - (scrollbar_Y_visible?10:0);
 
-                    if(event.pageX > right_edge_position) {
-                        document.documentElement.style.setProperty('--location_type_tooltip_left', `${right_edge_position - 680}px`);
-                    } else {
-                        document.documentElement.style.setProperty('--location_type_tooltip_left', `${event.pageX - 680}px`);
+                        if(event.pageX > right_edge_position) {
+                            document.documentElement.style.setProperty('--location_type_tooltip_left', `${right_edge_position - 680}px`);
+                        } else {
+                            document.documentElement.style.setProperty('--location_type_tooltip_left', `${event.pageX - 680}px`);
+                        }
+
+                        document.documentElement.style.setProperty('--location_type_tooltip_top', `${event.pageY - 60}px`);
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
-
-                    document.documentElement.style.setProperty('--location_type_tooltip_top', `${event.pageY - 60}px`);
                 }
 
                 //location desc tooltip (for combat locations)
                 let location_name_div = document.getElementById("location_name_div");
                 location_name_div.addEventListener('mousemove', move_location_desc_tooltip, false);
                 function move_location_desc_tooltip(event) {
-                    let hovered_element = event.target;
+                    if(Date.now() >= tooltip_wait) {
+                        let hovered_element = event.target;
 
-                    if(hovered_element.id === "location_name_span") {
-                        hovered_element = hovered_element.parentNode;
+                        if(hovered_element.id === "location_name_span") {
+                            hovered_element = hovered_element.parentNode;
+                        }
+                        else if(hovered_element.id !== "location_name_div") {
+                            return;
+                        }
+                        
+                        const tooltip_width = hovered_element.children[0].scrollWidth;
+                        
+                        const body = document.getElementsByTagName("body")[0];
+                        const scrollbar_Y_visible = (body.scrollHeight - body.clientHeight) > 0;
+
+                        const right_edge_position = 
+                            window.innerWidth - tooltip_width - 23 - 40 + window.scrollX - (scrollbar_Y_visible?10:0);
+
+                        if(event.pageX > right_edge_position) {
+                            document.documentElement.style.setProperty('--location_desc_tooltip_left', `${right_edge_position - 420}px`);
+                        } else {
+                            document.documentElement.style.setProperty('--location_desc_tooltip_left', `${event.pageX - 420}px`);
+                        }
+
+                        document.documentElement.style.setProperty('--location_desc_tooltip_top', `${event.pageY - 40}px`);
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
-                    else if(hovered_element.id !== "location_name_div") {
-                        return;
-                    }
-                    
-                    const tooltip_width = hovered_element.children[0].scrollWidth;
-                    
-                    const body = document.getElementsByTagName("body")[0];
-                    const scrollbar_Y_visible = (body.scrollHeight - body.clientHeight) > 0;
-
-                    const right_edge_position = 
-                        window.innerWidth - tooltip_width - 23 - 40 + window.scrollX - (scrollbar_Y_visible?10:0);
-
-                    if(event.pageX > right_edge_position) {
-                        document.documentElement.style.setProperty('--location_desc_tooltip_left', `${right_edge_position - 420}px`);
-                    } else {
-                        document.documentElement.style.setProperty('--location_desc_tooltip_left', `${event.pageX - 420}px`);
-                    }
-
-                    document.documentElement.style.setProperty('--location_desc_tooltip_top', `${event.pageY - 40}px`);
                 }
 
                 //bestiary entry tooltips
                 const bestiary_box_div = document.getElementById("bestiary_box_div");
                 bestiary_box_div.addEventListener('mousemove', move_bestiary_entry_tooltip, false);
                 function move_bestiary_entry_tooltip(event) {
-                    let hovered_element = event.target;
+                    if(Date.now() >= tooltip_wait) {
+                        let hovered_element = event.target;
 
-                    if(!hovered_element.classList.contains("bestiary_entry_div")) {
-                        if(hovered_element.classList.contains("bestiary_entry_name") || hovered_element.classList.contains("bestiary_entry_kill_count")) {
-                            hovered_element = hovered_element.parentNode;
+                        if(!hovered_element.classList.contains("bestiary_entry_div")) {
+                            if(hovered_element.classList.contains("bestiary_entry_name") || hovered_element.classList.contains("bestiary_entry_kill_count")) {
+                                hovered_element = hovered_element.parentNode;
+                            } else {
+                                return;
+                            }
+                        } 
+                        const tooltip_height = hovered_element.children[0].scrollHeight;
+                        
+                        const body = document.getElementsByTagName("body")[0];
+                        const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
+
+                        const bottom_edge_position = 
+                            window.innerHeight - tooltip_height + window.scrollY - 33 - (scrollbar_X_visible?10:0);
+                        
+                        document.documentElement.style.setProperty('--bestiary_entry_tooltip_left', `${event.pageX - 1250}px`);
+
+                        if(event.pageY > bottom_edge_position) {
+                            document.documentElement.style.setProperty('--bestiary_entry_tooltip_top', `${bottom_edge_position}px`);
                         } else {
-                            return;
+                            document.documentElement.style.setProperty('--bestiary_entry_tooltip_top', `${event.pageY}px`);
                         }
-                    } 
-                    const tooltip_height = hovered_element.children[0].scrollHeight;
-                    
-                    const body = document.getElementsByTagName("body")[0];
-                    const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
-
-                    const bottom_edge_position = 
-                        window.innerHeight - tooltip_height + window.scrollY - 33 - (scrollbar_X_visible?10:0);
-                    
-                    document.documentElement.style.setProperty('--bestiary_entry_tooltip_left', `${event.pageX - 1250}px`);
-
-                    if(event.pageY > bottom_edge_position) {
-                        document.documentElement.style.setProperty('--bestiary_entry_tooltip_top', `${bottom_edge_position}px`);
-                    } else {
-                        document.documentElement.style.setProperty('--bestiary_entry_tooltip_top', `${event.pageY}px`);
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
                 }
 
@@ -1655,13 +1679,15 @@
                 const effects_tooltip = document.getElementById("effects_tooltip");
                 active_effects_div.addEventListener('mousemove', move_effects_tooltip, false);
                 function move_effects_tooltip(event) {
-                    const hovered_element = event.target;
-                    effects_tooltip.style.display = "block";
-                    if(hovered_element.id === "effects_div" || hovered_element.parentNode.id === "effects_div") {
-                        effects_tooltip.style.left = event.pageX + "px";
-                        effects_tooltip.style.top = event.pageY + 30 + "px";
-                    } 
-                    
+                    if(Date.now() >= tooltip_wait) {
+                        const hovered_element = event.target;
+                        effects_tooltip.style.display = "block";
+                        if(hovered_element.id === "effects_div" || hovered_element.parentNode.id === "effects_div") {
+                            effects_tooltip.style.left = event.pageX + "px";
+                            effects_tooltip.style.top = event.pageY + 30 + "px";
+                        } 
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
+                    }
                 }
 
                 active_effects_div.addEventListener('mouseout', end_effects_tooltip, false);

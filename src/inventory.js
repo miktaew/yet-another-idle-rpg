@@ -1,5 +1,7 @@
 "use strict";
 
+import { equip_item_from_inventory } from "./character.js";
+
 
 //extended by character and traders, as their inventories are supposed to work the same way
 class InventoryHaver {
@@ -13,7 +15,9 @@ class InventoryHaver {
      * @param {Array} items - [{item, count},...]
      */
     add_to_inventory(items) {
+
         for(let i = 0; i < items.length; i++){
+            
             if(!(items[i].item.id in this.inventory)) //not in inventory
             {
                 if(items[i].item.stackable)
@@ -38,6 +42,10 @@ class InventoryHaver {
                 {
                     this.inventory[items[i].item.id].push(items[i].item);
                 }
+            }
+
+            if(items[i].item.tags.tool) {
+                equip_item_from_inventory({item_name: items[i].item.id, item_id: 0});
             }
         }
     }

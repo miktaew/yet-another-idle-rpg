@@ -970,7 +970,7 @@ i {
 	width: 400px;
 	text-align: center;
 	position: absolute;
-	top: 340px;
+	top: 353px;
 	background-color: #202044;
 	float: left;
 }
@@ -1122,9 +1122,8 @@ i {
 
 #character_div {
     width: 400px;
-    top: 106px;
-    padding-top: 7px;
-    height: 220px;
+    top: 136px;
+    height: 210px;
 	max-width: 400px;
 	max-height: 300px;
     border-top: none;
@@ -1254,14 +1253,17 @@ i {
 	margin: auto;
 	width: 350px;
 	position: relative;
-	top: 24px;
+	top: 8px;
+	display: none;
+}
+
+#character_tools_div {
 	display: none;
 }
 
 #character_stats_div {
 	width: 350px;
 	margin: auto;
-	margin-top: 4px;
 }
 
 #character_control_div {
@@ -1272,15 +1274,15 @@ i {
 
 #effects_div {
 	font-size: 16px;
-	padding-top: 4px;
-	padding-bottom: 4px;
+	padding-top: 2px;
+	padding-bottom: 2px;
 	padding-left: 4px;
 	width: 200px;
 	background-color: #232f47;
 }
 		#character_effects{
 			position: absolute;
-			top: 168px;
+			top: 158px;
 			left: 100px;
 		}
 
@@ -1457,20 +1459,20 @@ i {
 }
 
 #inventory_content_div {
-	height: 322px;
+	height: 309px;
 	overflow-y: scroll;
 }
 
 #inventory_control_div {
 	font-size: 20px;
 	position: absolute;
-	top: 364px;
+	top: 351px;
 }
 
 #inventory_div {
 	width: 400px;
-	height: 394px;
-	top: 366px;
+	height: 381px;
+	top: 379px;
 	display: var(--inventory_div_display);
 }
 

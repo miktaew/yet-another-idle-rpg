@@ -293,6 +293,31 @@ class EquipmentRecipe extends Recipe {
     });
 })();
 
+//armor components
+(()=>{
+    crafting_recipes.components["Chestplate exterior"] = new ComponentRecipe({
+        name: "Chestplate exterior",
+        materials: [
+            {material_id: "Piece of wolf leather", count: 5, result_id: "Wolf leather chestplate armor"}, 
+            {material_id: "Piece of boar leather", count: 5, result_id: "Boar leather chestplate armor"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Crafting",
+        component_type: "chestplate exterior",
+    });
+
+    forging_recipes.components["Chestplate exterior"] = new ComponentRecipe({
+        name: "Chestplate exterior",
+        materials: [
+            {material_id: "Iron chainmail", count: 5, result_id: "Iron chainmail vest"},
+        ],
+        item_type: "Component",
+        recipe_skill: "Forging",
+        component_type: "chestplate exterior",
+    });
+
+})();
+
 //equipment
 (()=>{
     //full weapons
@@ -355,7 +380,8 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.equipment["Hat"] = new ComponentRecipe({
         name: "Hat",
         materials: [
-            {material_id: "Piece of wolf leather", count: 4, result_id: "Leather hat"}
+            {material_id: "Piece of wolf leather", count: 3, result_id: "Leather hat"},
+            {material_id: "Wool cloth", count: 3, result_id: "Wool hat"}
         ],
         item_type: "Armor",
         component_type: "helmet interior",
@@ -365,9 +391,9 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.equipment["Shirt"] = new ComponentRecipe({
         name: "Shirt",
         materials: [
-            {material_id: "Piece of wolf rat leather", count: 8, result_id: "Cheap leather vest"},
-            {material_id: "Piece of wolf leather", count: 8, result_id: "Leather vest"},
-            {material_id: "Wool cloth", count: 8, result_id: "Wool shirt"}
+            {material_id: "Piece of wolf rat leather", count: 5, result_id: "Cheap leather vest"},
+            {material_id: "Piece of wolf leather", count: 5, result_id: "Leather vest"},
+            {material_id: "Wool cloth", count: 5, result_id: "Wool shirt"}
         ],
         item_type: "Armor",
         component_type: "chestplate interior",
@@ -377,9 +403,9 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.equipment["Pants"] = new ComponentRecipe({
         name: "Pants",
         materials: [
-            {material_id: "Piece of wolf rat leather", count: 4, result_id: "Cheap leather pants"},
-            {material_id: "Piece of wolf leather", count: 4, result_id: "Leather pants"},
-            {material_id: "Wool cloth", count: 4, result_id: "Wool pants"}
+            {material_id: "Piece of wolf rat leather", count: 3, result_id: "Cheap leather pants"},
+            {material_id: "Piece of wolf leather", count: 3, result_id: "Leather pants"},
+            {material_id: "Wool cloth", count: 3, result_id: "Wool pants"}
         ],
         item_type: "Armor",
         component_type: "leg armor interior",
@@ -389,8 +415,8 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.equipment["Gloves"] = new ComponentRecipe({
         name: "Gloves",
         materials: [
-            {material_id: "Piece of wolf leather", count: 4, result_id: "Leather gloves"},
-            {material_id: "Wool cloth", count: 4, result_id: "Wool gloves"}
+            {material_id: "Piece of wolf leather", count: 2, result_id: "Leather gloves"},
+            {material_id: "Wool cloth", count: 2, result_id: "Wool gloves"}
         ],
         item_type: "Armor",
         component_type: "glove interior",
@@ -400,8 +426,8 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.equipment["Shoes"] = new ComponentRecipe({
         name: "Shoes",
         materials: [
-            {material_id: "Piece of wolf rat leather", count: 4, result_id: "Cheap leather shoes"},
-            {material_id: "Piece of wolf leather", count: 4, result_id: "Leather shoes"}
+            {material_id: "Piece of wolf rat leather", count: 2, result_id: "Cheap leather shoes"},
+            {material_id: "Piece of wolf leather", count: 2, result_id: "Leather shoes"}
         ],
         item_type: "Armor",
         component_type: "shoes interior",
@@ -429,6 +455,15 @@ class EquipmentRecipe extends Recipe {
         success_chance: [0.2,1],
         recipe_skill: "Crafting",
         recipe_level: [1,10],
+    });
+    crafting_recipes.items["Piece of boar leather"] = new ItemRecipe({
+        name: "Piece of boar leather",
+        recipe_type: "material",
+        materials: [{material_id: "Boar hide", count: 5}], 
+        result: {result_id: "Piece of boar leather", count: 1},
+        success_chance: [0.2,1],
+        recipe_skill: "Crafting",
+        recipe_level: [5,15],
     });
     crafting_recipes.items["Wool cloth"] = new ItemRecipe({
         name: "Wool cloth",
@@ -523,17 +558,29 @@ class EquipmentRecipe extends Recipe {
     });
 })();
 
-crafting_recipes.items["Wolf trophy"] = new ItemRecipe({
-    name: "Wolf trophy",
-    id: "Wolf trophy",
-    recipe_type: "equipment",
-    materials: [{material_id: "High quality wolf fang", count: 5}],
-    result: {result_id: "Wolf trophy", count: 1},
-    success_chance: [0.5,1],
-    recipe_level: [1,10],
-    recipe_skill: "Crafting",
-});
-
+//trinkets
+(function(){
+    crafting_recipes.items["Wolf trophy"] = new ItemRecipe({
+        name: "Wolf trophy",
+        id: "Wolf trophy",
+        recipe_type: "equipment",
+        materials: [{material_id: "High quality wolf fang", count: 5}],
+        result: {result_id: "Wolf trophy", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [1,10],
+        recipe_skill: "Crafting",
+    });
+    crafting_recipes.items["Boar trophy"] = new ItemRecipe({
+        name: "Boar trophy",
+        id: "Boar trophy",
+        recipe_type: "equipment",
+        materials: [{material_id: "High quality boar tusk", count: 5}],
+        result: {result_id: "Boar trophy", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [5,15],
+        recipe_skill: "Crafting",
+    });
+})();
 
 const recipes = {
     crafting: crafting_recipes, 

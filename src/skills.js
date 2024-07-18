@@ -166,7 +166,7 @@ class Skill {
                     }
                     if (gains.multipliers) {
                         Object.keys(gains.multipliers).forEach(multiplier => {
-                            message += `<br> x${gains.multipliers[multiplier]} ${stat_names[multiplier].replace("_"," ")}`;
+                            message += `<br> x${Math.round(100*gains.multipliers[multiplier])/100} ${stat_names[multiplier].replace("_"," ")}`;
                         });
                     }
                     if (gains.xp_multipliers) {
@@ -180,7 +180,7 @@ class Skill {
                             } else {
                                 name = xp_multiplier.replace("_"," ");
                             }
-                            message += `<br> x${gains.xp_multipliers[xp_multiplier]} ${name} xp gain`;
+                            message += `<br> x${Math.round(100*gains.xp_multipliers[xp_multiplier])/100} ${name} xp gain`;
                         });
                     }
                 }

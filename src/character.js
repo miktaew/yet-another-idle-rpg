@@ -94,6 +94,10 @@ character.equipment = {
         weapon: null, "off-hand": null,
         legs: null, feet: null, 
         amulet: null, artifact: null,
+
+        axe: null, 
+        pickaxe: null,
+        sickle: null,
 };
 character.money = 0;
 
@@ -114,7 +118,7 @@ character.add_xp = function ({xp_to_add, use_bonus = true}) {
                 character.xp.current_xp += xp_to_add;
         }
         else { //levelup
-                var level_after_xp = 0;
+                let level_after_xp = 0;
                 
                 while(character.xp.total_xp >= character.xp.total_xp_to_next_lvl) {
                         level_after_xp += 1;
@@ -122,7 +126,7 @@ character.add_xp = function ({xp_to_add, use_bonus = true}) {
                         character.xp.total_xp_to_next_lvl = Math.round(character.xp.base_xp_cost * (1 - character.xp.xp_scaling ** (level_after_xp + 1))/(1 - character.xp.xp_scaling));
                 } //calculates lvl reached after adding xp
 
-                var total_xp_to_previous_lvl = Math.round(character.xp.base_xp_cost * (1 - character.xp.xp_scaling ** level_after_xp)/(1 - character.xp.xp_scaling));
+                let total_xp_to_previous_lvl = Math.round(character.xp.base_xp_cost * (1 - character.xp.xp_scaling ** level_after_xp)/(1 - character.xp.xp_scaling));
                 //xp needed for current lvl, same formula but for n-1
 
                 const gains = character.get_level_bonus(level_after_xp);
@@ -536,7 +540,7 @@ function equip_item(item) {
 
 /**
  * equips item and removes it from inventory
- * @param item_info {name, id}
+ * @param item_info - {name, id}
  */
  function equip_item_from_inventory({item_name, item_id}) {
         if(item_name in character.inventory) { //check if its in inventory, just in case

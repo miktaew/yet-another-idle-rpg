@@ -58,8 +58,14 @@ import { game_version, get_game_version } from "./game_version.js";
 const save_key = "save data";
 
 const global_flags = {
+    is_gathering_unlocked: false,
     is_crafting_unlocked: false,
+    is_deep_forest_beaten: false,
 };
+const flag_unlock_texts = {
+    is_gathering_unlocked: "You have gained the ability to gather new materials!",
+    is_crafting_unlocked: "You have gained the ability to craft items and equipment!",
+}
 
 //in seconds
 let total_playtime = 0;
@@ -564,8 +570,25 @@ function start_textline(textline_key){
     const dialogue = dialogues[current_dialogue];
     const textline = dialogue.textlines[textline_key];
 
+    for(let i = 0; i < textline.unlocks.flags.length; i++) {
+        const flag = global_flags[textline.unlocks.flags[i]];
+        if(!flag) {
+            global_flags[textline.unlocks.flags[i]] = true;
+            log_message(`${flag_unlock_texts[textline.unlocks.flags[i]]}`, "activity_unlocked");
+        }
+    }
+
+    for(let i = 0; i < textline.unlocks.items.length; i++) {
+        log_message(`${character.name} obtained "${item_templates[textline.unlocks.items[i]].getName()}"`);
+        add_to_character_inventory([{item: item_templates[textline.unlocks.items[i]]}]);
+    }
+    if(textline.unlocks.money && typeof textline.unlocks.money === "number") {
+        character.money += textline.unlocks.money;
+        log_message(`${character.name} earned ${format_money(textline.unlocks.money)}`);
+    }
+
     for(let i = 0; i < textline.unlocks.dialogues.length; i++) { //unlocking dialogues
-        const dialogue = dialogues[textline.unlocks.dialogues[i]]
+        const dialogue = dialogues[textline.unlocks.dialogues[i]];
         if(!dialogue.is_unlocked) {
             dialogue.is_unlocked = true;
             log_message(`You can now talk with ${dialogue.name}`, "activity_unlocked");
@@ -1292,6 +1315,10 @@ function get_location_rewards(location) {
         }
     }
 
+    for(let i = 0; i < location.repeatable_reward.flags?.length; i++) {
+        global_flags[location.repeatable_reward.flags[i]] = true;
+    }
+
     for(let i = 0; i < location.repeatable_reward.textlines?.length; i++) { //unlock textlines
         var any_unlocked = false;
         for(let j = 0; j < location.repeatable_reward.textlines[i].lines.length; j++) {
@@ -1316,8 +1343,13 @@ function get_location_rewards(location) {
 
     //activities
     for(let i = 0; i < location.repeatable_reward.activities?.length; i++) {
-            unlock_activity({location: locations[location.repeatable_reward.activities[i].location].name, 
-                             activity: locations[location.repeatable_reward.activities[i].location].activities[location.repeatable_reward.activities[i].activity]});
+        if(activities[locations[location.repeatable_reward.activities[i].location].activities[location.repeatable_reward.activities[i].activity]].tags?.gathering 
+            && !global_flags.is_gathering_unlocked) {
+                return;
+            }
+
+        unlock_activity({location: locations[location.repeatable_reward.activities[i].location].name, 
+                            activity: locations[location.repeatable_reward.activities[i].location].activities[location.repeatable_reward.activities[i].activity]});
     }
 
     if(should_return) {
@@ -1840,9 +1872,10 @@ function load(save_data) {
                         const item = getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
                         equip_item(item);
                     }
-                } else if(save_data.character.equipment[key].equip_slot === "artifact") {
+                } else if(save_data.character.equipment[key].equip_slot === "arti'fact" || save_data.character.equipment[key].tags?.tool) {
                     equip_item(getItem(save_data.character.equipment[key]));
                 } else { //armor
+                    
                     const {quality, equip_slot} = save_data.character.equipment[key];
                     
                     if(save_data.character.equipment[key].components && save_data.character.equipment[key].components.internal.includes(" [component]")) {
@@ -2113,6 +2146,9 @@ function load(save_data) {
             //unlock activities
             if(save_data.locations[key].unlocked_activities) {
                 for(let i = 0; i < save_data.locations[key].unlocked_activities.length; i++) {
+                    if(!locations[key].activities[save_data.locations[key].unlocked_activities[i]]) {
+                        continue;
+                    }
                     if(save_data.locations[key].unlocked_activities[i] === "plowing the fields") {
                         locations[key].activities["fieldwork"].is_unlocked = true;
                     } else {
@@ -2610,4 +2646,6 @@ export { current_enemies, can_work,
         last_location_with_bed, 
         last_combat_location, 
         current_stance, selected_stance,
-        faved_stances, options };
+        faved_stances, options,
+        global_flags,
+        character_equip_item };

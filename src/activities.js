@@ -22,7 +22,7 @@ class Activity {
         this.base_skills_names = base_skills_names;
         //skills that affect efficiency of an activity and are raised when performing it
         //some will have only 1 (e.g. "foraging", "mining") and some multiple
-
+        this.tags = [];
         this.is_unlocked = is_unlocked;
     }
 }
@@ -52,6 +52,7 @@ class Gathering extends Training {
     }) {
         super({name, description, action_text, base_skills_names, is_unlocked});
         this.type = "GATHERING";
+        this.tags["gathering"] = true;
         this.required_tool_type = required_tool_type;
         //drops are defined in locations
     }

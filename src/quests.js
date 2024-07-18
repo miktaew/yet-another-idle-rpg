@@ -7,7 +7,7 @@ const active_quests = [];
 class QuestTask {
     constructor({
         task_description = "", //optional
-        task_condition,
+        task_condition, //an array of conditions for task to be completed; completing any of them finishes the task
         task_progress,
         task_rewards = {}, //generally skipped but could sometimes have something?
         is_hidden = false, //keep it false most of the time, but could be used as a fake way of making quests with no visible requirement for progress
@@ -30,7 +30,7 @@ class Quest {
                 quest_description, // -||-
                 questline, //questline for grouping or something, skippable
                 quest_tasks = [], //an array of tasks that need to be completed one by one
-                quest_condition, //
+                quest_condition, //an array of conditions for the quest to be completed; completing any of them completes the quest
                 quest_progress, //both this and quest_condition can be skipped if there's quest_tasks, or can stay to allow completing the quest without fulfilling them all
                 quest_rewards, //may include a new quest to automatically start
                 is_hidden = false, //hidden quests are not visible and are meant to function as additional unlock mechanism; name and description are skipped

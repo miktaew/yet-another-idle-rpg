@@ -9,7 +9,8 @@ import { current_enemies, options,
     active_effects, enough_time_for_earnings, 
     get_current_book, last_location_with_bed, 
     last_combat_location, faved_stances, 
-    selected_stance } from "./main.js";
+    selected_stance, 
+    global_flags} from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time } from "./game_time.js";
@@ -116,7 +117,10 @@ const equipment_slots_divs = {head: document.getElementById("head_slot"), torso:
                               arms: document.getElementById("arms_slot"), ring: document.getElementById("ring_slot"),
                               weapon: document.getElementById("weapon_slot"), "off-hand": document.getElementById("offhand_slot"),
                               legs: document.getElementById("legs_slot"), feet: document.getElementById("feet_slot"),
-                              amulet: document.getElementById("amulet_slot"), artifact: document.getElementById("artifact_slot")
+                              amulet: document.getElementById("amulet_slot"), artifact: document.getElementById("artifact_slot"),
+                              pickaxe: document.getElementById("pickaxe_slot"),
+                              axe: document.getElementById("axe_slot"),
+                              sickle: document.getElementById("sickle_slot"),
 };
 
 const rarity_colors = {
@@ -921,7 +925,9 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
                 return;
             }
         }
-        
+        if(character.equipment[key]?.tags.tool) {
+            return;
+        }
         if(character.equipment[key]) {
             inventory_div.appendChild(create_inventory_item_div({key, target: "character", is_equipped: true}));
         }
@@ -1017,7 +1023,11 @@ function create_inventory_item_div({key, i, item_count, target, is_equipped, tra
         item_control_div.setAttribute("data-item_value", `${target_item[i].getValue()}`);
 
         if(target_item[i].item_type === "EQUIPPABLE") {
-            item_name_div.innerHTML = `<span class = "item_slot" >[${target_item[i].equip_slot}]</span> <span>${target_item[i].getName()}</span>`;
+            if(target_item[i].tags.tool) {
+                item_name_div.innerHTML = `<span class = "item_slot" >[tool]</span> <span>${target_item[i].getName()}</span>`;
+            } else {
+                item_name_div.innerHTML = `<span class = "item_slot" >[${target_item[i].equip_slot}]</span> <span>${target_item[i].getName()}</span>`;
+            }
             item_name_div.classList.add(`${item_class}_name`);
             item_div.appendChild(item_name_div);
 
@@ -1123,7 +1133,7 @@ function create_inventory_item_div({key, i, item_count, target, is_equipped, tra
  */
 function update_displayed_equipment() {
     Object.keys(equipment_slots_divs).forEach(function(key) {
-        var eq_tooltip; 
+        let eq_tooltip; 
 
         if(character.equipment[key] == null) { //no item in slot
             eq_tooltip = document.createElement("span");
@@ -1320,19 +1330,21 @@ function update_displayed_normal_location(location) {
     ////////////////////////////////
     //add buttons to start gathering
 
-    const available_gatherings = Object.values(location.activities).filter(activity => activities[activity.activity_name].type === "GATHERING" 
-                                                                    && activities[activity.activity_name].is_unlocked
-                                                                    && activity.is_unlocked
-                                                                    && activities[activity.activity_name].base_skills_names.filter(skill => !skills[skill].is_unlocked).length == 0);
-    if(available_gatherings.length > 2) {     
-        const gatherings_button = document.createElement("div");
-        gatherings_button.setAttribute("data-location", location.name);
-        gatherings_button.classList.add("location_choices");
-        gatherings_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "gather"})');
-        gatherings_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Gather some resources';
-        action_div.appendChild(gatherings_button);
-    } else if (available_gatherings.length <= 2) {
-        action_div.append(...create_location_choices({location: location, category: "gather"}));
+    if(global_flags.is_gathering_unlocked) {
+        const available_gatherings = Object.values(location.activities).filter(activity => activities[activity.activity_name].type === "GATHERING" 
+                                                                        && activities[activity.activity_name].is_unlocked
+                                                                        && activity.is_unlocked
+                                                                        && activities[activity.activity_name].base_skills_names.filter(skill => !skills[skill].is_unlocked).length == 0);
+        if(available_gatherings.length > 2) {     
+            const gatherings_button = document.createElement("div");
+            gatherings_button.setAttribute("data-location", location.name);
+            gatherings_button.classList.add("location_choices");
+            gatherings_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "gather"})');
+            gatherings_button.innerHTML = '<i class="material-icons">format_list_bulleted</i>  Gather some resources';
+            action_div.appendChild(gatherings_button);
+        } else if (available_gatherings.length <= 2) {
+            action_div.append(...create_location_choices({location: location, category: "gather"}));
+        }
     }
 
     ///////////////////////////
@@ -1356,12 +1368,14 @@ function update_displayed_normal_location(location) {
 
     /////////////////////////////
     //add button to open crafting
-    if(location.crafting?.is_unlocked) {
-        const crafting_button = document.createElement("div");
-        crafting_button.classList.add("location_choices");
-        crafting_button.setAttribute("onclick", 'openCraftingWindow()');
-        crafting_button.innerHTML = `<i class="material-icons">construction</i> ${location.crafting.use_text}`;
-        action_div.appendChild(crafting_button);
+    if(global_flags.is_crafting_unlocked) {
+        if(location.crafting?.is_unlocked) {
+            const crafting_button = document.createElement("div");
+            crafting_button.classList.add("location_choices");
+            crafting_button.setAttribute("onclick", 'openCraftingWindow()');
+            crafting_button.innerHTML = `<i class="material-icons">construction</i> ${location.crafting.use_text}`;
+            action_div.appendChild(crafting_button);
+        }
     }
 
     /////////////////////////////////
@@ -2482,7 +2496,7 @@ function update_displayed_dialogue(dialogue_key) {
     dialogue_answer_div.id = "dialogue_answer_div";
     action_div.appendChild(dialogue_answer_div);
     Object.keys(dialogue.textlines).forEach(function(key) { //add buttons for textlines
-            if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished) { //do only if text_line is not unavailable
+            if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished && (!dialogue.textlines[key].required_flag || global_flags[dialogue.textlines[key].required_flag])) { //do only if text_line is not unavailable
                 const textline_div = document.createElement("div");
                 textline_div.innerHTML = `"${dialogue.textlines[key].name}"`;
                 textline_div.classList.add("dialogue_textline");
