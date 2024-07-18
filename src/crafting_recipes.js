@@ -137,7 +137,7 @@ class ComponentRecipe extends ItemRecipe{
     get_quality_range(tier = 0) {
         const skill = skills[this.recipe_skill];
         const quality = (140+(3*skill.current_level-skill.max_level)+(20*tier))/100;
-        return [Math.max(0.1,Math.round(100*(quality-0.1))/100, Math.max(0.1,Math.round(100*(quality+0.1)/100)))];
+        return [Math.max(0.1,Math.round(100*(quality-0.1))/100, Math.max(0.1,Math.round(100*(quality+0.1))/100))];
     }
 
     get_quality_cap() {
