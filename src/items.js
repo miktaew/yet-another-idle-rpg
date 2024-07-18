@@ -184,17 +184,28 @@ class ItemComponent extends Item {
         this.quality = item_data.quality || 1;
     }
     getRarity(quality){
-        const qual = quality || this.quality;
-        if(!this.rarity) {
-            if(qual < 0.5) this.rarity =  "trash";
-            else if(qual < 1.0) this.rarity = "common";
-            else if(qual < 1.3) this.rarity = "uncommon";
-            else if(qual < 1.6) this.rarity = "rare";
-            else if(qual < 2.0) this.rarity = "epic";
-            else if(qual < 2.46) this.rarity = "legendary";
-            else this.rarity = "mythical";
+        if(!quality) {
+            if(!this.rarity) {
+                this.rarity = this.calculateRarity(this.quality);
+            }
+            return this.rarity;
+        } else {
+            return this.calculateRarity(quality);
         }
-        return this.rarity;
+
+    }
+
+    calculateRarity(quality) {
+        let rarity;
+        if(quality < 0.5) rarity =  "trash";
+        else if(quality < 1.0) rarity = "common";
+        else if(quality < 1.3) rarity = "uncommon";
+        else if(quality < 1.6) rarity = "rare";
+        else if(quality < 2.0) rarity = "epic";
+        else if(quality < 2.46) rarity = "legendary";
+        else rarity = "mythical";
+        
+        return rarity;
     }
 }
 
@@ -306,17 +317,28 @@ class Equippable extends Item {
     } 
 
     getRarity(quality){
-        const qual = quality || this.quality;
+        if(!quality) {
+            if(!this.rarity) {
+                this.rarity = this.calculateRarity(this.quality);
+            }
+            return this.rarity;
+        } else {
+            return this.calculateRarity(quality);
+        }
 
-        if(qual < 0.5) this.rarity =  "trash";
-        else if(qual < 1.0) this.rarity = "common";
-        else if(qual < 1.3) this.rarity = "uncommon";
-        else if(qual < 1.6) this.rarity = "rare";
-        else if(qual < 2.0) this.rarity = "epic";
-        else if(qual < 2.46) this.rarity = "legendary";
-        else this.rarity = "mythical";
+    }
+
+    calculateRarity(quality) {
+        let rarity;
+        if(quality < 0.5) rarity =  "trash";
+        else if(quality < 1.0) rarity = "common";
+        else if(quality < 1.3) rarity = "uncommon";
+        else if(quality < 1.6) rarity = "rare";
+        else if(quality < 2.0) rarity = "epic";
+        else if(quality < 2.46) rarity = "legendary";
+        else rarity = "mythical";
         
-        return this.rarity;
+        return rarity;
     }
 
     getStats(quality){

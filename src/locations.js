@@ -1075,7 +1075,7 @@ function get_location_type_penalty(type, stage, stat) {
         "mining": new LocationActivity({
             activity_name: "mining",
             infinite: true,
-            starting_text: "Try to mine for some ore",
+            starting_text: "Mine the strange looking iron vein",
             skill_xp_per_tick: 1,
             is_unlocked: false,
             gained_resources: {
@@ -1089,7 +1089,7 @@ function get_location_type_penalty(type, stage, stat) {
         "mining2": new LocationActivity({
             activity_name: "mining",
             infinite: true,
-            starting_text: "Try to mine for some ore",
+            starting_text: "Mine some of the deeper iron vein",
             skill_xp_per_tick: 3,
             is_unlocked: false,
             gained_resources: {

@@ -800,7 +800,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
 
                 let should_continue = false;
                 for(let j = 0; j < to_buy.items.length; j++) {
-                    if(trader.inventory[key][i].getName() === to_buy.items[j].item.split(" #")[0] && i == Number(to_buy.items[j].item.split(" #")[1])) {
+                    if(trader.inventory[key][i].id === to_buy.items[j].item.split(" #")[0] && i == Number(to_buy.items[j].item.split(" #")[1])) {
                         //checks if item is present in to_buy, if so then doesn't add it to displayed in this inventory
                         should_continue = true;
                         break;

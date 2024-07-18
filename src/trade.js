@@ -93,6 +93,7 @@ function accept_trade() {
             if(item_id) { //unstackable
                 actual_item = character.inventory[item_name][item_id];
                 
+                
                 remove_from_character_inventory({item_name, item_count: 1, item_id});
 
                 add_to_trader_inventory(current_trader, [{item: actual_item, count: 1}]);

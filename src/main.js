@@ -1599,7 +1599,7 @@ function create_save() {
                 save_data["locations"][key]["unlocked_activities"] = []
                 Object.keys(locations[key].activities).forEach(activity_key => {
                     if(locations[key].activities[activity_key].is_unlocked) {
-                        save_data["locations"][key]["unlocked_activities"].push(locations[key].activities[activity_key].activity_name);
+                        save_data["locations"][key]["unlocked_activities"].push(activity_key);
                     }
                 });
             }

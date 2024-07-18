@@ -135,7 +135,7 @@ class Enemy {
         ]
     });
     enemy_templates["Elite wolf rat guardian"] = new Enemy({
-        name: "Elite wolf rat",
+        name: "Elite wolf rat guardian",
         description: "It's no longer dog-sized, but rather around the size of an average wolf, with thicker skin, longer claws and pure insanity in the eyes",
         xp_value: 10, 
         rank: 4,
