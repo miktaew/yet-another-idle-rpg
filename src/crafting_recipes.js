@@ -137,12 +137,12 @@ class ComponentRecipe extends ItemRecipe{
     get_quality_range(tier = 0) {
         const skill = skills[this.recipe_skill];
         const quality = (140+(3*skill.current_level-skill.max_level)+(20*tier))/100;
-        return [Math.max(0.1,Math.round(100*(quality-0.1)/100), Math.max(0.1,Math.round(100*(quality+0.1)/100)))];
+        return [Math.max(0.1,Math.round(100*(quality-0.1))/100, Math.max(0.1,Math.round(100*(quality+0.1)/100)))];
     }
 
     get_quality_cap() {
         const skill = skills[this.recipe_skill];
-        return Math.min(Math.round(100*(1+2*skill.current_level/skill.max_level)/100),2);
+        return Math.min(Math.round(100*(1+2*skill.current_level/skill.max_level))/100,2);
     }
 
     get_quality(tier = 0) {
@@ -208,12 +208,12 @@ class EquipmentRecipe extends Recipe {
     get_quality_range(component_quality, tier = 0) {
         const skill = skills[this.recipe_skill];
         const quality = (40+100*component_quality+(3*skill.current_level-skill.max_level)+20*(tier))/100;
-        return [Math.max(0.1,Math.round(100*quality-0.1)/100), Math.max(0.1,Math.round(100*(quality+0.1)/100))];
+        return [Math.max(0.1,Math.round(100*quality-0.1)/100), Math.max(0.1,Math.round(100*(quality+0.1))/100)];
     }
 
     get_quality_cap() {
         const skill = skills[this.recipe_skill];
-        return Math.min(Math.round(100*(1+2*skill.current_level/skill.max_level)/100),2.5);
+        return Math.min(Math.round(100*(1+2*skill.current_level/skill.max_level))/100,2.5);
     }
 
     get_quality(component_quality, tier = 0) {
