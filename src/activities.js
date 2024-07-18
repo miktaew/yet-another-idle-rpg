@@ -140,6 +140,14 @@ class Gathering extends Training {
         is_unlocked: true,
         required_tool_type: "herb sickle",
     });
+
+    activities["animal care"] = new Gathering({
+        name: "animal care",
+        action_text: "Tending to animals",
+        description: "Take care of animals",
+        base_skills_names: ["Animal handling"],
+        is_unlocked: true,
+    });
 })();
 
 

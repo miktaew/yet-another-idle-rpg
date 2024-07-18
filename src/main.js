@@ -269,6 +269,10 @@ function change_location(location_name) {
         //so it's not called when initializing the location on page load or on reloading current location (due to new unlocks)
         log_message(`[ Entering ${location.name} ]`, "message_travel");
     }
+
+    if(location.crafting) {
+        update_displayed_crafting_recipes();
+    }
     
     current_location = location;
 
@@ -340,6 +344,7 @@ function end_activity() {
  * @param {Object} activity_data {activity, location_name}
  */
  function unlock_activity(activity_data) {
+    console.log(activity_data);
     if(!activity_data.activity.is_unlocked){
         activity_data.activity.is_unlocked = true;
         
@@ -2204,6 +2209,7 @@ function load(save_data) {
     
     update_displayed_effects();
     
+    create_displayed_crafting_recipes();
     change_location(save_data["current location"]);
 
     //set activity if any saved
@@ -2412,7 +2418,10 @@ function update() {
         //regenerate hp
         if(active_effects.health_regeneration) {
             
-            character.stats.full.max_health += (character.stats.full.max_health * active_effects.health_regeneration.percent) ?? 0;
+            if(active_effects.health_regeneration.percent) {
+                character.stats.full.max_health += character.stats.full.max_health * active_effects.health_regeneration.percent;
+            }
+            
             character.stats.full.health += active_effects.health_regeneration.flat;
 
             if(character.stats.full.health > character.stats.full.max_health) {
@@ -2430,7 +2439,10 @@ function update() {
 
         //regenerate stamina
         if(active_effects.stamina_regeneration) {
-            character.stats.full.max_stamina += (character.stats.full.max_stamina * active_effects.stamina_regeneration.percent) ?? 0;
+            if(active_effects.stamina_regeneration.percent) {
+                character.stats.full.max_stamina += (character.stats.full.max_stamina * active_effects.stamina_regeneration.percent);
+            }
+            
             character.stats.full.stamina += active_effects.stamina_regeneration.flat;
 
             if(character.stats.full.stamina > character.stats.full.max_stamina) {
@@ -2592,6 +2604,7 @@ else {
 
     update_displayed_stance_list();
     change_stance("normal");
+    create_displayed_crafting_recipes();
     change_location("Village");
 } //checks if there's an existing save file, otherwise just sets up some initial equipment
 
@@ -2632,7 +2645,6 @@ function add_all_stuff_to_inventory(){
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
 
-create_displayed_crafting_recipes();
 update_displayed_equipment();
 run();
 

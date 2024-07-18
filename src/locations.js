@@ -819,7 +819,7 @@ function get_location_type_penalty(type, stage, stat) {
         repeatable_reward: {
             xp: 20,
             locations: [{location:"Deep forest"}],
-            activities: [{location:"Forest road", activity:"herbalism"}],
+            activities: [{location:"Forest road", activity: "herbalism"}],
         },
     });
     locations["Forest road"].connected_locations.push({location: locations["Forest"], custom_text: "Leave the safe path"});
@@ -1120,6 +1120,7 @@ function get_location_type_penalty(type, stage, stat) {
                 skill_required: [10, 20],
                 scales_with_skill: true,
             },
+        }),
         "herbalism": new LocationActivity({
             activity_name: "herbalism",
             infinite: true,
@@ -1138,7 +1139,6 @@ function get_location_type_penalty(type, stage, stat) {
             },
             require_tool: false,
         }),
-        }),
     };
     locations["Town farms"].activities = {
         "fieldwork": new LocationActivity({
@@ -1151,6 +1151,22 @@ function get_location_type_penalty(type, stage, stat) {
             working_period: 60*2,
             availability_time: {start: 6, end: 20},
             skill_xp_per_tick: 2,
+        }),
+        "animal care": new LocationActivity({
+            activity_name: "animal care",
+            infinite: true,
+            starting_text: "Take care of local sheep in exchange for some wool",
+            skill_xp_per_tick: 1,
+            is_unlocked: false,
+            gained_resources: {
+                resources: [
+                    {name: "Wool", ammount: [[1,1], [1,3]], chance: [0.1, 1]},
+                ], 
+                time_period: [60, 30],
+                skill_required: [0, 10],
+                scales_with_skill: true,
+            },
+            require_tool: false,
         }),
     };
 })();

@@ -77,9 +77,9 @@ class Trader extends InventoryHaver {
 
         for (let i = 0; i < inventory_template.length; i++) {
             if (inventory_template[i].chance >= Math.random()) {
-                var item_count = inventory_template[i].count.length == 1 ?
-                    inventory_template[i].count[0] : Math.round(Math.random() *
-                        (inventory_template[i].count[1] - inventory_template[i].count[0]) + inventory_template[i].count[0]);
+                let item_count = inventory_template[i].count.length == 1 ?
+                inventory_template[i].count[0] : Math.round(Math.random() *
+                    (inventory_template[i].count[1] - inventory_template[i].count[0]) + inventory_template[i].count[0]);
                 if(item_templates[inventory_template[i].item_name].stackable) { 
                     //stackable, so add one object with item_count
                     inventory[inventory_template[i].item_name] = { item: getItem(item_templates[inventory_template[i].item_name]), count: item_count };
@@ -189,7 +189,7 @@ class TradeItem {
             new TradeItem({item_name: "Leather hat", count: [1], chance: 0.7, quality: [0.6, 1.2]}),
 
             new TradeItem({item_name: "Wolf leather armor", count: [1], chance: 0.3, quality: [0.6, 1.2]}),
-            new TradeItem({item_name: "Wolf leather pants", count: [1], chance: 0.3, quality: [0.6, 1.2]}),
+            new TradeItem({item_name: "Wolf leather armored pants", count: [1], chance: 0.3, quality: [0.6, 1.2]}),
             new TradeItem({item_name: "Wolf leather helmet", count: [1], chance: 0.3, quality: [0.6, 1.2]}),
 
             new TradeItem({item_name: "Stale bread", count: [4,10]}),
@@ -230,15 +230,15 @@ class TradeItem {
             new TradeItem({item_name: "Leather shoes", count: [1], chance: 0.8, quality: [0.91, 1.2]}),
             new TradeItem({item_name: "Leather gloves", count: [1], chance: 0.8, quality: [0.91, 1.2]}),
             new TradeItem({item_name: "Wolf leather armor", count: [1], chance: 0.8, quality: [0.91, 1.2]}),
-            new TradeItem({item_name: "Wolf leather pants", count: [1], chance: 0.8, quality: [0.91, 1.2]}),
+            new TradeItem({item_name: "Wolf leather armored pants", count: [1], chance: 0.8, quality: [0.91, 1.2]}),
             new TradeItem({item_name: "Wolf leather helmet", count: [1], chance: 0.8, quality: [0.91, 1.2]}),
             
-            new TradeItem({item_name: "Chainmail armor", count: [1], chance: 0.8, quality: [0.4, 0.8]}),
-            new TradeItem({item_name: "Chainmail armor", count: [1], chance: 0.6, quality: [0.81, 1.2]}),
-            new TradeItem({item_name: "Chainmail pants", count: [1], chance: 0.8, quality: [0.4, 0.8]}),
-            new TradeItem({item_name: "Chainmail pants", count: [1], chance: 0.6, quality: [0.81, 1.2]}),
-            new TradeItem({item_name: "Chainmail helmet", count: [1], chance: 0.8, quality: [0.4, 0.8]}),
-            new TradeItem({item_name: "Chainmail helmet", count: [1], chance: 0.6, quality: [0.81, 1.2]}),
+            new TradeItem({item_name: "Iron chainmail armor", count: [1], chance: 0.8, quality: [0.4, 0.8]}),
+            new TradeItem({item_name: "Iron chainmail armor", count: [1], chance: 0.6, quality: [0.81, 1.2]}),
+            new TradeItem({item_name: "Iron chainmail pants", count: [1], chance: 0.8, quality: [0.4, 0.8]}),
+            new TradeItem({item_name: "Iron chainmail pants", count: [1], chance: 0.6, quality: [0.81, 1.2]}),
+            new TradeItem({item_name: "Iron chainmail helmet", count: [1], chance: 0.8, quality: [0.4, 0.8]}),
+            new TradeItem({item_name: "Iron chainmail helmet", count: [1], chance: 0.6, quality: [0.81, 1.2]}),
             
             new TradeItem({item_name: "Stale bread", count: [4,10]}),
             new TradeItem({item_name: "Fresh bread", count: [2,5]}),

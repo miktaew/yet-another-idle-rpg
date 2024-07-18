@@ -1544,6 +1544,15 @@ Multiplies attack points with daggers by ${Math.round((skills["Daggers"].get_coe
         visibility_treshold: 4,
         xp_scaling: 1.6,
     });
+
+    skills["Animal handling"] = new Skill({
+        skill_id: "Animal handling",
+        names: {0: "Animal handling"}, 
+        description: "Knowledge and skills required to deal with a wide variety of animals",
+        base_xp_cost: 10,
+        visibility_treshold: 4,
+        xp_scaling: 1.6,
+    });
 })();
 
 //crafting skills

@@ -821,7 +821,7 @@ body {
 	padding: 5px;
 }
 
-.recipe_div:hover .item_recipe_tooltip.recipe_tooltip{
+.recipe_div:hover .items_recipe_tooltip.recipe_tooltip{
 	display: block;
 }
 

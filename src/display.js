@@ -795,7 +795,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
 
     Object.keys(trader.inventory).forEach(function(key) {
         if(trader.inventory[key] instanceof Array) //unstackables
-        { 
+        {
             for(let i = 0; i < trader.inventory[key].length; i++) {
 
                 let should_continue = false;
@@ -1976,12 +1976,14 @@ function update_displayed_crafting_recipes() {
 function update_displayed_crafting_recipe({category, subcategory, recipe_id}) {
     const recipe_div = crafting_pages[category][subcategory].querySelector(`[data-recipe_id="${recipe_id}"]`);
     const recipe = recipes[category][subcategory][recipe_id];
+
     if(subcategory === "items") {
         if(recipe.get_availability()) {
             recipe_div.classList.remove("recipe_unavailable");
         } else {
             recipe_div.classList.add("recipe_unavailable");
         }
+        update_recipe_tooltip({category, subcategory, recipe_id});
     } else if(subcategory === "components" || recipe.recipe_type === "component") {
         update_recipe_tooltip({category, subcategory, recipe_id});
     } else if(subcategory === "equipment") {
@@ -1999,7 +2001,7 @@ function create_recipe_tooltip({category, subcategory, recipe_id, material, comp
     tooltip.classList.add("recipe_tooltip");
     if(subcategory === "items") {
         tooltip.innerHTML = create_recipe_tooltip_content({category, subcategory, recipe_id});
-        tooltip.classList.add("item_recipe_tooltip");
+        tooltip.classList.add("items_recipe_tooltip");
     } else if(subcategory === "components") {
         if(!material) {
             throw new Error(`Component recipes require passing a material, but recipe "${category}" -> "${subcategory}" -> "${recipe_id}" had none!`);
@@ -2012,7 +2014,6 @@ function create_recipe_tooltip({category, subcategory, recipe_id, material, comp
     } else {
         console.error(`No such crafting subcategory as "${subcategory}"`);
     }
-
     return tooltip;
 }
 
@@ -2038,11 +2039,8 @@ function update_recipe_tooltip({category, subcategory, recipe_id, components}) {
 }
 
 function create_recipe_tooltip_content({category, subcategory, recipe_id, material, components}) {
-    if(!current_location.crafting) {
-        return;
-    }
     const recipe = recipes[category][subcategory][recipe_id];
-    const station_tier = current_location.crafting.tiers[category];
+    const station_tier = current_location?.crafting?.tiers[category] || 1;
     let tooltip = "";
     if(subcategory === "items") {
         const success_chance = Math.round(100*recipe.get_success_chance());
@@ -2135,7 +2133,6 @@ function update_displayed_component_choice({category, recipe_id}) {
     component_selections_div[0].children[1].innerHTML = "";
     component_selections_div[1].children[1].innerHTML = "";
 
-
     const components = [];
     components.push(Object.values(character.inventory).filter(item=>{
         return recipe.components[0] === item[0]?.component_type;
@@ -2170,9 +2167,9 @@ function update_displayed_component_choice({category, recipe_id}) {
                         components.push(character.inventory[component_2_name][component_2_id]);
                     }
                     update_recipe_tooltip({category, subcategory: "equipment", recipe_id, components});
-                    });
+                });
                     
-                    component_selections_div[i].children[1].appendChild(item_div);
+                component_selections_div[i].children[1].appendChild(item_div);
             }
         }
     }
@@ -2225,14 +2222,10 @@ function update_item_recipe_visibility() {
                     return;
                 }
                 const recipe_div = crafting_pages[recipe_category][recipe_subcategory].querySelector(`[data-recipe_id="${recipe}"`);
-                if(!recipes[recipe_category][recipe_subcategory][recipe].get_is_any_material_present()) {
-                    recipe_div.classList.add("recipe_hidden");
-                } else if(!recipes[recipe_category][recipe_subcategory][recipe].get_availability()) {
+                if(!recipes[recipe_category][recipe_subcategory][recipe].get_availability()) {
                     recipe_div.classList.add("recipe_unavailable");
-                    recipe_div.classList.remove("recipe_hidden");
                 } else {
                     recipe_div.classList.remove("recipe_unavailable");
-                    recipe_div.classList.remove("recipe_hidden");
                 }
             });
         })

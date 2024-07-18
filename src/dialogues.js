@@ -448,7 +448,9 @@ class Textline {
                 is_unlocked: false,
                 name: "How are things around here?",
                 text: "Nothing to complain about. Trouble is rare, pay is good, and the soil is as fertile as my wife!",
-                textlines: [{dialogue: "farm supervisor", lines: ["animals", "fight", "fight0"]}],
+                unlocks: {
+                    textlines: [{dialogue: "farm supervisor", lines: ["animals", "fight", "fight0"]}],
+                }
             }), 
             "defeated boars": new Textline({
                 is_unlocked: false,

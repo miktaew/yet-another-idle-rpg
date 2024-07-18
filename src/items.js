@@ -493,6 +493,7 @@ class Armor extends Equippable {
             }
 
             this.components.internal = item_data.components.internal; //only the name
+            this.components.external = item_data.components.external; //only the name
 
             if(item_templates[this.components.internal].component_type === "helmet interior") {
                 this.equip_slot = "head";
@@ -510,7 +511,7 @@ class Armor extends Equippable {
             if(item_data.external && !item_templates[item_data.external]) {
                 throw new Error(`No such external armor element as: ${item_data.components.external}`);
             }
-            this.components.external = item_data.components.external; //only the name
+            
         } else { 
             this.tags["armor component"] = true;
             this.tags["clothing"] = true;
@@ -1004,7 +1005,7 @@ item_templates["Twist liek a snek"] = new Book({
 
     item_templates["Wool"] = new Material({
         name: "Wool", 
-        description: "A handfull of wool, raw and unprocessed",
+        description: "A handful of wool, raw and unprocessed",
         value: 8,
         saturates_market: true,
         price_recovers: true,
@@ -1494,7 +1495,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "leg armor exterior",
         value: 300,
         component_tier: 2,
-        full_armor_name: "Wolf leather leg armor",
+        full_armor_name: "Wolf leather armored pants",
         defense_value: 2,
         stats: {
             agility: {
@@ -1509,7 +1510,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "leg armor exterior",
         value: 500,
         component_tier: 3,
-        full_armor_name: "Wolf leather leg armor",
+        full_armor_name: "Boar leather armored pants",
         defense_value: 3,
         stats: {
             agility: {
@@ -1557,8 +1558,8 @@ item_templates["Twist liek a snek"] = new Book({
         defense_value: 3,
     });
 
-    item_templates["Iron chainmail helmet"] = new ArmorComponent({
-        name: "Iron chainmail helmet",
+    item_templates["Iron chainmail helmet armor"] = new ArmorComponent({
+        name: "Iron chainmail helmet armor",
         description: "Best way to keep your head in one piece",
         component_type: "helmet exterior",
         value: 400,
@@ -1597,7 +1598,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "leg armor exterior",
         value: 400,
         component_tier: 2,
-        full_armor_name: "Iron chainmail leg armor",
+        full_armor_name: "Iron chainmail pants",
         defense_value: 4,
         stats: {
             attack_speed: {
@@ -1818,26 +1819,26 @@ item_templates["Twist liek a snek"] = new Book({
             external: "Wolf leather helmet armor",
         }
     });
-    item_templates["Wolf leather pants"] = new Armor({
+    item_templates["Wolf leather armored pants"] = new Armor({
         components: {
             internal: "Leather pants",
             external: "Wolf leather greaves",
         }
     });
 
-    item_templates["Chainmail armor"] = new Armor({
+    item_templates["Iron chainmail armor"] = new Armor({
         components: {
             internal: "Leather vest",
             external: "Iron chainmail vest",
         }
     });
-    item_templates["Chainmail helmet"] = new Armor({
+    item_templates["Iron chainmail helmet"] = new Armor({
         components: {
             internal: "Leather hat",
-            external: "Iron chainmail helmet",
+            external: "Iron chainmail helmet armor",
         }
     });
-    item_templates["Chainmail pants"] = new Armor({
+    item_templates["Iron chainmail pants"] = new Armor({
         components: {
             internal: "Leather pants",
             external: "Iron chainmail greaves",

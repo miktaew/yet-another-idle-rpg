@@ -15,9 +15,8 @@ class InventoryHaver {
      * @param {Array} items - [{item, count},...]
      */
     add_to_inventory(items) {
-
-        for(let i = 0; i < items.length; i++){
-            
+       
+        for(let i = 0; i < items.length; i++){            
             if(!(items[i].item.id in this.inventory)) //not in inventory
             {
                 if(items[i].item.stackable)
@@ -26,8 +25,7 @@ class InventoryHaver {
                         items[i].count=1;
                     }
                     this.inventory[items[i].item.id] = items[i];
-                }
-                else 
+                } else 
                 {
                     this.inventory[items[i].item.id] = [items[i].item];
                 }
