@@ -405,7 +405,7 @@ class EquipmentRecipe extends Recipe {
     });
 
     crafting_recipes.components["Leg armor exterior"] = new ComponentRecipe({
-        name: "Chestplate exterior",
+        name: "Leg armor exterior",
         materials: [
             {material_id: "Piece of wolf leather", count: 4, result_id: "Wolf leather greaves"}, 
             {material_id: "Piece of boar leather", count: 4, result_id: "Boar leather greaves"},
@@ -416,7 +416,7 @@ class EquipmentRecipe extends Recipe {
     });
 
     forging_recipes.components["Leg armor exterior"] = new ComponentRecipe({
-        name: "Chestplate exterior",
+        name: "Leg armor exterior",
         materials: [
             {material_id: "Iron chainmail", count: 4, result_id: "Iron chainmail greaves"},
         ],

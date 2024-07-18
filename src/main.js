@@ -344,7 +344,6 @@ function end_activity() {
  * @param {Object} activity_data {activity, location_name}
  */
  function unlock_activity(activity_data) {
-    console.log(activity_data);
     if(!activity_data.activity.is_unlocked){
         activity_data.activity.is_unlocked = true;
         
@@ -1319,7 +1318,7 @@ function get_location_rewards(location) {
             unlock_location(locations[location.repeatable_reward.locations[i].location]);
         }
     }
-
+    
     for(let i = 0; i < location.repeatable_reward.flags?.length; i++) {
         global_flags[location.repeatable_reward.flags[i]] = true;
     }
@@ -1397,7 +1396,6 @@ function use_recipe(target) {
     } else {
         const selected_recipe = recipes[category][subcategory][recipe_id];
         const recipe_div = document.querySelector(`[data-crafting_category="${category}"] [data-crafting_subcategory="${subcategory}"] [data-recipe_id="${recipe_id}"]`);
-        //TODO: reload all recipes when needed
         let leveled = false;
         let result;
         if(subcategory === "items") {
@@ -1455,7 +1453,6 @@ function use_recipe(target) {
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
                     if(character.inventory[material_1_name]) { 
                         //if item is still present in inventory + if there's not enough of it = change recipe color
-                        //TODO: same thing for 'items' subcat
                         if(recipe_material.count > character.inventory[material_1_name].count) { 
                             material_div.classList.remove("selected_material");
                             material_div.classList.add("unavailable_material");

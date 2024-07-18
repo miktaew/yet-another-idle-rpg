@@ -39,7 +39,7 @@ class Textline {
                             },
                 locks_lines = {},
                 otherUnlocks,
-                required_flag,
+                required_flags,
             }) 
     {
         this.name = name; // displayed option to click, don't make it too long
@@ -58,7 +58,7 @@ class Textline {
         this.unlocks.flags = unlocks.flags || [];
         this.unlocks.items = unlocks.items || []; //not so much unlocks as simply items that player will receive
         
-        this.required_flag = required_flag;
+        this.required_flags = required_flags;
 
         this.locks_lines = locks_lines;
         //related text lines that get locked; might be itself, might be some previous line 
@@ -420,7 +420,7 @@ class Textline {
                 name: "Do you sell anything?",
                 is_unlocked: false,
                 text: "Sorry, I'm not allowed to. I could however let you take some stuff in exchange for physical work, and it just so happens our sheep need shearing.",
-                required_flag: "is_gathering_unlocked",
+                required_flags: {yes: "is_gathering_unlocked"},
                 unlocks: {
                     activities: [{location: "Town farms", activity: "animal care"}],
                 },
@@ -430,6 +430,7 @@ class Textline {
                 name: "Do you have any task that requires some good old violence?",
                 is_unlocked: false,
                 text: "I kinda do, but you don't seem strong enough for that. I'm sorry.",
+                required_flags: {no: ["is_deep_forest_beaten"]},
             }),
             "fight": new Textline({
                 name: "Do you have any task that requires some good old violence?",
@@ -438,7 +439,7 @@ class Textline {
                 + "They don't do enough damage to cause any serious problems, but I would certainly be calmer if someone took care of them. "
                 + "Go to the forest and search for a clearing in north, that's where they usually roam when they aren't busy eating our crops."
                 + "I can of course pay you for that, but keep in mind it won't be that much, I'm running on a strict budget here.",
-                required_flag: "is_deep_forest_beaten",
+                required_flags: {yes: ["is_deep_forest_beaten"]},
                 unlocks: {
                     locations: ["Forest clearing"],
                 },

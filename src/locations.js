@@ -837,7 +837,7 @@ function get_location_type_penalty(type, stage, stat) {
         },
         repeatable_reward: {
             xp: 35,
-            flag: "is_deep_forest_beaten",
+            flags: ["is_deep_forest_beaten"],
         }
     });
     locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture deeper into the woods"});
@@ -848,7 +848,7 @@ function get_location_type_penalty(type, stage, stat) {
         enemy_count: 50, 
         enemy_group_size: [4,7],
         is_unlocked: false,
-        name: "Deep forest", 
+        name: "Forest clearing", 
         types: [{type: "open", stage: 2, xp_gain: 1}],
         parent_location: locations["Forest road"],
         first_reward: {

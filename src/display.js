@@ -885,7 +885,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
                 
                 let should_continue = false;
                 for(let j = 0; j < to_sell.items.length; j++) {
-                    if(character.inventory[key][i].getName() === to_sell.items[j].item.split(" #")[0] && i == Number(to_sell.items[j].item.split(" #")[1])) {
+                    if(character.inventory[key][i].id === to_sell.items[j].item.split(" #")[0] && i == Number(to_sell.items[j].item.split(" #")[1])) {
                         //checks if item is present in to_sell, if so then doesn't add it to displayed in this inventory
                         should_continue = true;
                         break;
@@ -902,7 +902,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
             let item_count = character.inventory[key].count;
             for(let i = 0; i < to_sell.items.length; i++) {
                 
-                if(character.inventory[key].item.name === to_sell.items[i].item.split(" #")[0]) {
+                if(character.inventory[key].item.id === to_sell.items[i].item.split(" #")[0]) {
                     item_count -= Number(to_sell.items[i].count);
 
                     if(item_count == 0) {
@@ -1018,9 +1018,9 @@ function create_inventory_item_div({key, i, item_count, target, is_equipped, tra
 
     if(typeof i !== "undefined") {
         if(is_equipped) {
-            item_control_div.setAttribute(`data-${target_class_name}`, `${target_item[i].getName()} #${key}`);
+            item_control_div.setAttribute(`data-${target_class_name}`, `${target_item[i].id} #${key}`);
         } else {
-            item_control_div.setAttribute(`data-${target_class_name}`, `${target_item[i].getName()} #${i}`);
+            item_control_div.setAttribute(`data-${target_class_name}`, `${target_item[i].id} #${i}`);
         }
  
         item_control_div.setAttribute("data-item_value", `${target_item[i].getValue()}`);
@@ -2493,7 +2493,25 @@ function update_displayed_dialogue(dialogue_key) {
     dialogue_answer_div.id = "dialogue_answer_div";
     action_div.appendChild(dialogue_answer_div);
     Object.keys(dialogue.textlines).forEach(function(key) { //add buttons for textlines
-            if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished && (!dialogue.textlines[key].required_flag || global_flags[dialogue.textlines[key].required_flag])) { //do only if text_line is not unavailable
+            if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished) { //do only if text_line is not unavailable
+                if(dialogue.textlines[key].required_flags) {
+                    if(dialogue.textlines[key].required_flags.yes) {
+                        for(let i = 0; i < dialogue.textlines[key].required_flags.yes.length; i++) {
+                            
+                            if(!global_flags[dialogue.textlines[key].required_flags.yes[i]]) {
+                                return;
+                            }
+                        }
+                    }
+                    if(dialogue.textlines[key].required_flags.no) {
+                        for(let i = 0; i < dialogue.textlines[key].required_flags.no.length; i++) {
+                            if(global_flags[dialogue.textlines[key].required_flags.no[i]]) {
+                                return;
+                            }
+                        }
+                    }
+                }
+                
                 const textline_div = document.createElement("div");
                 textline_div.innerHTML = `"${dialogue.textlines[key].name}"`;
                 textline_div.classList.add("dialogue_textline");
