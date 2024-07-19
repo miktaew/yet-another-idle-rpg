@@ -1025,7 +1025,7 @@ function create_inventory_item_div({key, i, item_count, target, is_equipped, tra
  
         item_control_div.setAttribute("data-item_value", `${target_item[i].getValue()}`);
 
-        if(target_item[i].item_type === "EQUIPPABLE") {
+        if(target_item[i].tags?.equippable) {
             if(target_item[i].tags.tool) {
                 item_name_div.innerHTML = `<span class = "item_slot" >[tool]</span> <span>${target_item[i].getName()}</span>`;
             } else {
@@ -1035,7 +1035,7 @@ function create_inventory_item_div({key, i, item_count, target, is_equipped, tra
             item_div.appendChild(item_name_div);
 
             item_div.appendChild(create_item_tooltip(target_item[i], options));
-            item_control_div.classList.add(`${item_class}_control`, `${target_class_name}_control`, `${target_class_name}_${target_item[i].item_type.toLowerCase()}`);
+            item_control_div.classList.add(`${item_class}_control`, `${target_class_name}_control`, `${target_class_name}_equippable`);
             item_control_div.appendChild(item_div);
             if(typeof trade_index === "undefined" && target !== "trader") {
                 if(!is_equipped) {
@@ -1052,9 +1052,9 @@ function create_inventory_item_div({key, i, item_count, target, is_equipped, tra
             }
 
             if(typeof trade_index !== "undefined") {
-                item_div.classList.add(`${item_class}`, `${target_class_name}`, `trade_item_${target_item[i].item_type.toLowerCase()}`);
+                item_div.classList.add(`${item_class}`, `${target_class_name}`, `trade_item_equippable`);
             } else {
-                item_div.classList.add(`${item_class}`, `${target_class_name}`, `item_${target_item[i].item_type.toLowerCase()}`);
+                item_div.classList.add(`${item_class}`, `${target_class_name}`, `item_equippable`);
             }
         } else {
             item_name_div.innerHTML = `<span class = "item_category">[Component] </span><span class="item_name">${target_item[i].getName()}</span>`;
@@ -1927,7 +1927,11 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
             if(event.target.classList.contains("crafting_selection")) {
                 component_selection_1.children[1].classList.toggle("selected_component_list");
                 component_selection_1.children[0].classList.toggle("selected_component_category");
-                recipe_div.querySelectorAll(".folded_crafting_selection").item(0).lastChild?.scrollIntoView({block: "end", inline: "nearest"});
+                if(recipe_div.querySelectorAll(".folded_crafting_selection").item(0).lastChild 
+                    && !is_element_above_x(recipe_div.querySelectorAll(".folded_crafting_selection").item(0).lastChild, document.getElementById("exit_crafting_button"))) 
+                {
+                    recipe_div.querySelectorAll(".folded_crafting_selection").item(0).lastChild.scrollIntoView({block: "end", inline: "nearest"});
+                }
             }
         });
         component_selection_2.parentNode.children[1].addEventListener("click", (event)=>{
@@ -1935,7 +1939,9 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
             if(event.target.classList.contains("crafting_selection")) {
                 component_selection_2.children[1].classList.toggle("selected_component_list");
                 component_selection_2.children[0].classList.toggle("selected_component_category");
-                recipe_div.querySelector(".recipe_creation_button").scrollIntoView({block: "end", inline: "nearest"});
+                if(!is_element_above_x(recipe_div.querySelector(".recipe_creation_button"), document.getElementById("exit_crafting_button"))) {
+                    recipe_div.querySelector(".recipe_creation_button").scrollIntoView({block: "end", inline: "nearest"});
+                }
             }
         });
 
@@ -2173,7 +2179,9 @@ function update_displayed_component_choice({category, recipe_id}) {
             }
         }
     }
-    recipe_div.querySelector(".recipe_creation_button").scrollIntoView({block: "end", inline: "nearest"});
+    if(!is_element_above_x(recipe_div.querySelector(".recipe_creation_button"), document.getElementById("exit_crafting_button"))) {
+        recipe_div.querySelector(".recipe_creation_button").scrollIntoView({block: "end", inline: "nearest"});
+    }
 }
 
 /**
@@ -3312,6 +3320,13 @@ function toggle_exclusive_class({element, siblings_only=false, class_name}) {
     if(!has_class) {
         element.classList.add(class_name);
     }
+}
+
+function is_element_above_x(element, x) {
+    const rect = element.getBoundingClientRect();
+    const rect2 = x.getBoundingClientRect();
+
+    return rect.bottom <= rect2.top;
 }
 
 export {

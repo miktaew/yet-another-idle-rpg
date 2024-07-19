@@ -1062,7 +1062,7 @@ function do_character_combat_action({target, attack_power}) {
             add_xp_to_skill({skill: skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]], xp_to_add: target.xp_value}); 
 
         } else {
-            damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) * skills['Unarmed'].get_coefficient())/10;
+            damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) )/10;
             add_xp_to_skill({skill: skills['Unarmed'], xp_to_add: target.xp_value});
         }
         //small randomization by up to 20%, then bonus from skill
@@ -2580,7 +2580,7 @@ window.save_to_file = save_to_file;
 window.load_progress = load_from_file;
 window.get_game_version = get_game_version;
 
-if("save data" in localStorage) {
+if(save_key in localStorage) {
     load_from_localstorage();
     update_character_stats();
     update_displayed_xp_bonuses();

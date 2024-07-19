@@ -837,6 +837,7 @@ function get_location_type_penalty(type, stage, stat) {
         repeatable_reward: {
             xp: 35,
             flags: ["is_deep_forest_beaten"],
+            activities: [{location:"Forest road", activity: "woodcutting"}],
         }
     });
     locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture deeper into the woods"});
@@ -1056,7 +1057,7 @@ function get_location_type_penalty(type, stage, stat) {
             gained_resources: {
                 resources: [{name: "Piece of rough wood", ammount: [[1,1], [1,3]], chance: [0.3, 1]}], 
                 time_period: [20, 10],
-                skill_required: [0, 10],
+                skill_required: [1, 10],
                 scales_with_skill: true,
             },
             require_tool: false,
@@ -1080,7 +1081,7 @@ function get_location_type_penalty(type, stage, stat) {
             gained_resources: {
                 resources: [{name: "Low quality iron ore", ammount: [[1,1], [1,1]], chance: [0.3, 0.7]}], 
                 time_period: [20, 10],
-                skill_required: [0, 10],
+                skill_required: [1, 10],
                 scales_with_skill: true,
             },
             unlock_text: "As you clear the area of wolf rats, you notice a vein of an iron ore",
@@ -1133,7 +1134,7 @@ function get_location_type_penalty(type, stage, stat) {
                     {name: "Belmart leaf", ammount: [[1,1], [1,1]], chance: [0.1, 0.7]}
                 ], 
                 time_period: [60, 30],
-                skill_required: [0, 10],
+                skill_required: [1, 10],
                 scales_with_skill: true,
             },
             require_tool: false,
@@ -1162,7 +1163,7 @@ function get_location_type_penalty(type, stage, stat) {
                     {name: "Wool", ammount: [[1,1], [1,3]], chance: [0.1, 1]},
                 ], 
                 time_period: [60, 30],
-                skill_required: [0, 10],
+                skill_required: [1, 10],
                 scales_with_skill: true,
             },
             require_tool: false,

@@ -207,6 +207,10 @@ class ItemComponent extends Item {
         
         return rarity;
     }
+
+    getStats() {
+        return this.stats;
+    }
 }
 
 class WeaponComponent extends ItemComponent {
@@ -939,7 +943,7 @@ item_templates["Twist liek a snek"] = new Book({
         material_type: "pelt",
     });
     item_templates["Boar meat"] = new Material({
-        name: "Wolf pelt", 
+        name: "Boar meat",
         description: "Fatty meat of a wild boar, all it needs is to be cooked.",
         value: 20,
         price_recovers: true,

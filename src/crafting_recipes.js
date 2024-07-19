@@ -73,8 +73,8 @@ class ItemRecipe extends Recipe {
     }
 
     get_success_chance(station_tier=1) {
-        const level = Math.min(this.recipe_level[1], Math.max(1,skills[this.recipe_skill].current_level-this.recipe_level[0]));
-        const skill_modifier = Math.min(1,(0||((skills[this.recipe_skill].current_level+(station_tier-1))/level)));
+        const level = Math.min(this.recipe_level[1]-this.recipe_level[0]+1, Math.max(1,skills[this.recipe_skill].current_level+1-this.recipe_level[0]));
+        const skill_modifier = Math.min(1,(0||(level+(station_tier-1))/(this.recipe_level[1])));        
         return this.success_chance[0]*(this.success_chance[1]/this.success_chance[0])**skill_modifier;
     }
 
@@ -361,7 +361,6 @@ class EquipmentRecipe extends Recipe {
 
 //armor components
 (()=>{
-
     crafting_recipes.components["Helmet exterior"] = new ComponentRecipe({
         name: "Helmet exterior",
         materials: [
