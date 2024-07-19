@@ -1084,7 +1084,7 @@ item_templates["Twist liek a snek"] = new Book({
         material_type: "piece of leather",
     });
     item_templates["Wool cloth"] = new Material({
-        name: "Piece of wolf leather", 
+        name: "Wool cloth", 
         description: "Thick and warm, might possibly absord some punches",
         value: 8,
         saturates_market: true,

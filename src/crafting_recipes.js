@@ -116,7 +116,7 @@ class ComponentRecipe extends ItemRecipe{
             const result = item_templates[this.materials.filter(x => x.material_id===material.item.id)[0].result_id];
             //return based on material used
             let quality = this.get_quality((station_tier-result.component_tier) || 0);
-            if(result.item_type === "Armor") {
+            if(result.tags["clothing"]) {
                 //means its a clothing (wearable internal part of armor)
                 return new Armor({...item_templates[result.id], quality: quality});
             } else if(result.tags["armor component"]) {

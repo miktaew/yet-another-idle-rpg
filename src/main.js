@@ -81,6 +81,7 @@ let current_enemies = null;
 const enemy_attack_loops = {};
 let enemy_attack_cooldowns;
 let enemy_timer_variance_accumulator = [];
+let enemy_timer_adjustment = [];
 let enemy_timers = [];
 let character_attack_loop;
 
@@ -282,6 +283,7 @@ function change_location(location_name) {
         update_displayed_normal_location(current_location);
     } else { //so if entering combat zone
         update_displayed_combat_location(current_location);
+        console.log(current_location.enemy_stat_variation);
         start_combat();
 
         if(!current_location.is_challenge) {
@@ -712,9 +714,11 @@ function set_new_combat({enemies} = {}) {
         for(let i = 0; i < current_enemies.length; i++) {
             enemy_attack_cooldowns[i] *= cooldown_multiplier;
             enemy_timer_variance_accumulator[i] = 0;
+            enemy_timer_adjustment[i] = 0;
             enemy_timers[i] = [Date.now(), Date.now()];
         }
     }
+    console.log(enemy_attack_cooldowns);
 
     //attach loops
     for(let i = 0; i < current_enemies.length; i++) {
@@ -765,6 +769,7 @@ function do_enemy_attack_loop(enemy_id, count, is_new = false) {
 
     if(is_new) {
         enemy_timer_variance_accumulator[enemy_id] = 0;
+        enemy_timer_adjustment[enemy_id] = 0;
     }
 
     clearTimeout(enemy_attack_loops[enemy_id]);
@@ -781,22 +786,21 @@ function do_enemy_attack_loop(enemy_id, count, is_new = false) {
         }
         do_enemy_attack_loop(enemy_id, count);
 
-
         if(enemy_timer_variance_accumulator[enemy_id] <= 5/tickrate && enemy_timer_variance_accumulator[enemy_id] >= -5/tickrate) {
-            time_adjustment = time_variance_accumulator;
+            enemy_timer_adjustment[enemy_id] = time_variance_accumulator;
         }
         else {
             if(enemy_timer_variance_accumulator[enemy_id] > 5/tickrate) {
-                time_adjustment = 5/tickrate;
+                enemy_timer_adjustment[enemy_id] = 5/tickrate;
             }
             else {
                 if(enemy_timer_variance_accumulator[enemy_id] < -5/tickrate) {
-                    time_adjustment = -5/tickrate;
+                    enemy_timer_adjustment[enemy_id] = -5/tickrate;
                 }
             }
         } //limits the maximum correction to +/- 5ms, just to be safe
 
-    }, enemy_attack_cooldowns[enemy_id]*1000/(40*tickrate) - time_adjustment);
+    }, enemy_attack_cooldowns[enemy_id]*1000/(40*tickrate) - enemy_timer_adjustment[enemy_id]);
 }
 
 function clear_enemy_attack_loop(enemy_id) {
@@ -910,7 +914,6 @@ function clear_all_enemy_attack_loops() {
 function start_combat() {
     if(current_enemies == null) {
         set_new_combat();
-        add_location_penalties();
     }
 }
 

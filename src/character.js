@@ -292,6 +292,7 @@ character.stats.add_all_equipment_bonus = function() {
                 character.stats.multiplier.skills.attack_speed = (skills["Unarmed"].get_coefficient("multiplicative")**0.3333);
                 character.stats.multiplier.skills.attack_points = (skills["Unarmed"].get_coefficient("multiplicative")**0.3333);
         } else {
+                character.stats.multiplier.skills.attack_speed = 1;
                 character.stats.multiplier.skills.attack_power = skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]].get_coefficient();
                 character.stats.multiplier.skills.attack_points = skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]].get_coefficient()**0.3333;
         }
@@ -342,6 +343,9 @@ character.stats.add_location_penalties = function() {
                         light_modifier = 0.5 + 0.5*skills["Night vision"].current_level/skills["Night vision"].max_level;
                         character.stats.multiplier.light_level.evasion_points = light_modifier;
                         character.stats.multiplier.light_level.attack_points = light_modifier;
+                } else {
+                        character.stats.multiplier.light_level.evasion_points = 1;
+                        character.stats.multiplier.light_level.attack_points = 1;
                 }
         }
 

@@ -2505,6 +2505,9 @@ function update_displayed_dialogue(dialogue_key) {
     Object.keys(dialogue.textlines).forEach(function(key) { //add buttons for textlines
             if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished) { //do only if text_line is not unavailable
                 if(dialogue.textlines[key].required_flags) {
+                    if(dialogue.textlines[key].required_flags.yes && !Array.isArray(dialogue.textlines[key].required_flags.yes) || dialogue.textlines[key].required_flags.no && !Array.isArray(dialogue.textlines[key].required_flags.no)) {
+                        console.error(`Textline "${key}" in dialogue "${dialogue_key}" has required flag passed as a single value but it should be an array!`)
+                    }
                     if(dialogue.textlines[key].required_flags.yes) {
                         for(let i = 0; i < dialogue.textlines[key].required_flags.yes.length; i++) {
                             
