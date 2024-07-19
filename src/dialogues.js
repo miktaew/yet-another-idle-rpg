@@ -420,7 +420,7 @@ class Textline {
                 name: "Do you sell anything?",
                 is_unlocked: false,
                 text: "Sorry, I'm not allowed to. I could however let you take some stuff in exchange for physical work, and it just so happens our sheep need shearing.",
-                required_flags: {yes: "is_gathering_unlocked"},
+                required_flags: {yes: ["is_gathering_unlocked"]},
                 unlocks: {
                     activities: [{location: "Town farms", activity: "animal care"}],
                 },
