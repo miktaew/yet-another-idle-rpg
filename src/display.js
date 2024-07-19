@@ -968,6 +968,8 @@ function create_inventory_item_div({key, i, item_count, target, is_equipped, tra
     const item_div = document.createElement("div");
     const item_name_div = document.createElement("div");
 
+    //console.log({key, i, item_count, target, is_equipped, trade_index});
+
     let target_item;
     let target_class_name;
     let item_class;

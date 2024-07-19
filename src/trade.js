@@ -59,6 +59,8 @@ function accept_trade() {
 
         character.money = new_balance;
 
+        let item_list = [];
+        let to_remove = [];
         while(to_buy.items.length > 0) {
             //add to character inventory
             //remove from trader inventory
@@ -69,20 +71,28 @@ function accept_trade() {
             if(item_id) { //unstackable
                 actual_item = traders[current_trader].inventory[item_name][item_id];
 
-                remove_from_trader_inventory(current_trader, {item_name, item_count: 1, item_id});
-
-                add_to_character_inventory([{item: actual_item, count: 1}]);                              
+                //remove_from_trader_inventory(current_trader, {item_name, item_count: 1, item_id});
+                to_remove.push({item_name, item_count: 1, item_id});
+                //add_to_character_inventory([{item: actual_item, count: 1}]);     
+                item_list.push({item: actual_item, count: 1});                         
             } else {
 
                 actual_item = traders[current_trader].inventory[item_name].item;
                 
-                remove_from_trader_inventory(current_trader, {item_name, item_count: item.count});
-
-                add_to_character_inventory([{item: actual_item, count: item.count}]);
+                //remove_from_trader_inventory(current_trader, {item_name, item_count: item.count});
+                to_remove.push({item_name, item_count: item.count});
+                //add_to_character_inventory([{item: actual_item, count: item.count}]);
+                item_list.push({item: actual_item, count: item.count});
             }
-
-            
         }
+
+        add_to_character_inventory(item_list);
+        for(let i = 0; i < to_remove.length; i++) {
+            remove_from_trader_inventory(current_trader,to_remove[i]);
+        }
+
+        item_list = [];
+        to_remove = [];
         while(to_sell.items.length > 0) {
             //remove from character inventory
             //add to trader inventory
@@ -93,15 +103,16 @@ function accept_trade() {
             if(item_id) { //unstackable
                 actual_item = character.inventory[item_name][item_id];
                 
-                
-                remove_from_character_inventory({item_name, item_count: 1, item_id});
-
-                add_to_trader_inventory(current_trader, [{item: actual_item, count: 1}]);
+                //remove_from_character_inventory({item_name, item_count: 1, item_id});
+                to_remove.push({item_name, item_count: 1, item_id});
+                //add_to_trader_inventory(current_trader, [{item: actual_item, count: 1}]);
+                item_list.push({item: actual_item, count: 1});
             } else {
                 actual_item = character.inventory[item_name].item;
-                remove_from_character_inventory({item_name, item_count: item.count});
-
-                add_to_trader_inventory(current_trader, [{item: actual_item, count: item.count}]);
+                //remove_from_character_inventory({item_name, item_count: item.count});
+                to_remove.push({item_name, item_count: item.count});
+                //add_to_trader_inventory(current_trader, [{item: actual_item, count: item.count}]);
+                item_list.push({item: actual_item, count: item.count});
             }
 
             if(item_templates[item_name].saturates_market) {
@@ -110,6 +121,11 @@ function accept_trade() {
                 }
                 loot_sold_count[item_name].sold = loot_sold_count[item_name]?.sold + (item.count || 1);
             }
+        }
+
+        add_to_trader_inventory(current_trader,item_list);
+        for(let i = 0; i < to_remove.length; i++) {
+            remove_from_character_inventory(to_remove[i]);
         }
     }
 
