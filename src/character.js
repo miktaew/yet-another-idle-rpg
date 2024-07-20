@@ -517,11 +517,11 @@ function add_to_character_inventory(items) {
 }
 
 /**
- * Removes an item from character's inventory
- * Takes TWO params, name and either count (for stackables) or inventory id (for unstackables)
+ * Removes items from character's inventory
+ * Takes an array in form of [{item_name, item_count, item_id}] with TWO params, name and either count (for stackables) or inventory id (for unstackables)
  */
-function remove_from_character_inventory({item_name, item_count, item_id}) {
-        character.remove_from_inventory({item_name, item_count, item_id});
+function remove_from_character_inventory(items) {
+        character.remove_from_inventory(items);
         update_displayed_character_inventory();
 }
 
@@ -551,7 +551,7 @@ function equip_item(item) {
             //add specific item to equipment slot
             // -> id and name tell which exactly item it is, then also check slot in item object and thats all whats needed
             equip_item(character.inventory[item_name][item_id]);
-            remove_from_character_inventory({item_name, item_id});
+            remove_from_character_inventory([{item_name, item_id}]);
 
             update_character_stats();
         }

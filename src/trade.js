@@ -54,7 +54,7 @@ function accept_trade() {
     }
 
     if(new_balance < 0) { //button shouldn't be clickable if trade is not affordable, so this is just in case
-        throw "Trying to make a trade that can't be afforded"
+        throw new Error("Trying to make a trade that can't be afforded");
     } else {
 
         character.money = new_balance;
@@ -86,13 +86,15 @@ function accept_trade() {
             }
         }
 
-        add_to_character_inventory(item_list);
-        for(let i = 0; i < to_remove.length; i++) {
-            remove_from_trader_inventory(current_trader,to_remove[i]);
+        if(to_remove.length > 0) {
+            add_to_character_inventory(item_list);
+            remove_from_trader_inventory(current_trader,to_remove);
         }
+        
 
-        item_list = [];
+        item_list = []; //totally could reduce it to 1 array instead of 2 if I made param naming more consistent, maybe one day
         to_remove = [];
+
         while(to_sell.items.length > 0) {
             //remove from character inventory
             //add to trader inventory
@@ -103,15 +105,12 @@ function accept_trade() {
             if(item_id) { //unstackable
                 actual_item = character.inventory[item_name][item_id];
                 
-                //remove_from_character_inventory({item_name, item_count: 1, item_id});
                 to_remove.push({item_name, item_count: 1, item_id});
-                //add_to_trader_inventory(current_trader, [{item: actual_item, count: 1}]);
                 item_list.push({item: actual_item, count: 1});
             } else {
                 actual_item = character.inventory[item_name].item;
-                //remove_from_character_inventory({item_name, item_count: item.count});
                 to_remove.push({item_name, item_count: item.count});
-                //add_to_trader_inventory(current_trader, [{item: actual_item, count: item.count}]);
+
                 item_list.push({item: actual_item, count: item.count});
             }
 
@@ -123,10 +122,11 @@ function accept_trade() {
             }
         }
 
-        add_to_trader_inventory(current_trader,item_list);
-        for(let i = 0; i < to_remove.length; i++) {
-            remove_from_character_inventory(to_remove[i]);
+        if(to_remove.length > 0) {
+            add_to_trader_inventory(current_trader,item_list);
+            remove_from_character_inventory(to_remove);
         }
+        
     }
 
     add_xp_to_skill({skill: skills["Haggling"], xp_to_add: (to_sell.value + to_buy.value)/10});
@@ -222,7 +222,6 @@ function remove_from_buying_list(selected_item) {
         return value;
     }
 }
-
 
 function is_in_trade() {
     return Boolean(current_trader);
@@ -323,8 +322,8 @@ function add_to_trader_inventory(trader_key, items) {
     }
 }
 
-function remove_from_trader_inventory(trader_key, item_data) {
-    traders[trader_key].remove_from_inventory(item_data);
+function remove_from_trader_inventory(trader_key, items) {
+    traders[trader_key].remove_from_inventory(items);
     
     if(current_trader === trader_key) {
         update_displayed_trader_inventory();

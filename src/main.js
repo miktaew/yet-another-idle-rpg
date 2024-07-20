@@ -1409,7 +1409,7 @@ function use_recipe(target) {
                 const {result_id, count} = result;
                 
                 for(let i = 0; i < selected_recipe.materials.length; i++) {
-                    remove_from_character_inventory({item_name: selected_recipe.materials[i].material_id, item_count: selected_recipe.materials[i].count});
+                    remove_from_character_inventory([{item_name: selected_recipe.materials[i].material_id, item_count: selected_recipe.materials[i].count}]);
                 } 
                 const exp_value = Math.min(100,Math.max(5,selected_recipe.recipe_level[1])); //scale xp with recipe level, at least 5 and at most 100
                 if(Math.random() < success_chance) {
@@ -1450,7 +1450,7 @@ function use_recipe(target) {
                     total_crafting_successes++;
                     result = selected_recipe.getResult(character.inventory[material_1_name], station_tier);
                     add_to_character_inventory([{item: result, count: 1}]);
-                    remove_from_character_inventory({item_name: recipe_material.material_id, item_count: recipe_material.count});
+                    remove_from_character_inventory([{item_name: recipe_material.material_id, item_count: recipe_material.count}]);
                     log_message(`Created ${result.getName()} [${result.quality*100}% quality]`, "crafting");
                     const exp_value = Math.min(100,Math.max(5,result.component_tier * 5 * rarity_multipliers[result.getRarity()]));
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
@@ -1486,8 +1486,8 @@ function use_recipe(target) {
                     total_crafting_attempts++;
                     total_crafting_successes++;
                     result = selected_recipe.getResult(character.inventory[component_1_name][component_1_id], character.inventory[component_2_name][component_2_id], station_tier);
-                    remove_from_character_inventory({item_name: component_1_name, item_id: component_1_id});
-                    remove_from_character_inventory({item_name: component_2_name, item_id: component_2_id});
+                    remove_from_character_inventory([{item_name: component_1_name, item_id: component_1_id}]);
+                    remove_from_character_inventory([{item_name: component_2_name, item_id: component_2_id}]);
                     add_to_character_inventory([{item: result}]);
 
                     log_message(`Created ${result.getName()} [${result.quality*100}% quality]`, "crafting");
@@ -1542,7 +1542,7 @@ function use_item(item_name) {
     });
     if(used) {
         update_displayed_effects();
-        remove_from_character_inventory({item_name, item_count: 1});
+        remove_from_character_inventory([{item_name, item_count: 1}]);
     }
 }
 
