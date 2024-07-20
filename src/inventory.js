@@ -71,7 +71,7 @@ class InventoryHaver {
             if(stackables[i].item_name in this.inventory) { //check if its in inventory, just in case, probably not needed
                 if("item" in this.inventory[stackables[i].item_name]) { //stackable
         
-                    if(typeof item_count === "number" && Number.isInteger(stackables[i].item_count) && stackables[i].item_count >= 1) 
+                    if(typeof stackables[i].item_count === "number" && Number.isInteger(stackables[i].item_count) && stackables[i].item_count >= 1) 
                     {
                         this.inventory[stackables[i].item_name].count -= stackables[i].item_count;
                     }  else 
