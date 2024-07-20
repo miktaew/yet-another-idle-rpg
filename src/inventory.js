@@ -55,14 +55,13 @@ class InventoryHaver {
      * @param {*} item_id id of an item to remove (for unstackable items)  
      */
     remove_from_inventory(items) {
-
         //stores the indexes for removing unstackable items later on, since they are in their own arrays
         const indexes = {};
         const stackables = items.filter(item => typeof item.item_id === "undefined");
 
         for(let i = 0; i < items.length; i++) {
             if(!items[i].item_id){
-                return;
+                break;
             }
             if(indexes[items[i].item_name]) {
                 indexes[items[i].item_name].push(items[i].item_id);
@@ -99,7 +98,10 @@ class InventoryHaver {
 
         const names = Object.keys(indexes);
         for(let i = 0; i < names.length; i++) {
-            this.inventory[names[i]] = this.inventory[names[i]].filter((item,index) => {!indexes[names[i]].includes(index)});
+
+            this.inventory[names[i]] = this.inventory[names[i]].filter((item,index) => {
+                return !indexes[names[i]].includes(`${index}`);
+            });
             //replaces the array with one without specified items
 
             if(this.inventory[names[i]].length == 0)

@@ -638,7 +638,7 @@ class EquipmentRecipe extends Recipe {
         materials: [{material_id: "Iron ingot", count: 5}], 
         result: {result_id: "Iron chainmail", count: 1},
         success_chance: [0.1,1],
-        recipe_skill: "Crafting",
+        recipe_skill: "Forging",
         recipe_level: [5,15],
     });
 

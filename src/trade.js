@@ -85,7 +85,7 @@ function accept_trade() {
                 item_list.push({item: actual_item, count: item.count});
             }
         }
-
+        
         if(to_remove.length > 0) {
             add_to_character_inventory(item_list);
             remove_from_trader_inventory(current_trader,to_remove);
@@ -121,7 +121,7 @@ function accept_trade() {
                 loot_sold_count[item_name].sold = loot_sold_count[item_name]?.sold + (item.count || 1);
             }
         }
-
+        
         if(to_remove.length > 0) {
             add_to_trader_inventory(current_trader,item_list);
             remove_from_character_inventory(to_remove);
