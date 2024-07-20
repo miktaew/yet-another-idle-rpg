@@ -142,6 +142,12 @@ class Enemy {
         size: "medium",
         tags: ["living", "beast", "wolf rat", "monster"],
         stats: {health: 250, attack: 50, agility: 40, dexterity: 40, intuition: 50, magic: 0, attack_speed: 1.2, defense: 30},
+        loot_list: [
+            {item_name: "Rat tail", chance: 0.04},
+            {item_name: "Rat fang", chance: 0.04},
+            {item_name: "Rat pelt", chance: 0.02},
+            {item_name: "Weak monster bone", chance: 0.005},
+        ]
     });
 
     enemy_templates["Starving wolf"] = new Enemy({

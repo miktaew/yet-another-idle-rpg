@@ -443,6 +443,11 @@ function end_activity_animation() {
             group_to_add = "message_loot";
             message_count.message_loot += 1;
             break;
+        case "gathered_loot":
+            class_to_add = "message_items_obtained";
+            group_to_add = "message_loot";
+            message_count.message_loot += 1;
+            break;
         case "location_reward":
             group_to_add = "message_loot";
             message_count.message_loot += 1;

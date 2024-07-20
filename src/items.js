@@ -957,6 +957,14 @@ item_templates["Twist liek a snek"] = new Book({
         material_type: "miscellaneous",
     });
 
+    item_templates["Weak monster bone"] = new Material({
+        name: "Weak monster bone", 
+        description: "Mutated and dark bone of a monster. While far on the weaker side, it's still very strong",
+        value: 30,
+        price_recovers: true,
+        material_type: "bone",
+    });
+
 })();
 
 //gatherable materials
@@ -1607,7 +1615,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "chestplate exterior",
         value: 800,
         component_tier: 2,
-        full_armor_name: "Iron chainmail",
+        full_armor_name: "Iron chainmail armor",
         defense_value: 8,
         stats: {
             attack_speed: {
