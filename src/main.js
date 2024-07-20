@@ -283,7 +283,6 @@ function change_location(location_name) {
         update_displayed_normal_location(current_location);
     } else { //so if entering combat zone
         update_displayed_combat_location(current_location);
-        console.log(current_location.enemy_stat_variation);
         start_combat();
 
         if(!current_location.is_challenge) {
@@ -717,8 +716,13 @@ function set_new_combat({enemies} = {}) {
             enemy_timer_adjustment[i] = 0;
             enemy_timers[i] = [Date.now(), Date.now()];
         }
+    } else {
+        for(let i = 0; i < current_enemies.length; i++) {
+            enemy_timer_variance_accumulator[i] = 0;
+            enemy_timer_adjustment[i] = 0;
+            enemy_timers[i] = [Date.now(), Date.now()];
+        }
     }
-    console.log(enemy_attack_cooldowns);
 
     //attach loops
     for(let i = 0; i < current_enemies.length; i++) {
@@ -1508,7 +1512,6 @@ function character_equip_item(item_info) {
     equip_item_from_inventory(item_info);
     if(current_enemies) {
         reset_combat_loops();
-        //set_new_combat({enemies: current_enemies});
     }
 }
 function character_unequip_item(item_info) {

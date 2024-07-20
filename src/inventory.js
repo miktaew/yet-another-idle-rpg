@@ -1,6 +1,6 @@
 "use strict";
 
-import { equip_item_from_inventory } from "./character.js";
+import { character, equip_item_from_inventory } from "./character.js";
 
 
 //extended by character and traders, as their inventories are supposed to work the same way
@@ -40,10 +40,6 @@ class InventoryHaver {
                     this.inventory[items[i].item.id].push(items[i].item);
                 }
             }
-
-            if(items[i].item.tags.tool) {
-                equip_item_from_inventory({item_name: items[i].item.id, item_id: 0});
-            }
         }
     }
 
@@ -58,15 +54,15 @@ class InventoryHaver {
         //stores the indexes for removing unstackable items later on, since they are in their own arrays
         const indexes = {};
         const stackables = items.filter(item => typeof item.item_id === "undefined");
-
         for(let i = 0; i < items.length; i++) {
-            if(!items[i].item_id){
+            if(typeof items[i].item_id === "undefined"){
                 break;
             }
+
             if(indexes[items[i].item_name]) {
-                indexes[items[i].item_name].push(items[i].item_id);
+                indexes[items[i].item_name].push(`${items[i].item_id}`);
             } else {
-                indexes[items[i].item_name] = [items[i].item_id];
+                indexes[items[i].item_name] = [`${items[i].item_id}`];
             }
         }
 
@@ -98,7 +94,7 @@ class InventoryHaver {
 
         const names = Object.keys(indexes);
         for(let i = 0; i < names.length; i++) {
-
+            
             this.inventory[names[i]] = this.inventory[names[i]].filter((item,index) => {
                 return !indexes[names[i]].includes(`${index}`);
             });

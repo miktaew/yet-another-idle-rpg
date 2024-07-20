@@ -513,6 +513,12 @@ character.get_character_money = function () {
  */
 function add_to_character_inventory(items) {
         character.add_to_inventory(items);
+        for(let i = 0; i < items.length; i++) {
+                if(items[i].item.tags.tool && character.equipment[items[i].item.equip_slot] === null) {
+                        equip_item_from_inventory({item_name: items[i].item.id, item_id: 0});
+                }
+        }
+        
         update_displayed_character_inventory();
 }
 
@@ -552,7 +558,7 @@ function equip_item(item) {
             // -> id and name tell which exactly item it is, then also check slot in item object and thats all whats needed
             equip_item(character.inventory[item_name][item_id]);
             remove_from_character_inventory([{item_name, item_id}]);
-
+            
             update_character_stats();
         }
 }

@@ -1671,7 +1671,9 @@ function update_displayed_combat_location(location) {
 
     if(!options.disable_combat_autoswitch) {
         combat_switch.click();
-    }
+        combat_switch.classList.add("active_selection_button");
+        inventory_switch.classList.remove("active_selection_button");
+    } 
     combat_switch.style.pointerEvents = "auto";
     combat_switch.style.cursor = "pointer";
     combat_switch.style.color = "white";
