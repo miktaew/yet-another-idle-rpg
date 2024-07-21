@@ -1395,7 +1395,7 @@ item_templates["Twist liek a snek"] = new Book({
         description: "A long shaft for a spear,  extremely heavy",
         component_type: "long handle",
         value: 160,
-        component_tier: 1,
+        component_tier: 2,
         stats: {
             attack_speed: {
                 multiplier: 0.6,

@@ -2218,7 +2218,8 @@ function load(save_data) {
     if(save_data.current_activity) {
         //search for it in location from save_data
         const activity_id = save_data.current_activity.activity_id;
-        if(typeof activity_id !== "undefined" && current_location.activities[activity_id]) {
+        if(typeof activity_id !== "undefined" && current_location.activities[activity_id] && activities[activity_id]) {
+            
             start_activity(activity_id);
             if(activities[activity_id].type === "JOB") {
                 current_activity.working_time = save_data.current_activity.working_time;

@@ -53,7 +53,7 @@ class InventoryHaver {
         const stackables = items.filter(item => typeof item.item_id === "undefined");
         for(let i = 0; i < items.length; i++) {
             if(typeof items[i].item_id === "undefined"){
-                break;
+                continue;
             }
 
             if(indexes[items[i].item_name]) {
