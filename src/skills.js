@@ -641,7 +641,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                             names: {0: "Spatial awareness"}, 
                                             description: "Understanding where you are in relation to other creatures and objects", 
                                             get_effect_description: ()=> {
-                                                return `Reduces environmental penalty in open areas by ${Math.round(10*skills["Spatial awareness"].current_level*100/skills["Spatial awareness"].max_level)/10}%`;
+                                                return `Reduces environmental penalty in open areas by ^${Math.round(100-100*skills["Spatial awareness"].current_level/skills["Spatial awareness"].max_level)/100}`;
                                             },
                                             rewards: {
                                                 milestones: {
@@ -669,7 +669,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                         names: {0: "Tight maneuvers"}, 
                                         description: "Learn how to fight in narrow environment, where there's not much space for dodging attacks", 
                                         get_effect_description: ()=> {
-                                            return `Reduces environmental penalty in narrow areas by ${Math.round(10*skills["Tight maneuvers"].current_level*100/skills["Tight maneuvers"].max_level)/10}%`;
+                                            return `Reduces environmental penalty in narrow areas by ^${Math.round(100-100*skills["Tight maneuvers"].current_level/skills["Tight maneuvers"].max_level)/100}`;
                                         },
                                         rewards: {
                                             milestones: {
@@ -695,7 +695,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                     xp_scaling: 1.9,
                                     max_level: 10,
                                     get_effect_description: () => {
-                                        return `Reduces darkness penalty (except for 'pure darkness') by ${Math.round(10*skills["Night vision"].current_level*100/skills["Night vision"].max_level)/10}%`;
+                                        return `Reduces darkness penalty (except for 'pure darkness') by ^${Math.round(100-100*skills["Night vision"].current_level/skills["Night vision"].max_level)/100}`;
                                     },
                                     rewards: {
                                         milestones: {
@@ -744,7 +744,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                 xp_scaling: 2,
                 max_level: 20,
                 get_effect_description: () => {
-                    return `Reduces extreme darkness penalty by ${Math.round(10*skills["Presence sensing"].current_level*100/skills["Presence sensing"].max_level)/10}%`;
+                    return `Reduces extreme darkness penalty by ^${Math.round(100-100*skills["Presence sensing"].current_level/skills["Presence sensing"].max_level)/100}`;
                 },
                 rewards: {
                     milestones: {

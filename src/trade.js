@@ -114,7 +114,7 @@ function accept_trade() {
                 item_list.push({item: actual_item, count: item.count});
             }
 
-            if(item_templates[item_name].saturates_market) {
+            if(item_templates[item_name]?.saturates_market) {
                 if(!loot_sold_count[item_name]) {
                     loot_sold_count[item_name] = {sold: 0, recovered: 0};
                 }

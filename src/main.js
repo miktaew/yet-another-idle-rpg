@@ -13,8 +13,7 @@ import { character,
          add_to_character_inventory, remove_from_character_inventory,
          equip_item_from_inventory, unequip_item, equip_item,
          update_character_stats,
-         get_skill_xp_gain,
-         add_location_penalties, } from "./character.js";
+         get_skill_xp_gain } from "./character.js";
 import { activities } from "./activities.js";
 import { end_activity_animation, 
          update_displayed_character_inventory, update_displayed_trader_inventory, sort_displayed_inventory, sort_displayed_skills,
@@ -2616,23 +2615,8 @@ document.getElementById("loading_screen").style.visibility = "hidden";
 
 function add_stuff_for_testing() {
     add_to_character_inventory([
-        {item: getItem({...item_templates["Cheap short iron blade"]})},
-        {item: getItem({...item_templates["Short iron blade"]})},
-        {item: getItem({...item_templates["Cheap long iron blade"]})},
-        {item: getItem({...item_templates["Long iron blade"]})},
-        {item: getItem({...item_templates["Cheap iron axe head"]})},
-        {item: getItem({...item_templates["Iron axe head"]})},
-        {item: getItem({...item_templates["Cheap iron hammer head"]})},
-        {item: getItem({...item_templates["Iron hammer head"]})},
-        {item: getItem({...item_templates["Simple short wooden hilt"]})},
-        {item: getItem({...item_templates["Short wooden hilt"]})},
-        {item: getItem({...item_templates["Simple medium wooden handle"]})},
-        {item: getItem({...item_templates["Medium wooden handle"]})},
-        {item: getItem({...item_templates["Simple long wooden shaft"]})},
-        {item: getItem({...item_templates["Long wooden shaft"]})},
-        {item: getItem(item_templates["Rat fang"]), count: 1},
-        //{item: getItem(item_templates["Wolf leather chestplate armor"])},
-        //{item: getItem({...item_templates["Cheap leather vest"]})},
+        {item: getItem({...item_templates["Piece of boar leather"]}), count: 100},
+        {item: getItem({...item_templates["Wool shirt"]}), count: 100},
     ]);
 }
 

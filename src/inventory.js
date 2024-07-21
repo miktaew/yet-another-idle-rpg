@@ -1,8 +1,5 @@
 "use strict";
 
-import { character, equip_item_from_inventory } from "./character.js";
-
-
 //extended by character and traders, as their inventories are supposed to work the same way
 class InventoryHaver {
     

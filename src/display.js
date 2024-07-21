@@ -2209,7 +2209,7 @@ function update_displayed_material_choice({category, subcategory, recipe_id}) {
     });
 
     for(let i = 0; i < materials.length; i++) {
-        const material_recipe = recipe.materials.filter(material => material.material_id === materials[i].item.name);
+        const material_recipe = recipe.materials.filter(material => material.material_id === materials[i].item.id);
         const item_div = document.createElement("div");
         item_div.innerHTML = `<i class="material-icons icon selected_material_icon"> check </i>${item_templates[material_recipe[0].result_id].getName()}`;
         item_div.classList.add("selectable_material");

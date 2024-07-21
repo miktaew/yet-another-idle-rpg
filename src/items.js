@@ -1493,6 +1493,21 @@ item_templates["Twist liek a snek"] = new Book({
         }
     });
 
+    item_templates["Boar leather helmet armor"] = new ArmorComponent({
+        name: "Boar leather helmet armor", 
+        description: "Strong boar leather, ready to be used as a part of a helmet",
+        component_type: "helmet exterior",
+        value: 500,
+        component_tier: 3,
+        full_armor_name: "Wolf leather helmet",
+        defense_value: 3,
+        stats: {
+            agility: {
+                multiplier: 0.95,
+            }
+        }
+    });
+
     item_templates["Wolf leather chestplate armor"] = new ArmorComponent({
         id: "Wolf leather chestplate armor",
         name: "Wolf leather cuirass",
