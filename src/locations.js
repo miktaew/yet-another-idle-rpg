@@ -852,14 +852,14 @@ function get_location_type_penalty(type, stage, stat) {
         is_unlocked: false,
         enemy_stat_variation: 0.2,
         name: "Forest clearing", 
-        types: [{type: "open", stage: 2, xp_gain: 1}],
+        types: [{type: "open", stage: 2, xp_gain: 3}],
         parent_location: locations["Forest road"],
         first_reward: {
             xp: 200,
         },
         repeatable_reward: {
             xp: 100,
-            textlines: [{dialogue: "farm supervisior", lines: ["defeated boars"]}],
+            textlines: [{dialogue: "farm supervisor", lines: ["defeated boars"]}],
         }
     });
     locations["Forest road"].connected_locations.push({location: locations["Forest clearing"], custom_text: "Go towards the clearing in the north"});

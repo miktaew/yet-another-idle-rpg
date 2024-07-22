@@ -459,7 +459,7 @@ class Textline {
                 text: "Really? That's great! Here, this is for you.",
                 locks_lines: ["defeated boars"],
                 unlocks: {
-                    money: 200,
+                    money: 1000,
                 }
             }), 
         }
