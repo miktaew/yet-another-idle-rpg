@@ -1081,7 +1081,7 @@ function do_character_combat_action({target, attack_power}) {
             critted = false;
         }
         
-        damage_dealt = Math.ceil(10*Math.max(damage_dealt - target.stats.defense, damage_dealt*0.1, 1))/10;
+        damage_dealt = Math.max(Math.round(10*(damage_dealt - target.stats.defense))/10, 1);
 
         target.stats.health -= damage_dealt;
         if(critted) {
