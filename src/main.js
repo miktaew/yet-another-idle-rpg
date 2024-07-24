@@ -139,6 +139,7 @@ let message_log_filters = {
     combat: true,
     loot: true,
     crafting: true,
+    background: true,
 };
 
 //enemy crit stats
@@ -232,6 +233,13 @@ function option_remember_filters(option) {
         } else {
             document.documentElement.style.setProperty('--message_crafting_display', 'none');
             document.getElementById("message_show_crafting").classList.remove("active_selection_button");
+        }
+
+        if(message_log_filters.background) {
+            document.documentElement.style.setProperty('--message_background_display', 'inline-block');
+        } else {
+            document.documentElement.style.setProperty('--message_background_display', 'none');
+            document.getElementById("message_show_background").classList.remove("active_selection_button");
         }
     }
 }
@@ -1454,7 +1462,7 @@ function use_recipe(target) {
                     result = selected_recipe.getResult(character.inventory[material_1_name], station_tier);
                     add_to_character_inventory([{item: result, count: 1}]);
                     remove_from_character_inventory([{item_name: recipe_material.material_id, item_count: recipe_material.count}]);
-                    log_message(`Created ${result.getName()} [${result.quality*100}% quality]`, "crafting");
+                    log_message(`Created ${result.getName()} [${Math.round(100*result.quality)}% quality]`, "crafting");
                     const exp_value = Math.min(100,Math.max(5,result.component_tier * 5 * rarity_multipliers[result.getRarity()]));
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
                     if(character.inventory[material_1_name]) { 
@@ -1493,7 +1501,7 @@ function use_recipe(target) {
                     remove_from_character_inventory([{item_name: component_2_name, item_id: component_2_id}]);
                     add_to_character_inventory([{item: result}]);
 
-                    log_message(`Created ${result.getName()} [${result.quality*100}% quality]`, "crafting");
+                    log_message(`Created ${result.getName()} [${Math.round(100*result.quality)}% quality]`, "crafting");
 
                     const exp_value = Math.min(100,Math.max(5,(item_templates[component_1_name].component_tier+item_templates[component_2_name].component_tier) * 2.5 * rarity_multipliers[result.getRarity()]));
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});

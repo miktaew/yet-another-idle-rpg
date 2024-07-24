@@ -498,12 +498,10 @@ function end_activity_animation() {
         case "background":
             message_count.message_background +=1;
             group_to_add = "message_background";
-            class_to_add = "message_background";
             break;
         case "crafting":
             message_count.message_crafting +=1;
             group_to_add = "message_crafting";
-            class_to_add = "message_crafting";
             break;
     }
 
@@ -512,7 +510,7 @@ function end_activity_animation() {
     || group_to_add === "message_unlocks" && message_count.message_unlocks > 40
     || group_to_add === "message_events" && message_count.message_events > 20
     || group_to_add === "message_background" && message_count.message_background > 20
-    || group_to_add === "message_crafting" && message_count.message_background > 20
+    || group_to_add === "message_crafting" && message_count.message_crafting > 20
     ) {
         // find first child with specified group
         // delete it
@@ -1560,18 +1558,18 @@ function create_location_choices({location, category, add_icons = true, is_comba
                 if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
                     action.classList.add("travel_normal");
                     if("custom_text" in location.connected_locations[i]) {
-                        action.innerHTML = `<i class="material-icons">directions</i>  ` + location.connected_locations[i].custom_text;
+                        action.innerHTML = `<i class="material-icons">directions</i>  [` + location.connected_locations[i].custom_text+"]";
                     }
                     else {
-                        action.innerHTML = `<i class="material-icons">directions</i>  ` + "Go to " + location.connected_locations[i].location.name;
+                        action.innerHTML = `<i class="material-icons">directions</i>  ` + "Go to [" + location.connected_locations[i].location.name+"]";
                     }
                 } else {
                     action.classList.add("travel_combat");
                     if("custom_text" in location.connected_locations[i]) {
-                        action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + location.connected_locations[i].custom_text;
+                        action.innerHTML = `<i class="material-icons">warning_amber</i>  [` + location.connected_locations[i].custom_text+"]";
                     }
                     else {
-                        action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + "Enter the " + location.connected_locations[i].location.name;
+                        action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + "Enter the [" + location.connected_locations[i].location.name+"]";
                     }
                 }
             
@@ -3273,24 +3271,7 @@ function create_new_bestiary_entry(enemy_name) {
  * @param {String} enemy_name 
  */
 function update_bestiary_entry(enemy_name) {
-    const enemy = enemy_templates[enemy_name];
     bestiary_entry_divs[enemy_name].children[1].innerHTML = enemy_killcount[enemy_name];
-    if(enemy.loot_list.length > 0) {
-        update_bestiary_entry_description(enemy_name);
-    }
-}
-
-/**
- * updates tooltip of an enemy in bestiary; called in the full update of an entry,;
- * dont call it directly
- * @param {String} enemy_name 
- */
-function update_bestiary_entry_description(enemy_name) {
-    const enemy = enemy_templates[enemy_name];
-    const loot_divs = bestiary_entry_divs[enemy_name].children[2].children[3].children;
-    for(let i = 2; i < loot_divs.length; i++) {
-        loot_divs[i].children[1].children[0].innerHTML = `${Math.round(10000*enemy.loot_list[i-2].chance*enemy.get_droprate_modifier())/100}%`;
-    }
 }
 
 function clear_bestiary() {
