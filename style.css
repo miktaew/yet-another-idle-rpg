@@ -433,6 +433,22 @@ body {
 	display: block;
 }
 
+.skill_div {
+	display: none;
+}
+.skill_category_div {
+	padding: 3px;
+	border-bottom: 1px solid gray;
+}
+.skill_category_div:not(.skill_category_expanded):hover {
+	background-color: var(--active_button_color);
+}
+.skill_category_expanded .skill_div {
+	display: block;
+}
+.skill_category_expanded .skill_dropdown_icon {
+	transform: rotate(180deg);
+}
 .activity_efficiency_info {
 	color: rgb(190, 190, 190);
 	font-style: italic;

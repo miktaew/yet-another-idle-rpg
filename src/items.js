@@ -1309,7 +1309,7 @@ item_templates["Twist liek a snek"] = new Book({
         description: "A long shaft for a spear, somewhat uneven",
         component_type: "long handle",
         value: 120,
-        component_tier: 1,
+        component_tier: 2,
         attack_multiplier: 1.5,
         stats: {
             attack_speed: {
@@ -1682,7 +1682,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "shoes exterior",
         value: 400,
         component_tier: 2,
-        full_armor_name: "Iron chainmail gloves",
+        full_armor_name: "Iron chainmail boots",
         defense_value: 4,
         stats: {
             agility: {

@@ -40,7 +40,7 @@ character.base_stats = {
         magic: 0, 
         attack_speed: 1, 
         crit_rate: 0.05, 
-        crit_multiplier: 1.2,
+        crit_multiplier: 1.3,
         attack_power: 0, 
         defense: 0,
         block_strength: 0,
@@ -82,6 +82,7 @@ character.xp_bonuses.total_multiplier = {
 };
 
 character.xp_bonuses.multiplier = {
+        levels: {},
         skills: {},
         skill_milestones: {},
         equipment: {},
@@ -153,6 +154,9 @@ character.get_level_bonus = function (level) {
         let gained_dex = 0;
         let gained_int = 0;
 
+        const gained_skill_xp_multiplier = 1.03;
+        let total_skill_xp_multiplier = 1;
+
         for(let i = character.xp.current_level + 1; i <= level; i++) {
                 if(i % 2 == 1) {
                         gained_str += Math.ceil(i/10);
@@ -164,6 +168,7 @@ character.get_level_bonus = function (level) {
 
                 gained_hp += 10 * Math.ceil(i/10);
                 gained_stamina += 5; //5 * Math.ceil(i/10) ?;
+                total_skill_xp_multiplier = total_skill_xp_multiplier * gained_skill_xp_multiplier;
         }
 
         character.stats.flat.level.max_health = (character.stats.flat.level.max_health || 0) + gained_hp;
@@ -174,6 +179,8 @@ character.get_level_bonus = function (level) {
         character.stats.flat.level.intuition = (character.stats.flat.level.intuition || 0) + gained_int;
         character.stats.flat.level.agility = (character.stats.flat.level.agility || 0) + gained_agi;
         character.stats.flat.level.dexterity = (character.stats.flat.level.dexterity || 0) + gained_dex;
+
+        character.xp_bonuses.multiplier.levels.all_skill = (character.xp_bonuses.multiplier.levels.all_skill || 1) * total_skill_xp_multiplier;
 
         let gains = `<br>HP increased by ${gained_hp}<br>Stamina increased by ${gained_stamina}`;
         if(gained_str > 0) {
@@ -188,6 +195,9 @@ character.get_level_bonus = function (level) {
         if(gained_int > 0) {
                 gains += `<br>Intuition increased by ${gained_int}`;
         }
+
+        gains += `<br>Skill xp gains increased by ${(gained_skill_xp_multiplier-1)*100}%`;
+        
         
         return gains;
 }
@@ -412,9 +422,8 @@ character.update_stats = function () {
     }
     
     character.stats.total_flat.attack_power = character.stats.full.attack_power/character.stats.total_multiplier.attack_power;
-
     Object.keys(character.xp_bonuses.total_multiplier).forEach(bonus_target => {
-        character.xp_bonuses.total_multiplier[bonus_target] = (character.xp_bonuses.multiplier.skills[bonus_target] || 1) * (character.xp_bonuses.multiplier.books[bonus_target] || 1); 
+        character.xp_bonuses.total_multiplier[bonus_target] = (character.xp_bonuses.multiplier.levels[bonus_target] || 1) * (character.xp_bonuses.multiplier.skills[bonus_target] || 1) * (character.xp_bonuses.multiplier.books[bonus_target] || 1); 
         //only this two sources as of now
 
         const bonus = character.xp_bonuses.total_multiplier[bonus_target];

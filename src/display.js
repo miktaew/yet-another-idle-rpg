@@ -971,8 +971,6 @@ function create_inventory_item_div({key, i, item_count, target, is_equipped, tra
     const item_div = document.createElement("div");
     const item_name_div = document.createElement("div");
 
-    //console.log({key, i, item_count, target, is_equipped, trade_index});
-
     let target_item;
     let target_class_name;
     let item_class;
@@ -1558,7 +1556,7 @@ function create_location_choices({location, category, add_icons = true, is_comba
                 if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
                     action.classList.add("travel_normal");
                     if("custom_text" in location.connected_locations[i]) {
-                        action.innerHTML = `<i class="material-icons">directions</i>  [` + location.connected_locations[i].custom_text+"]";
+                        action.innerHTML = `<i class="material-icons">directions</i> ` + location.connected_locations[i].custom_text;
                     }
                     else {
                         action.innerHTML = `<i class="material-icons">directions</i>  ` + "Go to [" + location.connected_locations[i].location.name+"]";
@@ -1566,7 +1564,7 @@ function create_location_choices({location, category, add_icons = true, is_comba
                 } else {
                     action.classList.add("travel_combat");
                     if("custom_text" in location.connected_locations[i]) {
-                        action.innerHTML = `<i class="material-icons">warning_amber</i>  [` + location.connected_locations[i].custom_text+"]";
+                        action.innerHTML = `<i class="material-icons">warning_amber</i> ` + location.connected_locations[i].custom_text;
                     }
                     else {
                         action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + "Enter the [" + location.connected_locations[i].location.name+"]";
@@ -2715,11 +2713,32 @@ function start_reading_display(title) {
  * @param {Skill} skill 
  */
 function create_new_skill_bar(skill) {
-    if(skill_bar_divs[skill.skill_id]) {
+    if(!skill_bar_divs[skill.category]) {
+        skill_bar_divs[skill.category] = {};
+
+        const skill_category_div = document.createElement("div");
+        skill_category_div.innerHTML = `<i class="material-icons icon skill_dropdown_icon"> keyboard_double_arrow_down </i>${skill.category} skills`;
+        skill_category_div.dataset.skill_category = skill.category;
+        skill_category_div.classList.add("skill_category_div");
+
+        const skill_category_skills = document.createElement("div");
+        skill_category_skills.dataset.skill_category_skills = true;
+        skill_category_div.appendChild(skill_category_skills);
+        
+        skill_list.appendChild(skill_category_div);
+
+        skill_category_div.addEventListener("click", (event)=>{
+            if(event.target.classList.contains("skill_category_div")) {
+                event.target.classList.toggle("skill_category_expanded");
+            }
+        })
+
+    }
+    if(skill_bar_divs[skill.category][skill.skill_id]) {
         console.warn(`Tried to create a skillbar for skill "${skill.skill_id}", but it already has one!`);
         return;
     }
-    skill_bar_divs[skill.skill_id] = document.createElement("div");
+    skill_bar_divs[skill.category][skill.skill_id] = document.createElement("div");
 
     const skill_bar_max = document.createElement("div");
     const skill_bar_current = document.createElement("div");
@@ -2767,13 +2786,14 @@ function create_new_skill_bar(skill) {
     skill_bar_max.appendChild(skill_bar_current);
     skill_bar_max.appendChild(skill_tooltip);
 
-    skill_bar_divs[skill.skill_id].appendChild(skill_bar_max);
-    skill_bar_divs[skill.skill_id].setAttribute("data-skill", skill.skill_id);
-    skill_bar_divs[skill.skill_id].classList.add("skill_div");
-    skill_list.appendChild(skill_bar_divs[skill.skill_id]);
+    skill_bar_divs[skill.category][skill.skill_id].appendChild(skill_bar_max);
+    skill_bar_divs[skill.category][skill.skill_id].setAttribute("data-skill", skill.skill_id);
+    skill_bar_divs[skill.category][skill.skill_id].classList.add("skill_div");
+    skill_list.querySelector(`[data-skill_category=${skill.category}]`).querySelector("[data-skill_category_skills]").appendChild(skill_bar_divs[skill.category][skill.skill_id]);
 
     //sorts skill_list div alphabetically
     sort_displayed_skills({});
+    sort_displayed_skill_categories();
     update_displayed_skill_xp_gain(skill);
 }
 
@@ -2795,39 +2815,39 @@ function update_displayed_skill_bar(skill, leveled_up=true) {
                     tooltip_next
     */
 
-    if(!skill_bar_divs[skill.skill_id]) {
+    if(!skill_bar_divs[skill.category][skill.skill_id]) {
         return;
     }
 
-    skill_bar_divs[skill.skill_id].children[0].children[0].children[0].innerHTML = `${skill.name()} : level ${skill.current_level}/${skill.max_level}`;
+    skill_bar_divs[skill.category][skill.skill_id].children[0].children[0].children[0].innerHTML = `${skill.name()} : level ${skill.current_level}/${skill.max_level}`;
     //skill_bar_name
 
     if(skill.current_xp !== "Max") {
-        skill_bar_divs[skill.skill_id].children[0].children[0].children[1].innerHTML = `${100*Math.round(skill.current_xp/skill.xp_to_next_lvl*1000)/1000}%`;
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[0].innerHTML = `${expo(skill.current_xp)}/${expo(skill.xp_to_next_lvl)}`;
+        skill_bar_divs[skill.category][skill.skill_id].children[0].children[0].children[1].innerHTML = `${100*Math.round(skill.current_xp/skill.xp_to_next_lvl*1000)/1000}%`;
+        skill_bar_divs[skill.category][skill.skill_id].children[0].children[2].children[0].innerHTML = `${expo(skill.current_xp)}/${expo(skill.xp_to_next_lvl)}`;
 
     } else {
-        skill_bar_divs[skill.skill_id].children[0].children[0].children[1].innerHTML = `Max!`;
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[0].innerHTML = `Maxed out!`;
+        skill_bar_divs[skill.category][skill.skill_id].children[0].children[0].children[1].innerHTML = `Max!`;
+        skill_bar_divs[skill.category][skill.skill_id].children[0].children[2].children[0].innerHTML = `Maxed out!`;
     }
     //skill_bar_xp && tooltip_xp
 
-    skill_bar_divs[skill.skill_id].children[0].children[1].style.width = `${100*skill.current_xp/skill.xp_to_next_lvl}%`;
+    skill_bar_divs[skill.category][skill.skill_id].children[0].children[1].style.width = `${100*skill.current_xp/skill.xp_to_next_lvl}%`;
     //skill_bar_current
 
     if(get_unlocked_skill_rewards(skill.skill_id)) {
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[4].innerHTML  = `<br>${get_unlocked_skill_rewards(skill.skill_id)}`;
+        skill_bar_divs[skill.category][skill.skill_id].children[0].children[2].children[4].innerHTML  = `<br>${get_unlocked_skill_rewards(skill.skill_id)}`;
     }
 
     if(typeof get_next_skill_milestone(skill.skill_id) !== "undefined") {
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[5].innerHTML  = `lvl ${get_next_skill_milestone(skill.skill_id)}: ???`;
+        skill_bar_divs[skill.category][skill.skill_id].children[0].children[2].children[5].innerHTML  = `lvl ${get_next_skill_milestone(skill.skill_id)}: ???`;
     } else {
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[5].innerHTML = "";
+        skill_bar_divs[skill.category][skill.skill_id].children[0].children[2].children[5].innerHTML = "";
     }
 
     if(typeof skill.get_effect_description !== "undefined")
     {
-        skill_bar_divs[skill.skill_id].children[0].children[2].children[3].innerHTML = `${skill.get_effect_description()}`;
+        skill_bar_divs[skill.category][skill.skill_id].children[0].children[2].children[3].innerHTML = `${skill.get_effect_description()}`;
         //tooltip_effect
     }
     
@@ -2837,27 +2857,30 @@ function update_displayed_skill_bar(skill, leveled_up=true) {
 }
 
 function update_displayed_skill_description(skill) {
-    if(!skill_bar_divs[skill.skill_id]) {
+    if(!skill_bar_divs[skill.category][skill.skill_id]) {
         return;
     }
-    skill_bar_divs[skill.skill_id].children[0].children[2].children[3].innerHTML = `${skill.get_effect_description()}`;
+    skill_bar_divs[skill.category][skill.skill_id].children[0].children[2].children[3].innerHTML = `${skill.get_effect_description()}`;
 }
 
 function update_displayed_skill_xp_gain(skill) {
-    if(!skill_bar_divs[skill.skill_id]) {
+    if(!skill_bar_divs[skill.category] || !skill_bar_divs[skill.category][skill.skill_id]){
         return;
     }
     const xp_gain = Math.round(100*skill.get_parent_xp_multiplier()*get_skill_xp_gain(skill.skill_id))/100 || 1;
-    skill_bar_divs[skill.skill_id].children[0].children[2].children[1].innerHTML = `XP gain: x${xp_gain}<br><span>XP cost scaling: x${skill.xp_scaling}</span>`;
+    skill_bar_divs[skill.category][skill.skill_id].children[0].children[2].children[1].innerHTML = `XP gain: x${xp_gain}<br><span>XP cost scaling: x${skill.xp_scaling}</span>`;
 }
 
 function update_all_displayed_skills_xp_gain(){
-    Object.keys(skill_bar_divs).forEach(key => {
-        update_displayed_skill_xp_gain(skills[key]);
-    })
+    Object.keys(skill_bar_divs).forEach(category => {
+        Object.keys(skill_bar_divs[category]).forEach(skill_id => {
+            update_displayed_skill_xp_gain(skills[skill_id]);
+        });
+    });
 }
 
 function sort_displayed_skills({sort_by="name", change_direction=false}) {
+
     if(change_direction){
         if(sort_by && sort_by === skill_sorting) {
             if(skill_sorting_direction === "asc") {
@@ -2878,30 +2901,42 @@ function sort_displayed_skills({sort_by="name", change_direction=false}) {
 
     let plus = skill_sorting_direction=="asc"?1:-1;
     let minus = skill_sorting_direction==="asc"?-1:1;
+    for(let i = 0; i < skill_list.children.length; i++) {
+        
+        [...skill_list.children[i].querySelector("[data-skill_category_skills").children].sort((a,b) => {
+            let elem_a;
+            let elem_b;
+            if(sort_by === "level") {
+                skill_sorting = sort_by;
+                elem_a = skills[a.getAttribute("data-skill")].current_level;
+                elem_b = skills[b.getAttribute("data-skill")].current_level;
+            } else {
+                elem_a = skills[a.getAttribute("data-skill")].name();
+                elem_b = skills[b.getAttribute("data-skill")].name();
+                skill_sorting = "name";
+            }
+    
+            if(elem_a > elem_b) {
+                return plus;
+            } else {
+                return minus;
+            }
+    
+    
+        }).forEach(node=>skill_list.children[i].querySelector("[data-skill_category_skills").appendChild(node));
+    }
+}
 
-    //[...skill_list.children].sort((a,b)=>skills[a.getAttribute("data-skill")].skill_id>skills[b.getAttribute("data-skill")].skill_id?1:-1)
-                            //.forEach(node=>skill_list.appendChild(node));
-
+/**
+ * sorts displayed skill categories alphabeticaly
+ */
+function sort_displayed_skill_categories() {
     [...skill_list.children].sort((a,b) => {
-        let elem_a;
-        let elem_b;
-        if(sort_by === "level") {
-            skill_sorting = sort_by;
-            elem_a = skills[a.getAttribute("data-skill")].current_level;
-            elem_b = skills[b.getAttribute("data-skill")].current_level;
+        if(a.dataset.skill_category > b.dataset.skill_category) {
+            return 1;
         } else {
-            elem_a = skills[a.getAttribute("data-skill")].name();
-            elem_b = skills[b.getAttribute("data-skill")].name();
-            skill_sorting = "name";
+            return -1;
         }
-
-        if(elem_a > elem_b) {
-            return plus;
-        } else {
-            return minus;
-        }
-
-
     }).forEach(node=>skill_list.appendChild(node));
 }
 

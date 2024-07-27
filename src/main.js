@@ -2430,7 +2430,7 @@ function update() {
         if(active_effects.health_regeneration) {
             
             if(active_effects.health_regeneration.percent) {
-                character.stats.full.max_health += character.stats.full.max_health * active_effects.health_regeneration.percent;
+                character.stats.full.health += character.stats.full.max_health * active_effects.health_regeneration.percent;
             }
             
             character.stats.full.health += active_effects.health_regeneration.flat;

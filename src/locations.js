@@ -235,8 +235,7 @@ class Combat_zone {
 
                 effects.multipliers[effect] = (effects.multipliers[effect] || 1) * type.effects.multipliers[effect];
                 
-                hero_effects.multipliers[effect] = get_location_type_penalty(this.types[i].type, this.types[i].stage, effect)
-                //(hero_effects.multipliers[effect] || 1) * (type.effects.multipliers[effect] + (1 - type.effects.multipliers[effect])*(skill.current_level/skill.max_level)**1.7);
+                hero_effects.multipliers[effect] = (hero_effects.multipliers[effect] || 1) * get_location_type_penalty(this.types[i].type, this.types[i].stage, effect);
             })
         }
 

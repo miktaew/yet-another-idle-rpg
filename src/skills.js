@@ -1,6 +1,7 @@
 "use strict";
 
 const skills = {};
+const skill_categories = {};
 
 import {character} from "./character.js";
 import {stat_names} from "./misc.js";
@@ -37,6 +38,7 @@ class Skill {
                   rewards, 
                   xp_scaling = 1.8,
                   is_unlocked = true,
+                  category,
                 }) 
     {
         if(skill_id === "all" || skill_id === "hero" || skill_id === "all_skill") {
@@ -61,6 +63,13 @@ class Skill {
         this.total_xp_to_next_lvl = base_xp_cost; //total xp needed to lvl up
         this.get_effect_description = get_effect_description;
         this.is_parent = false;
+        if(!category) {
+            console.warn(`Skill "${this.skill_id}" has no category defined and was defaulted to miscellaneous`);
+            this.category = "Miscellaneous";
+        } else {
+            this.category = category;
+            skill_categories[this.category] = this;
+        }
         
         if(parent_skill) {
             if(skills[parent_skill]) {
@@ -387,6 +396,7 @@ function format_skill_rewards(milestone){
 (function(){
     skills["Combat"] = new Skill({skill_id: "Combat", 
                                 names: {0: "Combat"}, 
+                                category: "Combat",
                                 description: "Overall combat ability", 
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
@@ -398,6 +408,7 @@ function format_skill_rewards(milestone){
                                 names: {0: "Pest killer", 15: "Pest slayer"}, 
                                 description: "Small enemies might not seem very dangerous, but it's not that easy to hit them!", 
                                 max_level_coefficient: 2,
+                                category: "Combat",
                                 base_xp_cost: 100,
                                 get_effect_description: ()=> {
                                     return `Multiplies hit chance against small-type enemies by ${Math.round(skills["Pest killer"].get_coefficient("multiplicative")*1000)/1000}`;
@@ -435,6 +446,7 @@ function format_skill_rewards(milestone){
                                 names: {0: "Giant killer", 15: "Giant slayer"}, 
                                 description: "Large opponents might seem scary, but just don't get hit and you should be fine!", 
                                 max_level_coefficient: 2,
+                                category: "Combat",
                                 get_effect_description: ()=> {
                                     return `Multiplies evasion against large-type enemies by ${Math.round(skills["Giant slayer"].get_coefficient("multiplicative")*1000)/1000}`;
                                 }});
@@ -444,6 +456,7 @@ function format_skill_rewards(milestone){
                                 description:"Ability to evade attacks", 
                                 max_level_coefficient: 2,
                                 base_xp_cost: 20,
+                                category: "Combat",
                                 get_effect_description: ()=> {
                                     return `Multiplies your evasion chance by ${Math.round(skills["Evasion"].get_coefficient("multiplicative")*1000)/1000}`;
                                 },
@@ -494,6 +507,7 @@ function format_skill_rewards(milestone){
                                     description: "Ability to block attacks with shield", 
                                     max_level: 30, 
                                     max_level_bonus: 0.2,
+                                    category: "Combat",
                                     get_effect_description: ()=> {
                                         return `Increases block chance by flat ${Math.round(skills["Shield blocking"].get_level_bonus()*1000)/10}%. Increases blocked damage by ${Math.round(skills["Shield blocking"].get_level_bonus()*5000)/10}%`;
                                     }});
@@ -501,6 +515,7 @@ function format_skill_rewards(milestone){
      skills["Unarmed"] = new Skill({skill_id: "Unarmed", 
                                     names: {0: "Unarmed", 10: "Brawling", 20: "Martial arts"}, 
                                     description: "It's definitely, unquestionably, undoubtedly better to just use a weapon instead of doing this. But sure, why not?",
+                                    category: "Combat",
                                     get_effect_description: ()=> {
                                         return `Multiplies damage dealt in unarmed combat by ${Math.round(skills["Unarmed"].get_coefficient("multiplicative")*1000)/1000}. 
 Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarmed"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
@@ -566,6 +581,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                     names: {0: "Stance proficiency", 10: "Stance mastery"}, 
                                     description: "Knowledge on how to apply different stances in combat",
                                     base_xp_cost: 60,
+                                    category: "Stance",
                                     max_level: 30,
                                     get_effect_description: ()=> {
                                         return `Increases xp gains of all combat stance skills of level lower than this, x1.1 per level of difference`;
@@ -577,6 +593,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                 description: "A swift and precise technique that abandons strength in favor of greater speed", 
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
+                                category: "Stance",
                                 max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the 'Quick Steps' stance`;
@@ -587,6 +604,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                 description: "A powerful and dangerous technique that abandons speed in favor of overwhelmingly strong attacks", 
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
+                                category: "Stance",
                                 max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the "Crushing force" stance`;
@@ -597,6 +615,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                 description: "A special technique that allows striking multiple enemies at once, although at a cost of lower damage", 
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
+                                category: "Stance",
                                 max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the "Broad arc" stance`;
@@ -607,6 +626,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                 description: "A careful technique focused much more on defense than on attacking", 
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
+                                category: "Stance",
                                 max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the 'Defensive Measures' stance`;
@@ -617,6 +637,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                 description: "A wild and dangerous technique that focuses on dealing as much damage as possible, while completely ignoring own defense", 
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
+                                category: "Stance",
                                 max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the 'Berserker's Stride' stance`;
@@ -627,6 +648,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                 description: "A wild and dangerous technique that focuses on dealing as much damage as possible, while completely ignoring own defense", 
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
+                                category: "Stance",
                                 max_level: 30,
                                 get_effect_description: ()=> {
                                     return `Improves efficiency of the 'Flowing Water' stance`;
@@ -643,6 +665,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                             get_effect_description: ()=> {
                                                 return `Reduces environmental penalty in open areas by ^${Math.round(100-100*skills["Spatial awareness"].current_level/skills["Spatial awareness"].max_level)/100}`;
                                             },
+                                            category: "Environmental",
                                             rewards: {
                                                 milestones: {
                                                     3: {
@@ -668,6 +691,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                         skill_id: "Tight maneuvers", 
                                         names: {0: "Tight maneuvers"}, 
                                         description: "Learn how to fight in narrow environment, where there's not much space for dodging attacks", 
+                                        category: "Environmental",
                                         get_effect_description: ()=> {
                                             return `Reduces environmental penalty in narrow areas by ^${Math.round(100-100*skills["Tight maneuvers"].current_level/skills["Tight maneuvers"].max_level)/100}`;
                                         },
@@ -694,6 +718,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                     base_xp_cost: 600,
                                     xp_scaling: 1.9,
                                     max_level: 10,
+                                    category: "Environmental",
                                     get_effect_description: () => {
                                         return `Reduces darkness penalty (except for 'pure darkness') by ^${Math.round(100-100*skills["Night vision"].current_level/skills["Night vision"].max_level)/100}`;
                                     },
@@ -743,6 +768,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                 base_xp_cost: 60,
                 xp_scaling: 2,
                 max_level: 20,
+                category: "Environmental",
                 get_effect_description: () => {
                     return `Reduces extreme darkness penalty by ^${Math.round(100-100*skills["Presence sensing"].current_level/skills["Presence sensing"].max_level)/100}`;
                 },
@@ -795,6 +821,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
         description: "Ability to survive and function in high temperatures",
         base_xp_cost: 100,
         max_level: 40,
+        category: "Environmental",
         get_effect_description: () => {
             return `Reduces penalty from hot locations`;
         }
@@ -805,6 +832,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
         description: "Ability to survive and function in low temperatures",
         base_xp_cost: 100,
         max_level: 40,
+        category: "Environmental",
         get_effect_description: () => {
             return `Reduces penalty from cold locations`;
         }
@@ -816,6 +844,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
         description: "Don't look at the sun, it's bad for your eyes",
         base_xp_cost: 60,
         max_level: 30,
+        category: "Environmental",
         get_effect_description: ()=> {
             return `Reduces hit and evasion penalty in super bright areas`;
         },
@@ -827,7 +856,8 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
 (function(){
     skills["Weapon mastery"] = new Skill({skill_id: "Weapon mastery", 
                                     names: {0: "Weapon proficiency", 15: "Weapon mastery"}, 
-                                    description: "Knowledge of all weapons", 
+                                    description: "Knowledge of all weapons",
+                                    category: "Weapon",
                                     get_effect_description: ()=> {
                                         return `Increases xp gains of all weapon skills of level lower than this, x1.1 per level of difference`;
                                     },
@@ -835,6 +865,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
     skills["Swords"] = new Skill({skill_id: "Swords", 
                                   parent_skill: "Weapon mastery",
                                   names: {0: "Swordsmanship"}, 
+                                  category: "Weapon",
                                   description: "The noble art of swordsmanship", 
                                   get_effect_description: ()=> {
                                       return `Multiplies damage dealt with swords by ${Math.round(skills["Swords"].get_coefficient("multiplicative")*1000)/1000}.
@@ -882,6 +913,7 @@ Multiplies AP with swords by ${Math.round((skills["Swords"].get_coefficient("mul
     skills["Axes"] = new Skill({skill_id: "Axes", 
                                 parent_skill: "Weapon mastery",
                                 names: {0: "Axe combat"}, 
+                                category: "Weapon",
                                 description: "Ability to fight with use of axes", 
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with axes by ${Math.round(skills["Axes"].get_coefficient("multiplicative")*1000)/1000}.
@@ -928,6 +960,7 @@ Multiplies AP with axes by ${Math.round((skills["Axes"].get_coefficient("multipl
     skills["Spears"] = new Skill({skill_id: "Spears", 
                                 parent_skill: "Weapon mastery",
                                 names: {0: "Spearmanship"}, 
+                                category: "Weapon",
                                 description: "The ability to fight with the most deadly weapon in the history", 
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with spears by ${Math.round(skills["Spears"].get_coefficient("multiplicative")*1000)/1000}.
@@ -974,6 +1007,7 @@ Multiplies AP with spears by ${Math.round((skills["Spears"].get_coefficient("mul
     skills["Hammers"] = new Skill({skill_id: "Hammers", 
                                         parent_skill: "Weapon mastery",
                                         names: {0: "Hammer combat"}, 
+                                        category: "Weapon",
                                         description: "Ability to fight with use of battle hammers. Why bother trying to cut someone, when you can just crack all their bones?", 
                                         get_effect_description: ()=> {
                                             return `Multiplies damage dealt with battle hammers by ${Math.round(skills["Hammers"].get_coefficient("multiplicative")*1000)/1000}.
@@ -1020,6 +1054,7 @@ Multiplies AP with hammers by ${Math.round((skills["Hammers"].get_coefficient("m
     skills["Daggers"] = new Skill({skill_id: "Daggers",
                                 parent_skill: "Weapon mastery",
                                 names: {0: "Dagger combat"},
+                                category: "Weapon",
                                 description: "The looked upon art of fighting (and stabbing) with daggers",
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with daggers by ${Math.round(skills["Daggers"].get_coefficient("multiplicative")*1000)/1000}.
@@ -1066,6 +1101,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     skills["Wands"] = new Skill({skill_id: "Wands", 
                                 parent_skill: "Weapon mastery",
                                 names: {0: "Wand casting"}, 
+                                category: "Weapon",
                                 description: "Ability to cast spells with magic wands, increases damage dealt", 
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with wands by ${Math.round(skills["Wands"].get_coefficient("multiplicative")*1000)/1000}`;
@@ -1075,6 +1111,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     skills["Staffs"] = new Skill({skill_id: "Staffs", 
                                 parent_skill: "Weapon mastery",
                                 names: {0: "Staff casting"}, 
+                                category: "Weapon",
                                 description: "Ability to cast spells with magic staffs, increases damage dealt", 
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealth with staffs by ${Math.round(skills["Staffs"].get_coefficient("multiplicative")*1000)/1000}`;
@@ -1088,6 +1125,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                 names: {0: "Farming"}, 
                                 description: "Even a simple action of plowing some fields, can be performed better with skills and experience",
                                 base_xp_cost: 40,
+                                category: "Activity",
                                 max_level: 10,
                                 xp_scaling: 1.6,
                                 max_level_coefficient: 2,
@@ -1177,6 +1215,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                     description: "Good, regular sleep is the basis of getting stronger and helps your body heal.",
                                     base_xp_cost: 1000,
                                     xp_scaling: 2,
+                                    category: "Activity",
                                     max_level: 10,
                                     max_level_coefficient: 2.5,    
                                     rewards: {
@@ -1252,6 +1291,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                 names: {0: "Meditation"}, 
                                 description: "Focus your mind",
                                 base_xp_cost: 200,
+                                category: "Activity",
                                 max_level: 30, 
                                 is_unlocked: false,
                                 visibility_treshold: 0,
@@ -1318,6 +1358,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                   description: "Great way to improve the efficiency of the body",
                                   names: {0: "Running"},
                                   max_level: 50,
+                                  category: "Activity",
                                   max_level_coefficient: 2,
                                   base_xp_cost: 50,
                                   rewards: {
@@ -1382,6 +1423,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     description: "No better way to get stronger than by lifting heavy things",
     names: {0: "Weightlifting"},
     max_level: 50,
+    category: "Activity",
     max_level_coefficient: 4,
     base_xp_cost: 50,
     rewards: {
@@ -1449,6 +1491,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     skills["Equilibrium"] = new Skill({skill_id: "Equilibrium",
     description: "Nothing will throw you off your balance (at least the physical one)",
     names: {0: "Equilibrium"},
+    category: "Activity",
     max_level: 50,
     max_level_coefficient: 4,
     base_xp_cost: 50,
@@ -1524,6 +1567,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     skills["Woodcutting"] = new Skill({skill_id: "Woodcutting", 
         names: {0: "Woodcutting"}, 
         description: "Get better with chopping the wood",
+        category: "Activity",
         base_xp_cost: 10,
         visibility_treshold: 4,
         xp_scaling: 1.6,
@@ -1532,6 +1576,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     skills["Mining"] = new Skill({skill_id: "Mining",
         names: {0: "Mining"}, 
         description: "Get better with mining the ores",
+        category: "Activity",
         base_xp_cost: 10,
         visibility_treshold: 4,
         xp_scaling: 1.6,
@@ -1540,6 +1585,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     skills["Herbalism"] = new Skill({skill_id: "Herbalism",
         names: {0: "Herbalism"}, 
         description: "Knowledge of useful plants and mushrooms",
+        category: "Activity",
         base_xp_cost: 10,
         visibility_treshold: 4,
         xp_scaling: 1.6,
@@ -1549,6 +1595,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         skill_id: "Animal handling",
         names: {0: "Animal handling"}, 
         description: "Knowledge and skills required to deal with a wide variety of animals",
+        category: "Activity",
         base_xp_cost: 10,
         visibility_treshold: 4,
         xp_scaling: 1.6,
@@ -1561,6 +1608,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         skill_id: "Crafting", 
         names: {0: "Crafting"}, 
         description: "The art of preparing different elements and assembling them together",
+        category: "Crafting",
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
@@ -1568,7 +1616,8 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     skills["Smelting"] = new Skill({
         skill_id: "Smelting", 
         names: {0: "Smelting"}, 
-        description: "The art of crafting",
+        description: "Turning raw ore into raw metal",
+        category: "Crafting",
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
@@ -1577,6 +1626,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         skill_id: "Forging", 
         names: {0: "Forging"}, 
         description: "Turning raw metal into something useful",
+        category: "Crafting",
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
@@ -1585,6 +1635,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         skill_id: "Cooking", 
         names: {0: "Cooking"}, 
         description: "Making the unedible edible",
+        category: "Crafting",
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
@@ -1593,6 +1644,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         skill_id: "Alchemy", 
         names: {0: "Alchemy"}, 
         description: "Extracting and enhancing useful properties of the ingredies",
+        category: "Crafting",
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
@@ -1603,6 +1655,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
 (function(){
     skills["Iron skin"] = new Skill({
         skill_id: "Iron skin",
+        category: "Combat",
         names: {0: "Tough skin", 5: "Wooden skin", 10: "Iron skin"},
         description: "As it gets damaged, your skin regenerates to be tougher and tougher",
         base_xp_cost: 400,
@@ -1651,6 +1704,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         names: {0: "Persistence"},
         description: "Being tired is not a reason to give up",
         base_xp_cost: 60,
+        category: "Character",
         max_level: 30,
         get_effect_description: ()=> {
             return `Increases low stamina stat multiplier to x${(50+Math.round(skills["Persistence"].get_level_bonus()*100000)/1000)/100} (originally x0.5)`;
@@ -1706,7 +1760,8 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         skill_id: "Perception", 
         names: {0: "Perception"}, 
         description: "Better grasp on your senses allows you to notice small and hidden things, as well as to discern the true nature of what you obsere",
-        max_level_coefficient: 2,
+        
+        category: "Character",max_level_coefficient: 2,
         get_effect_description: ()=> {
             return ``;
         },
@@ -1720,6 +1775,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         skill_id: "Literacy", 
         names: {0: "Literacy"}, 
         description: "Ability to read and understand written text",
+        category: "Character",
         base_xp_cost: 120,
         max_level: 10,
         xp_scaling: 2,
@@ -1749,6 +1805,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         skill_id: "Haggling",
         names: {0: "Haggling"},
         description: "The art of the deal",
+        category: "Character",
         base_xp_cost: 100,
         max_level: 25,
         get_effect_description: ()=> {
