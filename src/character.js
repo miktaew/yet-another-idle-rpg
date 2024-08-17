@@ -296,7 +296,12 @@ character.stats.add_all_equipment_bonus = function() {
                 });
         });
 
+        character.stats.add_weapon_type_bonuses();
         //add weapon speed bonus (technically a bonus related to equipment, so its in this function)
+        
+}
+
+character.stats.add_weapon_type_bonuses = function() {
         if(character.equipment.weapon == null) {
                 character.stats.multiplier.skills.attack_power = skills["Unarmed"].get_coefficient();
                 character.stats.multiplier.skills.attack_speed = (skills["Unarmed"].get_coefficient("multiplicative")**0.3333);
@@ -319,6 +324,8 @@ character.stats.add_all_skill_level_bonus = function() {
         character.stats.multiplier.skills.strength = skills["Weightlifting"].get_coefficient("multiplicative");
         character.stats.multiplier.skills.block_strength = 1 + 5*skills["Shield blocking"].get_level_bonus();
         character.stats.multiplier.skills.agility = skills["Equilibrium"].get_coefficient("multiplicative");
+        
+        character.stats.add_weapon_type_bonuses();
 }
 
 /**
@@ -591,13 +598,14 @@ function add_location_penalties() {
 /**
  * updates character stats + their display 
  */
- function update_character_stats() { //updates character stats
+function update_character_stats() {
         character.stats.add_location_penalties();
         character.update_stats();
 
         update_displayed_stats();
         update_displayed_health();
         update_displayed_stamina();
+        
         //update_displayed_mana();
 }
 

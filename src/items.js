@@ -120,6 +120,28 @@ class Item {
         this.tags["item"] = true;
     }
 
+    getInventoryKey() {
+        if(!this.inventory_key) {
+            this.inventory_key = this.createInventoryKey();
+        }
+        return this.inventory_key;
+    }
+
+    createInventoryKey() {
+        let key = '{';
+        if(!this.components) {
+            key += `id: ${this.id}`;
+        } else {
+            Object.keys(this.components).forEach(component => {
+                key += `${component}: ${this.components[component]}`;
+            });
+        }
+        if(this.quality) {
+            key += `, quality: ${this.quality}`;
+        }
+        return key + '}';
+    }
+
     getValue() {
         if(!this.saturates_market) {
             return round_item_price(this.value);
@@ -211,6 +233,10 @@ class ItemComponent extends Item {
     getStats() {
         return this.stats;
     }
+
+    getValue(quality) {
+        return round_item_price(this.value * (quality || this.quality));
+    } 
 }
 
 class WeaponComponent extends ItemComponent {
@@ -1739,7 +1765,7 @@ item_templates["Twist liek a snek"] = new Book({
     });
 
     item_templates["Cheap leather hat"] = new Armor({
-        name: "Leather hat", 
+        name: "Cheap leather hat", 
         description: "A cheap leather hat to protect your head.", 
         value: 100,
         component_type: "helmet interior",

@@ -2346,7 +2346,7 @@ function update_displayed_stats() { //updates displayed stats
 
     attack_stats.children[0].innerHTML = `Atk pwr: ${Math.round(character.get_attack_power()*10)/10}`;
     attack_stats.children[1].innerHTML = `Atk spd: ${Math.round(character.get_attack_speed()*100)/100}`;
-    attack_stats.children[2].innerHTML = `AP  ${Math.round(ap)}`;
+    attack_stats.children[2].innerHTML = `AP:  ${Math.round(ap)}`;
     attack_stats.children[4].innerHTML = `Def: ${Math.round(character.stats.full.defense)} `;
 }
 

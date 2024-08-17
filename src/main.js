@@ -1212,6 +1212,12 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
         }
     } 
 
+    if(gains) { 
+        character.stats.add_skill_milestone_bonus(gains);
+        if(skill.skill_id === "Unarmed") {
+            character.stats.add_all_equipment_bonus();
+        }
+    }
     
     if(is_visible) 
     {
@@ -1257,20 +1263,11 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                     log_message(`Unlocked new skill: ${unlocked_skill.name()}`, "skill_raised");
                 }
             }
-
         } else {
             update_displayed_skill_bar(skill, false);
         }
     } else {
         //
-    }
-
-    if(gains) { 
-        character.stats.add_skill_milestone_bonus(gains);
-        if(skill.skill_id === "Unarmed") {
-            character.stats.add_all_equipment_bonus();
-        }
-        update_character_stats();
     }
 
     return leveled;
@@ -1556,6 +1553,10 @@ function use_item(item_name) {
     }
 }
 
+function is_on_dev() {
+    return window.location.href.endsWith("-dev/");
+}
+
 /**
  * puts all important stuff into a string
  * @returns string with save data
@@ -1793,9 +1794,8 @@ function load(save_data) {
                                     should_info: false, add_to_parent: true, use_bonus: false
                                 });
             }
-        } else {
-            console.warn(`Skill "${key}" couldn't be found!`);
-            return;
+        } else if(save_data.skills[key].total_xp > 0) {
+                console.warn(`Skill "${key}" couldn't be found!`);
         }
     }); //add xp to skills
 
@@ -1893,7 +1893,7 @@ function load(save_data) {
                     const {quality, equip_slot} = save_data.character.equipment[key];
                     
                     if(save_data.character.equipment[key].components && save_data.character.equipment[key].components.internal.includes(" [component]")) {
-                        //compatibility for armors from before v0.4.5
+                        //compatibility for armors from before v0.4.3
                         const item = getItem({...item_templates[save_data.character.equipment[key].components.internal.replace(" [component]","")], quality: quality});
                         equip_item(item);
                     }
@@ -1974,7 +1974,7 @@ function load(save_data) {
                             const {quality, equip_slot} = save_data.character.inventory[key][i];
 
                             if(save_data.character.inventory[key][i].components && save_data.character.inventory[key][i].components.internal.includes(" [component]")) {
-                                //compatibility for armors from before v0.4.5
+                                //compatibility for armors from before v0.4.3
                                 const item = getItem({...item_templates[save_data.character.inventory[key][i].components.internal.replace(" [component]","")], quality: quality});
                                 item_list.push({item, count: 1});
                             }
@@ -2095,7 +2095,7 @@ function load(save_data) {
 
                                         const {quality, equip_slot} = save_data.traders[trader].inventory[key][i];
                                         if(save_data.traders[trader].inventory[key][i].components && save_data.traders[trader].inventory[key][i].components.internal.includes(" [component]")) {
-                                            //compatibility for armors from before v0.4.5
+                                            //compatibility for armors from before v0.4.3
                                             const item = getItem({...item_templates[save_data.traders[trader].inventory[key][i].components.internal.replace(" [component]","")], quality: quality});
                                             trader_item_list.push({item, count: 1});
                                         } else if(save_data.traders[trader].inventory[key][i].components) {
@@ -2430,7 +2430,7 @@ function update() {
         if(active_effects.health_regeneration) {
             
             if(active_effects.health_regeneration.percent) {
-                character.stats.full.health += character.stats.full.max_health * active_effects.health_regeneration.percent;
+                character.stats.full.health += character.stats.full.max_health * active_effects.health_regeneration.percent/100;
             }
             
             character.stats.full.health += active_effects.health_regeneration.flat;
@@ -2451,7 +2451,7 @@ function update() {
         //regenerate stamina
         if(active_effects.stamina_regeneration) {
             if(active_effects.stamina_regeneration.percent) {
-                character.stats.full.max_stamina += (character.stats.full.max_stamina * active_effects.stamina_regeneration.percent);
+                character.stats.full.stamina += character.stats.full.max_stamina * active_effects.stamina_regeneration.percent/100;
             }
             
             character.stats.full.stamina += active_effects.stamina_regeneration.flat;
@@ -2644,7 +2644,7 @@ function add_all_stuff_to_inventory(){
 update_displayed_equipment();
 run();
 
-if(window.location.href.endsWith("-dev/")) {
+if(is_on_dev()) {
     log_message("It looks like you are playing on the dev release. It is recommended to keep the developer console open (in Chrome/Firefox/Edge it's at F12 => 'Console' tab) in case of any errors/warnings appearing in there.", "notification");
 }
 
