@@ -99,18 +99,58 @@ function getLootPriceModifierMultiple(value, start_count, how_many_to_sell) {
     return sum;
 }
 
+function getArmorSlot(internal) {
+    let equip_slot;
+    if(item_templates[internal].component_type === "helmet interior") {
+        equip_slot = "head";
+    } else if(item_templates[internal].component_type === "chestplate interior") {
+        equip_slot = "torso";
+    } else if(item_templates[internal].component_type === "leg armor interior") {
+        equip_slot = "legs";
+    } else if(item_templates[internal].component_type === "glove interior") {
+        equip_slot = "arms";
+    } else if(item_templates[internal].component_type === "shoes interior") {
+        equip_slot = "feet";
+    } else {
+        console.error(`Component type "${item_templates[internal].component_type}" doesn't correspond to any armor slot!`);
+        return null;
+    }
+    return equip_slot;
+}
+
+function getItemRarity(quality) {
+    let rarity;
+    if(quality < 50) rarity =  "trash";
+    else if(quality < 100) rarity = "common";
+    else if(quality < 130) rarity = "uncommon";
+    else if(quality < 160) rarity = "rare";
+    else if(quality < 200) rarity = "epic";
+    else if(quality < 246) rarity = "legendary";
+    else rarity = "mythical";
+    
+    return rarity;
+}
+
+function getEquipmentValue(components, quality) {
+    let value = 0;
+    Object.values(components).forEach(component => {
+        value += item_templates[component].value;
+    });
+    return value * (quality/100 ) * rarity_multipliers[getItemRarity(quality)];
+}
+
 class Item {
     constructor({name,
                 description,
                 value = 0, 
-                id,
                 tags = {},
-                }) 
+                id = null,
+                })
     {
         this.name = name; 
         this.description = description;
         this.saturates_market = false;
-        this.id = id || name;
+        this.id = id;
 
         /**
          * Use .getValue() instead of this
@@ -128,18 +168,20 @@ class Item {
     }
 
     createInventoryKey() {
-        let key = '{';
+        const key = {};
+
         if(!this.components) {
-            key += `id: ${this.id}`;
+            key.id = this.id;
         } else {
+            key.components = {};
             Object.keys(this.components).forEach(component => {
-                key += `${component}: ${this.components[component]}`;
+                key.components[component] = this.components[component];
             });
         }
         if(this.quality) {
-            key += `, quality: ${this.quality}`;
+            key.quality = this.quality;
         }
-        return key + '}';
+        return JSON.stringify(key);
     }
 
     getValue() {
@@ -203,28 +245,28 @@ class ItemComponent extends Item {
         this.component_tier = item_data.component_tier || 1;
         this.stats = item_data.stats || {};
         this.tags["equipment component"] = true;
-        this.quality = item_data.quality || 1;
+        this.quality = Math.round(item_data.quality) || 100;
     }
     getRarity(quality){
         if(!quality) {
             if(!this.rarity) {
-                this.rarity = this.calculateRarity(this.quality);
+                this.rarity = getItemRarity(this.quality);
             }
             return this.rarity;
         } else {
-            return this.calculateRarity(quality);
+            return getItemRarity(quality);
         }
 
     }
 
     calculateRarity(quality) {
         let rarity;
-        if(quality < 0.5) rarity =  "trash";
-        else if(quality < 1.0) rarity = "common";
-        else if(quality < 1.3) rarity = "uncommon";
-        else if(quality < 1.6) rarity = "rare";
-        else if(quality < 2.0) rarity = "epic";
-        else if(quality < 2.46) rarity = "legendary";
+        if(quality < 50) rarity =  "trash";
+        else if(quality < 100) rarity = "common";
+        else if(quality < 130) rarity = "uncommon";
+        else if(quality < 160) rarity = "rare";
+        else if(quality < 200) rarity = "epic";
+        else if(quality < 246) rarity = "legendary";
         else rarity = "mythical";
         
         return rarity;
@@ -235,7 +277,7 @@ class ItemComponent extends Item {
     }
 
     getValue(quality) {
-        return round_item_price(this.value * (quality || this.quality));
+        return round_item_price(this.value * (quality/100 || this.quality/100));
     } 
 }
 
@@ -337,7 +379,7 @@ class Equippable extends Item {
         this.stackable = false;
         this.components = {};
 
-        this.quality = Math.round(item_data.quality*100)/100 || 1;
+        this.quality = Math.round(item_data.quality) || 100;
 
         this.tags["equippable"] = true;
     }
@@ -349,26 +391,13 @@ class Equippable extends Item {
     getRarity(quality){
         if(!quality) {
             if(!this.rarity) {
-                this.rarity = this.calculateRarity(this.quality);
+                this.rarity = getItemRarity(this.quality);
             }
             return this.rarity;
         } else {
-            return this.calculateRarity(quality);
+            return getItemRarity(quality);
         }
 
-    }
-
-    calculateRarity(quality) {
-        let rarity;
-        if(quality < 0.5) rarity =  "trash";
-        else if(quality < 1.0) rarity = "common";
-        else if(quality < 1.3) rarity = "uncommon";
-        else if(quality < 1.6) rarity = "rare";
-        else if(quality < 2.0) rarity = "epic";
-        else if(quality < 2.46) rarity = "legendary";
-        else rarity = "mythical";
-        
-        return rarity;
     }
 
     getStats(quality){
@@ -506,7 +535,7 @@ class Shield extends Equippable {
     }
 
     calculateShieldStrength(quality) {
-        return Math.round(10 * Math.ceil(item_templates[this.components.shield_base].shield_strength * (quality) * rarity_multipliers[this.getRarity(quality)]))/10;
+        return Math.round(10 * Math.ceil(item_templates[this.components.shield_base].shield_strength * (quality/100) * rarity_multipliers[this.getRarity(quality)]))/10;
     }
 
     getName() {
@@ -517,7 +546,7 @@ class Shield extends Equippable {
         if(!this.value) {
             //value of shield base + value of handle, both multiplied by quality and rarity
             this.value = (item_templates[this.components.shield_base].value + item_templates[this.components.handle].value)
-                                  * (quality || this.quality) * rarity_multipliers[this.getRarity(quality)];
+                                  * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)];
         }
         return round_item_price(this.value);
     } 
@@ -618,10 +647,10 @@ class Armor extends Equippable {
         if(this.components) {
             return Math.ceil(((item_templates[this.components.internal].defense_value || item_templates[this.components.internal].base_defense ||0) + 
                                         (item_templates[this.components.external]?.defense_value || 0 )) 
-                                        * (quality || this.quality) * rarity_multipliers[this.getRarity(quality || this.quality)]
+                                        * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality || this.quality)]
             )
         } else {
-            return Math.ceil((this.base_defense || 0)  * (quality || this.quality) * rarity_multipliers[this.getRarity(quality || this.quality)]);
+            return Math.ceil((this.base_defense || 0)  * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality || this.quality)]);
         }
     }
 
@@ -630,7 +659,7 @@ class Armor extends Equippable {
             //value of internal + value of external (if present), both multiplied by quality and rarity
             this.value = (item_templates[this.components.internal].value + 
                                    (item_templates[this.components.external]?.value || 0))
-                                  * (quality || this.quality) * rarity_multipliers[this.getRarity(quality)];
+                                  * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)];
         }
         return round_item_price(this.value);
     } 
@@ -720,14 +749,14 @@ class Weapon extends Equippable {
             (item_templates[this.components.head].attack_value + item_templates[this.components.handle].attack_value)
             * item_templates[this.components.head].attack_multiplier * item_templates[this.components.handle].attack_multiplier
             * (item_templates[this.components.head].stats?.attack_power?.multiplier || 1) * (item_templates[this.components.handle].stats?.attack_power?.multiplier || 1)
-            * quality * rarity_multipliers[this.getRarity(quality)]
+            * (quality/100) * rarity_multipliers[this.getRarity(quality)]
         );
     }
 
     getValue(quality) {
         if(!this.value) {
             //value of handle + value of head, both multiplied by quality and rarity
-            this.value = (item_templates[this.components.handle].value + item_templates[this.components.head].value) * (quality || this.quality) * rarity_multipliers[this.getRarity(quality)]
+            this.value = (item_templates[this.components.handle].value + item_templates[this.components.head].value) * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)]
         }
         return round_item_price(this.value);
     } 
@@ -2169,12 +2198,16 @@ item_templates["Twist liek a snek"] = new Book({
     });
 })();
 
+Object.keys(item_templates).forEach(id => {
+    item_templates[id].id = id;
+})
+
 export {
     item_templates, 
     Item, OtherItem, UsableItem, 
     Armor, Shield, Weapon, Artifact, Book, 
     WeaponComponent, ArmorComponent, ShieldComponent,
-    getItem, setLootSoldCount, recoverItemPrices, round_item_price,
+    getItem, setLootSoldCount, recoverItemPrices, round_item_price, getArmorSlot, getEquipmentValue,
     book_stats, loot_sold_count,
     rarity_multipliers
 };

@@ -196,8 +196,7 @@ character.get_level_bonus = function (level) {
                 gains += `<br>Intuition increased by ${gained_int}`;
         }
 
-        gains += `<br>Skill xp gains increased by ${(gained_skill_xp_multiplier-1)*100}%`;
-        
+        gains += `<br>Skill xp gains increased by ${Math.round((gained_skill_xp_multiplier-1)*100)}%`;
         
         return gains;
 }
@@ -540,7 +539,7 @@ function add_to_character_inventory(items) {
 
 /**
  * Removes items from character's inventory
- * Takes an array in form of [{item_name, item_count, item_id}] with TWO params, name and either count (for stackables) or inventory id (for unstackables)
+ * Takes an array in form of [{item_key, item_count}]
  */
 function remove_from_character_inventory(items) {
         character.remove_from_inventory(items);
@@ -566,14 +565,14 @@ function equip_item(item) {
 
 /**
  * equips item and removes it from inventory
- * @param item_info - {name, id}
- */
- function equip_item_from_inventory({item_name, item_id}) {
-        if(item_name in character.inventory) { //check if its in inventory, just in case
+ * @param item_key
+ **/
+ function equip_item_from_inventory(item_key) {
+        if(item_key in character.inventory) { //check if its in inventory, just in case
             //add specific item to equipment slot
             // -> id and name tell which exactly item it is, then also check slot in item object and thats all whats needed
-            equip_item(character.inventory[item_name][item_id]);
-            remove_from_character_inventory([{item_name, item_id}]);
+            equip_item(character.inventory[item_key].item);
+            remove_from_character_inventory([{item_key}]);
             
             update_character_stats();
         }

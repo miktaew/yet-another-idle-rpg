@@ -570,8 +570,8 @@
                         </div>
                     </div>
 
-                    <div id = "crafting_window">
-                        <div id="crafting_mainpage_buttons" class="activable_buttons">
+                    <div id = "crafting_window" class="crafting_window">
+                        <div id="crafting_mainpage_buttons" class="activable_buttons crafting_mainpage_buttons">
                             <div class="crafting_mainpage_button active_selection_button" onclick="switchCraftingRecipesPage('crafting')">Crafting</div>
                             <div class="crafting_mainpage_button" onclick="switchCraftingRecipesPage('cooking')">Cooking</div>
                             <div class="crafting_mainpage_button" onclick="switchCraftingRecipesPage('smelting')">Smelting</div>
@@ -1127,8 +1127,6 @@
                 trade_price_value.innerHTML = format_money(total_price);
                 document.documentElement.style.setProperty('--trade_ammount_button_display', 'inline-block');
                 document.documentElement.style.setProperty('--item_use_button_display', 'none');
-                document.documentElement.style.setProperty('--item_other_width', getComputedStyle(document.body).getPropertyValue('--item_other_width_trade'));
-                document.documentElement.style.setProperty('--item_stackable_width', getComputedStyle(document.body).getPropertyValue('--item_other_width_trade'));
 
                 start_trade(trader_key);
             }
@@ -1138,8 +1136,6 @@
                 trade_price_value.innerHTML = format_money(total_price);
                 document.documentElement.style.setProperty('--trade_ammount_button_display', 'none');
                 document.documentElement.style.setProperty('--item_use_button_display', 'inline-block');
-                document.documentElement.style.setProperty('--item_other_width', getComputedStyle(document.body).getPropertyValue('--item_other_width_default'));
-                document.documentElement.style.setProperty('--item_stackable_width', getComputedStyle(document.body).getPropertyValue('--item_stackable_width_default'));
 
                 const accept_button = document.getElementById("accept_trade_button");
                 accept_button.style.cursor = "pointer";
@@ -1235,6 +1231,39 @@
                 change_stance(stance_id);
             }
 
+            /**
+             * keeps going up through clicked_element's parents until it reaches one with with any of target_classes, returns false if it reached any of break_classes instead
+             * probably not as efficient as a bunch of ifs, but much more manageable
+             * @param {HTMLNode} clicked_element
+             * @param {String} target_class
+             * @param {Array} break_classes
+             * 
+             */
+            function retarget_clicked_to_class(clicked_element, target_classes, break_classes) {
+                let end = false;
+                while(true) {
+                    if(!clicked_element.classList) {
+                        return;
+                    }
+                    for(let i = 0; i < target_classes?.length; i++) {
+                        if(clicked_element.classList.contains(target_classes[i])) {
+                            end = true;
+                        }
+                    }
+                    if(end) { 
+                        break;
+                    }
+                    for(let i = 0; i < break_classes?.length; i++) {
+                        if(clicked_element.classList.contains(break_classes[i])) {
+                            return;
+                        }
+                    }
+
+                    clicked_element = clicked_element.parentNode;
+                }
+                return clicked_element;
+            }
+
             function prepareGame() { //called on body loaded
                 document.getElementById("changelog_button").children[0].innerHTML = get_game_version();
 
@@ -1248,23 +1277,16 @@
                 inventory_div.onclick = function(event) {
                     let clicked_element = event.target;
                     if(clicked_element.classList.contains("equip_item_button")) {
-                        let last_index = clicked_element.parentNode.getAttribute("data-character_item").lastIndexOf(" #"); 
-                        //always ends with " #number", so this will get index of that whitespace before "#"
-
-                        equip_item({item_name: clicked_element.parentNode.getAttribute("data-character_item").substr(0, last_index), 
-                                    item_id: clicked_element.parentNode.getAttribute("data-character_item").substr(last_index+2)
-                        });
+                        equip_item(clicked_element.parentNode.parentNode.getAttribute("data-character_item"));
                     }
                     else if(clicked_element.classList.contains("unequip_item_button")) {
-                        let last_index = clicked_element.parentNode.getAttribute("data-character_item").lastIndexOf(" #"); 
-                        //always ends with " #slot", so this will get index of that whitespace before "#"
-                        unequip_item(clicked_element.parentNode.getAttribute("data-character_item").substr(last_index+2));
+                        unequip_item(clicked_element.parentNode.parentNode.getAttribute("data-item_slot"));
                     } 
                     else if(clicked_element.classList.contains("item_use_button")) {
-                        if(clicked_element.parentNode.classList.contains("character_item_book")) {
-                            start_reading(clicked_element.parentNode.getAttribute("data-character_item"));
+                        if(clicked_element.parentNode.parentNode.classList.contains("character_item_book")) {
+                            start_reading(clicked_element.parentNode.parentNode.getAttribute("data-character_item"));
                         } else {
-                            use_item(clicked_element.parentNode.getAttribute("data-character_item"));
+                            use_item(clicked_element.parentNode.parentNode.getAttribute("data-character_item"));
                             update_displayed_character_inventory(character_sorting);
                         }
                     }
@@ -1278,46 +1300,16 @@
                 inventory_div.addEventListener('mousemove', move_item_tooltip, false);
                 function move_item_tooltip(event) {
                     if(Date.now() >= tooltip_wait) {
-                        let hovered_element = event.target;
-                        
-                        if(!(hovered_element.classList.contains("inventory_item_control") 
-                            || hovered_element.classList.contains("trade_ammount_button")
-                            || hovered_element.classList.contains("inventory_item") 
-                            || hovered_element.classList.contains("item_controls") 
-                            || hovered_element.classList.contains("item_use_button") 
-                            || hovered_element.classList.contains("item_read_button") 
-                            || hovered_element.classList.contains("inventory_item_name") 
-                            || hovered_element.classList.contains("item_tooltip")
-                            || hovered_element.classList.contains("equipped_item_name")
-                            || hovered_element.nodeName === "SPAN"
-                            )) {
-                            return;
-                        }
+                        let hovered_element = retarget_clicked_to_class(event.target, ["inventory_item_control", "equipped_item_control"], []);
 
                         //set horizontal position
                         document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX - 20}px`);
 
-                        //calculate vertical position so it doesnt go under bottom edge
-                        
-                        if(!hovered_element.classList.contains("inventory_item_control")){
-                            if(hovered_element.classList.contains("trade_ammount_buttons") 
-                                || hovered_element.classList.contains("inventory_item") 
-                                || hovered_element.classList.contains("item_controls") 
-                                || hovered_element.classList.contains("item_use_button") 
-                                || hovered_element.classList.contains("item_read_button")
-                                )
-                            {
-                                hovered_element = hovered_element.parentNode;
-                            } else if(hovered_element.classList.contains("inventory_item_name")  
-                            || hovered_element.classList.contains("item_tooltip") 
-                            || hovered_element.classList.contains("trade_ammount_button")
-                            || hovered_element.classList.contains("equipped_item_name")) 
-                            {
-                                hovered_element = hovered_element.parentNode.parentNode;
-                            } else if(hovered_element.nodeName === "SPAN") {
-                                hovered_element = hovered_element.parentNode.parentNode.parentNode;
-                            }
+                        if(!hovered_element) {
+                            return;
                         }
+                        
+                        //calculate vertical position so it doesnt go under bottom edge
                         const tooltip_height = hovered_element.children[0].children[1].scrollHeight;
 
                         const body = document.getElementsByTagName("body")[0];
@@ -1345,19 +1337,8 @@
                             return;
                         }
 
-                        var hovered_element = event.target;
-                        if(!hovered_element.classList.contains("trader_item_control")){
-                            if(hovered_element.classList.contains("trade_ammount_buttons") 
-                                || hovered_element.classList.contains("trader_item") 
-                                || hovered_element.classList.contains("item_value")) 
-                            {
-                                hovered_element = hovered_element.parentNode;
-                            } else if(hovered_element.classList.contains("inventory_item_name")  || hovered_element.classList.contains("item_tooltip") || hovered_element.classList.contains("trade_ammount_button")) {
-                                hovered_element = hovered_element.parentNode.parentNode;
-                            } else if(hovered_element.classList.contains("item_slot") || hovered_element.nodeName === "SPAN") {
-                                hovered_element = hovered_element.parentNode.parentNode.parentNode;
-                            }
-                        }
+                        let hovered_element = retarget_clicked_to_class(event.target, ["trader_item_control"]);
+
                         const tooltip_width = hovered_element.children[0].children[1].scrollWidth;
                         const tooltip_height = hovered_element.children[0].children[1].scrollHeight;
 
@@ -1416,28 +1397,14 @@
                 crafting_window.addEventListener('mousemove', move_recipe_tooltip, false);
                 function move_recipe_tooltip(event) {
                     if(Date.now() >= tooltip_wait) {
-                        let hovered_element = event.target;
-
-                        if(hovered_element.id === "crafting_window" 
-                            || hovered_element.id === "crafting_mainpage_buttons"
-                            || document.getElementById("crafting_mainpage_buttons").contains(hovered_element)
-                            || hovered_element.classList.contains("crafting_category") 
-                            || hovered_element.classList.contains("crafting_subpage_buttons")
-                            || hovered_element.classList.contains("crafting_subpage_button")
-                        ) {
+                        let hovered_element = retarget_clicked_to_class(event.target, 
+                            ["recipe_div", "selectable_component"], 
+                            ["crafting_subpage_button", "crafting_subpage_buttons", "crafting_category", "crafting_mainpage_buttons", "crafting_mainpage_button", "crafting_window"]
+                        );
+                        if(!hovered_element) {
                             return;
-                        } else {
-                            while(!hovered_element.classList.contains("recipe_div")) {
-                                if(hovered_element.classList.contains("selectable_component")) {
-                                    break;
-                                }
-                                hovered_element = hovered_element.parentNode;
-                                if(hovered_element.id === "crafting_window" || !document.getElementById("crafting_window").contains(hovered_element)) {
-                                    return; //just in case
-                                }
-                            }
                         }
-
+                        
                         //set horizontal position
                         document.documentElement.style.setProperty('--recipe_tooltip_left', `${event.pageX - 400}px`);
                         
@@ -1503,17 +1470,9 @@
                 skills_div.addEventListener('mousemove', move_skill_tooltip, false);
                 function move_skill_tooltip(event) {
                     if(Date.now() >= tooltip_wait) {
-                        let hovered_element = event.target;
-                        if(!hovered_element.classList.contains("skill_div")) {
-                            if(hovered_element.classList.contains("skill_bar_max")) {
-                                hovered_element = hovered_element.parentNode;
-                            } else if(hovered_element.classList.contains("skill_bar_text") || hovered_element.classList.contains("skill_bar_current")) {
-                                hovered_element = hovered_element.parentNode.parentNode;
-                            } else if(hovered_element.classList.contains("skill_bar_name") || hovered_element.classList.contains("skill_bar_xp")) {
-                                hovered_element = hovered_element.parentNode.parentNode.parentNode;
-                            } else {
-                                return;
-                            }
+                        let hovered_element = retarget_clicked_to_class(event.target,["skill_div"],["skill_category_div", "skill_list", "skill_list_div", "icon"]);
+                        if(!hovered_element) {
+                            return;
                         }
 
                         const tooltip_height = hovered_element.children[0].children[2].scrollHeight;
@@ -1542,19 +1501,10 @@
                 stances_tab.addEventListener('mousemove', move_stance_tooltip, false);
                 function move_stance_tooltip(event) {
                     if(Date.now() >= tooltip_wait) {
-                        let hovered_element = event.target;
-
-                        if(hovered_element.classList.contains("stance_list_header")) {
+                        let hovered_element = retarget_clicked_to_class(event.target,["stance_list_entry"],["stance_list_header"]);
+                        if(!hovered_element) {
                             return;
-                        }else if(!hovered_element.classList.contains("stance_list_entry")) {
-                            if(hovered_element.classList.contains("stances_button") || hovered_element.classList.contains("stances_name")) {
-                                hovered_element = hovered_element.parentNode;
-                            } else if(hovered_element.nodeName === "LABEL" || hovered_element.nodeName === "INPUT") {
-                                hovered_element = hovered_element.parentNode.parentNode;
-                            } else {
-                                return;
-                            }
-                        } 
+                        }
 
                         const tooltip_height = hovered_element.children[3].scrollHeight;
                         
@@ -1644,15 +1594,11 @@
                 bestiary_box_div.addEventListener('mousemove', move_bestiary_entry_tooltip, false);
                 function move_bestiary_entry_tooltip(event) {
                     if(Date.now() >= tooltip_wait) {
-                        let hovered_element = event.target;
-
-                        if(!hovered_element.classList.contains("bestiary_entry_div")) {
-                            if(hovered_element.classList.contains("bestiary_entry_name") || hovered_element.classList.contains("bestiary_entry_kill_count")) {
-                                hovered_element = hovered_element.parentNode;
-                            } else {
-                                return;
-                            }
-                        } 
+                        let hovered_element = retarget_clicked_to_class(event.target,["bestiary_entry_div"],[]);
+                        if(!hovered_element) {
+                            return;
+                        }
+                        
                         const tooltip_height = hovered_element.children[0].scrollHeight;
                         
                         const body = document.getElementsByTagName("body")[0];
@@ -1712,18 +1658,13 @@
                         number_to_move = Number(clicked_element.getAttribute("data-trade_ammount"));
                     }
 
-                    //reassignes clicked element to the one with inventory_item_control class 
-                    while(!clicked_element.classList.contains("inventory_item_control")) {
-                        if(clicked_element.id === "global_content") {
-                            //console.log("You clicked something that can't be traded");
-                            return;
-                        }
-                        
-                        clicked_element = clicked_element.parentNode;
+                    clicked_element = retarget_clicked_to_class(clicked_element, ["inventory_item_control"], ["global_content"]);
+                    if(!clicked_element) {
+                        return;
                     }
 
                     if(clicked_element.classList.contains("equipped_item_control")) {
-                        console.log("Can't sell equipped items");
+                        console.warn("Can't sell equipped items");
                         return;
                     }
 
@@ -1731,22 +1672,22 @@
                         const selected_item = clicked_element.getAttribute("data-character_item");
                         if(clicked_element.classList.contains("item_to_trade")) {
                             //remove from to buy
-                            total_price += remove_from_buying_list({item: selected_item, count: number_to_move});
+                            total_price += remove_from_buying_list({key: selected_item, count: number_to_move});
                         }
                         else {
                             //add to to sell
-                            total_price += add_to_selling_list({item: selected_item, count: number_to_move})
+                            total_price += add_to_selling_list({key: selected_item, count: number_to_move})
                         }
                     } 
                     else if(target==="trader") {
                         const selected_item = clicked_element.getAttribute("data-trader_item");
                         if(clicked_element.classList.contains("item_to_trade")) {
                             //remove from to_sell
-                            total_price += remove_from_selling_list({item: selected_item, count: number_to_move});
+                            total_price += remove_from_selling_list({key: selected_item, count: number_to_move});
                         }
                         else {
                             //add to to_buy
-                            total_price += add_to_buying_list({item: selected_item, count: number_to_move})
+                            total_price += add_to_buying_list({key: selected_item, count: number_to_move})
                         }
                     }
 

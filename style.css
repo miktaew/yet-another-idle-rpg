@@ -25,13 +25,6 @@
 	--trade_ammount_button_display: none;
 	--item_use_button_display: inline-block;
 	 
-	--item_other_width_default: 319px; /* value for out of trade */
-	--item_other_width_trade: 264px; /* value for in trade */
-	--item_other_width: var(--item_other_width_default); /* modified in index.html on trade start/end to fit the buttons */
-
-	--item_stackable_width: 280px;
-	--item_stackable_width_default: var(var(--item_stackable_width));
-
 	--item_tooltip_top: 0px;
 	--item_tooltip_left: 0px;
 
@@ -307,18 +300,24 @@ body {
 .inventory_item, .trader_item {
 	 font-size: 13px;
 	 display: inline-block;
-
 }
 
 .equipped_item_control {
+	width: 385px;
+	border-bottom: 1px dotted white;
 	font-size: 13px;
 	background-color: rgba(255, 236, 128, 0.15);
-	padding-bottom: 2px;
-	padding-top: 2px;
+	padding-bottom: 1px;
+	padding-top: 1px;
 }
 
 .inventory_item_control {
 	border-bottom: 1px dotted white;
+	width: 385px;
+}
+.item_additional_content {
+	float: right;
+	width: fit-content;
 }
 
 .item_tooltip, .job_tooltip, .location_tooltip, .recipe_tooltip {
@@ -479,16 +478,23 @@ body {
 	color: rgb(149, 255, 190);
 }
 
-.equip_item_button {
+.equip_item_button, .unequip_item_button {
 	 cursor: pointer;
 	 font-weight: bold;
 	 font-size: 13px;
-	 display: inline-block;
-	 width: 48px;
 	 text-align: right;
+	 display: var(--item_use_button_display);
 }
 
-.item_stackable.book_finished + .item_use_button {
+.equip_item_button {
+	width: 48px;
+}
+
+.unequip_item_button {
+	width: 60px;
+}
+
+.book_finished + .item_use_button {
 	visibility:hidden;
 }
 
@@ -509,14 +515,6 @@ body {
 }
 
 
-.unequip_item_button {
-	font-weight: bold;
-	cursor: pointer;
-	width: 63px;
-	display: inline-block;
-	text-align: right;
-}
-
 .item_use_button {
 	display: var(--item_use_button_display);
 	width: 39px;
@@ -524,10 +522,7 @@ body {
 	cursor: pointer;
 	font-size: 13px;
 	text-align: right;
-}
-
-.item_controls {
-	display: inline-block;
+	float: left;
 }
 
 .item_value {
@@ -535,8 +530,8 @@ body {
 	font-size: 13px;
 	width: 54px;
 	border-left: 1px solid white;
-	margin-left: 4px;
 	padding-left: 4px;
+	float: right;
 }
 
 .inventory_control_button {
@@ -551,39 +546,17 @@ body {
 	cursor: pointer;
 }
 
-.item_stackable, .item_component {
-	width: var(--item_stackable_width);
-	display: inline-block;
-}
-
-.item_equippable {
-	width: 271px;
-}
-
-.trade_item_equippable {
-	width: 319px;
-}
-
 .equipped_item_control .equipped_item, .equipped_item_name .item_slot {
 	color: gold;
 }
 
 .equipped_item {
-	width: 256px; 
 	font-weight: bold;
-	float: left;
+	display: inline-block;
 }
 
 .character_item_control.item_to_trade {
 	background-color: rgba(0, 128, 0, 0.4);
-}
-
-.item_stackable.item_other, .item_stackable.item_loot, .item_stackable.item_material{
-	width: var(--item_other_width);
-}
-
-.item_component {
-	width: var(--item_other_width_default);
 }
 
 .item_component_list {
@@ -960,7 +933,6 @@ i {
 	cursor: pointer;
 	font-weight: bold;
 	font-size: 14px;
-	width: fit-content;
 	padding-left: 5px;
 	float: left;
 }
@@ -968,16 +940,10 @@ i {
 	display: var(--trade_ammount_button_display);
 	width: 55px;
 	vertical-align: bottom;
-}
-.trader_item_control  .item_stackable {
-	width: 265px;
+	text-align: right;
 }
 
-.trader_item {
-	width: 320px;
-}
-
-.trader_item_other, .trader_item_loot, .trader_item_material, .trader_item_component {
+.trader_item_other, .trader_item_loot, .trader_item_material, .trader_item_component, .trader_item_book {
 	display: var(--trader_other_display);
 }
 .trader_item_equippable {
