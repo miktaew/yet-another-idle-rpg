@@ -53,6 +53,8 @@ import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
 import { recipes } from "./crafting_recipes.js";
 import { game_version, get_game_version } from "./game_version.js";
+import { ActiveEffect, effect_templates } from "./active_effects.js";
+import { Verify_Game_Objects } from "./verifier.js";
 
 const save_key = "save data";
 const dev_save_key = "dev save data";
@@ -1529,30 +1531,24 @@ function character_unequip_item(item_slot) {
 }
 
 function use_item(item_key) { 
-    //can only use 1 at once and usable items are stackable, so item_name is enough
     const {id} = JSON.parse(item_key);
-    const item_effects = item_templates[id].use_effect;
-    
+    const item_effects = item_templates[id].effects;
+
     let used = false;
+    for(let i = 0; i < item_effects.length; i++) {
+        const duration = item_templates[id].effects[i].duration;
+        if(!active_effects[item_effects[i].effect] || active_effects[item_effects[i].effect].duration < duration) {
 
-    Object.keys(item_effects).forEach(function(key) {
-        /*
-        add effects to active_effects if not present
-        same or lower strength: dont allow
-        stronger: overwrite current
-        */
-
-        //temporary implementation
-        if(!active_effects[key] || active_effects[key].flat < item_effects[key].flat) {
-            active_effects[key] = Object.assign({}, item_effects[key]);
+            active_effects[item_effects[i].effect] = new ActiveEffect({...effect_templates[item_effects[i].effect], duration});
             used = true;
         }
-        
-    });
+    }
     if(used) {
         update_displayed_effects();
-        remove_from_character_inventory([{item_key}]);
+        character.stats.add_active_effect_bonus();
+        update_character_stats();
     }
+    remove_from_character_inventory([{item_key}]);
 }
 
 function is_on_dev() {
@@ -2331,10 +2327,14 @@ function load(save_data) {
         }
     });
 
-    Object.keys(save_data.active_effects).forEach(function(effect) {
-        active_effects[effect] = save_data.active_effects[effect];
-    });
-    
+    setLootSoldCount(save_data.loot_sold_count || {});
+
+    //load active effects if save is not from before their rework
+    if(compare_game_version(save_data["game version"], "v0.4.4") >= 0){
+        Object.keys(save_data.active_effects).forEach(function(effect) {
+            active_effects[effect] = save_data.active_effects[effect];
+        });
+    }
     if(save_data.character.hp_to_full == null || save_data.character.hp_to_full >= character.stats.full.max_health) {
         character.stats.full.health = 1;
     } else {
@@ -2571,50 +2571,54 @@ function update() {
             }
         }
 
-        //regenerate hp
-        if(active_effects.health_regeneration) {
-            
-            if(active_effects.health_regeneration.percent) {
-                character.stats.full.health += character.stats.full.max_health * active_effects.health_regeneration.percent/100;
+        Object.keys(active_effects).forEach(key => {
+            active_effects[key].duration--;
+            if(active_effects[key].duration <= 0) {
+                delete active_effects[key];
+                character.stats.add_active_effect_bonus();
+                update_character_stats();
             }
-            
-            character.stats.full.health += active_effects.health_regeneration.flat;
-
-            if(character.stats.full.health > character.stats.full.max_health) {
-                character.stats.full.health = character.stats.full.max_health
-            }
-
-            update_displayed_health();
-            
-            active_effects.health_regeneration.duration -= 1;
-            if(active_effects.health_regeneration.duration <= 0) {
-                delete active_effects.health_regeneration;
-                update_displayed_effects();
-            }
-        }
-
-        //regenerate stamina
-        if(active_effects.stamina_regeneration) {
-            if(active_effects.stamina_regeneration.percent) {
-                character.stats.full.stamina += character.stats.full.max_stamina * active_effects.stamina_regeneration.percent/100;
-            }
-            
-            character.stats.full.stamina += active_effects.stamina_regeneration.flat;
-
-            if(character.stats.full.stamina > character.stats.full.max_stamina) {
-                character.stats.full.stamina = character.stats.full.max_stamina
-            }
-
-            update_displayed_stamina();
-            
-            active_effects.stamina_regeneration.duration -= 1;
-            if(active_effects.stamina_regeneration.duration <= 0) {
-                delete active_effects.stamina_regeneration;
-                update_displayed_effects();
-            }
-        }
+        });
         update_displayed_effect_durations();
+        update_displayed_effects();
 
+        //health regen
+        if(character.stats.full.health_regeneration_flat) {
+            character.stats.full.health += character.stats.full.health_regeneration_flat;
+        }
+        if(character.stats.full.health_regeneration_percent) {
+            character.stats.full.health += character.stats.full.max_health * character.stats.full.health_regeneration_percent/100;
+        }
+        //stamina regen
+        if(character.stats.full.stamina_regeneration_flat) {
+            character.stats.full.stamina += character.stats.full.stamina_regeneration_flat;
+        }
+        if(character.stats.full.stamina_regeneration_percent) {
+            character.stats.full.stamina += character.stats.full.max_stamina * character.stats.full.stamina_regeneration_percent/100;
+        }
+        //mana regen
+        if(character.stats.full.mana_regeneration_flat) {
+            character.stats.full.mana += character.stats.full.mana_regeneration_flat
+        }
+        if(character.stats.full.mana_regeneration_percent) {
+            character.stats.full.mana += character.stats.full.max_mana * character.stats.full.mana_regeneration_percent/100;
+        }
+
+        if(character.stats.full.health > character.stats.full.max_health) {
+            character.stats.full.health = character.stats.full.max_health
+        }
+
+        if(character.stats.full.stamina > character.stats.full.max_stamina) {
+            character.stats.full.stamina = character.stats.full.max_stamina
+        }
+
+        if(character.stats.full.health_regeneration_flat || character.stats.full.health_regeneration_percent) {
+            update_displayed_health();
+        }
+        if(character.stats.full.stamina_regeneration_flat || character.stats.full.stamina_regeneration_percent) {
+            update_displayed_stamina();
+        }
+        
         save_counter += 1;
         if(save_counter >= save_period*tickrate) {
             save_counter = 0;
@@ -2788,7 +2792,9 @@ function add_all_stuff_to_inventory(){
 //add_all_stuff_to_inventory();
 
 update_displayed_equipment();
+
 run();
+Verify_Game_Objects();
 
 if(is_on_dev()) {
     log_message("It looks like you are playing on the dev release. It is recommended to keep the developer console open (in Chrome/Firefox/Edge it's at F12 => 'Console' tab) in case of any errors/warnings appearing in there.", "notification");

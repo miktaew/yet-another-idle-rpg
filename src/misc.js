@@ -109,7 +109,7 @@ function compare_game_version(version_a, version_b) {
         }
     }
 
-    return "";
+    return 0;
 }
 
 export { expo, format_reading_time, stat_names, get_hit_chance, compare_game_version, round_item_price};

@@ -335,6 +335,7 @@ body {
 	 width: 200px;
 	 pointer-events: none;
 	 font-size: 14px;
+	 border: 1px solid white;
 }
 
 .recipe_tooltip {
@@ -394,6 +395,7 @@ body {
 	pointer-events: none;
 	top: var(--stat_tooltip_top);
 	left: var(--stat_tooltip_left);
+	border: 1px solid white;
 }
 	.stat_breakdown {
 		text-align: left;
@@ -414,6 +416,7 @@ body {
 	top: var(--skill_tooltip_top);
 	left: var(--skill_tooltip_left);
 	pointer-events: none;
+	border: 1px solid white;
 }
 		.skill_tooltip_next_milestone {
 			color: rgb(206, 206, 206);
@@ -514,7 +517,6 @@ body {
 	color: gold;
 }
 
-
 .item_use_button {
 	display: var(--item_use_button_display);
 	width: 39px;
@@ -585,6 +587,21 @@ body {
 	margin: 1px;
 	outline: 1px solid white;
 	cursor: pointer;
+}
+
+.active_effect_tooltip {
+	border: 2px solid gray;
+	border-radius: 10px;
+	padding: 3px;
+	margin-top: 1px;
+}
+.active_effect_name_and_duration {
+	width: 100%;
+	border-bottom: 1px solid gray;
+}
+.active_effect_duration {
+	text-align: right;
+	float: right;
 }
 
 .message_border { 
@@ -1290,6 +1307,7 @@ i {
 	max-width: 300px;
 	width: fit-content;
 	height: auto;
+	border: 1px solid white;
 }
 
 #exit_trade_button {
@@ -1535,6 +1553,7 @@ i {
 						top: var(--bestiary_entry_tooltip_top);
 						left: var(--bestiary_entry_tooltip_left);
 						pointer-events: none;
+						border: 1px solid white;
 					}
 						.bestiary_entry_div:hover .bestiary_entry_tooltip {
 							display: block;
@@ -1590,6 +1609,7 @@ i {
 	top: var(--stance_tooltip_top);
 	left: var(--stance_tooltip_left);
 	text-align: left;
+	border: 1px solid white;
 }
 .stance_list_entry:hover .stance_tooltip {
 	display: block;

@@ -20,6 +20,7 @@ import { enemy_killcount, enemy_templates } from "./enemies.js";
 import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price } from "./misc.js"
 import { stances } from "./combat_stances.js";
 import { recipes } from "./crafting_recipes.js";
+import { effect_templates } from "./active_effects.js";
 
 let activity_anim; //for the activity animation interval
 
@@ -109,6 +110,8 @@ const stats_divs = {strength: document.getElementById("strength_slot"), agility:
 const other_combat_divs = {attack_points: document.getElementById("hit_chance_slot"), defensive_action: document.getElementById("defensive_action_slot"),
                            defensive_points: document.getElementById("defensive_action_chance_slot")
                           };
+
+let effect_divs = {};
 
 const character_attack_bar = document.getElementById("character_attack_bar");
 
@@ -295,32 +298,17 @@ function create_item_tooltip_content({item, options={}}) {
             }
             });
         }
+        item_tooltip += "<br>";
     } 
     else if (item.item_type === "USABLE") {
-
         item_tooltip += `<br>`;
-        Object.keys(item.use_effect).forEach(function(effect) {
 
-            item_tooltip += `<br>${capitalize_first_letter(effect.replace("_", " "))} `;
-
-            if(item.use_effect[effect].flat) {
-                const sign_1 = item.use_effect[effect].flat > 0? "+":"";
-                item_tooltip += ` ${sign_1}${item.use_effect[effect].flat}`;
-                if(item.use_effect[effect].percent) {
-                    const sign_2 = item.use_effect[effect].percent > 0? "+":"";
-                    item_tooltip += ` and ${sign_2}${item.use_effect[effect].percent}%`;
-                }
-            } else if(item.use_effect[effect].percent) {
-                const sign = item.use_effect[effect].percent > 0? "+":"";
-                item_tooltip += ` ${sign}${item.use_effect[effect].percent}%`;
-            }
-
-            if(item.use_effect[effect].duration) {
-                item_tooltip += ` for ${item.use_effect[effect].duration} ticks`;
-            } else {
-                item_tooltip += ` permanently`;
-            }
-        });
+        if(item.effects.length > 0) {
+            item_tooltip += "<br>Effects: "
+        }
+        for(let i = 0; i < item.effects.length; i++) {
+            item_tooltip += create_effect_tooltip(item.effects[i].effect, item.effects[i].duration).outerHTML;
+        }
     } else if(item.item_type === "BOOK") {
         if(!book_stats[item.name].is_finished) {
             item_tooltip += `<br><br>Time to read: ${item.getRemainingTime()} minutes`;
@@ -328,6 +316,7 @@ function create_item_tooltip_content({item, options={}}) {
         else {
             item_tooltip += `<br><br>Reading it provided ${character.name} with:<br> ${format_rewards(book_stats[item.name].rewards)}`;
         }
+        item_tooltip += "<br>";
     }
     else if(item.tags.component) {
         if(options?.quality && options.quality[0]) {
@@ -361,16 +350,59 @@ function create_item_tooltip_content({item, options={}}) {
             if(item.stats[effect_key].multiplier != null) {
                 item_tooltip += 
                 `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: x${item.stats[effect_key].multiplier}`;
-        }
+            }
         });
+        item_tooltip += "<br>";
+    } else {
+        item_tooltip += "<br>";
     }
-    item_tooltip += `<br><br>Value: ${format_money(round_item_price(item.getValue(quality) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}`;
+    item_tooltip += `<br>Value: ${format_money(round_item_price(item.getValue(quality) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}`;
 
     if(item.saturates_market) {
         item_tooltip += ` [originally ${format_money(round_item_price(item.getBaseValue(quality) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}]`
     }
 
     return item_tooltip;
+}
+
+/** 
+ * @param {Object} item_effect from item effects[]
+ */
+function create_effect_tooltip(effect_name, duration) {
+    const effect = effect_templates[effect_name];
+    const tooltip = document.createElement("div");
+    tooltip.classList.add("active_effect_tooltip");
+
+    const name_span = document.createElement("span");
+    name_span.classList.add("active_effect_name"); 
+    name_span.innerHTML = `'${effect.name}' : `;
+    const duration_span = document.createElement("span");
+    duration_span.classList.add("active_effect_duration");
+    duration_span.innerHTML = ""+ format_time({time: {minutes: duration}});
+    const top_div = document.createElement("div");
+    top_div.classList.add("active_effect_name_and_duration");
+    top_div.appendChild(name_span);
+    top_div.appendChild(duration_span);
+    tooltip.appendChild(top_div);
+
+    const effects_div = document.createElement("div");
+    for(const [key, stat_value] of Object.entries(effect.effects.stats)) {
+        tooltip.innerHTML += `<br>${capitalize_first_letter(key.replaceAll("_", " ").replace("flat","").replace("percent",""))} `;
+        //for regeneration bonuses, it is assumed they are only flat and not multiplicative
+        if(key === "health_regeneration_flat" || key ===  "stamina_regeneration_flat" || key ===  "mana_regeneration_flat") 
+        {   
+            const sign = stat_value.flat > 0? "+":"";
+            tooltip.innerHTML += `: ${sign}${stat_value.flat}`;
+        } else if(key === "health_regeneration_percent" || key === "stamina_regeneration_percent" || key === "mana_regeneration_percent") {
+            const sign = stat_value.percent > 0? "+":"";
+            tooltip.innerHTML += `: ${sign}${stat_value.percent}%`;
+        } else {
+            //
+        }
+    }
+
+    tooltip.appendChild(effects_div);
+    return tooltip;
 }
 
 function end_activity_animation() {
@@ -2323,19 +2355,10 @@ function update_displayed_effects() {
     active_effect_count.innerText = effect_count;
     if(effect_count > 0) {
         active_effects_tooltip.innerHTML = '';
-        Object.keys(active_effects).forEach(function(effect) {
-            const effect_div = document.createElement("div");
-            const effect_desc_div = document.createElement("div");
-            const effect_duration_div = document.createElement("div");
-
-            let sign = active_effects[effect].flat > 0 ? "+":"";
-            effect_desc_div.innerText = `${capitalize_first_letter(effect.replace("_", " "))} ${sign}${active_effects[effect].flat}`;
-
-            effect_duration_div.innerText = active_effects[effect].duration;
-
-            effect_div.appendChild(effect_desc_div);
-            effect_div.append(effect_duration_div);
-            active_effects_tooltip.appendChild(effect_div);
+        effect_divs = {};
+        Object.values(active_effects).forEach(effect => {
+            effect_divs[effect.name] = create_effect_tooltip(effect.name, effect.duration);
+            active_effects_tooltip.appendChild(effect_divs[effect.name]);
         });
     } else {
         active_effects_tooltip.innerHTML = 'No active effects';
@@ -2344,12 +2367,13 @@ function update_displayed_effects() {
 }
 
 function update_displayed_effect_durations() {
-    //it just iterates over all tooltips and decreases their durations by 1
-    //later on might instead make another function for it and call it here
-    for(let i = 0; i < active_effects_tooltip.children.length; i++) {
-        active_effects_tooltip.children[i].children[1].innerText = Number(active_effects_tooltip.children[i].children[1].innerText) - 1;
-    }
-
+    Object.keys(effect_divs).forEach(key => {
+        if(!active_effects[key]?.duration) {
+            effect_divs[key].remove();
+        } else {
+            effect_divs[key].querySelector(".active_effect_duration").innerHTML = format_time({time: {minutes: active_effects[key].duration}});
+        }
+    });
 }
 
 function update_displayed_time() {

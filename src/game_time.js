@@ -85,6 +85,13 @@ Game_time.prototype.toString = function() {
     return date_string;
 }
 
+/**
+ * 
+ * @param {Object} data 
+ * @param {Number} data.time {minutes, hours, days, months, years}
+ * @param {Boolean} [data.long_names] if it should use "minutes", "hours", etc instead of "m","h"
+ * @returns 
+ */
 function format_time(data) { //{time, long_names?}
     if(!data.time) {
         throw "No time passed in arguments!";

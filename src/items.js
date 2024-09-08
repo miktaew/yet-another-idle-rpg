@@ -366,7 +366,7 @@ class UsableItem extends Item {
         super(item_data);
         this.item_type = "USABLE";
         this.stackable = true;
-        this.use_effect = item_data.use_effect || {};
+        this.effects = item_data.effects || {};
 
         this.tags["usable"] = true;
     }
@@ -2124,77 +2124,42 @@ item_templates["Twist liek a snek"] = new Book({
     item_templates["Stale bread"] = new UsableItem({
         name: "Stale bread", description: "Big piece of an old bread, still edible", 
         value: 20,
-        use_effect: {
-            stamina_regeneration: {
-                flat: 1,
-                duration: 60,
-            },
-        }
+        effects: [{effect: "Cheap meal", duration: 60}],
     });
 
     item_templates["Fresh bread"] = new UsableItem({
         name: "Fresh bread", 
         description: "Freshly baked bread, delicious", 
         value: 40,
-        use_effect: {
-            stamina_regeneration: {
-                flat: 1,
-                duration: 120,
-            },
-        }
+        effects: [{effect: "Cheap meal", duration: 120}],
     });
 
     item_templates["Weak healing powder"] = new UsableItem({
         name: "Weak healing powder", 
         description: "Not very potent, but can still make body heal noticeably faster for quite a while", 
         value: 40,
-        use_effect: {
-            health_regeneration: {
-                flat: 1,
-                duration: 120,
-            },
-        }
+        effects: [{effect: "Weak healing powder", duration: 120}],
     });
 
     item_templates["Oneberry juice"] = new UsableItem({
         name: "Oneberry juice", 
         description: "Tastes kinda nice and provides a quick burst of healing", 
         value: 80,
-        use_effect: {
-            health_regeneration: {
-                flat: 6,
-                percent: 1,
-                duration: 10,
-            },
-        }
+        effects: [{effect: "Weak healing potion", duration: 10}],
     });
 
     item_templates["Roasted rat meat"] = new UsableItem({
         name: "Roasted rat meat", 
         description: "Smell might be fine now, but it still seems like a bad idea to eat it",
         value: 10,
-        use_effect: {
-            stamina_regeneration: {
-                flat: 2,
-                duration: 30,
-            },
-            health_regeneration: {
-                flat: -0.5,
-                duration: 30,
-            }
-        }
+        effects: [{effect: "Cheap meat meal", duration: 30}, {effect: "Slight food poisoning", duration: 30}],
     });
 
     item_templates["Roasted purified rat meat"] = new UsableItem({
         name: "Roasted purified rat meat", 
         description: "Smells alright and should be safe to eat, yet you still have some doubts",
         value: 20,
-        use_effect: {
-            stamina_regeneration: {
-                flat: 2,
-                duration: 30,
-            },
-        }
+        effects: [{effect: "Cheap meat meal", duration: 30}],
     });
 })();
 

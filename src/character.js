@@ -7,7 +7,7 @@ import { update_displayed_character_inventory, update_displayed_equipment,
          update_displayed_health, update_displayed_stamina, 
          update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain,
          update_displayed_xp_bonuses } from "./display.js";
-import { current_location, current_stance } from "./main.js";
+import { active_effects, current_location, current_stance } from "./main.js";
 import { current_game_time } from "./game_time.js";
 import { stances } from "./combat_stances.js";
 
@@ -24,15 +24,19 @@ character.name = "Hero";
 character.titles = {};
 character.base_stats = {
         max_health: 40, 
-        health: 40, 
+        health: 40,
+        health_regeneration_flat: 0, //in combat
+        health_regeneration_percent: 0, //in combat
         max_stamina: 40,
         stamina: 40,
+        stamina_regeneration_flat: 0, //in combat
+        stamina_regeneration_percenty: 0, //in combat
         stamina_efficiency: 1,
-        stamina_regeneration: 0, //in combat, currently unusued
         max_mana: 0,
         mana: 0,
+        mana_regeneration_flat: 0, //in combat
+        mana_regeneration_percent: 0, //in combat
         mana_efficiency: 1,
-        mana_regeneration: 0, //in combat, currently unusued
         strength: 10, 
         agility: 10, 
         dexterity: 10, 
@@ -47,6 +51,7 @@ character.base_stats = {
         block_chance: 0,
         evasion_points: 0, //EP
         attack_points: 0, //AP
+        
 };
 
 character.stats = {};
@@ -262,6 +267,22 @@ character.stats.add_book_bonus = function ({multipliers = {}, xp_multipliers = {
         });
 }
 
+character.stats.add_active_effect_bonus = function() {
+        character.stats.flat.active_effect = {};
+        character.stats.multiplier.active_effect = {};
+        Object.values(active_effects).forEach(effect => {
+                for(const [key, value] of Object.entries(effect.effects.stats)) {
+                        if(value.flat) {
+                                character.stats.flat.active_effect[key] = (character.stats.flat.active_effect[key] || 0) + value.flat;
+                        }
+
+                        if(value.multiplier) {
+                                character.stats.multiplier.active_effect[key] = (character.stats.multiplier.active_effect[key] || 1) * value.multiplier;
+                        }
+                }
+        });
+}
+
 /**
  * add all stat bonuses from equipment, including def/atk
  * called on equipment changes
@@ -297,7 +318,6 @@ character.stats.add_all_equipment_bonus = function() {
 
         character.stats.add_weapon_type_bonuses();
         //add weapon speed bonus (technically a bonus related to equipment, so its in this function)
-        
 }
 
 character.stats.add_weapon_type_bonuses = function() {
