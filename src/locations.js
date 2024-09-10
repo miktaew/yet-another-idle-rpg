@@ -12,6 +12,7 @@ const location_types = {};
 class Location {
     constructor({
                 name, 
+                id,
                 description, 
                 connected_locations, 
                 is_unlocked = true, 
@@ -25,10 +26,12 @@ class Location {
                 background_noises = [],
                 getBackgroundNoises,
                 crafting = null,
+                tags = {},
             }) {
         // always a safe zone
 
         this.name = name; //needs to be the same as key in locations
+        this.id = id || name;
         this.description = description;
         this.getDescription = getDescription || function(){return description;}
         this.background_noises = background_noises;
@@ -48,12 +51,27 @@ class Location {
         }
         this.light_level = light_level; //not really used for this type
         this.crafting = crafting;
-        /* {is_unlocked: Boolean, use_text: String} */
+        this.tags = tags;
+        this.tags["Safe zone"] = true;
+        /* 
+        crafting: {
+            is_unlocked: Boolean, 
+            use_text: String, 
+            tiers: {
+                crafting: Number,
+                forging: Number,
+                smelting: Number,
+                cooking: Number,
+                alchemy: Number,
+            }
+        },
+         */
     }
 }
 
 class Combat_zone {
     constructor({name, 
+                id,
                  description, 
                  getDescription,
                  is_unlocked = true, 
@@ -71,9 +89,11 @@ class Combat_zone {
                  otherUnlocks,
                  unlock_text,
                  is_challenge = false,
+                 tags = {},
                 }) {
 
         this.name = name;
+        this.id = id || name;
         this.unlock_text = unlock_text;
         this.description = description;
         this.getDescription = getDescription || function(){return description;}
@@ -142,6 +162,9 @@ class Combat_zone {
         } else {
             this.light_level = "normal";
         }
+
+        this.tags = tags;
+        this.tags["Combat zone"] = true;
     }
 
     get_next_enemies() {

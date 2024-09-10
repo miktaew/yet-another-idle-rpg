@@ -165,19 +165,20 @@ class Skill {
 
                 let message = `${this.name()} has reached level ${this.current_level}`;
 
-                if (Object.keys(gains.flats).length > 0 || Object.keys(gains.multipliers).length > 0 || Object.keys(gains.xp_multipliers).length > 0) { 
+                if (Object.keys(gains.stats).length > 0 || Object.keys(gains.xp_multipliers).length > 0) { 
                     message += `<br><br> Thanks to ${this.name()} reaching new milestone, ${character.name} gained: `;
 
-                    if (gains.flats) {
-                        Object.keys(gains.flats).forEach(stat => {
-                            message += `<br> +${gains.flats[stat]} ${stat_names[stat].replace("_"," ")}`;
+                    if (gains.stats) {
+                        Object.keys(gains.stats).forEach(stat => {
+                            if(gains.stats[stat].flat) {
+                                message += `<br> +${gains.stats[stat].flat} ${stat_names[stat].replace("_"," ")}`;
+                            }
+                            if(gains.stats[stat].multiplier) {
+                                message += `<br> x${Math.round(100*gains.stats[stat].multiplier)/100} ${stat_names[stat].replace("_"," ")}`;
+                            }   
                         });
                     }
-                    if (gains.multipliers) {
-                        Object.keys(gains.multipliers).forEach(multiplier => {
-                            message += `<br> x${Math.round(100*gains.multipliers[multiplier])/100} ${stat_names[multiplier].replace("_"," ")}`;
-                        });
-                    }
+
                     if (gains.xp_multipliers) {
                         Object.keys(gains.xp_multipliers).forEach(xp_multiplier => {
                             let name;
@@ -206,28 +207,32 @@ class Skill {
      * @returns bonuses from milestones
      */
     get_bonus_stats(level) {
-        //TODO: rename, it's not just stats anymore
-        const gains = { flats: {}, multipliers: {} , xp_multipliers: {}};
-        let flats;
-        let multipliers;
+        //probably should rename, since it's not just stats anymore
+        const gains = {stats: {}, xp_multipliers: {}};
+
+        let stats;
         let xp_multipliers;
 
         for (let i = this.current_level + 1; i <= level; i++) {
             if (this.rewards?.milestones[i]) {
-                flats = this.rewards.milestones[i].stats;
-                multipliers = this.rewards.milestones[i].multipliers;
+                stats = this.rewards.milestones[i].stats;
                 xp_multipliers = this.rewards.milestones[i].xp_multipliers;
                 
-                if (flats) {
-                    Object.keys(flats).forEach(stat => {
-                        gains.flats[stat] = (gains.flats[stat] || 0) + flats[stat];
+                if(stats) {
+                    Object.keys(stats).forEach(stat => {
+                        if(!gains.stats[stat]) {
+                            gains.stats[stat] = {};
+                        }
+                        if(stats[stat].flat) {
+                            gains.stats[stat].flat = (gains.stats[stat].flat || 0) + stats[stat].flat;
+                        }
+                        if(stats[stat].multiplier) {
+                            gains.stats[stat].multiplier =  (gains.stats[stat].multiplier || 1) * stats[stat].multiplier;
+                        }
+                        
                     });
                 }
-                if (multipliers) {
-                    Object.keys(multipliers).forEach(multiplier => {
-                        gains.multipliers[multiplier] = (gains.multipliers[multiplier] || 1) * multipliers[multiplier];
-                    });
-                }
+
                 if(xp_multipliers) {
                     Object.keys(xp_multipliers).forEach(multiplier => {
                         gains.xp_multipliers[multiplier] = (gains.xp_multipliers[multiplier] || 1) * xp_multipliers[multiplier];
@@ -235,12 +240,13 @@ class Skill {
                 }
             }
         }
-        if (gains.multipliers) {
-            Object.keys(gains.multipliers).forEach((multiplier) => {
-                gains.multipliers[multiplier] = Math.round(100 * gains.multipliers[multiplier]) / 100;
-            });
-        }
-
+        
+        Object.keys(gains.stats).forEach((stat) => {
+            if(gains.stats[stat].multiplier) {
+                gains.stats[stat].multiplier = Math.round(100 * gains.stats[stat].multiplier) / 100;
+            }
+        });
+        
         return gains;
     }
 
@@ -269,7 +275,6 @@ class Skill {
     }
 }
 
-
 /**
  * @param {String} skill_id key from skills object
  * @returns all unlocked leveling rewards, formatted to string
@@ -291,7 +296,6 @@ function get_unlocked_skill_rewards(skill_id) {
 
     return unlocked_rewards;
 }
-
 
 /**
  * gets rewards for next lvl
@@ -335,25 +339,30 @@ function get_next_skill_milestone(skill_id){
 function format_skill_rewards(milestone){
     let formatted = '';
     if(milestone.stats) {
-        const stats = Object.keys(milestone.stats);
-        
-        formatted = `+${milestone.stats[stats[0]]} ${stat_names[stats[0]]}`;
-        for(let i = 1; i < stats.length; i++) {
-            formatted += `, +${milestone.stats[stats[i]]} ${stat_names[stats[i]]}`;
+        let temp = '';
+        Object.keys(milestone.stats).forEach(stat => {
+            if(milestone.stats[stat].flat) {
+                if(formatted) {
+                    formatted += `, +${milestone.stats[stat].flat} ${stat_names[stat]}`;
+                } else {
+                    formatted = `+${milestone.stats[stat].flat} ${stat_names[stat]}`;
+                }
+            }
+            if(milestone.stats[stat].multiplier) {
+                if(temp) {
+                    temp += `, x${milestone.stats[stat].multiplier} ${stat_names[stat]}`;
+                } else {
+                    temp = `x${milestone.stats[stat].multiplier} ${stat_names[stat]}`;
+                }
+            }
+        });
+        if(formatted) {
+            formatted += ", " + temp;
+        } else {
+            formatted = temp;
         }
     }
 
-    if(milestone.multipliers) {
-        const multipliers = Object.keys(milestone.multipliers);
-        if(formatted) {
-            formatted += `, x${milestone.multipliers[multipliers[0]]} ${stat_names[multipliers[0]]}`;
-        } else {
-            formatted = `x${milestone.multipliers[multipliers[0]]} ${stat_names[multipliers[0]]}`;
-        }
-        for(let i = 1; i < multipliers.length; i++) {
-            formatted += `, x${milestone.multipliers[multipliers[i]]} ${stat_names[multipliers[i]]}`;
-        }
-    }
     if(milestone.xp_multipliers) {
         const xp_multipliers = Object.keys(milestone.xp_multipliers);
         let name;
@@ -388,7 +397,6 @@ function format_skill_rewards(milestone){
             formatted += `, "${milestone.unlocks.skills[i]}"`;
         }
     }
-
     return formatted;
 }
 
@@ -423,15 +431,15 @@ function format_skill_rewards(milestone){
                                         },
                                         3: {
                                             stats: {
-                                                dexterity: 1,
+                                                dexterity: {flat: 1},
                                             },
                                             xp_multipliers: {
                                                 Combat: 1.1,
                                             }
                                         },
                                         5: {
-                                            multipliers: {
-                                                dexterity: 1.05,
+                                            stats: {
+                                                dexterity: {multiplier: 1.05},
                                             },
                                             xp_multipliers: {
                                                 Evasion: 1.1,
@@ -464,12 +472,12 @@ function format_skill_rewards(milestone){
                                     milestones: {
                                         1: {
                                             stats: {
-                                                "agility": 1,
+                                                "agility": {flat: 1},
                                             }
                                         },
                                         3: {
                                             stats: {
-                                                "agility": 1,
+                                                "agility": {flat: 1},
                                             },
                                             xp_multipliers: {
                                                 Equilibrium: 1.05,
@@ -477,15 +485,15 @@ function format_skill_rewards(milestone){
                                         },
                                         5: {
                                             stats: {
-                                                "agility": 1,
+                                                "agility": {
+                                                    flat: 1,
+                                                    multiplier: 1.05,
+                                                }
                                             },
-                                            multipliers: {
-                                                "agility": 1.05,
-                                            }
                                         },
                                         7: {
                                             stats: {
-                                                "agility": 2,
+                                                "agility": {flat: 2},
                                             },
                                             xp_multipliers: {
                                                 Equilibrium: 1.05,
@@ -493,11 +501,11 @@ function format_skill_rewards(milestone){
                                         },
                                         10: {
                                             stats: {
-                                                "agility": 1,
+                                                "agility": {
+                                                    flat: 1,
+                                                    multiplier: 1.05,
+                                                }
                                             },
-                                            multipliers: {
-                                                "agility": 1.05,
-                                            }
                                         }
                                     }
                                 }
@@ -525,7 +533,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                         milestones: {
                                             2: {
                                                 stats: {
-                                                    "strength": 1,
+                                                    "strength": {flat: 1},
                                                 },
                                                 xp_multipliers: {
                                                     Weightlifting: 1.05,
@@ -533,15 +541,15 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                             },
                                             4: {
                                                 stats: {
-                                                    "strength": 1,
-                                                    "dexterity": 1,
+                                                    "strength": {flat: 1},
+                                                    "dexterity": {flat: 1},
                                                 }
                                             },
                                             6: {
                                                 stats: {
-                                                    "strength": 1,
-                                                    "dexterity": 1,
-                                                    "agility": 1,
+                                                    "strength": {flat: 1},
+                                                    "dexterity": {flat: 1},
+                                                    "agility": {flat: 1},
                                                 },
                                                 xp_multipliers: {
                                                     Weightlifting: 1.1,
@@ -549,16 +557,16 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                             },
                                             8: {
                                                 stats: {
-                                                    "strength": 1,
-                                                    "dexterity": 1,
-                                                    "agility": 1,
+                                                    "strength": {flat: 1},
+                                                    "dexterity": {flat: 1},
+                                                    "agility": {flat: 1},
                                                 }
                                             },
                                             10: {
                                                 stats: {
-                                                    "strength": 2,
-                                                    "dexterity": 1,
-                                                    "agility": 1,
+                                                    "strength": {flat: 2},
+                                                    "dexterity": {flat: 1},
+                                                    "agility": {flat: 1},
                                                 },
                                                 xp_multipliers: {
                                                     Running: 1.2,
@@ -566,9 +574,9 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                             },
                                             12: {
                                                 stats: {
-                                                    "strength": 2,
-                                                    "dexterity": 2,
-                                                    "agility": 2,
+                                                    "strength": {flat: 2},
+                                                    "dexterity": {flat: 2},
+                                                    "agility": {flat: 2},
                                                 }
                                             },
                                         }
@@ -726,7 +734,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                         milestones: {
                                             2: {
                                                 stats: {
-                                                    intuition: 1,
+                                                    intuition: {flat: 1},
                                                 }
                                             },
                                             3: {
@@ -737,7 +745,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                             },
                                             4: {
                                                 stats: {
-                                                    intuition: 1,
+                                                    intuition: {flat: 1},
                                                 },
                                                 xp_multipliers: {
                                                    "Presence sensing": 1.05
@@ -749,8 +757,8 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                                 {
                                                     Combat: 1.1,
                                                 },
-                                                multipliers: {
-                                                    intuition: 1.05,
+                                                stats: {
+                                                    intuition: {multiplier: 1.05},
                                                 }
                                             },
                                             6: {
@@ -776,7 +784,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                     milestones: {
                         1: {
                             stats: {
-                                intuition: 1,
+                                intuition: {flat: 1},
                             },
                             xp_multipliers: {
                                 "Night vision": 1.1,
@@ -791,7 +799,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                         },
                         3: {
                             stats: {
-                                intuition: 1,
+                                intuition: {flat: 1},
                             },
                             xp_multipliers: {
                                "Combat": 1.1
@@ -803,8 +811,8 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                             {
                                 all_skill: 1.05,
                             },
-                            multipliers: {
-                                intuition: 1.1,
+                            stats: {
+                                intuition: {multiplier: 1.1},
                             }
                         },
                         5: {
@@ -875,34 +883,34 @@ Multiplies AP with swords by ${Math.round((skills["Swords"].get_coefficient("mul
                                     milestones: {
                                         1: {
                                             stats: {
-                                                "dexterity": 1,
+                                                "dexterity": {flat: 1},
                                             }
                                         },
                                         3: {
                                             stats: {
-                                                "agility": 1,
+                                                "agility": {flat: 1},
                                             }
                                         },
                                         5: {
                                             stats: {
-                                                "strength": 1,
-                                                "crit_rate": 0.01,
+                                                "strength": {flat: 1},
+                                                "crit_rate": {flat: 0.01},
                                             },
                                         },
                                         7: {
                                             stats: {
-                                                "dexterity": 1,
+                                                "dexterity": {flat: 1},
                                             }
                                         },
                                         10: {
                                             stats: {
-                                                "agility": 1,
-                                                "crit_multiplier": 0.1, 
+                                                "agility": {flat: 1},
+                                                "crit_multiplier": {flat: 0.1}, 
                                             },
                                         },
                                         12: {
                                             stats: {
-                                                "dexterity": 2,
+                                                "dexterity": {flat: 2},
                                             }
                                         },
                                     }
@@ -923,34 +931,34 @@ Multiplies AP with axes by ${Math.round((skills["Axes"].get_coefficient("multipl
                                     milestones: {
                                         1: {
                                             stats: {
-                                                "dexterity": 1,
+                                                "dexterity": {flat: 1},
                                             }
                                         },
                                         3: {
                                             stats: {
-                                                "strength": 1,
+                                                "strength": {flat: 1},
                                             }
                                         },
                                         5: {
                                             stats: {
-                                                "dexterity": 1,
-                                                "strength": 1,
+                                                "dexterity": {flat: 1},
+                                                "strength": {flat: 1},
                                             },
     
                                         },
                                         7: {
                                             stats: {
-                                                "dexterity": 1,
+                                                "dexterity": {flat: 1},
                                             }
                                         },
                                         10: {
-                                            multipliers: {
-                                                    "strength": 1.05,
+                                            stats: {
+                                                    "strength": {flat: 1.05},
                                             },
                                         },
                                         12: {
                                             stats: {
-                                                "dexterity": 2,
+                                                "dexterity": {flat: 2},
                                             }
                                         },
                                     }
@@ -970,34 +978,34 @@ Multiplies AP with spears by ${Math.round((skills["Spears"].get_coefficient("mul
                                     milestones: {
                                         1: {
                                             stats: {
-                                                "dexterity": 1,
+                                                "dexterity": {flat: 1},
                                             }
                                         },
                                         3: {
                                             stats: {
-                                                "dexterity": 1,
+                                                "dexterity": {flat: 1},
                                             }
                                         },
                                         5: {
                                             stats: {
-                                                "strength": 1,
-                                                "crit_rate": 0.01,
+                                                "strength": {flat: 1},
+                                                "crit_rate": {flat: 0.01},
                                             },
                                         },
                                         7: {
                                             stats: {
-                                                "dexterity": 1,
+                                                "dexterity": {flat: 1},
                                             }
                                         },
                                         10: {
                                             stats: {
-                                                "strength": 1,
-                                                "crit_multiplier": 0.1, 
+                                                "strength": {flat: 1},
+                                                "crit_multiplier": {flat: 0.1}, 
                                             },
                                         },
                                         12: {
                                             stats: {
-                                                "dexterity": 2,
+                                                "dexterity": {flat: 2},
                                             }
                                         },
                                     }
@@ -1017,34 +1025,34 @@ Multiplies AP with hammers by ${Math.round((skills["Hammers"].get_coefficient("m
                                             milestones: {
                                                 1: {
                                                     stats: {
-                                                        "strength": 1,
+                                                        "strength": {flat: 1},
                                                     }
                                                 },
                                                 3: {
                                                     stats: {
-                                                        "strength": 1,
+                                                        "strength": {flat: 1},
                                                     }
                                                 },
                                                 5: {
                                                     stats: {
-                                                        "strength": 1,
-                                                        "dexterity": 1,
+                                                        "strength": {flat: 1},
+                                                        "dexterity": {flat: 1},
                                                     },
                                                 },
                                                 7: {
                                                     stats: {
-                                                        "strength": 1,
+                                                        "strength": {flat: 1},
                                                     }
                                                 },
                                                 10: {
                                                     stats: {
-                                                        "strength": 1,
-                                                        "dexterity": 1, 
+                                                        "strength": {flat: 1},
+                                                        "dexterity": {flat: 1}, 
                                                     },
                                                 },
                                                 12: {
                                                     stats: {
-                                                        "dexterity": 2,
+                                                        "dexterity": {flat: 2},
                                                     }
                                                 },
                                             }
@@ -1064,34 +1072,34 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                     milestones: {
                                         1: {
                                             stats: {
-                                                "dexterity": 1,
+                                                "dexterity": {flat: 1},
                                             }
                                         },
                                         3: {
                                             stats: {
-                                                "agility": 1,
+                                                "agility": {flat: 1},
                                             }
                                         },
                                         5: {
                                             stats: {
-                                                "crit_multiplier": 0.1,
-                                                "crit_rate": 0.01,
+                                                "crit_multiplier": {flat: 0.1},
+                                                "crit_rate": {flat: 0.01},
                                             },
                                         },
                                         7: {
                                             stats: {
-                                                "dexterity": 1,
+                                                "dexterity": {flat: 1},
                                             }
                                         },
                                         10: {
                                             stats: {
-                                                "crit_rate": 0.02,
-                                                "crit_multiplier": 0.1, 
+                                                "crit_rate": {flat: 0.02},
+                                                "crit_multiplier": {flat: 0.1}, 
                                             },
                                         },
                                         12: {
                                             stats: {
-                                                "dexterity": 2,
+                                                "dexterity": {flat: 2},
                                             }
                                         },
                                     }
@@ -1133,30 +1141,30 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                     milestones: {
                                         1: {
                                             stats: {
-                                                max_stamina: 2,
+                                                max_stamina: {flat: 2},
                                             },
                                         },
                                         2: {
                                             stats: {
-                                                strength: 1
+                                                strength: {flat: 1}
                                             },
                                         },
                                         3: {
                                             stats: {
-                                                dexterity: 1,
-                                                max_stamina: 2,
+                                                dexterity: {flat: 1},
+                                                max_stamina: {flat: 2},
                                             }
                                         },
                                         4: {
                                             stats: {
-                                                strength: 1,
-                                                max_stamina: 2,
+                                                strength: {flat: 1},
+                                                max_stamina: {flat: 2},
                                             }
                                         },
                                         5: {
                                             stats: {
-                                                strength: 1,
-                                                max_stamina: 2,
+                                                strength: {flat: 1},
+                                                max_stamina: {flat: 2},
                                             },
                                             xp_multipliers: {
                                                 "Herbalism": 1.05,
@@ -1164,7 +1172,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                         },
                                         6: {
                                             stats: {
-                                                strength: 1,
+                                                strength: {flat: 1},
                                             },
                                             xp_multipliers: {
                                                 Weightlifting: 1.1,
@@ -1172,8 +1180,8 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                         },
                                         7: {
                                             stats: {
-                                                dexterity: 1,
-                                                max_stamina: 2,
+                                                dexterity: {flat: 1},
+                                                max_stamina: {flat: 2},
                                             },
                                             xp_multipliers: {
                                                 "Unarmed": 1.05,
@@ -1181,23 +1189,21 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                         },
                                         8: {
                                             stats: {
-                                                strength: 1,
-                                                max_stamina: 2,
+                                                strength: {flat: 1},
+                                                max_stamina: {flat: 2},
                                             }
                                         },
                                         9: {
                                             stats: {
-                                                strength: 1,
-                                                dexterity: 1,
+                                                strength: {flat: 1},
+                                                dexterity: {flat: 1},
                                             },
                                         },
                                         10: {
                                             stats: {
-                                                max_stamina: 4,
-                                            },
-                                            multipliers: {
-                                                strength: 1.05,
-                                                dexterity: 1.05,
+                                                max_stamina: {flat: 4},
+                                                strength: {multiplier: 1.05},
+                                                dexterity: {multiplier: 1.05},
                                             },
                                             xp_multipliers: {
                                                 "Unarmed": 1.1,
@@ -1214,6 +1220,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                     names: {0: "Sleeping"}, 
                                     description: "Good, regular sleep is the basis of getting stronger and helps your body heal.",
                                     base_xp_cost: 1000,
+                                    visibility_treshold: 300,
                                     xp_scaling: 2,
                                     category: "Activity",
                                     max_level: 10,
@@ -1222,10 +1229,10 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                         milestones: {
                                             2: {
                                                 stats: {
-                                                    "max_health": 10,
-                                                },
-                                                multipliers: {
-                                                    "max_health": 1.05,
+                                                    "max_health": {
+                                                        flat: 10,
+                                                        multiplier: 1.05,
+                                                    }
                                                 },
                                                 xp_multipliers: {
                                                     all: 1.05,
@@ -1233,10 +1240,10 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                             },
                                             4: {
                                                 stats: {
-                                                    "max_health": 20,
-                                                },
-                                                multipliers: {
-                                                    "max_health": 1.05,
+                                                    "max_health": {
+                                                        flat: 20,
+                                                        multiplier: 1.05,
+                                                    }
                                                 },
                                                 xp_multipliers: {
                                                     all: 1.05,
@@ -1251,10 +1258,10 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                             },
                                             6: {
                                                 stats: {
-                                                    "max_health": 30,
-                                                },
-                                                multipliers: {
-                                                    "max_health": 1.05,
+                                                    "max_health": {
+                                                        flat: 30,
+                                                        multiplier: 1.05,
+                                                    }
                                                 },
                                                 xp_multipliers: {
                                                     all: 1.05,
@@ -1263,10 +1270,10 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                             },
                                             8: {
                                                 stats: {
-                                                    "max_health": 40,
-                                                },
-                                                multipliers: {
-                                                    "max_health": 1.05,
+                                                    "max_health": {
+                                                        flat: 40,
+                                                        multiplier: 1.05,
+                                                    }
                                                 },
                                                 xp_multipliers: {
                                                     all: 1.05,
@@ -1274,10 +1281,10 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                             },
                                             10: {
                                                 stats: {
-                                                    "max_health": 50,
-                                                },
-                                                multipliers: {
-                                                    "max_health": 1.1,
+                                                    "max_health": {
+                                                        flat: 50,
+                                                        multiplier: 1.1,
+                                                    }
                                                 },
                                                 xp_multipliers: {
                                                     all: 1.1,
@@ -1299,7 +1306,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                     milestones: {
                                         2: {
                                             stats: {
-                                                "intuition": 1,
+                                                "intuition": {flat: 1},
                                             },
                                             xp_multipliers: {
                                                 all: 1.05,
@@ -1308,10 +1315,10 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                         },
                                         4: {
                                             stats: {
-                                                "intuition": 1,
-                                            },
-                                            multipliers: {
-                                                "intuition": 1.05,
+                                                "intuition": {
+                                                    flat: 1, 
+                                                    multiplier: 1.05
+                                                }
                                             },
                                             xp_multipliers: {
                                                 all: 1.05,
@@ -1325,12 +1332,16 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                         },
                                         6: {
                                             stats: {
-                                                "intuition": 2,
+                                                "intuition": {
+                                                    flat: 2,
+                                                }
                                             },
                                         },
                                         8: {
-                                            multipliers: {
-                                                "intuition": 1.05,
+                                            stats: {
+                                                "intuition": {
+                                                    multiplier: 1.05
+                                                },
                                             },
                                             xp_multipliers: {
                                                 all: 1.05,
@@ -1340,10 +1351,10 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                         },
                                         10: {
                                             stats: {
-                                                "intuition": 2,
-                                            },
-                                            multipliers: {
-                                                "intuition": 1.05,
+                                                "intuition": {
+                                                    flat: 2,
+                                                    multiplier: 1.05
+                                                }
                                             },
                                             xp_multipliers: {
                                                 all: 1.1,
@@ -1365,43 +1376,55 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                     milestones: {
                                         1: {
                                             stats: {
-                                                agility: 1,
+                                                agility: {
+                                                    flat: 1
+                                                },
                                             }
                                         },
                                         3: {
                                             stats: {
-                                                agility: 1,
+                                                agility: {
+                                                    flat: 1
+                                                },
                                             }
                                         },
                                         5: {
                                             stats: {
-                                                agility: 1,
-                                            },
-                                            multipliers: {
-                                                max_stamina: 1.05,
-                                            },                                            
+                                                agility: {
+                                                    flat: 1,
+                                                },
+                                                max_stamina: {
+                                                    multiplier: 1.05,
+                                                }
+                                            },                                          
                                         },
                                         7: {
                                             stats: {
-                                                agility: 1,
-                                            },
-                                            multipliers: {
-                                                agility: 1.05,
+                                                agility: {
+                                                    flat: 1,
+                                                    multiplier: 1.05,
+                                                }
                                             },
                                         },
                                         10: {
                                             stats: {
-                                                agility: 1,
-                                            },
-                                            multipliers: {
-                                                agility: 1.05,
-                                                max_stamina: 1.05,
+                                                agility: {
+                                                    flat: 1,
+                                                    multiplier: 1.05,
+                                                },
+                                                max_stamina: {
+                                                    multiplier: 1.05,
+                                                }
                                             },
                                         },
                                         12: {
                                             stats: {
-                                                agility: 2,
-                                                max_stamina: 5
+                                                agility: {
+                                                    flat: 2
+                                                },
+                                                max_stamina: {
+                                                    flat: 5
+                                                }
                                             },
                                         }
                                     }
@@ -1430,12 +1453,16 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
       milestones: {
           1: {
               stats: {
-                  strength: 1,
+                strength: {
+                    flat: 1
+                },
               },
           },
           3: {
               stats: {
-                  strength: 1,
+                strength: {
+                    flat: 1
+                },
               },
               xp_multipliers: {
                 "Unarmed": 1.05,
@@ -1443,16 +1470,20 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
           },
           5: {
               stats: {
-                  strength: 1,
+                strength: {
+                    flat: 1,
+                    multiplier: 1.05,
+                },
+                max_stamina: {
+                    multiplier: 1.05,
+                }
               },
-              multipliers: {
-                  strength: 1.05,
-                  max_stamina: 1.05,
-              }
           },
           7: {
               stats: {
-                  strength: 1,
+                strength: {
+                    flat: 1
+                },
               },
               xp_multipliers: {
                 "Unarmed": 1.1,
@@ -1460,17 +1491,23 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
           },
           10: {
               stats: {
-                  strength: 1,
+                  strength: {
+                    flat: 1, 
+                    multiplier: 1.05
+                },
+                max_stamina: {
+                    multiplier: 1.05,
+                }
               },
-              multipliers: {
-                  strength: 1.05,
-                  max_stamina: 1.05,
-              }
           },
           12: {
             stats: {
-                strength: 2,
-                max_stamina: 5
+                strength: {
+                    flat: 2
+                },
+                max_stamina: {
+                    flat: 5
+                }
             }
           }
       }
@@ -1499,22 +1536,22 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
       milestones: {
           1: {
               stats: {
-                agility: 1,
+                agility: {flat: 1},
               },
           },
           3: {
               stats: {
-                intuition: 1,
+                intuition: {flat: 1},
               }
           },
           5: {
               stats: {
-                agility: 1,
-                strength: 1,
-              },
-              multipliers: {
-                agility: 1.05,
-                max_stamina: 1.05,
+                agility: {
+                    flat: 1,
+                    multiplier: 1.05,
+                },
+                strength: {flat: 1},
+                max_stamina: {multiplier: 1.05},
               },
               xp_multipliers: {
                 "Unarmed": 1.1,
@@ -1522,27 +1559,25 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
           },
           7: {
               stats: {
-                intuition: 1,
+                intuition: {flat: 1},
               },
           },
           9: {
             stats: {
-                strength: 1,
+                strength: {flat: 1},
             }
           },
           10: {
               stats: {
-                agility: 1,
+                agility: {flat: 1},
+                intuition: {multiplier: 1.05},
+                max_stamina: {multiplier: 1.05},
               },
-              multipliers: {
-                intuition: 1.05,
-                max_stamina: 1.05,
-              }
           },
           12: {
             stats: {
-                agility: 1,
-                strength: 1,
+                agility: {flat: 1},
+                strength: {flat: 1},
             }
           }
       }
@@ -1668,28 +1703,28 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         rewards: {
             milestones: {
                 3: {
-                    multipliers: {
-                        max_health: 1.01,
+                    stats: {
+                        max_health: {multiplier: 1.01},
                     }
                 },
                 5: {
-                    multipliers: {
-                        max_health: 1.01,
+                    stats: {
+                        max_health: {multiplier: 1.01},
                     }
                 },
                 7: {
-                    multipliers: {
-                        max_health: 1.02,
+                    stats: {
+                        max_health: {multiplier: 1.02},
                     }
                 },
                 10: {
-                    multipliers: {
-                        max_health: 1.02,
+                    stats: {
+                        max_health: {multiplier: 1.02},
                     }
                 },
                 12: {
-                    multipliers: {
-                        max_health: 1.02,
+                    stats: {
+                        max_health: {multiplier: 1.02},
                     }
                 }
             }
@@ -1713,7 +1748,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
             milestones: {
                 2: {
                     stats: {
-                        max_stamina: 5,
+                        max_stamina: {flat: 5},
                     },
                     xp_multipliers: {
                         all_skill: 1.05,
@@ -1721,7 +1756,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                 },
                 4: {
                     stats: {
-                        max_stamina: 5,
+                        max_stamina: {flat: 5},
                     },
                     xp_multipliers: {
                         hero: 1.05,
@@ -1729,7 +1764,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                 },
                 6: {
                     stats: {
-                        max_stamina: 10,
+                        max_stamina: {flat: 10},
                     },
                     xp_multipliers: {
                         all: 1.05,
@@ -1737,7 +1772,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                 },
                 8: {
                     stats: {
-                        max_stamina: 10,
+                        max_stamina: {flat: 10},
                     },
                     xp_multipliers: {
                         all: 1.05,
@@ -1745,7 +1780,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                 },
                 10: {
                     stats: {
-                        max_stamina: 10,
+                        max_stamina: {flat: 10},
                     },
                     xp_multipliers: {
                         all: 1.05,

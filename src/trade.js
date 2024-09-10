@@ -64,24 +64,12 @@ function accept_trade() {
             //remove from trader inventory
 
             const item = to_buy.items.pop();
-            const [item_name, item_id] = item.item.split(' #');
-            let actual_item;
-            if(item_id) { //unstackable
-                actual_item = traders[current_trader].inventory[item_name][item_id];
 
-                //remove_from_trader_inventory(current_trader, {item_name, item_count: 1, item_id});
-                to_remove.push({item_name, item_count: 1, item_id});
-                //add_to_character_inventory([{item: actual_item, count: 1}]);     
-                item_list.push({item: actual_item, count: 1});                         
-            } else {
+            const actual_item = traders[current_trader].inventory[item.item_key].item;
 
-                actual_item = traders[current_trader].inventory[item_name].item;
-                
-                //remove_from_trader_inventory(current_trader, {item_name, item_count: item.count});
-                to_remove.push({item_name, item_count: item.count});
-                //add_to_character_inventory([{item: actual_item, count: item.count}]);
-                item_list.push({item: actual_item, count: item.count});
-            }
+            to_remove.push(item);
+
+            item_list.push({item: actual_item, count: item.count});
         }
         
         if(to_remove.length > 0) {
@@ -98,25 +86,18 @@ function accept_trade() {
             //add to trader inventory
             
             const item = to_sell.items.pop();
-            const [item_name, item_id] = item.item.split(' #');
-            let actual_item;
-            if(item_id) { //unstackable
-                actual_item = character.inventory[item_name][item_id];
-                
-                to_remove.push({item_name, item_count: 1, item_id});
-                item_list.push({item: actual_item, count: 1});
-            } else {
-                actual_item = character.inventory[item_name].item;
-                to_remove.push({item_name, item_count: item.count});
 
-                item_list.push({item: actual_item, count: item.count});
-            }
+            const actual_item = character.inventory[item.item_key].item;
+            
+            to_remove.push(item);
 
-            if(item_templates[item_name]?.saturates_market) {
-                if(!loot_sold_count[item_name]) {
-                    loot_sold_count[item_name] = {sold: 0, recovered: 0};
+            item_list.push({item: actual_item, count: item.count});
+        
+            if(item.id && item_templates[item.id]?.saturates_market) {
+                if(!loot_sold_count[item.id]) {
+                    loot_sold_count[item.id] = {sold: 0, recovered: 0};
                 }
-                loot_sold_count[item_name].sold = loot_sold_count[item_name]?.sold + (item.count || 1);
+                loot_sold_count[item.id].sold = loot_sold_count[item.id]?.sold + (item.count || 1);
             }
         }
         
@@ -149,17 +130,13 @@ function exit_trade() {
 
 /**
  * @param {} selected_item 
- * {key: {string with value of data- attribute, which is supposed to be an inventory key}, count: Number}
+ * {item_key: {string with value of data- attribute, which is supposed to be an inventory key}, count: Number}
  * @returns {Number} change of trade value
  */
 function add_to_buying_list(selected_item) {
-
-    //TODO: always stackables, but need to identify by key
-    // which generally requires passing the item key to this function instead of whatever it was before
-
-    const present_item = to_buy.items.find(a => a.key === selected_item.key);
+    const present_item = to_buy.items.find(a => a.item_key === selected_item.item_key);
     
-    let item_count_in_trader = traders[current_trader].inventory[selected_item.key].count;
+    let item_count_in_trader = traders[current_trader].inventory[selected_item.item_key].count;
 
     if(present_item) { //there's already some in inventory
         if(item_count_in_trader - present_item.count < selected_item.count) {
@@ -187,12 +164,12 @@ function add_to_buying_list(selected_item) {
 
 /**
  * @param {} selected_item 
- * {item: {string with value of data- attribute}, count: Number, id: Number (position in inventory)}
+ * {item_key: {string with value of data- attribute}, count: Number}
  * @returns {Number} change of trade value
  */
 function remove_from_buying_list(selected_item) {
 
-    const present_item = to_buy.items.find(a => a.key === selected_item.key);
+    const present_item = to_buy.items.find(a => a.item_key === selected_item.item_key);
     if(present_item?.count > selected_item.count) { //there's enough
         present_item.count -= selected_item.count;
     } else { //there's not enough, remove them all
@@ -211,10 +188,10 @@ function is_in_trade() {
 
 function add_to_selling_list(selected_item) {
 
-    const present_item = to_sell.items.find(a => a.key === selected_item.key);
+    const present_item = to_sell.items.find(a => a.item_key === selected_item.item_key);
     //find if item is already present in the sell list
 
-    let item_count_in_player = character.inventory[selected_item.key].count;
+    let item_count_in_player = character.inventory[selected_item.item_key].count;
 
     if(present_item) {
         //item present in the list -> increase its count, up to what player has in inventory
@@ -236,7 +213,7 @@ function add_to_selling_list(selected_item) {
         to_sell.items.push(selected_item);
     }
 
-    let {id, components, quality} = JSON.parse(selected_item.key);
+    let {id, components, quality} = JSON.parse(selected_item.item_key);
     let value;
 
     if(id && item_templates[id].saturates_market) {
@@ -246,6 +223,7 @@ function add_to_selling_list(selected_item) {
     } else {
         value = getEquipmentValue(components, quality) * selected_item.count;
     }
+    
 
     to_sell.value += value;
     return value;
@@ -254,7 +232,7 @@ function add_to_selling_list(selected_item) {
 function remove_from_selling_list(selected_item) {
     let actual_number_to_remove = selected_item.count;
 
-    const present_item = to_sell.items.find(a => a.key === selected_item.key);
+    const present_item = to_sell.items.find(a => a.item_key === selected_item.item_key);
     if(present_item?.count > selected_item.count) { //more than to remove
         present_item.count -= selected_item.count;
     } else { //less than to remove, so just remove all
@@ -263,7 +241,7 @@ function remove_from_selling_list(selected_item) {
         to_sell.items.splice(to_sell.items.indexOf(present_item), 1);
     }
 
-    let {id, components, quality} = JSON.parse(selected_item.key);
+    let {id, components, quality} = JSON.parse(selected_item.item_key);
     let value;
 
     if(id && item_templates[id].saturates_market) {
@@ -303,7 +281,7 @@ function remove_from_trader_inventory(trader_key, items) {
  */
 function get_item_value(selected_item) {
     const profit_margin = traders[current_trader].getProfitMargin();
-    const {id, components, quality} = JSON.parse(selected_item.key);
+    const {id, components, quality} = JSON.parse(selected_item.item_key);
 
     if(id) {
         return round_item_price(profit_margin * item_templates[id].getValue(quality)) * selected_item.count;

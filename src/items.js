@@ -136,7 +136,7 @@ function getEquipmentValue(components, quality) {
     Object.values(components).forEach(component => {
         value += item_templates[component].value;
     });
-    return value * (quality/100 ) * rarity_multipliers[getItemRarity(quality)];
+    return round_item_price(value * (quality/100 ) * rarity_multipliers[getItemRarity(quality)]);
 }
 
 class Item {
@@ -189,7 +189,7 @@ class Item {
             return round_item_price(this.value);
         }
         else {  
-            return Math.max(1, round_item_price(Math.ceil(this.value * getLootPriceModifier(this.value,(Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)))));
+            return Math.max(1, round_item_price(Math.ceil(this.value * getLootPriceModifier(this.value,(Math.max(loot_sold_count[this.id]?.sold - loot_sold_count[this.id]?.recovered,0)||0)))));
         }
     }
 
@@ -202,7 +202,7 @@ class Item {
             return round_item_price(this.value) * count;
         }
         else {
-            const modifier = getLootPriceModifierMultiple(this.value, (Math.max(loot_sold_count[this.getName()]?.sold - loot_sold_count[this.getName()]?.recovered,0)||0)+additional_count_of_sold, count);
+            const modifier = getLootPriceModifierMultiple(this.value, (Math.max(loot_sold_count[this.id]?.sold - loot_sold_count[this.id]?.recovered,0)||0)+additional_count_of_sold, count);
             return Math.max(count, Math.ceil(round_item_price(this.value) * Math.round(this.value*modifier)/this.value));
         }
     }
@@ -655,11 +655,12 @@ class Armor extends Equippable {
     }
 
     getValue(quality) {
-        if(!this.value) {
+        if(this.components) {
             //value of internal + value of external (if present), both multiplied by quality and rarity
-            this.value = (item_templates[this.components.internal].value + 
-                                   (item_templates[this.components.external]?.value || 0))
-                                  * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)];
+            this.value = (item_templates[this.components.internal].value + (item_templates[this.components.external]?.value || 0))
+                            * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)];
+        } else {
+            this.value = item_templates[this.id].value * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)];
         }
         return round_item_price(this.value);
     } 
@@ -2122,16 +2123,16 @@ item_templates["Twist liek a snek"] = new Book({
 //usables:
 (function(){
     item_templates["Stale bread"] = new UsableItem({
-        name: "Stale bread", description: "Big piece of an old bread, still edible", 
+        name: "Stale bread", description: "Big piece of an old bread, still edible.", 
         value: 20,
-        effects: [{effect: "Cheap meal", duration: 60}],
+        effects: [{effect: "Basic meal", duration: 60}],
     });
 
     item_templates["Fresh bread"] = new UsableItem({
         name: "Fresh bread", 
-        description: "Freshly baked bread, delicious", 
+        description: "Freshly baked bread, delicious.", 
         value: 40,
-        effects: [{effect: "Cheap meal", duration: 120}],
+        effects: [{effect: "Basic meal", duration: 120}],
     });
 
     item_templates["Weak healing powder"] = new UsableItem({

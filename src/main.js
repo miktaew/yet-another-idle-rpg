@@ -1593,10 +1593,10 @@ function create_save() {
             save_data["character"].inventory[key] = {count: character.inventory[key].count};
         });
        
-        Object.keys(character.equipment).forEach(key =>{
+        //Object.keys(character.equipment).forEach(key =>{
             //save_data["character"].equipment[key] = true;
             //todo: need to rewrite equipment loading first
-        });
+        //});
 
         save_data["skills"] = {};
         Object.keys(skills).forEach(function(key) {
@@ -1744,7 +1744,11 @@ function save_to_file() {
  * @param {Boolean} is_manual 
  */
 function save_to_localStorage(is_manual) {
-    localStorage.setItem(save_key, create_save());
+    if(is_on_dev()) {
+        localStorage.setItem(dev_save_key, create_save());
+    } else {
+        localStorage.setItem(save_key, create_save());
+    }
     if(is_manual) {
         log_message("Saved the game manually");
         save_counter = 0;
@@ -1954,6 +1958,7 @@ function load(save_data) {
                 //and if it has no quality, it's something non-equippable
                 if(item_templates[id]) {
                     item_list.push({item: getItem(item_templates[id]), count: save_data.character.inventory[key].count});
+                    
                 } else {
                     console.warn(`Inventory item "${key}" from save on version "${save_data["game version"]} couldn't be found!`);
                     return;
@@ -2418,7 +2423,17 @@ function load_from_file(save_string) {
  */
 function load_from_localstorage() {
     try{
-        load(JSON.parse(localStorage.getItem(save_key)));
+        if(is_on_dev()) {
+            if(localStorage.getItem(dev_save_key)){
+                load(JSON.parse(localStorage.getItem(dev_save_key)));
+                log_message("Loaded dev save. If you want to use save from live version, import it manually");
+            } else {
+                load(JSON.parse(localStorage.getItem(save_key)));
+                log_message("Dev save was not found. Loaded live version save.");
+            }
+        } else {
+            load(JSON.parse(localStorage.getItem(save_key)));
+        }
     } catch(error) {
         console.error("Something went wrong on loading from localStorage!");
         console.error(error);
@@ -2799,7 +2814,6 @@ Verify_Game_Objects();
 if(is_on_dev()) {
     log_message("It looks like you are playing on the dev release. It is recommended to keep the developer console open (in Chrome/Firefox/Edge it's at F12 => 'Console' tab) in case of any errors/warnings appearing in there.", "notification");
 }
-
 
 export { current_enemies, can_work, 
         current_location, active_effects, 

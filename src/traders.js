@@ -82,10 +82,11 @@ class Trader extends InventoryHaver {
                     (inventory_template[i].count[1] - inventory_template[i].count[0]) + inventory_template[i].count[0]);
                 
                 if(inventory_template[i].quality) {
-                    let quality = Math.round(100 * (Math.random() *
-                        (inventory_template[i].quality[1] - inventory_template[i].quality[0]) + inventory_template[i].quality[0])) / 100;
-                        inventory[item_templates[inventory_template[i].item_name].getInventoryKey()] = { item: getItem({...item_templates[inventory_template[i].item_name], quality}), count: item_count };
+                    let quality = Math.round(Math.random() *
+                        (inventory_template[i].quality[1] - inventory_template[i].quality[0]) + inventory_template[i].quality[0]);
 
+                    const item = getItem({...item_templates[inventory_template[i].item_name], quality});
+                    inventory[item.getInventoryKey()] = { item: item, count: item_count };
                 } else {
                     inventory[item_templates[inventory_template[i].item_name].getInventoryKey()] = { item: getItem(item_templates[inventory_template[i].item_name]), count: item_count };
 

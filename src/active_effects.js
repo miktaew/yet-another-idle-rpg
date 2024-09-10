@@ -18,8 +18,8 @@ class ActiveEffect {
     }
 }
 
-effect_templates["Cheap meal"] = new ActiveEffect({
-    name: "Cheap meal",
+effect_templates["Basic meal"] = new ActiveEffect({
+    name: "Basic meal",
     effects: {
         stats: {
             stamina_regeneration_flat: {flat: 1},

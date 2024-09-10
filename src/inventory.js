@@ -12,7 +12,7 @@ class InventoryHaver {
      * @param {Array} items - [{item, count},...]
      */
     add_to_inventory(items) {
-        for(let i = 0; i < items.length; i++){            
+        for(let i = 0; i < items.length; i++){
             if(!(items[i].item.getInventoryKey() in this.inventory)) //not in inventory
             {
                 if(!items[i].count) {

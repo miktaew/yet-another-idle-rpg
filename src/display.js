@@ -831,7 +831,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
         let item_count = trader.inventory[key].count;
         for(let i = 0; i < to_buy.items.length; i++) {
             
-            if(key === to_buy.items[i].key) {
+            if(key === to_buy.items[i].item_key) {
                 item_count -= Number(to_buy.items[i].count);
 
                 if(item_count == 0) {
@@ -886,7 +886,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
         let item_count = character.inventory[key].count;
         for(let i = 0; i < to_sell.items.length; i++) {
             
-            if(key === to_sell.items[i].key) {
+            if(key === to_sell.items[i].item_key) {
                 item_count -= Number(to_sell.items[i].count);
 
                 if(item_count == 0) {
@@ -899,7 +899,6 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
                 break;
             }
         }
-
         inventory_div.appendChild(create_inventory_item_div({key, item_count, target: "character"}));
     });
 
@@ -918,7 +917,6 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
         }
     });
 
-    
     //items in to_buy
     if(!item_key){
         for(let i = 0; i < to_buy.items.length; i++) { 
@@ -968,19 +966,19 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
         if(target === "character") {
             if(typeof trade_index === "undefined") {
                 target_item = character.inventory[key].item;
-                item_count = character.inventory[key].count;
+                item_count = item_count || character.inventory[key].count;
             } else {
-                target_item = traders[current_trader].inventory[to_buy.items[trade_index].key].item;
-                item_count = to_buy.items[trade_index].count;
+                target_item = traders[current_trader].inventory[to_buy.items[trade_index].item_key].item;
+                item_count = item_count || to_buy.items[trade_index].count;
             }
             target_class_name = "character_item";
         } else if(target === "trader") {
             if(typeof trade_index === "undefined") {
                 target_item = traders[current_trader].inventory[key].item;
-                item_count =  traders[current_trader].inventory[key].count;
+                item_count = item_count || traders[current_trader].inventory[key].count;
             } else {
-                target_item = character.inventory[to_sell.items[trade_index].key].item;
-                item_count = to_sell.items[trade_index].count;
+                target_item = character.inventory[to_sell.items[trade_index].item_key].item;
+                item_count = item_count || to_sell.items[trade_index].count;
             }
             target_class_name = "trader_item";
         } else {

@@ -211,13 +211,13 @@ character.get_level_bonus = function (level) {
  * called when a new milestone is reached
  * @param {{flats, multipliers}} bonuses 
  */
-character.stats.add_skill_milestone_bonus = function ({flats = {}, multipliers = {}, xp_multipliers = {}}) {
-        Object.keys(character.base_stats).forEach(stat => {
-                if(flats[stat]) {
-                        character.stats.flat.skill_milestones[stat] = (character.stats.flat.skill_milestones[stat] || 0) + flats[stat];
+character.stats.add_skill_milestone_bonus = function ({stats = {}, xp_multipliers = {}}) {
+        Object.keys(stats).forEach(stat => {
+                if(stats[stat].flat) {
+                        character.stats.flat.skill_milestones[stat] = (character.stats.flat.skill_milestones[stat] || 0) + stats[stat].flat;
                 }
-                if(multipliers[stat]) {
-                        character.stats.multiplier.skill_milestones[stat] = (character.stats.multiplier.skill_milestones[stat] || 1) * multipliers[stat];
+                if(stats[stat].multiplier) {
+                        character.stats.multiplier.skill_milestones[stat] = (character.stats.multiplier.skill_milestones[stat] || 1) * stats[stat].multiplier;
                 }
         });
 

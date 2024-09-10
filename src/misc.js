@@ -16,11 +16,11 @@ function expo(number, precision = 2)
 }
 
 function round_item_price(price) {
-    if(price > 9999) {
+    if(price > 19999) {
         return Math.ceil(price/1000)*1000;
-    } else if(price > 999) {
+    } else if(price > 1999) {
         return Math.ceil(price/100)*100;
-    } else if(price > 99){
+    } else if(price > 199){
         return Math.ceil(price/10)*10;
     } else {
         return Math.ceil(price);
