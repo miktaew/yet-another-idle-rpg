@@ -16,17 +16,9 @@ const alchemy_recipes = {items: {}};
     non-equipment recipes have a success rate (presented with min-max value, where max should be 1) that shall scale with skill level and with crafting station level
     for equipment recipes, there is no success rate in favor of equipment's "quality" property
 
-    resulting quality of equipment is based on component quality; 100% (with slight variation?) with 100% components and required skill, more at higher levels
+    resulting quality of equipment is based on component quality; 100% (with slight variation) with 100% components and required skill, more at higher levels
     
-    overal max quality achievable scales with related skills?
-    lvl 15/60: 150
-    lvl 30/60: 200
-    lvl 45/60: 250
-    skills can increase quality of resulting item, but they are more required to keep it from getting lower than the components, as higher tier components = higher skill lvl required?
-    
-
-    todo: actually add quality to components!
-    should be savegame compatible
+    overal max quality achievable scales with related skills
 */
 
 class Recipe {
@@ -80,7 +72,8 @@ class ItemRecipe extends Recipe {
 
     get_availability() {
         for(let i = 0; i < this.materials.length; i++) {
-            if(!character.inventory[this.materials[i].material_id] || character.inventory[this.materials[i].material_id].count < this.materials[i].count) {
+            const key = item_templates[this.materials[i].material_id].getInventoryKey();
+            if(!character.inventory[key] || character.inventory[key].count < this.materials[i].count) {
                 return false;
             }
         }
@@ -113,7 +106,7 @@ class ComponentRecipe extends ItemRecipe{
         this.component_type = component_type;
         this.item_type = item_type;
         this.getResult = function(material, station_tier = 1){
-            const result = item_templates[this.materials.filter(x => x.material_id===material.item.id)[0].result_id];
+            const result = item_templates[this.materials.filter(x => x.material_id===material.id)[0].result_id];
             //return based on material used
             let quality = this.get_quality((station_tier-result.component_tier) || 0);
             if(result.tags["clothing"]) {
@@ -147,7 +140,7 @@ class ComponentRecipe extends ItemRecipe{
 
     get_quality(tier = 0) {
         const quality_range = this.get_quality_range(tier);
-        return Math.min(Math.round(20*((quality_range[1]-quality_range[0])*Math.random()+quality_range[0]))*5, this.get_quality_cap());
+        return Math.min(Math.round(((quality_range[1]-quality_range[0])*Math.random()+quality_range[0])/4)*4, this.get_quality_cap());
     }
 }
 
@@ -156,7 +149,7 @@ class EquipmentRecipe extends Recipe {
         name,
         id,
         components = [], //pair of component types; first letter not capitalized; blade-handle or internal-external
-        is_unlocked = true, //TODO: change to false when unlocking is implemented!
+        is_unlocked = true, //TODO: change to false when unlocking is implemented
         result = null,
         recipe_skill = "Crafting",
         item_type, //Weapon/Armor/Shield
@@ -173,8 +166,8 @@ class EquipmentRecipe extends Recipe {
                 return new Weapon(
                     {
                         components: {
-                            head: component_1.name,
-                            handle: component_2.name,
+                            head: component_1.id,
+                            handle: component_2.id,
                         },
                         quality: quality,
                     }
@@ -207,8 +200,8 @@ class EquipmentRecipe extends Recipe {
 
     get_quality_range(component_quality, tier = 0) {
         const skill = skills[this.recipe_skill];
-        const quality = (40+100*component_quality+(3*skill.current_level-skill.max_level)+20*(tier))/100;
-        return [Math.max(10,Math.round(100*quality-0.1)), Math.max(10,Math.round(100*(quality+0.1)))];
+        const quality = (40+component_quality+(3*skill.current_level-skill.max_level)+20*(tier));
+        return [Math.max(10,Math.round(quality-15)), Math.max(10,Math.round(quality+15))];
     }
 
     get_quality_cap() {
@@ -218,7 +211,7 @@ class EquipmentRecipe extends Recipe {
 
     get_quality(component_quality, tier = 0) {
         const quality_range = this.get_quality_range(component_quality, tier);
-        return Math.min(Math.round(100*((quality_range[1]-quality_range[0])*Math.random()+quality_range[0])), this.get_quality_cap());
+        return Math.min(((quality_range[1]-quality_range[0])*Math.random()+quality_range[0]), this.get_quality_cap());
     }
 
     get_component_quality_weighted(component_1, component_2) {

@@ -1992,8 +1992,9 @@ function update_recipe_tooltip({category, subcategory, recipe_id, components}) {
         const material_selections_div = crafting_pages[category][subcategory].querySelector(`[data-recipe_id='${recipe_id}']`).children[1];
 
         for(let i = 0; i < material_selections_div.children.length; i++) {
-            const material_id = material_selections_div.children[i].dataset.item_name;
-            const material_recipe = recipe.materials.filter(material => material.material_id === material_id);
+            const material_key = material_selections_div.children[i].dataset.item_key;
+            const {id} = JSON.parse(material_key);
+            const material_recipe = recipe.materials.filter(material => material.material_id === id);
             
             material_selections_div.children[i].children[1].innerHTML = create_recipe_tooltip_content({category, subcategory, recipe_id, material: material_recipe[0]});
         }
@@ -2012,19 +2013,20 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
         const success_chance = Math.round(100*recipe.get_success_chance());
         tooltip += `Success chance: <b><span style="color:${success_chance > 74?"lime":success_chance>49?"yellow":success_chance>24?"orange":"red"}">${success_chance}%</span></b><br><br>Materials required:<br>`;
         for(let i = 0; i < recipe.materials.length; i++) {
-            if(character.inventory[recipe.materials[i].material_id]?.count >=recipe.materials[i].count) {
-                tooltip += `<span style="color:lime"><b>${item_templates[recipe.materials[i].material_id].getName()} x${character.inventory[recipe.materials[i].material_id]?.count || 0}/${recipe.materials[i].count}</b></span><br>`;
+            const key = item_templates[recipe.materials[i].material_id].getInventoryKey();
+            if(character.inventory[key]?.count >= recipe.materials[i].count) {
+                tooltip += `<span style="color:lime"><b>${item_templates[recipe.materials[i].material_id].getName()} x${character.inventory[key]?.count || 0}/${recipe.materials[i].count}</b></span><br>`;
             } else {
-                tooltip += `<span style="color:red"><b>${item_templates[recipe.materials[i].material_id].getName()} x${character.inventory[recipe.materials[i].material_id]?.count || 0}/${recipe.materials[i].count}</b></span><br>`;
+                tooltip += `<span style="color:red"><b>${item_templates[recipe.materials[i].material_id].getName()} x${character.inventory[key]?.count || 0}/${recipe.materials[i].count}</b></span><br>`;
             }
         }
         tooltip += `<br>Result:<br><div class="recipe_result">${create_item_tooltip_content({item: item_templates[recipe.getResult().result_id], options: {skip_quality: true}})}</div>`;
     } else if(subcategory === "components") {
         tooltip += `Material required:<br>`;
-        if(character.inventory[material.material_id]?.count >= material.count) {
-            tooltip += `<span style="color:lime"><b>${item_templates[material.material_id].getName()} x${character.inventory[material.material_id]?.count || 0}/${material.count}</b></span><br>`;
+        if(character.inventory[item_templates[material.material_id].getInventoryKey()]?.count >= material.count) {
+            tooltip += `<span style="color:lime"><b>${item_templates[material.material_id].getName()} x${character.inventory[item_templates[material.material_id].getInventoryKey()]?.count || 0}/${material.count}</b></span><br>`;
         } else {
-            tooltip += `<span style="color:red"><b>${item_templates[material.material_id].getName()} x${character.inventory[material.material_id]?.count || 0}/${material.count}</b></span><br>`;
+            tooltip += `<span style="color:red"><b>${item_templates[material.material_id].getName()} x${character.inventory[item_templates[material.material_id].getInventoryKey()]?.count || 0}/${material.count}</b></span><br>`;
         }
         const quality_range = recipe.get_quality_range(station_tier - item_templates[material.result_id].component_tier);
         tooltip += `<br>Result:<br><div class="recipe_result">${create_item_tooltip_content({item:item_templates[material.result_id], options: {quality: quality_range}})}</div>`;
@@ -2042,13 +2044,13 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
             tooltip += `Result:<br><div class="recipe_result">Select one component from each category</div>`;
         } else if(components.length == 2) {
             let item = "";
-
+            
             if(recipe.item_type === "Weapon") {
                 item = new Weapon(
                     {
                         components: {
-                            head: components[0].id,
-                            handle: components[1].id,
+                            head: components[0].item.id,
+                            handle: components[1].item.id,
                         },
                     }
                 );
@@ -2056,8 +2058,8 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
                 item = new Armor(
                     {
                         components: {
-                            internal: components[0].id,
-                            external: components[1].id,
+                            internal: components[0].item.id,
+                            external: components[1].item.id,
                         },
                     }
                 );
@@ -2065,8 +2067,8 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
                 item = new Shield(
                     {
                         components: {
-                            shield_base: components[0].id,
-                            handle: components[1].id,
+                            shield_base: components[0].item.id,
+                            handle: components[1].item.id,
                         },
                     }
                 );
@@ -2074,7 +2076,7 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
                 throw new Error(`Recipe "${category}" -> "${subcategory}" -> "${recipe_id}" has an incorrect item type "${recipe.item_type}"`)
             }
 
-            const quality_range = recipe.get_quality_range(recipe.get_component_quality_weighted(components[0], components[1]), (station_tier-Math.max(components[0].component_tier, components[1].component_tier)) || 0);
+            const quality_range = recipe.get_quality_range(recipe.get_component_quality_weighted(components[0].item, components[1].item), (station_tier-Math.max(components[0].item.component_tier, components[1].item.component_tier)) || 0);
             tooltip += `Result:<br><div class="recipe_result">${create_item_tooltip_content({item, options: {quality: quality_range}})}</div>`;
         } else {
             throw new Error(`Somehow recipe "${category}" -> "${subcategory}" -> "${recipe_id}" received more components than there should be (${components.length} instead of 2)`)
@@ -2143,7 +2145,7 @@ function update_displayed_component_choice({category, recipe_id}) {
  * updates the list of selectable materials for component crafting;
  * displays only the materials available in inventory; those that are in too low number are grayed out and unselectable
  */
-function update_displayed_material_choice({category, subcategory, recipe_id}) {
+function update_displayed_material_choice({category, subcategory, recipe_id, refreshing}) {
     const recipe = recipes[category][subcategory][recipe_id];
 
     const material_selections_div = crafting_pages[category][subcategory].querySelector(`[data-recipe_id='${recipe_id}']`).children[1];
@@ -2153,24 +2155,29 @@ function update_displayed_material_choice({category, subcategory, recipe_id}) {
     const materials = Object.values(character.inventory).filter(item=>{
         return recipe.materials.filter(material => material.material_id === item.item?.id).length > 0;
     });
-
     for(let i = 0; i < materials.length; i++) {
-        const material_recipe = recipe.materials.filter(material => material.material_id === materials[i].item.id);
+        const material_recipe = recipe.materials.filter(material => material.material_id === materials[i].item.id)[0];
         const item_div = document.createElement("div");
-        item_div.innerHTML = `<i class="material-icons icon selected_material_icon"> check </i>${item_templates[material_recipe[0].result_id].getName()}`;
+        item_div.innerHTML = `<i class="material-icons icon selected_material_icon"> check </i>${item_templates[material_recipe.result_id].getName()}`;
         item_div.classList.add("selectable_material");
-        item_div.dataset.item_name = materials[i].item.id;
+        item_div.dataset.item_key = materials[i].item.getInventoryKey();
+
+        if(material_recipe.count <= materials[i].count) {
+            item_div.addEventListener("click", (event)=>{
+                item_div.classList.add("selected_material");
+                window.useRecipe(event.target.parentNode);
+                item_div.classList.remove("selected_material"); //this is so stupid
+            });
+        } else {
+            item_div.classList.add("recipe_unavailable");
+        }
         
-        item_div.addEventListener("click", (event)=>{
-            item_div.classList.add("selected_material");
-            window.useRecipe(event.target.parentNode);
-            item_div.classList.remove("selected_material"); //this is so stupid
-        });
-        
-        item_div.append(create_recipe_tooltip({category, subcategory, recipe_id, material: material_recipe[0]}));
+        item_div.append(create_recipe_tooltip({category, subcategory, recipe_id, material: material_recipe}));
         material_selections_div.appendChild(item_div);
     }
-    material_selections_div.lastChild?.scrollIntoView();
+    if(!refreshing) {
+        material_selections_div.lastChild?.scrollIntoView();
+    }
 }
 
 function update_item_recipe_visibility() {

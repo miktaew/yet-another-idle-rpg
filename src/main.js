@@ -1420,7 +1420,8 @@ function use_recipe(target) {
                 const {result_id, count} = result;
                 
                 for(let i = 0; i < selected_recipe.materials.length; i++) {
-                    remove_from_character_inventory([{item_name: selected_recipe.materials[i].material_id, item_count: selected_recipe.materials[i].count}]);
+                    const key = item_templates[selected_recipe.materials[i].material_id].getInventoryKey();
+                    remove_from_character_inventory([{item_key: key, item_count: selected_recipe.materials[i].count}]);
                 } 
                 const exp_value = Math.min(100,Math.max(5,selected_recipe.recipe_level[1])); //scale xp with recipe level, at least 5 and at most 100
                 if(Math.random() < success_chance) {
@@ -1431,9 +1432,7 @@ function use_recipe(target) {
 
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
 
-
                     update_item_recipe_visibility();
-
                 } else {
                     log_message(`Failed to create ${item_templates[result_id].getName()}!`, "crafting");
 
@@ -1453,27 +1452,31 @@ function use_recipe(target) {
             if(!material_div) {
                 return;
             } else {
-                const material_1_name = material_div.dataset.item_name;
-                const recipe_material = selected_recipe.materials.filter(x=> x.material_id===material_1_name)[0];
+                const material_1_key = material_div.dataset.item_key;
+                const {id} = JSON.parse(material_1_key);
+                const recipe_material = selected_recipe.materials.filter(x=> x.material_id===id)[0];
 
-                if(recipe_material.count <= character.inventory[material_1_name]?.count) {
+                if(recipe_material.count <= character.inventory[material_1_key]?.count) {
                     total_crafting_attempts++;
                     total_crafting_successes++;
-                    result = selected_recipe.getResult(character.inventory[material_1_name], station_tier);
+                    result = selected_recipe.getResult(character.inventory[material_1_key].item, station_tier);
                     add_to_character_inventory([{item: result, count: 1}]);
-                    remove_from_character_inventory([{item_name: recipe_material.material_id, item_count: recipe_material.count}]);
-                    log_message(`Created ${result.getName()} [${Math.round(100*result.quality)}% quality]`, "crafting");
+                    remove_from_character_inventory([{item_key: material_1_key, item_count: recipe_material.count}]);
+                    log_message(`Created ${result.getName()} [${result.quality}% quality]`, "crafting");
                     const exp_value = Math.min(100,Math.max(5,result.component_tier * 5 * rarity_multipliers[result.getRarity()]));
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
-                    if(character.inventory[material_1_name]) { 
+                    material_div.classList.remove("selected_material");
+                    if(character.inventory[material_1_key]) { 
                         //if item is still present in inventory + if there's not enough of it = change recipe color
-                        if(recipe_material.count > character.inventory[material_1_name].count) { 
-                            material_div.classList.remove("selected_material");
-                            material_div.classList.add("unavailable_material");
+                        if(recipe_material.count > character.inventory[material_1_key].count) { 
+                            material_div.classList.add("recipe_unavailable");
                         }
                     } else {
                         material_div.remove();
                     }
+
+                    update_displayed_material_choice({category, subcategory, recipe_id, refreshing: true});
+
                 } else {
                     console.log("Tried to create an item without having necessary materials");
                 }
@@ -1494,12 +1497,11 @@ function use_recipe(target) {
                 } else {
                     total_crafting_attempts++;
                     total_crafting_successes++;
-                    result = selected_recipe.getResult(character.inventory[component_1_key], character.inventory[component_2_key], station_tier);
-                    remove_from_character_inventory([{item_key: component_1_key}]);
-                    remove_from_character_inventory([{item_key: component_2_key}]);
+                    result = selected_recipe.getResult(character.inventory[component_1_key].item, character.inventory[component_2_key].item, station_tier);
+                    remove_from_character_inventory([{item_key: component_1_key}, {item_key: component_2_key}]);
                     add_to_character_inventory([{item: result}]);
 
-                    log_message(`Created ${result.getName()} [${Math.round(100*result.quality)}% quality]`, "crafting");
+                    log_message(`Created ${result.getName()} [${result.quality}% quality]`, "crafting");
 
                     const id_1 = JSON.parse(component_1_key).id;
                     const id_2 = JSON.parse(component_2_key).id;
