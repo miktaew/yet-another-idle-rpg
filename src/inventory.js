@@ -12,6 +12,7 @@ class InventoryHaver {
      * @param {Array} items - [{item, count},...]
      */
     add_to_inventory(items) {
+        let anything_new = false;
         for(let i = 0; i < items.length; i++){
             if(!(items[i].item.getInventoryKey() in this.inventory)) //not in inventory
             {
@@ -19,12 +20,14 @@ class InventoryHaver {
                     items[i].count = 1;
                 }
                 this.inventory[items[i].item.getInventoryKey()] = items[i];
+                anything_new = true;
             }
             else //in inventory 
             {
                 this.inventory[items[i].item.getInventoryKey()].count += (items[i].count || 1);
             }
         }
+        return anything_new;
     }
 
     /**

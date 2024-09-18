@@ -1105,7 +1105,7 @@ function get_location_type_penalty(type, stage, stat) {
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Low quality iron ore", ammount: [[1,1], [1,1]], chance: [0.3, 0.7]}], 
-                time_period: [20, 10],
+                time_period: [60, 30],
                 skill_required: [0, 10],
                 scales_with_skill: true,
             },
@@ -1119,7 +1119,7 @@ function get_location_type_penalty(type, stage, stat) {
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Iron ore", ammount: [[1,1], [1,1]], chance: [0.1, 0.6]}], 
-                time_period: [40, 15],
+                time_period: [120, 45],
                 skill_required: [7, 17],
                 scales_with_skill: true,
             },
@@ -1141,7 +1141,7 @@ function get_location_type_penalty(type, stage, stat) {
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Piece of wood", ammount: [[1,1], [1,3]], chance: [0.1, 1]}],
-                time_period: [40, 15],
+                time_period: [120, 45],
                 skill_required: [10, 20],
                 scales_with_skill: true,
             },
@@ -1158,7 +1158,7 @@ function get_location_type_penalty(type, stage, stat) {
                     {name: "Golmoon leaf", ammount: [[1,1], [1,1]], chance: [0.1, 0.7]},
                     {name: "Belmart leaf", ammount: [[1,1], [1,1]], chance: [0.1, 0.7]}
                 ], 
-                time_period: [60, 30],
+                time_period: [120, 60],
                 skill_required: [0, 10],
                 scales_with_skill: true,
             },
@@ -1187,7 +1187,7 @@ function get_location_type_penalty(type, stage, stat) {
                 resources: [
                     {name: "Wool", ammount: [[1,1], [1,3]], chance: [0.1, 1]},
                 ], 
-                time_period: [60, 30],
+                time_period: [120, 60],
                 skill_required: [0, 10],
                 scales_with_skill: true,
             },

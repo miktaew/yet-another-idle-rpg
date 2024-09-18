@@ -1043,27 +1043,27 @@ item_templates["Twist liek a snek"] = new Book({
     });
     item_templates["Piece of rough wood"] = new Material({
         name: "Piece of rough wood", 
-        description: "Not very strong, but easy to work with.", 
+        description: "Cheapest form of wood. There's a lot of bark and malformed pieces.", 
         value: 2,
         saturates_market: true,
         price_recovers: true,
-        material_type: "piece of wood",
+        material_type: "raw wood",
     });
     item_templates["Piece of wood"] = new Material({
         name: "Piece of wood", 
-        description: "Average quality wood, useful for crafting thanks to flexible uses.", 
-        value: 5,
+        description: "Average quality wood. There's a lot of bark and malformed pieces.", 
+        value: 4,
         saturates_market: true,
         price_recovers: true,
-        material_type: "piece of wood",
+        material_type: "raw wood",
     });
     item_templates["Piece of ash wood"] = new Material({
         name: "Piece of ash wood", 
-        description: "Strong yet elastic, it's a great crafting material.", 
+        description: "Strong yet elastic, it's best wood you can hope to find around. There's a lot of bark and malformed pieces.",
         value: 7,
         saturates_market: true,
         price_recovers: true,
-        material_type: "piece of wood",
+        material_type: "raw wood",
     });
 
     item_templates["Belmart leaf"] = new Material({
@@ -1171,6 +1171,33 @@ item_templates["Twist liek a snek"] = new Book({
         price_recovers: true,
         material_type: "meat",
     });
+    item_templates["Processed rough wood"] = new Material({
+        name: "Processed rough wood", 
+        description: "Cheapest form of wood, ready to be used. Despite being rather weak, it still has a lot of uses.",
+        value: 6,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "wood",
+    });
+
+    item_templates["Processed wood"] = new Material({
+        name: "Processed wood", 
+        description: "Average quality wood, ready to be used.",
+        value: 11,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "wood",
+    });
+
+    item_templates["Processed ash wood"] = new Material({
+        name: "Processed ash wood", 
+        description: "High quality wood, just waiting to be turned into a piece of equipment.",
+        value: 20,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "wood",
+    });
+
 })();
 
 //spare parts

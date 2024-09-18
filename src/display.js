@@ -699,11 +699,10 @@ function create_trade_buttons() {
     return trade_buttons;
 }
 
-function sort_displayed_inventory({sort_by="name", target = "character", change_direction = false}) {
+function sort_displayed_inventory({sort_by = "name", target = "character", change_direction = false}) {
     let plus;
     let minus;
     if(target === "trader") {
-
         if(change_direction){
             if(sort_by && sort_by === trader_inventory_sorting) {
                 if(trader_inventory_sorting_direction === "asc") {
@@ -726,7 +725,6 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
         trader_inventory_sorting = sort_by || "name";
 
     } else if(target === "character") {
-
         if(change_direction){
             if(sort_by && sort_by === character_inventory_sorting) {
                 if(character_inventory_sorting_direction === "asc") {
@@ -752,7 +750,6 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
         console.warn(`Something went wrong, no such inventory as '${target}'`);
         return;
     }
-
     [...target.children].sort((a,b) => {
         //equipped items on top
         if(a.classList.contains("equipped_item_control") && !b.classList.contains("equipped_item_control")) {
@@ -777,22 +774,32 @@ function sort_displayed_inventory({sort_by="name", target = "character", change_
         } else if(!a.classList.contains("trader_item_equippable") && b.classList.contains("trader_item_equippable")){
             return -1;
         } 
-        //items being traded on bottom
+
+        if(a.children[0].children[0].children[0].innerText === "[Component]" && b.children[0].children[0].children[0].innerText !== "[Component]") {
+            return 1;
+        } else if(a.children[0].children[0].children[0].innerText !== "[Component]" && b.children[0].children[0].children[0].innerText === "[Component]") {
+            return -1;
+        }
+
+        if(a.children[0].children[0].children[0].innerText === "[Book]" && b.children[0].children[0].children[0].innerText !== "[Book]") {
+            return 1;
+        } else if(a.children[0].children[0].children[0].innerText !== "[Book]" && b.children[0].children[0].children[0].innerText === "[Book]") {
+            return -1;
+        }
+
+        if(a.getElementsByClassName("item_slot") && !b.getElementsByClassName("item_slot")) {
+            return 1;
+        } else if(!a.getElementsByClassName("item_slot") && b.getElementsByClassName("item_slot")) {
+            return -1;
+        }
 
         //other items by either name or otherwise by value
 
         if(sort_by === "name") {
-            //if they are equippable, take in account the [slot] value displayed in front of item in inventory
+
             const name_a = a.children[0].children[0].children[1].innerText.toLowerCase().replaceAll('"',"");
             const name_b = b.children[0].children[0].children[1].innerText.toLowerCase().replaceAll('"',"");
-            
-            //prioritize displaying equipment below stackable items
-            if(name_a[0] === '[' && name_b[0] !== '[') {
-                return 1;
-            } else if(name_a[0] !== '[' && name_b[0] === '[') {
-                return -1;
-            }
-            else if(name_a > name_b) {
+            if(name_a > name_b) {
                 return plus;
             } else if(name_a < name_b) {
                 return minus;
@@ -861,8 +868,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
  * 
  * currently item_name is only used for books
  */
- function update_displayed_character_inventory({item_key, character_sorting="name", sorting_direction="asc"} = {}) {    
-
+ function update_displayed_character_inventory({item_key, character_sorting="name", sorting_direction="asc", was_anything_new_added=false} = {}) {    
     if(item_key) {
         //recreate only one node
         const node = inventory_div.querySelector(`[data-character_item="${item_key}"]`);
@@ -924,7 +930,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
         }
     }
 
-    if(!item_key) {
+    if(!item_key && was_anything_new_added) {
         sort_displayed_inventory({target: "character", sort_by: character_sorting, direction: sorting_direction});
     }
 }
@@ -1005,7 +1011,7 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
         }
         item_control_div.dataset.item_slot = target_item.equip_slot;
     } else if(target_item.tags.component) {
-        item_name_div.innerHTML = `<span class = "item_category">[Component] </span><span class="item_name">${target_item.getName()}</span>`;
+        item_name_div.innerHTML = `<span class = "item_category">[Component]</span><span class="item_name">${target_item.getName()}</span>`;
         item_name_div.classList.add(`${item_class}_name`);
         item_div.appendChild(item_name_div);
 
@@ -1014,9 +1020,9 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
 
         item_div.classList.add(`${item_class}`, `${target_class_name}`, "item_component");
     } else if(target_item.tags.book) {
-        item_name_div.innerHTML = '<span class = "item_category">[Book] </span>';
+        item_name_div.innerHTML = '<span class = "item_category">[Book]</span>';
         item_name_div.classList.add(`${item_class}`);
-        item_name_div.innerHTML += `<span class = "book_name item_name">"${target_item.name}" </span><span class="item_count">x${item_count} </span>`;
+        item_name_div.innerHTML += `<span class = "book_name item_name">"${target_item.name}" </span>`;
 
         if(book_stats[target_item.name].is_finished) {
             item_div.classList.add("book_finished");
@@ -1953,7 +1959,8 @@ function update_displayed_crafting_recipe({category, subcategory, recipe_id}) {
     } else if(subcategory === "components" || recipe.recipe_type === "component") {
         update_recipe_tooltip({category, subcategory, recipe_id});
     } else if(subcategory === "equipment") {
-        update_recipe_tooltip({category, subcategory, recipe_id, material: null, components: []});
+        //update_recipe_tooltip({category, subcategory, recipe_id, material: null, components: []});
+        //shouldn't actually be needed as tooltip already updates when opening recipe and when selecting components
     } else {
         console.error(`No such crafting subcategory as "${subcategory}"`);
     }
@@ -1990,7 +1997,6 @@ function update_recipe_tooltip({category, subcategory, recipe_id, components}) {
         tooltip.innerHTML = create_recipe_tooltip_content({category, subcategory, recipe_id});
     } else if(subcategory === "components" || recipe.recipe_type === "component") {
         const material_selections_div = crafting_pages[category][subcategory].querySelector(`[data-recipe_id='${recipe_id}']`).children[1];
-
         for(let i = 0; i < material_selections_div.children.length; i++) {
             const material_key = material_selections_div.children[i].dataset.item_key;
             const {id} = JSON.parse(material_key);
@@ -2091,8 +2097,9 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
 /**
  * updates the list of selectable components for equipment crafting;
  * generally called for the recipe that was just used
+ * component_keys is used for automatically selecting two comps
  */
-function update_displayed_component_choice({category, recipe_id}) {
+function update_displayed_component_choice({category, recipe_id, component_keys = {}}) {
     const recipe_div = crafting_pages[category]["equipment"].querySelector(`[data-recipe_id="${recipe_id}"]`);
     const recipe = recipes[category]["equipment"][recipe_id];
 
@@ -2133,7 +2140,11 @@ function update_displayed_component_choice({category, recipe_id}) {
                 update_recipe_tooltip({category, subcategory: "equipment", recipe_id, components});
             });
                 
-            component_selections_div[i].children[1].appendChild(item_div);    
+            component_selections_div[i].children[1].appendChild(item_div);
+
+            if(component_keys[item_div.dataset.item_key]) {
+                item_div.click();
+            }
         }
     }
     if(!is_element_above_x(recipe_div.querySelector(".recipe_creation_button"), document.getElementById("exit_crafting_button"))) {

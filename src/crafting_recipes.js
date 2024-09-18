@@ -289,8 +289,8 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.components["Short hilt"] = new ComponentRecipe({
         name: "Short hilt",
         materials: [
-            {material_id: "Piece of rough wood", count: 4, result_id: "Simple short wooden hilt"},
-            {material_id: "Piece of wood", count: 4, result_id: "Short wooden hilt"},
+            {material_id: "Processed rough wood", count: 1, result_id: "Simple short wooden hilt"},
+            {material_id: "Processed wood", count: 1, result_id: "Short wooden hilt"},
         ],
         item_type: "Component",
         recipe_skill: "Crafting",
@@ -298,8 +298,8 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.components["Medium handle"] = new ComponentRecipe({
         name: "Medium handle",
         materials: [
-            {material_id: "Piece of rough wood", count: 8, result_id: "Simple medium wooden handle"},
-            {material_id: "Piece of wood", count: 8, result_id: "Medium wooden handle"},
+            {material_id: "Processed rough wood", count: 2, result_id: "Simple medium wooden handle"},
+            {material_id: "Processed wood", count: 2, result_id: "Medium wooden handle"},
         ],
         item_type: "Component",
         recipe_skill: "Crafting",
@@ -307,8 +307,8 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.components["Long shaft"] = new ComponentRecipe({
         name: "Long shaft",
         materials: [
-            {material_id: "Piece of rough wood", count: 12, result_id: "Simple long wooden shaft"},
-            {material_id: "Piece of wood", count: 12, result_id: "Long wooden shaft"},
+            {material_id: "Processed rough wood", count: 4, result_id: "Simple long wooden shaft"},
+            {material_id: "Processed wood", count: 4, result_id: "Long wooden shaft"},
         ],
         item_type: "Component",
         recipe_skill: "Crafting",
@@ -320,8 +320,8 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.components["Shield base"] = new ComponentRecipe({
         name: "Shield base",
         materials: [
-            {material_id: "Piece of rough wood", count: 20, result_id: "Crude wooden shield base"}, 
-            {material_id: "Piece of wood", count: 20, result_id: "Wooden shield base"},
+            {material_id: "Processed rough wood", count: 6, result_id: "Crude wooden shield base"}, 
+            {material_id: "Processed wood", count: 6, result_id: "Wooden shield base"},
         ],
         item_type: "Component",
         recipe_skill: "Crafting",
@@ -331,8 +331,8 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.components["Shield handle"] = new ComponentRecipe({
         name: "Shield handle",
         materials: [
-            {material_id: "Piece of rough wood", count: 5, result_id: "Basic shield handle"}, 
-            {material_id: "Piece of wood", count: 5, result_id: "Wooden shield handle"},
+            {material_id: "Processed rough wood", count: 4, result_id: "Basic shield handle"}, 
+            {material_id: "Processed wood", count: 4, result_id: "Wooden shield handle"},
         ],
         item_type: "Component",
         recipe_skill: "Crafting",
@@ -662,6 +662,25 @@ class EquipmentRecipe extends Recipe {
         success_chance: [0.1,1],
         recipe_level: [5,15],
         recipe_skill: "Smelting",
+    });
+
+    crafting_recipes.items["Processed rough wood"] = new ItemRecipe({
+        name: "Processed rough wood",
+        recipe_type: "material",
+        materials: [{material_id: "Piece of rough wood", count: 5}], 
+        result: {result_id: "Processed rough wood", count: 1},
+        success_chance: [0.6,1],
+        recipe_level: [1,5],
+        recipe_skill: "Crafting",
+    });
+    crafting_recipes.items["Processed wood"] = new ItemRecipe({
+        name: "Processed wood",
+        recipe_type: "material",
+        materials: [{material_id: "Piece of wood", count: 5}], 
+        result: {result_id: "Processed wood", count: 1},
+        success_chance: [0.2,1],
+        recipe_level: [5,15],
+        recipe_skill: "Crafting",
     });
 })();
 

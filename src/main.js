@@ -303,6 +303,26 @@ function change_location(location_name) {
 
 /**
  * 
+ * @param {String} location_name 
+ * @returns {Boolean} if there's anything that can be unlocked by clearing it
+ */
+function does_location_have_available_unlocks(location_name) {
+    //include dialogue lines
+
+}
+
+/**
+ * 
+ * @param {String} location_name 
+ * @returns {Boolean} if there's something that can be unlocked by clearing it after additional conditions are met
+ */
+function does_location_have_unavailable_unlocks(location_name) {
+    //exclude dialogue lines
+
+}
+
+/**
+ * 
  * @param {Object} selected_activity - {id} of activity in Location's activities list??
  */
 function start_activity(selected_activity) {
@@ -1508,8 +1528,11 @@ function use_recipe(target) {
 
                     const exp_value = Math.min(100,Math.max(5,(item_templates[id_1].component_tier+item_templates[id_2].component_tier) * 2.5 * rarity_multipliers[result.getRarity()]));
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
-
-                    update_displayed_component_choice({category, recipe_id});
+                    
+                    const component_keys = {};
+                    component_keys[component_1_key] = true;
+                    component_keys[component_2_key] = true;
+                    update_displayed_component_choice({category, recipe_id, component_keys});
                 }
             }
         }
@@ -2809,6 +2832,7 @@ function add_all_stuff_to_inventory(){
 //add_all_stuff_to_inventory();
 
 update_displayed_equipment();
+sort_displayed_inventory({sort_by: "name", target: "character"});
 
 run();
 Verify_Game_Objects();
