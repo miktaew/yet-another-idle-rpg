@@ -219,6 +219,41 @@ class EquipmentRecipe extends Recipe {
     }
 }
 
+function get_recipe_xp_value({category, subcategory, recipe_id, material_count, result_tier, selected_components, rarity_multiplier}) {
+    //
+    //for components: multiplied by material count (so every component of same tier is equally profitable to craft)
+    //for equipment: based on component tier average
+    if(!category || !subcategory || !recipe_id) {
+        //shouldn't be possible to reach this
+        throw new Error(`Tried to use a recipe but either category, subcategory, or recipe id was not passed: ${category} - ${subcategory} - ${recipe_id}`);
+    }
+    let exp_value = 8;
+    const selected_recipe = recipes[category][subcategory][recipe_id];
+    const skill_level = skills[selected_recipe.recipe_skill].current_level;
+    if(!selected_recipe) {
+        throw new Error(`Tried to use a recipe that doesn't exist: ${category} -> ${subcategory} -> ${recipe_id}`);
+    }
+    if(subcategory === "items") {
+        exp_value = Math.max(exp_value,1.5*selected_recipe.recipe_level[1]);
+        //maybe scale with materials needed?
+        
+        if(selected_recipe.recipe_level[1] < skill_level) {
+            exp_value = exp_value * Math.max(0,Math.min(5,(selected_recipe.recipe_level[1]+6-skill_level))/5);
+        }
+    } else if (subcategory === "components" || selected_recipe.recipe_type === "component") {
+        const result_level = 8*result_tier;
+
+        exp_value = Math.max(exp_value,result_tier * 4 * material_count);
+        exp_value = Math.max(0,exp_value*(rarity_multiplier**0.5 - (result_level/skill_level)))*rarity_multiplier;
+    } else {
+        const result_level = 8*Math.max(selected_components[0].component_tier,selected_components[1].component_tier);
+        exp_value = Math.max(exp_value,(selected_components[0].component_tier+selected_components[1].component_tier) * 4);
+        exp_value = Math.max(0,exp_value*(rarity_multiplier**0.5 - (result_level/skill_level)))*rarity_multiplier;
+    }
+
+    return exp_value;
+}
+
 //weapon components
 (()=>{
     forging_recipes.components["Short blade"] = new ComponentRecipe({
@@ -592,7 +627,7 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.items["Piece of wolf rat leather"] = new ItemRecipe({
         name: "Piece of wolf rat leather",
         recipe_type: "material",
-        materials: [{material_id: "Rat pelt", count: 5}], 
+        materials: [{material_id: "Rat pelt", count: 8}], 
         result: {result_id: "Piece of wolf rat leather", count: 1},
         success_chance: [0.4,1],
         recipe_level: [1,5],
@@ -601,7 +636,7 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.items["Piece of wolf leather"] = new ItemRecipe({
         name: "Piece of wolf leather",
         recipe_type: "material",
-        materials: [{material_id: "Wolf pelt", count: 5}], 
+        materials: [{material_id: "Wolf pelt", count: 8}], 
         result: {result_id: "Piece of wolf leather", count: 1},
         success_chance: [0.2,1],
         recipe_skill: "Crafting",
@@ -610,7 +645,7 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.items["Piece of boar leather"] = new ItemRecipe({
         name: "Piece of boar leather",
         recipe_type: "material",
-        materials: [{material_id: "Boar hide", count: 5}], 
+        materials: [{material_id: "Boar hide", count: 8}],
         result: {result_id: "Piece of boar leather", count: 1},
         success_chance: [0.2,1],
         recipe_skill: "Crafting",
@@ -638,7 +673,7 @@ class EquipmentRecipe extends Recipe {
     crafting_recipes.items["Rat meat chunks"] = new ItemRecipe({
         name: "Rat meat chunks",
         recipe_type: "material",
-        materials: [{material_id: "Rat tail", count: 5}], 
+        materials: [{material_id: "Rat tail", count: 8}], 
         result: {result_id: "Rat meat chunks", count: 1},
         success_chance: [0.4,1],
         recipe_level: [1,5],
@@ -760,4 +795,4 @@ const recipes = {
     alchemy: alchemy_recipes
 }
 
-export {recipes}
+export {recipes, get_recipe_xp_value}

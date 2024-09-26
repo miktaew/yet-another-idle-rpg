@@ -143,16 +143,23 @@ v0.4.3n
     - fixed another healing bug
     - fixed bug with leather hats
     - fixed a bug where weapon type related bonuses weren't applied on skill levelup
+
 v0.4.4
-    - all items now stack (for those with quality -> only when quality is the same)
+    - all items now stack (for those with quality, it's only when quality is the same)
     - completely rewrote how active effects work and updated their display
+    - xp value of crafted components now scales with their material cost (you don't have to solely craft dagger blades anymore)
+    - increased material cost of some crafting recipes
+    - increased minimum crafting xp value
+    - crafting xp is now reduced when skill is above requirements: -20% per level for item recipes, for components/equipment level cap is instead 8*tier*sqrt(quality_multiplier)
+    - mentions of skills should now update properly, no more "?????" in descriptions
     - rewrote item quality from fractions to integers (no more floating point errors, yay)
+    - item quality is now used as an additional sorting param if names/prices are the same
+    - for equipment crafting, available components are now sorted (by tier -> name -> quality)
     - fixed visual bug where stance list would slightly change in width on hover, resulting in awkward flickering
-    - updated some display elements to a form easier to manage
+    - updated some display elements to a form that hopefully will be much easier to manage
     - separated save keys between main and dev releases
     - fixed some bugs with item values
     - tweaked item price rounding
-    - tweaked some crafting recipes
 </pre>
 </div>
 <button type="button" class="collapsible">v0.4 - Combat Stances</button>

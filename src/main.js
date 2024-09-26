@@ -3,7 +3,7 @@
 import { current_game_time } from "./game_time.js";
 import { item_templates, getItem, book_stats, setLootSoldCount, loot_sold_count, recoverItemPrices, rarity_multipliers, getArmorSlot} from "./items.js";
 import { locations } from "./locations.js";
-import { skills, weapon_type_to_skill } from "./skills.js";
+import { skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
 import { enemy_killcount } from "./enemies.js";
 import { traders } from "./traders.js";
@@ -51,7 +51,7 @@ import { end_activity_animation,
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
-import { recipes } from "./crafting_recipes.js";
+import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { game_version, get_game_version } from "./game_version.js";
 import { ActiveEffect, effect_templates } from "./active_effects.js";
 import { Verify_Game_Objects } from "./verifier.js";
@@ -289,7 +289,8 @@ function change_location(location_name) {
 
     update_character_stats();
 
-    if("connected_locations" in current_location) { // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
+    if("connected_locations" in current_location) { 
+        // basically means it's a normal location and not a combat zone (as combat zone has only "parent")
         update_displayed_normal_location(current_location);
     } else { //so if entering combat zone
         update_displayed_combat_location(current_location);
@@ -308,7 +309,61 @@ function change_location(location_name) {
  */
 function does_location_have_available_unlocks(location_name) {
     //include dialogue lines
+    if(!locations[location_name]) {
+        throw new Error(`No such location as "${location_name}"`);
+    }
+    let does = false;
+    
+    Object.keys(locations[location_name].repeatable_reward).forEach(reward_type_key => {
+        if(does) {
+            return;
+        }
+        if(reward_type_key === "textlines") {
+            Object.keys(locations[location_name].repeatable_reward[reward_type_key]).forEach(textline_unlock => {
+                if(does) {
+                    return;
+                }
+                const {dialogue, lines} = locations[location_name].repeatable_reward[reward_type_key][textline_unlock];
+                for(let i = 0; i < lines.length; i++) {
+                    if(!dialogues[dialogue].textlines[lines[i]].is_unlocked) {
+                        does = true;
+                    }
+                }
+            });
+        }
 
+        if(reward_type_key === "locations") {
+            Object.keys(locations[location_name].repeatable_reward[reward_type_key]).forEach(location_unlock => {
+                if(does) {
+                    return;
+                }
+                locations[location_name].repeatable_reward[reward_type_key][location_unlock];
+                for(let i = 0; i < locations[location_name].repeatable_reward[reward_type_key][location_unlock].length; i++) {
+                    const location_key = locations[location_name].repeatable_reward[reward_type_key][location_unlock][i].location;
+                    if(!locations[location_key].is_unlocked) {
+                        does = true;
+                    }
+                }
+            });
+        }
+
+        if(reward_type_key === "activities") {
+            //todo: additionally need to check if gathering is unlocked (if its a gathering activity) 
+            Object.keys(locations[location_name].repeatable_reward[reward_type_key]).forEach(activity_unlock => {
+                if(does) {
+                    return;
+                }
+
+                for(let i = 0; i < locations[location_name].repeatable_reward[reward_type_key][activity_unlock].length; i++) {
+                    const {location, activity} = locations[location_name].repeatable_reward[reward_type_key][activity_unlock][i];
+                    if(!locations[location].activities[activity].is_unlocked) {
+                        does = true;
+                    }
+                }
+            });
+        }
+
+    });
 }
 
 /**
@@ -317,7 +372,11 @@ function does_location_have_available_unlocks(location_name) {
  * @returns {Boolean} if there's something that can be unlocked by clearing it after additional conditions are met
  */
 function does_location_have_unavailable_unlocks(location_name) {
-    //exclude dialogue lines
+
+    if(!locations[location_name]) {
+        throw new Error(`No such location as "${location_name}"`);
+    }
+    let does = false;
 
 }
 
@@ -1208,10 +1267,11 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
         }
     }
     
+    const prev_name = skill.name();
     const was_hidden = skill.visibility_treshold > skill.total_xp;
     
     const {message, gains, unlocks} = skill.add_xp({xp_to_add: xp_to_add});
-    
+    const new_name = skill.name();
     if(skill.parent_skill && add_to_parent) {
         if(skill.total_xp > skills[skill.parent_skill].total_xp) {
             /*
@@ -1273,6 +1333,15 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
 
             for(let i = 0; i < unlocks?.skills?.length; i++) {
                 const unlocked_skill = skills[unlocks.skills[i]];
+                
+                if(which_skills_affect_skill[unlocks.skills[i]]) {
+                    if(!which_skills_affect_skill[unlocks.skills[i]].includes(skill.skill_id)) {
+                        which_skills_affect_skill[unlocks.skills[i]].push(skill.skill_id);
+                    }
+                } else {
+                    which_skills_affect_skill[unlocks.skills[i]] = [skill.skill_id];
+                }
+
                 if(unlocked_skill.is_unlocked) {
                     continue;
                 }
@@ -1286,6 +1355,27 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                     log_message(`Unlocked new skill: ${unlocked_skill.name()}`, "skill_raised");
                 }
             }
+
+            if(prev_name !== new_name) {
+                if(which_skills_affect_skill[skill.skill_id]) {
+                    for(let i = 0; i < which_skills_affect_skill[skill.skill_id].length; i++) {
+                        update_displayed_skill_bar(skills[which_skills_affect_skill[skill.skill_id][i]], false);
+                    }
+                }
+
+                if(!was_hidden && (typeof should_info === "undefined" || should_info)) {
+                    log_message(`Skill ${prev_name} upgraded to ${new_name}`, "skill_raised");
+                }
+
+                if(current_location?.connected_locations) {
+                    for(let i = 0; i < current_location.activities.length; i++) {
+                        if(activities[current_location.activities[i].activity_name].base_skills_names.includes(skill.skill_id)) {
+                            update_gathering_tooltip(current_location.activities[i]);
+                        }
+                    }
+                }
+            }
+
         } else {
             update_displayed_skill_bar(skill, false);
         }
@@ -1417,15 +1507,17 @@ function clear_enemies() {
 }
 
 function use_recipe(target) {
+    //todo: get xp for each category with get_recipe_xp_value function
     const category = target.parentNode.parentNode.dataset.crafting_category;
     const subcategory = target.parentNode.parentNode.dataset.crafting_subcategory;
     const recipe_id = target.parentNode.dataset.recipe_id;
     const station_tier = current_location.crafting.tiers[category];
 
     if(!category || !subcategory || !recipe_id) {
-        return;
+        //shouldn't be possible to reach this
+        throw new Error(`Tried to use a recipe but either category, subcategory, or recipe id was not passed: ${category} - ${subcategory} - ${recipe_id}`);
     } else if(!recipes[category][subcategory][recipe_id]) {
-        //shouldn't be possible to reach this, but whatever
+        //shouldn't be possible to reach this
         throw new Error(`Tried to use a recipe that doesn't exist: ${category} -> ${subcategory} -> ${recipe_id}`);
     } else {
         const selected_recipe = recipes[category][subcategory][recipe_id];
@@ -1443,7 +1535,7 @@ function use_recipe(target) {
                     const key = item_templates[selected_recipe.materials[i].material_id].getInventoryKey();
                     remove_from_character_inventory([{item_key: key, item_count: selected_recipe.materials[i].count}]);
                 } 
-                const exp_value = Math.min(100,Math.max(5,selected_recipe.recipe_level[1])); //scale xp with recipe level, at least 5 and at most 100
+                const exp_value = get_recipe_xp_value({category, subcategory, recipe_id});
                 if(Math.random() < success_chance) {
                     total_crafting_successes++;
                     add_to_character_inventory([{item: item_templates[result_id], count: count}]);
@@ -1483,7 +1575,9 @@ function use_recipe(target) {
                     add_to_character_inventory([{item: result, count: 1}]);
                     remove_from_character_inventory([{item_key: material_1_key, item_count: recipe_material.count}]);
                     log_message(`Created ${result.getName()} [${result.quality}% quality]`, "crafting");
-                    const exp_value = Math.min(100,Math.max(5,result.component_tier * 5 * rarity_multipliers[result.getRarity()]));
+                    
+                    const exp_value = get_recipe_xp_value({category, subcategory, recipe_id, material_count: recipe_material.count, rarity_multiplier: rarity_multipliers[result.getRarity()], result_tier: result.component_tier});
+                    
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
                     material_div.classList.remove("selected_material");
                     if(character.inventory[material_1_key]) { 
@@ -1526,7 +1620,8 @@ function use_recipe(target) {
                     const id_1 = JSON.parse(component_1_key).id;
                     const id_2 = JSON.parse(component_2_key).id;
 
-                    const exp_value = Math.min(100,Math.max(5,(item_templates[id_1].component_tier+item_templates[id_2].component_tier) * 2.5 * rarity_multipliers[result.getRarity()]));
+                    const exp_value = get_recipe_xp_value({category, subcategory, recipe_id, selected_components: [item_templates[id_1], item_templates[id_2]], rarity_multiplier: rarity_multipliers[result.getRarity()]})
+                    
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
                     
                     const component_keys = {};
@@ -1967,7 +2062,7 @@ function load(save_data) {
         }
     }); //equip proper items
 
-    if(character.equipment.weapon == null) {
+    if(character.equipment.weapon === null) {
         equip_item(null);
     }
 
@@ -2835,7 +2930,9 @@ update_displayed_equipment();
 sort_displayed_inventory({sort_by: "name", target: "character"});
 
 run();
-Verify_Game_Objects();
+
+//Verify_Game_Objects();
+window.Verify_Game_Objects = Verify_Game_Objects;
 
 if(is_on_dev()) {
     log_message("It looks like you are playing on the dev release. It is recommended to keep the developer console open (in Chrome/Firefox/Edge it's at F12 => 'Console' tab) in case of any errors/warnings appearing in there.", "notification");

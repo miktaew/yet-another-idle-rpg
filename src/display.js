@@ -806,9 +806,11 @@ function sort_displayed_inventory({sort_by = "name", target = "character", chang
             } else if(name_a < name_b) {
                 return minus;
             } else {
-                //if same name, sort based on price (to avoid awkward position changing on some occasions)
-                let value_a = Number.parseInt(a.getAttribute(`data-item_value`));
-                let value_b = Number.parseInt(b.getAttribute(`data-item_value`));
+                //if same name, sort based on quality 
+                //works similar to sorting by value but is more precise
+                //(shouldn't be possible to reach this for quality-less items)
+                let value_a = Number.parseInt(a.dataset.item_quality);
+                let value_b = Number.parseInt(b.dataset.item_quality);
                 
                 if(value_a > value_b) {
                     return plus;
@@ -821,10 +823,17 @@ function sort_displayed_inventory({sort_by = "name", target = "character", chang
             
             let value_a = Number.parseInt(a.getAttribute(`data-item_value`));
             let value_b = Number.parseInt(b.getAttribute(`data-item_value`));
-            
+      
             if(value_a > value_b) {
                 return plus;
             } else {
+                if(value_a === value_b && "item_quality" in a.dataset && "item_quality" in b.dataset) {
+                    if(Number.parseInt(a.dataset.item_quality) > Number.parseInt( b.dataset.item_quality)) {
+                        return plus;
+                    } else {
+                        return minus;
+                    }
+                }
                 return minus;
             }
         }
@@ -1045,6 +1054,10 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
         } else {
             throw new Error(`"${target}" is not a correct inventory owner`);
         }
+    }
+
+    if("quality" in target_item) {
+        item_control_div.dataset.item_quality = target_item.quality;
     }
 
     if(target_item.tags?.equippable) {
@@ -1993,7 +2006,9 @@ function update_displayed_crafting_recipes() {
     Object.keys(recipes).forEach(recipe_category => {
         Object.keys(recipes[recipe_category]).forEach(recipe_subcategory => {
             Object.keys(recipes[recipe_category][recipe_subcategory]).forEach(recipe => {
-                update_displayed_crafting_recipe({category: recipe_category, subcategory: recipe_subcategory, recipe_id: recipe});
+                if(recipe.is_unlocked){
+                    update_displayed_crafting_recipe({category: recipe_category, subcategory: recipe_subcategory, recipe_id: recipe});
+                }
             })
         })
     });
@@ -2180,6 +2195,9 @@ function update_displayed_component_choice({category, recipe_id, component_keys 
             item_div.innerHTML = `<i class="material-icons icon selected_component_icon"> check </i>${components[i][j].item.name}, ${components[i][j].item.quality}%, x${components[i][j].count}`;
             item_div.classList.add("selectable_component");
             item_div.dataset.item_key = components[i][j].item.getInventoryKey();
+            item_div.dataset.item_quality = components[i][j].item.quality;
+            item_div.dataset.item_name = components[i][j].item.getName();
+            item_div.dataset.component_tier = components[i][j].item.component_tier;
             item_div.appendChild(create_item_tooltip(components[i][j].item, {class_name: "recipe_tooltip"}));
             
             item_div.addEventListener("click", ()=>{
@@ -2206,6 +2224,25 @@ function update_displayed_component_choice({category, recipe_id, component_keys 
     }
     if(!is_element_above_x(recipe_div.querySelector(".recipe_creation_button"), document.getElementById("exit_crafting_button"))) {
         recipe_div.querySelector(".recipe_creation_button").scrollIntoView({block: "end", inline: "nearest"});
+    }
+    
+    for(let i = 0; i < 2; i++) {
+        [...component_selections_div[i].children[1].children].sort((a,b) => {
+            if(a.dataset.component_tier > b.dataset.component_tier) {
+                return -1;
+            } else if (a.dataset.component_tier < b.dataset.component_tier) {
+                return 1;
+            } else if(a.dataset.item_name > b.dataset.item_name) {
+                return 1;
+            } else if(a.dataset.item_name < b.dataset.item_name) {
+                return -1;
+            } else if(a.dataset.item_quality > b.dataset.item_quality) {
+                return -1;
+            } else {
+                return 1;
+            }
+
+        }).forEach(node=>component_selections_div[i].children[1].appendChild(node));
     }
 }
 
@@ -2300,6 +2337,10 @@ function create_gathering_tooltip(location_activity) {
 
 function update_gathering_tooltip(current_activity) {
     const gathering_tooltip = document.getElementById("gathering_tooltip");
+    if(!gathering_tooltip) {
+        return;
+    }
+    
     const {gathering_time_needed, gained_resources} = current_activity.getActivityEfficiency();
 
     let skill_names = "";
@@ -2590,7 +2631,7 @@ function start_activity_display(current_activity) {
     if(activities[current_activity.activity_name].base_skills_names) {
         const needed_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.round(10000*skills[activities[current_activity.activity_name].base_skills_names].current_xp/skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)/100}%`
         if(activities[current_activity.activity_name].type !== "GATHERING") {
-            action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} xp per in-game minute to ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${needed_xp})`;
+            action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per in-game minute to ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${needed_xp})`;
         } else {
             action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per gathering cycle to ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${needed_xp})`;
         }

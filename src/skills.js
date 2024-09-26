@@ -24,6 +24,8 @@ const weapon_type_to_skill = {
     "wand": "Wands"
 };
 
+const which_skills_affect_skill = {};
+
 class Skill {
     constructor({ skill_id, 
                   names, 
@@ -236,6 +238,14 @@ class Skill {
                 if(xp_multipliers) {
                     Object.keys(xp_multipliers).forEach(multiplier => {
                         gains.xp_multipliers[multiplier] = (gains.xp_multipliers[multiplier] || 1) * xp_multipliers[multiplier];
+                        if(which_skills_affect_skill[multiplier]) {
+                            if(!which_skills_affect_skill[multiplier].includes(this.skill_id)) {
+                                which_skills_affect_skill[multiplier].push(this.skill_id);
+                            }
+                        } else {
+                            which_skills_affect_skill[multiplier] = [this.skill_id];
+                        }
+                       
                     });
                 }
             }
@@ -249,7 +259,6 @@ class Skill {
         
         return gains;
     }
-
     get_coefficient(scaling_type) { //starts from 1
         //maybe lvl as param, with current lvl being used if it's undefined?
 
@@ -265,7 +274,6 @@ class Skill {
     get_level_bonus() { //starts from 0
         return this.max_level_bonus * this.current_level / this.max_level;
     }
-
     get_parent_xp_multiplier() {
         if(this.parent_skill) {
             return (1.1**Math.max(0,skills[this.parent_skill].current_level-this.current_level));
@@ -1851,4 +1859,4 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     
 })();
 
-export {skills, get_unlocked_skill_rewards, get_next_skill_milestone, weapon_type_to_skill};
+export {skills, get_unlocked_skill_rewards, get_next_skill_milestone, weapon_type_to_skill, which_skills_affect_skill};

@@ -673,7 +673,6 @@ function get_location_type_penalty(type, stage, stat) {
         }
     });
     locations["Village"].connected_locations.push({location: locations["Infested field"]});
-    
 
     locations["Nearby cave"] = new Location({ 
         connected_locations: [{location: locations["Village"], custom_text: "Go outside and to the village"}], 
@@ -1104,7 +1103,7 @@ function get_location_type_penalty(type, stage, stat) {
             skill_xp_per_tick: 1,
             is_unlocked: false,
             gained_resources: {
-                resources: [{name: "Low quality iron ore", ammount: [[1,1], [1,1]], chance: [0.3, 0.7]}], 
+                resources: [{name: "Low quality iron ore", ammount: [[1,1], [1,3]], chance: [0.3, 0.7]}], 
                 time_period: [60, 30],
                 skill_required: [0, 10],
                 scales_with_skill: true,
@@ -1118,7 +1117,7 @@ function get_location_type_penalty(type, stage, stat) {
             skill_xp_per_tick: 3,
             is_unlocked: false,
             gained_resources: {
-                resources: [{name: "Iron ore", ammount: [[1,1], [1,1]], chance: [0.1, 0.6]}], 
+                resources: [{name: "Iron ore", ammount: [[1,1], [1,3]], chance: [0.1, 0.6]}], 
                 time_period: [120, 45],
                 skill_required: [7, 17],
                 scales_with_skill: true,
