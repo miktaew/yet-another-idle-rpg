@@ -550,7 +550,7 @@ function add_to_character_inventory(items) {
         const was_anything_new_added = character.add_to_inventory(items);
         for(let i = 0; i < items.length; i++) {
                 if(items[i].item.tags.tool && character.equipment[items[i].item.equip_slot] === null) {
-                        equip_item_from_inventory({item_name: items[i].item.id, item_id: 0});
+                        equip_item_from_inventory(items[i].item.getInventoryKey());
                 }
         }
         update_displayed_character_inventory({was_anything_new_added});

@@ -1488,7 +1488,6 @@ i {
 	height: 330px;
 	top: 0px
 }
-
 	#quests_header {
 		width: 100%;
 		text-align: center;
@@ -1512,10 +1511,12 @@ i {
 				width:100%;
 				height: 255px;
 			}
-			#quests_box_div, #data_box_div {
-				width:100%;
+
+			#quests_box_div, #data_box_div{
+				width: 100%;
 				height: 255px;
 				display: none;
+				overflow-y: scroll;
 			}
 
 			#bestiary_box_div{

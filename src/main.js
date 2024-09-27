@@ -2626,8 +2626,6 @@ function update() {
                 if(current_activity.gained_resources)
                 {
                     if(current_activity.gathering_time >= current_activity.gathering_time_needed) { 
-
-                        
                         const {gathering_time_needed, gained_resources} = current_activity.getActivityEfficiency();
 
                         current_activity.gathering_time_needed = gathering_time_needed;
@@ -2652,9 +2650,9 @@ function update() {
                                 leveled = add_xp_to_skill({skill: skills[activities[current_activity.activity_name].base_skills_names[i]], xp_to_add: current_activity.skill_xp_per_tick}) || leveled;
                             }
                             
-                            if(leveled) {
+                            //if(leveled) {
                                 update_gathering_tooltip(current_activity);
-                            }
+                            //}
                         }
 
                         current_activity.gathering_time = 0;

@@ -150,16 +150,17 @@ v0.4.4
     - xp value of crafted components now scales with their material cost (you don't have to solely craft dagger blades anymore)
     - increased material cost of some crafting recipes
     - increased minimum crafting xp value
-    - crafting xp is now reduced when skill is above requirements: -20% per level for item recipes, for components/equipment level cap is instead 8*tier*sqrt(quality_multiplier)
+    - slowed down resource gathering activities
+    - crafting xp is now reduced when skill is above requirements: -20% per level for item recipes, while for components/equipment soft cap is 8*tier and hard cap 8*tier*sqrt(quality_multiplier)
     - mentions of skills should now update properly, no more "?????" in descriptions
-    - rewrote item quality from fractions to integers (no more floating point errors, yay)
     - item quality is now used as an additional sorting param if names/prices are the same
     - for equipment crafting, available components are now sorted (by tier -> name -> quality)
     - fixed visual bug where stance list would slightly change in width on hover, resulting in awkward flickering
-    - updated some display elements to a form that hopefully will be much easier to manage
-    - separated save keys between main and dev releases
+    - separated saves between main and dev releases
     - fixed some bugs with item values
     - tweaked item price rounding
+    - updated some display elements to a form that hopefully will be much easier to manage
+    - rewrote item quality from fractions to integers (no more floating point errors, yay)
 </pre>
 </div>
 <button type="button" class="collapsible">v0.4 - Combat Stances</button>
