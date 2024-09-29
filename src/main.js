@@ -47,7 +47,8 @@ import { end_activity_animation,
          update_displayed_material_choice,
          update_recipe_tooltip,
          update_displayed_crafting_recipes,
-         update_item_recipe_visibility
+         update_item_recipe_visibility,
+         update_item_recipe_tooltips
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -1507,7 +1508,7 @@ function clear_enemies() {
 }
 
 function use_recipe(target) {
-    //todo: get xp for each category with get_recipe_xp_value function
+
     const category = target.parentNode.parentNode.dataset.crafting_category;
     const subcategory = target.parentNode.parentNode.dataset.crafting_subcategory;
     const recipe_id = target.parentNode.dataset.recipe_id;
@@ -1545,6 +1546,7 @@ function use_recipe(target) {
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
 
                     update_item_recipe_visibility();
+                    update_item_recipe_tooltips();
                 } else {
                     log_message(`Failed to create ${item_templates[result_id].getName()}!`, "crafting");
 
@@ -1590,7 +1592,7 @@ function use_recipe(target) {
                     }
 
                     update_displayed_material_choice({category, subcategory, recipe_id, refreshing: true});
-
+                    //update_displayed_crafting_recipes();
                 } else {
                     console.log("Tried to create an item without having necessary materials");
                 }
@@ -1630,9 +1632,8 @@ function use_recipe(target) {
                     update_displayed_component_choice({category, recipe_id, component_keys});
                 }
             }
-        }
-
-        update_displayed_crafting_recipes();
+            //update_displayed_crafting_recipes();
+        }  
     }
 }
 

@@ -2006,7 +2006,7 @@ function update_displayed_crafting_recipes() {
     Object.keys(recipes).forEach(recipe_category => {
         Object.keys(recipes[recipe_category]).forEach(recipe_subcategory => {
             Object.keys(recipes[recipe_category][recipe_subcategory]).forEach(recipe => {
-                if(recipe.is_unlocked){
+                if(recipes[recipe_category][recipe_subcategory][recipe].is_unlocked){
                     update_displayed_crafting_recipe({category: recipe_category, subcategory: recipe_subcategory, recipe_id: recipe});
                 }
             })
@@ -2060,6 +2060,20 @@ function create_recipe_tooltip({category, subcategory, recipe_id, material, comp
         console.error(`No such crafting subcategory as "${subcategory}"`);
     }
     return tooltip;
+}
+
+function update_item_recipe_tooltips() {
+    Object.keys(recipes).forEach(recipe_category => {
+        Object.keys(recipes[recipe_category]).forEach(recipe_subcategory => {
+            if(recipe_subcategory === "items") {
+                Object.keys(recipes[recipe_category][recipe_subcategory]).forEach(recipe => {
+                    if(recipes[recipe_category][recipe_subcategory][recipe].is_unlocked){
+                        update_recipe_tooltip({category: recipe_category, subcategory: "items", recipe_id: recipe});
+                    }
+                });
+            }
+        });
+    });
 }
 
 function update_recipe_tooltip({category, subcategory, recipe_id, components}) {
@@ -3480,5 +3494,6 @@ export {
     update_displayed_material_choice,
     update_recipe_tooltip,
     update_displayed_crafting_recipes,
-    update_item_recipe_visibility
+    update_item_recipe_visibility,
+    update_item_recipe_tooltips
 }

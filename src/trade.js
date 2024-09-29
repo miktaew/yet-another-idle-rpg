@@ -89,6 +89,7 @@ function accept_trade() {
 
             const actual_item = character.inventory[item.item_key].item;
             
+            item.item_count = item.count;
             to_remove.push(item);
 
             item_list.push({item: actual_item, count: item.count});
@@ -105,7 +106,6 @@ function accept_trade() {
             add_to_trader_inventory(current_trader,item_list);
             remove_from_character_inventory(to_remove);
         }
-        
     }
 
     add_xp_to_skill({skill: skills["Haggling"], xp_to_add: (to_sell.value + to_buy.value)/10});
@@ -159,7 +159,6 @@ function add_to_buying_list(selected_item) {
     const value = get_item_value(selected_item, true);
     to_buy.value += value;
     return -value;
-    
 }
 
 /**
@@ -224,7 +223,6 @@ function add_to_selling_list(selected_item) {
         value = getEquipmentValue(components, quality) * selected_item.count;
     }
     
-
     to_sell.value += value;
     return value;
 }
