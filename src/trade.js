@@ -66,7 +66,8 @@ function accept_trade() {
             const item = to_buy.items.pop();
 
             const actual_item = traders[current_trader].inventory[item.item_key].item;
-
+            
+            item.item_count = item.count;
             to_remove.push(item);
 
             item_list.push({item: actual_item, count: item.count});
