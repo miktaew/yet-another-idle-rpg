@@ -913,7 +913,9 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
     //creation of missing divs and updating of others
     if(item_key) {
         const item_count = character.inventory[item_key].count;
-        item_divs[item_key] = create_inventory_item_div(create_inventory_item_div({key: item_key, item_count, target: "character"}));
+        item_divs[item_key].remove();
+        delete item_divs[item_key];
+        item_divs[item_key] = create_inventory_item_div({key: item_key, item_count, target: "character"});
         inventory_div.appendChild(item_divs[item_key]);
         was_anything_new_added = true;
     } else {
@@ -1010,6 +1012,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
  * @returns 
  */
 function create_inventory_item_div({key, item_count, target, is_equipped, trade_index}) {
+
     const item_control_div = document.createElement("div");
     const item_div = document.createElement("div");
     const item_name_div = document.createElement("div");
@@ -1188,6 +1191,22 @@ function update_displayed_equipment() {
         }
         equipment_slots_divs[key].appendChild(eq_tooltip);
     });
+}
+
+function update_displayed_book(book_id) {
+    const book = item_templates[book_id];
+    const book_key = book.getInventoryKey();
+    if(book_stats[book.name].is_finished) {
+        item_divs[book_key].classList.add("book_finished");
+        item_divs[book_key].classList.remove("book_active");
+    } else if(get_current_book() === book.name) {
+        item_divs[book_key].classList.add("book_active");
+    } else {
+        item_divs[book_key].classList.remove("book_active");
+    }
+
+    item_divs[book_key].getElementsByClassName("item_tooltip")[0].remove();
+    item_divs[book_key].getElementsByClassName("item_book")[0].appendChild(create_item_tooltip(book));
 }
 
 /**
@@ -2042,12 +2061,13 @@ function update_displayed_crafting_recipe({category, subcategory, recipe_id}) {
  * creates a tooltip for the >final result<
  */
 function create_recipe_tooltip({category, subcategory, recipe_id, material, components}) {
+    const recipe = recipes[category][subcategory][recipe_id];
     const tooltip = document.createElement("div");
     tooltip.classList.add("recipe_tooltip");
     if(subcategory === "items") {
         tooltip.innerHTML = create_recipe_tooltip_content({category, subcategory, recipe_id});
         tooltip.classList.add("items_recipe_tooltip");
-    } else if(subcategory === "components") {
+    } else if(subcategory === "components" || recipe.recipe_type === "component") {
         if(!material) {
             throw new Error(`Component recipes require passing a material, but recipe "${category}" -> "${subcategory}" -> "${recipe_id}" had none!`);
         }
@@ -2113,7 +2133,7 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
             }
         }
         tooltip += `<br>Result:<br><div class="recipe_result">${create_item_tooltip_content({item: item_templates[recipe.getResult().result_id], options: {skip_quality: true}})}</div>`;
-    } else if(subcategory === "components") {
+    } else if(subcategory === "components"  || recipe.recipe_type === "component") {
         tooltip += `Material required:<br>`;
         if(character.inventory[item_templates[material.material_id].getInventoryKey()]?.count >= material.count) {
             tooltip += `<span style="color:lime"><b>${item_templates[material.material_id].getName()} x${character.inventory[item_templates[material.material_id].getInventoryKey()]?.count || 0}/${material.count}</b></span><br>`;
@@ -2274,6 +2294,7 @@ function update_displayed_material_choice({category, subcategory, recipe_id, ref
     const materials = Object.values(character.inventory).filter(item=>{
         return recipe.materials.filter(material => material.material_id === item.item?.id).length > 0;
     });
+
     for(let i = 0; i < materials.length; i++) {
         const material_recipe = recipe.materials.filter(material => material.material_id === materials[i].item.id)[0];
         const item_div = document.createElement("div");
@@ -2290,7 +2311,7 @@ function update_displayed_material_choice({category, subcategory, recipe_id, ref
         } else {
             item_div.classList.add("recipe_unavailable");
         }
-        
+
         item_div.append(create_recipe_tooltip({category, subcategory, recipe_id, material: material_recipe}));
         material_selections_div.appendChild(item_div);
     }
@@ -3495,5 +3516,6 @@ export {
     update_recipe_tooltip,
     update_displayed_crafting_recipes,
     update_item_recipe_visibility,
-    update_item_recipe_tooltips
+    update_item_recipe_tooltips,
+    update_displayed_book
 }

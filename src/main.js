@@ -48,7 +48,8 @@ import { end_activity_animation,
          update_recipe_tooltip,
          update_displayed_crafting_recipes,
          update_item_recipe_visibility,
-         update_item_recipe_tooltips
+         update_item_recipe_tooltips,
+         update_displayed_book
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -512,16 +513,20 @@ function end_sleeping() {
     end_activity_animation();
 }
 
-function start_reading(book_id) {
+function start_reading(book_key) {
+    const book_id = JSON.parse(book_key).id;
     if(locations[current_location]?.parent_location) {
         return; //no reading in combat areas
     }
-    
+
     if(is_reading === book_id) {
-        end_reading(); //reading the same one, cancel
-        return;
+        end_reading();
+        return; 
+        //reading the same one, cancel
+    } else if(is_reading) {
+        end_reading();
     }
-    
+
     if(book_stats[book_id].is_finished) {
         return; //already read
     }
@@ -537,22 +542,23 @@ function start_reading(book_id) {
     is_reading = book_id;
     start_reading_display(book_id);
 
-    update_displayed_character_inventory();
+    update_displayed_book(is_reading);
 }
 
 function end_reading() {
     change_location(current_location.name);
     end_activity_animation();
     
+    const book_id = is_reading;
     is_reading = null;
 
-    update_displayed_character_inventory();
+    update_displayed_book(book_id);
 }
 
 function do_reading() {
     item_templates[is_reading].addProgress();
 
-    update_displayed_character_inventory({item_key: is_reading});
+    update_displayed_book(is_reading);
 
     add_xp_to_skill({skill: skills["Literacy"], xp_to_add: book_stats.literacy_xp_rate});
     if(book_stats[is_reading].is_finished) {
@@ -1553,7 +1559,7 @@ function use_recipe(target) {
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value/2});
                 }
                 if(leveled) {
-                    //todo: reload all recipe tooltips
+                    //todo: reload all recipe tooltips of matching category
                 }
             } else {
                 console.warn(`Tried to use an unavailable recipe!`);
@@ -1590,7 +1596,6 @@ function use_recipe(target) {
                     } else {
                         material_div.remove();
                     }
-
                     update_displayed_material_choice({category, subcategory, recipe_id, refreshing: true});
                     //update_displayed_crafting_recipes();
                 } else {
@@ -2921,7 +2926,7 @@ function add_all_stuff_to_inventory(){
     })
 }
 
-//add_to_character_inventory([{item: getItem(item_templates["Low quality iron bar"]), count: 10}, {item: getItem(item_templates["Iron bar"]), count: 9}]);
+//add_to_character_inventory([{item: getItem(item_templates["ABC for kids"]), count: 10}]);
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
 
