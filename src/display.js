@@ -2262,15 +2262,15 @@ function update_displayed_component_choice({category, recipe_id, component_keys 
     
     for(let i = 0; i < 2; i++) {
         [...component_selections_div[i].children[1].children].sort((a,b) => {
-            if(a.dataset.component_tier > b.dataset.component_tier) {
+            if(Number.parseInt(a.dataset.component_tier) > Number.parseInt(b.dataset.component_tier)) {
                 return -1;
-            } else if (a.dataset.component_tier < b.dataset.component_tier) {
+            } else if (Number.parseInt(a.dataset.component_tier) < Number.parseInt(b.dataset.component_tier)) {
                 return 1;
             } else if(a.dataset.item_name > b.dataset.item_name) {
                 return 1;
             } else if(a.dataset.item_name < b.dataset.item_name) {
                 return -1;
-            } else if(a.dataset.item_quality > b.dataset.item_quality) {
+            } else if(Number.parseInt(a.dataset.item_quality) > Number.parseInt(b.dataset.item_quality)) {
                 return -1;
             } else {
                 return 1;

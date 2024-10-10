@@ -1582,7 +1582,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "helmet exterior",
         value: 500,
         component_tier: 3,
-        full_armor_name: "Wolf leather helmet",
+        full_armor_name: "Boar leather helmet",
         defense_value: 3,
         stats: {
             agility: {

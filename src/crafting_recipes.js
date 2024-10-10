@@ -238,17 +238,17 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         //maybe scale with materials needed?
         
         if(selected_recipe.recipe_level[1] < skill_level) {
-            exp_value = exp_value * Math.max(0,Math.min(5,(selected_recipe.recipe_level[1]+6-skill_level))/5);
+            exp_value = Math.max(1,exp_value * Math.max(0,Math.min(5,(selected_recipe.recipe_level[1]+6-skill_level))/5));
         }
     } else if (subcategory === "components" || selected_recipe.recipe_type === "component") {
         const result_level = 8*result_tier;
 
         exp_value = Math.max(exp_value,result_tier * 4 * material_count);
-        exp_value = Math.max(0,exp_value*(rarity_multiplier**0.5 - (skill_level/result_level)))*rarity_multiplier;
+        exp_value = Math.max(1,exp_value*(rarity_multiplier**0.5 - (skill_level/result_level))*rarity_multiplier);
     } else {
         const result_level = 8*Math.max(selected_components[0].component_tier,selected_components[1].component_tier);
         exp_value = Math.max(exp_value,(selected_components[0].component_tier+selected_components[1].component_tier) * 4);
-        exp_value = Math.max(0,exp_value*(rarity_multiplier**0.5 - (skill_level/result_level)))*rarity_multiplier;
+        exp_value = Math.max(1,exp_value*(rarity_multiplier**0.5 - (skill_level/result_level))*rarity_multiplier);
     }
 
     return exp_value;
