@@ -2535,7 +2535,11 @@ function load(save_data) {
  */
 function load_from_file(save_string) {
     try{
-        localStorage.setItem(save_key, atob(save_string));
+        if(is_on_dev()) {
+            localStorage.setItem(dev_save_key, atob(save_string));
+        } else {
+            localStorage.setItem(save_key, atob(save_string));
+        }        
         window.location.reload(false);
     } catch (error) {
         console.error("Something went wrong on preparing to load from file!");
