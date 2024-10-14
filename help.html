@@ -52,18 +52,21 @@
 <h2>Remember to export!</h2>
 <br>
 <h4>Found a bug? Let me know. Game has a corner on Arcanum's discord server's Proto23 channel (click the "threads" button on top of the channel), and there's also a post on r/incremental_games discord server</h4>
-<h4>Game was heavily inspired by <a href="https://23html.github.io" target="_blank">Proto23</a>. Huge thanks to Corc for creating it!</h4>
 <br>
+
+<div id="header">Click on blocks to unfold their content</div>
 
 <h3> Before reading the content below, please keep in mind that the more you know about game mechanics, the less fun it might become (or maybe not, depends entirely on you)</h3>
 <br><br>
 
-
-<div id="header">Click on blocks to unfold their content</div>
-
 <button type="button" class="collapsible">Where does current game content end?</button>
 <div class="content">
-    As of <span class="game_version"></span>, content ends on the fight in slums and on 4th area in cave, though that last one is expected to be very challenging (if possible at all)
+    As of <span class="game_version"></span>, the final combat areas are the 'Mysterious Gate' and 'Forest Clearing'. It is not yet possible to enter the town.
+</div>
+
+<button type="button" class="collapsible">Are magic and/or quests implemented?</button>
+<div class="content">
+    As you probably guessed, no. They will come in future.
 </div>
 
 <button type="button" class="collapsible">Economy</button>
@@ -97,6 +100,30 @@
     </ul>
 </div>
 
+<button type="button" class="collapsible">Crafting</button>
+<div class="content">
+    <ul>
+        <li> Crafting subcategories:
+            <ul>
+                <li> 
+                    Items: mostly mundane things, such as consumables and materials for further crafting
+                </li>
+                <li>
+                    Components: things that can be assembled into equipment of all kinds.<br>
+                    Their quality doesn't directly translate to equipment stats and so their own statistics are displayed as "base value", as in value that they would contribute to a 100% quality piece of equipment
+                </li>
+                <li>
+                    Equipment: the actual stuff that you can put on. Mostly created from components, with the exception of 'clothing' which functions more like wearable components<br>
+                    Quality is based on skill level, quality of components (for non-clothing equipment) and either tier of components (for non-clothing) or tier of resulting clothing item
+                </li>
+            </ul>
+        </li>
+        <li>You can obtain resources from passive activities in locations and/or as a loot from combat; items that can be used for crafting will often (but not always) mention it in their descriptions<br>
+            For passive gathering activities, things such as time needed, success chance and number of gained items are all affected by skill level.
+        </li>
+    </ul>
+</div>
+
 <button type="button" class="collapsible">Combat</button>
 <div class="content">
     <ul>
@@ -125,7 +152,7 @@
                 <li>"Dodge", if triggered, will always completely negate damage.</li>
                 <li>Shield can absorb damage and has very high base chance to trigger, but usually won't be strong enough to reduce it to 0, although it is possible.</li>
                 <li>"Defense" provides a flat reduction to damage taken. It is applied after shield dmg reduction.<br>
-                    It can't reduce damage taken to less than 1. However, if less than 1 dmg gets through the shield, that value will be used instead (meaning a full negation is possible).</li>
+                    It can't reduce damage taken to less than 1 or 10% of original value, whichever is larger. However, if less than that gets through the shield, that value will be used instead, allowing for very small dmg values and/or full negation.</li>
             </ul> 
         </li><br>
         <li>
@@ -169,7 +196,7 @@
         <li>
             During night (20 to 4) in normal areas, and whole time in dark areas (e.g. caves), character receives additional penalties to hit/evasion chance.
             <br>
-            This penalty can be reduced with "Night  vision" skill, which gains xp passively just for being in such place
+            This penalty can be reduced with "Night  vision" skill, which gains xp passively just for being in such place.
             <br>
         </li><br>
         <li>
@@ -232,13 +259,21 @@
                     </pre>
                 </li>
                 <li>
-                    <strong>As of version <span class="game_version"></span>, highest obtainable item quality is 120%</strong>
+                    <strong>As of version <span class="game_version"></span>, highest item quality from merchants is 120%</strong>
                 </li>
             </ul>
         </li>
     </ul>
 </div>
 
+
+<button type="button" class="collapsible separated">Thanks and acknowledgments</button>
+<div class="content">
+    <ul>
+        <li><a href="https://23html.github.io" target="_blank">Proto23</a> by Corc, source of inspiration</li>
+        <li><a href="https://github.com/turuslan/HackTimer" target="_blank">HackTimer</a> by Turuslan, used to avoid slowdowns when tab is inactive</li> 
+        <li>Material Icons and Symbols by Google</li>
+</div>
 <button type="button" class="collapsible separated">Supporting the game</button>
 <div class="content">
     If you liked the game and have a github account, consider giving a star to the repository <a href="https://github.com/miktaew/yet-another-idle-rpg" target="_blank">https://github.com/miktaew/yet-another-idle-rpg</a> 

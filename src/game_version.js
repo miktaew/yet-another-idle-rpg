@@ -1,11 +1,10 @@
 "use strict";
 
-const game_version = "v0.4.0o";
+const game_version = "v0.4.4e";
 
 function get_game_version() {
     return game_version;
 }
-
 
 const v = document.getElementsByClassName("game_version");
     for(let i = 0; i < v.length; i++) {

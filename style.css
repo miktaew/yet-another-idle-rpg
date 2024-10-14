@@ -8,7 +8,8 @@
 	--consumables_display: inline-block;
 	--other_display: inline-block;
 
-	--inventory_div_display: none;
+	--inventory_div_display: block;
+	--character_combat_div_display: none;
 
 	--trader_equipment_display: inline-block;
 	--trader_consumable_display: inline-block;
@@ -19,19 +20,16 @@
 	--message_loot_display: inline-block;
 	--message_events_display: inline-block;
 	--message_background_display: inline-block;
+	--message_crafting_display: inline-block;
 
 	--trade_ammount_button_display: none;
 	--item_use_button_display: inline-block;
 	 
-	--item_other_width_default: 319px; /* value for out of trade */
-	--item_other_width_trade: 264px; /* value for in trade */
-	--item_other_width: var(--item_other_width_default); /* modified in index.html on trade start/end to fit the buttons */
-
-	--item_stackable_width: 280px;
-	--item_stackable_width_default: var(var(--item_stackable_width));
-
 	--item_tooltip_top: 0px;
 	--item_tooltip_left: 0px;
+
+	--recipe_tooltip_top: 0px;
+	--recipe_tooltip_left: 0px;
 
 	--job_tooltip_top: 0px;
 	--job_tooltip_left: 0px;
@@ -57,9 +55,8 @@
 	--bestiary_entry_tooltip_top: 0px;
 	--bestiary_entry_tooltip_left: 0px;
 
-	/* for #location_related_div */
-	--actions_div_height_default: 400px;
-	--actions_div_height_combat: 100px;
+	--actions_div_height_default: 420px;
+	--actions_div_height_combat: 120px;
 	--actions_div_height: var(--actions_div_height_default);
 	--actions_div_top_default: 340px;
 	--actions_div_top_combat: 640px;
@@ -67,6 +64,9 @@
 
 	--options_action_textsize: 16px;
 	--location_name_div_width: 250px;
+
+	--active_button_color: #435270;
+	--tooltip_background_color: rgba(92, 92, 92, 0.97);
 }
 
 body {
@@ -90,6 +90,21 @@ body {
     }
 }
 
+#loading_screen {
+	visibility: visible;
+	width: 100%;
+	height: 100%;
+	z-index: 1000;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	font-size: 150px;
+	background-color: #1c1c4b;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
 
 .box_div {
 	background-image: var(--background_gradient);
@@ -180,6 +195,8 @@ body {
 	text-align: center;
 	display: inline-block;
 	font-size: 20px;
+	top: -40px;
+	position: relative;
  }
 
  #hard_reset_button:hover {
@@ -200,7 +217,7 @@ body {
 	display: var(--options_display);
 	position: fixed;
 	background-image: var(--options_gradient);
-	width: 500px;
+	width: 600px;
 	height: 200px;
 	border: 4px solid blueviolet;
 	z-index: 2;
@@ -218,7 +235,7 @@ body {
  #close_options {
 	font-size: 40px;
 	position: relative;
-	left: 448px;
+	left: 548px;
 	top: 2px;
 	width: 50px;
 	height: 50px;
@@ -283,26 +300,32 @@ body {
 .inventory_item, .trader_item {
 	 font-size: 13px;
 	 display: inline-block;
-
 }
 
 .equipped_item_control {
+	width: 385px;
+	border-bottom: 1px dotted white;
 	font-size: 13px;
 	background-color: rgba(255, 236, 128, 0.15);
-	padding-bottom: 2px;
-	padding-top: 2px;
+	padding-bottom: 1px;
+	padding-top: 1px;
 }
 
 .inventory_item_control {
 	border-bottom: 1px dotted white;
+	width: 385px;
+}
+.item_additional_content {
+	float: right;
+	width: fit-content;
 }
 
-.item_tooltip, .job_tooltip, .location_tooltip {
+.item_tooltip, .job_tooltip, .location_tooltip, .recipe_tooltip {
 	 display: none;
 	 text-align: left;
 	 color: white;
 	 font-weight: normal;
-	 background-color: rgba(92, 92, 92, 0.9);
+	 background-color: var(--tooltip_background_color);
 	 border-radius: 10px;
 	 margin-left: 30px;
 	 margin-top: 20px;
@@ -311,6 +334,12 @@ body {
 	 z-index: 1000;
 	 width: 200px;
 	 pointer-events: none;
+	 font-size: 14px;
+	 border: 1px solid white;
+}
+
+.recipe_tooltip {
+	width: 250px;
 }
 
 .location_tooltip {
@@ -322,36 +351,42 @@ body {
 	text-align: left;
 	color: white;
 	font-weight: normal;
-	background-color: rgba(92, 92, 92, 0.9);
+	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
 	margin-left: 30px;
 	margin-top: 20px;
 	padding: 5px;
 	position: absolute;
 	z-index: 1000;
-	width: 250px;
+	width: 200px;
 	pointer-events: none;
 }
 
 .item_tooltip {
 	top: var(--item_tooltip_top);
 	left: var(--item_tooltip_left);
+} 
+
+.recipe_tooltip {
+	top: var(--recipe_tooltip_top);
+	left: var(--recipe_tooltip_left);
 }
 .job_tooltip {
 	top: var(--job_tooltip_top);
 	left: var(--job_tooltip_left);
 	font-size: 16px;
+	width: 250px;
 }
 
 .equipment_slot_div:hover .item_tooltip, .trader_item_control:hover .item_tooltip, .inventory_item_control:hover .item_tooltip, 
 .equipped_item_control:hover .item_tooltip, .start_activity:hover .job_tooltip, .activity_unavailable:hover .job_tooltip, 
-.effects_div:hover .effects_tooltip, #location_name_div:hover .location_tooltip{
+.effects_div:hover .effects_tooltip, #location_name_div:hover .location_tooltip, .selectable_component:hover .item_tooltip{
 	display: block;
 }
 
 .stat_tooltip {
 	display: none;
-	background-color: rgba(92, 92, 92, 0.9);
+	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
 	padding: 5px;
 	position: absolute;
@@ -360,6 +395,7 @@ body {
 	pointer-events: none;
 	top: var(--stat_tooltip_top);
 	left: var(--stat_tooltip_left);
+	border: 1px solid white;
 }
 	.stat_breakdown {
 		text-align: left;
@@ -371,7 +407,7 @@ body {
 
 .skill_tooltip {
 	display: none;
-	background-color: rgba(92, 92, 92, 0.9);
+	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
 	padding: 5px;
 	position: absolute;
@@ -380,6 +416,7 @@ body {
 	top: var(--skill_tooltip_top);
 	left: var(--skill_tooltip_left);
 	pointer-events: none;
+	border: 1px solid white;
 }
 		.skill_tooltip_next_milestone {
 			color: rgb(206, 206, 206);
@@ -389,8 +426,34 @@ body {
 			display: block;
 		}
 
+		.skill_id {
+			color: rgb(190, 190, 190);
+			font-style: italic;
+		}
+
 #skill_list_div {
 	display: block;
+}
+
+.skill_div {
+	display: none;
+}
+.skill_category_div {
+	padding: 3px;
+	border-bottom: 1px solid gray;
+}
+.skill_category_div:not(.skill_category_expanded):hover {
+	background-color: var(--active_button_color);
+}
+.skill_category_expanded .skill_div {
+	display: block;
+}
+.skill_category_expanded .skill_dropdown_icon {
+	transform: rotate(180deg);
+}
+.activity_efficiency_info {
+	color: rgb(190, 190, 190);
+	font-style: italic;
 }
 
 #magic_list_div {
@@ -418,16 +481,23 @@ body {
 	color: rgb(149, 255, 190);
 }
 
-.equip_item_button {
+.equip_item_button, .unequip_item_button {
 	 cursor: pointer;
 	 font-weight: bold;
 	 font-size: 13px;
-	 display: inline-block;
-	 width: 48px;
 	 text-align: right;
+	 display: var(--item_use_button_display);
 }
 
-.item_stackable.book_finished + .item_use_button {
+.equip_item_button {
+	width: 48px;
+}
+
+.unequip_item_button {
+	width: 60px;
+}
+
+.book_finished + .item_use_button {
 	visibility:hidden;
 }
 
@@ -447,15 +517,6 @@ body {
 	color: gold;
 }
 
-
-.unequip_item_button {
-	font-weight: bold;
-	cursor: pointer;
-	width: 63px;
-	display: inline-block;
-	text-align: right;
-}
-
 .item_use_button {
 	display: var(--item_use_button_display);
 	width: 39px;
@@ -463,10 +524,7 @@ body {
 	cursor: pointer;
 	font-size: 13px;
 	text-align: right;
-}
-
-.item_controls {
-	display: inline-block;
+	float: left;
 }
 
 .item_value {
@@ -474,8 +532,8 @@ body {
 	font-size: 13px;
 	width: 54px;
 	border-left: 1px solid white;
-	margin-left: 4px;
 	padding-left: 4px;
+	float: right;
 }
 
 .inventory_control_button {
@@ -490,35 +548,22 @@ body {
 	cursor: pointer;
 }
 
-.item_stackable {
-	width: var(--item_stackable_width);
-	display: inline-block;
-}
-
-.item_equippable {
-	width: 271px;
-}
-
-.trade_item_equippable {
-	width: 319px;
-}
-
-.equipped_item_control .inventory_equipped_item {
+.equipped_item_control .equipped_item, .equipped_item_name .item_slot {
 	color: gold;
 }
 
-.inventory_equipped_item {
-	width: 256px; 
+.equipped_item {
 	font-weight: bold;
-	float: left;
+	display: inline-block;
 }
 
 .character_item_control.item_to_trade {
 	background-color: rgba(0, 128, 0, 0.4);
 }
 
-.item_stackable.item_other, .item_stackable.item_loot{
-	width: var(--item_other_width);
+.item_component_list {
+	color: rgb(190, 190, 190);
+	font-style: italic;
 }
 
 .character_item_equippable {
@@ -529,7 +574,7 @@ body {
 	display: var(--consumables_display);
 }
 
-.character_item_other, .character_item_loot {
+.character_item_other, .character_item_loot, .character_item_material, .character_item_component {
 	display: var(--other_display);
 }
 
@@ -542,6 +587,21 @@ body {
 	margin: 1px;
 	outline: 1px solid white;
 	cursor: pointer;
+}
+
+.active_effect_tooltip {
+	border: 2px solid gray;
+	border-radius: 10px;
+	padding: 3px;
+	margin-top: 1px;
+}
+.active_effect_name_and_duration {
+	width: 100%;
+	border-bottom: 1px solid gray;
+}
+.active_effect_duration {
+	text-align: right;
+	float: right;
 }
 
 .message_border { 
@@ -557,7 +617,7 @@ body {
 	text-align: center;
 	font-size: 14px;
 	width: 100%;
-	height: 32px;
+	height: 28px;
 	margin-bottom: 1px;
 	padding-top: 1px;
 	padding-bottom: 1px;
@@ -574,10 +634,6 @@ body {
 .equipment_slot_empty .item_tooltip {
 	font-size: 14px;
 	font-style: normal;
-}
-
-.amulet_slot_div {
-	height: 16px;
 }
 
 .grid_container {
@@ -658,6 +714,167 @@ body {
 	clear: both;
 }
 
+#crafting_window {
+	display: none;
+	height: 400px;
+}
+
+	#crafting_mainpage_buttons {
+		font-size: 20px;
+		top: 0px;
+	}
+		.crafting_mainpage_button {
+			float:left;
+			padding: 3px;
+			padding-left: 2.4px;
+			padding-right: 2.4px;
+			min-width: 63px;
+			max-width: fit-content;
+			text-align: center;
+			outline: 1px solid white;
+			margin: 1px;
+			cursor: pointer;
+		}
+
+	.crafting_subpage_buttons {
+		font-size: 18px;
+	}
+		.crafting_subpage_button {
+			padding: 3px 0px 3px 0px;
+			float:left;
+			text-align: center;
+			outline: 1px solid white;
+			cursor: pointer;
+			margin-left: 1px;
+		}
+		.crafting_subpage_button_1 {
+			width: 398px;
+		}
+		.crafting_subpage_button_2 {
+			width: 198.5px;
+		}
+		.crafting_subpage_button_3 {
+			width: 132px;
+		}
+
+.crafting_recipe_list {
+	height: 333px;
+	width:100%;
+	top: 60px;
+	overflow-y: scroll;
+}
+		
+.recipe_div {
+	width: 376px;
+	border-bottom: 2px dashed white;
+	font-size: 16px;
+	padding: 2px;
+}
+
+.recipe_unavailable {
+	color: gray;
+}
+
+.recipe_hidden {
+	display: none;
+}
+
+
+.weapon_recipe + .shield_recipe, .shield_recipe + .armor_recipe, .armor_recipe + .clothing_recipe {
+	border-top: 5px solid white;
+}
+
+.recipe_name:hover, .selected_recipe .recipe_name, .crafting_selection:hover, .selected_component_category, .selectable_component:hover, .selectable_material:hover {
+	background-color: var(--active_button_color);
+}
+
+.selected_component, .selected_component:hover {
+	background-color: rgba(0, 128, 0, 0.5);
+}
+
+.selected_component_icon, .selected_material_icon {
+	visibility: hidden;
+}
+
+.selected_component .selected_component_icon, .selected_material .selected_material_icon {
+	visibility: visible;
+}
+
+.selected_recipe .recipe_name {
+	border-bottom: 1px dashed white;
+}
+
+.recipe_creation_button {
+	display: none;
+	font-size: 18px;
+	padding: 3px 0px 3px 0px;
+	background-color: rgba(128, 128, 128, 0.5);
+	text-align: center;
+}
+.selected_recipe .recipe_creation_button {
+	display: block;
+}
+.recipe_div:not(.selected_recipe) > div > div > div {
+	display: none;
+}
+.recipe_tooltip {
+	display: none;
+	position: absolute;
+	font-size: 14px;
+}
+.recipe_result {
+	border: 1px solid white;
+	padding: 5px;
+}
+
+.recipe_div:hover .items_recipe_tooltip.recipe_tooltip{
+	display: block;
+}
+
+.recipe_creation_button:hover .recipe_tooltip{
+	display: block;
+}
+
+.selectable_material:hover .recipe_tooltip, .selectable_component:hover .recipe_tooltip{
+	display: block;
+}
+
+.crafting_selection {
+	display: none;
+	border-bottom: 1px solid white;
+	padding: 3px;
+}
+.selectable_component, .selectable_material {
+	border-bottom: 1px dotted white;
+	padding: 3px;
+	padding-left: 10px;
+}
+
+.selected_recipe .crafting_selection {
+	display: block;
+}
+
+.recipe_name {
+	display: block;
+	padding-bottom: 5px;
+}
+
+.folded_crafting_selection, .folded_material_list {
+	display: none;
+}
+
+.selected_recipe .folded_material_list {
+	display: block;
+}
+
+.selected_recipe .crafting_dropdown_icon, .selected_component_category .subcrafting_dropdown_icon {
+	transform: rotate(180deg);
+}
+
+.selected_component_list, .selected_material_list {
+	display: block;
+}
+
 .sl_button {
 	width: fit-content;
 	padding: 10px 10px;
@@ -722,7 +939,7 @@ i {
 
 .character_control_button:hover, .inventory_control_button:hover, 
 .trader_category_button:hover, .trader_sorting_button:hover, .active_selection_button, .character_sorting_button:hover {
-	background-color: #435270 !important;
+	background-color: var(--active_button_color) !important;
 	background-image: none;
 }
 
@@ -734,7 +951,6 @@ i {
 	cursor: pointer;
 	font-weight: bold;
 	font-size: 14px;
-	width: fit-content;
 	padding-left: 5px;
 	float: left;
 }
@@ -742,16 +958,10 @@ i {
 	display: var(--trade_ammount_button_display);
 	width: 55px;
 	vertical-align: bottom;
-}
-.trader_item_control  .item_stackable {
-	width: 265px;
+	text-align: right;
 }
 
-.trader_item {
-	width: 320px;
-}
-
-.trader_item_other, .trader_item_loot {
+.trader_item_other, .trader_item_loot, .trader_item_material, .trader_item_component, .trader_item_book {
 	display: var(--trader_other_display);
 }
 .trader_item_equippable {
@@ -761,17 +971,28 @@ i {
 	display: var(--trader_consumable_display);
 }
 
-.page_selection_button {
-	width: 50%;
+#inventory_combat_switch_selection {
+	width: 400px;
+	text-align: center;
+	position: absolute;
+	top: 353px;
+	background-color: #202044;
+	float: left;
+}
+
+#switch_to_inventory {
+	float:left;
+	border-right: 2px solid gray;
+}
+#switch_to_combat {
+	border-left: 2px solid gray;
+}
+#switch_to_inventory, #switch_to_combat {
+	width: 198px;
+	cursor: pointer;
+	display: inline-block;
 	font-size: 20px;
 	font-weight: bold;
-	text-align: center;
-	position: relative;
-	padding-top: 6px;
-	padding-bottom: 6px;
-	background-color: #202044;
-	cursor: pointer;
-	float: left;
 }
 
 .coin{
@@ -792,23 +1013,6 @@ i {
 
 .coin_gold{
 	color:gold;
-}
-
-#page_selection {
-	position: absolute;
-	top: 5px;
-	width: 1241px;
-}
-
-#area_page {
-	position: absolute;
-	top: 20px;
-}
-
-#character_page {
-	position: absolute;
-	top: 20px;
-	visibility: hidden;
 }
 
 .skill_sorting_button {
@@ -859,6 +1063,22 @@ i {
 	font-size: var(--options_action_textsize);
 }
 
+#gathering_progress_bar {
+	height: 30px;
+	background-color: purple;
+	width: 0px;
+}
+
+#gathering_progress_bar_max {
+	width: 100%;
+	border-bottom: 1px solid white;
+	background-color: rgba(48, 0, 48, 0.596);
+}
+
+#location_actions_div :not(#action_end_div):hover #gathering_tooltip{
+	display: block;
+}
+
 #action_end_earnings {
 
 	font-style: italic;
@@ -907,9 +1127,8 @@ i {
 
 #character_div {
     width: 400px;
-    top: 106px;
-    padding-top: 7px;
-    height: 220px;
+    top: 136px;
+    height: 210px;
 	max-width: 400px;
 	max-height: 300px;
     border-top: none;
@@ -1039,14 +1258,17 @@ i {
 	margin: auto;
 	width: 350px;
 	position: relative;
-	top: 5px;
+	top: 8px;
+	display: none;
+}
+
+#character_tools_div {
 	display: none;
 }
 
 #character_stats_div {
 	width: 350px;
 	margin: auto;
-	margin-top: 4px;
 }
 
 #character_control_div {
@@ -1057,29 +1279,17 @@ i {
 
 #effects_div {
 	font-size: 16px;
-	padding-top: 4px;
-	padding-bottom: 4px;
+	padding-top: 2px;
+	padding-bottom: 2px;
 	padding-left: 4px;
 	width: 200px;
 	background-color: #232f47;
 }
-		#character_effects_character_page {
+		#character_effects{
 			position: absolute;
-			top: 168px;
+			top: 158px;
 			left: 100px;
 		}
-		#character_effects_area_page {
-			position: absolute;
-			top: 115px;
-			left: 0px;
-			width: 396px;
-			border-top: 0px;
-			padding: 2px;
-		}
-				#character_effects_area_page div {
-					margin: auto;
-				}
-
 
 #effects_div div{
 	display: inline-block;
@@ -1090,7 +1300,7 @@ i {
 	position: absolute;
 	left: 220px;
 	z-index: 1000;
-	background-color: rgba(92, 92, 92, 0.9);
+	background-color: var(--tooltip_background_color);
 	color: white;
 	border-radius: 10px;
 	margin-left: 30px;
@@ -1098,6 +1308,7 @@ i {
 	max-width: 300px;
 	width: fit-content;
 	height: auto;
+	border: 1px solid white;
 }
 
 #exit_trade_button {
@@ -1113,12 +1324,26 @@ i {
 	background-color: rgba(255, 241, 117, 0.2);
 }
 
+#exit_crafting_button {
+	position: absolute;
+	float: left;
+	top: 393px;
+	width: 398px;
+	text-align: center;
+	border: 1px solid white;
+	cursor: pointer;
+	font-size: 20px;
+	padding: 3px 0px 0px 0px;
+	background-color: rgba(255, 241, 117, 0.2);
+}
+
+
 #combat_div {
 	width: 400px;
-	height: 585px;
+	height: 560px;
 	position: relative;
 	left: 410px;
-	top: 45px;
+	top: 68px;
 }
 		.enemy_div {
 			color: white;
@@ -1183,7 +1408,8 @@ i {
 
 	#character_combat_management{
 		width: 400px;
-		top: 177px;
+		top: 386px;
+		display: var(--character_combat_div_display);
 	}
 		#character_stance_name {
 			padding: 3px;
@@ -1239,31 +1465,29 @@ i {
 }
 
 #inventory_content_div {
-	height: 326px;
+	height: 309px;
 	overflow-y: scroll;
-	overflow-x: visible;
 }
 
 #inventory_control_div {
 	font-size: 20px;
 	position: absolute;
-	top: 369px;
+	top: 351px;
 }
 
 #inventory_div {
 	width: 400px;
-	height: 400px;
-	top: 360px;
+	height: 381px;
+	top: 379px;
 	display: var(--inventory_div_display);
 }
 
 #journal_div {
-	top: 53px;
 	width: 400px;
-	left: 410px;
-	height: 277px;
+	left: 820px;
+	height: 330px;
+	top: 0px
 }
-
 	#quests_header {
 		width: 100%;
 		text-align: center;
@@ -1273,8 +1497,6 @@ i {
 
 	#journal_control_div {
 		font-size: 20px;
-		position: absolute;
-		top: 254px;
 	}
 		.journal_control_button{
 			float: left;
@@ -1289,10 +1511,12 @@ i {
 				width:100%;
 				height: 255px;
 			}
-			#quests_box_div, #data_box_div {
-				width:100%;
+
+			#quests_box_div, #data_box_div{
+				width: 100%;
 				height: 255px;
 				display: none;
+				overflow-y: scroll;
 			}
 
 			#bestiary_box_div{
@@ -1300,7 +1524,7 @@ i {
 				height: 255px;
 				display: block;
 				overflow-y: scroll;
-				overflow-x: visible;
+
 			}
 				.bestiary_entry_div, .data_entry {
 					width: 380px;
@@ -1322,7 +1546,7 @@ i {
 
 					.bestiary_entry_tooltip {
 						display: none;
-						background-color: rgba(92, 92, 92, 0.9);
+						background-color: var(--tooltip_background_color);
 						border-radius: 10px;
 						padding: 5px;
 						position: absolute;
@@ -1331,6 +1555,7 @@ i {
 						top: var(--bestiary_entry_tooltip_top);
 						left: var(--bestiary_entry_tooltip_left);
 						pointer-events: none;
+						border: 1px solid white;
 					}
 						.bestiary_entry_div:hover .bestiary_entry_tooltip {
 							display: block;
@@ -1346,18 +1571,18 @@ i {
 }
 
 #skills_and_stances_div {
-	left: 410px;
+	left: 820px;
 	top: 340px;
 	width: 400px;
-	height: 400px;
+	height: 420px;
 }
 
 #skill_list_div, #stance_list_div, #magic_list_div {
-	height: 369px;
+	height: 389px;
 }
 		#skill_list {
 			overflow-y: scroll;
-			height: 346px;
+			height: 366px;
 			padding-bottom:3px;
 		}
 
@@ -1380,12 +1605,13 @@ i {
 	font-size: 16px;
 	position: absolute;
 	pointer-events: none;
-	background-color: rgba(92, 92, 92, 0.9);
+	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
 	padding: 5px;
 	top: var(--stance_tooltip_top);
 	left: var(--stance_tooltip_left);
 	text-align: left;
+	border: 1px solid white;
 }
 .stance_list_entry:hover .stance_tooltip {
 	display: block;
@@ -1428,22 +1654,16 @@ i {
 
 #location_div {
 	width: 400px;
-	height: 287px;
+	height: 263px;
 	left: 410px;
-	top: 46px;
+	top: 70px;
 	border-top: 0px;
 }
-
 		#location_description_div {
-			border-bottom: 4px solid gray;
 			height: 113px;
 			font-style: italic;
 			color: rgb(224, 224, 224);
 			padding: 5px;
-		}
-
-		#location_picture_div {
-			height: 160px;
 		}
 
 #time_and_location {
@@ -1454,6 +1674,7 @@ i {
 		#location_name_div {
 			padding: 4px;
 			width: var(--location_name_div_width);
+			height:fit-content;
 			float: left;
 			z-index: 2;
 		}
@@ -1473,7 +1694,7 @@ i {
 
 				.location_type_tooltip {
 					display: none;
-					background-color: rgba(92, 92, 92, 0.9);
+					background-color: var(--tooltip_background_color);
 					border-radius: 10px;
 					padding: 5px;
 					position: absolute;
@@ -1511,7 +1732,7 @@ i {
 #location_description_tooltip {
 	font-style: italic;
 	display: none;
-	background-color: rgba(92, 92, 92, 0.9);
+	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
 	margin-left: 30px;
 	padding: 5px;
@@ -1534,7 +1755,8 @@ i {
 #main_content {
     position: absolute;
 	background-image: var(--background_gradient);
-	top: 40px;
+	top: 5px;
+	left: 5px;
 
 	/*
 	kinda necessary to set size, just for background gradient to render properly,
@@ -1545,9 +1767,10 @@ i {
 }
 
 #message_log_div {
+	top: 0px;
 	width: 400px;
 	height: 760px;
-	left: 820px;
+	left: 1230px;
 	padding-right: 15px;
 	margin-bottom: 20px;
 }
@@ -1568,7 +1791,7 @@ i {
 			padding: 3px;
 			padding-left: 4px;
 			padding-right: 4px;
-			min-width: 38.3px;
+			min-width: 40px;
 			text-align: center;
 			outline: 1px solid white;
 			margin: 1px;
@@ -1588,6 +1811,9 @@ i {
 	}
 	.message_background {
 		display: var(--message_background_display);
+	}
+	.message_crafting {
+		display: var(--message_crafting_display);
 	}
 
 #money_div {
@@ -1618,7 +1844,7 @@ i {
 }
 
 #trader_inventory_div {
-    height: 291px;
+    height: 311px;
 	width: 100%;
 	overflow-y: scroll;
 }

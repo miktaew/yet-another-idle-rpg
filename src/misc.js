@@ -16,11 +16,11 @@ function expo(number, precision = 2)
 }
 
 function round_item_price(price) {
-    if(price > 9999) {
+    if(price > 19999) {
         return Math.ceil(price/1000)*1000;
-    } else if(price > 999) {
+    } else if(price > 1999) {
         return Math.ceil(price/100)*100;
-    } else if(price > 99){
+    } else if(price > 199){
         return Math.ceil(price/10)*10;
     } else {
         return Math.ceil(price);
@@ -35,7 +35,7 @@ function format_reading_time(time) {
         return '1 hour';
     }
     else {
-        return `${time} minutes`;
+        return `${Math.round(time)} minutes`;
     }
 }
 
@@ -47,13 +47,16 @@ const stat_names = {"strength": "str",
                     "dexterity": "dex",
                     "magic": "magic",
                     "attack_speed": "attack speed",
+                    "attack_power": "attack power",
                     "crit_rate": "crit rate",
                     "crit_multiplier": "crit dmg",
                     "stamina_efficiency": "stamina efficiency",
                     "intuition": "int",
-                    "attack_power": "attack power",
                     "block_strength": "shield strength",
                     "hit_chance": "hit chance",
+                    "evasion": "EP",
+                    "evasion_points": "EP",
+                    "attack_points": "AP",
                 };
 
 function get_hit_chance(attack_points, evasion_points) {
@@ -106,7 +109,7 @@ function compare_game_version(version_a, version_b) {
         }
     }
 
-    return "";
+    return 0;
 }
 
 export { expo, format_reading_time, stat_names, get_hit_chance, compare_game_version, round_item_price};

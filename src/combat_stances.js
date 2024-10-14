@@ -78,7 +78,7 @@ stances["quick"] = new Stance({
     description: "A swift and precise technique that abandons strength in favor of greater speed",
     stat_multipliers: {
         attack_power: 0.8,
-        attack_speed: 1.5
+        attack_speed: 1.2
     },
     stamina_cost: 2,
 });
@@ -89,7 +89,7 @@ stances["heavy"] = new Stance({
     related_skill: "Heavy strike",
     stat_multipliers: {
         //attack multis are stronger than they appear since enemies have defense stat
-        attack_power: 1.3,
+        attack_power: 1.2,
         attack_speed: 0.8
     },
     stamina_cost: 2,
@@ -102,7 +102,7 @@ stances["defensive"] = new Stance({
     stat_multipliers: {
         attack_power: 0.8,
         agility: 1.2,
-        block_strength: 1.2,
+        block_strength: 1.1,
     },
     target_count: 1,
     stamina_cost: 2,
@@ -119,7 +119,6 @@ stances["wide"] = new Stance({
     stamina_cost: 4,
 });
 
-
 stances["berserk"] = new Stance({
     name: "Berserker's Stride",
     id: "berserk",
@@ -127,8 +126,8 @@ stances["berserk"] = new Stance({
     stat_multipliers: {
         attack_power: 1.2,
         hit_chance: 1.2,
-        agility: 0.5,
-        block_strength: 0.5,
+        agility: 0.4,
+        block_strength: 0.4,
     },
     target_count: 3,
     randomize_target_count: true,

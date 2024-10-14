@@ -1,6 +1,6 @@
 "use strict";
 
-var dialogues = {};
+const dialogues = {};
 
 class Dialogue {
     constructor({ name, 
@@ -34,9 +34,12 @@ class Textline {
                             dialogues: [],
                             traders: [],
                             stances: [],
+                            flags: [],
+                            items: [],
                             },
                 locks_lines = {},
                 otherUnlocks,
+                required_flags,
             }) 
     {
         this.name = name; // displayed option to click, don't make it too long
@@ -52,7 +55,11 @@ class Textline {
         this.unlocks.dialogues = unlocks.dialogues || [];
         this.unlocks.traders = unlocks.traders || [];
         this.unlocks.stances = unlocks.stances || [];
+        this.unlocks.flags = unlocks.flags || [];
+        this.unlocks.items = unlocks.items || []; //not so much unlocks as simply items that player will receive
         
+        this.required_flags = required_flags;
+
         this.locks_lines = locks_lines;
         //related text lines that get locked; might be itself, might be some previous line 
         //e.g. line finishing quest would also lock line like "remind me what I was supposed to do"
@@ -165,11 +172,13 @@ class Textline {
             "cleared field": new Textline({ //will be unlocked on clearing infested field combat_zone
                 name: "I cleared the field, just as you asked me to",
                 text: `You did? That's good. How about a stronger target? Nearby cave is just full of this vermin. `
-                        +`Before that, maybe get some sleep? Some folks prepared that shack over there for you. It's clean, it's dry, and it will give you some privacy.`,
+                        +`Before that, maybe get some sleep? Some folks prepared that shack over there for you. It's clean, it's dry, and it will give you some privacy. `
+                        +`Oh, and before I forget, our old craftsman wanted to talk to you.`,
                 is_unlocked: false,
                 unlocks: {
                     locations: ["Nearby cave", "Infested field", "Shack"],
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 3"]}],
+                    dialogues: ["old craftsman"],
                 },
                 locks_lines: ["ask to leave 2", "cleared field"],
             }),
@@ -178,6 +187,7 @@ class Textline {
                 text: "You still need to get stronger.",
                 unlocks: {
                     locations: ["Nearby cave", "Infested field"],
+                    dialogues: ["old craftsman"],
                 },
                 is_unlocked: false,
             }),
@@ -198,7 +208,7 @@ class Textline {
                 is_unlocked: false,
                 unlocks: {
                     locations: ["Forest road", "Infested field", "Nearby cave"],
-                    dialogues: ["village guard"],
+                    dialogues: ["village guard", "old craftsman"],
                 },
             }),
             "new tunnel": new Textline({
@@ -206,6 +216,59 @@ class Textline {
                 text: "The what?... I have a bad feeling about this, you better avoid it until you get better equipment. Don't forget to bring a good shield too.",
                 is_unlocked: false,
                 locks_lines: ["new tunnel"],
+            }),
+        }
+    });
+
+    dialogues["old craftsman"] = new Dialogue({
+        name: "old craftsman",
+        is_unlocked: false,
+        textlines: {
+            "hello": new Textline({
+                name: "Hello, I heard you wanted to talk to me?",
+                text: "Ahh, good to see you traveler. I just thought of a little something that could be of help for someone like you. See, young people this days "+
+                "don't care about the good old art of crafting and prefer to buy everything from the store, but I have a feeling that you just might be different. "+
+                "Would you like a quick lesson?",
+                unlocks: {
+                    textlines: [{dialogue: "old craftsman", lines: ["learn", "leave"]}],
+                },
+                locks_lines: ["hello"],
+            }),
+            "learn": new Textline({
+                name: "Sure, I'm in no hurry.",
+                text: "Ahh, that's great. Well then... \n*[Old man spends some time explaining all the important basics of crafting and providing you with tips]*\n"+
+                "Ahh, and before I forget, here, take these. They will be helpful for gathering necessary materials.",
+                unlocks: {
+                    textlines: [{dialogue: "old craftsman", lines: ["remind1", "remind2", "remind3"]}],
+                    items: ["Old pickaxe" ,"Old axe", "Old sickle"],
+                    flags: ["is_gathering_unlocked", "is_crafting_unlocked"],
+                },
+                locks_lines: ["learn","leave"],
+                is_unlocked: false,
+            }),
+            "leave": new Textline({
+                name: "I'm not interested.",
+                text: "Ahh, I see. Maybe some other time then, when you change your mind, hmm?",
+                is_unlocked: false,
+            }),
+            
+            "remind1": new Textline({
+                name: "Could you remind me how to create equipment for myself?",
+                text: "Ahh, of course. Unless you are talking about something simple like basic clothing, then you will first need to create components that can then be assembled together. "+
+                "For weapons, you generally need a part that you use to hit an enemy and a part that you hold in your hand. For armor, you will need some actual armor and then something softer to wear underneath, "+
+                "which would mostly mean some clothes.",
+                is_unlocked: false,
+            }),
+            "remind2": new Textline({
+                name: "Could you remind me how to improve my creations?",
+                text: "Ahh, that's simple, you just need more experience. This alone will be a great boon to your efforts. For equipment, you might also want to start with better components. "+
+                "After all, even with the most perfect assembling you can't turn a bent blade into a legendary sword.",
+                is_unlocked: false,
+            }),
+            "remind3": new Textline({
+                name: "Could you remind me how to get crafting materials?",
+                text: "Ahh, there's multiple ways of that. You can gain them from fallen foes, you can gather them around, or you can even buy them if you have some spare coin.",
+                is_unlocked: false,
             }),
         }
     });
@@ -340,12 +403,12 @@ class Textline {
                 name: "Hello",
                 text: "Hello stranger",
                 unlocks: {
-                    textlines: [{dialogue: "farm supervisor", lines: ["things", "work"]}],
+                    textlines: [{dialogue: "farm supervisor", lines: ["things", "work", "animals", "fight", "fight0"]}],
                 },
                 locks_lines: ["hello"],
             }),
             "work": new Textline({
-                name: "Do you have any work?",
+                name: "Do you have any work with decent pay?",
                 is_unlocked: false,
                 text: "We sure could use more hands. Feel free to help my boys on the fields whenever you have time!",
                 unlocks: {
@@ -353,10 +416,51 @@ class Textline {
                 },
                 locks_lines: ["work"],
             }),
+            "animals": new Textline({
+                name: "Do you sell anything?",
+                is_unlocked: false,
+                text: "Sorry, I'm not allowed to. I could however let you take some stuff in exchange for physical work, and it just so happens our sheep need shearing.",
+                required_flags: {yes: ["is_gathering_unlocked"]},
+                unlocks: {
+                    activities: [{location: "Town farms", activity: "animal care"}],
+                },
+                locks_lines: ["animals"],
+            }),
+            "fight0": new Textline({
+                name: "Do you have any task that requires some good old violence?",
+                is_unlocked: false,
+                text: "I kinda do, but you don't seem strong enough for that. I'm sorry.",
+                required_flags: {no: ["is_deep_forest_beaten"]},
+            }),
+            "fight": new Textline({
+                name: "Do you have any task that requires some good old violence?",
+                is_unlocked: false,
+                text: "Actually yes. There's that annoying group of boars that keep destroying our fields. "
+                + "They don't do enough damage to cause any serious problems, but I would certainly be calmer if someone took care of them. "
+                + "Go to the forest and search for a clearing in north, that's where they usually roam when they aren't busy eating our crops."
+                + "I can of course pay you for that, but keep in mind it won't be that much, I'm running on a strict budget here.",
+                required_flags: {yes: ["is_deep_forest_beaten"]},
+                unlocks: {
+                    locations: ["Forest clearing"],
+                },
+                locks_lines: ["fight"],
+            }),
             "things": new Textline({
                 is_unlocked: false,
                 name: "How are things around here?",
                 text: "Nothing to complain about. Trouble is rare, pay is good, and the soil is as fertile as my wife!",
+                unlocks: {
+                    textlines: [{dialogue: "farm supervisor", lines: ["animals", "fight", "fight0"]}],
+                }
+            }), 
+            "defeated boars": new Textline({
+                is_unlocked: false,
+                name: "I took care of those boars",
+                text: "Really? That's great! Here, this is for you.",
+                locks_lines: ["defeated boars"],
+                unlocks: {
+                    money: 1000,
+                }
             }), 
         }
     });

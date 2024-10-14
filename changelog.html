@@ -46,7 +46,138 @@
     </head>
 
 <div id="header">Click on blocks to unfold their content</div>
-<button type="button" class="collapsible">v0.4</button>
+<button type="button" class="collapsible">v0.4.3/v0.4.4 - GUI remake and Crafting</button>
+<div class="content"><pre>
+v0.4.3
+    - remade GUI to be a single tab
+    - implemented a crafting system
+    - added 3rd type of passive activity, resource gathering; if you are not starting a new game, for both this and crafting talk with the village elder
+    - changed some action icons
+    - expanded the breakdowns of hero stats
+    - new equipment slot, currently with 1 craftable thingy that can go there
+    - minimum damage getting through armor is now 10% of original value, instead of 1
+    - weapon skills (and unarmed) now increase hit chance
+    - 2 new combat locations: the rat saga continues + 3rd combat location in forest (beat 2nd, then talk with certain someone)
+    - changed scaling of location type penalties with skill level (it now has constant rate of change with levels, meaning first few levels won't reduce it as drastically as they used to)
+    - skill descriptions now have their id displayed
+    - skill names in books and in skill rewards now match what's displayed in other places (e.g. a multiplier to a not yet unlocked skill will have its name shown as "????")
+    - slightly reduced frequency of background 'noises'
+    - slightly nerfed: attack power of tier 2 equipment, stances (heavy/quick), xp values of some enemies, attack speed from unarmed skill, some skill milestone rewards
+    - fixed an issue where tooltips tended to lag a lot on chrome while devtools were open
+    - fixed the bug with messages about reaching level 0 in skill (maybe this time it will finally work, eh?)
+    - fixed a bug where enemy size kept being defaulted to "small"
+    - increased xp requirements for 'iron skin' and further reduced its xp gain if wearing any armor
+    - fixed a bug with tooltip refresh for multi-target stances
+    - tooltips of location types now show the penalties (both current and base values)
+    - restructured some of the code for updating character stats, for easier future use
+    - added a simple loading screen
+    - rewrote some ugly code to a more manageable form
+v0.4.3a
+    - fixed bug that broke combat when using shield
+v0.4.3b
+    - fixed crafting tooltips
+    - fixed some unlocks that didn't work
+    - fixed bug with consumables resulting in max health/stamina becoming NaN
+    - fixed bug on trying to trade some of new equipment
+v0.4.3c
+    - fixed bug with one of unlocks
+    - fixed wrong recipe name in crafting
+    - fixed bug on trying to trade some of new equipment (again)
+    - fixed quality rounding
+v0.4.3d
+    - fixed bug with crafting quality defaulting to 100%
+    - fixed bug where some of unlocked activities could become locked again after reloading
+v0.4.3d2
+    - fixed wrong chances on resource gathering (instead of being X, they were 1 minus X)
+v0.4.3e
+    - fixed wrong success chance on item crafting
+    - fixed unavailable unlock
+    - fixed bug where new clothing was unequippable without a reload
+    - fixed bug where unarmed dmg bonus was applied twice
+    - tweaked the autoscrolling of recipes to no longer happen when it's unnecessary
+v0.4.3f
+    - fixed trade bug
+v0.4.3f2
+    - fixed a broken unlock when talking to "Farm supervisor"
+v0.4.3g
+    - fixed bug where light level multiplier and unarmed attack speed were not being properly removed
+    - fixed scaling of some gathering actions (now they start from 0 instead of 1)
+    - wool now gets properly crafted into wool cloth instead of wolf leather
+    - fixed issue with time adjustment for attack loops
+v0.4.3h
+    - added drops to elite wolf rat guardians, incl. new item that currently has no crafting usage but might get it somewhere later
+    - fixed bug where loot from resource gathering was displayed in event category instead of loot category
+    - fixed bug where it was impossible to trade iron chainmail torso armor
+v0.4.3h2
+    - fixed trade bug when dealing with 3+ pieces of same unstackable item
+v0.4.3h3
+    - fixed the terrible issues caused by the previous "fix"
+    - crafting 'Iron Chainmail' now gives xp to the proper skill
+v0.4.3i
+    - fixed bug with tool equipping
+    - fixed bug with combat timers
+v0.4.3i2
+    - fixed another trade bug (this better be the last of them...)
+v0.4.3j
+    - updated descriptions of environmental skills to reflect formula change
+    - fixed some more bugs with crafting
+v0.4.3j2
+    - fixed another trade bug
+v0.4.3k
+    - fixed formulas for scaling of gathering/crafting chances
+    - defense now works the same way for enemies as it does for the hero (not blocking more than 90%)
+v0.4.3k2
+    - fixed a broken unlock for clearing 3rd forest location and increased area type xp gain from it
+v0.4.3l
+    - fixed an issue where state of BGM filter for message log wasn't being saved
+    - fixed a bug with message log where wrong message type was being removed
+    - fixed bug where drop chances were appearing in wrong places in bestiary tooltips
+v0.4.3m
+    - displayed skills are now grouped in categories
+    - hero levels now increase skill xp gain
+    - some minor rebalances and fixes
+    - fixed healing bug
+    - fixed bug with environmental penalties where only one effect would apply to a given stat
+v0.4.3n
+    - component value now scales with quality
+    - fixed another healing bug
+    - fixed bug with leather hats
+    - fixed a bug where weapon type related bonuses weren't applied on skill levelup
+
+v0.4.4
+    - all items now stack (for those with quality, it's only when quality is the same)
+    - completely rewrote how active effects work and updated their display
+    - xp value of crafted components now scales with their material cost (you don't have to solely craft dagger blades anymore)
+    - increased material cost of some crafting recipes
+    - increased minimum crafting xp value
+    - slowed down resource gathering activities
+    - crafting xp is now reduced when skill is above requirements: -20% per level for item recipes, while for components/equipment soft cap is 8*tier and hard cap 8*tier*sqrt(quality_multiplier)
+    - mentions of skills should now update properly, no more "?????" in descriptions
+    - item quality is now used as an additional sorting param if names/prices are the same
+    - for equipment crafting, available components are now sorted (by tier -> name -> quality)
+    - fixed visual bug where stance list would slightly change in width on hover, resulting in awkward flickering
+    - separated saves between main and dev releases
+    - fixed some bugs with item values
+    - tweaked item price rounding
+    - updated some display elements to a form that hopefully will be much easier to manage
+    - rewrote item quality from fractions to integers (no more floating point errors, yay)
+v0.4.4a
+    - fixed bug when selling more than 1 of an item
+    - fixed bug with item recipe tooltips not updating when needed
+v0.4.4b
+    - fixed bug when buying more than 1 of an item
+v0.4.4c
+    - fixed bug with crafting xp cap
+    - fixed bug where material count for clothing recipes was always at 0
+    - fixed bug that made it impossible to read books
+v0.4.4d
+    - crafting when skill is past hardcap now provides 1 xp instead of 0
+    - fixed component sorting in crafting
+v0.4.4e
+    - quick fix to importing saves
+</pre>
+</div>
+<button type="button" class="collapsible">v0.4 - Combat Stances</button>
 <div class="content"><pre>
 v0.4.0
     - introduced combat stances, talk with village guard to unlock (ask him for tips if you already met him earlier); lots of names were suggested by Varian on our discord channel
@@ -118,7 +249,7 @@ v0.4.0o
 </pre>
 </div>
 
-<button type="button" class="collapsible">v0.3.5</button>
+<button type="button" class="collapsible">v0.3.5 - Economy Rework</button>
 <div class="content"><pre>
 v0.3.5
     - reworked economy (drop rates no longer go down, instead price of enemy loot goes down as more and more is sold, they also slowly recover over time; solution suggested by 10mart10 on our discord channel)
