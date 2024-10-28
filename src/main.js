@@ -49,7 +49,9 @@ import { end_activity_animation,
          update_displayed_crafting_recipes,
          update_item_recipe_visibility,
          update_item_recipe_tooltips,
-         update_displayed_book
+         update_displayed_book,
+         update_backup_load_button,
+         update_other_save_load_button
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -60,6 +62,8 @@ import { Verify_Game_Objects } from "./verifier.js";
 
 const save_key = "save data";
 const dev_save_key = "dev save data";
+const backup_key = "backup save";
+const dev_backup_key = "dev backup save";
 
 const global_flags = {
     is_gathering_unlocked: false,
@@ -109,6 +113,10 @@ let is_reading = null;
 //ticks between saves, 60 = ~1 minute
 let save_period = 60;
 let save_counter = 0;
+
+//ticks between saves, 60 = ~1 minute
+let backup_period = 3600;
+let backup_counter = 0;
 
 //accumulates deviations
 let time_variance_accumulator = 0;
@@ -1550,14 +1558,16 @@ function use_recipe(target) {
                     log_message(`Created ${item_templates[result_id].getName()} x${count}`, "crafting");
 
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
-
-                    update_item_recipe_visibility();
-                    update_item_recipe_tooltips();
                 } else {
                     log_message(`Failed to create ${item_templates[result_id].getName()}!`, "crafting");
 
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value/2});
                 }
+
+                update_item_recipe_visibility();
+                update_item_recipe_tooltips();
+                //do those two wheter success or fail since materials get used either way
+
                 if(leveled) {
                     //todo: reload all recipe tooltips of matching category
                 }
@@ -1677,6 +1687,18 @@ function use_item(item_key) {
     remove_from_character_inventory([{item_key}]);
 }
 
+function get_date() {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month_num = date.getMonth()+1;
+    const month = month_num > 9 ? month_num.toString() : "0" + month_num.toString();
+    const day = date.getDate() > 9 ? date.getDate().toString() : "0" + date.getDate().toString();
+    const hour = date.getHours() > 9 ? date.getHours().toString() : "0" + date.getHours().toString();
+    const minute = date.getMinutes() > 9 ? date.getMinutes().toString() : "0" + date.getMinutes().toString();
+    const second = date.getSeconds() > 9 ? date.getSeconds().toString() : "0" + date.getSeconds().toString();
+    return `${year}-${month}-${day} ${hour}_${minute}_${second}`;
+}
+
 function is_on_dev() {
     return window.location.href.endsWith("-dev/");
 }
@@ -1698,6 +1720,7 @@ function create_save() {
         const save_data = {};
         save_data["game version"] = game_version;
         save_data["current time"] = current_game_time;
+        save_data.saved_at = get_date();
         save_data.total_playtime = total_playtime;
         save_data.total_deaths = total_deaths;
         save_data.total_crafting_attempts = total_crafting_attempts;
@@ -1854,6 +1877,7 @@ function create_save() {
     } catch(error) {
         console.error("Something went wrong on saving the game!");
         console.error(error);
+        log_message("FAILED TO CREATE A SAVE FILE, PLEASE CHECK CONSOLE FOR ERRORS AND REPORT IT", "message_critical");
     }
 } 
 
@@ -1869,15 +1893,24 @@ function save_to_file() {
  * saves game state to localStorage, on manual saves also logs message about it being done
  * @param {Boolean} is_manual 
  */
-function save_to_localStorage(is_manual) {
-    if(is_on_dev()) {
-        localStorage.setItem(dev_save_key, create_save());
-    } else {
-        localStorage.setItem(save_key, create_save());
+function save_to_localStorage({key, is_manual}) {
+    const save = create_save();
+    if(save) {
+        localStorage.setItem(key, save);
     }
+    
     if(is_manual) {
         log_message("Saved the game manually");
         save_counter = 0;
+    }
+    return save.saved_at;
+}
+
+function save_progress() {
+    if(is_on_dev()) {
+        save_to_localStorage({key: dev_save_key, is_manual: true});
+    } else {
+        save_to_localStorage({key: save_key, is_manual: true});
     }
 }
 
@@ -2570,6 +2603,52 @@ function load_from_localstorage() {
     }
 }
 
+function load_backup() {
+    try{
+        if(is_on_dev()) {
+            if(localStorage.getItem(dev_backup_key)){
+                load(JSON.parse(localStorage.getItem(dev_backup_key)));
+                window.location.reload(false);
+            } else {
+                log_message("Can't load backup as there is none yet.");
+            }
+        } else {
+            if(localStorage.getItem(backup_key)){
+                load(JSON.parse(localStorage.getItem(backup_key)));
+                window.location.reload(false);
+            } else {
+                log_message("Can't load backup as there is none yet.");
+            }
+        }
+    } catch(error) {
+        console.error("Something went wrong on loading from localStorage!");
+        console.error(error);
+    }
+}
+
+function load_other_release_save() {
+    try{
+        if(is_on_dev()) {
+            if(localStorage.getItem(save_key)){
+                load(JSON.parse(localStorage.getItem(save_key)));
+                window.location.reload(false);
+            } else {
+                log_message("There are no saves on the other release.");
+            }
+        } else {
+            if(localStorage.getItem(dev_save_key)){
+                load(JSON.parse(localStorage.getItem(dev_save_key)));
+                window.location.reload(false);
+            } else {
+                log_message("There are no saves on the other release.");
+            }
+        }
+    } catch(error) {
+        console.error("Something went wrong on loading from localStorage!");
+        console.error(error);
+    }
+}
+
 //update game time
 function update_timer() {
     current_game_time.go_up(is_sleeping ? 6 : 1);
@@ -2765,9 +2844,29 @@ function update() {
         save_counter += 1;
         if(save_counter >= save_period*tickrate) {
             save_counter = 0;
-            save_to_localStorage();
+            if(is_on_dev()) {
+                save_to_localStorage({key: dev_save_key});
+            } else {
+                save_to_localStorage({key: save_key});
+            }
             console.log("Auto-saved the game!");
         } //save in regular intervals, irl time independent from tickrate
+
+        backup_counter += 1;
+        if(backup_counter >= backup_period*tickrate) {
+            backup_counter = 0;
+            let saved_at;
+            if(is_on_dev()) {
+                saved_at = save_to_localStorage({key: dev_backup_key});
+            } else {
+                saved_at = save_to_localStorage({key: backup_key});
+            }
+
+            if(saved_at) {
+                update_backup_load_button(saved_at);
+            }
+            console.log("Created an automatic backup!");
+        }
 
         if(!is_sleeping && current_location && current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 4)) 
         {
@@ -2881,9 +2980,13 @@ window.option_bed_return = option_bed_return;
 window.option_combat_autoswitch = option_combat_autoswitch;
 window.option_remember_filters = option_remember_filters;
 
-window.save_to_localStorage = save_to_localStorage;
+window.getDate = get_date;
+
+window.saveProgress = save_progress;
 window.save_to_file = save_to_file;
 window.load_progress = load_from_file;
+window.loadBackup = load_backup;
+window.importOtherReleaseSave = load_other_release_save;
 window.get_game_version = get_game_version;
 
 if(save_key in localStorage) {
@@ -2944,6 +3047,30 @@ window.Verify_Game_Objects = Verify_Game_Objects;
 
 if(is_on_dev()) {
     log_message("It looks like you are playing on the dev release. It is recommended to keep the developer console open (in Chrome/Firefox/Edge it's at F12 => 'Console' tab) in case of any errors/warnings appearing in there.", "notification");
+
+    if(localStorage[dev_backup_key]) {
+        update_backup_load_button(JSON.parse(localStorage[dev_backup_key]).saved_at);
+    } else {
+        update_backup_load_button();
+    }
+
+    if(localStorage[save_key]) {
+        update_other_save_load_button(JSON.parse(localStorage[save_key]).saved_at, true);
+    } else {
+        update_other_save_load_button(null, true);
+    }
+} else {
+    if(localStorage[backup_key]) {
+        update_backup_load_button(JSON.parse(localStorage[backup_key]).saved_at);
+    } else {
+        update_backup_load_button();
+    }
+
+    if(localStorage[dev_save_key]) {
+        update_other_save_load_button(JSON.parse(localStorage[dev_save_key]).saved_at || "");
+    } else {
+        update_other_save_load_button();
+    }
 }
 
 export { current_enemies, can_work, 

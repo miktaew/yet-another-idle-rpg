@@ -1148,7 +1148,7 @@ function get_location_type_penalty(type, stage, stat) {
         "herbalism": new LocationActivity({
             activity_name: "herbalism",
             infinite: true,
-            starting_text: "Gather useful herbs throught the forest",
+            starting_text: "Gather useful herbs throughout the forest",
             skill_xp_per_tick: 1,
             is_unlocked: false,
             gained_resources: {

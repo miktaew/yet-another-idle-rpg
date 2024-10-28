@@ -913,7 +913,6 @@
         </div>
 
         <div id="options_panel">
-            <div id="close_options" onclick="closeOptions()"> X </div>
             <div id="options_choices">
                 <div class="options_choice">
                     <input type="checkbox" id="options_textsize" name="options_textsize" value="options_textsize" onclick = "option_uniform_textsize()" />
@@ -932,7 +931,10 @@
                     <label for="options_dont_autoswitch_to_combat">Don't autoswitch out from inventory when starting combat</label>
                 </div>
             </div>
-            <div id = "hard_reset_button" onclick = "hardReset()"> Hard reset the game </div>
+            <div id="close_options" onclick="closeOptions()"> X </div>
+            <div id = "backup_load_button" class="options_button" onclick = "loadBackup()">Load the backup autosave</div>
+            <div id = "import_other_save_button" class="options_button" onclick = "importOtherSave()"> Import save from </div>
+            <div id = "hard_reset_button" class="options_button" onclick = "hardReset()"> Hard reset the game <i class="material-icons"> warning_amber </i> </div>
         </div>
 
         <script>
@@ -1182,23 +1184,12 @@
             function saveToFile() {
                 var a = window.document.createElement('a');
                 a.href = window.URL.createObjectURL(new Blob([save_to_file()], {type: 'text/plain'}));
-                const date = new Date();
-                const year = date.getFullYear();
-                const month = date.getMonth() > 9 ? date.getMonth().toString() : "0" + date.getMonth().toString();
-                const day = date.getDate() > 9 ? date.getDate().toString() : "0" + date.getDate().toString();
-                const hour = date.getHours() > 9 ? date.getHours().toString() : "0" + date.getHours().toString();
-                const minute = date.getMinutes() > 9 ? date.getMinutes().toString() : "0" + date.getMinutes().toString();
-                const second = date.getSeconds() > 9 ? date.getSeconds().toString() : "0" + date.getSeconds().toString();
-                a.download = `yet-another-idle-rpg ${year}-${month}-${day} ${hour}_${minute}_${second}.txt`;
+                a.download = `yet-another-idle-rpg ${getDate()}.txt`;
 
                 document.body.appendChild(a);
                 a.click();
 
                 document.body.removeChild(a);
-            }
-
-            function saveProgress() {
-                save_to_localStorage(true);
             }
 
             function loadProgress(event) {
@@ -1215,7 +1206,7 @@
             };
 
             function hardReset() {
-                var confirmation = prompt(`This will erase all your progress and you will have to start from the very beginning. If you are sure this is what you want, type "yes" below`);
+                let confirmation = prompt(`This will erase all your progress and you will have to start from the very beginning. If you are sure this is what you want, type "yes" below`);
 
                 if(confirmation === "yes" || confirmation === `"yes"`) {
                     localStorage.removeItem("save data");
@@ -1223,7 +1214,31 @@
                     return false;
                 }
                 else {
-                    console.log("Hard reset was cancelled");
+                    console.log("Hard reset was cancelled.");
+                }
+            }
+
+            function importOtherSave() {
+                let confirmation = prompt(`This will import the savefile from the other release - dev if you are on main, main if you are on dev. In the first case it might break your game if dev save was made on newer game version. If you are sure this is what you want, type "yes" below`);
+
+                if(confirmation === "yes" || confirmation === `"yes"`) {
+                    importOtherReleaseSave();
+                    return false;
+                }
+                else {
+                    console.log("Import of the other save was cancelled.");
+                }
+            }
+
+            function loadTheBackup() {
+                let confirmation = prompt(`This will load your backup save, losing all the progress you made it since then. It is not recommended unless something broke, in which case please export the broken save and report the issue. If you are sure this is what you want, type "yes" below`);
+
+                if(confirmation === "yes" || confirmation === `"yes"`) {
+                    loadBackup();
+                    return false;
+                }
+                else {
+                    console.log("Loading of the backup save was cancelled.");
                 }
             }
 
@@ -1691,8 +1706,8 @@
                         }
                     }
 
-                    update_displayed_trader_inventory({});
-                    update_displayed_character_inventory({});
+                    update_displayed_trader_inventory();
+                    update_displayed_character_inventory();
 
                     trade_price_value.innerHTML = format_money(total_price);
                     check_trade_cost();
