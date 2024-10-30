@@ -3062,7 +3062,7 @@ if(is_on_dev()) {
     }
 
     if(localStorage[save_key]) {
-        update_other_save_load_button(JSON.parse(localStorage[save_key]).saved_at, true);
+        update_other_save_load_button(JSON.parse(localStorage[save_key]).saved_at || "", true);
     } else {
         update_other_save_load_button(null, true);
     }
