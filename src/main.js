@@ -312,11 +312,13 @@ function change_location(location_name) {
     }
 }
 
+
 /**
  * 
  * @param {String} location_name 
  * @returns {Boolean} if there's anything that can be unlocked by clearing it
  */
+/*
 function does_location_have_available_unlocks(location_name) {
     //include dialogue lines
     if(!locations[location_name]) {
@@ -375,21 +377,21 @@ function does_location_have_available_unlocks(location_name) {
 
     });
 }
-
+*/
 /**
  * 
  * @param {String} location_name 
  * @returns {Boolean} if there's something that can be unlocked by clearing it after additional conditions are met
  */
+/*
 function does_location_have_unavailable_unlocks(location_name) {
 
     if(!locations[location_name]) {
         throw new Error(`No such location as "${location_name}"`);
     }
     let does = false;
-
 }
-
+*/
 /**
  * 
  * @param {Object} selected_activity - {id} of activity in Location's activities list??
@@ -1903,7 +1905,8 @@ function save_to_localStorage({key, is_manual}) {
         log_message("Saved the game manually");
         save_counter = 0;
     }
-    return save.saved_at;
+
+    return JSON.parse(save).saved_at;
 }
 
 function save_progress() {
@@ -2607,16 +2610,18 @@ function load_backup() {
     try{
         if(is_on_dev()) {
             if(localStorage.getItem(dev_backup_key)){
-                load(JSON.parse(localStorage.getItem(dev_backup_key)));
+                localStorage.setItem(dev_save_key, localStorage.getItem(dev_backup_key));
                 window.location.reload(false);
             } else {
+                console.log("Can't load backup as there is none yet.");
                 log_message("Can't load backup as there is none yet.");
             }
         } else {
             if(localStorage.getItem(backup_key)){
-                load(JSON.parse(localStorage.getItem(backup_key)));
+                localStorage.setItem(save_key, localStorage.getItem(backup_key));
                 window.location.reload(false);
             } else {
+                console.log("Can't load backup as there is none yet.")
                 log_message("Can't load backup as there is none yet.");
             }
         }
@@ -2630,16 +2635,18 @@ function load_other_release_save() {
     try{
         if(is_on_dev()) {
             if(localStorage.getItem(save_key)){
-                load(JSON.parse(localStorage.getItem(save_key)));
+                localStorage.setItem(dev_save_key, localStorage.getItem(save_key));
                 window.location.reload(false);
             } else {
+                console.log("There are no saves on the other release.")
                 log_message("There are no saves on the other release.");
             }
         } else {
             if(localStorage.getItem(dev_save_key)){
-                load(JSON.parse(localStorage.getItem(dev_save_key)));
+                localStorage.setItem(save_key, localStorage.getItem(dev_save_key));
                 window.location.reload(false);
             } else {
+                console.log("There are no saves on the other release.");
                 log_message("There are no saves on the other release.");
             }
         }

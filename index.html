@@ -932,7 +932,7 @@
                 </div>
             </div>
             <div id="close_options" onclick="closeOptions()"> X </div>
-            <div id = "backup_load_button" class="options_button" onclick = "loadBackup()">Load the backup autosave</div>
+            <div id = "backup_load_button" class="options_button" onclick = "loadTheBackup()">Load the backup autosave</div>
             <div id = "import_other_save_button" class="options_button" onclick = "importOtherSave()"> Import save from </div>
             <div id = "hard_reset_button" class="options_button" onclick = "hardReset()"> Hard reset the game <i class="material-icons"> warning_amber </i> </div>
         </div>
@@ -1206,9 +1206,9 @@
             };
 
             function hardReset() {
-                let confirmation = prompt(`This will erase all your progress and you will have to start from the very beginning. If you are sure this is what you want, type "yes" below`);
+                let confirmation = prompt(`This will erase all your progress and you will have to start from the very beginning. If you are sure this is what you want, type "reset" below`);
 
-                if(confirmation === "yes" || confirmation === `"yes"`) {
+                if(confirmation === "reset" || confirmation === `"reset"`) {
                     localStorage.removeItem("save data");
                     window.location.reload();
                     return false;
@@ -1219,9 +1219,9 @@
             }
 
             function importOtherSave() {
-                let confirmation = prompt(`This will import the savefile from the other release - dev if you are on main, main if you are on dev. In the first case it might break your game if dev save was made on newer game version. If you are sure this is what you want, type "yes" below`);
+                let confirmation = prompt(`This will import the savefile from the other release - dev if you are on main, main if you are on dev. In the first case it might break your game if dev save was made on newer game version. If you are sure this is what you want, type "import" below`);
 
-                if(confirmation === "yes" || confirmation === `"yes"`) {
+                if(confirmation === "import" || confirmation === `"import"`) {
                     importOtherReleaseSave();
                     return false;
                 }
@@ -1231,9 +1231,9 @@
             }
 
             function loadTheBackup() {
-                let confirmation = prompt(`This will load your backup save, losing all the progress you made it since then. It is not recommended unless something broke, in which case please export the broken save and report the issue. If you are sure this is what you want, type "yes" below`);
+                let confirmation = prompt(`This will load your backup save, losing all the progress you made it since then. It is not recommended unless something broke, in which case please export the broken save and report the issue. If you are sure this is what you want, type "load" below`);
 
-                if(confirmation === "yes" || confirmation === `"yes"`) {
+                if(confirmation === "load" || confirmation === `"load"`) {
                     loadBackup();
                     return false;
                 }

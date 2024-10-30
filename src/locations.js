@@ -382,6 +382,40 @@ class LocationActivity{
     }
 }
 
+class LocationAction {
+    constructor({
+        action_text,
+        success_text,
+        failure_text,
+        requirements = {},
+        rewards = {},
+        attempt_duration = 0,
+        attempt_text = "",
+        success_chance = 1,
+        is_unlocked = true,
+    }) {
+        this.action_text = action_text;
+        this.failure_text = failure_text; //text displayed on failure
+        this.success_text = success_text; //text displayed on success
+                                          //if action is supposed to be "impossible" for narrative purposes, just make it finish without unlocks and with text that says it failed
+        this.requirements = requirements; //things needed to succeed {stats, items, money} 
+        this.rewards = rewards; //mostly unlocks: {} but could be some other things
+        this.completed = false;
+        this.attempt_duration = attempt_duration; //0 means instantaneous, otherwise there's a progress bar
+        this.attempt_text = attempt_text; //action text while attempting, useless if duration is 0
+        this.success_chance = success_chance; //chance to succeed; to guarantee that multiple attempts will be needed, just make a few consecutive actions with same text
+        this.is_unlocked = is_unlocked;
+        this.is_finished = false;
+    }
+
+    /**
+     * @returns {Boolean}
+     */
+    are_conditions_met() {
+
+    }
+}
+
 class LocationType{
     constructor({name, related_skill, stages = {}}) {
         this.name = name;
@@ -1194,6 +1228,8 @@ function get_location_type_penalty(type, stage, stat) {
         }),
     };
 })();
+
+//add actions
 
 export {locations, location_types, get_location_type_penalty};
 

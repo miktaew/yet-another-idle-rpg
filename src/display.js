@@ -400,7 +400,7 @@ function create_effect_tooltip(effect_name, duration) {
             tooltip.innerHTML += `: ${sign}${stat_value.flat}`;
         } else if(key === "health_regeneration_percent" || key === "stamina_regeneration_percent" || key === "mana_regeneration_percent") {
             const sign = stat_value.percent > 0? "+":"";
-            tooltip.innerHTML += `: ${sign}${stat_value.percent}%`;
+            tooltip.innerHTML += `: ${sign}${stat_value.flat}%`;
         } else {
             //
         }
@@ -3449,7 +3449,6 @@ function update_backup_load_button(date_string){
 }
 
 function update_other_save_load_button(date_string, is_dev) {
-    console.log(date_string, is_dev);
     if(is_dev) {
         other_save_load_button.innerText = `Import save from main version`;
     } else {
