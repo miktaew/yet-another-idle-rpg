@@ -2283,7 +2283,6 @@ function load(save_data) {
         }
     }); //load for dialogues and their textlines their unlocked/finished status
 
-    
     Object.keys(save_data.traders).forEach(function(trader) { 
         let trader_item_list = [];
         if(traders[trader]){
@@ -2451,7 +2450,6 @@ function load(save_data) {
             return;
         }
     }); //load trader inventories
-    
 
     Object.keys(save_data.locations).forEach(function(key) {
         if(locations[key]) {
@@ -2592,7 +2590,7 @@ function load_from_localstorage() {
         if(is_on_dev()) {
             if(localStorage.getItem(dev_save_key)){
                 load(JSON.parse(localStorage.getItem(dev_save_key)));
-                log_message("Loaded dev save. If you want to use save from live version, import it manually");
+                log_message("Loaded dev save. If you want to use save from live version, import it through options panel or manually");
             } else {
                 load(JSON.parse(localStorage.getItem(save_key)));
                 log_message("Dev save was not found. Loaded live version save.");

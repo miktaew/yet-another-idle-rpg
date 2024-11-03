@@ -151,7 +151,6 @@ class Item {
         this.description = description;
         this.saturates_market = false;
         this.id = id;
-
         /**
          * Use .getValue() instead of this
          */
@@ -655,14 +654,14 @@ class Armor extends Equippable {
     }
 
     getValue(quality) {
+        
         if(this.components) {
             //value of internal + value of external (if present), both multiplied by quality and rarity
-            this.value = (item_templates[this.components.internal].value + (item_templates[this.components.external]?.value || 0))
-                            * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)];
+            return round_item_price((item_templates[this.components.internal].value + (item_templates[this.components.external]?.value || 0))
+                            * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)]);
         } else {
-            this.value = item_templates[this.id].value * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)];
+            return round_item_price(item_templates[this.id].value * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)]);
         }
-        return round_item_price(this.value);
     } 
 
     getName() {

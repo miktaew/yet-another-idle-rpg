@@ -219,7 +219,7 @@ function add_to_selling_list(selected_item) {
     if(id && item_templates[id].saturates_market) {
         value = item_templates[id].getValueOfMultiple({additional_count_of_sold: (present_item?.count - selected_item.count || 0), count: selected_item.count});
     } else if(id && !item_templates[id].saturates_market) { 
-        value = item_templates[id].getValue() * selected_item.count;
+        value = item_templates[id].getValue(quality) * selected_item.count;
     } else {
         value = getEquipmentValue(components, quality) * selected_item.count;
     }
@@ -246,7 +246,7 @@ function remove_from_selling_list(selected_item) {
     if(id && item_templates[id].saturates_market) {
         value = item_templates[id].getValueOfMultiple({additional_count_of_sold: (present_item?.count || 0), count: actual_number_to_remove});
     } else if(id && !item_templates[id].saturates_market) { 
-        value = item_templates[id].getValue() * actual_number_to_remove;
+        value = item_templates[id].getValue(quality) * actual_number_to_remove;
     } else {
         value = getEquipmentValue(components, quality) * actual_number_to_remove;
     }

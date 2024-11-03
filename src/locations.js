@@ -1148,11 +1148,11 @@ function get_location_type_penalty(type, stage, stat) {
             activity_name: "mining",
             infinite: true,
             starting_text: "Mine some of the deeper iron vein",
-            skill_xp_per_tick: 3,
+            skill_xp_per_tick: 5,
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Iron ore", ammount: [[1,1], [1,3]], chance: [0.1, 0.6]}], 
-                time_period: [120, 45],
+                time_period: [90, 40],
                 skill_required: [7, 17],
                 scales_with_skill: true,
             },
@@ -1170,11 +1170,11 @@ function get_location_type_penalty(type, stage, stat) {
             activity_name: "woodcutting",
             infinite: true,
             starting_text: "Gather some wood from nearby trees",
-            skill_xp_per_tick: 3,
+            skill_xp_per_tick: 5,
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Piece of wood", ammount: [[1,1], [1,3]], chance: [0.1, 1]}],
-                time_period: [120, 45],
+                time_period: [90, 40],
                 skill_required: [10, 20],
                 scales_with_skill: true,
             },
@@ -1183,7 +1183,7 @@ function get_location_type_penalty(type, stage, stat) {
             activity_name: "herbalism",
             infinite: true,
             starting_text: "Gather useful herbs throughout the forest",
-            skill_xp_per_tick: 1,
+            skill_xp_per_tick: 2,
             is_unlocked: false,
             gained_resources: {
                 resources: [
@@ -1191,7 +1191,7 @@ function get_location_type_penalty(type, stage, stat) {
                     {name: "Golmoon leaf", ammount: [[1,1], [1,1]], chance: [0.1, 0.7]},
                     {name: "Belmart leaf", ammount: [[1,1], [1,1]], chance: [0.1, 0.7]}
                 ], 
-                time_period: [120, 60],
+                time_period: [120, 45],
                 skill_required: [0, 10],
                 scales_with_skill: true,
             },
@@ -1214,7 +1214,7 @@ function get_location_type_penalty(type, stage, stat) {
             activity_name: "animal care",
             infinite: true,
             starting_text: "Take care of local sheep in exchange for some wool",
-            skill_xp_per_tick: 1,
+            skill_xp_per_tick: 3,
             is_unlocked: false,
             gained_resources: {
                 resources: [
