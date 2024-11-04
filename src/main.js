@@ -693,9 +693,11 @@ function start_textline(textline_key){
         log_message(`${character.name} obtained "${item_templates[textline.unlocks.items[i]].getName()}"`);
         add_to_character_inventory([{item: item_templates[textline.unlocks.items[i]]}]);
     }
+
     if(textline.unlocks.money && typeof textline.unlocks.money === "number") {
         character.money += textline.unlocks.money;
         log_message(`${character.name} earned ${format_money(textline.unlocks.money)}`);
+        update_displayed_money();
     }
 
     for(let i = 0; i < textline.unlocks.dialogues.length; i++) { //unlocking dialogues
