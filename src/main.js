@@ -2996,7 +2996,7 @@ window.loadBackup = load_backup;
 window.importOtherReleaseSave = load_other_release_save;
 window.get_game_version = get_game_version;
 
-if(save_key in localStorage) {
+if(save_key in localStorage || (is_on_dev() && dev_save_key in localStorage)) {
     load_from_localstorage();
     update_character_stats();
     update_displayed_xp_bonuses();
