@@ -159,6 +159,9 @@ const crafting_pages = {
     }
 }
 
+const backup_load_button = document.getElementById("backup_load_button");
+const other_save_load_button = document.getElementById("import_other_save_button");
+
 
 function capitalize_first_letter(some_string) {
     return some_string.charAt(0).toUpperCase() + some_string.slice(1);
@@ -397,7 +400,7 @@ function create_effect_tooltip(effect_name, duration) {
             tooltip.innerHTML += `: ${sign}${stat_value.flat}`;
         } else if(key === "health_regeneration_percent" || key === "stamina_regeneration_percent" || key === "mana_regeneration_percent") {
             const sign = stat_value.percent > 0? "+":"";
-            tooltip.innerHTML += `: ${sign}${stat_value.percent}%`;
+            tooltip.innerHTML += `: ${sign}${stat_value.flat}%`;
         } else {
             //
         }
@@ -536,6 +539,11 @@ function end_activity_animation() {
         case "crafting":
             message_count.message_crafting +=1;
             group_to_add = "message_crafting";
+            break;
+        case "message_critical":
+            message_count.message_events += 1;
+            group_to_add = "message_events";
+            class_to_add = "message_critical";
             break;
     }
 
@@ -3425,6 +3433,46 @@ function update_character_attack_bar(num) {
     character_attack_bar.style.width = `${Math.min(num*2.6,100)}%`;
 }
 
+function update_backup_load_button(date_string){
+    if(date_string) {
+        backup_load_button.innerText = `Load the backup autosave [${date_string.replaceAll("_",":")}]`;
+        backup_load_button.style["background-image"] = `var(--options_gradient);`;
+        backup_load_button.style["background-color"] = "transparent";
+        backup_load_button.style.color = "white";
+        backup_load_button.style.cursor = "pointer";
+    } else {
+        backup_load_button.style["background-image"] = "none";
+        backup_load_button.style["background-color"] = "#181818";
+        backup_load_button.style.color = "gray";
+        backup_load_button.style.cursor = "not-allowed";
+    }
+}
+
+function update_other_save_load_button(date_string, is_dev) {
+    if(is_dev) {
+        other_save_load_button.innerText = `Import save from main version`;
+    } else {
+        other_save_load_button.innerText = `Import save from dev version`;
+    }
+    if(date_string !== undefined) {
+        other_save_load_button.style["background-image"] = `var(--options_gradient);`;
+        other_save_load_button.style["background-color"] = "transparent";
+        other_save_load_button.style.color = "white";
+        other_save_load_button.style.cursor = "pointer";
+        if(date_string) {
+            other_save_load_button.innerText += ` [${date_string.replaceAll("_",":")}]`;
+        } else {
+            other_save_load_button.innerText += ` [unknown date]`;
+        }
+    } else {
+        other_save_load_button.style["background-image"] = "none";
+        other_save_load_button.style["background-color"] = "#181818";
+        other_save_load_button.style.color = "gray";
+        other_save_load_button.style.cursor = "not-allowed";
+    }
+    
+}
+
 /**
  * Toggles a specificed class for target 'element', removing it from any other element that might have had it.
  * If 'siblings_only' is true, class will be removed only from siblings
@@ -3517,5 +3565,6 @@ export {
     update_displayed_crafting_recipes,
     update_item_recipe_visibility,
     update_item_recipe_tooltips,
-    update_displayed_book
+    update_displayed_book,
+    update_backup_load_button, update_other_save_load_button
 }

@@ -382,6 +382,40 @@ class LocationActivity{
     }
 }
 
+class LocationAction {
+    constructor({
+        action_text,
+        success_text,
+        failure_text,
+        requirements = {},
+        rewards = {},
+        attempt_duration = 0,
+        attempt_text = "",
+        success_chance = 1,
+        is_unlocked = true,
+    }) {
+        this.action_text = action_text;
+        this.failure_text = failure_text; //text displayed on failure
+        this.success_text = success_text; //text displayed on success
+                                          //if action is supposed to be "impossible" for narrative purposes, just make it finish without unlocks and with text that says it failed
+        this.requirements = requirements; //things needed to succeed {stats, items, money} 
+        this.rewards = rewards; //mostly unlocks: {} but could be some other things
+        this.completed = false;
+        this.attempt_duration = attempt_duration; //0 means instantaneous, otherwise there's a progress bar
+        this.attempt_text = attempt_text; //action text while attempting, useless if duration is 0
+        this.success_chance = success_chance; //chance to succeed; to guarantee that multiple attempts will be needed, just make a few consecutive actions with same text
+        this.is_unlocked = is_unlocked;
+        this.is_finished = false;
+    }
+
+    /**
+     * @returns {Boolean}
+     */
+    are_conditions_met() {
+
+    }
+}
+
 class LocationType{
     constructor({name, related_skill, stages = {}}) {
         this.name = name;
@@ -1114,11 +1148,11 @@ function get_location_type_penalty(type, stage, stat) {
             activity_name: "mining",
             infinite: true,
             starting_text: "Mine some of the deeper iron vein",
-            skill_xp_per_tick: 3,
+            skill_xp_per_tick: 5,
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Iron ore", ammount: [[1,1], [1,3]], chance: [0.1, 0.6]}], 
-                time_period: [120, 45],
+                time_period: [90, 40],
                 skill_required: [7, 17],
                 scales_with_skill: true,
             },
@@ -1136,11 +1170,11 @@ function get_location_type_penalty(type, stage, stat) {
             activity_name: "woodcutting",
             infinite: true,
             starting_text: "Gather some wood from nearby trees",
-            skill_xp_per_tick: 3,
+            skill_xp_per_tick: 5,
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Piece of wood", ammount: [[1,1], [1,3]], chance: [0.1, 1]}],
-                time_period: [120, 45],
+                time_period: [90, 40],
                 skill_required: [10, 20],
                 scales_with_skill: true,
             },
@@ -1148,8 +1182,8 @@ function get_location_type_penalty(type, stage, stat) {
         "herbalism": new LocationActivity({
             activity_name: "herbalism",
             infinite: true,
-            starting_text: "Gather useful herbs throught the forest",
-            skill_xp_per_tick: 1,
+            starting_text: "Gather useful herbs throughout the forest",
+            skill_xp_per_tick: 2,
             is_unlocked: false,
             gained_resources: {
                 resources: [
@@ -1157,7 +1191,7 @@ function get_location_type_penalty(type, stage, stat) {
                     {name: "Golmoon leaf", ammount: [[1,1], [1,1]], chance: [0.1, 0.7]},
                     {name: "Belmart leaf", ammount: [[1,1], [1,1]], chance: [0.1, 0.7]}
                 ], 
-                time_period: [120, 60],
+                time_period: [120, 45],
                 skill_required: [0, 10],
                 scales_with_skill: true,
             },
@@ -1180,7 +1214,7 @@ function get_location_type_penalty(type, stage, stat) {
             activity_name: "animal care",
             infinite: true,
             starting_text: "Take care of local sheep in exchange for some wool",
-            skill_xp_per_tick: 1,
+            skill_xp_per_tick: 3,
             is_unlocked: false,
             gained_resources: {
                 resources: [
@@ -1194,6 +1228,8 @@ function get_location_type_penalty(type, stage, stat) {
         }),
     };
 })();
+
+//add actions
 
 export {locations, location_types, get_location_type_penalty};
 

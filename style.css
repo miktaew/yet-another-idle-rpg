@@ -1,7 +1,7 @@
 
 :root {
 	--background_gradient: linear-gradient(to bottom right, #232f47, #15152d);
-	--options_gradient: linear-gradient(to bottom right, #637088f0, #353572f0);
+	--options_gradient: linear-gradient(to bottom right, #637088f7, #353572f7);
 	--options_display: none;
 
 	--equipment_display: inline-block;
@@ -150,7 +150,7 @@ body {
  .message_hero_attacked {
 	 color: crimson;
  }
- .message_hero_attacked_critically {
+ .message_hero_attacked_critically, .message_critical {
 	 color: crimson;
 	 font-weight: bold;
  }
@@ -183,25 +183,6 @@ body {
 	padding: 5px;
  }
 
- #hard_reset_button {
-	width: fit-content;
-	margin-left: 40px;;
-	margin-right: auto;
-	padding: 10px 10px;
-	height: 20px;
-	background-image: linear-gradient(to left, #232f47, #15152d);
-	color: white;
-	cursor: pointer;
-	text-align: center;
-	display: inline-block;
-	font-size: 20px;
-	top: -40px;
-	position: relative;
- }
-
- #hard_reset_button:hover {
-	background-image: linear-gradient(to right, #232f47, #15152d);
- }
 
 
  #action_status_div, #action_end_div {
@@ -218,7 +199,7 @@ body {
 	position: fixed;
 	background-image: var(--options_gradient);
 	width: 600px;
-	height: 200px;
+	height: fit-content;
 	border: 4px solid blueviolet;
 	z-index: 2;
 	bottom: 50px;
@@ -233,8 +214,8 @@ body {
 }
 
  #close_options {
+	position: absolute;
 	font-size: 40px;
-	position: relative;
 	left: 548px;
 	top: 2px;
 	width: 50px;
@@ -247,7 +228,6 @@ body {
 
  #options_choices {
 	position: relative;
-	top: -40px;
 	left: 5px;
 	font-size: 20px;
  }
@@ -255,14 +235,30 @@ body {
  #options_choices input {
 	outline: 1px solid black;
  }
-
- #options_choices label {
-	border-top: 2px solid gray;
-	border-bottom: 2px solid gray;
- }
  
  .options_choice {
 	margin: 10px;
+	width: fit-content;
+	border: 2px solid gray;
+	padding: 3px;
+ }
+
+ .options_button {
+	width: fit-content;
+	margin-left: 40px;;
+	margin-right: auto;
+	padding: 10px 10px;
+	height: 20px;
+	background-image: linear-gradient(to left, #232f47, #15152d);
+	color: white;
+	cursor: pointer;
+	text-align: center;
+	font-size: 20px;
+	margin-top: 5px;
+}
+
+ .options_button:hover {
+	background-image: linear-gradient(to right, #232f47, #15152d);
  }
 
  .fas, .far {
@@ -1109,7 +1105,7 @@ i {
 	width: 100%;
 	height: 40px;
 	background-image: linear-gradient(to right, #232f47, #15152d);
-	border-top: 3px solid #0e0e25;
+	border-top: 2px solid gray;
 	bottom: 0px;
 	left: 0px;
 }
