@@ -250,13 +250,13 @@ function create_item_tooltip_content({item, options={}}) {
         if(!options.skip_quality && options?.quality?.length == 2) {
             if(item.getAttack) {
                 item_tooltip += 
-                    `<br><br>Attack: ${Math.round(10*item.getAttack(options.quality[0]), true)/10}-${Math.round(10*item.getAttack(options.quality[1], true))/10}`;
+                    `<br><br>Attack: ${Math.round(10*item.getAttack(options.quality[0]), true)/10} - ${Math.round(10*item.getAttack(options.quality[1], true))/10}`;
             } else if(item.getDefense) { 
                 item_tooltip += 
-                `<br><br>Defense: ${Math.round(10*item.getDefense(options.quality[0]))/10}-${Math.round(10*item.getDefense(options.quality[1]))/10}`;
+                `<br><br>Defense: ${Math.round(10*item.getDefense(options.quality[0]))/10} - ${Math.round(10*item.getDefense(options.quality[1]))/10}`;
             } else if(item.offhand_type === "shield") {
                 item_tooltip += 
-                `<br><br>Can block up to: ${Math.round(10*item.getShieldStrength(options.quality[0])*(character.stats.total_multiplier.block_strength))/10}-${Math.round(10*item.getShieldStrength(options.quality[1])*(character.stats.total_multiplier.block_strength))/10} damage [base: ${item.getShieldStrength(options.quality[0])}-${item.getShieldStrength(options.quality[1])}]`;
+                `<br><br>Can block up to: ${Math.round(10*item.getShieldStrength(options.quality[0])*(character.stats.total_multiplier.block_strength))/10} - ${Math.round(10*item.getShieldStrength(options.quality[1])*(character.stats.total_multiplier.block_strength))/10} damage [base: ${item.getShieldStrength(options.quality[0])}-${item.getShieldStrength(options.quality[1])}]`;
             }
 
             const equip_stats_0 = item.getStats(options.quality[0]);
@@ -265,15 +265,14 @@ function create_item_tooltip_content({item, options={}}) {
                 item_tooltip += `<br>`;
             }
             Object.keys(equip_stats_0).forEach(effect_key => {
-
                 if(equip_stats_0[effect_key].flat != null) {
                     item_tooltip += 
-                    `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: +${equip_stats_0[effect_key].flat}-${equip_stats_1[effect_key].flat}`;
+                    `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: +${equip_stats_0[effect_key].flat} - ${equip_stats_1[effect_key].flat}`;
                 }
                 if(equip_stats_0[effect_key].multiplier != null) {
                     item_tooltip += 
-                    `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: x${equip_stats_0[effect_key].multiplier}-${equip_stats_1[effect_key].multiplier}`;
-            }
+                    `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: x${equip_stats_0[effect_key].multiplier} - ${equip_stats_1[effect_key].multiplier}`;
+                }
             });
         } else {
             if(item.getAttack) {
@@ -304,8 +303,7 @@ function create_item_tooltip_content({item, options={}}) {
             });
         }
         item_tooltip += "<br>";
-    } 
-    else if (item.item_type === "USABLE") {
+    } else if (item.item_type === "USABLE") {
         item_tooltip += `<br>`;
 
         if(item.effects.length > 0) {
@@ -322,8 +320,7 @@ function create_item_tooltip_content({item, options={}}) {
             item_tooltip += `<br><br>Reading it provided ${character.name} with:<br> ${format_rewards(book_stats[item.name].rewards)}`;
         }
         item_tooltip += "<br>";
-    }
-    else if(item.tags.component) {
+    } else if(item.tags.component) {
         if(options?.quality && options.quality[0]) {
             quality = options.quality[0];
         }
@@ -336,33 +333,38 @@ function create_item_tooltip_content({item, options={}}) {
         if(item.component_tier) {
             item_tooltip += `<br><br>Component tier: ${item.component_tier}`;
         }
-        if(Object.keys(item.stats).length > 0 || item?.attack_value !== 0 || item?.attack_multiplier !== 1) {
+        if(Object.keys(item.component_stats).length > 0 || item?.attack_value !== 0 || item?.attack_multiplier !== 1 || item?.defense_value !== 0) {
             item_tooltip += `<br><br>Basic stats: `;
         }
         if(item?.attack_value) {
-
-            item_tooltip += `<br>Attack power: + ${item.attack_value}`;
+            item_tooltip += `<br>Attack power: +${item.attack_value}`;
         }
         if(item?.attack_multiplier && item.attack_multiplier !== 1) {
             item_tooltip += `<br>Size-specific attack power: x${item.attack_multiplier}`;
         }
-        Object.keys(item.stats).forEach(function(effect_key) {
+        if(item?.defense_value) {
+            item_tooltip += `<br>Defense: +${item.defense_value}`;
+        }
 
-            if(item.stats[effect_key].flat != null) {
+        Object.keys(item.component_stats).forEach(function(effect_key) {
+            if(item.component_stats[effect_key].flat != null) {
                 item_tooltip += 
-                `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: +${item.stats[effect_key].flat}`;
+                `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: +${item.component_stats[effect_key].flat}`;
             }
-            if(item.stats[effect_key].multiplier != null) {
+            if(item.component_stats[effect_key].multiplier != null) {
                 item_tooltip += 
-                `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: x${item.stats[effect_key].multiplier}`;
+                `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: x${item.component_stats[effect_key].multiplier}`;
             }
         });
         item_tooltip += "<br>";
     } else {
         item_tooltip += "<br>";
     }
-    item_tooltip += `<br>Value: ${format_money(round_item_price(item.getValue(quality) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}`;
-
+    if(!options.skip_quality && options?.quality?.length == 2) { 
+        item_tooltip += `<br>Value: ${format_money(round_item_price(item.getValue(options.quality[0])))} - ${format_money(round_item_price(item.getValue(options.quality[1])))}`;
+    } else {
+        item_tooltip += `<br>Value: ${format_money(round_item_price(item.getValue(quality) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}`;
+    }
     if(item.saturates_market) {
         item_tooltip += ` [originally ${format_money(round_item_price(item.getBaseValue(quality) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}]`
     }
@@ -2555,11 +2557,11 @@ function format_money(num) {
         value = (num%10 != 0 ? `${num%10}<span class="coin coin_wood">W</span>` : '');
 
         if(num > 9) {
-            value = (Math.floor(num/10)%100 != 0?`${Math.floor(num/10)%100}<span class="coin coin_copper">C</span> ` :'') + value;
+            value = (Math.floor(num/10)%100 != 0?`${Math.floor(num/10)%100}<span class="coin coin_copper">C</span>${value?" ":""}` :'') + value;
             if(num > 999) {
-                value = (Math.floor(num/1000)%100 != 0?`${Math.floor(num/1000)%100}<span class="coin coin_silver">S</span> ` :'') + value;
+                value = (Math.floor(num/1000)%100 != 0?`${Math.floor(num/1000)%100}<span class="coin coin_silver">S</span>${value?" ":""}` :'') + value;
                 if(num > 99999) {
-                    value = `${Math.floor(num/100000)}<span class="coin coin_gold">G</span> ` + value;
+                    value = `${Math.floor(num/100000)}<span class="coin coin_gold">G</span>${value?" ":""}` + value;
                 }
             
             }  

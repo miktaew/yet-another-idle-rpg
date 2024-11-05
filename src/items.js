@@ -242,8 +242,8 @@ class ItemComponent extends Item {
         this.item_type = "COMPONENT";
         this.stackable = false;
         this.component_tier = item_data.component_tier || 1;
-        this.stats = item_data.stats || {};
-        this.tags["equipment component"] = true;
+        this.component_stats = item_data.component_stats || {};
+        this.tags["component"] = true;
         this.quality = Math.round(item_data.quality) || 100;
     }
     getRarity(quality){
@@ -255,7 +255,6 @@ class ItemComponent extends Item {
         } else {
             return getItemRarity(quality);
         }
-
     }
 
     calculateRarity(quality) {
@@ -272,7 +271,7 @@ class ItemComponent extends Item {
     }
 
     getStats() {
-        return this.stats;
+        return this.component_stats;
     }
 
     getValue(quality) {
@@ -413,11 +412,10 @@ class Equippable extends Item {
     calculateStats(quality){
         const stats = {};
         if(this.components) {
-
             //iterate over components
             const components = Object.values(this.components).map(comp => item_templates[comp]).filter(comp => comp);
             for(let i = 0; i < components.length; i++) {
-                Object.keys(components[i].stats).forEach(stat => {
+                Object.keys(components[i].component_stats).forEach(stat => {
                     if(!stats[stat]) {
                         stats[stat] = {};
                     }
@@ -426,11 +424,11 @@ class Equippable extends Item {
                         return;
                     }
 
-                    if(components[i].stats[stat].multiplier) {
-                        stats[stat].multiplier = (stats[stat].multiplier || 1) * components[i].stats[stat].multiplier;
+                    if(components[i].component_stats[stat].multiplier) {
+                        stats[stat].multiplier = (stats[stat].multiplier || 1) * components[i].component_stats[stat].multiplier;
                     }
-                    if(components[i].stats[stat].flat) {
-                        stats[stat].flat = (stats[stat].flat || 0) + components[i].stats[stat].flat;
+                    if(components[i].component_stats[stat].flat) {
+                        stats[stat].flat = (stats[stat].flat || 0) + components[i].component_stats[stat].flat;
                     }
                 })
             }
@@ -450,6 +448,27 @@ class Equippable extends Item {
                         stats[stat].flat = Math.round(100 * stats[stat].flat * rarity_multipliers[this.getRarity(quality)])/100;
                     } else {
                         stats[stat].flat = Math.round(100 * stats[stat].flat)/100;
+                    }
+                }
+            });
+        } else { //only needs to apply quality to already present stats
+            Object.keys(this.component_stats).forEach(stat => {
+                stats[stat] = {};
+                if(this.component_stats[stat].multiplier){
+                    stats[stat].multiplier = 1;
+                    if(this.component_stats[stat].multiplier >= 1) {
+                        stats[stat].multiplier = Math.round(100 * (1 + (this.component_stats[stat].multiplier - 1) * rarity_multipliers[this.getRarity(quality)]))/100;
+                    } else {
+                        stats[stat].multiplier = Math.round(100 * this.component_stats[stat].multiplier)/100;
+                    }
+                }
+
+                if(this.component_stats[stat].flat){
+                    stats[stat].flat = 0;
+                    if(this.component_stats[stat].flat > 0) {
+                        stats[stat].flat = Math.round(100 * this.component_stats[stat].flat * rarity_multipliers[this.getRarity(quality)])/100;
+                    } else {
+                        stats[stat].flat = Math.round(100 * this.component_stats[stat].flat)/100;
                     }
                 }
             });
@@ -593,9 +612,10 @@ class Armor extends Equippable {
             }
             
         } else { 
+            this.tags["component"] = true;
             this.tags["armor component"] = true;
             this.tags["clothing"] = true;
-            this.stats = item_data.stats || {};
+            this.component_stats = item_data.component_stats || {};
             delete this.components;
             
             if(!item_data.name) {
@@ -653,8 +673,7 @@ class Armor extends Equippable {
         }
     }
 
-    getValue(quality) {
-        
+    getValue(quality) { 
         if(this.components) {
             //value of internal + value of external (if present), both multiplied by quality and rarity
             return round_item_price((item_templates[this.components.internal].value + (item_templates[this.components.external]?.value || 0))
@@ -924,7 +943,6 @@ item_templates["Twist liek a snek"] = new Book({
     value: 200,
 });
 
-
 //miscellaneous and loot:
 (function(){
     item_templates["Rat fang"] = new OtherItem({
@@ -1148,7 +1166,7 @@ item_templates["Twist liek a snek"] = new Book({
     });
     item_templates["Wool cloth"] = new Material({
         name: "Wool cloth", 
-        description: "Thick and warm, might possibly absord some punches",
+        description: "Thick and warm, might possibly absorb some punches",
         value: 8,
         saturates_market: true,
         price_recovers: true,
@@ -1218,7 +1236,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_tier: 1,
         name_prefix: "Cheap iron",
         attack_value: 5,
-        stats: {
+        component_stats: {
             crit_rate: {
                 flat: 0.06,
             },
@@ -1237,7 +1255,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_tier: 2,
         name_prefix: "Iron",
         attack_value: 8,
-        stats: {
+        component_stats: {
             crit_rate: {
                 flat: 0.1,
             },
@@ -1256,7 +1274,7 @@ item_templates["Twist liek a snek"] = new Book({
         name_prefix: "Cheap iron",
         component_tier: 1,
         attack_value: 8,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 1.10,
             },
@@ -1272,7 +1290,7 @@ item_templates["Twist liek a snek"] = new Book({
         name_prefix: "Iron",
         component_tier: 2,
         attack_value: 13,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 1.15,
             },
@@ -1288,7 +1306,7 @@ item_templates["Twist liek a snek"] = new Book({
         name_prefix: "Cheap iron",
         component_tier: 1,
         attack_value: 10,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.9,
             }
@@ -1301,7 +1319,7 @@ item_templates["Twist liek a snek"] = new Book({
         name_prefix: "Iron",
         component_tier: 2,
         attack_value: 16,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.95,
             }
@@ -1314,7 +1332,7 @@ item_templates["Twist liek a snek"] = new Book({
         name_prefix: "Cheap iron",
         component_tier: 1,
         attack_value: 12,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.8,
             }
@@ -1328,7 +1346,7 @@ item_templates["Twist liek a snek"] = new Book({
         name_prefix: "Iron",
         component_tier: 2,
         attack_value: 19,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.85,
             }
@@ -1347,7 +1365,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "short handle",
         value: 40,
         component_tier: 2,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 1.05,
             }
@@ -1359,7 +1377,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "medium handle",
         value: 20,
         component_tier: 1,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.95,
             }
@@ -1379,7 +1397,7 @@ item_templates["Twist liek a snek"] = new Book({
         value: 30,
         component_tier: 1,
         attack_multiplier: 1.5,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.9,
             },
@@ -1393,7 +1411,7 @@ item_templates["Twist liek a snek"] = new Book({
         value: 120,
         component_tier: 2,
         attack_multiplier: 1.5,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.95,
             },
@@ -1405,7 +1423,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "short handle",
         value: 70,
         component_tier: 1,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.9,
             },
@@ -1420,7 +1438,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "short handle",
         value: 100,
         component_tier: 2,
-        stats: {
+        component_stats: {
             attack_power: {
                 multiplier: 1.05,
             }
@@ -1432,7 +1450,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "medium handle",
         value: 80,
         component_tier: 1,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.7,
             },
@@ -1447,7 +1465,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "medium handle",
         value: 120,
         component_tier: 2,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.8,
             },
@@ -1462,7 +1480,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "long handle",
         value: 110,
         component_tier: 1,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.5,
             },
@@ -1478,7 +1496,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "long handle",
         value: 160,
         component_tier: 2,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.6,
             },
@@ -1568,7 +1586,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_tier: 2,
         full_armor_name: "Wolf leather helmet",
         defense_value: 2,
-        stats: {
+        component_stats: {
             agility: {
                 multiplier: 0.95,
             }
@@ -1583,7 +1601,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_tier: 3,
         full_armor_name: "Boar leather helmet",
         defense_value: 3,
-        stats: {
+        component_stats: {
             agility: {
                 multiplier: 0.95,
             }
@@ -1599,7 +1617,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_tier: 2,
         full_armor_name: "Wolf leather armor",
         defense_value: 4,
-        stats: {
+        component_stats: {
             agility: {
                 multiplier: 0.95,
             }
@@ -1614,7 +1632,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_tier: 3,
         full_armor_name: "Boar leather armor",
         defense_value: 6,
-        stats: {
+        component_stats: {
             agility: {
                 multiplier: 0.95,
             }
@@ -1628,7 +1646,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_tier: 2,
         full_armor_name: "Wolf leather armored pants",
         defense_value: 2,
-        stats: {
+        component_stats: {
             agility: {
                 multiplier: 0.95,
             }
@@ -1643,7 +1661,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_tier: 3,
         full_armor_name: "Boar leather armored pants",
         defense_value: 3,
-        stats: {
+        component_stats: {
             agility: {
                 multiplier: 0.95,
             }
@@ -1697,7 +1715,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_tier: 2,
         full_armor_name: "Iron chainmail helmet",
         defense_value: 4,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.98,
             },
@@ -1714,7 +1732,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_tier: 2,
         full_armor_name: "Iron chainmail armor",
         defense_value: 8,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.98,
             },
@@ -1731,7 +1749,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_tier: 2,
         full_armor_name: "Iron chainmail pants",
         defense_value: 4,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.98,
             },
@@ -1748,7 +1766,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_tier: 2,
         full_armor_name: "Iron chainmail gloves",
         defense_value: 4,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.98,
             },
@@ -1766,7 +1784,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_tier: 2,
         full_armor_name: "Iron chainmail boots",
         defense_value: 4,
-        stats: {
+        component_stats: {
             agility: {
                 multiplier: 0.9,
             }
@@ -1783,7 +1801,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "chestplate interior",
         base_defense: 2,
         component_tier: 1,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.99,
             },
@@ -1805,7 +1823,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "leg armor interior",
         base_defense: 1,
         component_tier: 1,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.99,
             },
@@ -1827,7 +1845,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "helmet interior",
         base_defense: 1,
         component_tier: 1,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.99,
             },
@@ -1859,7 +1877,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "shoes interior",
         base_defense: 0,
         component_tier: 1,
-        stats: {
+        component_stats: {
             agility: {
                 multiplier: 1.05,
             },
@@ -1872,7 +1890,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "shoes interior",
         base_defense: 1,
         component_tier: 2,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 1.02,
             },
@@ -1889,7 +1907,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "chestplate interior",
         base_defense: 1,
         component_tier: 2,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 1.01,
             },
@@ -1915,7 +1933,7 @@ item_templates["Twist liek a snek"] = new Book({
         component_type: "helmet interior",
         base_defense: 1,
         component_tier: 2,
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 1.01,
             },
@@ -2011,7 +2029,7 @@ item_templates["Twist liek a snek"] = new Book({
         shield_name: "Crude iron shield",
         component_tier: 2,
         component_type: "shield base",
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.9,
             }
@@ -2025,7 +2043,7 @@ item_templates["Twist liek a snek"] = new Book({
         shield_name: "Iron shield",
         component_tier: 3,
         component_type: "shield base",
-        stats: {
+        component_stats: {
             attack_speed: {
                 multiplier: 0.95,
             }
@@ -2046,7 +2064,7 @@ item_templates["Twist liek a snek"] = new Book({
         value: 40,
         component_tier: 2,
         component_type: "shield handle",
-        stats: {
+        component_stats: {
             block_strength: {
                 multiplier: 1.1,
             }
