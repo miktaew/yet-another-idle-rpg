@@ -53,6 +53,15 @@ effect_templates["Cheap meat meal"] = new ActiveEffect({
         }
     }
 });
+effect_templates["Simple meat meal"] = new ActiveEffect({
+    name: "Simple meat meal",
+    effects: {
+        stats: {
+            stamina_regeneration_flat: {flat: 3},
+            health_regeneration_flat: {flat: 1},
+        }
+    }
+});
 effect_templates["Slight food poisoning"] = new ActiveEffect({
     name: "Slight food poisoning",
     effects: {

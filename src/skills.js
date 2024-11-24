@@ -961,7 +961,7 @@ Multiplies AP with axes by ${Math.round((skills["Axes"].get_coefficient("multipl
                                         },
                                         10: {
                                             stats: {
-                                                    "strength": {flat: 1.05},
+                                                    "strength": {multiplier: 1.05},
                                             },
                                         },
                                         12: {
@@ -1369,6 +1369,17 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                                 "Sleeping": 1.1,
                                                 "Presence sensing": 1.1,
                                             }
+                                        },
+                                        12: {
+                                            stats: {
+                                                "intuition": {
+                                                    flat: 2,
+                                                }
+                                            },
+                                            xp_multipliers: {
+                                                all: 1.05,
+                                                "Presence sensing": 1.1,
+                                            }
                                         }
                                     }
                                 }
@@ -1602,6 +1613,81 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
       return `Multiplies agility by ${value}`;
     },
     
+    });
+
+    skills["Climbing"] = new Skill({skill_id: "Climbing",
+        description: "Intense and slightly dangerous form of training that involves majority of your muscles",
+        names: {0: "Climbing"},
+        max_level: 50,
+        category: "Activity",
+        max_level_coefficient: 2,
+        base_xp_cost: 50,
+        rewards: {
+            milestones: {
+                1: {
+                    stats: {
+                        agility: {
+                            flat: 1
+                        },
+                    },
+                },
+                3: {
+                    stats: {
+                        strength: {
+                            flat: 1
+                        },
+                    },
+                },
+                5: {
+                    stats: {
+                        agility: {
+                            multiplier: 1.05,
+                        },
+                        max_stamina: {
+                            multiplier: 1.03,
+                        }
+                    },
+                },
+                7: {
+                    stats: {
+                        strength: {
+                            flat: 1
+                        },
+                    },
+                },
+                10: {
+                    stats: {
+                        strength: {
+                            multiplier: 1.05
+                        },
+                        max_stamina: {
+                            multiplier: 1.03,
+                        }
+                    },
+                },
+                12: {
+                    stats: {
+                        strength: {
+                            flat: 2
+                        },
+                        agility: {
+                            flat: 2
+                        }
+                    }
+                }
+            }
+        },
+        get_effect_description: ()=> {
+          let value = skills["Climbing"].get_coefficient("multiplicative");
+          if(value >= 100) {
+              value = Math.round(value);
+          } else if(value >= 10 && value < 100) {
+              value = Math.round(value*10)/10; 
+          } else {
+              value = Math.round(value*100)/100;
+          }
+          return `Multiplies strength, agility and stamina by ${value}`;
+        },
     });
 })();
 
@@ -1854,7 +1940,34 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         get_effect_description: ()=> {
             return `Lowers trader cost multiplier to ${Math.round((1 - skills["Haggling"].get_level_bonus())*100)}% of original value`;
         },
-        max_level_bonus: 0.5
+        max_level_bonus: 0.5,
+        rewards: {
+            milestones: {
+                2: {
+                    stats: {
+                        intuition: {
+                            flat: 1
+                        },
+                    },
+                },
+                3: {
+                    xp_multipliers: {
+                        "Literacy": 1.05,
+                    },
+                },
+                5: {
+                    stats: {
+                        intuition: {
+                            flat: 2
+                        },
+                        xp_multipliers: {
+                            "Literacy": 1.05,
+                        },
+                    },
+                },
+            }
+        },
+
     });
     
 })();

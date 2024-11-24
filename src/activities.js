@@ -111,6 +111,13 @@ class Gathering extends Training {
         base_skills_names: ["Meditation"],
         is_unlocked: true,
     });
+    activities["climbing"] = new Training({
+        name: "climbing",
+        action_text: "Looking for next grip to hold to",
+        description: "An advanced exercise that uses majority of muscles in the body",
+        base_skills_names: ["Climbing"],
+        is_unlocked: true,
+    });
 })();
 
 //resource gatherings

@@ -98,6 +98,9 @@ let current_location;
 
 let current_activity;
 
+let location_action_interval;
+let current_location_action;
+
 //resting, true -> health regenerates
 let is_resting = true;
 
@@ -312,7 +315,6 @@ function change_location(location_name) {
     }
 }
 
-
 /**
  * 
  * @param {String} location_name 
@@ -432,12 +434,55 @@ function end_activity() {
     log_message(`${character.name} finished ${current_activity.activity_name}`, "activity_finished");
     
     if(current_activity.earnings) {
-        character.money += current_activity.earnings;
         log_message(`${character.name} earned ${format_money(current_activity.earnings)}`, "activity_money");
-        update_displayed_money();
+        add_money_to_character(current_activity.earnings);
     }
     end_activity_animation(); //clears the "animation"
     current_activity = null;
+    change_location(current_location.name);
+}
+
+function start_location_action(selected_action) {
+    const location_action = current_location.actions[selected_action];
+    let met;
+    let failed;
+
+    //todo: open action display
+    //action text, progress bar, cancel/return button
+    
+    if(!location_action.check_conditions_on_finish) {
+        met = location_action.get_conditions_status(character);
+
+        if(!met) { //0, full failure
+            failed = true;
+        }
+    }
+
+    
+
+    if(location_action.attempt_duration > 0) {
+        let current_iterations = 0;
+        const total_iterations = location_action.attempt_duration/(0.5/tickrate);
+        location_action_interval = setInterval(()=>{
+            if(current_iterations >= total_iterations) {
+                clearInterval(location_action_interval);
+            }
+
+            current_iterations++;
+            //todo: call a function to update progress bar
+        }, 0.5/tickrate);
+    }
+    //call get_conditions_status on it
+    //requirements can either be checked on start or on finish, in first case dont allow starting if not are_requirements_met()
+    //if requires money/items checks if they should be removed and do that if so, do it when checking (so start or end)
+    //if has 'chance', roll for it on finish
+    
+    //loop can be manipulated from here, same way as combat loops are - call a function from display.js to update progress bar on every iteration
+}
+
+function end_location_action() {
+    clearInterval(location_action_interval);
+    current_location_action = null;
     change_location(current_location.name);
 }
 
@@ -455,6 +500,11 @@ function end_activity() {
         }
         log_message(message + `Unlocked activity "${activity_data.activity.activity_name}" in location "${activity_data.location}"`, "activity_unlocked");
     }
+}
+
+function add_money_to_character(money_num) {
+    character.money += money_num;
+    update_displayed_money();
 }
 
 //single tick of resting
@@ -695,9 +745,8 @@ function start_textline(textline_key){
     }
 
     if(textline.unlocks.money && typeof textline.unlocks.money === "number") {
-        character.money += textline.unlocks.money;
         log_message(`${character.name} earned ${format_money(textline.unlocks.money)}`);
-        update_displayed_money();
+        add_money_to_character(textline.unlocks.money)
     }
 
     for(let i = 0; i < textline.unlocks.dialogues.length; i++) { //unlocking dialogues
@@ -818,11 +867,13 @@ function set_new_combat({enemies} = {}) {
         const cooldown_multiplier = 1/fastest_cooldown;
         
         character_attack_cooldown *= cooldown_multiplier;
+        //console.log('-----');
         for(let i = 0; i < current_enemies.length; i++) {
             enemy_attack_cooldowns[i] *= cooldown_multiplier;
             enemy_timer_variance_accumulator[i] = 0;
             enemy_timer_adjustment[i] = 0;
             enemy_timers[i] = [Date.now(), Date.now()];
+            //console.log(current_enemies[i].stats.attack_speed, enemy_attack_cooldowns[i]*1000/(40*tickrate));
         }
     } else {
         for(let i = 0; i < current_enemies.length; i++) {
@@ -892,7 +943,7 @@ function do_enemy_attack_loop(enemy_id, count, is_new = false) {
         enemy_timers[enemy_id][1] = Date.now();
         update_enemy_attack_bar(enemy_id, count);
         count++;
-        if(count >= 40) {
+        if(count >= 60) {
             count = 0;
             do_enemy_combat_action(enemy_id);
         }
@@ -900,8 +951,7 @@ function do_enemy_attack_loop(enemy_id, count, is_new = false) {
 
         if(enemy_timer_variance_accumulator[enemy_id] <= 5/tickrate && enemy_timer_variance_accumulator[enemy_id] >= -5/tickrate) {
             enemy_timer_adjustment[enemy_id] = time_variance_accumulator;
-        }
-        else {
+        } else {
             if(enemy_timer_variance_accumulator[enemy_id] > 5/tickrate) {
                 enemy_timer_adjustment[enemy_id] = 5/tickrate;
             }
@@ -912,7 +962,7 @@ function do_enemy_attack_loop(enemy_id, count, is_new = false) {
             }
         } //limits the maximum correction to +/- 5ms, just to be safe
 
-    }, enemy_attack_cooldowns[enemy_id]*1000/(40*tickrate) - enemy_timer_adjustment[enemy_id]);
+    }, enemy_attack_cooldowns[enemy_id]*1000/(60*tickrate) - enemy_timer_adjustment[enemy_id]);
 }
 
 function clear_enemy_attack_loop(enemy_id) {
@@ -980,7 +1030,7 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
     character_attack_loop = setInterval(() => {
         update_character_attack_bar(count);
         count++;
-        if(count >= 40) {
+        if(count >= 60) {
             count = 0;
             let leveled = false;
 
@@ -1010,7 +1060,7 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
                 set_new_combat();
             }
         }
-    }, actual_cooldown*1000/(40*tickrate));
+    }, actual_cooldown*1000/(60*tickrate));
 }
 
 function clear_character_attack_loop() {
@@ -1331,7 +1381,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
 
             if(typeof should_info === "undefined" || should_info)
             {
-                log_message(message, "skill_raised");
+                //log_message(message, "skill_raised");
                 update_character_stats();
             }
 
@@ -1394,6 +1444,10 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                     }
                 }
             }
+            if(typeof should_info === "undefined" || should_info)
+                {
+                    log_message(message, "skill_raised");
+                }
 
         } else {
             update_displayed_skill_bar(skill, false);
@@ -1596,10 +1650,9 @@ function use_recipe(target) {
                     result = selected_recipe.getResult(character.inventory[material_1_key].item, station_tier);
                     add_to_character_inventory([{item: result, count: 1}]);
                     remove_from_character_inventory([{item_key: material_1_key, item_count: recipe_material.count}]);
-                    log_message(`Created ${result.getName()} [${result.quality}% quality]`, "crafting");
                     
                     const exp_value = get_recipe_xp_value({category, subcategory, recipe_id, material_count: recipe_material.count, rarity_multiplier: rarity_multipliers[result.getRarity()], result_tier: result.component_tier});
-                    
+                    log_message(`Created ${result.getName()} [${result.quality}% quality] (+${exp_value} xp)`, "crafting");
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
                     material_div.classList.remove("selected_material");
                     if(character.inventory[material_1_key]) { 
@@ -1636,13 +1689,13 @@ function use_recipe(target) {
                     remove_from_character_inventory([{item_key: component_1_key}, {item_key: component_2_key}]);
                     add_to_character_inventory([{item: result}]);
 
-                    log_message(`Created ${result.getName()} [${result.quality}% quality]`, "crafting");
-
                     const id_1 = JSON.parse(component_1_key).id;
                     const id_2 = JSON.parse(component_2_key).id;
 
                     const exp_value = get_recipe_xp_value({category, subcategory, recipe_id, selected_components: [item_templates[id_1], item_templates[id_2]], rarity_multiplier: rarity_multipliers[result.getRarity()]})
                     
+                    log_message(`Created ${result.getName()} [${result.quality}% quality] (+${exp_value} xp)`, "crafting");
+
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
                     
                     const component_keys = {};
@@ -2941,6 +2994,8 @@ window.update_displayed_location_choices = update_displayed_location_choices;
 window.start_activity = start_activity;
 window.end_activity = end_activity;
 
+window.start_location_action = start_location_action;
+
 window.start_sleeping = start_sleeping;
 window.end_sleeping = end_sleeping;
 
@@ -3040,10 +3095,11 @@ function add_all_stuff_to_inventory(){
     })
 }
 
-//add_to_character_inventory([{item: getItem(item_templates["ABC for kids"]), count: 10}]);
+//add_to_character_inventory([{item: getItem(item_templates["Processed rough wood"]), count: 100}]);
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
 
+//global_flags.is_crafting_unlocked = true;
 update_displayed_equipment();
 sort_displayed_inventory({sort_by: "name", target: "character"});
 

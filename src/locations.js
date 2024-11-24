@@ -42,6 +42,7 @@ class Location {
         this.dialogues = dialogues;
         this.traders = traders;
         this.activities = {};
+        this.actions = {};
         this.types = types;
         this.sleeping = sleeping;
         for (let i = 0; i < this.dialogues.length; i++) {
@@ -382,37 +383,132 @@ class LocationActivity{
     }
 }
 
-class LocationAction {
+class LocationAction{
+    /**
+     * 
+     * @param {Object} data
+     * @param {Object} data.conditions [{stats, skills, items_by_id: {item_id, count, remove?}, items_by_tag: {item_tag, count, remove?}, money: {Number, remove?}}]
+     */
     constructor({
+        starting_text,
+        description,
         action_text,
         success_text,
-        failure_text,
-        requirements = {},
+        failure_texts = {}, //conditional_loss: [], random_loss: []
+        conditions = [],
         rewards = {},
         attempt_duration = 0,
-        attempt_text = "",
-        success_chance = 1,
+        success_chances = [1,1],
         is_unlocked = true,
     }) {
-        this.action_text = action_text;
-        this.failure_text = failure_text; //text displayed on failure
+        this.starting_text = starting_text; //text on the button to start
+        this.description = description; //description on hover
+        this.action_text = action_text; //text displayed during action animation
+        this.failure_texts = failure_texts; //text displayed on failure
         this.success_text = success_text; //text displayed on success
                                           //if action is supposed to be "impossible" for narrative purposes, just make it finish without unlocks and with text that says it failed
-        this.requirements = requirements; //things needed to succeed {stats, items, money} 
-        this.rewards = rewards; //mostly unlocks: {} but could be some other things
+        if(conditions.length > 2) {
+            throw new Error('LocationAction cannot have more than 2 sets of conditions!');
+        }
+        this.conditions = conditions; 
+        //things needed to succeed [{stats, skills, items_by_id: {item_id, count, remove?}, items_by_tag: {item_tag, count, remove?}, money: {Number, remove?}}, {?}]
+        //either single set of values or two sets, one for minimum chance provided and one for maximum
+        //two-set approach does not apply to items, so it only checks them for conditions[0]
+        this.check_conditions_on_finish = true; //means an action with duration can be attempted even if conditions are not met
+        this.rewards = rewards; //{unlocks, money, items,move_to}?
         this.completed = false;
         this.attempt_duration = attempt_duration; //0 means instantaneous, otherwise there's a progress bar
-        this.attempt_text = attempt_text; //action text while attempting, useless if duration is 0
-        this.success_chance = success_chance; //chance to succeed; to guarantee that multiple attempts will be needed, just make a few consecutive actions with same text
+        this.success_chances = success_chances; 
+        //chances to succeed; to guarantee that multiple attempts will be needed, just make a few consecutive actions with same text
         this.is_unlocked = is_unlocked;
         this.is_finished = false;
     }
 
     /**
-     * @returns {Boolean}
+     * @returns {Boolean} the degree at which conditions are met. 0 means failure (some requirement is not met at all),
+     * everything else is for calculating final success chance (based on minimal and maximal chance, with 1 meaning that it's just the maximal).
+     * Items do not get fuzzy treatment, they are either all met or not.
      */
-    are_conditions_met() {
+    get_conditions_status(character) {
+        let met = 1;
 
+        //check money
+        if(this.conditions[0].money && character.money < this.conditions[0].money) {
+            met = 0;
+            return met;
+        } else if(this.conditions[1]?.money && this.conditions[1].money > this.conditions[0].money && character.money < this.conditions[1].money) {
+            met *= (character.money - this.conditions[0].money)/(this.conditions[1].money - this.conditions[0].money);
+        }
+
+        if(!met) {
+            return met;
+        }
+        //check skills
+        if(this.conditions[0].skills) {
+            Object.keys(this.conditions[0].skills).forEach(skill_id => {
+                if(skills[skill_id].current_level < this.conditions[0].skills[skill_id]) {
+                    met = 0;
+                } else if(this.conditions[1]?.skills && this.conditions[1].skills[skill_id] > this.conditions[0].skills[skill_id] && skills[skill_id].current_level < this.conditions[1].skills[skill_id]) {
+                    met *= (skills[skill_id].current_level - this.conditions[0].skills[skill_id])/(this.conditions[1].skills[skill_id] - this.conditions[0].skills[skill_id]);
+                }
+            });
+        }
+
+        if(!met) {
+            return met;
+        }
+        //check items
+        if(this.conditions[0].items) {
+            Object.keys(this.conditions[0].items_by_id).forEach(item_id => {
+                let found = false;
+                //iterate through inventory, set found to true if id is present and count is enough
+                Object.keys(character.inventory).forEach(item_key => {
+                    if(found) {
+                        return;
+                    }
+                    const {id} = JSON.parse(item_key);
+                    if(id === item_id && character.inventory[item_key].count >= this.conditions[0].items_by_id.count) {
+                        found = true;
+                    }
+                });
+
+                if(!found) {
+                    met = 0;
+                }
+            });
+            Object.keys(this.conditions[0].items_by_tag).forEach(item_tag => {
+                let found = false;
+                //iterate through inventory, set found to true if tag is present and count is enough
+                Object.keys(character.inventory).forEach(item_key => {
+                    if(found) {
+                        return;
+                    }
+
+                    if(character.inventory[item_key].tags[this.conditions[0].items_by_tag[item_tag]] && character.inventory[item_key].count >= this.conditions[0].items_by_tag[item_tag].count) {
+                        found = true;
+                    }
+                });
+
+                if(!found) {
+                    met = 0;
+                }
+            });
+        }
+        if(!met) {
+            return met;
+        }
+        //checks stats
+        if(this.conditions[0].stats) {
+            Object.keys(this.conditions[0].stats).forEach(stat_key => {
+                if(character.stats.full[stat_key] < this.conditions[0].stats[stat_key]) {
+                    met = 0;
+                } else if(this.conditions[1]?.stats && this.conditions[1].stats[stat_key] > this.conditions[0].stats[stat_key] && character.stats.full[stat_key] < this.conditions[1].stats[stat_key]) {
+                    met *= (character.stats.full[stat_key] - this.conditions[0].stats[stat_key])/(this.conditions[1].stats[stat_key] - this.conditions[0].stats[stat_key]);
+                }
+            });
+        }
+
+        return met;
     }
 }
 
@@ -712,18 +808,18 @@ function get_location_type_penalty(type, stage, stat) {
         connected_locations: [{location: locations["Village"], custom_text: "Go outside and to the village"}], 
         getDescription: function() {
             if(locations["Pitch black tunnel"].enemy_groups_killed >= locations["Pitch black tunnel"].enemy_count) { 
-                return "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured a decent space and many of the tunnels. It seems like you almost reached the deepest part.";
+                return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the cave walls, providing a dim light. Your efforts have secured a decent space and many of the tunnels. It seems like you almost reached the deepest part.";
             }
             else if(locations["Hidden tunnel"].enemy_groups_killed >= locations["Hidden tunnel"].enemy_count) { 
-                return "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured a major space and some tunnels, but there are still more places left to clear out.";
+                return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured a major space and some tunnels, but there are still more places left to clear out.";
             }
             else if(locations["Cave depths"].enemy_groups_killed >= locations["Cave depths"].enemy_count) { 
-                return "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured a decent space and even a few tunnels, yet somehow you can still hear the sounds of the wolf rats.";
+                return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured a decent space and even a few tunnels, yet somehow you can still hear the sounds of the wolf rats.";
             }
             else if(locations["Cave room"].enemy_groups_killed >= locations["Cave room"].enemy_count) {
-                return "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured some space, but you can hear more wolf rats in some deeper tunnels.";
+                return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured some space, but you can hear more wolf rats in some deeper tunnels.";
             } else {
-                return "A big cave near the village, once used as a storeroom. Groups of fluorescent mushrooms cover the walls, providing a dim light. You can hear sounds of wolf rats from the nearby room.";
+                return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the walls, providing a dim light. You can hear sounds of wolf rats from the nearby room.";
             }
         },
         getBackgroundNoises: function() {
@@ -817,6 +913,7 @@ function get_location_type_penalty(type, stage, stat) {
         repeatable_reward: {
             xp: 100,
             locations: [{location: "Mysterious gate", required_clears: 4}],
+            activities: [{location:"Nearby cave", activity:"climbing"}],
         },
         unlock_text: "As you keep going deeper, you barely notice a pitch black hole. Not even a tiniest speck of light reaches it."
     });
@@ -837,10 +934,10 @@ function get_location_type_penalty(type, stage, stat) {
         },
         repeatable_reward: {
             xp: 250,
+            activities: [{location:"Nearby cave", activity:"meditating"}],
         },
         unlock_text: "After a long and ardous fight, you reach a chamber that ends with a massive stone gate. You can see it's guarded by some kind of wolf rats, but much bigger than the ones you fought until now."
     });
-
 
     locations["Nearby cave"].connected_locations.push(
         {location: locations["Cave depths"]}, 
@@ -971,6 +1068,19 @@ function get_location_type_penalty(type, stage, stat) {
     });
 
     locations["Town outskirts"].connected_locations.push({location: locations["Town farms"]}, {location: locations["Slums"]});
+
+    locations["Mountain path"] = new Location({
+        connected_locations: [{location: locations["Nearby cave"]}],
+        description: "A treacherus path high above the village",
+        name: "Mountain path",
+        is_unlocked: false,
+        getBackgroundNoises: function() {
+            let noises = ["You hear a rock tumble and fall down. It takes a very long time to hit the ground...", "Strong wind whooshes past you"];
+            return noises;
+        },
+        unlock_text: "Thanks to your hard effort, you reached a narrow safe spot where you can rest a bit.",
+    });
+    locations["Nearby cave"].connected_locations.push({location: locations["Mountain path"]});
 })();
 
 //challenge zones
@@ -1109,7 +1219,7 @@ function get_location_type_penalty(type, stage, stat) {
         "woodcutting": new LocationActivity({
             activity_name: "woodcutting",
             infinite: true,
-            starting_text: "Gather some wood on the outskirts",
+            starting_text: "Gather wood on the outskirts",
             skill_xp_per_tick: 1,
             is_unlocked: true,
             gained_resources: {
@@ -1130,6 +1240,22 @@ function get_location_type_penalty(type, stage, stat) {
             is_unlocked: false,
             unlock_text: "After the fight, you realize there's quite a lot of rocks of different sizes that could be used for exercises",
         }),
+        "climbing": new LocationActivity({
+            activity_name: "climbing",
+            infinite: true,
+            starting_text: "Attempt climbing the rocks outside",
+            skill_xp_per_tick: 1,
+            is_unlocked: false,
+            unlock_text: "As you descend deeper and deeper, a sudden thought strikes you - what if you instead tried going up?",
+        }),
+        "meditating": new LocationActivity({
+            activity_name: "meditating",
+            infinite: true,
+            starting_text: "Sit down and meditate in front of the gate",
+            skill_xp_per_tick: 4,
+            is_unlocked: true,
+            unlock_text: "As you finish fighting your enemies and it becomes quiet, you feel a strange sense of tranquility. This spot in front of the mysterious gate, surrounded by calm and darkness, seems perfect to sit down and focus your mind."
+        }),
         "mining": new LocationActivity({
             activity_name: "mining",
             infinite: true,
@@ -1147,7 +1273,7 @@ function get_location_type_penalty(type, stage, stat) {
         "mining2": new LocationActivity({
             activity_name: "mining",
             infinite: true,
-            starting_text: "Mine some of the deeper iron vein",
+            starting_text: "Mine the deeper iron vein",
             skill_xp_per_tick: 5,
             is_unlocked: false,
             gained_resources: {
@@ -1169,7 +1295,7 @@ function get_location_type_penalty(type, stage, stat) {
         "woodcutting": new LocationActivity({
             activity_name: "woodcutting",
             infinite: true,
-            starting_text: "Gather some wood from nearby trees",
+            starting_text: "Gather wood from nearby trees",
             skill_xp_per_tick: 5,
             is_unlocked: false,
             gained_resources: {
@@ -1230,7 +1356,53 @@ function get_location_type_penalty(type, stage, stat) {
 })();
 
 //add actions
-
+(function(){
+    locations["Nearby cave"].actions = {
+        "climb the mountain": new LocationAction({
+            starting_text: "Try to climb up the mountain",
+            description: "It is an ardous task that will require some actual skill in climbing, together with good physical abilities. It won't be fast, so you need to make sure you won't run out of energy halfway through.",
+            action_text: "Climbing up",
+            success_text: "Somehow you did it, you climbed all the way up!",
+            failure_texts: {
+                conditional_loss: ["Despite trying your best, you can feel that you won't manage to do it without more training"],
+                random_loss: [
+                    "You almost had it, but at some point you grabbed a rock that turned out to be unstable. Be more careful next time!", 
+                    "You were really close, but a gust of wind at a bad moment knocked you off balance.",
+                    "You failed to notice a falling rock and got knocked down."
+                ],
+            },
+            conditions: [
+                {
+                    skills: {
+                        "Climbing": 3,
+                    },
+                    stats: {
+                        strength: 30,
+                        agility: 30,
+                        max_stamina: 50,
+                    }
+                },
+                {
+                    skills: {
+                        "Climbing": 12,
+                    },
+                    stats: {
+                        strength: 120,
+                        agility: 120,
+                        max_stamina: 50,
+                    }
+                }
+            ],
+            attempt_duration: 60,
+            success_chances: [0.5, 1],
+            is_unlocked: true,
+            rewards: {
+                locations: {location: "Mountain path"},
+                move_to: {location: "Mountain path"},
+            },
+        }),
+    }
+})();
 export {locations, location_types, get_location_type_penalty};
 
 /*

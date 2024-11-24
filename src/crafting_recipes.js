@@ -227,7 +227,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         //shouldn't be possible to reach this
         throw new Error(`Tried to use a recipe but either category, subcategory, or recipe id was not passed: ${category} - ${subcategory} - ${recipe_id}`);
     }
-    let exp_value = 8;
+    let exp_value = 4;
     const selected_recipe = recipes[category][subcategory][recipe_id];
     const skill_level = skills[selected_recipe.recipe_skill].current_level;
     if(!selected_recipe) {
@@ -244,14 +244,13 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         const result_level = 8*result_tier;
 
         exp_value = Math.max(exp_value,result_tier * 4 * material_count);
-        exp_value = Math.max(1,exp_value*(rarity_multiplier**0.5 - (skill_level/result_level))*rarity_multiplier);
+        exp_value = Math.max(0.5*material_count,exp_value*(rarity_multiplier**0.5 - (skill_level/result_level))*rarity_multiplier);
     } else {
         const result_level = 8*Math.max(selected_components[0].component_tier,selected_components[1].component_tier);
         exp_value = Math.max(exp_value,(selected_components[0].component_tier+selected_components[1].component_tier) * 4);
         exp_value = Math.max(1,exp_value*(rarity_multiplier**0.5 - (skill_level/result_level))*rarity_multiplier);
     }
-
-    return exp_value;
+    return Math.round(10*exp_value)/10;
 }
 
 //weapon components
@@ -739,6 +738,15 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Roasted purified rat meat", count: 1},
         success_chance: [0.1,1],
         recipe_level: [1,10],
+        recipe_skill: "Cooking",
+    });
+    cooking_recipes.items["Fried pork"] = new ItemRecipe({
+        name: "Fried pork",
+        recipe_type: "usable",
+        materials: [{material_id: "Boar meat", count: 2}], 
+        result: {result_id: "Fried pork", count: 1},
+        success_chance: [0.2,1],
+        recipe_level: [7,15],
         recipe_skill: "Cooking",
     });
     alchemy_recipes.items["Weak healing powder"] = new ItemRecipe({
