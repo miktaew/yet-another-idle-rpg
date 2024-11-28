@@ -400,11 +400,15 @@ class LocationAction{
         attempt_duration = 0,
         success_chances = [1,1],
         is_unlocked = true,
+        repeatable = false,
     }) {
         this.starting_text = starting_text; //text on the button to start
         this.description = description; //description on hover
         this.action_text = action_text; //text displayed during action animation
         this.failure_texts = failure_texts; //text displayed on failure
+        /*  conditional_loss - conditions not met
+            random_loss - conditions (at least 1st part) were met, but didn't roll high enough on success chance
+        */
         this.success_text = success_text; //text displayed on success
                                           //if action is supposed to be "impossible" for narrative purposes, just make it finish without unlocks and with text that says it failed
         if(conditions.length > 2) {
@@ -421,7 +425,8 @@ class LocationAction{
         this.success_chances = success_chances; 
         //chances to succeed; to guarantee that multiple attempts will be needed, just make a few consecutive actions with same text
         this.is_unlocked = is_unlocked;
-        this.is_finished = false;
+        this.is_finished = false; //really same as is_locked but with a more fitting name
+        this.repeatable = repeatable;
     }
 
     /**
@@ -1358,9 +1363,33 @@ function get_location_type_penalty(type, stage, stat) {
 //add actions
 (function(){
     locations["Nearby cave"].actions = {
+        "open the game": new LocationAction({
+            starting_text: "Try to push the mysterious gate open",
+            description: "It's an ancient massive gate, but maybe with enough strength and training you could actually manage to push it at least a tiny bit to create enough space to walk through.",
+            action_text: "Huffing and puffing",
+            success_text: "When you are almost ready to give up, you hear the ancient hinges creak, as the gate slowly moves. Finally, you can continue deeper!",
+            failure_texts: {
+                conditional_loss: ["Despite trying your best, you can feel that you are just too weak for it. Maybe train with some weights first?"],
+            },
+            conditions: [
+                {
+                    skills: {
+                        "Weightlifting": 10,
+                    },
+                    stats: {
+                        strength: 150,
+                    }
+                }
+            ],
+            attempt_duration: 10,
+            success_chances: [1, 1],
+            rewards: {
+                locations: {location: "Mysterious depths"}
+            },
+        }),
         "climb the mountain": new LocationAction({
             starting_text: "Try to climb up the mountain",
-            description: "It is an ardous task that will require some actual skill in climbing, together with good physical abilities. It won't be fast, so you need to make sure you won't run out of energy halfway through.",
+            description: "It is an ardous task that will require some actual skill in climbing, together with good physical abilities. It will take some time, so you need to make sure you won't run out of energy halfway through.",
             action_text: "Climbing up",
             success_text: "Somehow you did it, you climbed all the way up!",
             failure_texts: {
@@ -1395,7 +1424,6 @@ function get_location_type_penalty(type, stage, stat) {
             ],
             attempt_duration: 60,
             success_chances: [0.5, 1],
-            is_unlocked: true,
             rewards: {
                 locations: {location: "Mountain path"},
                 move_to: {location: "Mountain path"},

@@ -51,7 +51,11 @@ import { end_activity_animation,
          update_item_recipe_tooltips,
          update_displayed_book,
          update_backup_load_button,
-         update_other_save_load_button
+         update_other_save_load_button,
+         start_location_action_display,
+         set_location_action_finish_text,
+         update_location_action_progress_bar,
+         update_location_action_finish_button
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -275,7 +279,8 @@ function option_combat_autoswitch(option) {
 }
 
 function change_location(location_name) {
-    let location = locations[location_name];
+
+    let location = locations[location_name] || current_location;
 
     if(location_name !== current_location?.name && location.is_finished) {
         return;
@@ -444,46 +449,105 @@ function end_activity() {
 
 function start_location_action(selected_action) {
     const location_action = current_location.actions[selected_action];
-    let met;
-    let failed;
+    let conditions_status; //[0,...,1]
 
-    //todo: open action display
-    //action text, progress bar, cancel/return button
+    start_location_action_display(selected_action);
     
     if(!location_action.check_conditions_on_finish) {
-        met = location_action.get_conditions_status(character);
+        conditions_status = location_action.get_conditions_status(character);
 
-        if(!met) { //0, full failure
-            failed = true;
+        if(conditions_status == 0) {
+            finish_location_action(selected_action, 0);
+            return;
         }
     }
 
-    
-
     if(location_action.attempt_duration > 0) {
         let current_iterations = 0;
-        const total_iterations = location_action.attempt_duration/(0.5/tickrate);
+        const total_iterations = location_action.attempt_duration/(0.1/tickrate);
+
         location_action_interval = setInterval(()=>{
-            if(current_iterations >= total_iterations) {
+            if(current_iterations >= total_iterations - 1) {
+                finish_location_action(selected_action, conditions_status);
                 clearInterval(location_action_interval);
             }
 
             current_iterations++;
-            //todo: call a function to update progress bar
-        }, 0.5/tickrate);
+            update_location_action_progress_bar(current_iterations/total_iterations);
+        }, 1000*0.1/tickrate);
+    } else {
+        finish_location_action(selected_action, conditions_status);
+        update_location_action_progress_bar(1);
     }
-    //call get_conditions_status on it
-    //requirements can either be checked on start or on finish, in first case dont allow starting if not are_requirements_met()
-    //if requires money/items checks if they should be removed and do that if so, do it when checking (so start or end)
-    //if has 'chance', roll for it on finish
-    
-    //loop can be manipulated from here, same way as combat loops are - call a function from display.js to update progress bar on every iteration
 }
 
+/**
+ * Handles the finish, successful or not, of a location action. Not to be mistaken for end_location_action
+ * @param {String} selected_action 
+ * @param {Number} conditions_status
+ */
+function finish_location_action(selected_action, conditions_status){
+    end_activity_animation(true);
+
+    const action = current_location.actions[selected_action];
+
+    if(typeof conditions_status === 'undefined') {
+        conditions_status = current_location.actions[selected_action].get_conditions_status(character);
+    }
+    
+    let result_message = 'If you see this, Miktaew screwed something up. Whoops!';
+
+    if(conditions_status == 0) {
+        //lost by failing to meet conditions, nothing to check, deal with it
+        result_message = action.failure_texts.conditional_loss[Math.floor(action.failure_texts.conditional_loss.length * Math.random())];
+    } else {
+
+        const action_result = get_location_action_result(selected_action, conditions_status); 
+        if(action_result) {
+            //win
+            //todo: handle rewards, handle item removal if needed
+
+            result_message = action.success_text;
+            action.is_finished = true;
+
+
+        } else {
+            //random loss
+            result_message = action.failure_texts.random_loss[Math.floor(action.failure_texts.random_loss.length * Math.random())];
+            //todo: handle item removal if needed
+        }
+    }
+
+
+    set_location_action_finish_text(result_message);
+}
+
+/**
+ * Handles giving up / leaving after success from a location action. Not to be mistaken for finish_location_action
+ */
 function end_location_action() {
+    end_activity_animation();
     clearInterval(location_action_interval);
     current_location_action = null;
     change_location(current_location.name);
+}
+
+/**
+ * 
+ * @param {String} selected_action 
+ * @param {Number} conditions_status assumed to be more than 0
+ * @returns {Boolean} did_succeed
+ */
+function get_location_action_result(selected_action, conditions_status) {
+    const action = current_location.actions[selected_action];
+
+    if(action.success_chance.length == 1) {
+        return action.success_chance[0];
+    } else if(conditions_status == 1 && action.success_chance[1]) {
+        return action.success_chance[1];
+    } else {
+        return action.success_chance[0] + (action.success_chance[1]-action.success_chance[0]) *conditions_status;
+    }
 }
 
 /**
@@ -1521,7 +1585,7 @@ function get_location_rewards(location) {
     }
 
     for(let i = 0; i < location.repeatable_reward.textlines?.length; i++) { //unlock textlines
-        var any_unlocked = false;
+        let any_unlocked = false;
         for(let j = 0; j < location.repeatable_reward.textlines[i].lines.length; j++) {
             if(dialogues[location.repeatable_reward.textlines[i].dialogue].textlines[location.repeatable_reward.textlines[i].lines[j]].is_unlocked == false) {
                 any_unlocked = true;
@@ -1556,6 +1620,17 @@ function get_location_rewards(location) {
     if(should_return) {
         change_location(current_location.parent_location.name); //go back to parent location, only on first clear
     }
+}
+
+/**
+ * 
+ * @param {Object} rewards_data
+ * @param {Object} rewards_data.rewards //the standard object with rewards
+ * @param {String} rewards_data.source_type //location, locationAction, dialogue
+ * @param {String} rewards_data.source_name //in case it's needed for logging a message
+ */
+function process_rewards({rewards, source_type, source_name}) {
+    
 }
 
 /**
@@ -2995,6 +3070,7 @@ window.start_activity = start_activity;
 window.end_activity = end_activity;
 
 window.start_location_action = start_location_action;
+window.end_location_action = end_location_action;
 
 window.start_sleeping = start_sleeping;
 window.end_sleeping = end_sleeping;

@@ -236,14 +236,14 @@ class Skill {
                 }
 
                 if(xp_multipliers) {
-                    Object.keys(xp_multipliers).forEach(multiplier => {
-                        gains.xp_multipliers[multiplier] = (gains.xp_multipliers[multiplier] || 1) * xp_multipliers[multiplier];
-                        if(which_skills_affect_skill[multiplier]) {
-                            if(!which_skills_affect_skill[multiplier].includes(this.skill_id)) {
-                                which_skills_affect_skill[multiplier].push(this.skill_id);
+                    Object.keys(xp_multipliers).forEach(multiplier_key => {
+                        gains.xp_multipliers[multiplier_key] = (gains.xp_multipliers[multiplier_key] || 1) * xp_multipliers[multiplier_key];
+                        if(which_skills_affect_skill[multiplier_key]) {
+                            if(!which_skills_affect_skill[multiplier_key].includes(this.skill_id)) {
+                                which_skills_affect_skill[multiplier_key].push(this.skill_id);
                             }
                         } else {
-                            which_skills_affect_skill[multiplier] = [this.skill_id];
+                            which_skills_affect_skill[multiplier_key] = [this.skill_id];
                         }
                        
                     });

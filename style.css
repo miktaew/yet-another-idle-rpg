@@ -1059,19 +1059,19 @@ i {
 	font-size: var(--options_action_textsize);
 }
 
-#gathering_progress_bar {
+#gathering_progress_bar, #action_progress_bar {
 	height: 30px;
 	background-color: purple;
 	width: 0px;
 }
 
-#gathering_progress_bar_max {
+#gathering_progress_bar_max, #action_progress_bar_max {
 	width: 100%;
 	border-bottom: 1px solid white;
 	background-color: rgba(48, 0, 48, 0.596);
 }
 
-#location_actions_div :not(#action_end_div):hover #gathering_tooltip{
+#location_actions_div :not(#action_end_div):hover #gathering_tooltip, #location_actions_div :not(#action_end_div):hover #location_action_tooltip{
 	display: block;
 }
 

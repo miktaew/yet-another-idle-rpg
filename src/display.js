@@ -22,8 +22,7 @@ import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { effect_templates } from "./active_effects.js";
 
-let activity_anim; //for the activity animation interval
-
+let activity_anim; //for the activity and locationAction animation interval
 //location actions & trade
 const action_div = document.getElementById("location_actions_div");
 const trade_div = document.getElementById("trade_div");
@@ -412,8 +411,12 @@ function create_effect_tooltip(effect_name, duration) {
     return tooltip;
 }
 
-function end_activity_animation() {
+function end_activity_animation(remove) {
     clearInterval(activity_anim);
+    const div = document.getElementById("action_status_div");
+    if(remove && div) {
+        div.innerHTML = "";
+    }
 }
 
 /**
@@ -645,8 +648,12 @@ function log_loot(loot_list, is_combat=true) {
     log_message(message, `${is_combat?"combat_loot":"gathered_loot"}`);
 }
 
+/**
+ * Originally created for activities, despite the name, but is now used for actions as well.
+ * @param {Object} settings 
+ */
 function start_activity_animation(settings) {
-    clearInterval(end_activity_animation);
+    end_activity_animation();
     activity_anim = setInterval(() => { //sets a tiny little "animation" for activity text
         const action_status_div = document.getElementById("action_status_div");
         let end = "";
@@ -1725,6 +1732,8 @@ function create_location_choices({location, category, add_icons = true, is_comba
             location_action_div.classList.add("location_action_div", "start_location_action");
             location_action_div.setAttribute("data-location_action", key);
             location_action_div.setAttribute("onclick", "start_location_action(this.getAttribute('data-location_action'));");
+
+            location_action_div.appendChild(create_location_action_tooltip(location.actions[key]));
     
             location_action_div.innerHTML += location.actions[key].starting_text;
             choice_list.push(location_action_div);
@@ -2390,6 +2399,15 @@ function update_item_recipe_visibility() {
     });
 }
 
+function create_location_action_tooltip(location_action) {
+    const action_tooltip = document.createElement("div");
+    action_tooltip.id = "location_action_tooltip";
+    action_tooltip.classList.add("job_tooltip");
+    action_tooltip.innerHTML = location_action.description;
+
+    return action_tooltip;
+}
+
 /**
  * 
  * @param {LocationActivity} location_activity 
@@ -2799,6 +2817,54 @@ function update_displayed_ongoing_activity(current_activity, is_job){
     if(current_activity.gained_resources) {
         document.getElementById("gathering_progress_bar").style.width = 385*current_activity.gathering_time/current_activity.gathering_time_needed+"px";
     }
+}
+
+function start_location_action_display(selected_action) {
+    clear_action_div();
+
+    //todo: cancel/return button
+
+    const action = current_location.actions[selected_action]
+    const action_status_div = document.createElement("div");
+    action_status_div.innerText = action.action_text;
+    action_status_div.id = "action_status_div";
+    action_div.appendChild(action_status_div);
+
+    const action_progress_bar_max = document.createElement("div");
+    const action_progress_bar = document.createElement("div");
+    action_progress_bar_max.appendChild(action_progress_bar);
+    action_progress_bar.id = "action_progress_bar";
+    action_progress_bar.style.width = "0px";
+    action_progress_bar_max.id = "action_progress_bar_max";
+    action_div.appendChild(action_progress_bar_max);
+
+    const action_end_div = document.createElement("div");
+    action_end_div.setAttribute("onclick", "end_location_action()");
+    action_end_div.id = "action_end_div";
+
+
+    const action_end_text = document.createElement("div");
+    action_end_text.innerText = `Give up for now`;
+    action_end_text.id = "action_end_text";
+
+
+    action_end_div.appendChild(action_end_text);
+    action_div.appendChild(action_end_div);
+
+
+    start_activity_animation();
+}
+
+function update_location_action_progress_bar(percent) {
+        document.getElementById("action_progress_bar").style.width = 385*percent+"px";
+}
+
+function set_location_action_finish_text(text) {
+    document.getElementById("action_status_div").innerHTML = text;
+}
+
+function update_location_action_finish_button() {
+    document.getElementById("action_end_div").innerHTML = "Finish";
 }
 
 function start_sleeping_display(){
@@ -3606,5 +3672,9 @@ export {
     update_item_recipe_visibility,
     update_item_recipe_tooltips,
     update_displayed_book,
-    update_backup_load_button, update_other_save_load_button
+    update_backup_load_button, update_other_save_load_button,
+    start_location_action_display,
+    set_location_action_finish_text,
+    update_location_action_progress_bar,
+    update_location_action_finish_button
 }
