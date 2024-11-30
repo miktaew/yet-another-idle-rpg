@@ -447,6 +447,11 @@ function end_activity() {
     change_location(current_location.name);
 }
 
+/**
+ * Starts selected action, checks conditions if applicable, launches action animations
+ * @param {*} selected_action 
+ * @returns 
+ */
 function start_location_action(selected_action) {
     const location_action = current_location.actions[selected_action];
     let conditions_status; //[0,...,1]
@@ -795,65 +800,8 @@ function start_textline(textline_key){
     const dialogue = dialogues[current_dialogue];
     const textline = dialogue.textlines[textline_key];
 
-    for(let i = 0; i < textline.unlocks.flags.length; i++) {
-        const flag = global_flags[textline.unlocks.flags[i]];
-        if(!flag) {
-            global_flags[textline.unlocks.flags[i]] = true;
-            log_message(`${flag_unlock_texts[textline.unlocks.flags[i]]}`, "activity_unlocked");
-        }
-    }
+    process_rewards({rewards: textline.rewards, source_type: "textline", inform_textline: false})
 
-    for(let i = 0; i < textline.unlocks.items.length; i++) {
-        log_message(`${character.name} obtained "${item_templates[textline.unlocks.items[i]].getName()}"`);
-        add_to_character_inventory([{item: item_templates[textline.unlocks.items[i]]}]);
-    }
-
-    if(textline.unlocks.money && typeof textline.unlocks.money === "number") {
-        log_message(`${character.name} earned ${format_money(textline.unlocks.money)}`);
-        add_money_to_character(textline.unlocks.money)
-    }
-
-    for(let i = 0; i < textline.unlocks.dialogues.length; i++) { //unlocking dialogues
-        const dialogue = dialogues[textline.unlocks.dialogues[i]];
-        if(!dialogue.is_unlocked) {
-            dialogue.is_unlocked = true;
-            log_message(`You can now talk with ${dialogue.name}`, "activity_unlocked");
-        }
-    }
-
-    for(let i = 0; i < textline.unlocks.traders.length; i++) { //unlocking traders
-        const trader = traders[textline.unlocks.traders[i]];
-        if(!trader.is_unlocked) {
-            trader.is_unlocked = true;
-            log_message(`You can now trade with ${trader.name}`, "activity_unlocked");
-        }
-    }
-
-    for(let i = 0; i < textline.unlocks.textlines.length; i++) { //unlocking textlines
-        const dialogue_name = textline.unlocks.textlines[i].dialogue;
-        for(let j = 0; j < textline.unlocks.textlines[i].lines.length; j++) {
-            dialogues[dialogue_name].textlines[textline.unlocks.textlines[i].lines[j]].is_unlocked = true;
-        }
-    }
-
-    for(let i = 0; i < textline.unlocks.locations.length; i++) { //unlocking locations
-        unlock_location(locations[textline.unlocks.locations[i]]);
-    }
-
-    for(let i = 0; i < textline.unlocks.stances.length; i++) { //unlocking locations
-        unlock_combat_stance(textline.unlocks.stances[i]);
-    }
-
-    for(let i = 0; i < textline.locks_lines.length; i++) { //locking textlines
-        dialogue.textlines[textline.locks_lines[i]].is_finished = true;
-    }
-
-    if(textline.unlocks.activities) { //unlocking activities
-        for(let i = 0; i < textline.unlocks.activities.length; i++) { //unlock 
-            unlock_activity({location: locations[textline.unlocks.activities[i].location].name, 
-                             activity: locations[textline.unlocks.activities[i].location].activities[textline.unlocks.activities[i].activity]});
-        }
-    }
     if(textline.otherUnlocks) {
         textline.otherUnlocks();
     }
@@ -1557,65 +1505,18 @@ function get_location_rewards(location) {
         }
         should_return = true;
         
-
-        if(location.first_reward.xp && typeof location.first_reward.xp === "number") {
-            log_message(`Obtained ${location.first_reward.xp}xp for clearing ${location.name} for the first time`, "location_reward");
-            add_xp_to_character(location.first_reward.xp);
+        if(location.first_reward) {
+            process_rewards({rewards: location.first_reward, source_type: "location", source_name: location.name, is_first_clear: true, source_id: location.id});
         }
     } else if(location.repeatable_reward.xp && typeof location.repeatable_reward.xp === "number") {
-        log_message(`Obtained additional ${location.repeatable_reward.xp}xp for clearing ${location.name}`, "location_reward");
-        add_xp_to_character(location.repeatable_reward.xp);
+        process_rewards({rewards: {xp: location.repeatable_reward.xp}, source_type: "location", source_name: location.name, is_first_clear: false, source_id: location.id});
     }
 
-
-
-    //all below: on each clear, so that if something gets added after location was cleared, it will still be unlockable
+    //previous two calls give xp, this call omits xp to avoid repeating it
+    //repeatable rewards are indeed intended to be called on first clear as well (with the exception of xp, duh)
+    process_rewards({rewards: {...location.repeatable_reward, xp: {}}, source_type: "location", source_name: location.name, is_first_clear: false, source_id: location.id});
 
     location.otherUnlocks();
-
-    for(let i = 0; i < location.repeatable_reward.locations?.length; i++) { //unlock locations
-
-        if(!location.repeatable_reward.locations[i].required_clears || location.enemy_groups_killed/location.enemy_count >= location.repeatable_reward.locations[i].required_clears){
-            unlock_location(locations[location.repeatable_reward.locations[i].location]);
-        }
-    }
-    
-    for(let i = 0; i < location.repeatable_reward.flags?.length; i++) {
-        global_flags[location.repeatable_reward.flags[i]] = true;
-    }
-
-    for(let i = 0; i < location.repeatable_reward.textlines?.length; i++) { //unlock textlines
-        let any_unlocked = false;
-        for(let j = 0; j < location.repeatable_reward.textlines[i].lines.length; j++) {
-            if(dialogues[location.repeatable_reward.textlines[i].dialogue].textlines[location.repeatable_reward.textlines[i].lines[j]].is_unlocked == false) {
-                any_unlocked = true;
-                dialogues[location.repeatable_reward.textlines[i].dialogue].textlines[location.repeatable_reward.textlines[i].lines[j]].is_unlocked = true;
-            }
-        }
-        if(any_unlocked) {
-            log_message(`You should talk to ${location.repeatable_reward.textlines[i].dialogue}`, "dialogue_unlocked");
-            //maybe do this only when there's just 1 dialogue with changes?
-        }
-    }
-
-    for(let i = 0; i < location.repeatable_reward.dialogues?.length; i++) { //unlocking dialogues
-        const dialogue = dialogues[location.repeatable_reward.dialogues[i]]
-        if(!dialogue.is_unlocked) {
-            dialogue.is_unlocked = true;
-            log_message(`You can now talk with ${dialogue.name}`, "activity_unlocked");
-        }
-    }
-
-    //activities
-    for(let i = 0; i < location.repeatable_reward.activities?.length; i++) {
-        if(locations[location.repeatable_reward.activities[i].location].activities[location.repeatable_reward.activities[i].activity].tags?.gathering 
-            && !global_flags.is_gathering_unlocked) {
-                return;
-            }
-
-        unlock_activity({location: locations[location.repeatable_reward.activities[i].location].name, 
-                            activity: locations[location.repeatable_reward.activities[i].location].activities[location.repeatable_reward.activities[i].activity]});
-    }
 
     if(should_return) {
         change_location(current_location.parent_location.name); //go back to parent location, only on first clear
@@ -1623,14 +1524,139 @@ function get_location_rewards(location) {
 }
 
 /**
- * 
+ * processes rewards and logs all necessary messages
  * @param {Object} rewards_data
  * @param {Object} rewards_data.rewards //the standard object with rewards
- * @param {String} rewards_data.source_type //location, locationAction, dialogue
+ * @param {String} rewards_data.source_type //location, locationAction, textline
+ * @param {Boolean} rewards_data.is_first_clear //exclusively for location rewards (and only for a single message to be logged)
  * @param {String} rewards_data.source_name //in case it's needed for logging a message
  */
-function process_rewards({rewards, source_type, source_name}) {
-    
+function process_rewards({rewards, source_type, source_name, is_first_clear, source_id, inform_textline = false}) {
+    if(rewards.money && typeof rewards.money === "number") {
+        log_message(`${character.name} earned ${format_money(rewards.money)}`);
+        add_money_to_character(rewards.money);
+    }
+
+    if(rewards.xp && typeof rewards.xp === "number") {
+        if(source_type === "location") {
+            if(is_first_clear) {
+                log_message(`Obtained ${rewards.xp}xp for clearing ${source_name} for the first time`, "location_reward");
+            } else {
+                log_message(`Obtained additional ${rewards.xp}xp for clearing ${source_name}`, "location_reward");
+            }
+        } else {
+            //other sources
+        }
+        add_xp_to_character(rewards.xp);
+    }
+
+    if(rewards.skill_xp) {
+        Object.keys(rewards.skill_xp).forEach(skill_key => {
+            if(typeof rewards.skill_xp[skill_key] === "number") {
+                log_message(`${character.name} gained ${rewards.skill_xp[skill_key]}xp to ${skills[skill_key].name()}`);
+                add_xp_to_skill({skill: skills[skill_key], xp_to_add: rewards.skill_xp[skill_key]});
+            }
+        });
+    }
+
+    if(rewards.locations) {
+        if(source_type === "location") {
+            const location = locations[source_id];
+            for(let i = 0; i < rewards.locations.length; i++) {
+                if(!rewards.locations[i].required_clears || location.enemy_groups_killed/location.enemy_count >= location.repeatable_reward.locations[i].required_clears){
+                    unlock_location(locations[location.repeatable_reward.locations[i].location]);
+                }
+            }
+        } else {
+            for(let i = 0; i < rewards.locations.length; i++) {
+                unlock_location(locations[rewards.locations[i]]);
+            }
+        }
+    }
+
+    if(rewards.flags) {
+        for(let i = 0; i < rewards.flags.length; i++) {
+            const flag = global_flags[rewards.flags[i]];
+            global_flags[rewards.flags[i]] = true;
+            if(!flag && flag_unlock_texts[rewards.flags[i]]) {
+                log_message(`${flag_unlock_texts[rewards.flags[i]]}`, "activity_unlocked");
+            }
+        }
+    }
+
+    if(rewards.textlines) {
+        for(let i = 0; i < rewards.textlines.length; i++) {
+            let any_unlocked = false;
+            for(let j = 0; j < rewards.textlines[i].lines.length; j++) {
+                if(dialogues[rewards.textlines[i].dialogue].textlines[rewards.textlines[i].lines[j]].is_unlocked == false) {
+                    any_unlocked = true;
+                    dialogues[rewards.textlines[i].dialogue].textlines[rewards.textlines[i].lines[j]].is_unlocked = true;
+                }
+            }
+            if(any_unlocked && inform_textline) {
+                log_message(`You should talk to ${rewards.textlines[i].dialogue}`, "dialogue_unlocked");
+                //maybe do this only when there's just 1 dialogue with changes?
+            }
+        }
+    }
+
+    if(rewards.dialogues) {
+        for(let i = 0; i < rewards.dialogues?.length; i++) {
+            const dialogue = dialogues[rewards.dialogues[i]]
+            if(!dialogue.is_unlocked) {
+                dialogue.is_unlocked = true;
+                log_message(`You can now talk with ${dialogue.name}`, "activity_unlocked");
+            }
+        }
+    }
+
+    if(rewards.traders) { 
+        for(let i = 0; i < rewards.traders.length; i++) {
+            const trader = traders[rewards.traders[i]];
+            if(!trader.is_unlocked) {
+                trader.is_unlocked = true;
+                log_message(`You can now trade with ${trader.name}`, "activity_unlocked");
+            }
+        }
+    }
+
+    if(rewards.activities) {
+        for(let i = 0; i < rewards.activities?.length; i++) {
+            if(locations[rewards.activities[i].location].activities[rewards.activities[i].activity].tags?.gathering && !global_flags.is_gathering_unlocked) {
+                return;
+            }
+
+            unlock_activity({location: locations[rewards.activities[i].location].name, 
+                                activity: locations[rewards.activities[i].location].activities[rewards.activities[i].activity]});
+        }
+    }
+
+    if(rewards.stances) {  
+        for(let i = 0; i < rewards.stances.length; i++) {
+            unlock_combat_stance(rewards.stances[i]);
+        }
+    }
+
+    if(rewards.locks) {
+        if(rewards.locks.textlines) {
+            Object.keys(rewards.locks.textlines).forEach(dialogue_key => {
+                for(let i = 0; i < rewards.locks.textlines[dialogue_key].length; i++) {
+                    dialogues[dialogue_key].textlines[rewards.locks.textlines[dialogue_key][i]].is_finished = true;
+                }
+            });
+        }
+    }
+
+    if(rewards.items) {
+        for(let i = 0; i < rewards.items.length; i++) {
+            log_message(`${character.name} obtained "${item_templates[rewards.items[i]].getName()} x${rewards.items.count||1}"`);
+            add_to_character_inventory([{item: item_templates[rewards.items[i]], count: rewards.items.count}]);
+        }
+    }
+
+    if(rewards.move_to) {
+        change_location[rewards.move_to];
+    }
 }
 
 /**
@@ -3166,7 +3192,7 @@ function add_stuff_for_testing() {
 function add_all_stuff_to_inventory(){
     Object.keys(item_templates).forEach(item => {
         add_to_character_inventory([
-            {item: getItem({...item_templates[item]}), count: 5},
+            {item: getItem({...item_templates[item], quality: 150}), count: 5},
         ]);
     })
 }

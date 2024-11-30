@@ -2202,7 +2202,7 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
             } else {
                 tooltip += `<span style="color:red"><b>${item_templates[material.material_id].getName()} x${character.inventory[material.material_id]?.count || 0}/${material.count}</b></span><br>`;
             }
-            const quality_range = recipe.get_quality_range(station_tier - item_templates[material.result_id].component_tier);
+            const quality_range = recipe.get_quality_range(recipe.get_component_quality_weighted(), station_tier - item_templates[material.result_id].component_tier);
             const xp_val_1 = get_recipe_xp_value({category, subcategory, recipe_id, material_count: material.count, result_tier: item_templates[material.result_id].component_tier, rarity_multiplier: rarity_multipliers[getItemRarity(quality_range[0])]});
             const xp_val_2 = get_recipe_xp_value({category, subcategory, recipe_id, material_count: material.count, result_tier: item_templates[material.result_id].component_tier, rarity_multiplier: rarity_multipliers[getItemRarity(quality_range[1])]});
             tooltip += `<br>XP value: ${xp_val_1} - ${xp_val_2}<br>`;

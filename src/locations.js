@@ -98,7 +98,7 @@ class Combat_zone {
         this.unlock_text = unlock_text;
         this.description = description;
         this.getDescription = getDescription || function(){return description;}
-        this.otherUnlocks = otherUnlocks || function() {return;}
+        this.otherUnlocks = otherUnlocks || function() {return;} //try not to use it if possible
         this.is_unlocked = is_unlocked;
         this.is_finished = is_finished;
         this.types = types; //special properties of the location, e.g. "narrow" or "dark"

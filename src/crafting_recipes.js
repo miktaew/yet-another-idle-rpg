@@ -161,6 +161,7 @@ class EquipmentRecipe extends Recipe {
         this.getResult = function(component_1, component_2, station_tier = 1){
             const comp_quality_weighted = this.get_component_quality_weighted(component_1, component_2);
             let quality = this.get_quality(comp_quality_weighted, (station_tier-Math.max(component_1.component_tier, component_2.component_tier)) || 0);
+            
             //return based on components used
             if(this.item_type === "Weapon") {
                 return new Weapon(
