@@ -206,6 +206,23 @@ class Enemy {
         ],
         size: "medium"
     });
+
+    enemy_templates["Angry mountain goat"] = new Enemy({
+        name: "Angry mountain goat", 
+        description: "It's a mountain goat and it's angry", 
+        xp_value: 15,
+        rank: 6,
+        tags: ["living", "beast"],
+        size: "medium",
+        stats: {health: 1000, attack: 120, agility: 120, dexterity: 120, magic: 0, intuition: 60, attack_speed: 1, defense: 30},
+        loot_list: [
+            {item_name: "Mountain goat hide", chance: 0.04},
+            {item_name: "Mountain goat meat", chance: 0.02},
+            {item_name: "Mountain goat horn", chance: 0.01},
+            {item_name: "Pristine mountain goat horn", chance: 0.0005},
+        ],
+    });
+
 })();
 
 

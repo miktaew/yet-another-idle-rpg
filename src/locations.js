@@ -21,6 +21,7 @@ class Location {
                 traders = [],
                 types = [], //{type, xp per tick}
                 sleeping = null, //{text to start, xp per tick},
+                bed = {present: null},
                 light_level = "normal",
                 getDescription,
                 background_noises = [],
@@ -45,6 +46,9 @@ class Location {
         this.actions = {};
         this.types = types;
         this.sleeping = sleeping;
+        this.bed = bed; //to replace sleeping
+                        //{is_present, is_unlocked, sleeping_xp_per_tick}
+
         for (let i = 0; i < this.dialogues.length; i++) {
             if (!dialoguesList[this.dialogues[i]]) {
                 throw new Error(`No such dialogue as "${this.dialogues[i]}"!`);
@@ -391,6 +395,8 @@ class LocationAction{
      */
     constructor({
         starting_text,
+        action_id,
+        action_name,
         description,
         action_text,
         success_text,
@@ -403,6 +409,8 @@ class LocationAction{
         repeatable = false,
     }) {
         this.starting_text = starting_text; //text on the button to start
+        this.action_name = action_name || starting_text;
+        this.action_id = action_id;
         this.description = description; //description on hover
         this.action_text = action_text; //text displayed during action animation
         this.failure_texts = failure_texts; //text displayed on failure
@@ -420,7 +428,6 @@ class LocationAction{
         //two-set approach does not apply to items, so it only checks them for conditions[0]
         this.check_conditions_on_finish = true; //means an action with duration can be attempted even if conditions are not met
         this.rewards = rewards; //{unlocks, money, items,move_to}?
-        this.completed = false;
         this.attempt_duration = attempt_duration; //0 means instantaneous, otherwise there's a progress bar
         this.success_chances = success_chances; 
         //chances to succeed; to guarantee that multiple attempts will be needed, just make a few consecutive actions with same text
@@ -551,8 +558,7 @@ function get_location_type_penalty(type, stage, stat) {
 }
 
 //create location types
-(function(){
-    
+(function(){ 
     location_types["bright"] = new LocationType({
         name: "bright",
         stages: {
@@ -918,7 +924,8 @@ function get_location_type_penalty(type, stage, stat) {
         repeatable_reward: {
             xp: 100,
             locations: [{location: "Mysterious gate", required_clears: 4}],
-            activities: [{location:"Nearby cave", activity:"climbing"}],
+            activities: [{location:"Nearby cave", activity: "climbing"}],
+            actions: [{location: "Nearby cave", action: "climb the mountain"}],
         },
         unlock_text: "As you keep going deeper, you barely notice a pitch black hole. Not even a tiniest speck of light reaches it."
     });
@@ -948,7 +955,8 @@ function get_location_type_penalty(type, stage, stat) {
         {location: locations["Cave depths"]}, 
         {location: locations["Hidden tunnel"], custom_text: "Enter the hidden tunnel"}, 
         {location: locations["Pitch black tunnel"], custom_text: "Go into the pitch black tunnel"},
-        {location: locations["Mysterious gate"], custom_text: "Go to the mysterious gate"}),
+        {location: locations["Mysterious gate"], custom_text: "Go to the mysterious gate"}
+    ),
 
     locations["Forest road"] = new Location({ 
         connected_locations: [{location: locations["Village"]}],
@@ -1086,6 +1094,19 @@ function get_location_type_penalty(type, stage, stat) {
         unlock_text: "Thanks to your hard effort, you reached a narrow safe spot where you can rest a bit.",
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Mountain path"]});
+
+    locations["Tiny mountain flatland"] = new Location({
+        connected_locations: [{location: locations["Nearby cave"]}],
+        description: "A piece of flatland somewhere in the mountains above the village. It's not that big, but more than enough for a camp.",
+        name: "Tiny mountain flatland",
+        is_unlocked: false,
+        getBackgroundNoises: function() {
+            let noises = ["You hear a rock tumble and fall down. It takes a very long time to hit the ground...", "Strong wind whooshes past you", "A pair of birds flies right above you"];
+            return noises;
+        },
+        unlock_text: "You finally got to a place where a camp can be established",
+    });
+    locations["Mountain path"].connected_locations.push({location: locations["Tiny mountain flatland"]});
 })();
 
 //challenge zones
@@ -1167,6 +1188,25 @@ function get_location_type_penalty(type, stage, stat) {
         unlock_text: "Defend yourself!"
     });
     locations["Slums"].connected_locations.push({location: locations["Fight off the assailant"], custom_text: "Fight off the suspicious man"});
+
+    locations["Fight the angry mountain goat"] = new Challenge_zone({
+        description: "It won't let you pass...",
+        enemy_count: 1, 
+        types: [],
+        enemies_list: ["Angry mountain goat"],
+        enemy_group_size: [1,1],
+        enemy_stat_variation: 0,
+        is_unlocked: false, 
+        name: "Fight the angry mountain goat", 
+        leave_text: "Run away and hope it won't follow",
+        parent_location: locations["Mountain path"],
+        repeatable_reward: {
+            locations: [{location: "Tiny mountain flatland"}],
+            xp: 500,
+        },
+        unlock_text: "Defend yourself!"
+    });
+    locations["Mountain path"].connected_locations.push({location: locations["Fight off the assailant"], custom_text: "Fight off the suspicious man"});
 })();
 
 //add activities
@@ -1363,7 +1403,8 @@ function get_location_type_penalty(type, stage, stat) {
 //add actions
 (function(){
     locations["Nearby cave"].actions = {
-        "open the game": new LocationAction({
+        "open the gate": new LocationAction({
+            action_id: "open the gate",
             starting_text: "Try to push the mysterious gate open",
             description: "It's an ancient massive gate, but maybe with enough strength and training you could actually manage to push it at least a tiny bit to create enough space to walk through.",
             action_text: "Huffing and puffing",
@@ -1384,10 +1425,11 @@ function get_location_type_penalty(type, stage, stat) {
             attempt_duration: 10,
             success_chances: [1, 1],
             rewards: {
-                locations: {location: "Mysterious depths"}
+                locations: [{location: "Mysterious depths"}]
             },
         }),
         "climb the mountain": new LocationAction({
+            action_id: "climb the mountain",
             starting_text: "Try to climb up the mountain",
             description: "It is an ardous task that will require some actual skill in climbing, together with good physical abilities. It will take some time, so you need to make sure you won't run out of energy halfway through.",
             action_text: "Climbing up",
@@ -1425,11 +1467,34 @@ function get_location_type_penalty(type, stage, stat) {
             attempt_duration: 60,
             success_chances: [0.5, 1],
             rewards: {
-                locations: {location: "Mountain path"},
+                locations: [{location: "Mountain path"}],
                 move_to: {location: "Mountain path"},
             },
         }),
-    }
+    };
+    locations["Mountain path"].actions = {
+        "explore": new LocationAction({
+            action_id: "explore",
+            starting_text: "Explore the area",
+            description: "Now that you are here, it's time to find if there's anything worthy of your time. Too bad you couldn't do it beforehand.",
+            action_text: "Looking around",
+            success_text: "The good news: you noticed a nice little piece of flat land that would be perfect for a camp. The bad news: there's a very angry-looking mountain goat blocking your way.",
+            failure_texts: {
+                random_loss: [
+                    "You looked under rocks and between the bushes, but you found nothing. Keep looking!", 
+                    "You looked and looked, but you couldn't find anything. Rest a bit and go back to it!",
+                ],
+            },
+            conditions: [],
+            attempt_duration: 60,
+            success_chances: [0.6],
+            rewards: {
+                locations: [{location: "Mountain path"}],
+                move_to: {location: "Mountain path"},
+                skill_xp: {"climbing": 1500},
+            },
+        }),
+    };
 })();
 export {locations, location_types, get_location_type_penalty};
 

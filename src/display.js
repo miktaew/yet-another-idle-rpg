@@ -1467,7 +1467,7 @@ function update_displayed_normal_location(location) {
 
     const available_locations = location.connected_locations.filter(location => {if(location.location.is_unlocked && !location.location.is_finished && !location.location.is_challenge) return true});
 
-    if(available_locations.length > 3 && (location.sleeping + available_trainings.length + available_jobs.length +  available_traders.length + available_dialogues.length) > 2) {
+    if(available_locations.length > 3 && (location.sleeping + available_trainings.length + available_jobs.length +  available_traders.length + available_dialogues.length + available_actions.length) > 2) {
         const locations_button = document.createElement("div");
         locations_button.setAttribute("data-location", location.name);
         locations_button.classList.add("location_choices");
@@ -2821,8 +2821,6 @@ function update_displayed_ongoing_activity(current_activity, is_job){
 
 function start_location_action_display(selected_action) {
     clear_action_div();
-
-    //todo: cancel/return button
 
     const action = current_location.actions[selected_action]
     const action_status_div = document.createElement("div");

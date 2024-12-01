@@ -453,6 +453,7 @@ function end_activity() {
  * @returns 
  */
 function start_location_action(selected_action) {
+    current_location_action = selected_action;
     const location_action = current_location.actions[selected_action];
     let conditions_status; //[0,...,1]
 
@@ -469,12 +470,12 @@ function start_location_action(selected_action) {
 
     if(location_action.attempt_duration > 0) {
         let current_iterations = 0;
-        const total_iterations = location_action.attempt_duration/(0.1/tickrate);
+        const total_iterations = location_action.attempt_duration/0.1;
 
         location_action_interval = setInterval(()=>{
             if(current_iterations >= total_iterations - 1) {
-                finish_location_action(selected_action, conditions_status);
                 clearInterval(location_action_interval);
+                finish_location_action(selected_action, conditions_status);
             }
 
             current_iterations++;
@@ -507,17 +508,19 @@ function finish_location_action(selected_action, conditions_status){
         result_message = action.failure_texts.conditional_loss[Math.floor(action.failure_texts.conditional_loss.length * Math.random())];
     } else {
 
-        const action_result = get_location_action_result(selected_action, conditions_status); 
-        if(action_result) {
+        const action_result = get_location_action_result(selected_action, conditions_status);
+
+        if(action_result > Math.random()) {
             //win
-            //todo: handle rewards, handle item removal if needed
+
+            //todo: handle item removal if needed
 
             result_message = action.success_text;
             action.is_finished = true;
-
-
+            process_rewards({rewards: action.rewards, source_type: "action"});
         } else {
             //random loss
+
             result_message = action.failure_texts.random_loss[Math.floor(action.failure_texts.random_loss.length * Math.random())];
             //todo: handle item removal if needed
         }
@@ -546,12 +549,12 @@ function end_location_action() {
 function get_location_action_result(selected_action, conditions_status) {
     const action = current_location.actions[selected_action];
 
-    if(action.success_chance.length == 1) {
-        return action.success_chance[0];
-    } else if(conditions_status == 1 && action.success_chance[1]) {
-        return action.success_chance[1];
+    if(action.success_chances.length == 1) {
+        return action.success_chances[0];
+    } else if(conditions_status == 1 && action.success_chances[1]) {
+        return action.success_chances[1];
     } else {
-        return action.success_chance[0] + (action.success_chance[1]-action.success_chance[0]) *conditions_status;
+        return action.success_chances[0] + (action.success_chances[1]-action.success_chances[0]) * conditions_status;
     }
 }
 
@@ -559,7 +562,7 @@ function get_location_action_result(selected_action, conditions_status) {
  * @description Unlocks an activity and adds a proper message to the message log. NOT called on loading a save.
  * @param {Object} activity_data {activity, location_name}
  */
- function unlock_activity(activity_data) {
+function unlock_activity(activity_data) {
     if(!activity_data.activity.is_unlocked){
         activity_data.activity.is_unlocked = true;
         
@@ -568,6 +571,18 @@ function get_location_action_result(selected_action, conditions_status) {
            message = locations[activity_data.location].activities[activity_data.activity.activity_name].unlock_text+":<br>";
         }
         log_message(message + `Unlocked activity "${activity_data.activity.activity_name}" in location "${activity_data.location}"`, "activity_unlocked");
+    }
+}
+
+function unlock_action(action_data) {
+    if(!action_data.action.is_unlocked){
+        action_data.action.is_unlocked = true;
+        
+        let message = "";
+        if(locations[action_data.location].actions[action_data.action.action_id].unlock_text) {
+           message = locations[action_data.location].actions[action_data.action.action_id].unlock_text+":<br>";
+        }
+        log_message(message + `Unlocked action "${action_data.action.action_name}" in location "${action_data.location}"`, "activity_unlocked");
     }
 }
 
@@ -1531,11 +1546,13 @@ function get_location_rewards(location) {
  * @param {Boolean} rewards_data.is_first_clear //exclusively for location rewards (and only for a single message to be logged)
  * @param {String} rewards_data.source_name //in case it's needed for logging a message
  */
-function process_rewards({rewards, source_type, source_name, is_first_clear, source_id, inform_textline = false}) {
+function process_rewards({rewards = {}, source_type, source_name, is_first_clear, source_id, inform_textline = false}) {
     if(rewards.money && typeof rewards.money === "number") {
         log_message(`${character.name} earned ${format_money(rewards.money)}`);
         add_money_to_character(rewards.money);
     }
+
+    
 
     if(rewards.xp && typeof rewards.xp === "number") {
         if(source_type === "location") {
@@ -1558,7 +1575,7 @@ function process_rewards({rewards, source_type, source_name, is_first_clear, sou
             }
         });
     }
-
+    
     if(rewards.locations) {
         if(source_type === "location") {
             const location = locations[source_id];
@@ -1569,7 +1586,7 @@ function process_rewards({rewards, source_type, source_name, is_first_clear, sou
             }
         } else {
             for(let i = 0; i < rewards.locations.length; i++) {
-                unlock_location(locations[rewards.locations[i]]);
+                unlock_location(locations[rewards.locations[i].location]);
             }
         }
     }
@@ -1620,14 +1637,24 @@ function process_rewards({rewards, source_type, source_name, is_first_clear, sou
         }
     }
 
+
     if(rewards.activities) {
         for(let i = 0; i < rewards.activities?.length; i++) {
-            if(locations[rewards.activities[i].location].activities[rewards.activities[i].activity].tags?.gathering && !global_flags.is_gathering_unlocked) {
-                return;
-            }
+            if(!locations[rewards.activities[i].location].activities[rewards.activities[i].activity].tags?.gathering || global_flags.is_gathering_unlocked) {
 
-            unlock_activity({location: locations[rewards.activities[i].location].name, 
+                unlock_activity({location: locations[rewards.activities[i].location].name, 
                                 activity: locations[rewards.activities[i].location].activities[rewards.activities[i].activity]});
+
+            }
+        }
+    }
+
+    if(rewards.actions) {
+        for(let i = 0; i < rewards.actions?.length; i++) {
+            unlock_action({
+                location: locations[rewards.actions[i].location].name, 
+                action: locations[rewards.actions[i].location].actions[rewards.actions[i].action]
+            });
         }
     }
 
@@ -1655,7 +1682,11 @@ function process_rewards({rewards, source_type, source_name, is_first_clear, sou
     }
 
     if(rewards.move_to) {
-        change_location[rewards.move_to];
+        if(source_type !== "action") {
+            change_location[rewards.move_to.location];
+        } else {
+            current_location = locations[rewards.move_to.location];
+        }
     }
 }
 
@@ -1670,7 +1701,7 @@ function unlock_location(location) {
         log_message(message, "location_unlocked") 
 
         //reloads the location (assumption is that a new one was unlocked by clearing a zone)
-        if(!current_dialogue) {
+        if(!current_dialogue && !current_location_action) {
             change_location(current_location.name);
         }
     }
