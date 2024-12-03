@@ -759,6 +759,10 @@ body {
 	top: 60px;
 	overflow-y: scroll;
 }
+
+.crafting_mainpage_button:hover, .crafting_subpage_button:hover {
+	background-color: var(--active_button_color);
+}
 		
 .recipe_div {
 	width: 376px;
@@ -1331,6 +1335,10 @@ i {
 	font-size: 20px;
 	padding: 3px 0px 0px 0px;
 	background-color: rgba(255, 241, 117, 0.2);
+}
+
+#exit_crafting_button:hover {
+	background-color: rgba(255, 241, 117, 0.4);
 }
 
 

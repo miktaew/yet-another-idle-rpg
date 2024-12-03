@@ -279,10 +279,11 @@ function option_combat_autoswitch(option) {
 }
 
 function change_location(location_name) {
-
+    
     let location = locations[location_name] || current_location;
 
     if(location_name !== current_location?.name && location.is_finished) {
+        //refuse to change location if it's finished and it's not the current one
         return;
     }
 
@@ -526,8 +527,8 @@ function finish_location_action(selected_action, conditions_status){
         }
     }
 
-
     set_location_action_finish_text(result_message);
+    update_location_action_finish_button();
 }
 
 /**
@@ -955,7 +956,7 @@ function reset_combat_loops() {
  */
 function do_enemy_attack_loop(enemy_id, count, is_new = false) {
     count = count || 0;
-    update_enemy_attack_bar(enemy_id, count);
+    update_enemy_attack_bar(enemy_id, count/60);
 
     if(is_new) {
         enemy_timer_variance_accumulator[enemy_id] = 0;
@@ -965,10 +966,10 @@ function do_enemy_attack_loop(enemy_id, count, is_new = false) {
     clearTimeout(enemy_attack_loops[enemy_id]);
     enemy_attack_loops[enemy_id] = setTimeout(() => {
         enemy_timers[enemy_id][0] = Date.now(); 
-        enemy_timer_variance_accumulator[enemy_id] += ((enemy_timers[enemy_id][0] - enemy_timers[enemy_id][1]) - enemy_attack_cooldowns[enemy_id]*1000/(40*tickrate));
+        enemy_timer_variance_accumulator[enemy_id] += ((enemy_timers[enemy_id][0] - enemy_timers[enemy_id][1]) - enemy_attack_cooldowns[enemy_id]*1000/(60*tickrate));
 
         enemy_timers[enemy_id][1] = Date.now();
-        update_enemy_attack_bar(enemy_id, count);
+        update_enemy_attack_bar(enemy_id, count/60);
         count++;
         if(count >= 60) {
             count = 0;
@@ -1055,7 +1056,7 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
     let count = 0;
     clear_character_attack_loop();
     character_attack_loop = setInterval(() => {
-        update_character_attack_bar(count);
+        update_character_attack_bar(count/60);
         count++;
         if(count >= 60) {
             count = 0;
@@ -1552,8 +1553,6 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         add_money_to_character(rewards.money);
     }
 
-    
-
     if(rewards.xp && typeof rewards.xp === "number") {
         if(source_type === "location") {
             if(is_first_clear) {
@@ -1578,15 +1577,15 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
     
     if(rewards.locations) {
         if(source_type === "location") {
-            const location = locations[source_id];
+            const location = locations[source_id]; //grab source location to check for clear counts
             for(let i = 0; i < rewards.locations.length; i++) {
                 if(!rewards.locations[i].required_clears || location.enemy_groups_killed/location.enemy_count >= location.repeatable_reward.locations[i].required_clears){
-                    unlock_location(locations[location.repeatable_reward.locations[i].location]);
+                    unlock_location(locations[rewards.locations[i].location], rewards.locations[i].skip_message);
                 }
             }
         } else {
             for(let i = 0; i < rewards.locations.length; i++) {
-                unlock_location(locations[rewards.locations[i].location]);
+                unlock_location(locations[rewards.locations[i].location], rewards.locations[i].skip_message);
             }
         }
     }
@@ -1637,6 +1636,11 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         }
     }
 
+    if(rewards.housing) {
+        Object.keys(rewards.housing).forEach(location_key => {
+            locations[location_key].housing.is_unlocked = true;
+        });
+    }
 
     if(rewards.activities) {
         for(let i = 0; i < rewards.activities?.length; i++) {
@@ -1672,6 +1676,11 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
                 }
             });
         }
+        if(rewards.locks.locations) {
+            for(let i = 0; i < rewards.locks.locations.length; i++) {
+                locations[rewards.locks.locations[i]].is_finished = true;
+            }
+        }
     }
 
     if(rewards.items) {
@@ -1694,11 +1703,13 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
  * 
  * @param location game location object 
  */
-function unlock_location(location) {
+function unlock_location(location, skip_message) {
     if(!location.is_unlocked){
         location.is_unlocked = true;
-        const message = location.unlock_text || `Unlocked location ${location.name}`;
-        log_message(message, "location_unlocked") 
+        if(!skip_message) {
+            const message = location.unlock_text || `Unlocked location ${location.name}`;
+            log_message(message, "location_unlocked");
+        }
 
         //reloads the location (assumption is that a new one was unlocked by clearing a zone)
         if(!current_dialogue && !current_location_action) {
@@ -1921,12 +1932,13 @@ function create_save() {
                                 inventory: {}, equipment: character.equipment,
                                 money: character.money, 
                                 xp: {
-                                total_xp: character.xp.total_xp,
+                                    total_xp: character.xp.total_xp,
                                 },
                                 hp_to_full: character.stats.full.max_health - character.stats.full.health,
                                 stamina_to_full: character.stats.full.max_stamina - character.stats.full.stamina
                             };
-        //no need to save all stats; on loading, base stats will be taken from code and then additional stuff will be calculated again (in case anything changed)
+        //stats don't get saved, they will be recalculated upon loading
+
         Object.keys(character.inventory).forEach(key =>{
             save_data["character"].inventory[key] = {count: character.inventory[key].count};
         });
@@ -1969,7 +1981,23 @@ function create_save() {
                     }
                 });
             }
-        }); //save locations' (and their activities') unlocked status and their killcounts
+            if(locations[key].actions) {
+                save_data["locations"][key]["actions"] = {};
+                Object.keys(locations[key].actions).forEach(action_key => {
+                    if(locations[key].actions[action_key].is_unlocked || locations[key].actions[action_key].is_finished) {
+                        save_data["locations"][key]["actions"][action_key] = {};
+
+                        if(locations[key].actions[action_key].is_unlocked) {
+                            save_data["locations"][key]["actions"][action_key].is_unlocked = true;
+                        }
+                        if(locations[key].actions[action_key].is_finished) {
+                            save_data["locations"][key]["actions"][action_key].is_finished = true;
+                        }
+                    }
+                    
+                });
+            }
+        }); //save locations' (and their activities'/actions') unlocked status and their killcounts
 
         save_data["activities"] = {};
         Object.keys(activities).forEach(function(activity) {
@@ -2662,6 +2690,19 @@ function load(save_data) {
                         locations[key].activities[save_data.locations[key].unlocked_activities[i]].is_unlocked = true;
                     }
                 }
+            }
+
+            if(save_data.locations[key].actions) {
+                Object.keys(save_data.locations[key].actions).forEach(action_key => {
+                    if(save_data.locations[key].actions[action_key].is_unlocked) {
+                        locations[key].actions[action_key].is_unlocked = true;
+                    }
+
+                    if(save_data.locations[key].actions[action_key].is_finished) {
+                        locations[key].actions[action_key].is_finished = true;
+                    }
+
+                });
             }
         } else {
             console.warn(`Location "${key}" couldn't be found!`);

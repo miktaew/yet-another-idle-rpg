@@ -50,12 +50,17 @@
 button type="button" class="collapsible">v0.4.5</button>
 <div class="content"><pre>
 v0.4.5
+    - implemented new feature, location actions. Unlike trainings, they are generally a one-time thing that provides unlocks and other rewards.
+        They can take different time to complete; have different conditions that are not fully specified but will be hinted at by descriptions; 
+        might check if conditions are met either before or after the attempt and may either be guaranteed to succeed if so or just have a chance for it,
+        with the latter case having different messages for when you failed due to not meeting requirements vs when you were just unlucky and could succeed next time
 
     - reduced value of crafting components to ~80%, but increased full equipment prices to ~125% (components are cheaper, but equipment stays mostly the same)
     - crafting recipes now show their xp values in tooltips
     - new activity and skill: climbing
     - new spot for meditation + another milestone for the skill
     - fixed bug where additional stats on componentless equipment (clothing) didn't scale with rarity
+    - fixed bug in crafting equipment, where component quality was ignored by tooltips
 </pre>
 </div>
 <button type="button" class="collapsible">v0.4.3/v0.4.4 - GUI remake and Crafting</button>

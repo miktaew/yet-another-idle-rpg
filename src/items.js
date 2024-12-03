@@ -975,6 +975,14 @@ item_templates["Twist liek a snek"] = new Book({
         value: 10,
         saturates_market: false,
     });
+
+    item_templates["Mountain goat horn"] = new OtherItem({
+        name: "Mountain goat horn", 
+        description: "A curved and sturdy horn of a mountain goat. While not very useful in itself, it makes for a nice decoration.", 
+        value: 30,
+        saturates_market: true,
+        price_recovers: true,
+    });
 })();
 
 //lootable materials
@@ -1036,6 +1044,28 @@ item_templates["Twist liek a snek"] = new Book({
         value: 30,
         price_recovers: true,
         material_type: "bone",
+    });
+
+    item_templates["Goat meat"] = new Material({
+        name: "Goat meat",
+        description: "Lean meat of a goat, it's pretty tough and needs to be cooked for a long time.",
+        value: 25,
+        price_recovers: true,
+        material_type: "meat source",
+    });
+    item_templates["Mountain goat hide"] = new Material({
+        name: "Mountain goat hide", 
+        description: "Thick hide of a mountain goat hide. Not as strong as boar hide, but this one can actually be turned into clothes after some processing.",
+        value: 30,
+        price_recovers: true,
+        material_type: "pelt",
+    });
+    item_templates["Pristine mountain goat horn"] = new Material({
+        name: "Pristine mountain goat horn",
+        description: "Curved and sturdy horn of a mountain goat. It's noticeably bigger than average and seems to be even sturdier.", 
+        value: 70,
+        price_recovers: true,
+        material_type: "miscellaneous",
     });
 
 })();

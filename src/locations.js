@@ -21,7 +21,7 @@ class Location {
                 traders = [],
                 types = [], //{type, xp per tick}
                 sleeping = null, //{text to start, xp per tick},
-                bed = {present: null},
+                housing = {present: null},
                 light_level = "normal",
                 getDescription,
                 background_noises = [],
@@ -46,7 +46,7 @@ class Location {
         this.actions = {};
         this.types = types;
         this.sleeping = sleeping;
-        this.bed = bed; //to replace sleeping
+        this.housing = housing; //to replace sleeping
                         //{is_present, is_unlocked, sleeping_xp_per_tick}
 
         for (let i = 0; i < this.dialogues.length; i++) {
@@ -405,7 +405,7 @@ class LocationAction{
         rewards = {},
         attempt_duration = 0,
         success_chances = [1,1],
-        is_unlocked = true,
+        is_unlocked = false,
         repeatable = false,
     }) {
         this.starting_text = starting_text; //text on the button to start
@@ -443,6 +443,9 @@ class LocationAction{
      */
     get_conditions_status(character) {
         let met = 1;
+        if(this.conditions.length == 0) {
+            return 1;
+        }
 
         //check money
         if(this.conditions[0].money && character.money < this.conditions[0].money) {
@@ -1083,10 +1086,10 @@ function get_location_type_penalty(type, stage, stat) {
     locations["Town outskirts"].connected_locations.push({location: locations["Town farms"]}, {location: locations["Slums"]});
 
     locations["Mountain path"] = new Location({
-        connected_locations: [{location: locations["Nearby cave"]}],
+        connected_locations: [{location: locations["Nearby cave"]}, {location: locations["Mountain camp"]}],
         description: "A treacherus path high above the village",
         name: "Mountain path",
-        is_unlocked: false,
+        is_unlocked: true,
         getBackgroundNoises: function() {
             let noises = ["You hear a rock tumble and fall down. It takes a very long time to hit the ground...", "Strong wind whooshes past you"];
             return noises;
@@ -1095,10 +1098,10 @@ function get_location_type_penalty(type, stage, stat) {
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Mountain path"]});
 
-    locations["Tiny mountain flatland"] = new Location({
-        connected_locations: [{location: locations["Nearby cave"]}],
+    locations["Small flat area in mountains"] = new Location({
+        connected_locations: [{location: locations["Mountain path"]}],
         description: "A piece of flatland somewhere in the mountains above the village. It's not that big, but more than enough for a camp.",
-        name: "Tiny mountain flatland",
+        name: "Small flat area in mountains",
         is_unlocked: false,
         getBackgroundNoises: function() {
             let noises = ["You hear a rock tumble and fall down. It takes a very long time to hit the ground...", "Strong wind whooshes past you", "A pair of birds flies right above you"];
@@ -1106,7 +1109,24 @@ function get_location_type_penalty(type, stage, stat) {
         },
         unlock_text: "You finally got to a place where a camp can be established",
     });
-    locations["Mountain path"].connected_locations.push({location: locations["Tiny mountain flatland"]});
+    locations["Mountain path"].connected_locations.push({location: locations["Small flat area in mountains"]});
+    
+    locations["Mountain camp"] = new Location({
+        connected_locations: [{location: locations["Nearby cave"]}],
+        description: "A nice safe camp in mountains created by you, a perfect base for further exploration.",
+        name: "Mountain camp",
+        housing: {
+            is_present: true,
+            is_unlocked: true,
+            sleeping_xp_per_tick: 2, 
+        },
+        is_unlocked: false,
+        getBackgroundNoises: function() {
+            let noises = ["You hear a rock tumble and fall down. It takes a very long time to hit the ground...", "Strong wind whooshes past you", "A pair of birds flies right above you"];
+            return noises;
+        },
+    });
+    locations["Nearby cave"].connected_locations.push({location: locations["Mountain camp"]});
 })();
 
 //challenge zones
@@ -1193,7 +1213,7 @@ function get_location_type_penalty(type, stage, stat) {
         description: "It won't let you pass...",
         enemy_count: 1, 
         types: [],
-        enemies_list: ["Angry mountain goat"],
+        enemies_list: ["Angry-looking mountain goat"],
         enemy_group_size: [1,1],
         enemy_stat_variation: 0,
         is_unlocked: false, 
@@ -1201,12 +1221,12 @@ function get_location_type_penalty(type, stage, stat) {
         leave_text: "Run away and hope it won't follow",
         parent_location: locations["Mountain path"],
         repeatable_reward: {
-            locations: [{location: "Tiny mountain flatland"}],
+            locations: [{location: "Small flat area in mountains"}],
             xp: 500,
         },
         unlock_text: "Defend yourself!"
     });
-    locations["Mountain path"].connected_locations.push({location: locations["Fight off the assailant"], custom_text: "Fight off the suspicious man"});
+    locations["Mountain path"].connected_locations.push({location: locations["Fight the angry mountain goat"], custom_text: "Fight the angry goat"});
 })();
 
 //add activities
@@ -1423,7 +1443,7 @@ function get_location_type_penalty(type, stage, stat) {
                 }
             ],
             attempt_duration: 10,
-            success_chances: [1, 1],
+            success_chances: [1],
             rewards: {
                 locations: [{location: "Mysterious depths"}]
             },
@@ -1445,11 +1465,11 @@ function get_location_type_penalty(type, stage, stat) {
             conditions: [
                 {
                     skills: {
-                        "Climbing": 3,
+                        "Climbing": 7,
                     },
                     stats: {
-                        strength: 30,
-                        agility: 30,
+                        strength: 50,
+                        agility: 50,
                         max_stamina: 50,
                     }
                 },
@@ -1465,7 +1485,7 @@ function get_location_type_penalty(type, stage, stat) {
                 }
             ],
             attempt_duration: 60,
-            success_chances: [0.5, 1],
+            success_chances: [0.3, 1],
             rewards: {
                 locations: [{location: "Mountain path"}],
                 move_to: {location: "Mountain path"},
@@ -1486,15 +1506,34 @@ function get_location_type_penalty(type, stage, stat) {
                 ],
             },
             conditions: [],
+            is_unlocked: true,
             attempt_duration: 60,
             success_chances: [0.6],
             rewards: {
-                locations: [{location: "Mountain path"}],
-                move_to: {location: "Mountain path"},
-                skill_xp: {"climbing": 1500},
+                locations: [{location: "Fight the angry mountain goat"}],
             },
         }),
     };
+    locations["Small flat area in mountains"].actions = {
+        "create camp": new LocationAction({
+            action_id: "create camp",
+            starting_text: "Establish a camp here",
+            description: "Establish a camp here",
+            action_text: "Looking around",
+            success_text: "After a few hours of hard work, your camp is ready. You can rest here before venturing further in the mountains",
+            conditions: [],
+            is_unlocked: true,
+            attempt_duration: 180,
+            success_chances: [1],
+            rewards: {
+                locations: [{location: "Mountain camp"}],
+                move_to: {location: "Mountain camp"},
+                locks: {
+                    locations: ["Mountain path", "Small flat area in mountains"],
+                }
+            },
+        }),
+    }
 })();
 export {locations, location_types, get_location_type_penalty};
 
