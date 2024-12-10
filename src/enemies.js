@@ -35,7 +35,7 @@ class Enemy {
         this.add_to_bestiary = add_to_bestiary; //generally set it false only for SOME of challenges and keep true for everything else
 
         if(size !== "small" && size !== "medium" && size !== "large") {
-            throw new Error(`No such enemy size option as "size"!`);
+            throw new Error(`No such enemy size option as "${size}"!`);
         } else {
             this.size = size;
         }
@@ -147,6 +147,20 @@ class Enemy {
             {item_name: "Rat fang", chance: 0.04},
             {item_name: "Rat pelt", chance: 0.02},
             {item_name: "Weak monster bone", chance: 0.005},
+        ]
+    });
+    enemy_templates["Wall rat"] = new Enemy({
+        name: "Wall rat",
+        description: "They don't live in the walls, they ARE the walls. Insane writhing masses of teeth, fangs, and tails, that make no logical sense.",
+        xp_value: 20,
+        rank: 6,
+        size: "large",
+        tags: ["living", "beast", "wolf rat", "monster", "eldritch"],
+        stats: {health: 800, attack: 50, agility: 20, dexterity: 80, intuition: 80, magic: 0, attack_speed: 2, defense: 30},
+        loot_list: [
+            {item_name: "Rat tail", chance: 0.1},
+            {item_name: "Rat fang", chance: 0.1},
+            {item_name: "Rat pelt", chance: 0.05},
         ]
     });
 
@@ -273,6 +287,7 @@ class Enemy {
     enemy_templates["Angry-looking mountain goat"] = new Enemy({
         name: "Angry-looking mountain goat", 
         description: "It's a mountain goat and it's angry", 
+        add_to_bestiary: false,
         xp_value: 1,
         rank: 6,
         tags: ["living", "beast"],

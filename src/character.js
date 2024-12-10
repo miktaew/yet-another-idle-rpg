@@ -552,8 +552,7 @@ function add_to_character_inventory(items) {
 }
 
 /**
- * Removes items from character's inventory
- * Takes an array in form of [{item_key, item_count}]
+ * @param {Array} items [{item_key, item_count}]
  */
 function remove_from_character_inventory(items) {
         character.remove_from_inventory(items);

@@ -482,6 +482,63 @@ class Textline {
             }), 
         }
     });
+
+    dialogues["cute little rat"] = new Dialogue({
+        "name": "cute little rat",
+        "hello": new Textline({ 
+            name: "Uhm, hi?",
+            text: "Hello, o mighty adventurer!",
+            rewards: {
+                textlines: [{dialogue: "cute little rat", lines: ["what"]}],
+            },
+            locks_lines: ["hello"],
+        }),
+        "what": new Textline({ 
+            name: "What... are you?",
+            text: "Me name be Rator Rathai, the Rat Prince Who Be Promised!",
+            rewards: {
+                textlines: [{dialogue: "cute little rat", lines: ["walls"]}],
+            },
+            locks_lines: ["what"],
+        }),
+        "who": new Textline({ 
+            name: "Promised by who?",
+            text: "By my papa, the great Rat God, of course! The He who bring infite rat blessings uppon this dimension!",
+            rewards: {
+                textlines: [{dialogue: "cute little rat", lines: ["monsters"]}],
+            },
+            locks_lines: ["who"],
+        }),
+        "monsters": new Textline({ 
+            name: "Are those strange monsters that I fought on the way amonst those 'blessings' you speak of?",
+            text: "No no, they don't be blessings, they be the blessed! Creatures of all the creation, who embrace the gift of my papa! Monsters, animals, adventurers, plants, papa accepts all!",
+            rewards: {
+                textlines: [{dialogue: "cute little rat", lines: ["walls", "kill", "mind"]}],
+            },
+            locks_lines: ["monsters"],
+        }),
+        "mind": new Textline({ 
+            name: "And you don't mind that I slaughtered them?",
+            text: "Why? It's the rule of the world that the strong kill the weak and papa believe it too! Besides, maybe you be join us one day? Embrace the truth of your inner rat and reject the human shell!",
+            locks_lines: ["mind"],
+        }),
+        "walls": new Textline({ 
+            name: "So some of those wall-like things could have once been human?",
+            text: "Only in soul. They once be acolytes of papa, but not be worthy so be cast down to guard the path.",
+            rewards: {
+                textlines: [{dialogue: "cute little rat", lines: ["walls"]}],
+            },
+            locks_lines: ["monsters"],
+        }),
+        "kill": new Textline({ 
+            name: "Okay, give me one reason why I shouldn't kill you.",
+            text: "I don't mind, if I die my soul be return to papa. But my blood be full of papa power, don't do it unless you want to face him personally.",
+            rewards: {
+                textlines: [{dialogue: "cute little rat", lines: ["walls"]}],
+            },
+            locks_lines: ["kill"],
+        }),
+    });
 })();
 
 export {dialogues};

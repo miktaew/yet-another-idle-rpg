@@ -916,7 +916,7 @@ i {
 	margin-top: -3px;
 }
 
-.trader_category_button {
+.trader_category_button, .storage_category_button {
 	float:left;
 	padding: 3px 0px 3px 0px;
 	width: 98px;
@@ -938,7 +938,7 @@ i {
 
 
 .character_control_button:hover, .inventory_control_button:hover, 
-.trader_category_button:hover, .trader_sorting_button:hover, .active_selection_button, .character_sorting_button:hover {
+.trader_category_button:hover, .storage_category_button:hover, .trader_sorting_button:hover, .storage_sorting_button:hover, .active_selection_button, .character_sorting_button:hover {
 	background-color: var(--active_button_color) !important;
 	background-image: none;
 }
@@ -1025,7 +1025,7 @@ i {
 	font-size: 16px;
 }
 
-#accept_trade_button, #cancel_trade_button, .trader_sorting_button {
+#accept_trade_button, #cancel_trade_button, .trader_sorting_button, .storage_sorting_button {
     float:left;
 	width: 198px;
 	text-align: center;
@@ -1317,6 +1317,18 @@ i {
 	text-align: center;
 	border: 1px solid white;
 	border-top: none;
+	border-bottom: none;
+	cursor: pointer;
+	font-size: 20px;
+	padding: 3px 0px 0px 0px;
+	background-color: rgba(255, 241, 117, 0.2);
+}
+
+#exit_storage_button {
+	float:left;
+	width: 398px;
+	text-align: center;
+	border: 1px solid white;
 	border-bottom: none;
 	cursor: pointer;
 	font-size: 20px;
@@ -1831,7 +1843,7 @@ i {
 	display: none;
 }
 
-#start_sleeping_div{
+#start_sleeping_div, #open_storage_div{
 	text-align: left;
 	font-size: 20px;
 	border-bottom: 1px solid white;
@@ -1839,7 +1851,7 @@ i {
 	padding: 5px;
 }
 
-#start_sleeping_div:hover, #action_end_div:hover, #end_sleeping_div:hover {
+#start_sleeping_div:hover, #action_end_div:hover, #end_sleeping_div:hover, #open_storage_div:hover {
 	background-color: #2c3953;
 }
 
@@ -1897,6 +1909,16 @@ i {
 	display: inline-block;
 	text-align: right;
 	padding-right: 5px;
+}
+
+#storage_div {
+	display: none;
+}
+
+#storage_inventory_div {
+    height: 350px;
+	width: 100%;
+	overflow-y: scroll;
 }
 
 /* scrollbar */

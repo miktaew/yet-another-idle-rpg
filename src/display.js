@@ -21,11 +21,13 @@ import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price
 import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { effect_templates } from "./active_effects.js";
+import { player_storage } from "./storage.js";
 
 let activity_anim; //for the activity and locationAction animation interval
 //location actions & trade
 const action_div = document.getElementById("location_actions_div");
 const trade_div = document.getElementById("trade_div");
+const storage_div = document.getElementById("storage_div");
 
 const location_name_span = document.getElementById("location_name_span");
 const location_types_div = document.getElementById("location_types_div");
@@ -34,8 +36,12 @@ const location_tooltip = document.getElementById("location_name_tooltip");
 //inventory display
 const inventory_div = document.getElementById("inventory_content_div");
 let item_divs = {};
+let trader_item_divs = {};
+let storage_item_divs = {};
 let item_buying_divs = {};
+let item_selling_divs = {};
 const trader_inventory_div = document.getElementById("trader_inventory_div");
+const storage_inventory_div = document.getElementById("storage_inventory_div");
 
 //message log
 const message_log = document.getElementById("message_box_div");
@@ -684,6 +690,12 @@ function update_displayed_trader() {
     update_displayed_trader_inventory();
 }
 
+function update_displayed_storage() {
+    action_div.style.display = "none";
+    storage_div.style.display = "inherit";
+    update_displayed_storage_inventory();
+}
+
 function update_displayed_money() {
     document.getElementById("money_div").innerHTML = `Your purse contains: ${format_money(character.money)}`;
 }
@@ -858,35 +870,100 @@ function sort_displayed_inventory({sort_by = "name", target = "character", chang
     }).forEach(node => target.appendChild(node));
 }
 
-function update_displayed_trader_inventory({trader_sorting} = {}) {
+function update_displayed_trader_inventory({item_key, trader_sorting="name", sorting_direction="asc", was_anything_new_added=false} = {}) {
     const trader = traders[current_trader];
-    trader_inventory_div.textContent = "";
 
-    Object.keys(trader.inventory).forEach(function(key) {
-        let item_count = trader.inventory[key].count;
-        for(let i = 0; i < to_buy.items.length; i++) {
-            
-            if(key === to_buy.items[i].item_key) {
-                item_count -= Number(to_buy.items[i].count);
+    //removal of unneeded divs
+    if(!item_key){
+        Object.keys(trader_item_divs).forEach(div_key => {
+            if(!trader.inventory[div_key]) {
+                trader_item_divs[div_key].remove();
+                delete trader_item_divs[div_key];
+            }
+        });
+        Object.keys(item_selling_divs).forEach(div_key => {
+            if(to_sell.items.filter(x => x.item_key === div_key).length === 0){
+                //not in trade list - remove
+                item_selling_divs[div_key].remove();
+                delete item_selling_divs[div_key];
+            }
+        });
+    }
 
-                if(item_count == 0) {
-                    return;
+    //creation of missing divs and updating of others
+    if(item_key) {
+        const item_count = trader.inventory[item_key].count;
+        trader_item_divs[item_key].remove();
+        delete trader_item_divs[item_key];
+        trader_item_divs[item_key] = create_inventory_item_div({key: item_key, item_count, target: "trader"});
+        trader_inventory_div.appendChild(trader_item_divs[item_key]);
+        was_anything_new_added = true;
+    } else {
+        Object.keys(trader.inventory).forEach(inventory_key => {
+            let item_count = trader.inventory[inventory_key].count;
+
+            //find if item is in to_sell, if so then grab the count and subtract it
+            for(let i = 0; i < to_buy.items.length; i++) {
+                if(inventory_key === to_buy.items[i].item_key) {
+                    item_count -= Number(to_buy.items[i].count);
+
+                    if(item_count == 0) {
+                        trader_item_divs[inventory_key]?.remove();
+                        delete trader_item_divs[inventory_key];
+                        return;
+                    }
+                    if(item_count < 0) {
+                        //shouldn't be possible to reach but who knows
+                        throw new Error('Something is wrong with trader item count');
+                    }
+                    break;
                 }
-                if(item_count < 0) {
-                    throw 'Something is wrong with trader item count';
+            }
+
+            if(!trader_item_divs[inventory_key]) {
+                trader_item_divs[inventory_key] = create_inventory_item_div({key: inventory_key, item_count, target: "trader"});
+                trader_inventory_div.appendChild(trader_item_divs[inventory_key]);
+                was_anything_new_added = true;
+            } else {
+                let div_count = Number.parseInt(trader_item_divs[inventory_key].getElementsByClassName("item_count")[0].innerText.replace("x",""));
+                if(Number.isNaN(div_count)) {
+                    div_count = 0;
+                }
+                if(div_count != item_count) {
+                    if(item_count > 1) {
+                        trader_item_divs[inventory_key].getElementsByClassName("item_count")[0].innerText = ` x${item_count}`;
+                    } else {
+                        trader_item_divs[inventory_key].getElementsByClassName("item_count")[0].innerText = ``;
+                    }
+                }
+            }
+        });
+
+        for(let i = 0; i < to_sell.items.length; i++) {
+            const key = to_sell.items[i].item_key;
+            if(!item_selling_divs[key]) {
+                item_selling_divs[key] = create_inventory_item_div({target: "trader", trade_index: i});
+                trader_inventory_div.appendChild(item_selling_divs[key]);
+            } else {
+                //verify and update count
+                
+                let div_count = trader_item_divs[key]?.dataset.item_count ?? 0;
+
+                let item_count = to_sell.items[i].count;
+                if(div_count !== item_count) {
+                    if(item_count > 1) {
+                        item_selling_divs[key].getElementsByClassName("item_count")[0].innerText = ` x${item_count}`;
+                    } else {
+                        item_selling_divs[key].getElementsByClassName("item_count")[0].innerText = ``;
+                    }
                 }
             }
         }
-
-        trader_inventory_div.appendChild(create_inventory_item_div({key, item_count, target: "trader"}));
-    });
-    
-    for(let i = 0; i < to_sell.items.length; i++) {
-        //add items from to_sell to display
-        trader_inventory_div.appendChild(create_inventory_item_div({target: "trader", trade_index: i}));
     }
-
-    sort_displayed_inventory({sort_by: trader_sorting || "name", target: "trader"});
+    
+    if(!item_key && was_anything_new_added) {
+        sort_displayed_inventory({target: "trader", sort_by: trader_sorting, direction: sorting_direction});
+    }
 }
 
 /**
@@ -896,7 +973,7 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
  * 
  * currently item_key is only used for books
  */
- function update_displayed_character_inventory({item_key, character_sorting="name", sorting_direction="asc", was_anything_new_added=false} = {}) {    
+function update_displayed_character_inventory({item_key, character_sorting="name", sorting_direction="asc", was_anything_new_added=false} = {}) {    
     
     //removal of unneeded divs
     if(!item_key){
@@ -1018,12 +1095,68 @@ function update_displayed_trader_inventory({trader_sorting} = {}) {
     }
 }
 
+function update_displayed_storage_inventory({item_key, storage_sorting="name", sorting_direction="asc", was_anything_new_added=false} = {}) {
+
+    //removal of unneeded divs
+    if(!item_key){
+        Object.keys(storage_item_divs).forEach(div_key => {
+            if(!player_storage.inventory[div_key]) {
+                storage_item_divs[div_key].remove();
+                delete storage_item_divs[div_key];
+            }
+        });
+    }
+
+    //creation of missing divs and updating of others
+    if(item_key) {
+        const item_count = player_storage.inventory[item_key].count;
+        storage_item_divs[item_key].remove();
+        delete storage_item_divs[item_key];
+        storage_item_divs[item_key] = create_inventory_item_div({key: item_key, item_count, target: "storage"});
+        storage_inventory_div.appendChild(storage_item_divs[item_key]);
+        was_anything_new_added = true;
+    } else {
+        Object.keys(player_storage.inventory).forEach(inventory_key => {
+            let item_count = player_storage.inventory[inventory_key].count;
+
+
+            if(!storage_item_divs[inventory_key]) {
+                storage_item_divs[inventory_key] = create_inventory_item_div({key: inventory_key, item_count, target: "storage"});
+                storage_inventory_div.appendChild(storage_item_divs[inventory_key]);
+                was_anything_new_added = true;
+            } else {
+                let div_count = Number.parseInt(storage_item_divs[inventory_key].getElementsByClassName("item_count")[0].innerText.replace("x",""));
+                if(Number.isNaN(div_count)) {
+                    div_count = 0;
+                }
+                if(div_count != item_count) {
+                    if(item_count > 1) {
+                        storage_item_divs[inventory_key].getElementsByClassName("item_count")[0].innerText = ` x${item_count}`;
+                    } else {
+                        storage_item_divs[inventory_key].getElementsByClassName("item_count")[0].innerText = ``;
+                    }
+                }
+            }
+        });
+
+    }
+    
+    if(!item_key && was_anything_new_added) {
+        sort_displayed_inventory({target: "storage", sort_by: storage_sorting, direction: sorting_direction});
+    }
+}
+
+function exit_displayed_storage() {
+    action_div.style.display = "";
+    storage_div.style.display = "none";
+}
+
 /**
  * creates a single item div for hero/trader, used to fill displayed inventories
  * @param {Object} params
  * @param {String} params.key 
  * @param {Number} params.item_count
- * @param {String} params.target character/trader
+ * @param {String} params.target character/trader/storage
  * @param {Boolean} params.is_equipped
  * @param {Number} params.trade_index index in to_buy/to_sell
  * @returns 
@@ -1044,6 +1177,8 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
     if(target === "trader") {
         options.trader = true;
         price_multiplier = traders[current_trader].getProfitMargin() || price_multiplier;
+    } else if(target === "storage") {
+        options.storage = true;
     }
 
     if(is_equipped) {
@@ -1071,6 +1206,10 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
                 item_count = item_count || to_sell.items[trade_index].count;
             }
             target_class_name = "trader_item";
+        } else if(target === "storage") {
+            target_item = player_storage.inventory[key].item;
+            item_count = item_count || player_storage.inventory[key].count;
+            target_class_name = "storage_item";
         } else {
             throw new Error(`"${target}" is not a correct inventory owner`);
         }
@@ -1170,7 +1309,6 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
     } 
     
     item_additional.appendChild(create_trade_buttons());
-
 
     let item_value_span = document.createElement("span");
     item_value_span.innerHTML = `${format_money(round_item_price(target_item.getValue()*price_multiplier), true)}`;
@@ -1331,14 +1469,21 @@ function update_displayed_normal_location(location) {
     ///////////////////////////
     //add button to go to sleep
 
-    if(location.sleeping) { 
+    if(location.housing?.is_unlocked) { 
         const start_sleeping_div = document.createElement("div");
         
-        start_sleeping_div.innerHTML = '<i class="material-icons">bed</i>  ' + location.sleeping.text;
+        start_sleeping_div.innerHTML = '<i class="material-icons">bed</i>  ' + location.housing.text_to_sleep;
         start_sleeping_div.id = "start_sleeping_div";
         start_sleeping_div.setAttribute('onclick', 'start_sleeping()');
 
+        const open_storage_div = document.createElement("div");
+        
+        open_storage_div.innerHTML = '<i class="material-icons">inventory_2</i>  Open your personal chest';
+        open_storage_div.id = "open_storage_div";
+        open_storage_div.setAttribute('onclick', 'openStorage()');
+
         action_div.appendChild(start_sleeping_div);
+        action_div.appendChild(open_storage_div);
     }
     
     ////////////////////////////////////
@@ -1465,16 +1610,16 @@ function update_displayed_normal_location(location) {
     /////////////////////////////////
     //add butttons to change location
 
-    const available_locations = location.connected_locations.filter(location => {if(location.location.is_unlocked && !location.location.is_finished && !location.location.is_challenge) return true});
-
-    if(available_locations.length > 3 && (location.sleeping + available_trainings.length + available_jobs.length +  available_traders.length + available_dialogues.length + available_actions.length) > 2) {
+    const available_locations = location.connected_locations.filter(loc => (loc.location.is_unlocked && !loc.location.is_finished && !loc.location.is_challenge));
+    //const available_locations = location.connected_locations.filter(loc => {return loc.is_unlocked && !loc.is_finished && !loc.is_challenge});
+    if(available_locations.length > 3 && (location.housing?.is_unlocked + available_trainings.length + available_jobs.length +  available_traders.length + available_dialogues.length + available_actions.length) > 2) {
         const locations_button = document.createElement("div");
         locations_button.setAttribute("data-location", location.name);
         locations_button.classList.add("location_choices");
         locations_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "travel"});');
         locations_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">directions</i>  Move somewhere else';
         action_div.appendChild(locations_button);
-    } else if(available_locations.length > 0) {
+    } else {
         action_div.append(...create_location_choices({location: location, category: "travel"}));
     }
 
@@ -1684,7 +1829,7 @@ function create_location_choices({location, category, add_icons = true, is_comba
             choice_list.push(action);
         }
 
-        if(last_location_with_bed && !location.sleeping && (!location.connected_locations || location?.connected_locations?.filter(loc => loc.location.name === last_location_with_bed).length == 0)) {
+        if(last_location_with_bed && !location.housing?.is_unlocked && (!location.connected_locations || location?.connected_locations?.filter(loc => loc.location.name === last_location_with_bed).length == 0)) {
             const last_bed = locations[last_location_with_bed];
 
             const action = document.createElement("div");
@@ -1701,7 +1846,7 @@ function create_location_choices({location, category, add_icons = true, is_comba
 
         choice_list.sort((a,b) => b.classList.contains("travel_normal") - a.classList.contains("travel_normal"));
     } else if (category === "challenge") {
-        const available_challenges = location.connected_locations.filter(location => {if(location.location.is_challenge && location.location.is_unlocked && !location.location.is_finished) return true});
+        const available_challenges = location.connected_locations.filter(loc => (loc.location.is_challenge && loc.location.is_unlocked && !loc.location.is_finished));
        
         for(let i = 0; i < available_challenges.length; i++) { 
             const action = document.createElement("div");
@@ -3674,5 +3819,7 @@ export {
     start_location_action_display,
     set_location_action_finish_text,
     update_location_action_progress_bar,
-    update_location_action_finish_button
+    update_location_action_finish_button,
+    update_displayed_storage, exit_displayed_storage,
+    update_displayed_storage_inventory
 }

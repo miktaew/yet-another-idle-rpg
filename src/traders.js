@@ -5,8 +5,8 @@ import { InventoryHaver } from "./inventory.js";
 import { item_templates, getItem} from "./items.js";
 import { skills } from "./skills.js";
 
-var traders = {};
-var inventory_templates = {};
+const traders = {};
+const inventory_templates = {};
 
 
 class Trader extends InventoryHaver {

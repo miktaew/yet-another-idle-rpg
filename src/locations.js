@@ -20,8 +20,7 @@ class Location {
                 dialogues = [], 
                 traders = [],
                 types = [], //{type, xp per tick}
-                sleeping = null, //{text to start, xp per tick},
-                housing = {present: null},
+                housing = {present: null}, //{is_unlocked, sleeping_xp_per_tick, text_to_start}
                 light_level = "normal",
                 getDescription,
                 background_noises = [],
@@ -45,9 +44,7 @@ class Location {
         this.activities = {};
         this.actions = {};
         this.types = types;
-        this.sleeping = sleeping;
-        this.housing = housing; //to replace sleeping
-                        //{is_present, is_unlocked, sleeping_xp_per_tick}
+        this.housing = housing;
 
         for (let i = 0; i < this.dialogues.length; i++) {
             if (!dialoguesList[this.dialogues[i]]) {
@@ -625,7 +622,16 @@ function get_location_type_penalty(type, stage, stat) {
         name: "narrow",
         stages: {
             1: {
-                description: "A very narrow and tight area where there's not much place for maneuvering",
+                description: "A narrow area where there's not much place for maneuvering",
+                related_skill: "Tight maneuvers",
+                effects: {
+                    multipliers: {
+                        evasion_points: 0.5,
+                                }
+                        }
+                },
+            2: {
+                description: "A very tight and narrow area where there's not much place for maneuvering",
                 related_skill: "Tight maneuvers",
                 effects: {
                     multipliers: {
@@ -633,7 +639,7 @@ function get_location_type_penalty(type, stage, stat) {
                                 }
                         }
                 }
-            }
+        }
     });
     location_types["open"] = new LocationType({
         name: "open",
@@ -734,6 +740,64 @@ function get_location_type_penalty(type, stage, stat) {
             }
         }
     });
+    location_types["thin air"] = new LocationType({
+        name: "thin air",
+        stages: {
+            1: {
+                description: "Place with thinner air, which negatively impacts your body",
+                related_skill: "Breathing",
+                effects: {
+                    multipliers: {
+                        stamina_efficiency: 0.5,
+                        agility: 0.8,
+                        strength: 0.8,
+                        dexterity: 0.8,
+                        intuition: 0.8,
+                    }
+                }
+            },
+            2: {
+                description: "Place with very thin air, heavily affecting your body",
+                related_skill: "Breathing",
+                effects: {
+                    multipliers: {
+                        stamina_efficiency: 0.1,
+                        agility: 0.5,
+                        strength: 0.5,
+                        dexterity: 0.5,
+                        intuition: 0.5,
+                    }
+                }
+            }
+        }
+    });
+    location_types["eldritch"] = new LocationType({
+        name: "eldritch",
+        stages: {
+            1: {
+                description: "This place is wrong",
+                related_skill: "Strength of mind",
+                effects: {
+                    multipliers: {
+                        agility: 0.8,
+                        dexterity: 0.8,
+                        intuition: 0.5,
+                    }
+                }
+            },
+            2: {
+                description: "It shouldn't exist, it's all wrong!",
+                related_skill: "Strength of mind",
+                effects: {
+                    multipliers: {
+                        agility: 0.5,
+                        dexterity: 0.5,
+                        intuition: 0.3,
+                    }
+                }
+            }
+        }
+    });
 })();
 
 //create locations and zones
@@ -789,9 +853,10 @@ function get_location_type_penalty(type, stage, stat) {
         description: "This small shack was the only spare building in the village. It's surprisingly tidy.",
         name: "Shack",
         is_unlocked: false,
-        sleeping: {
-            text: "Take a nap",
-            xp: 1},
+        housing: {
+            is_unlocked: true,
+            text_to_sleep: "Take a nap",
+            sleeping_xp_per_tick: 1},
     })
 
     locations["Village"].connected_locations.push({location: locations["Shack"]});
@@ -959,7 +1024,45 @@ function get_location_type_penalty(type, stage, stat) {
         {location: locations["Hidden tunnel"], custom_text: "Enter the hidden tunnel"}, 
         {location: locations["Pitch black tunnel"], custom_text: "Go into the pitch black tunnel"},
         {location: locations["Mysterious gate"], custom_text: "Go to the mysterious gate"}
-    ),
+    );
+
+    locations["Writhing tunnel"] = new Combat_zone({
+        description: "The walls are moving...", 
+        enemy_count: 50, 
+        types: [{type: "dark", stage: 3, xp_gain: 5}, {type: "narrow", stage: 2, xp_gain: 5}, {type: "eldritch", stage: 1, xp_gain: 1}],
+        enemies_list: ["Wall rat"],
+        enemy_group_size: [4,4],
+        enemy_stat_variation: 0.2,
+        is_unlocked: false,
+        name: "Writhing tunnel", 
+        leave_text: "Run away...",
+        parent_location: locations["Nearby cave"],
+        first_reward: {
+            xp: 2500,
+        },
+        repeatable_reward: {
+            xp: 1250,
+        },
+        unlock_text: "After a long and ardous fight, you reach a chamber that ends with a massive stone gate. You can see it's guarded by some kind of wolf rats, but much bigger than the ones you fought until now."
+    });
+
+    locations["Nearby cave"].connected_locations.push({location: locations["Writhing tunnel"]});
+
+    locations["Mysterious depths"] = new Location({ 
+        connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb back up to the main cave system"}], 
+        getDescription: function() {
+            return  `You find yourself in a large chamber with smooth walls and vaulted ceiling. The floor is covered in square tiles, yet you cannot help but notice that all these squares make a circle, in some impossible to understand way.
+There's another gate on the wall in front of you, but you have a strange feeling that you won't be able to open it with brute strength. Smaller gates guard tunnels on the sides of the chamber, so maybe you should start with them?`;
+        },
+        getBackgroundNoises: function() {
+            let noises = ["*You hear rocks rumbling somewhere*", "Squeak!", "*Air vibrates in an impossible to describe manner*", "*You feel an immense sense of something being wrong*"];
+            return noises;
+        },
+        name: "Mysterious depths",
+        is_unlocked: false,
+    });
+
+    locations["Nearby cave"].connected_locations.push({location: locations["Mysterious depths"]});
 
     locations["Forest road"] = new Location({ 
         connected_locations: [{location: locations["Village"]}],
@@ -977,6 +1080,7 @@ function get_location_type_penalty(type, stage, stat) {
     locations["Forest"] = new Combat_zone({
         description: "Forest surrounding the village, a dangerous place", 
         enemies_list: ["Starving wolf", "Young wolf"],
+        types: [{type: "narrow", stage: 1, xp_gain: 1}],
         enemy_count: 30, 
         enemy_stat_variation: 0.2,
         name: "Forest", 
@@ -995,6 +1099,7 @@ function get_location_type_penalty(type, stage, stat) {
     locations["Deep forest"] = new Combat_zone({
         description: "Deeper part of the forest, a dangerous place", 
         enemies_list: ["Wolf", "Starving wolf", "Young wolf"],
+        types: [{type: "narrow", stage: 1, xp_gain: 2}],
         enemy_count: 50, 
         enemy_group_size: [2,3],
         enemy_stat_variation: 0.2,
@@ -1086,7 +1191,7 @@ function get_location_type_penalty(type, stage, stat) {
     locations["Town outskirts"].connected_locations.push({location: locations["Town farms"]}, {location: locations["Slums"]});
 
     locations["Mountain path"] = new Location({
-        connected_locations: [{location: locations["Nearby cave"]}, {location: locations["Mountain camp"]}],
+        connected_locations: [{location: locations["Nearby cave"]}],
         description: "A treacherus path high above the village",
         name: "Mountain path",
         is_unlocked: true,
@@ -1118,7 +1223,7 @@ function get_location_type_penalty(type, stage, stat) {
         housing: {
             is_present: true,
             is_unlocked: true,
-            sleeping_xp_per_tick: 2, 
+            sleeping_xp_per_tick: 3,
         },
         is_unlocked: false,
         getBackgroundNoises: function() {
@@ -1127,6 +1232,7 @@ function get_location_type_penalty(type, stage, stat) {
         },
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Mountain camp"]});
+    locations["Mountain path"].connected_locations.push({location: locations["Mountain camp"]});
 })();
 
 //challenge zones
@@ -1212,7 +1318,7 @@ function get_location_type_penalty(type, stage, stat) {
     locations["Fight the angry mountain goat"] = new Challenge_zone({
         description: "It won't let you pass...",
         enemy_count: 1, 
-        types: [],
+        types: [{type: "narrow", stage: 1, xp_gain: 1}, {type: "thin air", stage: 1, xp_gain: 3}],
         enemies_list: ["Angry-looking mountain goat"],
         enemy_group_size: [1,1],
         enemy_stat_variation: 0,
@@ -1445,7 +1551,7 @@ function get_location_type_penalty(type, stage, stat) {
             attempt_duration: 10,
             success_chances: [1],
             rewards: {
-                locations: [{location: "Mysterious depths"}]
+                locations: [{location: "Writhing tunnel"}],
             },
         }),
         "climb the mountain": new LocationAction({
@@ -1518,7 +1624,7 @@ function get_location_type_penalty(type, stage, stat) {
         "create camp": new LocationAction({
             action_id: "create camp",
             starting_text: "Establish a camp here",
-            description: "Establish a camp here",
+            description: "Prepare a tent, a fireplace, and a storage here to create a new base. It will be necessary before exploring further up the mountains.",
             action_text: "Looking around",
             success_text: "After a few hours of hard work, your camp is ready. You can rest here before venturing further in the mountains",
             conditions: [],

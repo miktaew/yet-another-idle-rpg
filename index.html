@@ -570,6 +570,41 @@
                         </div>
                     </div>
 
+                    <div id = "storage_div">
+                        <div id = "storage_sorting_buttons" class="activable_buttons"> 
+                            <div id = "storage_sort_by_name" class = "storage_sorting_button active_selection_button" onclick='sortStorageInventory("name")'>
+                                Sort by name
+                            </div>
+                            <div id = "storage_sort_by_price" class = "storage_sorting_button" onclick='sortStorageInventory("price")'>
+                                Sort by value
+                            </div>
+                        </div>
+                        <div id = "storage_category_buttons" class="activable_buttons">
+                            <div id = "storage_category_all" class = "storage_category_button active_selection_button" onclick='showAllStorageItems()'>
+                                all
+                            </div>
+                            <div id = "storage_category_equipment" class = "storage_category_button" onclick="showOnlyStorageEquipment()">
+                                equipment
+                            </div>
+                            <div id = "storage_category_usable" class = "storage_category_button" onclick="showOnlyStorageConsumables()">
+                                usable
+                            </div>
+                            <div id = "storage_category_other" class = "storage_category_button" onclick="showOnlyStorageOther()">
+                                other
+                            </div>
+                        </div>
+
+
+                        <div id = "storage_inventory_div">
+
+                        </div>
+                        <div id = "storage_control_div">
+                            <div id = "exit_storage_button" onclick = "exitStorage()">
+                                Exit
+                            </div>
+                        </div>
+                    </div>
+
                     <div id = "crafting_window" class="crafting_window">
                         <div id="crafting_mainpage_buttons" class="activable_buttons crafting_mainpage_buttons">
                             <div class="crafting_mainpage_button active_selection_button" onclick="switchCraftingRecipesPage('crafting')">Crafting</div>
@@ -1102,9 +1137,11 @@
             }
 
             let in_trade = false;
+            let in_storage = false;
             let total_price;
             const trade_price_value = document.getElementById("trade_price_value");
             let trader_sorting = "name";
+            let storage_sorting = "name";
             let character_sorting = "name";
             let skill_sorting = "name";
 
@@ -1165,6 +1202,23 @@
                 } else {
                     console.log("You can't afford this");
                 }
+            }
+
+            function openStorage() {
+                in_storage = true;
+
+                document.documentElement.style.setProperty('--trade_ammount_button_display', 'inline-block');
+                document.documentElement.style.setProperty('--item_use_button_display', 'none');
+
+                open_storage();
+            }
+            function exitStorage() {
+                in_trade = false;
+
+                document.documentElement.style.setProperty('--trade_ammount_button_display', 'none');
+                document.documentElement.style.setProperty('--item_use_button_display', 'inline-block');
+
+                exit_storage();
             }
 
             function sortTraderInventory(option) {
@@ -1658,12 +1712,17 @@
                 inventory_div.addEventListener('click', (event)=>move_trade_item(event, "character"), false);
                 trader_inventory_div.addEventListener('click', (event)=>move_trade_item(event, "trader"), false);
                 function move_trade_item(event, target) {
+                    if(!in_trade) {
+                        return;
+                    }
+
                     let clicked_element = event.target;
+
                     if(clicked_element.isEqualNode(trader_inventory_div) || clicked_element.isEqualNode(inventory_div)) {
                         return;
                     }
 
-                    if(!in_trade || clicked_element.classList.contains("equip_item_button") || clicked_element.classList.contains("unequip_item_button")) {
+                    if(clicked_element.classList.contains("equip_item_button") || clicked_element.classList.contains("unequip_item_button")) {
                         return;
                     }
 
@@ -1711,6 +1770,54 @@
 
                     trade_price_value.innerHTML = format_money(total_price);
                     check_trade_cost();
+                }
+
+                const storage_div = document.getElementById("storage_div");
+                inventory_div.addEventListener('click', (event)=>move_storage_item(event, "character"), false);
+                storage_div.addEventListener('click', (event)=>move_storage_item(event, "storage"), false);
+                function move_storage_item(event, target) {
+                    if(!in_storage) {
+                        return;
+                    }
+
+                    let clicked_element = event.target;
+
+                    if(clicked_element.isEqualNode(storage_div) || clicked_element.isEqualNode(inventory_div)) {
+                        return;
+                    }
+
+                    if(clicked_element.classList.contains("equip_item_button") || clicked_element.classList.contains("unequip_item_button")) {
+                        return;
+                    }
+
+                    let number_to_move = 1;
+
+                    if(clicked_element.classList.contains("trade_ammount_button")){
+                        number_to_move = Number(clicked_element.getAttribute("data-trade_ammount"));
+                    }
+
+                    clicked_element = retarget_clicked_to_class(clicked_element, ["inventory_item_control"], ["global_content"]);
+                    if(!clicked_element) {
+                        return;
+                    }
+
+                    if(clicked_element.classList.contains("equipped_item_control")) {
+                        console.warn("Can't move equipped items");
+                        return;
+                    }
+
+
+                    if(target==="character") {
+                        const selected_item = clicked_element.getAttribute("data-character_item");
+                        move_item_to_storage({item_key: selected_item, count: number_to_move});
+                    } 
+                    else if(target==="storage") {
+                        const selected_item = clicked_element.getAttribute("data-storage_item");
+                        remove_item_from_storage({item_key: selected_item, count: number_to_move});
+                    }
+
+                    update_displayed_storage_inventory();
+                    update_displayed_character_inventory();
                 }
 
                 //set colors for active selection buttons

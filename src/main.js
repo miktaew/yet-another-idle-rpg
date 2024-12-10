@@ -55,13 +55,15 @@ import { end_activity_animation,
          start_location_action_display,
          set_location_action_finish_text,
          update_location_action_progress_bar,
-         update_location_action_finish_button
+         update_location_action_finish_button,
+         update_displayed_storage_inventory
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { game_version, get_game_version } from "./game_version.js";
 import { ActiveEffect, effect_templates } from "./active_effects.js";
+import { open_storage, close_storage, move_item_to_storage, remove_item_from_storage } from "./storage.js";
 import { Verify_Game_Objects } from "./verifier.js";
 
 const save_key = "save data";
@@ -1409,7 +1411,6 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
 
             if(typeof should_info === "undefined" || should_info)
             {
-                //log_message(message, "skill_raised");
                 update_character_stats();
             }
 
@@ -1453,6 +1454,10 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 }
             }
 
+            if(typeof should_info === "undefined" || should_info){
+                log_message(message, "skill_raised");
+            }
+            
             if(prev_name !== new_name) {
                 if(which_skills_affect_skill[skill.skill_id]) {
                     for(let i = 0; i < which_skills_affect_skill[skill.skill_id].length; i++) {
@@ -1472,10 +1477,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                     }
                 }
             }
-            if(typeof should_info === "undefined" || should_info)
-                {
-                    log_message(message, "skill_raised");
-                }
+            
 
         } else {
             update_displayed_skill_bar(skill, false);
@@ -1996,6 +1998,9 @@ function create_save() {
                     }
                     
                 });
+            }
+            if(locations[key].housing?.is_unlocked) {
+                save_data["locations"][key].housing_unlocked = true;
             }
         }); //save locations' (and their activities'/actions') unlocked status and their killcounts
 
@@ -2704,6 +2709,15 @@ function load(save_data) {
 
                 });
             }
+
+            if(save_data.locations[key].housing_unlocked) {
+                if(!locations[key].housing) {
+                    console.warn(`Location "${locations[key].name}" was saved as having a bed unlocked, but it no longer has this mechanic and was skipped!`);
+                } else {
+                    locations[key].housing.is_unlocked = true;
+                }
+                
+            }
         } else {
             console.warn(`Location "${key}" couldn't be found!`);
             return;
@@ -2920,7 +2934,7 @@ function update() {
         } else { //everything other than combat
             if(is_sleeping) {
                 do_sleeping();
-                add_xp_to_skill({skill: skills["Sleeping"], xp_to_add: current_location.sleeping?.xp});
+                add_xp_to_skill({skill: skills["Sleeping"], xp_to_add: current_location.housing?.sleeping_xp_per_tick});
             }
             else {
                 if(is_resting) {
@@ -3186,6 +3200,11 @@ window.cancel_trade = cancel_trade;
 window.accept_trade = accept_trade;
 window.is_in_trade = is_in_trade;
 
+window.open_storage = open_storage;
+window.exit_storage = close_storage;
+window.move_item_to_storage = move_item_to_storage;
+window.remove_item_from_storage = remove_item_from_storage;
+
 window.format_money = format_money;
 window.get_character_money = character.get_character_money;
 
@@ -3196,6 +3215,7 @@ window.do_enemy_combat_action = do_enemy_combat_action;
 window.sort_displayed_inventory = sort_displayed_inventory;
 window.update_displayed_character_inventory = update_displayed_character_inventory;
 window.update_displayed_trader_inventory = update_displayed_trader_inventory;
+window.update_displayed_storage_inventory = update_displayed_storage_inventory;
 
 window.sort_displayed_skills = sort_displayed_skills;
 

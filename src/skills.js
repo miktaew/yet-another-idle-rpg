@@ -116,6 +116,8 @@ class Skill {
             return;
         }
         xp_to_add = Math.round(xp_to_add*100)/100;
+        const skill_name = this.name(); 
+        //grab name beforehand, in case it changes after levelup (levelup message should appear BEFORE skill name change message, so this is necessary)
 
         this.total_xp = Math.round(100*(this.total_xp + xp_to_add))/100;
         if (this.current_level < this.max_level) { //not max lvl
@@ -165,10 +167,10 @@ class Skill {
                     this.xp_to_next_lvl = "Max";
                 }
 
-                let message = `${this.name()} has reached level ${this.current_level}`;
+                let message = `${skill_name} has reached level ${this.current_level}`;
 
                 if (Object.keys(gains.stats).length > 0 || Object.keys(gains.xp_multipliers).length > 0) { 
-                    message += `<br><br> Thanks to ${this.name()} reaching new milestone, ${character.name} gained: `;
+                    message += `<br><br> Thanks to ${skill_name} reaching new milestone, ${character.name} gained: `;
 
                     if (gains.stats) {
                         Object.keys(gains.stats).forEach(stat => {
@@ -1926,6 +1928,35 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
             }
         }
     }); 
+    skills["Strength of mind"] = new Skill({
+        //bonus from persistence, literacy
+        //give bonuses to all xp gains? 
+
+        skill_id: "Strength of mind", 
+        names: {0: "Strength of mind"}, 
+        description: "",
+        category: "Character",
+        base_xp_cost: 120,
+        max_level: 10,
+        xp_scaling: 2,
+        get_effect_description: ()=> {
+            return ``;
+        },
+        rewards: {
+            milestones: {
+                1: {
+                    xp_multipliers: {
+                        all_skill: 1.05,
+                    }
+                },
+                2: {
+                    xp_multipliers: {
+                        hero: 1.05,
+                    }
+                }
+            }
+        }
+    });
 })();
 
 //miscellaneous skills

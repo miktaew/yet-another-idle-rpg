@@ -31,11 +31,9 @@ class InventoryHaver {
     }
 
     /**
-     * @description removes specified items (array of {item_key, item_count}) from the inventory; don't use this method directly, there are other methods that call this one and take care of display
-     * @param {Array} items
-     * @param {*} item_key inventory key of the item
-     * @param {*} item_count number of items to remove
-     *      */
+     * @description removes specified items (array of {item_key, count}) from the inventory; don't use this method directly, there are other methods that call this one and take care of display
+     * @param {Array} items [{item_key, item_count}]
+     **/
     remove_from_inventory(items) {
         for(let i = 0; i < items.length; i++){       
             if(items[i].item_key in this.inventory) { //check if its in inventory, just in case, probably not needed
