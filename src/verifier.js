@@ -2,6 +2,7 @@ import { effect_templates } from "./active_effects.js";
 import { activities } from "./activities.js";
 import { character } from "./character.js";
 import { dialogues } from "./dialogues.js";
+import { enemy_templates } from "./enemies.js";
 import { item_templates } from "./items.js";
 import { locations } from "./locations.js";
 import { skills } from "./skills.js";
@@ -62,9 +63,9 @@ function Verify_Game_Objects() {
     }
     let end_time = performance.now();
     if(item_results[1] > 0) {
-        console.log(`Finished verifying items in: ${Math.round(10000*(end_time-start_time))/10000}s\nFound issue in ${item_results[1]} out of ${item_results[0]}`);
+        console.log(`Finished verifying items in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nFound issue in ${item_results[1]} out of ${item_results[0]}`);
     } else {
-        console.log(`Finished verifying items in: ${Math.round(10000*(end_time-start_time))/10000}s\nNo issues were found.`);
+        console.log(`Finished verifying items in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nNo issues were found.`);
     }
 
     start_time = performance.now();
@@ -136,9 +137,9 @@ function Verify_Game_Objects() {
     }
     end_time = performance.now();
     if(skill_results[1] > 0) {
-        console.log(`Finished verifying skills in: ${Math.round(10000*(end_time-start_time))/10000}s\nFound issue in ${skill_results[1]} out of ${skill_results[0]}`);
+        console.log(`Finished verifying skills in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nFound issue in ${skill_results[1]} out of ${skill_results[0]}`);
     } else {
-        console.log(`Finished verifying skills in: ${Math.round(10000*(end_time-start_time))/10000}s\nNo issues were found.`);
+        console.log(`Finished verifying skills in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nNo issues were found.`);
     }
 
 
@@ -183,7 +184,7 @@ function Verify_Game_Objects() {
                 }   
             });
         } else if(location.tags["Combat zone"]) {
-            
+            //todo: check enemies
         }
 
         location_results[0]++;
@@ -193,18 +194,46 @@ function Verify_Game_Objects() {
     }
     end_time = performance.now();
     if(location_results[1] > 0) {
-        console.log(`Finished verifying locations in: ${Math.round(10000*(end_time-start_time))/10000}s\nFound issue in ${location_results[1]} out of ${location_results[0]}`);
+        console.log(`Finished verifying locations in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nFound issue in ${location_results[1]} out of ${location_results[0]}`);
     } else {
-        console.log(`Finished verifying locations in: ${Math.round(10000*(end_time-start_time))/10000}s\nNo issues were found.`);
+        console.log(`Finished verifying locations in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nNo issues were found.`);
     }
 
+    start_time = performance.now();
+    let enemy_results = [0,0];
+    console.log("Began verifying enemies.");
+    for(const [key,enemy] of Object.entries(enemy_templates)){
+        let has_issue = false;
+        if(key !== enemy.id) {
+            console.error(`Id mismatch: "${key}" - "${enemy.id}"`);
+            has_issue = true;
+        }
+
+        for(let i = 0; i < enemy.loot_list.length; i++) {
+            if(!item_templates[enemy.loot_list[i].item_name]) {
+                console.error(`Enemy "${key}" refers to a non-existent item "${enemy.loot_list[i].item_name}"`);
+                has_issue = true;
+            }
+        }
+
+        enemy_results[0]++;
+        enemy_results[1]+=has_issue;
+        results[0]++;
+        results[1]+=has_issue;
+    }
+    end_time = performance.now();
+    if(location_results[1] > 0) {
+        console.log(`Finished verifying enemies in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nFound issue in ${enemy_results[1]} out of ${enemy_results[0]}`);
+    } else {
+        console.log(`Finished verifying enemies in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nNo issues were found.`);
+    }
 
 
     let overall_end_time = performance.now();
     if(results[1] > 0) {
-        console.log(`Finished verifying game objects in: ${Math.round(10000*(overall_end_time-overall_start_time))/10000}s\nFound issue in ${results[1]} out of ${results[0]}`);
+        console.log(`Finished verifying game objects in: ${Math.round(1000000*(overall_end_time-overall_start_time))/1000000}s\nFound issue in ${results[1]} out of ${results[0]}`);
     } else {
-        console.log(`Finished verifying game objects in: ${Math.round(10000*(overall_end_time-overall_start_time))/10000}s\nNo issues were found.`);
+        console.log(`Finished verifying game objects in: ${Math.round(1000000*(overall_end_time-overall_start_time))/1000000}s\nNo issues were found.`);
     }
 }
 

@@ -52,7 +52,7 @@ class Stance {
             Object.keys(this.stat_multipliers).forEach(stat => {
                 if(this.stat_multipliers[stat] < 1) {
                     multipliers[stat] = this.stat_multipliers[stat] + (1 - this.stat_multipliers[stat]) * skills[this.related_skill].current_level/(2*skills[this.related_skill].max_level);
-                    //div by 2 because penalties don't get fully nullified, only cut in half (e.g. x0.8 -> x0.9)
+                    //div by 2 because penalties don't get fully nullified, only cut in half (e.g. x0.2->x0.6)
                 }
                 else {
                     multipliers[stat] =  this.stat_multipliers[stat] + (this.stat_multipliers[stat]-1) * skills[this.related_skill].current_level/skills[this.related_skill].max_level;

@@ -3,7 +3,6 @@
 const skills = {};
 const skill_categories = {};
 
-import {character} from "./character.js";
 import {stat_names} from "./misc.js";
 
 /*    
@@ -170,7 +169,7 @@ class Skill {
                 let message = `${skill_name} has reached level ${this.current_level}`;
 
                 if (Object.keys(gains.stats).length > 0 || Object.keys(gains.xp_multipliers).length > 0) { 
-                    message += `<br><br> Thanks to ${skill_name} reaching new milestone, ${character.name} gained: `;
+                    message += `<br><br> Thanks to ${skill_name} reaching new milestone, %HeroName% gained: `;
 
                     if (gains.stats) {
                         Object.keys(gains.stats).forEach(stat => {
@@ -1991,9 +1990,9 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                         intuition: {
                             flat: 2
                         },
-                        xp_multipliers: {
-                            "Literacy": 1.05,
-                        },
+                    },
+                    xp_multipliers: {
+                        "Literacy": 1.05,
                     },
                 },
             }

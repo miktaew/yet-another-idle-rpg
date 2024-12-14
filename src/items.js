@@ -34,7 +34,6 @@
         which kinda makes spears very average, but they also get bonus crit so whatever
 */
 
-import { character } from "./character.js";
 import { round_item_price } from "./misc.js";
 
 const rarity_multipliers = {
@@ -847,13 +846,12 @@ class Book extends Item {
     setAsFinished() {
         book_stats[this.name].is_finished = true;
         book_stats[this.name].accumulated_time = book_stats[this.name].required_time;
-        character.stats.add_book_bonus(book_stats[this.name].rewards);
     }
 }
 
 /**
- * @param {*} item_data 
- * @returns item of proper type, created with item_data
+ * @param {Object} item_data 
+ * @returns {Item} item of proper type, created with item_data
  */
 function getItem(item_data) {
     switch(item_data.item_type) {
@@ -890,6 +888,58 @@ function getItem(item_data) {
             return new Material(item_data);
         default:
             throw new Error(`Wrong item type: ${item_data.item_type}`);
+    }
+}
+
+/**
+ * @param {String} item_data 
+ * @returns {Item} item of proper type, created based on item_key
+ */
+function getItemFromKey(key) {
+    let {id, components, quality} = JSON.parse(key);
+    if(id && !quality) { 
+        if(item_templates[id]) {
+            return getItem(item_templates[id]);
+        } else {
+            throw new Error(`Inventory item "${key}" couldn't be found!`);
+        }
+    } else if(components) {
+        const {head, handle, shield_base, internal, external} = components;
+        if(head) { //weapon
+            if(!item_templates[head]){
+                throw new Error(`Weapon head component "${head}" couldn't be found!`);
+            } else if(!item_templates[handle]) {
+                throw new Error(`Weapon handle component "${handle}" couldn't be found!`);
+            } else {
+                return getItem({components, quality, equip_slot: "weapon", item_type: "EQUIPPABLE"});
+            }
+        } else if(shield_base){ //shield
+            if(!item_templates[shield_base]){
+                throw new Error(`Shield base component "${shield_base}" couldn't be found!`);
+            } else if(!item_templates[handle]) {
+                throw new Error(`Shield handle component "${handle}" couldn't be found!`);
+            } else {
+                return getItem({components, quality, equip_slot: "off-hand", item_type: "EQUIPPABLE"});
+            }
+        } else if(internal) { //armor
+            if(!item_templates[internal]){
+                throw new Error(`Internal armor component "${internal}" couldn't be found!`);
+            } else if(!item_templates[external]) {
+                throw new Error(`External armor component "${external}" couldn't be found!`);
+            } else {
+                let equip_slot = getArmorSlot(internal);
+                if(!equip_slot) {
+                    return;
+                }
+                return getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
+            }
+        } else {
+            throw new Error(`Intentory key "${key}" seems to refer to non-existing item type!`);
+        }
+    } else if(quality) { //no comps but quality (clothing / artifact?)
+        return getItem({...item_templates[id], quality});
+    } else {
+        throw new Error(`Intentory key "${key}" is incorrect!`);
     }
 }
 
@@ -2255,7 +2305,8 @@ export {
     Item, OtherItem, UsableItem, 
     Armor, Shield, Weapon, Artifact, Book, 
     WeaponComponent, ArmorComponent, ShieldComponent,
-    getItem, setLootSoldCount, recoverItemPrices, round_item_price, getArmorSlot, getEquipmentValue,
+    getItem, getItemFromKey,
+    setLootSoldCount, recoverItemPrices, round_item_price, getArmorSlot, getEquipmentValue,
     book_stats, loot_sold_count,
     rarity_multipliers,
     getItemRarity

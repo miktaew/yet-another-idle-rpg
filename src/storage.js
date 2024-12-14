@@ -1,6 +1,6 @@
 import { InventoryHaver } from "./inventory.js";
 import { exit_displayed_storage, update_displayed_storage } from "./display.js";
-import { add_to_character_inventory, character, remove_from_character_inventory } from "./character.js";
+import { add_to_character_inventory, remove_from_character_inventory } from "./character.js";
 
 const player_storage = new InventoryHaver();
 
@@ -8,14 +8,7 @@ const player_storage = new InventoryHaver();
  * @param {Array} items [{item_key, item_count}]
  */
 function add_to_storage(items) {
-    //items = items.map(x => {return {item: character.inventory[x.item_key], count: x.count}});
-    for(let i = 0; i < items.length; i++) {
-        const item = character.inventory[items[i].item_key].item;
-        item.count = items[i].count;
-        player_storage.add_to_inventory([{item, count: item.count}]);
-    }
-    items = items.map(x => character.inventory[x.item_key]);
-    //player_storage.add_to_inventory(items);
+    player_storage.add_to_inventory(items);
 
     update_displayed_storage();
 }

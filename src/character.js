@@ -9,7 +9,7 @@ import { update_displayed_character_inventory, update_displayed_equipment,
          update_displayed_xp_bonuses } from "./display.js";
 import { active_effects, current_location, current_stance } from "./main.js";
 import { current_game_time } from "./game_time.js";
-import { stances } from "./combat_stances.js";
+import { getItemFromKey, item_templates } from "./items.js";
 
 const base_block_chance = 0.75; //+20 from the skill
 const base_xp_cost = 10;
@@ -348,7 +348,7 @@ character.stats.add_all_skill_level_bonus = function() {
  * multipliers only 
  */
 character.stats.add_all_stance_bonus = function() {
-        const multipliers = stances[current_stance].getStats();
+        const multipliers = current_stance.getStats();
         Object.keys(character.base_stats).forEach(stat => {
                 if(multipliers[stat]) {
                         character.stats.multiplier.stance[stat] = multipliers[stat] || 1;
@@ -544,8 +544,16 @@ character.get_character_money = function () {
 function add_to_character_inventory(items) {
         const was_anything_new_added = character.add_to_inventory(items);
         for(let i = 0; i < items.length; i++) {
-                if(items[i].item.tags.tool && character.equipment[items[i].item.equip_slot] === null) {
-                        equip_item_from_inventory(items[i].item.getInventoryKey());
+                let item;
+                if(items[i].item_key) {
+                        item = getItemFromKey(items[i].item_key);
+                } else if(items[i].item_id) {
+                        item = item_templates[items[i].item_id];
+                } else {
+                        return;
+                }
+                if(item.tags.tool && character.equipment[item.equip_slot] === null) {
+                        equip_item_from_inventory(item.getInventoryKey());
                 }
         }
         update_displayed_character_inventory({was_anything_new_added});

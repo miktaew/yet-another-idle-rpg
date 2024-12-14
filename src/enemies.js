@@ -1,24 +1,25 @@
 "use strict";
 
-import {item_templates, getItem} from "./items.js";
-
 let enemy_templates = {};
 let enemy_killcount = {};
 //enemy templates; locations create new enemies based on them
 
 class Enemy {
-    constructor({name, 
-                 description, 
-                 xp_value = 1, 
-                 stats, 
-                 rank,
-                 loot_list = [], 
-                 size = "small",
-                 add_to_bestiary = true,
-                 tags = [],
-                }) {
+    constructor({
+        name, 
+        id,
+        description, 
+        xp_value = 1, 
+        stats, 
+        rank,
+        loot_list = [], 
+        size = "small",
+        add_to_bestiary = true,
+        tags = [],
+    }) {
                     
         this.name = name;
+        this.id = id || name;
         this.rank = rank; //only for the bestiary order; higher rank => higher in display
         this.description = description; //try to keep it short
         this.xp_value = xp_value;
@@ -49,10 +50,6 @@ class Enemy {
         
         for (let i = 0; i < this.loot_list.length; i++) {
             item = this.loot_list[i];
-            if(!item_templates[item.item_name]) {
-                console.warn(`Tried to loot an item "${item.item_name}" from "${this.name}", but such an item doesn't exist!`);
-                continue;
-            }
             if (item.chance * this.get_droprate_modifier() >= Math.random()) {
                 // checks if it should drop
                 let item_count = 1;
@@ -60,8 +57,7 @@ class Enemy {
                     item_count = Math.round(Math.random() * (item["count"]["max"] - item["count"]["min"]) + item["count"]["min"]);
                     // calculates how much drops (from range min-max, both inclusive)
                 }
-
-                loot.push({ "item": getItem(item_templates[item.item_name]), "count": item_count });
+                loot.push({item_id: item.item_name, "count": item_count });
             }
         }
 

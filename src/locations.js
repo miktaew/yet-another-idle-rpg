@@ -1,7 +1,6 @@
 "use strict";
 
 import { enemy_templates, Enemy } from "./enemies.js";
-import { dialogues as dialoguesList} from "./dialogues.js";
 import { skills } from "./skills.js";
 import { current_game_time } from "./game_time.js";
 import { activities } from "./activities.js";
@@ -46,11 +45,6 @@ class Location {
         this.types = types;
         this.housing = housing;
 
-        for (let i = 0; i < this.dialogues.length; i++) {
-            if (!dialoguesList[this.dialogues[i]]) {
-                throw new Error(`No such dialogue as "${this.dialogues[i]}"!`);
-            }
-        }
         this.light_level = light_level; //not really used for this type
         this.crafting = crafting;
         this.tags = tags;

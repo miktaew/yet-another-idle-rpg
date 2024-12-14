@@ -14,11 +14,11 @@ import { current_enemies, options,
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time } from "./game_time.js";
-import { book_stats, item_templates, Weapon, Armor, Shield, rarity_multipliers, getItemRarity } from "./items.js";
+import { book_stats, item_templates, Weapon, Armor, Shield, rarity_multipliers, getItemRarity, getItemFromKey } from "./items.js";
 import { get_location_type_penalty, location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
 import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price } from "./misc.js"
-import { stances } from "./combat_stances.js";
+//import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { effect_templates } from "./active_effects.js";
 import { player_storage } from "./storage.js";
@@ -644,10 +644,21 @@ function log_loot(loot_list, is_combat=true) {
         return;
     }
 
-    let message = `${is_combat?"Looted":"Gained"} "` + loot_list[0]["item"]["name"] + `" x` + loot_list[0]["count"];
+    let item;
+    if(loot_list[0].item_id) {
+        item = item_templates[loot_list[0].item_id];
+    } else if(loot_list[0].item_key) {
+        item = getItemFromKey(loot_list[0].item_key);
+    }
+    let message = `${is_combat?"Looted":"Gained"} "` + item.getName() + `" x` + loot_list[0]["count"];
     if(loot_list.length > 1) {
         for(let i = 1; i < loot_list.length; i++) {
-            message += (`, "` + loot_list[i]["item"]["name"] + `" x` + loot_list[i]["count"]);
+            if(loot_list[i].item_id) {
+                item = item_templates[loot_list[i].item_id];
+            } else if(loot_list[i].item_key) {
+                item = getItemFromKey(loot_list[i].item_key);
+            }
+            message += (`, "` + item.getName() + `" x` + loot_list[i]["count"]);
         }
     }
 
@@ -1612,7 +1623,10 @@ function update_displayed_normal_location(location) {
 
     const available_locations = location.connected_locations.filter(loc => (loc.location.is_unlocked && !loc.location.is_finished && !loc.location.is_challenge));
     //const available_locations = location.connected_locations.filter(loc => {return loc.is_unlocked && !loc.is_finished && !loc.is_challenge});
-    if(available_locations.length > 3 && (location.housing?.is_unlocked + available_trainings.length + available_jobs.length +  available_traders.length + available_dialogues.length + available_actions.length) > 2) {
+    if(available_locations.length > 3 
+        && ((location.housing?.is_unlocked || 0) + available_trainings.length + available_jobs.length + available_traders.length 
+        + available_dialogues.length + available_actions.length + (location.crafting?.is_unlocked || 0)) > 2) 
+    {
         const locations_button = document.createElement("div");
         locations_button.setAttribute("data-location", location.name);
         locations_button.classList.add("location_choices");
@@ -3292,7 +3306,7 @@ function sort_displayed_skill_categories() {
 /**
  * @description updates the list of stances, 
  */
-function update_displayed_stance_list() {
+function update_displayed_stance_list(stances, current_stance, fav_stances) {
     while(stance_list.firstChild) {
         stance_list.removeChild(stance_list.lastChild);
     }
@@ -3324,7 +3338,7 @@ function update_displayed_stance_list() {
             
             const stance_tooltip_row = document.createElement("td");
             
-            stance_tooltip_row.appendChild(create_stance_tooltip(stance));
+            stance_tooltip_row.appendChild(create_stance_tooltip(stances[stance]));
             stance_bar_divs[stance].appendChild(stance_tooltip_row);
             stance_list.append(stance_bar_divs[stance]);
         }
@@ -3357,28 +3371,27 @@ function update_displayed_stance_list() {
         }
     }).forEach(node=>stance_list.appendChild(node));
 
-
-    update_displayed_stance();
-    update_displayed_faved_stances();
+    update_displayed_stance(current_stance);
+    update_displayed_faved_stances(fav_stances);
 }
 
-function create_stance_tooltip(stance_id) {
+function create_stance_tooltip(stance) {
     const tooltip_div = document.createElement("div");
     tooltip_div.classList.add("stance_tooltip");
     tooltip_div.innerHTML = 
-    `<div>${stances[stance_id].name}</div><br>
-    <div>${stances[stance_id].getDescription()}</div><br>
-    <div>Stamina cost: ${stances[stance_id].stamina_cost}</div>
-    <div class='stance_tooltip_stats'>${create_stance_tooltip_stats(stances[stance_id])}</div`;
+    `<div>${stance.name}</div><br>
+    <div>${stance.getDescription()}</div><br>
+    <div>Stamina cost: ${stance.stamina_cost}</div>
+    <div class='stance_tooltip_stats'>${create_stance_tooltip_stats(stance)}</div`;
 
-    let target_count = stances[stance_id].target_count;
-    if(target_count > 1 && stances[stance_id].related_skill) {
-        target_count = target_count + Math.round(target_count * skills[stances[stance_id].related_skill].current_level/skills[stances[stance_id].related_skill].max_level);
+    let target_count = stance.target_count;
+    if(target_count > 1 && stance.related_skill) {
+        target_count = target_count + Math.round(target_count * skills[stance.related_skill].current_level/skills[stance.related_skill].max_level);
     }
 
     if(target_count > 1) {
         tooltip_div.innerHTML += `
-        <br><div class='stance_tooltip_hitcount'>${stances[stance_id].randomize_target_count?"Randomly hits up to":"Hits up to"} ${target_count} enemies</div>`;
+        <br><div class='stance_tooltip_hitcount'>${stance.randomize_target_count?"Randomly hits up to":"Hits up to"} ${target_count} enemies</div>`;
     }
 
     return tooltip_div;
@@ -3394,29 +3407,33 @@ function create_stance_tooltip_stats(stance) {
     return desc;
 }
 
-function update_stance_tooltip(stance_id) {
-    stance_bar_divs[stance_id].querySelector(".stance_tooltip_stats").innerHTML = create_stance_tooltip_stats(stances[stance_id]);
+function update_stance_tooltip(stance) {
+    stance_bar_divs[stance.id].querySelector(".stance_tooltip_stats").innerHTML = create_stance_tooltip_stats(stance);
 
-    let target_count = stances[stance_id].target_count;
+    let target_count = stance.target_count;
     if(target_count > 1){
-        if(stances[stance_id].related_skill) {
-            target_count = target_count + Math.round(target_count * skills[stances[stance_id].related_skill].current_level/skills[stances[stance_id].related_skill].max_level);
+        if(stance.related_skill) {
+            target_count = target_count + Math.round(target_count * skills[stance.related_skill].current_level/skills[stance.related_skill].max_level);
         }
-        stance_bar_divs[stance_id].querySelector(".stance_tooltip_hitcount").innerHTML = `${stances[stance_id].randomize_target_count?"Randomly hits up to":"Hits up to"} ${target_count} enemies</div>`;
+        stance_bar_divs[stance.id].querySelector(".stance_tooltip_hitcount").innerHTML = `${stance.randomize_target_count?"Randomly hits up to":"Hits up to"} ${target_count} enemies</div>`;
     } 
 }
 
-function update_displayed_stance() {
-    stance_bar_divs[selected_stance].children[1].children[0].checked = true;
-    document.getElementById("character_stance_name").children[0].innerHTML = stances[selected_stance].name;
+/**
+ * 
+ * @param {Stance} stance current stance 
+ */
+function update_displayed_stance(stance) {
+    stance_bar_divs[stance.id].children[1].children[0].checked = true;
+    document.getElementById("character_stance_name").children[0].innerHTML = stance.name;
 
     const selection = document.getElementById("character_stance_selection");
-    if(selection.children && selection.querySelector(`[data-stance='${selected_stance}']`)) {
-        selection.querySelector(`[data-stance='${selected_stance}']`).children[0].checked = true;
+    if(selection.children && selection.querySelector(`[data-stance='${stance.id}']`)) {
+        selection.querySelector(`[data-stance='${stance.id}']`).children[0].checked = true;
     }
 }
 
-function update_displayed_faved_stances() {
+function update_displayed_faved_stances(stances) {
     
     const list = document.getElementById("character_stance_selection");
     list.innerHTML = "";

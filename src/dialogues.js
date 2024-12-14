@@ -150,7 +150,7 @@ class Textline {
                 is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["rats", "ask to leave 2", "equipment"]}],
-                    locations: ["Infested field"],
+                    locations: [{location: "Infested field"}],
                     activities: [{location:"Village", activity:"weightlifting"}, {location:"Village",activity:"running"}],
                 },
                 locks_lines: ["need to"],
@@ -194,7 +194,7 @@ class Textline {
                         +`Oh, and before I forget, our old craftsman wanted to talk to you.`,
                 is_unlocked: false,
                 rewards: {
-                    locations: ["Nearby cave", "Infested field", "Shack"],
+                    locations: [{location: "Nearby cave"}, {location: "Infested field"}, {location: "Shack"}],
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 3"]}],
                     dialogues: ["old craftsman"],
                 },
@@ -204,7 +204,7 @@ class Textline {
                 name: "Can I leave the village?",
                 text: "You still need to get stronger.",
                 rewards: {
-                    locations: ["Nearby cave", "Infested field"],
+                    locations: [{location: "Nearby cave"}, {location: "Infested field"}],
                     dialogues: ["old craftsman"],
                 },
                 is_unlocked: false,
@@ -215,7 +215,7 @@ class Textline {
                 is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 4"]}],
-                    locations: ["Forest road", "Infested field", "Nearby cave"],
+                    locations: [{location: "Forest road"}, {locations: "Infested field"}, {location: "Nearby cave"}],
                     dialogues: ["village guard"],
                 },
                 locks_lines: ["ask to leave 3", "rats", "cleared cave"],
@@ -225,7 +225,7 @@ class Textline {
                 text: "You are strong enough, you can leave and come whenever you want.",
                 is_unlocked: false,
                 rewards: {
-                    locations: ["Forest road", "Infested field", "Nearby cave"],
+                    locations: [{location: "Forest road"}, {location: "Infested field"}, {location: "Nearby cave"}],
                     dialogues: ["village guard", "old craftsman"],
                 },
             }),
@@ -329,7 +329,7 @@ class Textline {
                 +`They might be more tiring than fighting the "normal" way, but if used in a proper situation, they will be a lot more effective. Two can be easily presented through `
                 + `some sparring, so let's start with it. The third I'll just have to explain. How about that?`,
                 rewards: {
-                    locations: ["Sparring with the village guard (quick)", "Sparring with the village guard (heavy)"],
+                    locations: [{location: "Sparring with the village guard (quick)"}, {location: "Sparring with the village guard (heavy)"}],
                 },
                 locks_lines: ["teach"],
             }),
@@ -392,7 +392,7 @@ class Textline {
                 name: "Hello? Why are you looking at me like that?",
                 text: "Y-you! You should be dead! *the man pulls out a dagger*",
                 rewards: {
-                    locations: ["Fight off the assailant"],
+                    locations: [{location: "Fight off the assailant"}],
                 },
                 locks_lines: ["hello"],
             }), 
@@ -459,7 +459,7 @@ class Textline {
                 + "I can of course pay you for that, but keep in mind it won't be that much, I'm running on a strict budget here.",
                 required_flags: {yes: ["is_deep_forest_beaten"]},
                 rewards: {
-                    locations: ["Forest clearing"],
+                    locations: [{location: "Forest clearing"}],
                 },
                 locks_lines: ["fight"],
             }),
