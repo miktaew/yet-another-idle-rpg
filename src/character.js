@@ -539,7 +539,7 @@ character.get_character_money = function () {
 }
 
 /**
- * @param {Array} items [{item, count},...] 
+ * @param {Array} items [{item_key or item_id, count},...] 
  */
 function add_to_character_inventory(items) {
         const was_anything_new_added = character.add_to_inventory(items);

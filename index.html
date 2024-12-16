@@ -1396,6 +1396,40 @@
                     }
                 }
 
+
+                const storage_div = document.getElementById("storage_div");
+                ///////////////////////
+                //storage item tooltips
+                storage_div.addEventListener('mousemove', move_storage_item_tooltip, false);
+                function move_storage_item_tooltip(event) {
+                    if(Date.now() >= tooltip_wait) {
+                        let hovered_element = retarget_clicked_to_class(event.target, ["inventory_item_control"], []);
+
+                        //set horizontal position
+                        document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX - 400}px`);
+
+                        if(!hovered_element) {
+                            return;
+                        }
+                        
+                        //calculate vertical position so it doesnt go under bottom edge
+                        const tooltip_height = hovered_element.children[0].children[1].scrollHeight;
+
+                        const body = document.getElementsByTagName("body")[0];
+                        const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
+
+                        const bottom_edge_position = 
+                            window.innerHeight - tooltip_height - item_tooltip_margin + window.scrollY - (scrollbar_X_visible?10:0);
+                        
+                        if(event.pageY > bottom_edge_position) {
+                            document.documentElement.style.setProperty('--item_tooltip_top', `${bottom_edge_position - 350}px`);
+                        } else {
+                            document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 350}px`);
+                        }
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
+                    }
+                }
+
                 //////////////////////
                 //trader item tooltips
                 const trader_inventory_div = document.getElementById("trader_inventory_div");
@@ -1772,7 +1806,6 @@
                     check_trade_cost();
                 }
 
-                const storage_div = document.getElementById("storage_div");
                 inventory_div.addEventListener('click', (event)=>move_storage_item(event, "character"), false);
                 storage_div.addEventListener('click', (event)=>move_storage_item(event, "storage"), false);
                 function move_storage_item(event, target) {

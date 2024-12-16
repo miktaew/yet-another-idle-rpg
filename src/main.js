@@ -56,14 +56,15 @@ import { end_activity_animation,
          set_location_action_finish_text,
          update_location_action_progress_bar,
          update_location_action_finish_button,
-         update_displayed_storage_inventory
+         update_displayed_storage_inventory,
+         exit_displayed_storage
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { game_version, get_game_version } from "./game_version.js";
 import { ActiveEffect, effect_templates } from "./active_effects.js";
-import { open_storage, close_storage, move_item_to_storage, remove_item_from_storage } from "./storage.js";
+import { open_storage, close_storage, move_item_to_storage, remove_item_from_storage, player_storage, add_to_storage } from "./storage.js";
 import { Verify_Game_Objects } from "./verifier.js";
 
 const save_key = "save data";
@@ -1370,7 +1371,6 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     const was_hidden = skill.visibility_treshold > skill.total_xp;
     
     const {message, gains, unlocks} = skill.add_xp({xp_to_add: xp_to_add});
-    message.replace("%HeroName%", character.name);
     const new_name = skill.name();
     if(skill.parent_skill && add_to_parent) {
         if(skill.total_xp > skills[skill.parent_skill].total_xp) {
@@ -1407,6 +1407,8 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
         if(typeof message !== "undefined"){ 
         //not undefined => levelup happened and levelup message was returned
             leveled = true;
+
+            message.replace("%HeroName%", character.name);
 
             update_displayed_skill_bar(skill, true);
 
@@ -1942,9 +1944,14 @@ function create_save() {
                                 stamina_to_full: character.stats.full.max_stamina - character.stats.full.stamina
                             };
         //stats don't get saved, they will be recalculated upon loading
+        save_data["player_storage"] = {inventory: {}};
 
         Object.keys(character.inventory).forEach(key =>{
             save_data["character"].inventory[key] = {count: character.inventory[key].count};
+        });
+        
+        Object.keys(player_storage.inventory).forEach(key =>{
+            save_data["player_storage"].inventory[key] = {count: player_storage.inventory[key].count};
         });
        
         //Object.keys(character.equipment).forEach(key =>{
@@ -2139,6 +2146,7 @@ function save_progress() {
     }
 }
 
+//core function for loading
 function load(save_data) {
     //single loading method
     
@@ -2475,6 +2483,70 @@ function load(save_data) {
     }); //add all loaded items to list
     add_to_character_inventory(item_list); // and then to inventory
 
+    const storage_item_list = [];
+    if(save_data.player_storage) {
+        Object.keys(save_data.player_storage.inventory).forEach(function(key){
+            if(is_JSON(key)) {
+                let {id, components, quality} = JSON.parse(key);
+                if(id && !quality) { 
+                    //id is just a key of item_templates
+                    //if it's present, item is "simple" (no components)
+                    //and if it has no quality, it's something non-equippable
+                    if(item_templates[id]) {
+                        storage_item_list.push({item_key: key, count: save_data.player_storage.inventory[key].count, quality: quality});
+                    } else {
+                        console.warn(`Inventory item "${key}" from save on version "${save_data["game version"]} couldn't be found!`);
+                        return;
+                    }
+                } else if(components) {
+                    const {head, handle, shield_base, internal, external} = components;
+                    if(head) { //weapon
+                        if(!item_templates[head]){
+                            console.warn(`Skipped item: weapon head component "${head}" couldn't be found!`);
+                            return;
+                        } else if(!item_templates[handle]) {
+                            console.warn(`Skipped item: weapon handle component "${handle}" couldn't be found!`);
+                            return;
+                        } else {
+                            storage_item_list.push({item_key: key, count: save_data.player_storage.inventory[key].count, quality: quality});
+                        }
+                    } else if(shield_base){ //shield
+                        if(!item_templates[shield_base]){
+                            console.warn(`Skipped item: shield base component "${shield_base}" couldn't be found!`);
+                            return;
+                        } else if(!item_templates[handle]) {
+                            console.warn(`Skipped item: shield handle component "${handle}" couldn't be found!`);
+                            return;
+                        } else {
+                            storage_item_list.push({item_key: key, count: save_data.player_storage.inventory[key].count, quality: quality});
+                        }
+                    } else if(internal) { //armor
+                        if(!item_templates[internal]){
+                            console.warn(`Skipped item: internal armor component "${internal}" couldn't be found!`);
+                            return;
+                        } else if(!item_templates[external]) {
+                            console.warn(`Skipped item: external armor component "${external}" couldn't be found!`);
+                            return;
+                        } else {
+                            let equip_slot = getArmorSlot(internal);
+                            if(!equip_slot) {
+                                return;
+                            }
+                            storage_item_list.push({item_key: key, count: save_data.player_storage.inventory[key].count, quality: quality});
+                        }
+                    } else {
+                        console.error(`Intentory key "${key}" from save on version "${save_data["game version"]} seems to refer to non-existing item type!`);
+                    }
+                } else if(quality) { //no comps but quality (clothing / artifact?)
+                    storage_item_list.push({item_key: key, count: save_data.player_storage.inventory[key].count, quality: quality});
+                } else {
+                    console.error(`Intentory key "${key}" from save on version "${save_data["game version"]} is incorrect!`);
+                }
+            } //storage didn't exist before everything became stackable, so no need to check the other case
+        }); //add all loaded items to list
+        player_storage.add_to_inventory(storage_item_list); // and then to storage inventory
+    }
+
     Object.keys(save_data.dialogues).forEach(function(dialogue) {
         if(dialogues[dialogue]) {
             dialogues[dialogue].is_unlocked = save_data.dialogues[dialogue].is_unlocked;
@@ -2788,11 +2860,11 @@ function load(save_data) {
     }
 
     update_displayed_time();
-} //core function for loading
+} 
 
 /**
- * called from index.html
- * loads game from file by resetting everything that needs to be reset and then calling main loading method with same parameter
+ * called from index.html;
+ * loads game from file by resetting everything that needs to be reset and then calling main loading method with same parameter;
  * @param {String} save_string 
  */
 function load_from_file(save_string) {
@@ -2807,7 +2879,7 @@ function load_from_file(save_string) {
         console.error("Something went wrong on preparing to load from file!");
         console.error(error);
     }
-} //called on loading from file, clears everything
+} 
 
 /**
  * loads the game from localStorage

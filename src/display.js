@@ -94,6 +94,9 @@ let skill_sorting_direction = "asc";
 let trader_inventory_sorting = "name";
 let trader_inventory_sorting_direction = "asc";
 
+let storage_sorting = "name";
+let storage_sorting_direction = "asc";
+
 let character_inventory_sorting = "name";
 let character_inventory_sorting_direction = "asc";
 
@@ -787,8 +790,28 @@ function sort_displayed_inventory({sort_by = "name", target = "character", chang
         plus = character_inventory_sorting_direction==="asc"?1:-1;
         minus = character_inventory_sorting_direction==="asc"?-1:1;
         character_inventory_sorting = sort_by || "name";
-    }
-    else {
+    } else if(target === "storage"){
+        if(change_direction){
+            if(sort_by && sort_by === storage_sorting) {
+                if(storage_sorting_direction === "asc") {
+                    storage_sorting_direction = "desc";
+                } else {
+                    storage_sorting_direction = "asc";
+                }
+            } else {
+                if(sort_by === "price") {
+                    storage_sorting_direction = "desc";
+                } else {
+                    storage_sorting_direction = "asc";
+                }
+            }
+        }
+
+        target = storage_inventory_div;
+        plus = storage_sorting_direction==="asc"?1:-1;
+        minus = storage_sorting_direction==="asc"?-1:1;
+        storage_sorting = sort_by || "name";
+    } else {
         console.warn(`Something went wrong, no such inventory as '${target}'`);
         return;
     }
