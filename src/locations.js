@@ -1182,7 +1182,32 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
     });
 
-    locations["Town outskirts"].connected_locations.push({location: locations["Town farms"]}, {location: locations["Slums"]});
+    locations["Town square"] = new Location({ 
+        connected_locations: [{location: locations["Town outskirts"]}],
+        description: "The town's center of life, connected to all the markets, guilds, and other important places",
+        name: "Town square",
+        is_unlocked: true,
+        getBackgroundNoises: function() {
+            let noises = [];
+            return noises;
+        },
+    });
+
+    locations["Town outskirts"].connected_locations.push({location: locations["Town farms"]}, {location: locations["Slums"]}, {location: locations["Town square"]});
+
+    locations["Cat café"] = new Location({ 
+        connected_locations: [{location: locations["Town square"]}],
+        description: `A cat café in the center of town. There are multiple kitties of all kinds, but two females especially catch your eyes
+ - a chubby mackerel tabby with a white belly and neck, and a slender tortoishell that seems blind on the right eye. There's a single worker in the café, a man with with long ponytail and glasses.`,
+        name: "Cat café",
+        is_unlocked: true,
+        getBackgroundNoises: function() {
+            let noises = ["Meow", "Nya", "Mrrr", "Mrrrp meow", "*A cat jumps on your lap*", "*A cat brushes on your leg*"];
+            return noises;
+        },
+    });
+
+    locations["Cat café"].connected_locations.push({location: locations["Town square"]});
 
     locations["Mountain path"] = new Location({
         connected_locations: [{location: locations["Nearby cave"]}],

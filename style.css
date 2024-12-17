@@ -15,6 +15,10 @@
 	--trader_consumable_display: inline-block;
 	--trader_other_display: inline-block;
 
+	--storage_equipment_display: inline-block;
+	--storage_consumable_display: inline-block;
+	--storage_other_display: inline-block;
+
 	--message_combat_display: inline-block;
 	--message_unlocks_display: inline-block;
 	--message_loot_display: inline-block;
@@ -969,6 +973,16 @@ i {
 }
 .trader_item_usable, .trader_item_book {
 	display: var(--trader_consumable_display);
+}
+
+.storage_item_other, .storage_item_loot, .storage_item_material, .storage_item_component, .storage_item_book {
+	display: var(--storage_other_display);
+}
+.storage_item_equippable {
+	display: var(--storage_equipment_display);
+}
+.storage_item_usable, .storage_item_book {
+	display: var(--storage_consumable_display);
 }
 
 #inventory_combat_switch_selection {

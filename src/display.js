@@ -840,6 +840,12 @@ function sort_displayed_inventory({sort_by = "name", target = "character", chang
             return -1;
         } 
 
+        if(a.classList.contains("storage_item_equippable") && !b.classList.contains("storage_item_equippable")) {
+            return 1;
+        } else if(!a.classList.contains("storage_item_equippable") && b.classList.contains("storage_item_equippable")){
+            return -1;
+        } 
+
         if(a.children[0].children[0].children[0].innerText === "[Comp]" && b.children[0].children[0].children[0].innerText !== "[Comp]") {
             return 1;
         } else if(a.children[0].children[0].children[0].innerText !== "[Comp]" && b.children[0].children[0].children[0].innerText === "[Comp]") {

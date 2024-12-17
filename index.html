@@ -1027,6 +1027,28 @@
                 document.documentElement.style.setProperty('--trader_other_display', 'inline-block');
             }
 
+            function showAllStorageItems() {
+                document.documentElement.style.setProperty('--storage_equipment_display', 'inline-block');
+                document.documentElement.style.setProperty('--storage_consumable_display', 'inline-block');
+                document.documentElement.style.setProperty('--storage_other_display', 'inline-block');
+            }
+            function showOnlyStorageEquipment() {
+                document.documentElement.style.setProperty('--storage_equipment_display', 'inline-block');
+                document.documentElement.style.setProperty('--storage_consumable_display', 'none');
+                document.documentElement.style.setProperty('--storage_other_display', 'none');
+            }
+            function showOnlyStorageConsumables() {
+                document.documentElement.style.setProperty('--storage_equipment_display', 'none');
+                document.documentElement.style.setProperty('--storage_consumable_display', 'inline-block');
+                document.documentElement.style.setProperty('--storage_other_display', 'none');
+            }
+            function showOnlyStorageOther() {
+                document.documentElement.style.setProperty('--storage_equipment_display', 'none');
+                document.documentElement.style.setProperty('--storage_consumable_display', 'none');
+                document.documentElement.style.setProperty('--storage_other_display', 'inline-block');
+            }
+
+
             function showCombatMessages() {
                 if(document.documentElement.style.getPropertyValue('--message_combat_display') !== "none") {
                     document.documentElement.style.setProperty('--message_combat_display', 'none');
@@ -1229,6 +1251,11 @@
             function sortCharacterInventory(option) {
                 character_sorting = option;
                 sort_displayed_inventory({sort_by: option, target: "character", change_direction: true})
+            }
+
+            function sortStorageInventory(option) {
+                storage_sorting = option;
+                sort_displayed_inventory({sort_by: option, target: "storage", change_direction: true});
             }
 
             function sortSkills({sort_by}) {
