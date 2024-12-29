@@ -993,7 +993,7 @@ item_templates["Twist liek a snek"] = new Book({
     value: 200,
 });
 
-//miscellaneous and loot:
+//miscellaneous and useless loot:
 (function(){
     item_templates["Rat fang"] = new OtherItem({
         name: "Rat fang", 
@@ -1023,6 +1023,13 @@ item_templates["Twist liek a snek"] = new Book({
         name: "Glass phial", 
         description: "Small glass phial, a perfect container for a potion", 
         value: 10,
+        saturates_market: false,
+    });
+
+    item_templates["Camping supplies"] = new OtherItem({
+        name: "Camping supplies", 
+        description: "Bedroll, tent, small chest, and generally just anything that could be needed to establish a camp", 
+        value: 2000,
         saturates_market: false,
     });
 
@@ -1299,6 +1306,7 @@ item_templates["Twist liek a snek"] = new Book({
 
 //spare parts
 (function(){
+    //currently not in use and not obtainable
     item_templates["Basic spare parts"] = new OtherItem({
         name: "Basic spare parts", 
         description: "Some cheap and simple spare parts, like bindings and screws, necessary for crafting equipment",

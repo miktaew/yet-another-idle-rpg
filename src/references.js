@@ -1,8 +1,8 @@
 /*
     Not in use, just a reference sheet for some stuff
+*/
 
-
-    REWARDS:
+/*  REWARDS:
     {
         money: Number //flat value that will be given to player
 
@@ -73,9 +73,28 @@
         }
     
     }
+*/
 
+/* ACTION CONDITIONS:
+{
+    money: {
+        number: Number, //how much money to require
+        remove: Boolean //if should be removed from inventory or kept
+    }
+    stats: [
+        "stat_id": Number //required stat
+    ],
 
-
-
-
+    skills: [
+        "skill_id": Number //required level
+    ],
+    items_by_id: 
+    [
+        {
+            "item_id": {
+                count: Number,
+                remove: Boolean
+        }
+    ]
+}
 */

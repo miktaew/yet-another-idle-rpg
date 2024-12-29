@@ -195,6 +195,8 @@ class TradeItem {
             new TradeItem({item_name: "Old combat manual", count: [1], chance: 0.5}),
             
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
+
+            new TradeItem({item_name: "Camping supplies", count: [1], chance: 1}),
     ];
 
     inventory_templates["Basic plus"] = 
@@ -242,6 +244,8 @@ class TradeItem {
             new TradeItem({item_name: "Twist liek a snek", count: [1], chance: 0.7}),
 
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
+
+            new TradeItem({item_name: "Camping supplies", count: [1], chance: 1}),
     ];
 })();
 export {traders};

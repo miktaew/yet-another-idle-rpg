@@ -57,7 +57,6 @@ import { end_activity_animation,
          update_location_action_progress_bar,
          update_location_action_finish_button,
          update_displayed_storage_inventory,
-         exit_displayed_storage
         } from "./display.js";
 import { compare_game_version, get_hit_chance } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -85,10 +84,17 @@ const flag_unlock_texts = {
 //in seconds
 let total_playtime = 0;
 
+//some random stats to keep count of in case they ever become relevant
 let total_deaths = 0;
 let total_crafting_attempts = 0;
 let total_crafting_successes = 0;
-let total_kills = 0;
+let total_kills = 0; 
+let total_crits_done = 0;
+let total_crits_taken = 0;
+let total_hits_done = 0;
+let total_hits_taken = 0;
+let strongest_hit = 0;
+
 
 //current enemy
 let current_enemies = null;
@@ -517,8 +523,6 @@ function finish_location_action(selected_action, conditions_status){
         if(action_result > Math.random()) {
             //win
 
-            //todo: handle item removal if needed
-
             result_message = action.success_text;
             action.is_finished = true;
             process_rewards({rewards: action.rewards, source_type: "action"});
@@ -526,8 +530,14 @@ function finish_location_action(selected_action, conditions_status){
             //random loss
 
             result_message = action.failure_texts.random_loss[Math.floor(action.failure_texts.random_loss.length * Math.random())];
-            //todo: handle item removal if needed
         }
+
+        Object.keys(action.conditions[0].items_by_id || {}).forEach(item_id => {
+            //no need to check if they are in inventory, as without them action would have been conditionally failed before reaching here
+            if(action.conditions[0].items_by_id[item_id].remove) {
+                remove_from_character_inventory([{item_key: item_templates[item_id].getInventoryKey(), item_count: action.conditions[0].items_by_id[item_id].count}]);
+            }
+        });
     }
 
     set_location_action_finish_text(result_message);
@@ -1174,10 +1184,12 @@ function do_enemy_combat_action(enemy_id) {
         }
     }
 
-    if(enemy_crit_chance > Math.random())
-    {
+    total_hits_taken++;
+
+    if(enemy_crit_chance > Math.random()){
         damage_dealt *= enemy_crit_damage;
         critted = true;
+        total_crits_taken++;
     }
     /*
     head: null, torso: null, 
@@ -1252,6 +1264,7 @@ function do_character_combat_action({target, attack_power}) {
 
     if(hit_chance > Math.random()) {//hero's attack hits
 
+        total_hits_done++;
         if(character.equipment.weapon != null) {
             damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) )/10;
 
@@ -1266,6 +1279,7 @@ function do_character_combat_action({target, attack_power}) {
         if(character.stats.full.crit_rate > Math.random()) {
             damage_dealt = Math.round(10*damage_dealt * character.stats.full.crit_multiplier)/10;
             critted = true;
+            total_crits_done++;
         }
         else {
             critted = false;
@@ -1274,6 +1288,9 @@ function do_character_combat_action({target, attack_power}) {
         damage_dealt = Math.ceil(10*Math.max(damage_dealt - target.stats.defense, damage_dealt*0.1, 1))/10;
 
         target.stats.health -= damage_dealt;
+        if(damage_dealt > strongest_hit) {
+            strongest_hit = damage_dealt;
+        }
         if(critted) {
             log_message(target.name + " was critically hit for " + damage_dealt + " dmg", "enemy_attacked_critically");
         }
@@ -1932,6 +1949,11 @@ function create_save() {
         save_data.total_crafting_attempts = total_crafting_attempts;
         save_data.total_crafting_successes = total_crafting_successes;
         save_data.total_kills = total_kills;
+        save_data.total_crits_done = total_crits_done;
+        save_data.total_crits_taken = total_crits_taken;
+        save_data.total_hits_done = total_hits_done;
+        save_data.total_hits_taken = total_hits_taken;
+        save_data.strongest_hit = strongest_hit;
         save_data.global_flags = global_flags;
         save_data["character"] = {
                                 name: character.name, titles: character.titles, 
@@ -2164,7 +2186,12 @@ function load(save_data) {
     total_deaths = save_data.total_deaths || 0;
     total_crafting_attempts = save_data.total_crafting_attempts || 0;
     total_crafting_successes = save_data.total_crafting_successes || 0;
-    total_deaths = save_data.total_deaths || 0;
+    total_kills = save_data.total_kills || 0;
+    total_crits_done = save_data.total_crits_done || 0;
+    total_crits_taken = save_data.total_crits_taken || 0;
+    total_hits_done = save_data.total_hits_done || 0;
+    total_hits_taken = save_data.total_hits_taken || 0;
+    strongest_hit = save_data.strongest_hit || 0;
 
     name_field.value = save_data.character.name;
     character.name = save_data.character.name;
@@ -3347,13 +3374,14 @@ function add_all_stuff_to_inventory(){
     })
 }
 
-//add_to_character_inventory([{item: getItem(item_templates["Processed rough wood"]), count: 100}]);
+//add_to_character_inventory([{item_id: "Camping supplies", count: 1}]);
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
 
 //global_flags.is_crafting_unlocked = true;
 update_displayed_equipment();
 sort_displayed_inventory({sort_by: "name", target: "character"});
+//change_location("Small flat area in mountains");
 
 run();
 

@@ -382,7 +382,7 @@ class LocationAction{
     /**
      * 
      * @param {Object} data
-     * @param {Object} data.conditions [{stats, skills, items_by_id: {item_id, count, remove?}, items_by_tag: {item_tag, count, remove?}, money: {Number, remove?}}]
+     * @param {Object} data.conditions [{stats, skills, [items_by_id: {item_id: {count, remove?}}], money: {number, remove?}}]
      */
     constructor({
         starting_text,
@@ -391,13 +391,14 @@ class LocationAction{
         description,
         action_text,
         success_text,
-        failure_texts = {}, //conditional_loss: [], random_loss: []
+        failure_texts = {},
         conditions = [],
         rewards = {},
         attempt_duration = 0,
         success_chances = [1,1],
         is_unlocked = false,
         repeatable = false,
+        check_conditions_on_finish = true,
     }) {
         this.starting_text = starting_text; //text on the button to start
         this.action_name = action_name || starting_text;
@@ -405,6 +406,12 @@ class LocationAction{
         this.description = description; //description on hover
         this.action_text = action_text; //text displayed during action animation
         this.failure_texts = failure_texts; //text displayed on failure
+        if(!this.failure_texts.conditional_loss) {
+            this.failure_texts.conditional_loss = [];
+        }
+        if(!this.failure_texts.random_loss) {
+            this.failure_texts.random_loss = [];
+        }
         /*  conditional_loss - conditions not met
             random_loss - conditions (at least 1st part) were met, but didn't roll high enough on success chance
         */
@@ -414,10 +421,11 @@ class LocationAction{
             throw new Error('LocationAction cannot have more than 2 sets of conditions!');
         }
         this.conditions = conditions; 
-        //things needed to succeed [{stats, skills, items_by_id: {item_id, count, remove?}, items_by_tag: {item_tag, count, remove?}, money: {Number, remove?}}, {?}]
+        //things needed to succeed [{stats, skills, items_by_id: {'item_id': {count, remove?}}, money: {Number, remove?}}, {?}]
         //either single set of values or two sets, one for minimum chance provided and one for maximum
         //two-set approach does not apply to items, so it only checks them for conditions[0]
-        this.check_conditions_on_finish = true; //means an action with duration can be attempted even if conditions are not met
+        //if applicable, items get removed both on failure and or success - if action requires them, it's better to have guaranteed success
+        this.check_conditions_on_finish = check_conditions_on_finish; //means an action with duration can be attempted even if conditions are not met
         this.rewards = rewards; //{unlocks, money, items,move_to}?
         this.attempt_duration = attempt_duration; //0 means instantaneous, otherwise there's a progress bar
         this.success_chances = success_chances; 
@@ -464,7 +472,7 @@ class LocationAction{
             return met;
         }
         //check items
-        if(this.conditions[0].items) {
+        if(this.conditions[0].items_by_id) {
             Object.keys(this.conditions[0].items_by_id).forEach(item_id => {
                 let found = false;
                 //iterate through inventory, set found to true if id is present and count is enough
@@ -472,8 +480,9 @@ class LocationAction{
                     if(found) {
                         return;
                     }
+                    
                     const {id} = JSON.parse(item_key);
-                    if(id === item_id && character.inventory[item_key].count >= this.conditions[0].items_by_id.count) {
+                    if(id === item_id && character.inventory[item_key].count >= this.conditions[0].items_by_id[item_id].count) {
                         found = true;
                     }
                 });
@@ -482,6 +491,7 @@ class LocationAction{
                     met = 0;
                 }
             });
+            /*
             Object.keys(this.conditions[0].items_by_tag).forEach(item_tag => {
                 let found = false;
                 //iterate through inventory, set found to true if tag is present and count is enough
@@ -499,6 +509,7 @@ class LocationAction{
                     met = 0;
                 }
             });
+            */
         }
         if(!met) {
             return met;
@@ -1045,7 +1056,7 @@ function get_location_type_penalty(type, stage, stat) {
     locations["Mysterious depths"] = new Location({ 
         connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb back up to the main cave system"}], 
         getDescription: function() {
-            return  `You find yourself in a large chamber with smooth walls and vaulted ceiling. The floor is covered in square tiles, yet you cannot help but notice that all these squares make a circle, in some impossible to understand way.
+            return  `You find yourself in a large chamber with smooth walls and vaulted ceiling. Th floor is covered in square tiles in the center, yet you cannot help but notice that all these squares make a circle, in some impossible to understand way.
 There's another gate on the wall in front of you, but you have a strange feeling that you won't be able to open it with brute strength. Smaller gates guard tunnels on the sides of the chamber, so maybe you should start with them?`;
         },
         getBackgroundNoises: function() {
@@ -1242,7 +1253,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
         housing: {
             is_present: true,
             is_unlocked: true,
-            sleeping_xp_per_tick: 3,
+            sleeping_xp_per_tick: 180,
+            text_to_sleep: "Take a nap on the bedroll",
         },
         is_unlocked: false,
         getBackgroundNoises: function() {
@@ -1644,10 +1656,18 @@ There's another gate on the wall in front of you, but you have a strange feeling
             action_id: "create camp",
             starting_text: "Establish a camp here",
             description: "Prepare a tent, a fireplace, and a storage here to create a new base. It will be necessary before exploring further up the mountains.",
-            action_text: "Looking around",
+            action_text: "Working",
             success_text: "After a few hours of hard work, your camp is ready. You can rest here before venturing further in the mountains",
-            conditions: [],
+            conditions: [
+                {
+                    items_by_id: {"Camping supplies": {count: 1, remove: true}},
+                }
+            ],
             is_unlocked: true,
+            check_conditions_on_finish: false,
+            failure_texts: {
+                conditional_loss: ["You lack camping supplies!"],
+            },
             attempt_duration: 180,
             success_chances: [1],
             rewards: {
