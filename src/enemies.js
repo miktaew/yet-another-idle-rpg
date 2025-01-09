@@ -212,6 +212,7 @@ class Enemy {
         loot_list: [
             {item_name: "Boar hide", chance: 0.04},
             {item_name: "Boar meat", chance: 0.02},
+            {item_name: "Boar tusk", chance: 0.02},
             {item_name: "High quality boar tusk", chance: 0.0005},
         ],
         size: "medium"
@@ -233,6 +234,16 @@ class Enemy {
         ],
     });
 
+    enemy_templates["Slums thug"] = new Enemy({
+        name: "Slums thug",
+        description: "", 
+        add_to_bestiary: false,
+        xp_value: 10,
+        rank: 5,
+        tags: ["living", "human"],
+        size: "medium",
+        stats: {health: 500, attack: 60, agility: 60, dexterity: 60, magic: 0, intuition: 60, attack_speed: 1.7, defense: 20},
+    });
 })();
 
 

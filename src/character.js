@@ -22,6 +22,8 @@ class Hero extends InventoryHaver {
                         health: 40,
                         health_regeneration_flat: 0, //in combat
                         health_regeneration_percent: 0, //in combat
+                        health_loss_flat: 0,
+                        health_loss_percent: 0,
                         max_stamina: 40,
                         stamina: 40,
                         stamina_regeneration_flat: 0, //in combat
@@ -70,6 +72,13 @@ class Hero extends InventoryHaver {
                                 stance: {},
                                 light_level: {},
                                 environment: {},
+                        }
+                };
+                this.skill_level_bonuses = {
+                        full: {},
+                        flat: {
+                                equipment: {},
+                                active_effects: {},
                         }
                 };
                 this.xp_bonuses = {
@@ -368,7 +377,7 @@ character.stats.add_location_penalties = function() {
         
         if(current_location) {
                 if(!("connected_locations" in current_location)) {
-                        effects = current_location.get_total_effect().hero_penalty.multipliers;
+                        effects = current_location.get_total_effect().hero_penalty;
                 }
 
                 if(current_location.light_level === "dark" || current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 3)) {
@@ -382,8 +391,12 @@ character.stats.add_location_penalties = function() {
         }
 
         character.stats.multiplier.environment = {};
-        Object.keys(effects).forEach(effect => {
-                character.stats.multiplier.environment[effect] = effects[effect];
+        character.stats.flat.environment = {};
+        Object.keys(effects.multipliers || {}).forEach(effect => {
+                character.stats.multiplier.environment[effect] = effects.multipliers[effect];
+        });
+        Object.keys(effects.flats || {}).forEach(effect => {
+                character.stats.flat.environment[effect] = effects.flats[effect];
         });
 }
 

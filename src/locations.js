@@ -237,8 +237,8 @@ class Combat_zone {
     //calculates total penalty with and without hero skills
     //launches on every combat action
     get_total_effect() {
-        const effects = {multipliers: {}};
-        const hero_effects = {multipliers: {}};
+        const effects = {multipliers: {}, flats: {}};
+        const hero_effects = {multipliers: {}, flats: {}};
         
         //iterate over types of location
         for(let i = 0; i < this.types.length; i++) {
@@ -249,12 +249,20 @@ class Combat_zone {
             }
 
             //iterate over effects each type has 
-            //(ok there's really just only 3 that make sense: attack points, evasion points, strength, though maybe also attack speed? mainly the first 2 anyway)
-            Object.keys(type.effects.multipliers).forEach((effect) => { 
 
-                effects.multipliers[effect] = (effects.multipliers[effect] || 1) * type.effects.multipliers[effect];
+            Object.keys(type.effects).forEach(stat => { 
+                if(type.effects[stat].multiplier) {
+                    effects.multipliers[stat] = (effects.multipliers[stat] || 1) * type.effects[stat].multiplier;
                 
-                hero_effects.multipliers[effect] = (hero_effects.multipliers[effect] || 1) * get_location_type_penalty(this.types[i].type, this.types[i].stage, effect);
+                    hero_effects.multipliers[stat] = (hero_effects.multipliers[stat] || 1) * get_location_type_penalty(this.types[i].type, this.types[i].stage, stat, "multiplier");
+                }
+
+                if(type.effects[stat].flat) {
+                    effects.flats[stat] = (effects.flats[stat] || 0) + type.effects[stat].flat;
+                
+                    hero_effects.flats[stat] = (hero_effects.flats[stat] || 0) + get_location_type_penalty(this.types[i].type, this.types[i].stage, stat, "flat");
+                }
+
             })
         }
 
@@ -553,13 +561,26 @@ class LocationType{
     }
 }
 
-function get_location_type_penalty(type, stage, stat) {
+function get_location_type_penalty(type, stage, stat, category) {
     
     const skill = skills[location_types[type].stages[stage].related_skill];
 
-    const base = location_types[type].stages[stage].effects.multipliers[stat];
+    //maybe give all stages a range of skill lvls where they start scaling and where they get fully nullified?
 
-    return base**(1- skill.current_level/skill.max_level);
+    
+
+    if(category === "multiplier") {
+        const base = location_types[type].stages[stage].effects[stat].multiplier;
+    
+        return base**(1- skill.current_level/skill.max_level);
+    } else if(category === "flat") {
+        const base = location_types[type].stages[stage].effects[stat].flat;
+
+        return base*(1-skill.current_level/skill.max_level)**0.66667;
+    } else {
+        throw new Error(`Unsupported category of stat effects "${category}", should be either "flat" or "multiplier"!`);
+    }
+    
 }
 
 //create location types
@@ -574,20 +595,16 @@ function get_location_type_penalty(type, stage, stat) {
                 description: "An extremely bright place, excessive light makes it hard to keep eyes open",
                 related_skill: "Dazzle resistance",
                 effects: {
-                    multipliers: {
-                        attack_points: 0.5,
-                        evasion_points: 0.5,
-                    }
+                    attack_points: {multiplier: 0.5},
+                    evasion_points: {multiplier: 0.5},
                 }
             },
             3: {
                 description: "A place with so much light that an average person would go blind in an instant",
                 related_skill: "Dazzle resistance",
                 effects: {
-                    multipliers: {
-                        attack_points: 0.1,
-                        evasion_points: 0.1,
-                    }
+                    attack_points: {multiplier: 0.1},
+                    evasion_points: {multiplier: 0.1},
                 }
             }
         }
@@ -596,7 +613,7 @@ function get_location_type_penalty(type, stage, stat) {
         name: "dark",
         stages: {
             1: {
-                description: "A place where it's always as dark as during a bright night",
+                description: "It's dark here, comparable to a bright night",
                 related_skill: "Night vision",
                 //no effects here, since in this case they are provided via the overall "night" penalty
             },
@@ -604,21 +621,17 @@ function get_location_type_penalty(type, stage, stat) {
                 description: "An extremely dark place, darker than most of the nights",
                 related_skill: "Night vision",
                 effects: {
-                    multipliers: {
-                        //they dont need to be drastic since they apply on top of 'night' penalty
-                        attack_points: 0.8,
-                        evasion_points: 0.8,
-                    }
+                    //they dont need to be drastic since they apply on top of 'night' penalty
+                    attack_points: {multiplier: 0.8},
+                    evasion_points: {multiplier: 0.8},
                 }
             },
             3: {
                 description: "Pure darkness with not even a tiniest flicker of light",
                 related_skill: "Presence sensing",
                 effects: {
-                    multipliers: {
-                        attack_points: 0.15,
-                        evasion_points: 0.15,
-                    }
+                    attack_points: {multiplier: 0.15},
+                    evasion_points: {multiplier: 0.15},
                 }
             }
         }
@@ -630,20 +643,16 @@ function get_location_type_penalty(type, stage, stat) {
                 description: "A narrow area where there's not much place for maneuvering",
                 related_skill: "Tight maneuvers",
                 effects: {
-                    multipliers: {
-                        evasion_points: 0.5,
-                                }
-                        }
-                },
+                    evasion_points: {multiplier: 0.5},
+                }
+            },
             2: {
                 description: "A very tight and narrow area where there's not much place for maneuvering",
                 related_skill: "Tight maneuvers",
                 effects: {
-                    multipliers: {
-                        evasion_points: 0.333,
-                                }
-                        }
-                }
+                    evasion_points: {multiplier: 0.333},
+                }        
+            }
         }
     });
     location_types["open"] = new LocationType({
@@ -653,18 +662,14 @@ function get_location_type_penalty(type, stage, stat) {
                 description: "A completely open area where attacks can come from any direction",
                 related_skill: "Spatial awareness",
                 effects: {
-                    multipliers: {
-                        evasion_points: 0.75,
-                    }
+                    evasion_points: {multiplier:  0.75},
                 }
             },
             2: {
                 description: "An area that's completely open and simultanously obstructs your view, making it hard to predict where an attack will come from",
                 related_skill: "Spatial awareness",
                 effects: {
-                    multipliers: {
-                        evasion_points: 0.5,
-                    }
+                    evasion_points: {multiplier: 0.5},
                 }
             }
         }
@@ -676,34 +681,27 @@ function get_location_type_penalty(type, stage, stat) {
                 description: "High temperature makes it hard to breath",
                 related_skill: "Heat resistance",
                 effects: {
-                    multipliers: {
-                        attack_points: 0.5,
-                        evasion_points: 0.5,
-                        stamina: 0.8,
-                    }
+                    attack_points: {multiplier: 0.5},
+                    evasion_points: {multiplier: 0.5},
+                    stamina: {multiplier: 0.8},
                 }
             },
             2: {
                 description: "It's so hot that just being here is painful",
                 related_skill: "Heat resistance",
                 effects: {
-                    multipliers: {
-                        attack_points: 0.3,
-                        evasion_points: 0.3,
-                        stamina: 0.5,
-                    }
+                    attack_points: {multiplier: 0.3},
+                    evasion_points: {multiplier: 0.3},
+                    stamina: {multiplier: 0.5},
                 }
             },
             3: {
                 description: "Temperature so high that wood ignites by itself",
                 related_skill: "Heat resistance",
-                //TODO: environmental damage if resistance is too low
                 effects: {
-                    multipliers: {
-                        attack_points: 0.1,
-                        evasion_points: 0.1,
-                        stamina: 0.3,
-                    }
+                    attack_points: {multiplier: 0.1},
+                    evasion_points: {multiplier: 0.1},
+                    stamina: {multiplier: 0.3},
                 }
             }
         }
@@ -715,32 +713,25 @@ function get_location_type_penalty(type, stage, stat) {
                 description: "Cold makes your energy seep out...",
                 related_skill: "Cold resistance",
                 effects: {
-                    multipliers: {
-                        stamina: 0.5,
-                    }
+                    stamina: {multiplier: 0.5},
                 }
             },
             2: {
                 description: "So cold...",
                 related_skill: "Cold resistance",
                 effects: {
-                    multipliers: {
-                        attack_points: 0.7,
-                        evasion_points: 0.7,
-                        stamina: 0.2,
-                    }
+                    attack_points: {multiplier: 0.7},
+                    evasion_points: {multiplier: 0.7},
+                    stamina: {multiplier: 0.2},
                 }
             },
             3: {
                 description: "This place is so cold, lesser beings would freeze in less than a minute...",
                 related_skill: "Cold resistance",
-                //TODO: environmental damage if resistance is too low (to both hp and stamina?)
                 effects: {
-                    multipliers: {
-                        attack_points: 0.5,
-                        evasion_points: 0.5,
-                        stamina: 0.1,
-                    }
+                    attack_points: {multiplier: 0.5},
+                    evasion_points: {multiplier: 0.5},
+                    stamina: {multiplier: 0.1},
                 }
             }
         }
@@ -752,26 +743,22 @@ function get_location_type_penalty(type, stage, stat) {
                 description: "Place with thinner air, which negatively impacts your body",
                 related_skill: "Breathing",
                 effects: {
-                    multipliers: {
-                        stamina_efficiency: 0.5,
-                        agility: 0.8,
-                        strength: 0.8,
-                        dexterity: 0.8,
-                        intuition: 0.8,
-                    }
+                    stamina_efficiency: {multiplier: 0.5},
+                    agility: {multiplier: 0.8},
+                    strength: {multiplier: 0.8},
+                    dexterity: {multiplier: 0.8},
+                    intuition: {multiplier: 0.8},
                 }
             },
             2: {
                 description: "Place with very thin air, heavily affecting your body",
                 related_skill: "Breathing",
                 effects: {
-                    multipliers: {
-                        stamina_efficiency: 0.1,
-                        agility: 0.5,
-                        strength: 0.5,
-                        dexterity: 0.5,
-                        intuition: 0.5,
-                    }
+                    stamina_efficiency: {multiplier: 0.1},
+                    agility: {multiplier: 0.5},
+                    strength: {multiplier: 0.5},
+                    dexterity: {multiplier: 0.5},
+                    intuition: {multiplier: 0.5},
                 }
             }
         }
@@ -780,25 +767,25 @@ function get_location_type_penalty(type, stage, stat) {
         name: "eldritch",
         stages: {
             1: {
-                description: "This place is wrong",
+                description: "This place brings a strong sense of unease",
                 related_skill: "Strength of mind",
                 effects: {
-                    multipliers: {
-                        agility: 0.8,
-                        dexterity: 0.8,
-                        intuition: 0.5,
-                    }
+                    agility: {multiplier: 0.8},
+                    dexterity: {multiplier: 0.8},
+                    intuition: {multiplier: 0.5},
+                    stamina_efficiency: {multiplier: 0.75},
+                    health_loss_flat: {flat: 5},
                 }
             },
             2: {
-                description: "It shouldn't exist, it's all wrong!",
+                description: "This place goes against the laws of the world",
                 related_skill: "Strength of mind",
                 effects: {
-                    multipliers: {
-                        agility: 0.5,
-                        dexterity: 0.5,
-                        intuition: 0.3,
-                    }
+                    agility: {multiplier: 0.3},
+                    dexterity: {multiplier: 0.3},
+                    intuition: {multiplier: 0.2},
+                    stamina_efficiency: {multiplier: 0.5},
+                    health_loss_flat: {flat: 50},
                 }
             }
         }
@@ -854,7 +841,7 @@ function get_location_type_penalty(type, stage, stat) {
     });
 
     locations["Shack"] = new Location({
-        connected_locations: [{location: locations["Village"], custom_text: "Go outside"}],
+        connected_locations: [{location: locations["Village"], custom_text: "Go outside to [Village]"}],
         description: "This small shack was the only spare building in the village. It's surprisingly tidy.",
         name: "Shack",
         is_unlocked: false,
@@ -889,7 +876,7 @@ function get_location_type_penalty(type, stage, stat) {
     locations["Village"].connected_locations.push({location: locations["Infested field"]});
 
     locations["Nearby cave"] = new Location({ 
-        connected_locations: [{location: locations["Village"], custom_text: "Go outside and to the village"}], 
+        connected_locations: [{location: locations["Village"], custom_text: "Go outside and to the [Village]"}], 
         getDescription: function() {
             if(locations["Pitch black tunnel"].enemy_groups_killed >= locations["Pitch black tunnel"].enemy_count) { 
                 return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the cave walls, providing a dim light. Your efforts have secured a decent space and many of the tunnels. It seems like you almost reached the deepest part.";
@@ -1080,7 +1067,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
         is_unlocked: false,
     });
-    locations["Village"].connected_locations.push({location: locations["Forest road"], custom_text: "Leave the village"});
+    locations["Village"].connected_locations.push({location: locations["Forest road"], custom_text: "Leave the village towards [Forest road]"});
 
     locations["Forest"] = new Combat_zone({
         description: "Forest surrounding the village, a dangerous place", 
@@ -1099,7 +1086,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activities: [{location:"Forest road", activity: "herbalism"}],
         },
     });
-    locations["Forest road"].connected_locations.push({location: locations["Forest"], custom_text: "Leave the safe path"});
+    locations["Forest road"].connected_locations.push({location: locations["Forest"], custom_text: "Leave the safe path and go deeper in the [Forest]"});
 
     locations["Deep forest"] = new Combat_zone({
         description: "Deeper part of the forest, a dangerous place", 
@@ -1149,22 +1136,35 @@ There's another gate on the wall in front of you, but you have a strange feeling
         is_unlocked: true,
         dialogues: ["gate guard"],
     });
-    locations["Forest road"].connected_locations.push({location: locations["Town outskirts"], custom_text: "Go towards the town"});
+    locations["Forest road"].connected_locations.push({location: locations["Town outskirts"], custom_text: "Go towards the [Town outskirts]"});
 
     locations["Slums"] = new Location({ 
         connected_locations: [{location: locations["Town outskirts"]}],
-        description: "A wild settlement next to city walls, filled with decaying buildings and criminals",
+        getDescription: function() {
+            if(locations["Gang hideout"].is_finished) {
+                return "A wild settlement next to city walls, filled with decaying buildings, poverty, and occasional thieves";
+            }
+
+            return "A wild settlement next to city walls, filled with decaying buildings, poverty, and violent criminals";
+        },
         name: "Slums",
         is_unlocked: true,
         dialogues: ["suspicious man"],
-        traders: ["suspicious trader"],
+        traders: ["suspicious trader", "suspicious trader 2"],
         getBackgroundNoises: function() {
-            let noises = ["Cough cough", "*You hear a scream*", "*You hear someone sobbing*"];
-
+            let noises = ["Cough cough", "*You hear someone sobbing*", "*You see someone sleeping in an alleyway.*"];
+            
             if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
                 noises.push("Please, do you have a coin to spare?");
             } else {
-                noises.push("*Sounds of someone getting repeatedly stabbed*", "Scammed some fools for money today, time to get drunk");
+                if(locations["Gang hideout"].is_finished) {
+                    noises.push("*Sounds of someone getting repeatedly stabbed*", "Scammed some fools for money today, time to get drunk!");
+                }
+            }
+            if(!locations["Gang hideout"].is_finished) {
+                noises.push("*You hear a terrified scream.*");
+            } else {
+                noises.push("You're the one who took out that gang, aren't you? Thank you so much.", "Things got a lot better since those thugs left...");
             }
             return noises;
         },
@@ -1192,6 +1192,28 @@ There's another gate on the wall in front of you, but you have a strange feeling
             return noises;
         },
     });
+    locations["Gang hideout"] = new Combat_zone({ 
+        description: "Hideout of a local gang. Old building with a labirynth of narrow corridors.", 
+        enemies_list: ["Slums thug"],
+        types: [{type: "narrow", stage: 2, xp_gain: 3}, {type: "dark", stage: 1, xp_gain: 3}],
+        enemy_count: 40,
+        is_unlocked: false,
+        enemy_group_size: [3,6],
+        enemy_stat_variation: 0.4,
+        name: "Gang hideout", 
+        parent_location: locations["Slums"],
+        first_reward: {
+            xp: 1000,
+        },
+        repeatable_reward: {
+            traders: [{trader: "suspicious trader 2", skip_message: true}],
+            locks: {
+                locations: ["Gang hideout"],
+                traders: ["suspicious trader"]
+            }
+        },
+    });
+    locations["Slums"].connected_locations.push({location: locations["Gang hideout"]});
 
     locations["Town square"] = new Location({ 
         connected_locations: [{location: locations["Town outskirts"]}],
@@ -1221,7 +1243,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Cat café"].connected_locations.push({location: locations["Town square"]});
 
     locations["Mountain path"] = new Location({
-        connected_locations: [{location: locations["Nearby cave"]}],
+        connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb down to [Nearby Cave]"}],
         description: "A treacherus path high above the village",
         name: "Mountain path",
         is_unlocked: true,
@@ -1247,7 +1269,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Mountain path"].connected_locations.push({location: locations["Small flat area in mountains"]});
     
     locations["Mountain camp"] = new Location({
-        connected_locations: [{location: locations["Nearby cave"]}],
+        connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb down to [Nearby cave]"}],
         description: "A nice safe camp in mountains created by you, a perfect base for further exploration.",
         name: "Mountain camp",
         housing: {
@@ -1681,8 +1703,3 @@ There's another gate on the wall in front of you, but you have a strange feeling
     }
 })();
 export {locations, location_types, get_location_type_penalty};
-
-/*
-TODO:
-    some "quick travel" location that would connect all important ones? (e.g. some towns?)
-*/

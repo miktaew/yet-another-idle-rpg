@@ -16,7 +16,7 @@
             {
                 location: String, //location key
                 required_clears: Number //only when reward is for combat zones, will make unlock be given only after X full clears instead of first time
-                skip_message: Boolean //to NOT log an unlock message, useful in some fringe cases but generally should be skipped
+                skip_message: Boolean //to NOT log an unlock message, useful in some fringe cases but generally should be ignored
             }
         ]
 
@@ -31,7 +31,11 @@
         
         dialogues: [String] //an array with dialogue keys
 
-        traders: [String] //an array with trader keys
+        traders: [
+            {
+                trader: String,  //trader key
+                skip_message: Boolean //to NOT log an unlock message
+        ] 
 
         housing: [String] //an array with location keys
 
@@ -52,13 +56,14 @@
         stances: [String] //an arrays of stance keys
 
         locks: {
-            locations: [String] //an array of location keys
+            locations: [String] //an array with location keys
             textlines: [
                 {
                     lines: [String] //an array with textline keys
                     dialogue: String //dialogue key
                 }
-            ]   
+            ],
+            traders: [String] //an array with trader keys
         }
 
         items: [

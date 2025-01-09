@@ -1,5 +1,29 @@
 "use strict";
 
+const stat_names = {"strength": "str",
+    "health": "hp",
+    "max_health": "hp", //same as for "health"
+    "health_regenaration_flat": "hp regen",
+    "health_regeneration_multiplier": "hp regen",
+    "health_loss_flat": "hp loss",
+    "health_loss_multiplier": "hp loss",
+    "max_stamina": "stamina",
+    "agility": "agl",
+    "dexterity": "dex",
+    "magic": "magic",
+    "attack_speed": "attack speed",
+    "attack_power": "attack power",
+    "crit_rate": "crit rate",
+    "crit_multiplier": "crit dmg",
+    "stamina_efficiency": "stamina efficiency",
+    "intuition": "int",
+    "block_strength": "shield strength",
+    "hit_chance": "hit chance",
+    "evasion": "EP",
+    "evasion_points": "EP",
+    "attack_points": "AP",
+};
+
 function expo(number, precision = 2)
 {
     if(number == 0) {
@@ -38,26 +62,6 @@ function format_reading_time(time) {
         return `${Math.round(time)} minutes`;
     }
 }
-
-const stat_names = {"strength": "str",
-                    "health": "hp",
-                    "max_health": "hp", //same as for "health"
-                    "max_stamina": "stamina",
-                    "agility": "agl",
-                    "dexterity": "dex",
-                    "magic": "magic",
-                    "attack_speed": "attack speed",
-                    "attack_power": "attack power",
-                    "crit_rate": "crit rate",
-                    "crit_multiplier": "crit dmg",
-                    "stamina_efficiency": "stamina efficiency",
-                    "intuition": "int",
-                    "block_strength": "shield strength",
-                    "hit_chance": "hit chance",
-                    "evasion": "EP",
-                    "evasion_points": "EP",
-                    "attack_points": "AP",
-                };
 
 function get_hit_chance(attack_points, evasion_points) {
     let result = attack_points/(attack_points+evasion_points);

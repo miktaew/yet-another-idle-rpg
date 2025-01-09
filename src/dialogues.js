@@ -163,7 +163,7 @@ class Textline {
                 locks_lines: ["equipment"],
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["money"]}],
-                    traders: ["village trader"]
+                    traders: [{trader: "village trader"}]
                 }
             }),
             "money": new Textline({
@@ -403,14 +403,49 @@ class Textline {
                 +"If you want answers, ask my boss. He's somewhere in the town.",
                 locks_lines: ["defeated"],
                 rewards: {
-                    textlines: [{dialogue: "suspicious man", lines: ["behave"]}],
+                    textlines: [{dialogue: "suspicious man", lines: ["behave", "situation"]}],
                 },
             }), 
             "behave": new Textline({ 
                 name: "Are you behaving yourself?",
                 is_unlocked: false,
-                text: "Y-yes! Please don't beat me again!",
+                text: "Y-yes, boss! Please don't beat me again!",
                 locks_lines: ["defeated"],
+                rewards: {
+                    textlines: [{dialogue: "suspicious man", lines: ["situation", "boss"]}],
+                },
+            }), 
+            "boss": new Textline({ 
+                name: "Stop calling me 'boss'",
+                is_unlocked: false,
+                text: "Y-yes, boss! I'm sorry, boss!",
+                locks_lines: ["boss"],
+            }), 
+            "situation": new Textline({
+                name: "By the way, how are things in this slum?",
+                is_unlocked: false,
+                text: "A-as you can see and hear boss, it's pretty b-bad, but it can't be helped without taking out the g-gang...",
+                locks_lines: ["situation"],
+                rewards: {
+                    textlines: [{dialogue: "suspicious man", lines: ["gang", "boss"]}],
+                },
+            }),
+            "gang": new Textline({
+                name: "What gang?",
+                is_unlocked: false,
+                text: "It's j-just a gang, they don't have any name, boss. Their hideout is over t-there, you should stay away from them.",
+                locks_lines: ["gang", "behave"],
+                rewards: {
+                    textlines: [{dialogue: "suspicious man", lines: ["gang", "behave 2"]}],
+                    locations: [
+                        {location: "Gang hideout"},
+                    ],
+                },
+            }),
+            "behave 2": new Textline({ 
+                name: "Are you behaving yourself?",
+                is_unlocked: false,
+                text: "Y-yes, I didn't do anything bad since the last time, boss!",
             }), 
         }
     });
@@ -456,7 +491,7 @@ class Textline {
                 text: "Actually yes. There's that annoying group of boars that keep destroying our fields. "
                 + "They don't do enough damage to cause any serious problems, but I would certainly be calmer if someone took care of them. "
                 + "Go to the forest and search for a clearing in north, that's where they usually roam when they aren't busy eating our crops."
-                + "I can of course pay you for that, but keep in mind it won't be that much, I'm running on a strict budget here.",
+                + "I can of course pay you for that, but keep in mind it won't be that much. 2 silver coins is most I can offer, I'm running on a strict budget here.",
                 required_flags: {yes: ["is_deep_forest_beaten"]},
                 rewards: {
                     locations: [{location: "Forest clearing"}],
@@ -477,7 +512,7 @@ class Textline {
                 text: "Really? That's great! Here, this is for you.",
                 locks_lines: ["defeated boars"],
                 rewards: {
-                    money: 1000,
+                    money: 2000,
                 }
             }), 
         }

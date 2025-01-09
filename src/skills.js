@@ -1303,6 +1303,17 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                         }
                                     }
                                 });
+    skills["Breathing"] = new Skill({skill_id: "Breathing",
+        names: {0: "Breathing"}, 
+        description: "Oxygen is the most important resource for improving the performance of your body. Learn how to take it in more efficiently.",
+        base_xp_cost: 400,
+        visibility_treshold: 350,
+        category: "Activity",
+        max_level: 30,
+        rewards: {
+            
+        }
+    });                           
     skills["Meditation"] = new Skill({skill_id: "Meditation",
                                 names: {0: "Meditation"}, 
                                 description: "Focus your mind",

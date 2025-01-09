@@ -52,6 +52,16 @@ effect_templates["Weak healing potion"] = new ActiveEffect({
     },
     tags: {"buff": true},
 });
+effect_templates["Weak healing balm"] = new ActiveEffect({
+    name: "Weak healing balm",
+    effects: {
+        stats: {
+            health_regeneration_flat: {flat: 5},
+            health_regeneration_percent: {flat: 0.5},
+        }
+    },
+    tags: {"buff": true},
+});
 
 effect_templates["Cheap meat meal"] = new ActiveEffect({
     name: "Cheap meat meal",

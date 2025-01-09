@@ -261,6 +261,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [
             {material_id: "Low quality iron ingot", count: 2, result_id: "Cheap short iron blade"}, 
             {material_id: "Iron ingot", count: 2, result_id: "Short iron blade"},
+            {material_id: "Steel ingot", count: 2, result_id: "Short steel blade"},
         ],
         item_type: "Component",
         recipe_skill: "Forging"
@@ -270,6 +271,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [
             {material_id: "Low quality iron ingot", count: 3, result_id: "Cheap long iron blade"}, 
             {material_id: "Iron ingot", count: 3, result_id: "Long iron blade"},
+            {material_id: "Steel ingot", count: 3, result_id: "Long steel blade"},
         ],
         item_type: "Component",
         recipe_skill: "Forging",
@@ -279,6 +281,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [
             {material_id: "Low quality iron ingot", count: 4, result_id: "Cheap iron axe head"}, 
             {material_id: "Iron ingot", count: 4, result_id: "Iron axe head"},
+            {material_id: "Steel ingot", count: 4, result_id: "Steel axe head"},
         ],
         item_type: "Component",
         recipe_skill: "Forging"
@@ -288,6 +291,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [
             {material_id: "Low quality iron ingot", count: 4, result_id: "Cheap iron hammer head"}, 
             {material_id: "Iron ingot", count: 4, result_id: "Iron hammer head"},
+            {material_id: "Steel ingot", count: 4, result_id: "Steel hammer head"},
         ],
         item_type: "Component",
         recipe_skill: "Forging",
@@ -683,7 +687,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     smelting_recipes.items["Low quality iron ingot"] = new ItemRecipe({
         name: "Low quality iron ingot",
         recipe_type: "material",
-        materials: [{material_id: "Low quality iron ore", count: 5}], 
+        materials: [{material_id: "Low quality iron ore", count: 5}, {material_id: "Coal", count: 1}], 
         result: {result_id: "Low quality iron ingot", count: 1},
         success_chance: [0.4,1],
         recipe_level: [1,5],
@@ -692,8 +696,17 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     smelting_recipes.items["Iron ingot"] = new ItemRecipe({
         name: "Iron ingot",
         recipe_type: "material",
-        materials: [{material_id: "Iron ore", count: 5}], 
+        materials: [{material_id: "Iron ore", count: 5}, {material_id: "Coal", count: 1}], 
         result: {result_id: "Iron ingot", count: 1},
+        success_chance: [0.1,1],
+        recipe_level: [5,15],
+        recipe_skill: "Smelting",
+    });
+    smelting_recipes.items["Steel ingot"] = new ItemRecipe({
+        name: "Steel ingot",
+        recipe_type: "material",
+        materials: [{material_id: "Iron ore", count: 5}, {material_id: "Corbundum ore", count: 5}, {material_id: "Coal", count: 2}],
+        result: {result_id: "Steel ingot", count: 1},
         success_chance: [0.1,1],
         recipe_level: [5,15],
         recipe_skill: "Smelting",
@@ -715,6 +728,43 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Processed wood", count: 1},
         success_chance: [0.2,1],
         recipe_level: [5,15],
+        recipe_skill: "Crafting",
+    });
+    smelting_recipes.items["Charcoal"] = new ItemRecipe({
+        name: "Charcoal",
+        recipe_type: "material",
+        materials: [{material_id: "Piece of rough wood", count: 5}], 
+        result: {result_id: "Coal", count: 1},
+        success_chance: [0.4,1],
+        recipe_level: [1,10],
+        recipe_skill: "Smelting",
+    });
+    cooking_recipes.items["Animal fat"] = new ItemRecipe({
+        name: "Animal fat",
+        recipe_type: "usable",
+        materials: [{material_id: "Boar meat", count: 3}], 
+        result: {result_id: "Animal fat", count: 1},
+        success_chance: [0.1,1],
+        recipe_level: [7,20],
+        recipe_skill: "Cooking",
+    });
+
+    crafting_recipes.items["High quality wolf fang"] = new ItemRecipe({
+        name: "High quality wolf fang",
+        recipe_type: "material",
+        materials: [{material_id: "Wolf fang", count: 50}],
+        result: {result_id: "High quality wolf fang", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [1,7],
+        recipe_skill: "Crafting",
+    });
+    crafting_recipes.items["High quality boar tusk"] = new ItemRecipe({
+        name: "High quality boar tusk",
+        recipe_type: "material",
+        materials: [{material_id: "Boar tusk", count: 50}], 
+        result: {result_id: "High quality boar tusk", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [5,12],
         recipe_skill: "Crafting",
     });
 })();
@@ -768,6 +818,18 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Oneberry juice", count: 1},
         success_chance: [0.1,1],
         recipe_level: [1,10],
+        recipe_skill: "Alchemy",
+    });
+    alchemy_recipes.items["Healing balm"] = new ItemRecipe({
+        name: "Healing balm",
+        recipe_type: "usable",
+        materials: [{material_id: "Oneberry", count: 10},
+                    {material_id: "Golmoon leaf", count: 5},
+                    {material_id: "Animal fat", count: 1},
+        ],
+        result: {result_id: "Healing balm", count: 1},
+        success_chance: [0.1,1],
+        recipe_level: [7,15],
         recipe_skill: "Alchemy",
     });
 })();

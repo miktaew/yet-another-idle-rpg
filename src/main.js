@@ -1650,10 +1650,12 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
 
     if(rewards.traders) { 
         for(let i = 0; i < rewards.traders.length; i++) {
-            const trader = traders[rewards.traders[i]];
+            const trader = traders[rewards.traders[i].trader];
             if(!trader.is_unlocked) {
                 trader.is_unlocked = true;
-                log_message(`You can now trade with ${trader.name}`, "activity_unlocked");
+                if(!rewards.traders[i].skip_message) {
+                    log_message(`You can now trade with ${trader.name}`, "activity_unlocked");
+                }
             }
         }
     }
@@ -1701,6 +1703,11 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         if(rewards.locks.locations) {
             for(let i = 0; i < rewards.locks.locations.length; i++) {
                 locations[rewards.locks.locations[i]].is_finished = true;
+            }
+        }
+        if(rewards.locks.traders) {
+            for(let i = 0; i < rewards.locks.traders.length; i++) {
+                traders[rewards.locks.traders[i]].is_finished = true;
             }
         }
     }
@@ -2063,19 +2070,25 @@ function create_save() {
 
         save_data["traders"] = {};
         Object.keys(traders).forEach(function(trader) {
-            if(traders[trader].is_unlocked) {
+            if(traders[trader].is_finished) {
+                //trader is no longer accessible
+                save_data["traders"][trader] = {is_unlocked: traders[trader].is_unlocked,
+                                                is_finished: traders[trader].is_finished};
+
+            } else if(traders[trader].is_unlocked) {
                 if(traders[trader].last_refresh == -1 || traders[trader].can_refresh()) {
                     //no need to save inventory, as trader would be anyway refreshed on any visit
                     save_data["traders"][trader] = {last_refresh: -1,
                                                     is_unlocked: traders[trader].is_unlocked};
                 } else {
-                    const t_inventory = {};
+                    const temp_inventory = {};
                     Object.keys(traders[trader].inventory).forEach(key =>{
-                        t_inventory[key] = {count: traders[trader].inventory[key].count};
+                        temp_inventory[key] = {count: traders[trader].inventory[key].count};
                     });
-                    save_data["traders"][trader] = {inventory: t_inventory, 
-                                                    last_refresh: traders[trader].last_refresh, 
-                                                    is_unlocked: traders[trader].is_unlocked
+                    save_data["traders"][trader] = {inventory: temp_inventory,
+                                                    last_refresh: traders[trader].last_refresh,
+                                                    is_unlocked: traders[trader].is_unlocked,
+                                                    is_finished: traders[trader].is_finished,
                                                 };
                 }
             }
@@ -2598,9 +2611,12 @@ function load(save_data) {
     Object.keys(save_data.traders).forEach(function(trader) { 
         let trader_item_list = [];
         if(traders[trader]){
+            traders[trader].is_unlocked = save_data.traders[trader].is_unlocked;
 
-            //set as unlocked (it must have been unlocked to be saved, so no need to check the actual value)
-            traders[trader].is_unlocked = true;
+            if(save_data.traders[trader].is_finished) {
+                traders[trader].is_finished = true;
+                return;
+            }
 
             if(save_data.traders[trader].inventory) {
                 Object.keys(save_data.traders[trader].inventory).forEach(function(key){
@@ -3143,6 +3159,13 @@ function update() {
         }
         if(character.stats.full.health_regeneration_percent) {
             character.stats.full.health += character.stats.full.max_health * character.stats.full.health_regeneration_percent/100;
+        }
+        //health loss
+        if(character.stats.full.health_loss_flat) {
+            character.stats.full.health += character.stats.full.health_loss_flat;
+        }
+        if(character.stats.full.health_loss_percent) {
+            character.stats.full.health += character.stats.full.max_health * character.stats.full.health_loss_percent/100;
         }
         //stamina regen
         if(character.stats.full.stamina_regeneration_flat) {

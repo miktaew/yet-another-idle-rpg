@@ -404,11 +404,11 @@ function create_effect_tooltip(effect_name, duration) {
     for(const [key, stat_value] of Object.entries(effect.effects.stats)) {
         tooltip.innerHTML += `<br>${capitalize_first_letter(key.replaceAll("_", " ").replace("flat","").replace("percent",""))} `;
         //for regeneration bonuses, it is assumed they are only flat and not multiplicative
-        if(key === "health_regeneration_flat" || key ===  "stamina_regeneration_flat" || key ===  "mana_regeneration_flat") 
+        if(key === "health_regeneration_flat" || key ===  "stamina_regeneration_flat" || key ===  "mana_regeneration_flat" || key === "health_loss_flat") 
         {   
             const sign = stat_value.flat > 0? "+":"";
             tooltip.innerHTML += `: ${sign}${stat_value.flat}`;
-        } else if(key === "health_regeneration_percent" || key === "stamina_regeneration_percent" || key === "mana_regeneration_percent") {
+        } else if(key === "health_regeneration_percent" || key === "stamina_regeneration_percent" || key === "mana_regeneration_percent" || key === "health_loss_percent") {
             const sign = stat_value.percent > 0? "+":"";
             tooltip.innerHTML += `: ${sign}${stat_value.flat}%`;
         } else {
@@ -1561,7 +1561,7 @@ function update_displayed_normal_location(location) {
     /////////////////////////
     //add buttons for trading
 
-    const available_traders = location.traders.filter(trader => traders[trader].is_unlocked);
+    const available_traders = location.traders.filter(trader => traders[trader].is_unlocked && !traders[trader].is_finished);
 
     if(available_traders.length > 2) {     
         const traders_button = document.createElement("div");
@@ -1715,7 +1715,7 @@ function create_location_choices({location, category, add_icons = true, is_comba
         }
     } else if (category === "trade") {
         for(let i = 0; i < location.traders.length; i++) { 
-            if(!traders[location.traders[i]].is_unlocked) { //skip if trader is not available
+            if(!traders[location.traders[i]].is_unlocked || traders[location.traders[i]].is_finished) { //skip if trader is not available
                 continue;
             } 
             
@@ -1996,18 +1996,29 @@ function create_location_types_display(current_location){
 
         const {type, stage} = current_location.types[i];
         const {effects} = location_types[type].stages[stage];
-        
-        if(effects?.multipliers) {
+        if(Object.keys(effects || {}).length > 0) {
             type_tooltip.innerHTML += `<br>`;
-            Object.keys(effects.multipliers).forEach(stat => {
-                const base = effects.multipliers[stat];
-                //const actual = (effects.multipliers[stat] + (1 - effects.multipliers[stat])*(skill.current_level/skill.max_level)**1.7);
-                const actual = get_location_type_penalty(type, stage, stat);
-                type_tooltip.innerHTML += `<br>${stat_names[stat]} x${Math.round(1000*actual)/1000}`;
-                if(base != actual) {
-                    type_tooltip.innerHTML += ` [base: x${effects.multipliers[stat]}]`
+
+            Object.keys(effects).forEach(stat => {
+                if(effects[stat].multiplier) {
+                    const base = effects[stat].multiplier;
+                    const actual = get_location_type_penalty(type, stage, stat, "multiplier");
+                    type_tooltip.innerHTML += `<br>${stat_names[stat]} x${Math.round(1000*actual)/1000}`;
+                    if(base != actual) {
+                        type_tooltip.innerHTML += ` [base: x${effects[stat].multiplier}]`;
+                    }
                 }
-            })
+                if(effects[stat].flat) {
+                    const base = effects[stat].flat;
+                    const actual = get_location_type_penalty(type, stage, stat, "flat");
+                    type_tooltip.innerHTML += `<br>${stat_names[stat]}: ${Math.round(1000*actual)/1000}`;
+                    if(base != actual) {
+                        type_tooltip.innerHTML += ` [base: ${effects[stat].flat}]`;
+                    }
+                }
+                
+            });
+
         } //other effects to be done when/if they are added
 
         type_div.appendChild(type_tooltip);

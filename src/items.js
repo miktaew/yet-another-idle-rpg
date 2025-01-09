@@ -1011,6 +1011,14 @@ item_templates["Twist liek a snek"] = new Book({
         price_recovers: true,
     });
 
+    item_templates["Boar tusk"] = new Material({
+        name: "Boar tusk", 
+        description: "Tusk of a wild boar. Visibly used.",
+        value: 20,
+        price_recovers: true,
+        material_type: "miscellaneous",
+    });
+
     item_templates["Rat meat chunks"] = new OtherItem({
         name: "Rat meat chunks", 
         description: "Eww", 
@@ -1145,6 +1153,23 @@ item_templates["Twist liek a snek"] = new Book({
         price_recovers: true,
         material_type: "raw metal",
     });
+    item_templates["Corbundum ore"] = new Material({
+        name: "Corbundum ore", 
+        description: "A dark-colored ore that's useless by itself but can be mixed with iron to create steel.", 
+        value: 5,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "raw metal",
+    });
+    item_templates["Coal"] = new Material({
+        name: "Coal", 
+        description: "A flammable material with extremely high carbon content.", 
+        value: 5,
+        saturates_market: true,
+        price_recovers: true,
+        tags: {"carbon": true},
+        material_type: "flammable",
+    });
     item_templates["Piece of rough wood"] = new Material({
         name: "Piece of rough wood", 
         description: "Cheapest form of wood. There's a lot of bark and malformed pieces.", 
@@ -1227,6 +1252,15 @@ item_templates["Twist liek a snek"] = new Book({
         price_recovers: true,
         material_type: "metal",
     });
+    item_templates["Steel ingot"] = new Material({
+        id: "Steel ingot",
+        name: "Steel ingot", 
+        description: "Basic alloy of iron, harder and more resistant.",
+        value: 40,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "metal",
+    });
     item_templates["Piece of wolf rat leather"] = new Material({
         name: "Piece of wolf rat leather",
         description: "It's slightly damaged and seems useless for anything that requires precise work.",
@@ -1250,6 +1284,14 @@ item_templates["Twist liek a snek"] = new Book({
         saturates_market: true,
         price_recovers: true,
         material_type: "piece of leather",
+    });
+    item_templates["Animal fat"] = new Material({
+        name: "Animal fat",
+        description: "White, thick, oily substance, rendered from animal tissue.",
+        value: 40,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "fat",
     });
     item_templates["Wool cloth"] = new Material({
         name: "Wool cloth", 
@@ -1332,7 +1374,7 @@ item_templates["Twist liek a snek"] = new Book({
                 multiplier: 1.20,
             },
             agility: {
-                flat: 1,
+                flat: 2,
             }
         }
     });
@@ -1345,13 +1387,32 @@ item_templates["Twist liek a snek"] = new Book({
         attack_value: 8,
         component_stats: {
             crit_rate: {
-                flat: 0.1,
+                flat: 0.08,
             },
             attack_speed: {
                 multiplier: 1.30,
             },
             agility: {
-                flat: 2,
+                flat: 5,
+            }
+        }
+    });
+    item_templates["Short steel blade"] = new WeaponComponent({
+        name: "Short steel blade", description: "A good steel blade. Perfect length for a dagger, but could be also used for a spear",
+        component_type: "short blade",
+        value: 240,
+        component_tier: 3,
+        name_prefix: "Steel",
+        attack_value: 11,
+        component_stats: {
+            crit_rate: {
+                flat: 0.1,
+            },
+            attack_speed: {
+                multiplier: 1.35,
+            },
+            agility: {
+                flat: 7,
             }
         }
     });
@@ -1387,6 +1448,22 @@ item_templates["Twist liek a snek"] = new Book({
             },
         }
     });
+    item_templates["Long steel blade"] = new WeaponComponent({
+        name: "Long steel blade", description: "Good blade made of steel, with a perfect length for a sword",
+        component_type: "long blade",
+        value: 310,
+        name_prefix: "Steel",
+        component_tier: 3,
+        attack_value: 18,
+        component_stats: {
+            attack_speed: {
+                multiplier: 1.2,
+            },
+            crit_rate: {
+                flat: 0.05,
+            },
+        }
+    });
     item_templates["Cheap iron axe head"] = new WeaponComponent({
         name: "Cheap iron axe head", description: "A heavy axe head made of low quality iron",
         component_type: "axe head",
@@ -1401,7 +1478,7 @@ item_templates["Twist liek a snek"] = new Book({
         }
     });
     item_templates["Iron axe head"] = new WeaponComponent({
-        name: "Iron axe head", description: "A heavy axe head made of good iron",
+        name: "Iron axe head", description: "A heavy axe head made of steel",
         component_type: "axe head",
         value: 210,
         name_prefix: "Iron",
@@ -1412,6 +1489,14 @@ item_templates["Twist liek a snek"] = new Book({
                 multiplier: 0.95,
             }
         }
+    });
+    item_templates["Steel axe head"] = new WeaponComponent({
+        name: "Steel axe head", description: "A heavy axe head made of steel",
+        component_type: "axe head",
+        value: 310,
+        name_prefix: "Steel",
+        component_tier: 3,
+        attack_value: 22,
     });
     item_templates["Cheap iron hammer head"] = new WeaponComponent({
         name: "Cheap iron hammer head", description: "A crude ball made of low quality iron, with a small hole for the handle",
@@ -1437,6 +1522,19 @@ item_templates["Twist liek a snek"] = new Book({
         component_stats: {
             attack_speed: {
                 multiplier: 0.85,
+            }
+        }
+    });
+    item_templates["Steel hammer head"] = new WeaponComponent({
+        name: "Steel hammer head", description: "A blocky piece of steel, with a small hole for the handle",
+        component_type: "hammer head",
+        value: 300,
+        name_prefix: "Steel",
+        component_tier: 3,
+        attack_value: 26,
+        component_stats: {
+            attack_speed: {
+                multiplier: 0.9,
             }
         }
     });
@@ -1610,6 +1708,12 @@ item_templates["Twist liek a snek"] = new Book({
             handle: "Simple long wooden shaft"
         }
     });
+    item_templates["Steel spear"] = new Weapon({
+        components: {
+            head: "Short steel blade",
+            handle: "Long wooden shaft"
+        }
+    });
 
     item_templates["Cheap iron dagger"] = new Weapon({
         components: {
@@ -1621,6 +1725,12 @@ item_templates["Twist liek a snek"] = new Book({
         components: {
             head: "Short iron blade",
             handle: "Simple short wooden hilt",
+        }
+    });
+    item_templates["Steel dagger"] = new Weapon({
+        components: {
+            head: "Short steel blade",
+            handle: "Short wooden hilt",
         }
     });
 
@@ -1636,6 +1746,12 @@ item_templates["Twist liek a snek"] = new Book({
             handle: "Simple short wooden hilt",
         }
     });
+    item_templates["Steel sword"] = new Weapon({
+        components: {
+            head: "Long steel blade",
+            handle: "Short wooden hilt",
+        }
+    });
 
     item_templates["Cheap iron axe"] = new Weapon({
         components: {
@@ -1649,6 +1765,12 @@ item_templates["Twist liek a snek"] = new Book({
             handle: "Simple medium wooden handle",
         }
     });
+    item_templates["Steel axe"] = new Weapon({
+        components: {
+            head: "Steel axe head",
+            handle: "Medium wooden handle",
+        }
+    });
 
     item_templates["Cheap iron battle hammer"] = new Weapon({
         components: {
@@ -1660,6 +1782,12 @@ item_templates["Twist liek a snek"] = new Book({
         components: {
             head: "Iron hammer head",
             handle: "Simple medium wooden handle",
+        }
+    });
+    item_templates["Steel battle hammer"] = new Weapon({
+        components: {
+            head: "Steel hammer head",
+            handle: "Medium wooden handle",
         }
     });
 })();
@@ -2279,6 +2407,12 @@ item_templates["Twist liek a snek"] = new Book({
         description: "Tastes kinda nice and provides a quick burst of healing", 
         value: 80,
         effects: [{effect: "Weak healing potion", duration: 10}],
+    });
+    item_templates["Healing balm"] = new UsableItem({
+        name: "Healing balm", 
+        description: "Simply apply it to your wound and watch it heal", 
+        value: 120,
+        effects: [{effect: "Weak healing balm", duration: 90}],
     });
 
     item_templates["Roasted rat meat"] = new UsableItem({

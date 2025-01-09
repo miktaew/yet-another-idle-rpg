@@ -42,27 +42,53 @@
                 margin-bottom: 20px;
                 font-family: sans-serif;
             }
+
+            .spoiler {
+                color: rgb(17, 17, 17);
+                background-color: rgb(17, 17, 17);
+                width: fit-content;
+                margin: 0px;
+                padding: 0px;
+                height: fit-content;
+            }
+            .spoiler:hover {
+                color: white;
+            }
         </style>
     </head>
 
 <div id="header">Click on blocks to unfold their content</div>
 
-button type="button" class="collapsible">v0.4.5</button>
+<button type="button" class="collapsible">v0.4.5</button>
 <div class="content"><pre>
 v0.4.5
     - implemented new feature, location actions. Unlike trainings, they are generally a one-time thing that provides unlocks and other rewards.
         They can take different time to complete; have different conditions that are not fully specified but will be hinted at by descriptions; 
         might check if conditions are met either before or after the attempt and may either be guaranteed to succeed if so or just have a chance for it,
         with the latter case having different messages for when you failed due to not meeting requirements vs when you were just unlucky and could succeed next time
-
-    - reduced value of crafting components to ~80%, but increased full equipment prices to ~125% (components are cheaper, but equipment stays mostly the same)
-    - crafting recipes now show their xp values in tooltips
-    - new activity and skill: climbing
+    
+    - added multiple new locations and combat areas: <div class="spoiler">
+    * bandit hideout in slums
+    * two locations (one normal, one combat) after opening the 'mysterious gate' (the rat saga continues)
+    * multiple mountain locations (one boss, one combat, a few normal + a camp) after climbing up (unlocked by beating one of cave locations)
+    </div>
+    - added a new crafting material, coal, which is now used in all smelting recipes
+    - added new metal tier, steel, which requires iron + a new ore to craft; added corresponding weapon components
+    - implemented personal storage, available at any place with bed, with shared content
+    - new activity: climbing
+    - new skills: climbing, breathing
     - new spot for meditation + another milestone for the skill
+    - 'high quality wolf fang' and 'high quality boar tusk' can now be crafted from 50 normal versions each
+
+    - reduced value of crafting components to ~80%, but increased full equipment prices to ~125% (components are cheaper, but equipment prices stay mostly the same)
+    - crafting recipes now show their xp values in tooltips
+    
+
+    - slightly rewrote the code for location type penalties, allowing for flat effects (e.g. static hp loss every tick)
     - fixed bug where additional stats on componentless equipment (clothing) didn't scale with rarity
     - fixed bug in crafting equipment, where component quality was ignored by tooltips
     - fixed a bug where if skill changed name on levelup, the level increase message would use the new one 
-        (it was "skill Y leveld up" followed by "skill X was upgraded to Y", instead of "skill X leveled up" followed by "skill X was upgraded to Y")
+        (it was "skill Y leveled up" followed by "skill X was upgraded to Y", instead of "skill X leveled up" followed by "skill X was upgraded to Y")
 </pre>
 </div>
 <button type="button" class="collapsible">v0.4.3/v0.4.4 - GUI remake and Crafting</button>
