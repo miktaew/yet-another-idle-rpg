@@ -364,6 +364,7 @@ class UsableItem extends Item {
         this.item_type = "USABLE";
         this.stackable = true;
         this.effects = item_data.effects || {};
+        this.recovery_chances = item_data.recovery_chances || {};
 
         this.tags["usable"] = true;
     }
@@ -419,7 +420,7 @@ class Equippable extends Item {
                         stats[stat] = {};
                     }
 
-                    if(stat === "defense" || stat === "attack_power") { //skip it, it's to be added to the basic defense/attack instead
+                    if(stat === "defense" || stat === "attack_power" || stat === "block_strength") { //skip it, it's to be added to the basic defense/attack instead
                         return;
                     }
 
@@ -552,7 +553,10 @@ class Shield extends Equippable {
     }
 
     calculateShieldStrength(quality) {
-        return Math.round(10 * Math.ceil(item_templates[this.components.shield_base].shield_strength * (quality/100) * rarity_multipliers[this.getRarity(quality)]))/10;
+        return Math.round(
+            10 * Math.ceil(item_templates[this.components.shield_base].shield_strength 
+            * (item_templates[this.components.handle].component_stats?.block_strength?.multiplier || 1) 
+            * (quality/100) * rarity_multipliers[this.getRarity(quality)]))/10;
     }
 
     getName() {
@@ -766,7 +770,6 @@ class Weapon extends Equippable {
         return Math.ceil(
             (item_templates[this.components.head].attack_value + item_templates[this.components.handle].attack_value)
             * item_templates[this.components.head].attack_multiplier * item_templates[this.components.handle].attack_multiplier
-            * (item_templates[this.components.head].stats?.attack_power?.multiplier || 1) * (item_templates[this.components.handle].stats?.attack_power?.multiplier || 1)
             * (quality/100) * rarity_multipliers[this.getRarity(quality)]
         );
     }
@@ -793,7 +796,8 @@ class BookData{
         required_skills = {literacy: 0},
         literacy_xp_rate = 1,
         finish_reward = {},
-        rewards = {},
+        bonuses = {}, //xp/stat bonuses
+        rewards = {}, //unlocks, etc
     }) {
         this.required_time = required_time;
         this.accumulated_time = 0;
@@ -801,6 +805,7 @@ class BookData{
         this.literacy_xp_rate = literacy_xp_rate;
         this.finish_reward = finish_reward;
         this.is_finished = false;
+        this.bonuses = bonuses;
         this.rewards = rewards;
     }
 }
@@ -947,7 +952,7 @@ function getItemFromKey(key) {
 book_stats["ABC for kids"] = new BookData({
     required_time: 120,
     literacy_xp_rate: 1,
-    rewards: {
+    bonuses: {
         xp_multipliers: {
             all: 1.1,
         }
@@ -957,7 +962,7 @@ book_stats["ABC for kids"] = new BookData({
 book_stats["Old combat manual"] = new BookData({
     required_time: 320,
     literacy_xp_rate: 1,
-    rewards: {
+    bonuses: {
         xp_multipliers: {
             Combat: 1.2,
         }
@@ -967,10 +972,26 @@ book_stats["Old combat manual"] = new BookData({
 book_stats["Twist liek a snek"] = new BookData({
     required_time: 320,
     literacy_xp_rate: 1,
-    rewards: {
+    bonuses: {
         xp_multipliers: {
             Evasion: 1.2,
-        }
+        },
+        multipliers: {
+            agility: 1.1,
+        } 
+    },
+});
+
+book_stats["Medicine for dummies"] = new BookData({
+    required_time: 1,
+    literacy_xp_rate: 1,
+    rewards: {
+        recipes: [
+            {category: "alchemy", subcategory: "items", recipe_id: "Weak healing powder"},
+            {category: "alchemy", subcategory: "items", recipe_id: "Healing balm"},
+            {category: "alchemy", subcategory: "items", recipe_id: "Oneberry juice"},
+        ],
+        skills: ["Medicine"],
     },
 });
 
@@ -990,6 +1011,12 @@ item_templates["Old combat manual"] = new Book({
 item_templates["Twist liek a snek"] = new Book({
     name: "Twist liek a snek",
     description: "This book has a terrible grammar, seemingly written by some uneducated bandit, but despite that it quite well details how to properly evade attacks.",
+    value: 200,
+});
+
+item_templates["Medicine for dummies"] = new Book({
+    name: "Medicine for dummies",
+    description: "A simple book about healing, describing how to create some basic medicines.",
     value: 200,
 });
 
@@ -2334,10 +2361,10 @@ item_templates["Twist liek a snek"] = new Book({
         value: 50,
         stats: {
             attack_speed: {
-                multiplier: 1.05,
+                multiplier: 1.1,
             },
             crit_rate: {
-                flat: 0.01,
+                flat: 0.02,
             },
         }
     });
@@ -2351,6 +2378,20 @@ item_templates["Twist liek a snek"] = new Book({
             },
             crit_multiplier: {
                 flat: 0.2,
+            },
+        }
+    });
+
+    item_templates["Mountain goat trophy"] = new Artifact({
+        name: "Mountain goat trophy",
+        value: 150,
+        stats: {
+            attack_power: {
+                multiplier: 1.05,
+            },
+            defense: {
+                flat: 5,
+                multiplier: 1.05,
             },
         }
     });
@@ -2400,6 +2441,7 @@ item_templates["Twist liek a snek"] = new Book({
         description: "Not very potent, but can still make body heal noticeably faster for quite a while", 
         value: 40,
         effects: [{effect: "Weak healing powder", duration: 120}],
+        tags: {"medicine": true},
     });
 
     item_templates["Oneberry juice"] = new UsableItem({
@@ -2407,12 +2449,15 @@ item_templates["Twist liek a snek"] = new Book({
         description: "Tastes kinda nice and provides a quick burst of healing", 
         value: 80,
         effects: [{effect: "Weak healing potion", duration: 10}],
+        recovery_chances: {"Glass phial": 0.75},
+        tags: {"medicine": true},
     });
     item_templates["Healing balm"] = new UsableItem({
         name: "Healing balm", 
         description: "Simply apply it to your wound and watch it heal", 
         value: 120,
         effects: [{effect: "Weak healing balm", duration: 90}],
+        tags: {"medicine": true},
     });
 
     item_templates["Roasted rat meat"] = new UsableItem({

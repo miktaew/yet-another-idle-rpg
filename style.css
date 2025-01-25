@@ -321,21 +321,21 @@ body {
 }
 
 .item_tooltip, .job_tooltip, .location_tooltip, .recipe_tooltip {
-	 display: none;
-	 text-align: left;
-	 color: white;
-	 font-weight: normal;
-	 background-color: var(--tooltip_background_color);
-	 border-radius: 10px;
-	 margin-left: 30px;
-	 margin-top: 20px;
-	 padding: 5px;
-	 position: absolute;
-	 z-index: 1000;
-	 width: 200px;
-	 pointer-events: none;
-	 font-size: 14px;
-	 border: 1px solid white;
+	display: none;
+	text-align: left;
+	color: white;
+	font-weight: normal;
+	background-color: var(--tooltip_background_color);
+	border-radius: 10px;
+	margin-left: 30px;
+	margin-top: 20px;
+	padding: 5px;
+	position: absolute;
+	z-index: 1000;
+	width: 200px;
+	pointer-events: none;
+	font-size: 14px;
+	border: 1px solid white;
 }
 
 .recipe_tooltip {
@@ -1497,6 +1497,7 @@ i {
 #inventory_content_div {
 	height: 309px;
 	overflow-y: scroll;
+	overflow-x: visible;
 }
 
 #inventory_control_div {

@@ -319,8 +319,7 @@ character.stats.add_all_equipment_bonus = function() {
                 });
         });
 
-        character.stats.add_weapon_type_bonuses();
-        //add weapon speed bonus (technically a bonus related to equipment, so its in this function)
+        character.stats.add_weapon_type_bonuses(); //add weapon speed bonus (technically a bonus related to equipment, so its in this function)
 }
 
 character.stats.add_weapon_type_bonuses = function() {
@@ -347,7 +346,7 @@ character.stats.add_all_skill_level_bonus = function() {
         character.stats.multiplier.skills.block_strength = 1 + 5*skills["Shield blocking"].get_level_bonus();
         character.stats.multiplier.skills.agility = skills["Equilibrium"].get_coefficient("multiplicative") * skills["Climbing"].get_coefficient("multiplicative");
         character.stats.multiplier.skills.max_stamina = skills["Climbing"].get_coefficient("multiplicative");
-        
+
         character.stats.add_weapon_type_bonuses();
 }
 
@@ -587,7 +586,7 @@ function remove_from_character_inventory(items) {
  */
 function equip_item(item) {
         if(item) {
-                unequip_item(item.equip_slot);
+                unequip_item(item.equip_slot, true);
                 character.equipment[item.equip_slot] = item;
         }
         update_displayed_equipment();
@@ -608,19 +607,21 @@ function equip_item(item) {
             equip_item(character.inventory[item_key].item);
             remove_from_character_inventory([{item_key}]);
             
-            update_character_stats();
+            //update_character_stats(); //called in equip_item()
         }
 }
     
-function unequip_item(item_slot) {
+function unequip_item(item_slot, already_calculated=false) {
         if(character.equipment[item_slot] != null) {
-                add_to_character_inventory([{item: character.equipment[item_slot]}]);
+                add_to_character_inventory([{item_key: character.equipment[item_slot].getInventoryKey()}]);
                 character.equipment[item_slot] = null;
                 update_displayed_equipment();
                 update_displayed_character_inventory();
-                character.stats.add_all_equipment_bonus();
-
-                update_character_stats();
+                
+                if(!already_calculated){
+                        character.stats.add_all_equipment_bonus();
+                        update_character_stats();
+                }
         }
 }
 

@@ -766,7 +766,16 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         success_chance: [0.5,1],
         recipe_level: [5,12],
         recipe_skill: "Crafting",
-    });
+    }); 
+    crafting_recipes.items["Pristine mountain goat horn"] = new ItemRecipe({
+        name: "Pristine mountain goat horn",
+        recipe_type: "material",
+        materials: [{material_id: "Mountain goat horn", count: 50}], 
+        result: {result_id: "Pristine mountain goat horn", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [10,17],
+        recipe_skill: "Crafting",
+    }); 
 })();
 
 //consumables
@@ -803,26 +812,29 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     alchemy_recipes.items["Weak healing powder"] = new ItemRecipe({
         name: "Weak healing powder",
         recipe_type: "usable",
+        is_unlocked: false,
         materials: [{material_id: "Golmoon leaf", count: 5}],
         result: {result_id: "Weak healing powder", count: 1},
-        success_chance: [0.1,1],
+        success_chance: [0.5,1],
         recipe_level: [1,10],
         recipe_skill: "Alchemy",
     });
     alchemy_recipes.items["Oneberry juice"] = new ItemRecipe({
         name: "Oneberry juice",
         recipe_type: "usable",
+        is_unlocked: false,
         materials: [{material_id: "Oneberry", count: 10},
                     {material_id: "Glass phial", count: 1},
         ],
         result: {result_id: "Oneberry juice", count: 1},
-        success_chance: [0.1,1],
-        recipe_level: [1,10],
+        success_chance: [0.3,1],
+        recipe_level: [2,12],
         recipe_skill: "Alchemy",
     });
     alchemy_recipes.items["Healing balm"] = new ItemRecipe({
         name: "Healing balm",
         recipe_type: "usable",
+        is_unlocked: false,
         materials: [{material_id: "Oneberry", count: 10},
                     {material_id: "Golmoon leaf", count: 5},
                     {material_id: "Animal fat", count: 1},
@@ -854,6 +866,15 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Boar trophy", count: 1},
         success_chance: [0.5,1],
         recipe_level: [5,15],
+        recipe_skill: "Crafting",
+    });
+    crafting_recipes.items["Mountain goat trophy"] = new ItemRecipe({
+        name: "Mountain goat trophy",
+        recipe_type: "equipment",
+        materials: [{material_id: "Pristine mountain goat horn", count: 5}],
+        result: {result_id: "Mountain goat trophy", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [10,20],
         recipe_skill: "Crafting",
     });
 })();

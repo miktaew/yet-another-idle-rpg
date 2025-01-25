@@ -208,7 +208,7 @@ class Enemy {
         xp_value: 8,
         rank: 4,
         tags: ["living", "beast"],
-        stats: {health: 300, attack: 40, agility: 30, dexterity: 40, intuition: 40, magic: 0, attack_speed: 1, defense: 25},
+        stats: {health: 300, attack: 50, agility: 30, dexterity: 40, intuition: 40, magic: 0, attack_speed: 1, defense: 25},
         loot_list: [
             {item_name: "Boar hide", chance: 0.04},
             {item_name: "Boar meat", chance: 0.02},
@@ -225,7 +225,7 @@ class Enemy {
         rank: 6,
         tags: ["living", "beast"],
         size: "medium",
-        stats: {health: 1000, attack: 120, agility: 120, dexterity: 120, magic: 0, intuition: 60, attack_speed: 1, defense: 30},
+        stats: {health: 1000, attack: 100, agility: 120, dexterity: 120, magic: 0, intuition: 60, attack_speed: 1, defense: 30},
         loot_list: [
             {item_name: "Mountain goat hide", chance: 0.04},
             {item_name: "Goat meat", chance: 0.02},

@@ -325,7 +325,24 @@ function create_item_tooltip_content({item, options={}}) {
             item_tooltip += `<br><br>Time to read: ${item.getRemainingTime()} minutes`;
         }
         else {
-            item_tooltip += `<br><br>Reading it provided ${character.name} with:<br> ${format_rewards(book_stats[item.name].rewards)}`;
+            item_tooltip += `<br><br>Reading it provided ${character.name} with:`;
+            if(book_stats[item.name].bonuses) {
+                item_tooltip += `<br>- ${format_book_bonuses(book_stats[item.name].bonuses)}`;
+            }
+            if(book_stats[item.name].rewards?.skills) {
+                if(book_stats[item.name].rewards.skills.length == 1) {
+                    item_tooltip += `<br>- a new skill.`;
+                } else {
+                    item_tooltip += `<br>- new skills.`;
+                }
+            }
+            if(book_stats[item.name].rewards?.recipes) {
+                if(book_stats[item.name].rewards.recipes.length == 1) {
+                    item_tooltip += `<br>- a new recipe.`;
+                } else {
+                    item_tooltip += `<br>- new recipes.`;
+                }
+            }
         }
         item_tooltip += "<br>";
     } else if(item.tags.component) {
@@ -583,7 +600,8 @@ function end_activity_animation(remove) {
 
 }
 
-function format_rewards(rewards) {
+//todo: rename? in current state of game, 'rewards' refer to different stuff than these stat/xp bonuses
+function format_book_bonuses(rewards) {
     let formatted = '';
     if(rewards.stats) {
         const stats = Object.keys(rewards.stats);
@@ -601,6 +619,7 @@ function format_rewards(rewards) {
         } else {
             formatted = `x${rewards.multipliers[multipliers[0]]} ${stat_names[multipliers[0]]}`;
         }
+
         for(let i = 1; i < multipliers.length; i++) {
             formatted += `, x${rewards.multipliers[multipliers[i]]} ${stat_names[multipliers[i]]}`;
         }
@@ -629,6 +648,7 @@ function format_rewards(rewards) {
             formatted += `, x${rewards.xp_multipliers[xp_multipliers[i]]} ${name} xp gain`;
         }
     }
+
     return formatted;
 }
 
@@ -2128,6 +2148,9 @@ function create_displayed_crafting_recipes() {
 
 function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
     const recipe = recipes[category][subcategory][recipe_id];
+    if(!recipe.is_unlocked) {
+        return;
+    }
     const recipe_div = document.createElement("div");
     recipe_div.innerHTML = `<span class="recipe_name">${recipe.name}</span>`;
 
@@ -2272,7 +2295,11 @@ function update_displayed_crafting_recipes() {
         Object.keys(recipes[recipe_category]).forEach(recipe_subcategory => {
             Object.keys(recipes[recipe_category][recipe_subcategory]).forEach(recipe => {
                 if(recipes[recipe_category][recipe_subcategory][recipe].is_unlocked){
-                    update_displayed_crafting_recipe({category: recipe_category, subcategory: recipe_subcategory, recipe_id: recipe});
+                    if(crafting_pages[recipe_category][recipe_subcategory].querySelector(`[data-recipe_id="${recipe}"]`)) {
+                        update_displayed_crafting_recipe({category: recipe_category, subcategory: recipe_subcategory, recipe_id: recipe});
+                    } else {
+                        add_crafting_recipe_to_display({category: recipe_category, subcategory: recipe_subcategory, recipe_id: recipe});
+                    }
                 }
             })
         })

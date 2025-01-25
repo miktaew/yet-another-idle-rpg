@@ -55,6 +55,14 @@
         
         stances: [String] //an arrays of stance keys
 
+        recipes: [
+            {
+                category: String, 
+                subcategory: String, 
+                recipe_id: String
+            } 
+        ] 
+
         locks: {
             locations: [String] //an array with location keys
             textlines: [

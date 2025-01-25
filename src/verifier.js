@@ -78,8 +78,8 @@ function Verify_Game_Objects() {
             has_issue = true;
         }
 
-        if(skill.rewards?.milestones) {
-            Object.values(skill.rewards.milestones).forEach(milestone => {
+        if(skill.milestones) {
+            Object.values(skill.milestones).forEach(milestone => {
                 Object.keys(milestone).forEach(milestone_reward_type_key => {
                     if(milestone_reward_type_key !== "unlocks" && milestone_reward_type_key !== "stats" && milestone_reward_type_key !== "xp_multipliers") {
                         console.error(`Skill "${key}" has a milestone reward to a non-existent category of "${milestone_reward_type_key}"`);

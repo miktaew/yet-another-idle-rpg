@@ -719,10 +719,12 @@ function do_reading() {
     update_displayed_book(is_reading);
 
     add_xp_to_skill({skill: skills["Literacy"], xp_to_add: book_stats.literacy_xp_rate});
+    const book = book_stats[is_reading];
     if(book_stats[is_reading].is_finished) {
         log_message(`Finished the book "${is_reading}"`);
         end_reading();
         update_character_stats();
+        process_rewards({rewards: book.rewards});
     }
 }
 
@@ -1692,6 +1694,25 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         }
     }
 
+    if(rewards.skills) {
+        for(let i = 0; i < rewards.skills.length; i++) {
+            skills[rewards.skills[i]].is_unlocked = true;
+            create_new_skill_bar(skills[rewards.skills[i]]);
+            update_displayed_skill_bar(skills[rewards.skills[i]], false);
+            log_message(`Unlocked new skill: ${skills[rewards.skills[i]].name()}`);
+
+        }
+    }
+
+    if(rewards.recipes) {
+        for(let i = 0; i < rewards.recipes.length; i++) {
+            if(!recipes[rewards.recipes[i].category][rewards.recipes[i].subcategory][rewards.recipes[i].recipe_id].is_unlocked) {
+                recipes[rewards.recipes[i].category][rewards.recipes[i].subcategory][rewards.recipes[i].recipe_id].is_unlocked = true;
+                log_message(`Unlocked new recipe: ${recipes[rewards.recipes[i].category][rewards.recipes[i].subcategory][rewards.recipes[i].recipe_id].name}`);
+            }
+        }
+    }
+
     if(rewards.locks) {
         if(rewards.locks.textlines) {
             Object.keys(rewards.locks.textlines).forEach(dialogue_key => {
@@ -1776,6 +1797,8 @@ function use_recipe(target) {
                 const success_chance = selected_recipe.get_success_chance(station_tier);
                 result = selected_recipe.getResult();
                 const {result_id, count} = result;
+
+                const is_medicine = item_templates[result_id].tags.medicine;
                 
                 for(let i = 0; i < selected_recipe.materials.length; i++) {
                     const key = item_templates[selected_recipe.materials[i].material_id].getInventoryKey();
@@ -1789,10 +1812,18 @@ function use_recipe(target) {
                     log_message(`Created ${item_templates[result_id].getName()} x${count}`, "crafting");
 
                     leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
+
+                    if(is_medicine) {
+                        add_xp_to_skill({skill: skills["Medicine"], xp_to_add: exp_value/2});
+                    }
                 } else {
                     log_message(`Failed to create ${item_templates[result_id].getName()}!`, "crafting");
 
-                    leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value/2});
+                    leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value/4});
+
+                    if(is_medicine) {
+                        add_xp_to_skill({skill: skills["Medicine"], xp_to_add: exp_value/2});
+                    }
                 }
 
                 update_item_recipe_visibility();
@@ -1908,11 +1939,25 @@ function use_item(item_key) {
             active_effects[item_effects[i].effect] = new ActiveEffect({...effect_templates[item_effects[i].effect], duration});
             used = true;
         }
+        //goes through item effects, checking if it has any that is either not currently active or with longer duration than any active
     }
     if(used) {
         update_displayed_effects();
         character.stats.add_active_effect_bonus();
         update_character_stats();
+
+        const recovered = [];
+        Object.keys(item_templates[id].recovery_chances).forEach(recoverable => {
+            const chance = item_templates[id].recovery_chances[recoverable];
+            if(chance > Math.random()) {
+                recovered.push({item_id: recoverable});
+            }
+        });
+        add_to_character_inventory(recovered);
+
+        if(item_templates[id].tags.medicine) {
+            add_xp_to_skill({skill: skills["Medicine"], xp_to_add: (item_templates[id].value/10)**.6667});
+        }
     }
     remove_from_character_inventory([{item_key}]);
 }
@@ -2264,7 +2309,7 @@ function load(save_data) {
             if(save_data.books[book].accumulated_time > 0) {
                 if(save_data.books[book].is_finished) {
                     item_templates[book].setAsFinished();
-                    character.stats.add_book_bonus(book_stats[book].rewards);
+                    character.stats.add_book_bonus(book_stats[book].bonuses);
 
                     total_book_xp += book_stats[book].required_time * book_stats[book].literacy_xp_rate;
                 } else {
@@ -3397,7 +3442,7 @@ function add_all_stuff_to_inventory(){
     })
 }
 
-//add_to_character_inventory([{item_id: "Camping supplies", count: 1}]);
+//add_to_character_inventory([{item_id: "Medicine for dummies", count: 1}]);
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
 

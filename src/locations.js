@@ -1013,9 +1013,9 @@ function get_location_type_penalty(type, stage, stat, category) {
 
     locations["Nearby cave"].connected_locations.push(
         {location: locations["Cave depths"]}, 
-        {location: locations["Hidden tunnel"], custom_text: "Enter the hidden tunnel"}, 
-        {location: locations["Pitch black tunnel"], custom_text: "Go into the pitch black tunnel"},
-        {location: locations["Mysterious gate"], custom_text: "Go to the mysterious gate"}
+        {location: locations["Hidden tunnel"], custom_text: "Enter the [Hidden tunnel]"}, 
+        {location: locations["Pitch black tunnel"], custom_text: "Go into the [Pitch black tunnel]"},
+        {location: locations["Mysterious gate"], custom_text: "Go to the [Mysterious gate]"}
     );
 
     locations["Writhing tunnel"] = new Combat_zone({
@@ -1041,7 +1041,7 @@ function get_location_type_penalty(type, stage, stat, category) {
     locations["Nearby cave"].connected_locations.push({location: locations["Writhing tunnel"]});
 
     locations["Mysterious depths"] = new Location({ 
-        connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb back up to the main cave system"}], 
+        connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb back up to the main level of [Nearby cave]"}], 
         getDescription: function() {
             return  `You find yourself in a large chamber with smooth walls and vaulted ceiling. Th floor is covered in square tiles in the center, yet you cannot help but notice that all these squares make a circle, in some impossible to understand way.
 There's another gate on the wall in front of you, but you have a strange feeling that you won't be able to open it with brute strength. Smaller gates guard tunnels on the sides of the chamber, so maybe you should start with them?`;
@@ -1107,7 +1107,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activities: [{location:"Forest road", activity: "woodcutting"}],
         }
     });
-    locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture deeper into the woods"});
+    locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture into the [Deep forest]"});
 
     locations["Forest clearing"] = new Combat_zone({
         description: "A surprisingly big clearing hidden in the northern part of the forest, covered with very tall grass and filled with a mass of wild boars",
@@ -1127,7 +1127,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             textlines: [{dialogue: "farm supervisor", lines: ["defeated boars"]}],
         }
     });
-    locations["Forest road"].connected_locations.push({location: locations["Forest clearing"], custom_text: "Go towards the clearing in the north"});
+    locations["Forest road"].connected_locations.push({location: locations["Forest clearing"], custom_text: "Go towards the [Forest clearing] in the north"});
 
     locations["Town outskirts"] = new Location({ 
         connected_locations: [{location: locations["Forest road"], custom_text: "Return to the forest"}],
