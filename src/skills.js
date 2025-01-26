@@ -292,17 +292,15 @@ function get_unlocked_skill_rewards(skill_id) {
     let unlocked_rewards = '';
     const skill = skills[skill_id];
     
-    if(skill.rewards){ //rewards
         const milestones = Object.keys(skill.milestones).filter(level => level <= skill.current_level);
         if(milestones.length > 0) {
             unlocked_rewards = `lvl ${milestones[0]}: ${format_skill_rewards(skill.milestones[milestones[0]])}`;
             for(let i = 1; i < milestones.length; i++) {
                 unlocked_rewards += `<br>\n\nlvl ${milestones[i]}: ${format_skill_rewards(skill.milestones[milestones[i]])}`;
             }
+        } else { //no rewards
+            return '';
         }
-    } else { //no rewards
-        return '';
-    }
 
     return unlocked_rewards;
 }
@@ -313,12 +311,9 @@ function get_unlocked_skill_rewards(skill_id) {
  * @returns next lvl at which skill has any rewards
  */
 function get_next_skill_milestone(skill_id){
-    let milestone;
-    if(skills[skill_id].rewards){
-        milestone = Object.keys(skills[skill_id].milestones).find(
-            level => level > skills[skill_id].current_level);
-    }
-    return milestone;
+
+    return Object.keys(skills[skill_id].milestones).find(
+        level => level > skills[skill_id].current_level);
 }
 
 /**

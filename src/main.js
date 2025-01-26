@@ -1,7 +1,7 @@
 "use strict";
 
 import { current_game_time } from "./game_time.js";
-import { item_templates, getItem, book_stats, setLootSoldCount, loot_sold_count, recoverItemPrices, rarity_multipliers, getArmorSlot, getItemFromKey} from "./items.js";
+import { item_templates, getItem, book_stats, setLootSoldCount, loot_sold_count, recoverItemPrices, rarity_multipliers, getArmorSlot} from "./items.js";
 import { locations } from "./locations.js";
 import { skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
@@ -1389,7 +1389,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     const prev_name = skill.name();
     const was_hidden = skill.visibility_treshold > skill.total_xp;
     
-    const {message, gains, unlocks} = skill.add_xp({xp_to_add: xp_to_add});
+    let {message, gains, unlocks} = skill.add_xp({xp_to_add: xp_to_add});
     const new_name = skill.name();
     if(skill.parent_skill && add_to_parent) {
         if(skill.total_xp > skills[skill.parent_skill].total_xp) {
@@ -1427,7 +1427,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
         //not undefined => levelup happened and levelup message was returned
             leveled = true;
 
-            message.replace("%HeroName%", character.name);
+            message = message.replace("%HeroName%", character.name);
 
             update_displayed_skill_bar(skill, true);
 
@@ -1816,6 +1816,7 @@ function use_recipe(target) {
                     if(is_medicine) {
                         add_xp_to_skill({skill: skills["Medicine"], xp_to_add: exp_value/2});
                     }
+                    //todo: recover items if applicable
                 } else {
                     log_message(`Failed to create ${item_templates[result_id].getName()}!`, "crafting");
 
@@ -1828,7 +1829,7 @@ function use_recipe(target) {
 
                 update_item_recipe_visibility();
                 update_item_recipe_tooltips();
-                //do those two wheter success or fail since materials get used either way
+                //do those two whether success or fail since materials get used either way
 
                 if(leveled) {
                     //todo: reload all recipe tooltips of matching category
