@@ -231,11 +231,9 @@ function create_item_tooltip_content({item, options={}}) {
         }
 
 
+        item_tooltip += `<br><br>Slot: <b>${item.equip_slot}</b>`;
         if(item.equip_slot === "weapon") {
-            item_tooltip += `<br><br>Type: <b>${item.weapon_type}</b>`;
-        }
-        else if(item.offhand_type !== "shield") {
-            item_tooltip += `<br><br>Slot: <b>${item.equip_slot}</b>`;
+            item_tooltip += `<br>Type: <b>${item.weapon_type}</b>`;
         }
 
         if(item.components) {
@@ -307,9 +305,21 @@ function create_item_tooltip_content({item, options={}}) {
                 if(equip_stats[effect_key].multiplier != null) {
                     item_tooltip += 
                     `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: x${equip_stats[effect_key].multiplier}`;
-            }
+                }
             });
         }
+        const equip_bonus_skill_levels = item.getBonusSkillLevels();
+        if(Object.keys(equip_bonus_skill_levels).length > 0) {
+            item_tooltip += `<br>`;
+        }
+        Object.keys(equip_bonus_skill_levels).forEach(skill_key => {
+            if(skill_key.includes("category_")) {
+                item_tooltip +=  `<br>${skill_key} skills level: +${equip_bonus_skill_levels[skill_key]}`;
+            } else {
+                item_tooltip +=  `<br>${skills[skill_key].name()} level: +${equip_bonus_skill_levels[skill_key]}`;
+            }
+        });
+
         item_tooltip += "<br>";
     } else if (item.item_type === "USABLE") {
         item_tooltip += `<br>`;
@@ -3249,8 +3259,7 @@ function update_displayed_skill_bar(skill, leveled_up=true) {
         return;
     }
 
-    skill_bar_divs[skill.category][skill.skill_id].children[0].children[0].children[0].innerHTML = `${skill.name()} : level ${skill.current_level}/${skill.max_level}`;
-    //skill_bar_name
+    update_displayed_skill_level(skill);
 
     if(skill.current_xp !== "Max") {
         skill_bar_divs[skill.category][skill.skill_id].children[0].children[0].children[1].innerHTML = `${100*Math.round(skill.current_xp/skill.xp_to_next_lvl*1000)/1000}%`;
@@ -3283,6 +3292,22 @@ function update_displayed_skill_bar(skill, leveled_up=true) {
     
     if(leveled_up) {
         sort_displayed_skills({sort_by: skill_sorting}); //in case of a name change on levelup
+    }
+}
+
+function update_displayed_skill_level(skill) {
+    if(!skill_bar_divs[skill.category][skill.skill_id]) {
+        return;
+    }
+
+    skill_bar_divs[skill.category][skill.skill_id].children[0].children[0].children[0].innerHTML = `${skill.name()} : level ${skill.current_level}/${skill.max_level}`;
+    const bonus = character.bonus_skill_levels.full[skill.skill_id];
+    if(bonus != 0) {
+        if(bonus > 0) {
+            skill_bar_divs[skill.category][skill.skill_id].children[0].children[0].children[0].innerHTML += ` <b>[+${bonus}]</b>`;
+        } else {
+            skill_bar_divs[skill.category][skill.skill_id].children[0].children[0].children[0].innerHTML += ` <b>[${bonus}]</b>`;
+        }
     }
 }
 
@@ -3864,7 +3889,7 @@ export {
     exit_displayed_trade,
     start_activity_display,
     start_sleeping_display,
-    create_new_skill_bar, update_displayed_skill_bar, update_displayed_skill_description, 
+    create_new_skill_bar, update_displayed_skill_bar, update_displayed_skill_description, update_displayed_skill_level,
     update_displayed_skill_xp_gain,
     update_all_displayed_skills_xp_gain,
     clear_skill_bars,

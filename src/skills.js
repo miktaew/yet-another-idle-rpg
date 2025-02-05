@@ -69,8 +69,8 @@ class Skill {
             this.category = "Miscellaneous";
         } else {
             this.category = category;
-            skill_categories[this.category] = this;
         }
+        skill_categories[this.category] = true;
         
         if(parent_skill) {
             if(skills[parent_skill]) {
@@ -185,7 +185,7 @@ class Skill {
                     if (gains.xp_multipliers) {
                         Object.keys(gains.xp_multipliers).forEach(xp_multiplier => {
                             let name;
-                            if(xp_multiplier !== "all" && xp_multiplier !== "hero" && xp_multiplier !== "all_skill") {
+                            if(xp_multiplier !== "all" && xp_multiplier !== "hero" && xp_multiplier !== "all_skill" && !xp_multiplier.includes("category_")) {
                                 name = skills[xp_multiplier].name();
                                 if(!skills[xp_multiplier]) {
                                     console.warn(`Skill ${this.skill_id} tried to reward an xp multiplier for something that doesn't exist: ${xp_multiplier}. I could be a misspelled skill name`);
@@ -193,7 +193,13 @@ class Skill {
                             } else {
                                 name = xp_multiplier.replace("_"," ");
                             }
-                            message += `<br> x${Math.round(100*gains.xp_multipliers[xp_multiplier])/100} ${name} xp gain`;
+
+                            if(xp_multiplier.includes("category_")) {
+                                message += `<br> x${Math.round(100*gains.xp_multipliers[xp_multiplier])/100} ${name.replace("category_", "")} skills xp gain`;
+                            } else {
+                                message += `<br> x${Math.round(100*gains.xp_multipliers[xp_multiplier])/100} ${name} xp gain`;
+
+                            }
                         });
                     }
                 }
@@ -340,8 +346,11 @@ function format_skill_rewards(milestone){
                 }
             }
         });
+
         if(formatted) {
-            formatted += ", " + temp;
+            if(temp) {
+                formatted += ", " + temp;
+            }
         } else {
             formatted = temp;
         }
@@ -351,7 +360,11 @@ function format_skill_rewards(milestone){
         const xp_multipliers = Object.keys(milestone.xp_multipliers);
         let name;
         if(xp_multipliers[0] !== "all" && xp_multipliers[0] !== "hero" && xp_multipliers[0] !== "all_skill") {
-            name = skills[xp_multipliers[0]].name();
+            if(xp_multipliers[0].includes("category_")) {
+                name = xp_multipliers[0].replace("category_", "") + " skills";
+            } else {
+                name = skills[xp_multipliers[0]].name();
+            }
         } else {
             name = xp_multipliers[0].replace("_"," ");
         }
@@ -363,7 +376,11 @@ function format_skill_rewards(milestone){
         for(let i = 1; i < xp_multipliers.length; i++) {
             let name;
             if(xp_multipliers[i] !== "all" && xp_multipliers[i] !== "hero" && xp_multipliers[i] !== "all_skill") {
-                name = skills[xp_multipliers[i]].name();
+                if(xp_multipliers[i].includes("category_")) {
+                    name = xp_multipliers[i].replace("category_", "") + " skills";
+                } else {
+                    name = skills[xp_multipliers[i]].name();
+                }
             } else {
                 name = xp_multipliers[i].replace("_"," ");
             }
@@ -409,7 +426,11 @@ function format_skill_rewards(milestone){
                                     1: {
                                         xp_multipliers: {
                                             Combat: 1.05,
-                                        }
+                                        },
+                                        /*just an example to remember
+                                        xp_multipliers: {
+                                            category_Activity: 1.05,
+                                        }*/
                                     },
                                     3: {
                                         stats: {
@@ -1345,7 +1366,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                             agility: {
                                                 flat: 1
                                             },
-                                        }
+                                        },
                                     },
                                     3: {
                                         stats: {
@@ -1428,7 +1449,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
             },
             },
             xp_multipliers: {
-            "Unarmed": 1.05,
+                "Unarmed": 1.05,
             }
         },
         5: {
@@ -1444,12 +1465,12 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         },
         7: {
             stats: {
-            strength: {
-                flat: 1
-            },
+                strength: {
+                    flat: 1
+                },
             },
             xp_multipliers: {
-            "Unarmed": 1.1,
+                "Unarmed": 1.1,
             }
         },
         10: {
@@ -1947,4 +1968,4 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     
 })();
 
-export {skills, get_unlocked_skill_rewards, get_next_skill_milestone, weapon_type_to_skill, which_skills_affect_skill};
+export {skills, skill_categories, get_unlocked_skill_rewards, get_next_skill_milestone, weapon_type_to_skill, which_skills_affect_skill};

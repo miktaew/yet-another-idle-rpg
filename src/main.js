@@ -3,7 +3,7 @@
 import { current_game_time } from "./game_time.js";
 import { item_templates, getItem, book_stats, setLootSoldCount, loot_sold_count, recoverItemPrices, rarity_multipliers, getArmorSlot} from "./items.js";
 import { locations } from "./locations.js";
-import { skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
+import { skill_categories, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
 import { enemy_killcount } from "./enemies.js";
 import { traders } from "./traders.js";
@@ -77,7 +77,7 @@ const global_flags = {
     is_deep_forest_beaten: false,
 };
 const flag_unlock_texts = {
-    is_gathering_unlocked: "You have gained the ability to gather new materials!",
+    is_gathering_unlocked: "You have gained the ability to gather new materials! Remember to equip your tools first <br>[Note: equipped tools do not appear in inventory as you will be swapping them very rarely]",
     is_crafting_unlocked: "You have gained the ability to craft items and equipment!",
 }
 
@@ -186,6 +186,11 @@ time_field.innerHTML = current_game_time.toString();
 (function setup(){
     Object.keys(skills).forEach(skill => {
         character.xp_bonuses.total_multiplier[skill] = 1;
+        character.bonus_skill_levels.full[skill] = 0;
+    });
+    
+    Object.keys(skill_categories).forEach(category => {
+        character.xp_bonuses.total_multiplier["category_"+category] = 1;
     });
 })();
 
@@ -433,7 +438,17 @@ function start_activity(selected_activity) {
     } else if(activities[current_activity.activity_name].type === "TRAINING") {
         //
     } else if(activities[current_activity.activity_name].type === "GATHERING") { 
-        //
+        
+        let has_proper_tool = false;
+
+        has_proper_tool = character.equipment[activities[current_activity.activity_name].required_tool_type];
+        //just check if slot is not empty
+
+        if(!has_proper_tool) {
+            log_message("You need to equip a proper tool to do that!");
+            current_activity = null;
+            return;
+        }
     } else throw `"${activities[current_activity.activity_name].type}" is not a valid activity type!`;
 
     current_activity.gathering_time = 0;
@@ -1816,7 +1831,11 @@ function use_recipe(target) {
                     if(is_medicine) {
                         add_xp_to_skill({skill: skills["Medicine"], xp_to_add: exp_value/2});
                     }
-                    //todo: recover items if applicable
+
+                    //in future: recover items if applicable (no such recipes yet)
+                    //const recovered = [];
+                    //
+                    //add_to_character_inventory(recovered);
                 } else {
                     log_message(`Failed to create ${item_templates[result_id].getName()}!`, "crafting");
 
@@ -1920,6 +1939,7 @@ function character_equip_item(item_key) {
         reset_combat_loops();
     }
 }
+
 function character_unequip_item(item_slot) {
     unequip_item(item_slot);
     if(current_enemies) {
@@ -3051,8 +3071,7 @@ function update_timer() {
 }
 
 function update() {
-    setTimeout(function()
-    {
+    setTimeout(() => {
         end_date = Date.now(); 
         //basically when previous tick ends
 
@@ -3443,14 +3462,12 @@ function add_all_stuff_to_inventory(){
     })
 }
 
-//add_to_character_inventory([{item_id: "Medicine for dummies", count: 1}]);
+add_to_character_inventory([{item_id: "Iron chopping axe", count: 1}]);
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
 
-//global_flags.is_crafting_unlocked = true;
 update_displayed_equipment();
 sort_displayed_inventory({sort_by: "name", target: "character"});
-//change_location("Small flat area in mountains");
 
 run();
 

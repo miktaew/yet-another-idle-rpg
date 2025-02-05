@@ -1,15 +1,15 @@
 "use strict";
 
 import { InventoryHaver } from "./inventory.js";
-import { skills, weapon_type_to_skill } from "./skills.js";
+import { skill_categories, skills, weapon_type_to_skill } from "./skills.js";
 import { update_displayed_character_inventory, update_displayed_equipment, 
          update_displayed_stats,
          update_displayed_health, update_displayed_stamina, 
          update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain,
+         update_displayed_skill_level, 
          update_displayed_xp_bonuses } from "./display.js";
 import { active_effects, current_location, current_stance } from "./main.js";
 import { current_game_time } from "./game_time.js";
-import { getItemFromKey, item_templates } from "./items.js";
 
 const base_block_chance = 0.75; //+20 from the skill
 const base_xp_cost = 10;
@@ -74,11 +74,14 @@ class Hero extends InventoryHaver {
                                 environment: {},
                         }
                 };
-                this.skill_level_bonuses = {
-                        full: {},
+                this.bonus_skill_levels = {
+                        full: {
+                                //all skills added in main.js in setup()
+                        },
                         flat: {
                                 equipment: {},
                                 active_effects: {},
+                                skills: {}, //for some rare cases, generally bonuses should be limited to "temporary" sources
                         }
                 };
                 this.xp_bonuses = {
@@ -86,12 +89,12 @@ class Hero extends InventoryHaver {
                                 hero: 1,
                                 all: 1,
                                 all_skill: 1,
+                                //then all skills and categories added in main.js in setup()
                         },
                         multiplier: {
                                 levels: {},
                                 skills: {},
-                                skill_milestones: {},
-                                equipment: {},
+                                //equipment: {},
                                 books: {}
                         }
                 };
@@ -207,7 +210,7 @@ class Hero extends InventoryHaver {
 
 const character = new Hero();
 
-//todo: move all remainin stuff to the class
+//todo: move all remaining stuff to the class
 
 /**
  * adds skill milestone bonuses to character stats
@@ -237,6 +240,12 @@ character.stats.add_skill_milestone_bonus = function ({stats = {}, xp_multiplier
         Object.keys(skills).forEach(skill => {
                 if(xp_multipliers[skill]) {
                         character.xp_bonuses.multiplier.skills[skill] = (character.xp_bonuses.multiplier.skills[skill] || 1) * xp_multipliers[skill];
+                }
+        });
+        Object.keys(skill_categories).forEach(category => {
+                const cat = "category_"+category;
+                if(xp_multipliers[cat]) {
+                        character.xp_bonuses.multiplier.skills[cat] = (character.xp_bonuses.multiplier.skills[cat] || 1) * xp_multipliers[cat];
                 }
         });
 }
@@ -283,6 +292,9 @@ character.stats.add_active_effect_bonus = function() {
                                 character.stats.multiplier.active_effect[key] = (character.stats.multiplier.active_effect[key] || 1) * value.multiplier;
                         }
                 }
+                for(const [key, value] of Object.entries(effect.effects.bonus_skill_levels)) {
+                        character.bonus_skill_levels.flat.active_effects[key] = (character.bonus_skill_levels.flat.active_effects[key] || 0) + value;
+                }
         });
 }
 
@@ -305,8 +317,8 @@ character.stats.add_all_equipment_bonus = function() {
                 if(character.equipment[slot].getDefense) {
                         character.stats.flat.equipment.defense = (character.stats.flat.equipment.defense || 0) + character.equipment[slot].getDefense();
                 }
-                let stats = character.equipment[slot].getStats()
-
+                const stats = character.equipment[slot].getStats();
+                const bonuses = character.equipment[slot].getBonusSkillLevels();
                 //iterate over stats in slotted item
                 Object.keys(stats).forEach(stat => {
                         if(stats[stat].flat) {
@@ -315,6 +327,12 @@ character.stats.add_all_equipment_bonus = function() {
 
                         if(stats[stat].multiplier) {
                                 character.stats.multiplier.equipment[stat] = (character.stats.multiplier.equipment[stat] || 1) * stats[stat].multiplier;
+                        }
+                });
+
+                Object.keys(bonuses).forEach(bonus => {
+                        if(bonuses[bonus]) {
+                                character.bonus_skill_levels.flat.equipment[bonus] = (character.bonus_skill_levels.flat.equipment[bonus] || 0) + bonuses[bonus];
                         }
                 });
         });
@@ -411,7 +429,7 @@ character.update_stats = function () {
     character.stats.add_all_skill_level_bonus();
     character.stats.add_all_stance_bonus();
 
-    Object.keys(character.stats.full).forEach(function(stat){
+    Object.keys(character.stats.full).forEach(stat => {
         let stat_sum = 0;
         let stat_mult = 1;
 
@@ -457,14 +475,16 @@ character.update_stats = function () {
     
     character.stats.total_flat.attack_power = character.stats.full.attack_power/character.stats.total_multiplier.attack_power;
     Object.keys(character.xp_bonuses.total_multiplier).forEach(bonus_target => {
-        character.xp_bonuses.total_multiplier[bonus_target] = (character.xp_bonuses.multiplier.levels[bonus_target] || 1) * (character.xp_bonuses.multiplier.skills[bonus_target] || 1) * (character.xp_bonuses.multiplier.books[bonus_target] || 1); 
-        //only this two sources as of now
+        character.xp_bonuses.total_multiplier[bonus_target] = 
+                  (character.xp_bonuses.multiplier.levels[bonus_target] || 1) 
+                * (character.xp_bonuses.multiplier.skills[bonus_target] || 1) 
+                * (character.xp_bonuses.multiplier.books[bonus_target] || 1); 
 
         const bonus = character.xp_bonuses.total_multiplier[bonus_target];
 
         if(bonus != 1){
                 if (bonus_target !== "hero") {
-                        if(bonus_target === "all" || bonus_target === "all_skill") {
+                        if(bonus_target === "all" || bonus_target === "all_skill" || bonus_target.includes("category_")) {
                                 update_all_displayed_skills_xp_gain();
                         } else {
                                 update_displayed_skill_xp_gain(skills[bonus_target]);
@@ -474,6 +494,26 @@ character.update_stats = function () {
                         update_displayed_xp_bonuses();
                 }
         }
+    });
+
+    Object.keys(character.bonus_skill_levels.full).forEach(bonus_target => {
+        if(bonus_target.includes("category_")) {
+                return;
+        }
+        const category = "category_"+skills[bonus_target].category;
+        character.bonus_skill_levels.full[bonus_target] = 
+                  (character.bonus_skill_levels.flat.equipment[bonus_target] || 0) 
+                + (character.bonus_skill_levels.flat.active_effects[bonus_target] || 0) 
+                + (character.bonus_skill_levels.flat.skills[bonus_target] || 0)
+                + (character.bonus_skill_levels.flat.equipment[category] || 0) 
+                + (character.bonus_skill_levels.flat.active_effects[category] || 0) 
+                + (character.bonus_skill_levels.flat.skills[category] || 0);
+        
+        const bonus = character.bonus_skill_levels.full[bonus_target];
+
+        if(bonus != 0){
+                update_displayed_skill_level(skills[bonus_target]);
+        }        
     });
 }
 
@@ -555,6 +595,7 @@ character.get_character_money = function () {
  */
 function add_to_character_inventory(items) {
         const was_anything_new_added = character.add_to_inventory(items);
+        /*
         for(let i = 0; i < items.length; i++) {
                 let item;
                 if(items[i].item_key) {
@@ -564,10 +605,11 @@ function add_to_character_inventory(items) {
                 } else {
                         return;
                 }
+                
                 if(item.tags.tool && character.equipment[item.equip_slot] === null) {
                         equip_item_from_inventory(item.getInventoryKey());
-                }
-        }
+                }     
+        }*/
         update_displayed_character_inventory({was_anything_new_added});
 }
 
@@ -585,15 +627,16 @@ function remove_from_character_inventory(items) {
  * @param: game item object
  */
 function equip_item(item) {
-        if(item) {
-                unequip_item(item.equip_slot, true);
-                character.equipment[item.equip_slot] = item;
-        }
+        
+        unequip_item(item.equip_slot, true);
+        character.equipment[item.equip_slot] = item;
+        
         update_displayed_equipment();
         update_displayed_character_inventory();
         character.stats.add_all_equipment_bonus();
         
         update_character_stats();
+        manage_changed_skill_bonuses(item);
 }
 
 /**
@@ -613,14 +656,30 @@ function equip_item(item) {
     
 function unequip_item(item_slot, already_calculated=false) {
         if(character.equipment[item_slot] != null) {
-                add_to_character_inventory([{item_key: character.equipment[item_slot].getInventoryKey()}]);
+                const item = character.equipment[item_slot];
+                add_to_character_inventory([{item_key: item.getInventoryKey()}]);
                 character.equipment[item_slot] = null;
                 update_displayed_equipment();
                 update_displayed_character_inventory();
+
                 
                 if(!already_calculated){
                         character.stats.add_all_equipment_bonus();
                         update_character_stats();
+                        manage_changed_skill_bonuses(item);
+                }
+        }
+}
+
+function manage_changed_skill_bonuses(item) {
+        const bonus_skill_levels = Object.keys(item.getBonusSkillLevels());
+        if(bonus_skill_levels.length > 0) {
+                for(let i = 0; i < bonus_skill_levels.length; i++) {
+                        if(bonus_skill_levels[i].includes("category_")) {
+                                continue;
+                        }
+
+                        update_displayed_skill_level(skills[bonus_skill_levels[i]]);
                 }
         }
 }
@@ -648,7 +707,11 @@ function update_character_stats() {
  */
 
 function get_skill_xp_gain(skill_name) {
-        return (character.xp_bonuses.total_multiplier.all_skill || 1) * (character.xp_bonuses.total_multiplier.all || 1) * (character.xp_bonuses.total_multiplier[skill_name] || 1);
+        const category = "category_"+skills[skill_name].category;
+        return (character.xp_bonuses.total_multiplier.all_skill || 1) 
+              * (character.xp_bonuses.total_multiplier.all || 1) 
+              * (character.xp_bonuses.total_multiplier[skill_name] || 1)
+              * (character.xp_bonuses.total_multiplier[category] || 1);
 }
 
 function get_skills_overall_xp_gain() {
@@ -659,5 +722,10 @@ function get_hero_xp_gain() {
         return (character.xp_bonuses.total_multiplier.hero || 1) * (character.xp_bonuses.total_multiplier.all || 1)
 }
 
+function get_total_skill_level(skill_id) {
+        return skills[skill_id].current_level + (character.bonus_skill_levels.full[skill_id] || 0);
+}
+
 export {character, add_to_character_inventory, remove_from_character_inventory, equip_item_from_inventory, equip_item, 
-        unequip_item, update_character_stats, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, add_location_penalties};
+        unequip_item, update_character_stats, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, add_location_penalties,
+        get_total_skill_level};

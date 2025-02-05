@@ -376,6 +376,7 @@ class Equippable extends Item {
         this.item_type = "EQUIPPABLE";
         this.stackable = false;
         this.components = {};
+        this.bonus_skill_levels = item_data.bonus_skill_levels || {};
 
         this.quality = Math.round(item_data.quality) || 100;
 
@@ -475,6 +476,10 @@ class Equippable extends Item {
         }
 
         return stats;
+    }
+
+    getBonusSkillLevels() {
+        return this.bonus_skill_levels;
     }
 }
 
@@ -2418,6 +2423,36 @@ item_templates["Medicine for dummies"] = new Book({
         description: "And old herb sickle that has seen better time, but is still usable",
         value: 10,
         equip_slot: "sickle",
+    });
+
+    item_templates["Iron pickaxe"] = new Tool({
+        name: "Iron pickaxe",
+        description: "A decent pickaxe made of iron, strong enough for most ores",
+        value: 1000,
+        equip_slot: "pickaxe",
+        bonus_skill_levels: {
+            "Mining": 2,
+        }
+    });
+
+    item_templates["Iron chopping axe"] = new Tool({
+        name: "Iron chopping axe",
+        description: "A decent axe made of iron, hard and sharp enough for most of trees, even if they will still require an effort",
+        value: 1000,
+        equip_slot: "axe",
+        bonus_skill_levels: {
+            "Woodcutting": 2,
+        }
+    });
+
+    item_templates["Iron sickle"] = new Tool({
+        name: "Iron sickle",
+        description: "A decent sickle made of iron, sharp enough for most of plants",
+        value: 1000,
+        equip_slot: "sickle",
+        bonus_skill_levels: {
+            "Herbalism": 2,
+        }
     });
 })();
 

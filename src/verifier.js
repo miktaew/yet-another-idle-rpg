@@ -5,7 +5,7 @@ import { dialogues } from "./dialogues.js";
 import { enemy_templates } from "./enemies.js";
 import { item_templates } from "./items.js";
 import { locations } from "./locations.js";
-import { skills } from "./skills.js";
+import { skills, skill_categories } from "./skills.js";
 import { traders } from "./traders.js";
 
 function Verify_Game_Objects() {
@@ -108,7 +108,14 @@ function Verify_Game_Objects() {
                         } else { //xp_multipliers
                             Object.keys(milestone[milestone_reward_type_key]).forEach(skill_key => {
                                 if(skill_key !== "all" && skill_key !== "all_skill" && skill_key !== "hero" && !skills[skill_key]) {
-                                    console.error(`Skill "${key}" has a milestone reward for a non-existent skill "${skill_key}"`);
+                                    if(skill_key.includes("category_")) {
+                                        if(!skill_categories[skill_key.replace("category_","")]) {
+                                            console.error(`Skill "${key}" has a milestone reward for a non-existent skill "${skill_key}"`);
+                                        }
+                                    } else {
+                                        console.error(`Skill "${key}" has a milestone reward for a non-existent skill "${skill_key}"`);
+                                    }
+                                    
                                     has_issue = true;
                                 }
                             });
