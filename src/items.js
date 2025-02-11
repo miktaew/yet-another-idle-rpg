@@ -185,8 +185,7 @@ class Item {
     getValue() {
         if(!this.saturates_market) {
             return round_item_price(this.value);
-        }
-        else {  
+        } else {  
             return Math.max(1, round_item_price(Math.ceil(this.value * getLootPriceModifier(this.value,(Math.max(loot_sold_count[this.id]?.sold - loot_sold_count[this.id]?.recovered,0)||0)))));
         }
     }
@@ -431,7 +430,7 @@ class Equippable extends Item {
                     if(components[i].component_stats[stat].flat) {
                         stats[stat].flat = (stats[stat].flat || 0) + components[i].component_stats[stat].flat;
                     }
-                })
+                });
             }
 
             //iterate over stats and apply rarity bonus if possible
@@ -452,7 +451,7 @@ class Equippable extends Item {
                     }
                 }
             });
-        } else { //only needs to apply quality to already present stats
+        } else { //no components, only needs to apply quality to already present stats
             Object.keys(this.component_stats).forEach(stat => {
                 stats[stat] = {};
                 if(this.component_stats[stat].multiplier){
@@ -2131,6 +2130,7 @@ item_templates["Medicine for dummies"] = new Book({
             },
         }
     });
+
     item_templates["Leather shoes"] = new Armor({
         name: "Leather shoes", 
         description: "Solid shoes made of leather, a must have for any traveler", 

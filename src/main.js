@@ -35,7 +35,8 @@ import { end_activity_animation,
          update_bestiary_entry,
          start_reading_display,
          update_displayed_xp_bonuses, 
-         update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain, update_displayed_stance_list, update_displayed_stamina_efficiency, update_displayed_stance, update_displayed_faved_stances, update_stance_tooltip,
+         update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain, update_displayed_stance_list, 
+         update_displayed_stamina_efficiency, update_displayed_stance, update_displayed_faved_stances, update_stance_tooltip,
          update_gathering_tooltip,
          open_crafting_window,
          update_displayed_location_types,
@@ -1822,7 +1823,7 @@ function use_recipe(target) {
                 const exp_value = get_recipe_xp_value({category, subcategory, recipe_id});
                 if(Math.random() < success_chance) {
                     total_crafting_successes++;
-                    add_to_character_inventory([{item: item_templates[result_id], count: count}]);
+                    add_to_character_inventory([{item_key: item_templates[result_id].getInventoryKey(), count: count}]);
                     
                     log_message(`Created ${item_templates[result_id].getName()} x${count}`, "crafting");
 
@@ -1872,7 +1873,7 @@ function use_recipe(target) {
                     total_crafting_attempts++;
                     total_crafting_successes++;
                     result = selected_recipe.getResult(character.inventory[material_1_key].item, station_tier);
-                    add_to_character_inventory([{item: result, count: 1}]);
+                    add_to_character_inventory([{item_key: result.getInventoryKey(), count: 1}]);
                     remove_from_character_inventory([{item_key: material_1_key, item_count: recipe_material.count}]);
                     
                     const exp_value = get_recipe_xp_value({category, subcategory, recipe_id, material_count: recipe_material.count, rarity_multiplier: rarity_multipliers[result.getRarity()], result_tier: result.component_tier});
@@ -1911,7 +1912,7 @@ function use_recipe(target) {
                     total_crafting_successes++;
                     result = selected_recipe.getResult(character.inventory[component_1_key].item, character.inventory[component_2_key].item, station_tier);
                     remove_from_character_inventory([{item_key: component_1_key}, {item_key: component_2_key}]);
-                    add_to_character_inventory([{item: result}]);
+                    add_to_character_inventory([{item_key: result.getInventoryKey()}]);
 
                     const id_1 = JSON.parse(component_1_key).id;
                     const id_2 = JSON.parse(component_2_key).id;
@@ -3462,7 +3463,7 @@ function add_all_stuff_to_inventory(){
     })
 }
 
-add_to_character_inventory([{item_id: "Iron chopping axe", count: 1}]);
+//add_to_character_inventory([{item_id: "Wool", count: 100}]);
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
 

@@ -91,11 +91,12 @@ function accept_trade() {
 
             item_list.push({item_key: item.item_key, count: item.count});
         
-            if(item.id && item_templates[item.id]?.saturates_market) {
-                if(!loot_sold_count[item.id]) {
-                    loot_sold_count[item.id] = {sold: 0, recovered: 0};
+            const {id} = JSON.parse(item.item_key);
+            if(id && item_templates[id]?.saturates_market) {
+                if(!loot_sold_count[id]) {
+                    loot_sold_count[id] = {sold: 0, recovered: 0};
                 }
-                loot_sold_count[item.id].sold = loot_sold_count[item.id]?.sold + (item.count || 1);
+                loot_sold_count[id].sold = loot_sold_count[id]?.sold + (item.count || 1);
             }
         }
         

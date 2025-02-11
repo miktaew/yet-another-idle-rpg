@@ -63,6 +63,31 @@ function format_reading_time(time) {
     }
 }
 
+function format_working_time(time) {
+    let formatted = "";
+    const hours = Math.floor(time/60);
+    const minutes = time%60;
+
+    if(hours > 0) {
+        if(hours > 1) {
+            formatted += hours + " hours";
+        } else {
+            formatted += hours + " hour";
+        }
+    }
+    if(minutes > 0) {
+        if(hours > 0) {
+            formatted += " ";
+        }
+        if(minutes > 1) {
+            formatted += minutes + " minutes";
+        } else {
+            formatted += minutes + " minute";
+        }
+    }
+    return formatted;
+}
+
 function get_hit_chance(attack_points, evasion_points) {
     let result = attack_points/(attack_points+evasion_points);
 
@@ -116,4 +141,4 @@ function compare_game_version(version_a, version_b) {
     return 0;
 }
 
-export { expo, format_reading_time, stat_names, get_hit_chance, compare_game_version, round_item_price};
+export { expo, format_reading_time, format_working_time, stat_names, get_hit_chance, compare_game_version, round_item_price};

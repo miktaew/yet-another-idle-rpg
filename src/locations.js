@@ -1447,7 +1447,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             skill_xp_per_tick: 1,
             is_unlocked: true,
             gained_resources: {
-                resources: [{name: "Piece of rough wood", ammount: [[1,1], [1,3]], chance: [0.3, 1]}], 
+                resources: [{name: "Piece of rough wood", ammount: [[1,1], [1,3]], chance: [0.5, 1]}], 
                 time_period: [20, 10],
                 skill_required: [0, 10],
                 scales_with_skill: true,
@@ -1487,7 +1487,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             skill_xp_per_tick: 1,
             is_unlocked: false,
             gained_resources: {
-                resources: [{name: "Low quality iron ore", ammount: [[1,1], [1,3]], chance: [0.3, 0.7]}], 
+                resources: [{name: "Low quality iron ore", ammount: [[1,1], [1,3]], chance: [0.4, 0.8]}], 
                 time_period: [60, 30],
                 skill_required: [0, 10],
                 scales_with_skill: true,
@@ -1501,7 +1501,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             skill_xp_per_tick: 5,
             is_unlocked: false,
             gained_resources: {
-                resources: [{name: "Iron ore", ammount: [[1,1], [1,3]], chance: [0.1, 0.6]}], 
+                resources: [{name: "Iron ore", ammount: [[1,1], [1,3]], chance: [0.3, 0.7]}], 
                 time_period: [90, 40],
                 skill_required: [7, 17],
                 scales_with_skill: true,
@@ -1523,7 +1523,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             skill_xp_per_tick: 5,
             is_unlocked: false,
             gained_resources: {
-                resources: [{name: "Piece of wood", ammount: [[1,1], [1,3]], chance: [0.1, 1]}],
+                resources: [{name: "Piece of wood", ammount: [[1,1], [1,3]], chance: [0.4, 1]}],
                 time_period: [90, 40],
                 skill_required: [10, 20],
                 scales_with_skill: true,

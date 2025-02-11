@@ -15,12 +15,13 @@ class InventoryHaver {
      */
     add_to_inventory(items) {
         let anything_new = false;
+        
         for(let i = 0; i < items.length; i++){
             let item_key;
             if(items[i].item_key){
                 item_key = items[i].item_key;
             } else {
-                //this part is so stupid
+                //this part is so stupid (recreating item just to grab it's key)
                 //but at least it wont break if code for creating inventory keys changes
                 let item;
                 if(items[i].quality) {
