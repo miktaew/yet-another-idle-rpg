@@ -1192,7 +1192,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             return noises;
         },
     });
-    locations["Gang hideout"] = new Combat_zone({ 
+    locations["Gang hideout"] = new Challenge_zone({ 
         description: "Hideout of a local gang. Old building with a labirynth of narrow corridors.", 
         enemies_list: ["Slums thug"],
         types: [{type: "narrow", stage: 2, xp_gain: 3}, {type: "dark", stage: 1, xp_gain: 3}],
@@ -1208,9 +1208,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         repeatable_reward: {
             traders: [{trader: "suspicious trader 2", skip_message: true}],
             locks: {
-                locations: ["Gang hideout"],
+                //locations: ["Gang hideout"],
                 traders: ["suspicious trader"]
-            }
+            }, 
+            //xp: 1000,
         },
     });
     locations["Slums"].connected_locations.push({location: locations["Gang hideout"]});
@@ -1523,9 +1524,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             skill_xp_per_tick: 5,
             is_unlocked: false,
             gained_resources: {
-                resources: [{name: "Piece of wood", ammount: [[1,1], [1,3]], chance: [0.4, 1]}],
+                resources: [{name: "Piece of wood", ammount: [[1,1], [1,3]], chance: [0.3, 1]}],
                 time_period: [90, 40],
-                skill_required: [10, 20],
+                skill_required: [7, 17],
                 scales_with_skill: true,
             },
         }),

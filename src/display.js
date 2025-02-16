@@ -24,7 +24,8 @@ import { effect_templates } from "./active_effects.js";
 import { player_storage } from "./storage.js";
 
 let activity_anim; //for the activity and locationAction animation interval
-//location actions & trade
+
+const location_choice_divs = {}; //for dropdowns
 const action_div = document.getElementById("location_actions_div");
 const trade_div = document.getElementById("trade_div");
 const storage_div = document.getElementById("storage_div");
@@ -612,32 +613,31 @@ function end_activity_animation(remove) {
 
 }
 
-//todo: rename? in current state of game, 'rewards' refer to different stuff than these stat/xp bonuses
-function format_book_bonuses(rewards) {
+function format_book_bonuses(bonuses) {
     let formatted = '';
-    if(rewards.stats) {
-        const stats = Object.keys(rewards.stats);
+    if(bonuses.stats) {
+        const stats = Object.keys(bonuses.stats);
         
-        formatted = `+${rewards.stats[stats[0]]} ${stat_names[stats[0]]}`;
+        formatted = `+${bonuses.stats[stats[0]]} ${stat_names[stats[0]]}`;
         for(let i = 1; i < stats.length; i++) {
-            formatted += `, +${rewards.stats[stats[i]]} ${stat_names[stats[i]]}`;
+            formatted += `, +${bonuses.stats[stats[i]]} ${stat_names[stats[i]]}`;
         }
     }
 
-    if(rewards.multipliers) {
-        const multipliers = Object.keys(rewards.multipliers);
+    if(bonuses.multipliers) {
+        const multipliers = Object.keys(bonuses.multipliers);
         if(formatted) {
-            formatted += `, x${rewards.multipliers[multipliers[0]]} ${stat_names[multipliers[0]]}`;
+            formatted += `, x${bonuses.multipliers[multipliers[0]]} ${stat_names[multipliers[0]]}`;
         } else {
-            formatted = `x${rewards.multipliers[multipliers[0]]} ${stat_names[multipliers[0]]}`;
+            formatted = `x${bonuses.multipliers[multipliers[0]]} ${stat_names[multipliers[0]]}`;
         }
 
         for(let i = 1; i < multipliers.length; i++) {
-            formatted += `, x${rewards.multipliers[multipliers[i]]} ${stat_names[multipliers[i]]}`;
+            formatted += `, x${bonuses.multipliers[multipliers[i]]} ${stat_names[multipliers[i]]}`;
         }
     }
-    if(rewards.xp_multipliers) {
-        const xp_multipliers = Object.keys(rewards.xp_multipliers);
+    if(bonuses.xp_multipliers) {
+        const xp_multipliers = Object.keys(bonuses.xp_multipliers);
         let name;
         if(xp_multipliers[0] !== "all" && xp_multipliers[0] !== "hero" && xp_multipliers[0] !== "all_skill") {
             name = skills[xp_multipliers[0]].name();
@@ -646,9 +646,9 @@ function format_book_bonuses(rewards) {
         }
 
         if(formatted) {
-            formatted += `, x${rewards.xp_multipliers[xp_multipliers[0]]} ${name} xp gain`;
+            formatted += `, x${bonuses.xp_multipliers[xp_multipliers[0]]} ${name} xp gain`;
         } else {
-            formatted = `x${rewards.xp_multipliers[xp_multipliers[0]]} ${name} xp gain`;
+            formatted = `x${bonuses.xp_multipliers[xp_multipliers[0]]} ${name} xp gain`;
         }
         for(let i = 1; i < xp_multipliers.length; i++) {
             let name;
@@ -657,7 +657,7 @@ function format_book_bonuses(rewards) {
             } else {
                 name = xp_multipliers[i].replace("_"," ");
             }
-            formatted += `, x${rewards.xp_multipliers[xp_multipliers[i]]} ${name} xp gain`;
+            formatted += `, x${bonuses.xp_multipliers[xp_multipliers[i]]} ${name} xp gain`;
         }
     }
 
@@ -2794,6 +2794,7 @@ function update_stat_description(stat) {
             target.innerHTML += `<br>${capitalize_first_letter(stat_type.replace("_"," "))}: +${Math.round(100*character.stats.flat[stat_type][stat])/100}`;
         }
     });
+
     Object.keys(character.stats.multiplier).forEach(stat_type => {
         if(character.stats.multiplier[stat_type][stat] && character.stats.multiplier[stat_type][stat] !== 1) {
             target.innerHTML += `<br>${capitalize_first_letter(stat_type.replace("_"," "))}: x${Math.round(100*character.stats.multiplier[stat_type][stat])/100}`;
@@ -2968,14 +2969,19 @@ function start_activity_display(current_activity) {
     action_status_div.id = "action_status_div";
     const action_xp_div = document.createElement("div");
     if(activities[current_activity.activity_name].base_skills_names) {
-        const needed_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.round(10000*skills[activities[current_activity.activity_name].base_skills_names].current_xp/skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)/100}%`
+
+        const percent_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.round(10000*skills[activities[current_activity.activity_name].base_skills_names].current_xp/skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)/100}%`
+        const curr_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.floor(skills[activities[current_activity.activity_name].base_skills_names].current_xp)}`;
+        const needed_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.ceil(skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)}`;
+
         if(activities[current_activity.activity_name].type !== "GATHERING") {
-            action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per in-game minute to ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${needed_xp})`;
+            action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per in-game minute to `;
         } else {
-            action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per gathering cycle to ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${needed_xp})`;
+            action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per gathering cycle to `;
         }
-    }
-    else {
+        action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${percent_xp}  [${curr_xp}/${needed_xp}])`;
+            
+    } else {
         console.warn(`Activity "${current_activity.activity_name}" has no skills assigned!`);
     }
     action_xp_div.id = "action_xp_div";
@@ -3045,13 +3051,18 @@ function update_displayed_ongoing_activity(current_activity, is_job){
         }
     }
     const action_xp_div = document.getElementById("action_xp_div");
-    const needed_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.round(10000*skills[activities[current_activity.activity_name].base_skills_names].current_xp/skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)/100}%`
+
+    const percent_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.round(10000*skills[activities[current_activity.activity_name].base_skills_names].current_xp/skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)/100}%`
+    const curr_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.floor(skills[activities[current_activity.activity_name].base_skills_names].current_xp)}`;
+    const needed_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.ceil(skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)}`;
     
     if(activities[current_activity.activity_name].type !== "GATHERING") {
-        action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per in-game minute to ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${needed_xp})`;
+        action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per in-game minute to `;
     } else {
-        action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per gathering cycle to ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${needed_xp})`;
+        action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per gathering cycle to `;
     }
+    action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${percent_xp}  [${curr_xp}/${needed_xp}])`;
+
     if(current_activity.gained_resources) {
         document.getElementById("gathering_progress_bar").style.width = 385*current_activity.gathering_time/current_activity.gathering_time_needed+"px";
     }
@@ -3172,6 +3183,8 @@ function create_new_skill_bar(skill) {
         skill_category_div.addEventListener("click", (event)=>{
             if(event.target.classList.contains("skill_category_div")) {
                 event.target.classList.toggle("skill_category_expanded");
+            } else if(event.target.classList.contains("skill_dropdown_icon")) {
+                event.target.parentNode.classList.toggle("skill_category_expanded");
             }
         })
 

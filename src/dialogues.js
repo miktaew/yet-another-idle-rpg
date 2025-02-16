@@ -446,7 +446,7 @@ class Textline {
                 name: "Are you behaving yourself?",
                 is_unlocked: false,
                 text: "Y-yes, I didn't do anything bad since the last time, boss!",
-            }), 
+            }),
         }
     });
     dialogues["farm supervisor"] = new Dialogue({

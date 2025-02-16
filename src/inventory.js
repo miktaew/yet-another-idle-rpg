@@ -23,6 +23,7 @@ class InventoryHaver {
             } else {
                 //this part is so stupid (recreating item just to grab it's key)
                 //but at least it wont break if code for creating inventory keys changes
+                //also not sure if it's in use anywhere anymore
                 let item;
                 if(items[i].quality) {
                     item = getItem({...item_templates[items[i].item_id], quality: items[i].quality});

@@ -2468,7 +2468,30 @@ item_templates["Medicine for dummies"] = new Book({
         name: "Fresh bread", 
         description: "Freshly baked bread, delicious.", 
         value: 40,
-        effects: [{effect: "Basic meal", duration: 120}],
+        effects: [{effect: "Basic meal", duration: 150}],
+    });
+
+    item_templates["Carrot"] = new UsableItem({
+        name: "Carrot", description: "A delicious root that can be eaten raw.", 
+        value: 20,
+        effects: [{effect: "Basic meal", duration: 10}],
+    });
+
+    item_templates["Cooked carrot"] = new UsableItem({
+        name: "Cooked carrot", description: "A delicious root, cooked.",
+        value: 30,
+        effects: [{effect: "Basic meal", duration: 150}],
+    });
+
+    item_templates["Potato"] = new UsableItem({
+        name: "Potato", description: "A common tuber with versatile culinary usage. Just remember to cook it first.", 
+        value: 15,
+        effects: [{effect: "Slight food poisoning", duration: 20}],
+    });
+    item_templates["Cooked potato"] = new UsableItem({
+        name: "Potato", description: "A common tuber with versatile culinary usage, though this one was simply cooked.", 
+        value: 40,
+        effects: [{effect: "Basic meal", duration: 150}],
     });
 
     item_templates["Weak healing powder"] = new UsableItem({
@@ -2499,21 +2522,21 @@ item_templates["Medicine for dummies"] = new Book({
         name: "Roasted rat meat", 
         description: "Smell might be fine now, but it still seems like a bad idea to eat it",
         value: 10,
-        effects: [{effect: "Cheap meat meal", duration: 30}, {effect: "Slight food poisoning", duration: 30}],
+        effects: [{effect: "Cheap meat meal", duration: 45}, {effect: "Slight food poisoning", duration: 45}],
     });
 
     item_templates["Roasted purified rat meat"] = new UsableItem({
         name: "Roasted purified rat meat", 
         description: "Smells alright and should be safe to eat, yet you still have some doubts",
         value: 20,
-        effects: [{effect: "Cheap meat meal", duration: 30}],
+        effects: [{effect: "Cheap meat meal", duration: 45}],
     });
 
     item_templates["Fried pork"] = new UsableItem({
         name: "Fried pork",
         description: "It's dripping with fat and smells fantastic, all it lacks is some spices and a good side dish.",
         value: 40,
-        effects: [{effect: "Simple meat meal", duration: 60}],
+        effects: [{effect: "Simple meat meal", duration: 90}],
     });
 
 })();

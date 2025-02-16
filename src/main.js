@@ -95,6 +95,7 @@ let total_crits_taken = 0;
 let total_hits_done = 0;
 let total_hits_taken = 0;
 let strongest_hit = 0;
+let gathered_materials = {};
 
 
 //current enemy
@@ -330,91 +331,14 @@ function change_location(location_name) {
         update_displayed_combat_location(current_location);
         start_combat();
 
+        /*
         if(!current_location.is_challenge) {
             last_combat_location = current_location.name;
         }
+        */
     }
 }
 
-/**
- * 
- * @param {String} location_name 
- * @returns {Boolean} if there's anything that can be unlocked by clearing it
- */
-/*
-function does_location_have_available_unlocks(location_name) {
-    //include dialogue lines
-    if(!locations[location_name]) {
-        throw new Error(`No such location as "${location_name}"`);
-    }
-    let does = false;
-    
-    Object.keys(locations[location_name].repeatable_reward).forEach(reward_type_key => {
-        if(does) {
-            return;
-        }
-        if(reward_type_key === "textlines") {
-            Object.keys(locations[location_name].repeatable_reward[reward_type_key]).forEach(textline_unlock => {
-                if(does) {
-                    return;
-                }
-                const {dialogue, lines} = locations[location_name].repeatable_reward[reward_type_key][textline_unlock];
-                for(let i = 0; i < lines.length; i++) {
-                    if(!dialogues[dialogue].textlines[lines[i]].is_unlocked) {
-                        does = true;
-                    }
-                }
-            });
-        }
-
-        if(reward_type_key === "locations") {
-            Object.keys(locations[location_name].repeatable_reward[reward_type_key]).forEach(location_unlock => {
-                if(does) {
-                    return;
-                }
-                locations[location_name].repeatable_reward[reward_type_key][location_unlock];
-                for(let i = 0; i < locations[location_name].repeatable_reward[reward_type_key][location_unlock].length; i++) {
-                    const location_key = locations[location_name].repeatable_reward[reward_type_key][location_unlock][i].location;
-                    if(!locations[location_key].is_unlocked) {
-                        does = true;
-                    }
-                }
-            });
-        }
-
-        if(reward_type_key === "activities") {
-            //todo: additionally need to check if gathering is unlocked (if its a gathering activity) 
-            Object.keys(locations[location_name].repeatable_reward[reward_type_key]).forEach(activity_unlock => {
-                if(does) {
-                    return;
-                }
-
-                for(let i = 0; i < locations[location_name].repeatable_reward[reward_type_key][activity_unlock].length; i++) {
-                    const {location, activity} = locations[location_name].repeatable_reward[reward_type_key][activity_unlock][i];
-                    if(!locations[location].activities[activity].is_unlocked) {
-                        does = true;
-                    }
-                }
-            });
-        }
-
-    });
-}
-*/
-/**
- * 
- * @param {String} location_name 
- * @returns {Boolean} if there's something that can be unlocked by clearing it after additional conditions are met
- */
-/*
-function does_location_have_unavailable_unlocks(location_name) {
-
-    if(!locations[location_name]) {
-        throw new Error(`No such location as "${location_name}"`);
-    }
-    let does = false;
-}
-*/
 /**
  * 
  * @param {Object} selected_activity - {id} of activity in Location's activities list??
@@ -1558,6 +1482,7 @@ function get_location_rewards(location) {
 
         if(location.is_challenge) {
             location.is_finished = true;
+            last_combat_location = null;
         }
         should_return = true;
         
@@ -1570,7 +1495,7 @@ function get_location_rewards(location) {
 
     //previous two calls give xp, this call omits xp to avoid repeating it
     //repeatable rewards are indeed intended to be called on first clear as well (with the exception of xp, duh)
-    process_rewards({rewards: {...location.repeatable_reward, xp: {}}, source_type: "location", source_name: location.name, is_first_clear: false, source_id: location.id});
+    process_rewards({rewards: {...location.repeatable_reward, xp: null}, source_type: "location", source_name: location.name, is_first_clear: false, source_id: location.id});
 
     location.otherUnlocks();
 
@@ -1740,6 +1665,10 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         if(rewards.locks.locations) {
             for(let i = 0; i < rewards.locks.locations.length; i++) {
                 locations[rewards.locks.locations[i]].is_finished = true;
+                console.log(last_combat_location, rewards.locks.locations[i]);
+                if(last_combat_location === rewards.locks.locations[i]) {
+                    last_combat_location = null;
+                }
             }
         }
         if(rewards.locks.traders) {
@@ -2028,6 +1957,7 @@ function create_save() {
         save_data.total_hits_done = total_hits_done;
         save_data.total_hits_taken = total_hits_taken;
         save_data.strongest_hit = strongest_hit;
+        save_data.gathered_materials = gathered_materials;
         save_data.global_flags = global_flags;
         save_data["character"] = {
                                 name: character.name, titles: character.titles, 
@@ -2272,6 +2202,7 @@ function load(save_data) {
     total_hits_done = save_data.total_hits_done || 0;
     total_hits_taken = save_data.total_hits_taken || 0;
     strongest_hit = save_data.strongest_hit || 0;
+    gathered_materials = save_data.gathered_materials || {};
 
     name_field.value = save_data.character.name;
     character.name = save_data.character.name;
@@ -2355,20 +2286,22 @@ function load(save_data) {
             } 
         });
     }
-    update_displayed_stance_list(stances, current_stance, faved_stances);
-    if(save_data.current_stance) {
-        current_stance = stances[save_data.current_stance.id] || stances[save_data.current_stance];
-        selected_stance = stances[save_data.selected_stance.id] || stances[save_data.selected_stance];
 
-        change_stance(selected_stance.id);
-    }
-    
+    update_displayed_stance_list(stances, current_stance, faved_stances);
+
     if(save_data.faved_stances) {
         Object.keys(save_data.faved_stances).forEach(stance_id=> {
             if(stances[stance_id] && stances[stance_id].is_unlocked) {
                 fav_stance(stance_id);
             }
         });
+    }
+
+    if(save_data.current_stance) {
+        current_stance = stances[save_data.current_stance.id] || stances[save_data.current_stance];
+        selected_stance = stances[save_data.selected_stance.id] || stances[save_data.selected_stance];
+
+        change_stance(selected_stance.id);
     }
 
     Object.keys(save_data.character.equipment).forEach(function(key){
@@ -3140,6 +3073,8 @@ function update() {
                                 const count = Math.floor(Math.random()*(gained_resources[i].count[1]-gained_resources[i].count[0]+1))+gained_resources[i].count[0];
 
                                 items.push({item_key: item_templates[gained_resources[i].name].getInventoryKey(), count: count});
+
+                                gathered_materials[gained_resources[i].name] = (gathered_materials[gained_resources[i].name] || 0) + count;
                             }
                         }
 

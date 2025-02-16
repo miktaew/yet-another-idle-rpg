@@ -448,6 +448,7 @@ body {
 .skill_category_expanded .skill_div {
 	display: block;
 }
+
 .skill_category_expanded .skill_dropdown_icon {
 	transform: rotate(180deg);
 }
