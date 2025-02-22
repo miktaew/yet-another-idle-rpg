@@ -135,7 +135,7 @@ class ComponentRecipe extends ItemRecipe{
 
     get_quality_cap() {
         const skill = skills[this.recipe_skill];
-        return Math.min(Math.round(100*(1+2*skill.current_level/skill.max_level)),200);
+        return Math.min(Math.round(100+2*skill.current_level),200);
     }
 
     get_quality(tier = 0) {
@@ -207,7 +207,7 @@ class EquipmentRecipe extends Recipe {
 
     get_quality_cap() {
         const skill = skills[this.recipe_skill];
-        return Math.min(Math.round(100*(1+2*skill.current_level/skill.max_level)),250);
+        return Math.min(Math.round(100+2*skill.current_level),250);
     }
 
     get_quality(component_quality, tier = 0) {

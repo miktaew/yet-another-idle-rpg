@@ -21,7 +21,7 @@ class Activity {
         this.action_text = action_text; //text displayed in action div, e.g. "Working the fields"
         this.base_skills_names = base_skills_names;
         //skills that affect efficiency of an activity and are raised when performing it
-        //some will have only 1 (e.g. "foraging", "mining") and some multiple
+        //originally meant to allow multiple, but with current implementation of stuff, doing that would break a lot of things
         this.tags = [];
         this.is_unlocked = is_unlocked;
     }

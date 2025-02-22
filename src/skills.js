@@ -1696,11 +1696,14 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     skills["Crafting"] = new Skill({
         skill_id: "Crafting", 
         names: {0: "Crafting"}, 
-        description: "The art of preparing different elements and assembling them together",
+        description: "Turn smaller pieces into one bigger thing",
         category: "Crafting",
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
+        get_effect_description: () => {
+            return `Quality cap: ${100+skills["Crafting"].current_level*2}%`;
+        }
     });
     skills["Smelting"] = new Skill({
         skill_id: "Smelting", 
@@ -1719,6 +1722,9 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
+        get_effect_description: () => {
+            return `Quality cap: ${100+skills["Forging"].current_level*2}%`;
+        }
     });
     skills["Cooking"] = new Skill({
         skill_id: "Cooking", 

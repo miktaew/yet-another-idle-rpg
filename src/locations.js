@@ -1086,7 +1086,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activities: [{location:"Forest road", activity: "herbalism"}],
         },
     });
-    locations["Forest road"].connected_locations.push({location: locations["Forest"], custom_text: "Leave the safe path and go deeper in the [Forest]"});
+    locations["Forest road"].connected_locations.push({location: locations["Forest"], custom_text: "Leave the safe path and walk into the [Forest]"});
 
     locations["Deep forest"] = new Combat_zone({
         description: "Deeper part of the forest, a dangerous place", 
@@ -1130,7 +1130,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Forest road"].connected_locations.push({location: locations["Forest clearing"], custom_text: "Go towards the [Forest clearing] in the north"});
 
     locations["Town outskirts"] = new Location({ 
-        connected_locations: [{location: locations["Forest road"], custom_text: "Return to the forest"}],
+        connected_locations: [{location: locations["Forest road"], custom_text: "Return to the [Forest road]"}],
         description: "The town is surrounded by a tall stone wall. The only gate seems to be closed, with a lone guard outside. You can see farms to the north and slums to the south.",
         name: "Town outskirts",
         is_unlocked: true,

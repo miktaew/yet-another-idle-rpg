@@ -25,7 +25,7 @@ import { player_storage } from "./storage.js";
 
 let activity_anim; //for the activity and locationAction animation interval
 
-const location_choice_divs = {}; //for dropdowns
+let location_choice_divs = {}; //for dropdowns
 const action_div = document.getElementById("location_actions_div");
 const trade_div = document.getElementById("trade_div");
 const storage_div = document.getElementById("storage_div");
@@ -185,6 +185,7 @@ function clear_skill_bars() {
 function clear_action_div() {
     while(action_div.lastElementChild) {
         action_div.removeChild(action_div.lastElementChild);
+        location_choice_divs = {};
     }
 }
 
@@ -1531,7 +1532,7 @@ function update_displayed_normal_location(location) {
     if(global_flags.is_crafting_unlocked) {
         if(location.crafting?.is_unlocked) {
             const crafting_button = document.createElement("div");
-            crafting_button.classList.add("location_choices");
+            crafting_button.classList.add("location_choices", "choice_craft");
             crafting_button.setAttribute("onclick", 'openCraftingWindow()');
             crafting_button.innerHTML = `<i class="material-icons">construction</i> ${location.crafting.use_text}`;
             action_div.appendChild(crafting_button);
@@ -1577,17 +1578,23 @@ function update_displayed_normal_location(location) {
         }
     });
 
-    if(available_dialogues.length > 2) {
-        //there's multiple -> add a choice to location actions that will show all available dialogues        
-        const dialogues_button = document.createElement("div");
-        dialogues_button.setAttribute("data-location", location.name);
-        dialogues_button.classList.add("location_choices");
-        dialogues_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "talk"})');
-        dialogues_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">question_answer</i> Talk to someone';
-        action_div.appendChild(dialogues_button);
-    } else if (available_dialogues.length <= 2) {
-        //there's only 1 -> put it in overall location choice list
-        action_div.append(...create_location_choices({location: location, category: "talk"}));
+    if(available_dialogues.length > 0) {
+        location_choice_divs["dialogues"] = create_location_choice_dropdown({name: "Talk to someone", icon: "question_answer", class_name: "choice_dialogue"});
+
+        location_choice_divs["dialogues"].append(...create_location_choices({location: location, category: "talk"}));
+        /*
+        if(available_dialogues.length > 2) {
+            //there's multiple -> add a choice to location actions that will show all available dialogues        
+            const dialogues_button = document.createElement("div");
+            dialogues_button.setAttribute("data-location", location.name);
+            dialogues_button.classList.add("location_choices");
+            dialogues_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "talk"})');
+            dialogues_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">question_answer</i> Talk to someone';
+            action_div.appendChild(dialogues_button);
+        } else if (available_dialogues.length <= 2) {
+            //there's only 1 -> put it in overall location choice list
+            action_div.append(...create_location_choices({location: location, category: "talk"}));
+        }*/
     }
 
     /////////////////////////
@@ -1595,16 +1602,24 @@ function update_displayed_normal_location(location) {
 
     const available_traders = location.traders.filter(trader => traders[trader].is_unlocked && !traders[trader].is_finished);
 
-    if(available_traders.length > 2) {     
-        const traders_button = document.createElement("div");
-        traders_button.setAttribute("data-location", location.name);
-        traders_button.classList.add("location_choices");
-        traders_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "trade"})');
-        traders_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">storefront</i>  Visit a merchant';
-        action_div.appendChild(traders_button);
-    } else if (available_traders.length > 0) {
-        action_div.append(...create_location_choices({location: location, category: "trade"}));
+    if(available_traders.length > 0) {
+        location_choice_divs["traders"] = create_location_choice_dropdown({name: "Visit a merchant", icon: "storefront", class_name: "choice_trade"});
+
+        location_choice_divs["traders"].append(...create_location_choices({location: location, category: "trade"}));
+        /*
+        if(available_traders.length > 2) {     
+            const traders_button = document.createElement("div");
+            traders_button.setAttribute("data-location", location.name);
+            traders_button.classList.add("location_choices");
+            traders_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "trade"})');
+            traders_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">storefront</i>  Visit a merchant';
+            action_div.appendChild(traders_button);
+        } else if (available_traders.length > 0) {
+            action_div.append(...create_location_choices({location: location, category: "trade"}));
+        }
+        */
     }
+    
 
     ///////////////////////////
     //add buttons to start jobs
@@ -1613,16 +1628,25 @@ function update_displayed_normal_location(location) {
                                                                     && activities[activity.activity_name].is_unlocked
                                                                     && activity.is_unlocked
                                                                     && activities[activity.activity_name].base_skills_names.filter(skill => !skills[skill].is_unlocked).length == 0);
-    if(available_jobs.length > 2) {     
-        const jobs_button = document.createElement("div");
-        jobs_button.setAttribute("data-location", location.name);
-        jobs_button.classList.add("location_choices");
-        jobs_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "work"})');
-        jobs_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">work_outline</i>  Find some work';
-        action_div.appendChild(jobs_button);
-    } else if (available_jobs.length <= 2) {
-        action_div.append(...create_location_choices({location: location, category: "work"}));
+    
+    if(available_jobs.length > 0) {
+        location_choice_divs["jobs"] = create_location_choice_dropdown({name: "Find work", icon: "work_outline", class_name: "choice_work"});
+
+        location_choice_divs["jobs"].append(...create_location_choices({location: location, category: "work"}));
+        /*
+        if(available_jobs.length > 2) {     
+            const jobs_button = document.createElement("div");
+            jobs_button.setAttribute("data-location", location.name);
+            jobs_button.classList.add("location_choices");
+            jobs_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "work"})');
+            jobs_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">work_outline</i>  Find work';
+            action_div.appendChild(jobs_button);
+        } else if (available_jobs.length <= 2) {
+            action_div.append(...create_location_choices({location: location, category: "work"}));
+        }
+        */
     }
+
 
     ///////////////////////////////
     //add buttons to start training
@@ -1631,15 +1655,24 @@ function update_displayed_normal_location(location) {
                                                                     && activities[activity.activity_name].is_unlocked
                                                                     && activity.is_unlocked
                                                                     && activities[activity.activity_name].base_skills_names.filter(skill => !skills[skill].is_unlocked).length == 0);
-    if(available_trainings.length > 2) {     
-        const trainings_button = document.createElement("div");
-        trainings_button.setAttribute("data-location", location.name);
-        trainings_button.classList.add("location_choices");
-        trainings_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "train"})');
-        trainings_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">fitness_center</i>  Undertake some training';
-        action_div.appendChild(trainings_button);
-    } else if (available_trainings.length <= 2) {
-        action_div.append(...create_location_choices({location: location, category: "train"}));
+    
+    if(available_trainings.length > 0) {
+        location_choice_divs["trainings"] = create_location_choice_dropdown({name: "Train", icon: "fitness_center", class_name: "choice_train"});
+
+        location_choice_divs["trainings"].append(...create_location_choices({location: location, category: "train"}));
+
+        /*
+            if(available_trainings.length > 2) {     
+                const trainings_button = document.createElement("div");
+                trainings_button.setAttribute("data-location", location.name);
+                trainings_button.classList.add("location_choices");
+                trainings_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "train"})');
+                trainings_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">fitness_center</i>  Undertake training';
+                action_div.appendChild(trainings_button);
+            } else if (available_trainings.length <= 2) {
+                action_div.append(...create_location_choices({location: location, category: "train"}));
+            }
+        */
     }
 
     ////////////////////////////////
@@ -1650,56 +1683,106 @@ function update_displayed_normal_location(location) {
                                                                         && activities[activity.activity_name].is_unlocked
                                                                         && activity.is_unlocked
                                                                         && activities[activity.activity_name].base_skills_names.filter(skill => !skills[skill].is_unlocked).length == 0);
-        if(available_gatherings.length > 2) {     
-            const gatherings_button = document.createElement("div");
-            gatherings_button.setAttribute("data-location", location.name);
-            gatherings_button.classList.add("location_choices");
-            gatherings_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "gather"})');
-            gatherings_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">search</i>  Gather some resources';
-            action_div.appendChild(gatherings_button);
-        } else if (available_gatherings.length <= 2) {
-            action_div.append(...create_location_choices({location: location, category: "gather"}));
+        
+        
+        if(available_gatherings.length > 0) {
+            location_choice_divs["gatherings"] = create_location_choice_dropdown({name: "Gather resources", icon: "search", class_name: "choice_gather"});
+    
+            location_choice_divs["gatherings"].append(...create_location_choices({location: location, category: "gather"}));
+            /*
+            if(available_gatherings.length > 2) {     
+                const gatherings_button = document.createElement("div");
+                gatherings_button.setAttribute("data-location", location.name);
+                gatherings_button.classList.add("location_choices");
+                gatherings_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "gather"})');
+                gatherings_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">search</i>  Gather resources';
+                action_div.appendChild(gatherings_button);
+            } else if (available_gatherings.length <= 2) {
+                action_div.append(...create_location_choices({location: location, category: "gather"}));
+            }
+            */
         }
+        
     }
 
     const available_actions = Object.values(location.actions).filter(action => action.is_unlocked && !action.is_finished);
-    if(available_actions.length > 2) {
-        const actions_button = document.createElement("div");
-        actions_button.setAttribute("data-location", location.name);
-        actions_button.classList.add("location_choices");
-        actions_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "action"})');
-        actions_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">circle</i>  Take an action';
-        action_div.appendChild(actions_button);
-    } else if(available_actions.length <= 2) {
-        action_div.append(...create_location_choices({location: location, category: "action"}));
-    }
+    if(available_actions.length > 0) {
+        location_choice_divs["actions"] = create_location_choice_dropdown({name: "Take an action", icon: "circle", class_name: "choice_action"});
+
+        location_choice_divs["actions"].append(...create_location_choices({location: location, category: "action"}));
     
-    ////////////////////////////
-    //add buttons for challenges
-    //not getting foldered since having too many is not expected
-    action_div.append(...create_location_choices({location: location, category: "challenge"}));
+        /*
+        if(available_actions.length > 2) {
+            const actions_button = document.createElement("div");
+            actions_button.setAttribute("data-location", location.name);
+            actions_button.classList.add("location_choices");
+            actions_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "action"})');
+            actions_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">circle</i>  Take an action';
+            action_div.appendChild(actions_button);
+        } else if(available_actions.length <= 2) {
+            action_div.append(...create_location_choices({location: location, category: "action"}));
+        }
+            */
+    }
 
     /////////////////////////////////
     //add butttons to change location
 
     const available_locations = location.connected_locations.filter(loc => (loc.location.is_unlocked && !loc.location.is_finished && !loc.location.is_challenge));
-    //const available_locations = location.connected_locations.filter(loc => {return loc.is_unlocked && !loc.is_finished && !loc.is_challenge});
-    if(available_locations.length > 3 
+    if(available_locations.length > 0) {
+        location_choice_divs["locations"] = create_location_choice_dropdown({name: "Move somewhere else", icon: "directions", class_name: "choice_travel"});
+
+        location_choice_divs["locations"].append(...create_location_choices({location: location, category: "travel"}));
+    
+        /*
+
+        if(available_locations.length > 3 
         && ((location.housing?.is_unlocked || 0) + available_trainings.length + available_jobs.length + available_traders.length 
         + available_dialogues.length + available_actions.length + (location.crafting?.is_unlocked || 0)) > 2) 
-    {
-        const locations_button = document.createElement("div");
-        locations_button.setAttribute("data-location", location.name);
-        locations_button.classList.add("location_choices");
-        locations_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "travel"});');
-        locations_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">directions</i>  Move somewhere else';
-        action_div.appendChild(locations_button);
-    } else {
-        action_div.append(...create_location_choices({location: location, category: "travel"}));
+        {
+            const locations_button = document.createElement("div");
+            locations_button.setAttribute("data-location", location.name);
+            locations_button.classList.add("location_choices");
+            locations_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "travel"});');
+            locations_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">directions</i>  Move somewhere else';
+            action_div.appendChild(locations_button);
+        } else {
+            action_div.append(...create_location_choices({location: location, category: "travel"}));
+        }
+        */
     }
+
+    ////////////////////////////
+    //add buttons for challenges
+
+    const available_challenges = location.connected_locations.filter(loc => (loc.location.is_challenge && loc.location.is_unlocked && !loc.location.is_finished));
+    if(available_challenges.length > 0) {
+        location_choice_divs["challenges"] = create_location_choice_dropdown({name: "Take on a challenge", icon: "warning_amber", class_name: "choice_travel"});
+
+        location_choice_divs["challenges"].append(...create_location_choices({location: location, category: "challenge"}));
+    }
+
+    action_div.append(...Object.values(location_choice_divs));
 
     location_name_span.innerText = current_location.name;
     document.getElementById("location_description_div").innerText = current_location.getDescription();
+}
+
+function create_location_choice_dropdown({name, icon, class_name}) {
+
+    const elem = document.createElement("div");
+    elem.innerHTML = `<i class="material-icons">${icon}</i> ${name}`;
+    elem.classList.add("location_choice_dropdown", class_name);
+
+    elem.addEventListener("click", (event)=>{
+        if(event.target.classList.contains("location_choice_dropdown")) {
+            event.target.classList.toggle("location_choice_dropdown_expanded");
+        } else if(event.target.classList.contains("material-icons")) {
+            event.target.parentNode.classList.toggle("location_choice_dropdown_expanded");
+        }
+    });
+
+    return elem;
 }
 
 /**
@@ -1708,7 +1791,7 @@ function update_displayed_normal_location(location) {
  * @param {*} category 
  * @return {Array} an array of html nodes presenting the available choices
  */
-function create_location_choices({location, category, add_icons = true, is_combat = false}) {
+function create_location_choices({location, category, is_combat = false}) {
     let choice_list = [];
     //that's a lot of ifs for same argument, maybe switch to switch instead?
 
@@ -1737,9 +1820,9 @@ function create_location_choices({location, category, add_icons = true, is_comba
     
             //if(Object.keys(dialogues[location.dialogues[i]].textlines).length > 0) { //has any textlines
                 
-            dialogue_div.innerHTML = add_icons ? `<i class="material-icons">question_answer</i>  ` : "";
-            dialogue_div.innerHTML += dialogues[location.dialogues[i]].starting_text;
-            dialogue_div.classList.add("start_dialogue");
+            //dialogue_div.innerHTML = add_icons ? `<i class="material-icons">question_answer</i>  ` : "";
+            dialogue_div.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + dialogues[location.dialogues[i]].starting_text;
+            dialogue_div.classList.add("start_dialogue", "location_choice");
             dialogue_div.setAttribute("data-dialogue", location.dialogues[i]);
             dialogue_div.setAttribute("onclick", "start_dialogue(this.getAttribute('data-dialogue'));");
             choice_list.push(dialogue_div);
@@ -1753,9 +1836,9 @@ function create_location_choices({location, category, add_icons = true, is_comba
             
             const trader_div = document.createElement("div");  
 
-            trader_div.innerHTML = add_icons ? `<i class="material-icons">storefront</i>   ` : "";
-            trader_div.innerHTML += traders[location.traders[i]].trade_text;
-            trader_div.classList.add("start_trade");
+            //trader_div.innerHTML = add_icons ? `<i class="material-icons">storefront</i>   ` : "";
+            trader_div.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + traders[location.traders[i]].trade_text;
+            trader_div.classList.add("start_trade", "location_choice");
             trader_div.setAttribute("data-trader", location.traders[i]);
             trader_div.setAttribute("onclick", "startTrade(this.getAttribute('data-trader'));");
             choice_list.push(trader_div);
@@ -1771,8 +1854,8 @@ function create_location_choices({location, category, add_icons = true, is_comba
             
             const activity_div = document.createElement("div");
 
-            activity_div.innerHTML = `<i class="material-icons">work_outline</i>  `;
-            activity_div.classList.add("activity_div");
+            //activity_div.innerHTML = `<i class="material-icons">work_outline</i>  `;
+            activity_div.classList.add("activity_div", "location_choice");
             activity_div.setAttribute("data-activity", key);
             activity_div.setAttribute("onclick", "start_activity(this.getAttribute('data-activity'));");
 
@@ -1793,7 +1876,7 @@ function create_location_choices({location, category, add_icons = true, is_comba
 
             activity_div.appendChild(job_tooltip);
     
-            activity_div.innerHTML += location.activities[key].starting_text;
+            activity_div.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + location.activities[key].starting_text;
             choice_list.push(activity_div);
         });
     } else if (category === "train") {
@@ -1808,12 +1891,12 @@ function create_location_choices({location, category, add_icons = true, is_comba
 
             const activity_div = document.createElement("div");
 
-            activity_div.innerHTML = `<i class="material-icons">fitness_center</i>  `;
-            activity_div.classList.add("activity_div", "start_activity");
+            //activity_div.innerHTML = `<i class="material-icons">fitness_center</i>  `;
+            activity_div.classList.add("activity_div", "start_activity", "location_choice");
             activity_div.setAttribute("data-activity", key);
             activity_div.setAttribute("onclick", "start_activity(this.getAttribute('data-activity'));");
     
-            activity_div.innerHTML += location.activities[key].starting_text;
+            activity_div.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + location.activities[key].starting_text;
             choice_list.push(activity_div);
         });
     } else if (category === "gather") {
@@ -1828,14 +1911,14 @@ function create_location_choices({location, category, add_icons = true, is_comba
 
             const activity_div = document.createElement("div");
 
-            activity_div.innerHTML = `<i class="material-icons">search</i>  `;
-            activity_div.classList.add("activity_div", "start_activity");
+            //activity_div.innerHTML = `<i class="material-icons">search</i>  `;
+            activity_div.classList.add("activity_div", "start_activity", "location_choice");
             activity_div.setAttribute("data-activity", key);
             activity_div.setAttribute("onclick", "start_activity(this.getAttribute('data-activity'));");
 
             activity_div.appendChild(create_gathering_tooltip(location.activities[key]));
     
-            activity_div.innerHTML += location.activities[key].starting_text;
+            activity_div.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + location.activities[key].starting_text;
             choice_list.push(activity_div);
         });
     } else if (category === "travel") {
@@ -1855,22 +1938,21 @@ function create_location_choices({location, category, add_icons = true, is_comba
                 if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
                     action.classList.add("travel_normal");
                     if("custom_text" in location.connected_locations[i]) {
-                        action.innerHTML = `<i class="material-icons">directions</i> ` + location.connected_locations[i].custom_text;
+                        action.innerHTML = `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + location.connected_locations[i].custom_text;
                     }
                     else {
-                        action.innerHTML = `<i class="material-icons">directions</i>  ` + "Go to [" + location.connected_locations[i].location.name+"]";
+                        action.innerHTML = `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + "Go to [" + location.connected_locations[i].location.name+"]";
                     }
                 } else {
                     action.classList.add("travel_combat");
                     if("custom_text" in location.connected_locations[i]) {
                         action.innerHTML = `<i class="material-icons">warning_amber</i> ` + location.connected_locations[i].custom_text;
-                    }
-                    else {
+                    } else {
                         action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + "Enter the [" + location.connected_locations[i].location.name+"]";
                     }
                 }
             
-                action.classList.add("action_travel");
+                action.classList.add("action_travel", "location_choice");
                 action.setAttribute("data-travel", location.connected_locations[i].location.name);
                 action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
         
@@ -1884,7 +1966,7 @@ function create_location_choices({location, category, add_icons = true, is_comba
                 
                 action.innerHTML = `<i class="material-icons">warning_amber</i>  Quick return to [${last_combat.name}]`;
                 
-                action.classList.add("action_travel");
+                action.classList.add("action_travel", "location_choice");
                 action.setAttribute("data-travel", last_combat.name);
                 action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
         
@@ -1892,11 +1974,11 @@ function create_location_choices({location, category, add_icons = true, is_comba
             }
         } else {
             const action = document.createElement("div");
-            action.classList.add("travel_normal", "action_travel");
+            action.classList.add("travel_normal", "action_travel", "location_choice");
             if(location.leave_text) {
-                action.innerHTML = `<i class="material-icons">directions</i>  ` + location.leave_text;
+                action.innerHTML = location.leave_text;
             } else {
-                action.innerHTML = `<i class="material-icons">directions</i>  ` + "Go back to " + location.parent_location.name;
+                action.innerHTML = "Go back to [" + location.parent_location.name + "]";
             }
             action.setAttribute("data-travel", location.parent_location.name);
             action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
@@ -1908,11 +1990,13 @@ function create_location_choices({location, category, add_icons = true, is_comba
             const last_bed = locations[last_location_with_bed];
 
             const action = document.createElement("div");
-            action.classList.add("travel_normal");
+            action.classList.add("action_travel", "travel_normal", "location_choice");
             
-            action.innerHTML = `<i class="material-icons">directions</i> Quick return to [${last_bed.name}]`;
-            
-            action.classList.add("action_travel");
+            if(!is_combat) {
+                action.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> `
+            }
+            action.innerHTML += `Quick return to [${last_bed.name}]`;
+
             action.setAttribute("data-travel", last_bed.name);
             action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
     
@@ -1926,7 +2010,7 @@ function create_location_choices({location, category, add_icons = true, is_comba
         for(let i = 0; i < available_challenges.length; i++) { 
             const action = document.createElement("div");
 
-            action.classList.add("travel_combat");
+            action.classList.add("travel_combat", "location_choice");
             if("custom_text" in available_challenges[i]) {
                 action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + available_challenges[i].custom_text;
             }
@@ -1948,14 +2032,14 @@ function create_location_choices({location, category, add_icons = true, is_comba
 
             const location_action_div = document.createElement("div");
 
-            location_action_div.innerHTML = `<i class="material-icons">circle</i>  `;
-            location_action_div.classList.add("location_action_div", "start_location_action");
+            //location_action_div.innerHTML = `<i class="material-icons">circle</i>  `;
+            location_action_div.classList.add("location_action_div", "start_location_action", "location_choice");
             location_action_div.setAttribute("data-location_action", key);
             location_action_div.setAttribute("onclick", "start_location_action(this.getAttribute('data-location_action'));");
 
             location_action_div.appendChild(create_location_action_tooltip(location.actions[key]));
     
-            location_action_div.innerHTML += location.actions[key].starting_text;
+            location_action_div.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + location.actions[key].starting_text;
             choice_list.push(location_action_div);
         });
     }
@@ -2979,7 +3063,12 @@ function start_activity_display(current_activity) {
         } else {
             action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per gathering cycle to `;
         }
-        action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${percent_xp}  [${curr_xp}/${needed_xp}])`;
+        
+        if(curr_xp !== "Max") {
+            action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${percent_xp}  [${curr_xp}/${needed_xp}])`;
+        } else {
+            action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (Maxxed out!)`;
+        }
             
     } else {
         console.warn(`Activity "${current_activity.activity_name}" has no skills assigned!`);
@@ -3061,7 +3150,12 @@ function update_displayed_ongoing_activity(current_activity, is_job){
     } else {
         action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per gathering cycle to `;
     }
-    action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${percent_xp}  [${curr_xp}/${needed_xp}])`;
+
+    if(curr_xp !== "Max") {
+        action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${percent_xp}  [${curr_xp}/${needed_xp}])`;
+    } else {
+        action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (Maxxed out!)`;
+    }
 
     if(current_activity.gained_resources) {
         document.getElementById("gathering_progress_bar").style.width = 385*current_activity.gathering_time/current_activity.gathering_time_needed+"px";

@@ -231,7 +231,7 @@ class Textline {
             }),
             "new tunnel": new Textline({
                 name: "I found an even deeper tunnel in the cave",
-                text: "The what?... I have a bad feeling about this, you better avoid it until you get better equipment. Don't forget to bring a good shield too.",
+                text: "The what? I have a very bad feeling about this... You better avoid it until you get better equipment and some solid shield, I can bet it's gonna be a lot more dangerous.",
                 is_unlocked: false,
                 locks_lines: ["new tunnel"],
             }),

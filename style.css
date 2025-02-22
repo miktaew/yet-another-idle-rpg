@@ -179,15 +179,40 @@ body {
 	color: rgb(171, 171, 255);
  }
 
- .action_travel, .activity_unavailable, .start_dialogue,  .end_dialogue_button, .start_trade, .start_location_action, .dialogue_trade, .choices_return_button, .start_activity, .location_choices, #action_status_div, #action_end_div {
+ .action_travel, .activity_unavailable, .start_dialogue,  .end_dialogue_button, .start_trade, .start_location_action, .dialogue_trade, .choices_return_button, .start_activity, #action_status_div, #action_end_div {
 	text-align: left;
 	font-size: 20px;
-	border-bottom: 1px solid white;
+	border-top: 1px dotted white;
 	cursor: pointer;
 	padding: 5px;
  }
 
+ .location_choice {
+	font-size: 16px;
+	padding-left: 5px;
+	margin-top: 2px;
+ }
 
+ .location_choice_dropdown, .location_choices, #start_sleeping_div, #open_storage_div, :not(.location_choice_dropdown) > .action_travel {
+	text-align: left;
+	font-size: 20px;
+	border: 2px solid white;
+	cursor: pointer;
+	padding: 5px;
+	margin-bottom: 1px;
+ }
+
+ .location_choice_dropdown :nth-child(2) {
+	border-top: 1px solid white;
+ }
+
+ .location_choice_dropdown:not(.location_choice_dropdown_expanded) .location_choice {
+	display: none;
+ }
+
+ .location_choice_dropdown_expanded .location_choice {
+	display: block;
+ }
 
  #action_status_div, #action_end_div {
 	text-align: center;
@@ -274,8 +299,8 @@ body {
 	cursor: not-allowed;
 }
 
-.action_travel:hover, .start_dialogue:hover, .start_trade:hover, .start_location_action:hover, .start_activity:hover, .location_choices:hover,
-.dialogue_textline:hover, .end_dialogue_button:hover, .dialogue_trade:hover, .choices_return_button:hover {
+.action_travel:hover, .start_dialogue:hover, .start_trade:hover, .start_location_action:hover, .start_activity:hover, 
+.location_choices:hover, .choices_return_button:hover, .location_choice_dropdown:not(.location_choice_dropdown_expanded):hover, .dialogue_textline:hover, .end_dialogue_button:hover, .dialogue_trade:hover  {
 	background-color: #2c3953;
 }
 .dialogue_textline {
@@ -797,7 +822,7 @@ body {
 	background-color: rgba(0, 128, 0, 0.5);
 }
 
-.selected_component_icon, .selected_material_icon {
+.selected_component_icon, .selected_material_icon, .location_choice_icon {
 	visibility: hidden;
 }
 
@@ -1857,14 +1882,6 @@ i {
 
 #saved_file_input {
 	display: none;
-}
-
-#start_sleeping_div, #open_storage_div{
-	text-align: left;
-	font-size: 20px;
-	border-bottom: 1px solid white;
-	cursor: pointer;
-	padding: 5px;
 }
 
 #start_sleeping_div:hover, #action_end_div:hover, #end_sleeping_div:hover, #open_storage_div:hover {
