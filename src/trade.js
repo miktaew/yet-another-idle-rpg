@@ -74,6 +74,13 @@ function accept_trade() {
         if(to_remove.length > 0) {
             add_to_character_inventory(item_list);
             remove_from_trader_inventory(current_trader,to_remove);
+
+            for(let i = 0; i < to_remove.length; i++) {
+                update_displayed_trader_inventory({item_key: to_remove[i].item_key});
+            }
+            for(let i = 0; i < item_list.length; i++) {
+                update_displayed_character_inventory({item_key: item_list[i].item_key});
+            }
         }
         
 
@@ -103,6 +110,13 @@ function accept_trade() {
         if(to_remove.length > 0) {
             add_to_trader_inventory(current_trader,item_list);
             remove_from_character_inventory(to_remove);
+
+            for(let i = 0; i < to_remove.length; i++) {
+                update_displayed_character_inventory({item_key: to_remove[i].item_key});
+            }
+            for(let i = 0; i < item_list.length; i++) {
+                update_displayed_trader_inventory({item_key: item_list[i].item_key});
+            }
         }
     }
 

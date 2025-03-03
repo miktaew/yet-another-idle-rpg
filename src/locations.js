@@ -4,6 +4,7 @@ import { enemy_templates, Enemy } from "./enemies.js";
 import { skills } from "./skills.js";
 import { current_game_time } from "./game_time.js";
 import { activities } from "./activities.js";
+import { get_total_skill_level } from "./character.js";
 const locations = {};
 const location_types = {};
 //contains all the created locations
@@ -48,7 +49,7 @@ class Location {
         this.light_level = light_level; //not really used for this type
         this.crafting = crafting;
         this.tags = tags;
-        this.tags["Safe zone"] = true;
+        this.tags["safe_zone"] = true;
         /* 
         crafting: {
             is_unlocked: Boolean, 
@@ -327,8 +328,8 @@ class LocationActivity{
                  skill_xp_per_tick = 1,
                  unlock_text,
                  gained_resources,
-                 require_tool = true,
-                 }) 
+                 require_tool = false,
+                })
     {
         this.activity_name = activity_name; //name of activity from activities.js
         this.starting_text = starting_text; //text displayed on button to start action
@@ -365,7 +366,7 @@ class LocationActivity{
             let skill_level_sum = 0;
             for(let i = 0; i < activities[this.activity_name].base_skills_names?.length; i++) {
                 skill_level_sum += Math.min(
-                    this.gained_resources.skill_required[1]-this.gained_resources.skill_required[0]+1, Math.max(0,skills[activities[this.activity_name].base_skills_names[i]].current_level-this.gained_resources.skill_required[0]+1)
+                    this.gained_resources.skill_required[1]-this.gained_resources.skill_required[0]+1, Math.max(0,get_total_skill_level(activities[this.activity_name].base_skills_names[i])-this.gained_resources.skill_required[0]+1)
                 )/(this.gained_resources.skill_required[1]-this.gained_resources.skill_required[0]+1);
             }
             skill_modifier = (skill_level_sum/activities[this.activity_name].base_skills_names?.length) ?? 1;
@@ -468,10 +469,10 @@ class LocationAction{
         //check skills
         if(this.conditions[0].skills) {
             Object.keys(this.conditions[0].skills).forEach(skill_id => {
-                if(skills[skill_id].current_level < this.conditions[0].skills[skill_id]) {
+                if(get_total_skill_level(skill_id) < this.conditions[0].skills[skill_id]) {
                     met = 0;
-                } else if(this.conditions[1]?.skills && this.conditions[1].skills[skill_id] > this.conditions[0].skills[skill_id] && skills[skill_id].current_level < this.conditions[1].skills[skill_id]) {
-                    met *= (skills[skill_id].current_level - this.conditions[0].skills[skill_id])/(this.conditions[1].skills[skill_id] - this.conditions[0].skills[skill_id]);
+                } else if(this.conditions[1]?.skills && this.conditions[1].skills[skill_id] > this.conditions[0].skills[skill_id] && get_total_skill_level(skill_id) < this.conditions[1].skills[skill_id]) {
+                    met *= (get_total_skill_level(skill_id) - this.conditions[0].skills[skill_id])/(this.conditions[1].skills[skill_id] - this.conditions[0].skills[skill_id]);
                 }
             });
         }
@@ -572,11 +573,11 @@ function get_location_type_penalty(type, stage, stat, category) {
     if(category === "multiplier") {
         const base = location_types[type].stages[stage].effects[stat].multiplier;
     
-        return base**(1- skill.current_level/skill.max_level);
+        return base**(1- get_total_skill_level(skill.skill_id)/skill.max_level);
     } else if(category === "flat") {
         const base = location_types[type].stages[stage].effects[stat].flat;
 
-        return base*(1-skill.current_level/skill.max_level)**0.66667;
+        return base*(1-get_total_skill_level(skill.skill_id)/skill.max_level)**0.66667;
     } else {
         throw new Error(`Unsupported category of stat effects "${category}", should be either "flat" or "multiplier"!`);
     }
@@ -1396,7 +1397,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activity_name: "fieldwork",
             starting_text: "Work on the fields",
             get_payment: () => {
-                return 10 + Math.round(15 * skills["Farming"].current_level/skills["Farming"].max_level);
+                return 10 + Math.round(15 * get_total_skill_level("Farming")/skills["Farming"].max_level);
             },
             is_unlocked: false,
             working_period: 60*2,
@@ -1453,7 +1454,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 skill_required: [0, 10],
                 scales_with_skill: true,
             },
-            require_tool: false,
+            require_tool: true,
         }),
     };
     locations["Nearby cave"].activities = {
@@ -1546,7 +1547,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 skill_required: [0, 10],
                 scales_with_skill: true,
             },
-            require_tool: false,
+            require_tool: true,
         }),
     };
     locations["Town farms"].activities = {
@@ -1554,7 +1555,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activity_name: "fieldwork",
             starting_text: "Work on the fields",
             get_payment: () => {
-                return 20 + Math.round(20 * skills["Farming"].current_level/skills["Farming"].max_level);
+                return 20 + Math.round(20 * get_total_skill_level("Farming")/skills["Farming"].max_level);
             },
             is_unlocked: false,
             working_period: 60*2,
@@ -1575,7 +1576,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 skill_required: [0, 10],
                 scales_with_skill: true,
             },
-            require_tool: false,
         }),
     };
 })();
@@ -1702,5 +1702,12 @@ There's another gate on the wall in front of you, but you have a strange feeling
             },
         }),
     }
+})();
+(function(){
+    Object.keys(locations).forEach(location_key => {
+        Object.keys(locations[location_key].activities || {}).forEach(activity_key => {
+            locations[location_key].activities[activity_key].id = activity_key;
+        });
+    });
 })();
 export {locations, location_types, get_location_type_penalty};

@@ -1,6 +1,6 @@
 "use strict";
 
-import { character } from "./character.js";
+import { character, get_total_skill_level } from "./character.js";
 import { Armor, ArmorComponent, Shield, ShieldComponent, Weapon, WeaponComponent, item_templates } from "./items.js";
 import { skills } from "./skills.js";
 
@@ -65,7 +65,7 @@ class ItemRecipe extends Recipe {
     }
 
     get_success_chance(station_tier=1) {
-        const level = Math.min(this.recipe_level[1]-this.recipe_level[0]+1, Math.max(0,skills[this.recipe_skill].current_level-this.recipe_level[0]+1));
+        const level = Math.min(this.recipe_level[1]-this.recipe_level[0]+1, Math.max(0,get_total_skill_level(this.recipe_skill)-this.recipe_level[0]+1));
         const skill_modifier = Math.min(1,(0||(level+(station_tier-1))/(this.recipe_level[1]-this.recipe_level[0]+1)));
         return this.success_chance[0]*(this.success_chance[1]/this.success_chance[0])**skill_modifier;
     }
@@ -129,18 +129,17 @@ class ComponentRecipe extends ItemRecipe{
 
     get_quality_range(tier = 0) {
         const skill = skills[this.recipe_skill];
-        const quality = (140+(3*skill.current_level-skill.max_level)+(20*tier))/100;
-        return [Math.max(10,Math.round(25*(quality-0.15))*4), Math.max(10,Math.round(25*(quality+0.1))*4)];
+        const quality = (140+(3*get_total_skill_level(this.recipe_skill) - skill.max_level)+(20*tier))/100;
+        return [Math.max(10,Math.min(this.get_quality_cap(),Math.round(25*(quality-0.15))*4)), Math.max(10,Math.min(this.get_quality_cap(), Math.round(25*(quality+0.1))*4))];
     }
 
     get_quality_cap() {
-        const skill = skills[this.recipe_skill];
-        return Math.min(Math.round(100+2*skill.current_level),200);
+        return Math.min(Math.round(100+2*get_total_skill_level(this.recipe_skill)),200);
     }
 
     get_quality(tier = 0) {
         const quality_range = this.get_quality_range(tier);
-        return Math.min(Math.round(((quality_range[1]-quality_range[0])*Math.random()+quality_range[0])/4)*4, this.get_quality_cap());
+        return Math.round(((quality_range[1]-quality_range[0])*Math.random()+quality_range[0])/4)*4;
     }
 }
 
@@ -201,18 +200,17 @@ class EquipmentRecipe extends Recipe {
 
     get_quality_range(component_quality, tier = 0) {
         const skill = skills[this.recipe_skill];
-        const quality = (40+component_quality+(3*skill.current_level-skill.max_level)+20*(tier));
-        return [Math.max(10,Math.round(quality-15)), Math.max(10,Math.round(quality+15))];
+        const quality = (40+component_quality+(3*get_total_skill_level(this.recipe_skill)-skill.max_level)+20*(tier));
+        return [Math.max(10,Math.min(this.get_quality_cap(),Math.round(quality-15))), Math.max(10,Math.min(this.get_quality_cap(), Math.round(quality+15)))];
     }
 
     get_quality_cap() {
-        const skill = skills[this.recipe_skill];
-        return Math.min(Math.round(100+2*skill.current_level),250);
+        return Math.min(Math.round(100+2*get_total_skill_level(this.recipe_skill)),250);
     }
 
     get_quality(component_quality, tier = 0) {
         const quality_range = this.get_quality_range(component_quality, tier);
-        return Math.min(((quality_range[1]-quality_range[0])*Math.random()+quality_range[0]), this.get_quality_cap());
+        return Math.round((quality_range[1]-quality_range[0])*Math.random()+quality_range[0]);
     }
 
     get_component_quality_weighted(component_1, component_2) {
@@ -230,7 +228,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     }
     let exp_value = 4;
     const selected_recipe = recipes[category][subcategory][recipe_id];
-    const skill_level = skills[selected_recipe.recipe_skill].current_level;
+    const skill_level = skills[selected_recipe.recipe_skill].current_level; //don't use buffed level as that would only result in reduced xp gain, which is not desired here
     if(!selected_recipe) {
         throw new Error(`Tried to use a recipe that doesn't exist: ${category} -> ${subcategory} -> ${recipe_id}`);
     }

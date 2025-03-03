@@ -1,5 +1,6 @@
 "use strict";
 
+import { get_total_level_bonus, get_total_skill_level } from "./character.js";
 import { current_game_time } from "./game_time.js";
 import { InventoryHaver } from "./inventory.js";
 import { item_templates, getItem} from "./items.js";
@@ -109,7 +110,7 @@ class Trader extends InventoryHaver {
      * @returns {Number} trader's profit margin multiplied by bonus from the haggling skill
      */
     getProfitMargin() {
-        return 1 + (this.profit_margin - 1) * (1 - skills["Haggling"].get_level_bonus());
+        return 1 + (this.profit_margin - 1) * (1 - get_total_level_bonus("Haggling"));
     }
 
     getItemPrice(value) {

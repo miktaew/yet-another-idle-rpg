@@ -202,7 +202,7 @@ body {
 	margin-bottom: 1px;
  }
 
- .location_choice_dropdown :nth-child(2) {
+ .location_choice_dropdown :nth-child(2):not(span){
 	border-top: 1px solid white;
  }
 
@@ -404,7 +404,8 @@ body {
 }
 
 .equipment_slot_div:hover .item_tooltip, .trader_item_control:hover .item_tooltip, .inventory_item_control:hover .item_tooltip, 
-.equipped_item_control:hover .item_tooltip, .start_activity:hover .job_tooltip, .activity_unavailable:hover .job_tooltip, 
+.equipped_item_control:hover .item_tooltip, 
+.start_activity:hover .job_tooltip, .activity_unavailable:hover .job_tooltip, #gathering_progress_bar_max:hover .job_tooltip,
 .effects_div:hover .effects_tooltip, #location_name_div:hover .location_tooltip, .selectable_component:hover .item_tooltip{
 	display: block;
 }

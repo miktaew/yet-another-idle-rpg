@@ -1528,13 +1528,13 @@
                 function move_recipe_tooltip(event) {
                     if(Date.now() >= tooltip_wait) {
                         let hovered_element = retarget_clicked_to_class(event.target, 
-                            ["recipe_div", "selectable_component"], 
+                            ["recipe_div", "selectable_component", "selectable_material", "recipe_creation_button"], 
                             ["crafting_subpage_button", "crafting_subpage_buttons", "crafting_category", "crafting_mainpage_buttons", "crafting_mainpage_button", "crafting_window"]
                         );
                         if(!hovered_element) {
                             return;
                         }
-                        
+
                         //set horizontal position
                         document.documentElement.style.setProperty('--recipe_tooltip_left', `${event.pageX - 400}px`);
                         
@@ -1551,11 +1551,11 @@
                         const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
 
                         const bottom_edge_position = 
-                            window.innerHeight - tooltip_height + window.scrollY - 230 - (scrollbar_X_visible?10:0);
+                            window.innerHeight - tooltip_height + window.scrollY - 30 - (scrollbar_X_visible?10:0);
                         if(event.pageY > bottom_edge_position) {
-                            document.documentElement.style.setProperty('--recipe_tooltip_top', `${bottom_edge_position - 400}px`);
+                            document.documentElement.style.setProperty('--recipe_tooltip_top', `${bottom_edge_position - 350}px`);
                         } else {
-                            document.documentElement.style.setProperty('--recipe_tooltip_top', `${event.pageY - 400}px`);
+                            document.documentElement.style.setProperty('--recipe_tooltip_top', `${event.pageY - 350}px`);
                         }
                         
                         tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;

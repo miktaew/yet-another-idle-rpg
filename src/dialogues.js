@@ -257,7 +257,7 @@ class Textline {
                 text: "Ahh, that's great. Well then... \n*[Old man spends some time explaining all the important basics of crafting and providing you with tips]*\n"+
                 "Ahh, and before I forget, here, take these. They will be helpful for gathering necessary materials.",
                 rewards: {
-                    textlines: [{dialogue: "old craftsman", lines: ["remind1", "remind2", "remind3"]}],
+                    textlines: [{dialogue: "old craftsman", lines: ["remind1", "remind2", "remind3", "remind4"]}],
                     items: ["Old pickaxe" ,"Old axe", "Old sickle"],
                     flags: ["is_gathering_unlocked", "is_crafting_unlocked"],
                 },
@@ -276,16 +276,30 @@ class Textline {
                 "For weapons, you generally need a part that you use to hit an enemy and a part that you hold in your hand. For armor, you will need some actual armor and then something softer to wear underneath, "+
                 "which would mostly mean some clothes.",
                 is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "old craftsman", lines: ["remind4"]}],
+                },
             }),
             "remind2": new Textline({
                 name: "Could you remind me how to improve my creations?",
                 text: "Ahh, that's simple, you just need more experience. This alone will be a great boon to your efforts. For equipment, you might also want to start with better components. "+
                 "After all, even with the most perfect assembling you can't turn a bent blade into a legendary sword.",
                 is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "old craftsman", lines: ["remind4"]}],
+                },
             }),
             "remind3": new Textline({
                 name: "Could you remind me how to get crafting materials?",
                 text: "Ahh, there's multiple ways of that. You can gain them from fallen foes, you can gather them around, or you can even buy them if you have some spare coin.",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "old craftsman", lines: ["remind4"]}],
+                },
+            }),
+            "remind4": new Textline({
+                name: "How do I get better at crafting?",
+                text: "Ahh, there aren't any secrets, you just need to keep practicing it. Just don't spend your entire life working on same louse materials, try to work on stronger stuff when you feel confident. There's a limit to how much you can learn by working with rat leather, isn't there?",
                 is_unlocked: false,
             }),
         }

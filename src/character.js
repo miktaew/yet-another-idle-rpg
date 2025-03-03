@@ -307,6 +307,7 @@ character.stats.add_all_equipment_bonus = function() {
         //reset as they will be recalculated
         character.stats.flat.equipment = {};
         character.stats.multiplier.equipment = {};
+        character.bonus_skill_levels.flat.equipment = {};
 
         //iterate over slots
         Object.keys(character.equipment).forEach(slot => {
@@ -342,13 +343,13 @@ character.stats.add_all_equipment_bonus = function() {
 
 character.stats.add_weapon_type_bonuses = function() {
         if(character.equipment.weapon == null) {
-                character.stats.multiplier.skills.attack_power = skills["Unarmed"].get_coefficient();
-                character.stats.multiplier.skills.attack_speed = (skills["Unarmed"].get_coefficient("multiplicative")**0.3333);
-                character.stats.multiplier.skills.attack_points = (skills["Unarmed"].get_coefficient("multiplicative")**0.3333);
+                character.stats.multiplier.skills.attack_power = get_total_skill_coefficient({skill_id:"Unarmed"});
+                character.stats.multiplier.skills.attack_speed = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id:"Unarmed"})**0.3333;
+                character.stats.multiplier.skills.attack_points = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id:"Unarmed"})**0.3333;
         } else {
                 character.stats.multiplier.skills.attack_speed = 1;
-                character.stats.multiplier.skills.attack_power = skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]].get_coefficient();
-                character.stats.multiplier.skills.attack_points = skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]].get_coefficient()**0.3333;
+                character.stats.multiplier.skills.attack_power = get_total_skill_coefficient({skill_id:weapon_type_to_skill[character.equipment.weapon.weapon_type]});
+                character.stats.multiplier.skills.attack_points = get_total_skill_coefficient({skill_id:weapon_type_to_skill[character.equipment.weapon.weapon_type]})**0.3333;
         }
 }
 
@@ -358,12 +359,19 @@ character.stats.add_weapon_type_bonuses = function() {
  * only a few skills really matter here
  */
 character.stats.add_all_skill_level_bonus = function() {
-        character.stats.flat.skills.defense = skills["Iron skin"].get_level_bonus();
-        character.stats.multiplier.skills.stamina_efficiency = skills["Running"].get_coefficient("multiplicative");
-        character.stats.multiplier.skills.strength = skills["Weightlifting"].get_coefficient("multiplicative") * skills["Climbing"].get_coefficient("multiplicative");
-        character.stats.multiplier.skills.block_strength = 1 + 5*skills["Shield blocking"].get_level_bonus();
-        character.stats.multiplier.skills.agility = skills["Equilibrium"].get_coefficient("multiplicative") * skills["Climbing"].get_coefficient("multiplicative");
-        character.stats.multiplier.skills.max_stamina = skills["Climbing"].get_coefficient("multiplicative");
+        character.stats.flat.skills.defense = get_total_level_bonus("Iron skin");
+
+        character.stats.multiplier.skills.stamina_efficiency = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Running"});
+
+        character.stats.multiplier.skills.strength = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Weightlifting"}) 
+                                                        * get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Climbing"});
+
+        character.stats.multiplier.skills.block_strength = 1 + 5*get_total_level_bonus("Shield blocking");
+
+        character.stats.multiplier.skills.agility = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Equilibrium"}) 
+                                                        * get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Climbing"});
+
+        character.stats.multiplier.skills.max_stamina = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Climbing"});
 
         character.stats.add_weapon_type_bonuses();
 }
@@ -398,7 +406,7 @@ character.stats.add_location_penalties = function() {
                 }
 
                 if(current_location.light_level === "dark" || current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 3)) {
-                        light_modifier = 0.5 + 0.5*skills["Night vision"].current_level/skills["Night vision"].max_level;
+                        light_modifier = 0.5 + 0.5* get_total_skill_level("Night vision")/skills["Night vision"].max_level;
                         character.stats.multiplier.light_level.evasion_points = light_modifier;
                         character.stats.multiplier.light_level.attack_points = light_modifier;
                 } else {
@@ -434,11 +442,11 @@ character.update_stats = function () {
         let stat_mult = 1;
 
         if(stat === "block_chance") {
-                stat_sum = base_block_chance + Math.round(skills["Shield blocking"].get_level_bonus() * 10000)/10000;
+                stat_sum = base_block_chance + Math.round(get_total_level_bonus("Shield blocking") * 10000)/10000;
         } else if(stat === "attack_points") {
-                stat_sum = Math.sqrt(character.stats.full.intuition) * character.stats.full.dexterity * skills["Combat"].get_coefficient("multiplicative");
+                stat_sum = Math.sqrt(character.stats.full.intuition) * character.stats.full.dexterity * get_total_skill_coefficient({scaling_type: "multiplicative", skill_id:"Combat"});
         } else if(stat === "evasion_points") {
-                stat_sum = character.stats.full.agility * Math.sqrt(character.stats.full.intuition) * skills["Evasion"].get_coefficient("multiplicative");
+                stat_sum = character.stats.full.agility * Math.sqrt(character.stats.full.intuition) * get_total_skill_coefficient({scaling_type: "multiplicative", skill_id:"Evasion"});
         } else {
                 //just sum all flats
                 Object.values(character.stats.flat).forEach(piece => {
@@ -519,7 +527,7 @@ character.update_stats = function () {
 
 character.get_stamina_multiplier = function () {
         if(character.stats.full.stamina == 0) {
-                return 0.5 + skills["Persistence"].get_level_bonus();
+                return 0.5 + get_total_level_bonus("Persistence");
         }
         return 1;
 }
@@ -534,18 +542,11 @@ character.get_attack_power = function () {
 }
 
 character.wears_armor = function () {
-        if(
-                (!character.equipment.head || character.equipment.head.getDefense() == 0) &&
-                (!character.equipment.torso || character.equipment.torso.getDefense() == 0) &&
-                (!character.equipment.arms || character.equipment.arms.getDefense() == 0) &&
-                (!character.equipment.legs || character.equipment.legs.getDefense() == 0) &&
-                (!character.equipment.feet || character.equipment.feet.getDefense() == 0)
-        )
-        {
-                return false;
-        } else {
-                return true;
-        }
+        return  (character.equipment.head && character.equipment.head.getDefense() !== 0) ||
+                (character.equipment.torso && character.equipment.torso.getDefense() !== 0) ||
+                (character.equipment.arms && character.equipment.arms.getDefense() !== 0) ||
+                (character.equipment.legs && character.equipment.legs.getDefense() !== 0) ||
+                (character.equipment.feet && character.equipment.feet.getDefense() !== 0);
 }
 
 /**
@@ -627,7 +628,8 @@ function remove_from_character_inventory(items) {
  * @param: game item object
  */
 function equip_item(item) {
-        
+
+        const prev_item = character.equipment[item.equip_slot];
         unequip_item(item.equip_slot, true);
         character.equipment[item.equip_slot] = item;
         
@@ -637,6 +639,9 @@ function equip_item(item) {
         
         update_character_stats();
         manage_changed_skill_bonuses(item);
+        if(prev_item) {
+                manage_changed_skill_bonuses(prev_item);
+        }
 }
 
 /**
@@ -661,8 +666,6 @@ function unequip_item(item_slot, already_calculated=false) {
                 character.equipment[item_slot] = null;
                 update_displayed_equipment();
                 update_displayed_character_inventory();
-
-                
                 if(!already_calculated){
                         character.stats.add_all_equipment_bonus();
                         update_character_stats();
@@ -678,7 +681,6 @@ function manage_changed_skill_bonuses(item) {
                         if(bonus_skill_levels[i].includes("category_")) {
                                 continue;
                         }
-
                         update_displayed_skill_level(skills[bonus_skill_levels[i]]);
                 }
         }
@@ -726,6 +728,14 @@ function get_total_skill_level(skill_id) {
         return skills[skill_id].current_level + (character.bonus_skill_levels.full[skill_id] || 0);
 }
 
+function get_total_level_bonus(skill_id) {
+        return skills[skill_id].get_level_bonus(get_total_skill_level(skill_id));
+}
+
+function get_total_skill_coefficient({scaling_type, skill_id}) {
+        return skills[skill_id].get_coefficient({scaling_type, skill_level: get_total_skill_level(skill_id)});
+}
+
 export {character, add_to_character_inventory, remove_from_character_inventory, equip_item_from_inventory, equip_item, 
         unequip_item, update_character_stats, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, add_location_penalties,
-        get_total_skill_level};
+        get_total_skill_level, get_total_level_bonus, get_total_skill_coefficient};

@@ -159,7 +159,7 @@ function Verify_Game_Objects() {
             console.error(`Id mismatch: "${key}" - "${location.id}"`);
             has_issue = true;
         }
-        if(location.tags["Safe zone"]) {
+        if(location.tags["safe_zone"]) {
             for(let i = 0; i < location.dialogues.length; i++) {
                 if(!dialogues[location.dialogues[i]]) {
                     console.error(`Location "${key}" refers to a non-existent dialogue "${dialogues[location.dialogues[i]]}"`);

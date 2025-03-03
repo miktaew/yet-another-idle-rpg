@@ -1,7 +1,7 @@
 "use strict";
 
 import { current_game_time } from "./game_time.js";
-import { item_templates, getItem, book_stats, setLootSoldCount, loot_sold_count, recoverItemPrices, rarity_multipliers, getArmorSlot} from "./items.js";
+import { item_templates, getItem, book_stats, setLootSoldCount, loot_sold_count, recoverItemPrices, rarity_multipliers, getArmorSlot, getItemFromKey} from "./items.js";
 import { locations } from "./locations.js";
 import { skill_categories, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
@@ -13,7 +13,9 @@ import { character,
          add_to_character_inventory, remove_from_character_inventory,
          equip_item_from_inventory, unequip_item, equip_item,
          update_character_stats,
-         get_skill_xp_gain } from "./character.js";
+         get_skill_xp_gain, 
+         get_total_skill_coefficient,
+         get_total_skill_level} from "./character.js";
 import { activities } from "./activities.js";
 import { end_activity_animation, 
          update_displayed_character_inventory, update_displayed_trader_inventory, sort_displayed_inventory, sort_displayed_skills,
@@ -64,7 +66,7 @@ import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { game_version, get_game_version } from "./game_version.js";
 import { ActiveEffect, effect_templates } from "./active_effects.js";
-import { open_storage, close_storage, move_item_to_storage, remove_item_from_storage, player_storage, add_to_storage } from "./storage.js";
+import { open_storage, close_storage, move_item_to_storage, remove_item_from_storage, player_storage } from "./storage.js";
 import { Verify_Game_Objects } from "./verifier.js";
 
 const save_key = "save data";
@@ -364,9 +366,7 @@ function start_activity(selected_activity) {
         //
     } else if(activities[current_activity.activity_name].type === "GATHERING") { 
         
-        let has_proper_tool = false;
-
-        has_proper_tool = character.equipment[activities[current_activity.activity_name].required_tool_type];
+        let has_proper_tool = character.equipment[activities[current_activity.activity_name].required_tool_type];
         //just check if slot is not empty
 
         if(!has_proper_tool) {
@@ -576,7 +576,7 @@ function do_resting() {
 function do_sleeping() {
     if(character.stats.full.health < character.stats.full.max_health)
     {
-        const sleeping_heal_ammount = Math.round(Math.max(character.stats.full.max_health * 0.04, 5) * (1 + skills["Sleeping"].current_level/skills["Sleeping"].max_level));
+        const sleeping_heal_ammount = Math.round(Math.max(character.stats.full.max_health * 0.04, 5) * (1 + get_total_skill_level("Sleeping")/skills["Sleeping"].max_level));
         
         character.stats.full.health += (sleeping_heal_ammount);
         if(character.stats.full.health > character.stats.full.max_health) {
@@ -587,7 +587,7 @@ function do_sleeping() {
 
     if(character.stats.full.stamina < character.stats.full.max_stamina)
     {
-        const sleeping_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/30, 5) * (1 + skills["Sleeping"].current_level/skills["Sleeping"].max_level)); 
+        const sleeping_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/30, 5) * (1 + get_total_skill_level("Sleeping")/skills["Sleeping"].max_level)); 
         //todo: scale it with skill as well
 
         character.stats.full.stamina += (sleeping_stamina_ammount);
@@ -979,7 +979,7 @@ function set_character_attack_loop({base_cooldown}) {
 
     let target_count = current_stance.target_count;
     if(target_count > 1 && current_stance.related_skill) {
-        target_count = target_count + Math.round(target_count * skills[current_stance.related_skill].current_level/skills[current_stance.related_skill].max_level);
+        target_count = target_count + Math.round(target_count * get_total_skill_level(current_stance.related_skill)/skills[current_stance.related_skill].max_level);
     }
 
     if(current_stance.randomize_target_count) {
@@ -1086,7 +1086,7 @@ function do_enemy_combat_action(enemy_id) {
         add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: attacker.xp_value});
     } else if(attacker.size === "large") {
         add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: attacker.xp_value});
-        evasion_chance_modifier *= skills["Giant slayer"].get_coefficient("multiplicative");
+        evasion_chance_modifier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Giant slayer"});
     }
 
     const enemy_base_damage = attacker.stats.attack;
@@ -1197,7 +1197,7 @@ function do_character_combat_action({target, attack_power}) {
 
     if(target.size === "small") {
         add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: target.xp_value});
-        hit_chance_modifier *= skills["Pest killer"].get_coefficient("multiplicative");
+        hit_chance_modifier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Pest killer"});
     } else if(target.size === "large") {
         add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: target.xp_value});
     }
@@ -1420,7 +1420,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 log_message(message, "skill_raised");
             }
             
-            if(prev_name !== new_name) {
+            if(prev_name !== new_name) { //skill name has changed
                 if(which_skills_affect_skill[skill.skill_id]) {
                     for(let i = 0; i < which_skills_affect_skill[skill.skill_id].length; i++) {
                         update_displayed_skill_bar(skills[which_skills_affect_skill[skill.skill_id][i]], false);
@@ -1431,6 +1431,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                     log_message(`Skill ${prev_name} upgraded to ${new_name}`, "skill_raised");
                 }
 
+                /*
                 if(current_location?.connected_locations) {
                     for(let i = 0; i < current_location.activities.length; i++) {
                         if(activities[current_location.activities[i].activity_name].base_skills_names.includes(skill.skill_id)) {
@@ -1438,9 +1439,49 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                         }
                     }
                 }
-            }
-            
+                */
+                if(current_location?.connected_locations) {
+                    Object.keys(current_location.activities).forEach(activity_key => {
+                        if(activities[activity_key].base_skills_names.includes(skill.skill_id)) {
+                            update_gathering_tooltip(activities[activity_key]);
+                        }
+                    });
+                }
 
+                Object.keys(character.inventory).forEach(inv_key => {
+                    //update equippable/useable item
+                    const item = getItemFromKey(inv_key);
+                    if(item.tags.usable) {
+                        const effects = item.effects;
+                        for(let i = 0; i < effects.length; i++) {
+                            if(effect_templates[effects[i].effect].effects.bonus_skill_levels[skill.skill_id]) {
+                                update_displayed_character_inventory({item_key: inv_key});
+                                return;
+                            }
+                        }
+                    } else if(item.tags.equippable) {
+                        const bonuses = item.getBonusSkillLevels();
+                        if(bonuses[skill.skill_id]) {
+                            update_displayed_character_inventory({item_key: inv_key});
+                        }
+                    }
+                });
+                Object.keys(character.equipment).forEach(eq_slot => {
+                    //update equipped item
+                    if(!character.equipment[eq_slot]) {
+                        return;
+                    }
+                    const bonuses = character.equipment[eq_slot].getBonusSkillLevels(); {
+                        if(bonuses[skill.skill_id]) {
+                            update_displayed_equipment();
+                            update_displayed_character_inventory({equip_slot: eq_slot});
+                        }
+                    }
+                });
+                
+                update_displayed_effects();
+                //a bit lazy, but there shouldn't ever be enough to cause a lag
+            }
         } else {
             update_displayed_skill_bar(skill, false);
         }
@@ -1764,7 +1805,7 @@ function use_recipe(target) {
 
                     //in future: recover items if applicable (no such recipes yet)
                     //const recovered = [];
-                    //
+                    ////stuff
                     //add_to_character_inventory(recovered);
                 } else {
                     log_message(`Failed to create ${item_templates[result_id].getName()}!`, "crafting");
@@ -1781,7 +1822,7 @@ function use_recipe(target) {
                 //do those two whether success or fail since materials get used either way
 
                 if(leveled) {
-                    //todo: reload all recipe tooltips of matching category
+                    //todo: reload all recipe tooltips of matching category, except it's kinda pointless if reload happens anyway?
                 }
             } else {
                 console.warn(`Tried to use an unavailable recipe!`);
@@ -1867,6 +1908,13 @@ function character_equip_item(item_key) {
     equip_item_from_inventory(item_key);
     if(current_enemies) {
         reset_combat_loops();
+    } else if(current_location.tags.safe_zone) {
+        //todo: update resource gathering tooltips in case there's a skill lvl bonus change
+        Object.keys(current_location.activities).forEach(activity_key => {
+            if(current_location.activities[activity_key].gained_resources) {
+                update_gathering_tooltip(current_location.activities[activity_key]);
+            }
+        });
     }
 }
 
@@ -3090,6 +3138,7 @@ function update() {
                             }
                             
                             //if(leveled) {
+                                //update_gathering_tooltip(current_activity.activity_name);
                                 update_gathering_tooltip(current_activity);
                             //}
                         }
@@ -3398,7 +3447,7 @@ function add_all_stuff_to_inventory(){
     })
 }
 
-//add_to_character_inventory([{item_id: "Wool", count: 100}]);
+//add_to_character_inventory([{item_id: "Iron chopping axe", count: 1}]);
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
 

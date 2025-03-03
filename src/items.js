@@ -120,7 +120,7 @@ function getArmorSlot(internal) {
 function getItemRarity(quality) {
     let rarity;
     if(quality < 50) rarity =  "trash";
-    else if(quality < 100) rarity = "common";
+    else if(quality <= 100) rarity = "common";
     else if(quality < 130) rarity = "uncommon";
     else if(quality < 160) rarity = "rare";
     else if(quality < 200) rarity = "epic";
@@ -2252,6 +2252,11 @@ item_templates["Medicine for dummies"] = new Book({
         shield_name: "Cheap wooden shield",
         component_tier: 1,
         component_type: "shield base",
+        component_stats: {
+            attack_speed: {
+                multiplier: 0.95,
+            }
+        }
     });
 
     item_templates["Crude wooden shield base"] = new ShieldComponent({
@@ -2261,6 +2266,11 @@ item_templates["Medicine for dummies"] = new Book({
         shield_name: "Crude wooden shield",
         component_tier: 1,
         component_type: "shield base",
+        component_stats: {
+            attack_speed: {
+                multiplier: 0.95,
+            }
+        }
     });
     item_templates["Wooden shield base"] = new ShieldComponent({
         name: "Wooden shield base", description: "Proper wooden shield base, although it could use some additional reinforcement", 
@@ -2269,6 +2279,11 @@ item_templates["Medicine for dummies"] = new Book({
         shield_name: "Wooden shield",
         component_tier: 2,
         component_type: "shield base",
+        component_stats: {
+            attack_speed: {
+                multiplier: 0.95,
+            }
+        }
     });
     item_templates["Crude iron shield base"] = new ShieldComponent({
         name: "Crude iron shield base", description: "Heavy shield base made of low quality iron.", 
@@ -2279,7 +2294,7 @@ item_templates["Medicine for dummies"] = new Book({
         component_type: "shield base",
         component_stats: {
             attack_speed: {
-                multiplier: 0.9,
+                multiplier: 0.8,
             }
         }
     });
@@ -2293,7 +2308,7 @@ item_templates["Medicine for dummies"] = new Book({
         component_type: "shield base",
         component_stats: {
             attack_speed: {
-                multiplier: 0.95,
+                multiplier: 0.85, //don't make speed penalty for heavy shields weaker than this
             }
         }
     });

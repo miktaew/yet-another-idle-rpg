@@ -3,7 +3,7 @@
 import { traders } from "./traders.js";
 import { current_trader, to_buy, to_sell } from "./trade.js";
 import { skills, get_unlocked_skill_rewards, get_next_skill_milestone } from "./skills.js";
-import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain } from "./character.js";
+import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, get_total_skill_coefficient, get_total_skill_level } from "./character.js";
 import { current_enemies, options, 
     can_work, current_location, 
     active_effects, enough_time_for_earnings, 
@@ -1042,11 +1042,10 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
 /**
  * updates displayed inventory of the character (only inventory, worn equipment is managed by separate method)
  * 
- * if item_key is passed, it will instead only update the display of that one item
+ * if item_key/equip_slot is passed, it will instead only update the display of that one item
  * 
- * currently item_key is only used for books
  */
-function update_displayed_character_inventory({item_key, character_sorting="name", sorting_direction="asc", was_anything_new_added=false} = {}) {    
+function update_displayed_character_inventory({item_key, equip_slot, character_sorting="name", sorting_direction="asc", was_anything_new_added=false} = {}) {    
     
     //removal of unneeded divs
     if(!item_key){
@@ -1080,11 +1079,13 @@ function update_displayed_character_inventory({item_key, character_sorting="name
     //creation of missing divs and updating of others
     if(item_key) {
         const item_count = character.inventory[item_key].count;
+        was_anything_new_added = item_divs[item_key];
         item_divs[item_key].remove();
         delete item_divs[item_key];
         item_divs[item_key] = create_inventory_item_div({key: item_key, item_count, target: "character"});
         inventory_div.appendChild(item_divs[item_key]);
-        was_anything_new_added = true;
+    } else if(equip_slot){
+        item_divs[equip_slot] = create_inventory_item_div({key: equip_slot, target: "character", is_equipped: true});
     } else {
         Object.keys(character.inventory).forEach(inventory_key => {
             let item_count = character.inventory[inventory_key].count;
@@ -1126,16 +1127,16 @@ function update_displayed_character_inventory({item_key, character_sorting="name
             }
         });
 
-        Object.keys(character.equipment).forEach(equip_slot => {
-            if(!item_divs[equip_slot]) {
-                if(character.equipment[equip_slot]) {
-                    if(character.equipment[equip_slot]?.tags.tool) {
+        Object.keys(character.equipment).forEach(eq_slot => {
+            if(!item_divs[eq_slot]) {
+                if(character.equipment[eq_slot]) {
+                    if(character.equipment[eq_slot]?.tags.tool) {
                         //don't display the equipped tools
                         return;
                     }
     
-                    item_divs[equip_slot] = create_inventory_item_div({key: equip_slot, target: "character", is_equipped: true});
-                    inventory_div.appendChild(item_divs[equip_slot]);
+                    item_divs[eq_slot] = create_inventory_item_div({key: eq_slot, target: "character", is_equipped: true});
+                    inventory_div.appendChild(item_divs[eq_slot]);
                     was_anything_new_added = true;
                 }
             }
@@ -1163,7 +1164,7 @@ function update_displayed_character_inventory({item_key, character_sorting="name
         }
     }
     
-    if(!item_key && was_anything_new_added) {
+    if(was_anything_new_added) {
         sort_displayed_inventory({target: "character", sort_by: character_sorting, direction: sorting_direction});
     }
 }
@@ -1409,9 +1410,7 @@ function update_displayed_equipment() {
             equipment_slots_divs[key].innerHTML = `${key} slot`;
             equipment_slots_divs[key].classList.add("equipment_slot_empty");
             eq_tooltip.innerHTML = `Your ${key} slot`;
-        }
-        else 
-        {
+        } else {
             equipment_slots_divs[key].innerHTML = character.equipment[key].getName();
             equipment_slots_divs[key].classList.remove("equipment_slot_empty");
 
@@ -1461,12 +1460,12 @@ function update_displayed_enemies() {
 
             let hero_hit_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/4); // down to ~ 60% if there's full 8 enemies
             if(current_enemies[i].size === "small") {
-                hero_hit_chance_modifier *= skills["Pest killer"].get_coefficient("multiplicative");
+                hero_hit_chance_modifier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Pest killer"});
             }
 
             let hero_evasion_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/3); //down to .5 if there's full 8 enemies (multiple attackers make it harder to evade attacks)
             if(current_enemies[i].size === "large") {
-                hero_evasion_chance_modifier *= skills["Giant slayer"].get_coefficient("multiplicative");
+                hero_evasion_chance_modifier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Giant slayer"});
             }
         
             const evasion_chance = 1 - get_hit_chance(character.stats.full.attack_points, current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition ?? 1)) * hero_hit_chance_modifier;
@@ -2736,7 +2735,7 @@ function create_location_action_tooltip(location_action) {
  */
 function create_gathering_tooltip(location_activity) {
     const gathering_tooltip = document.createElement("div");
-    gathering_tooltip.id = "gathering_tooltip";
+    //gathering_tooltip.id = "gathering_tooltip";
     gathering_tooltip.classList.add("job_tooltip");
 
     const {gathering_time_needed, gained_resources} = location_activity.getActivityEfficiency();
@@ -2758,21 +2757,28 @@ function create_gathering_tooltip(location_activity) {
     return gathering_tooltip;
 }
 
-function update_gathering_tooltip(current_activity) {
-    const gathering_tooltip = document.getElementById("gathering_tooltip");
+function update_gathering_tooltip(activity) {
+    let parent = document.querySelector(`[data-activity="${activity.id}"]`);
+    let gathering_tooltip;
+    if(parent) {
+        gathering_tooltip = parent.getElementsByClassName("job_tooltip")[0];
+    } else {
+        gathering_tooltip = document.getElementById("gathering_progress_bar_max").getElementsByClassName("job_tooltip")[0];
+    }
+
     if(!gathering_tooltip) {
         return;
     }
     
-    const {gathering_time_needed, gained_resources} = current_activity.getActivityEfficiency();
+    const {gathering_time_needed, gained_resources} = activity.getActivityEfficiency();
 
     let skill_names = "";
-    for(let i = 0; i < activities[current_activity.activity_name].base_skills_names.length; i++) {
-        skill_names += skills[activities[current_activity.activity_name].base_skills_names[i]].name();
+    for(let i = 0; i < activities[activity.activity_name].base_skills_names.length; i++) {
+        skill_names += skills[activities[activity.activity_name].base_skills_names[i]].name();
     }
 
-    if(current_activity.gained_resources.scales_with_skill) {
-        gathering_tooltip.innerHTML = `<span class="activity_efficiency_info">Efficiency scaling:<br>"${skill_names}" skill lvl ${current_activity.gained_resources.skill_required[0]} to ${current_activity.gained_resources.skill_required[1]}</span><br><br>`;
+    if(activity.gained_resources.scales_with_skill) {
+        gathering_tooltip.innerHTML = `<span class="activity_efficiency_info">Efficiency scaling:<br>"${skill_names}" skill lvl ${activity.gained_resources.skill_required[0]} to ${activity.gained_resources.skill_required[1]}</span><br><br>`;
     }
     gathering_tooltip.innerHTML += `Every ${format_working_time(gathering_time_needed)}, chance to find:`;
     for(let i = 0; i < gained_resources.length; i++) {
@@ -2893,6 +2899,11 @@ function update_displayed_effects() {
     active_effect_count.innerText = effect_count;
     if(effect_count > 0) {
         active_effects_tooltip.innerHTML = '';
+        
+        Object.values(effect_divs).forEach(eff => {
+            eff.remove();
+        });
+
         effect_divs = {};
         Object.values(active_effects).forEach(effect => {
             effect_divs[effect.name] = create_effect_tooltip(effect.name, effect.duration);
@@ -3054,9 +3065,9 @@ function start_activity_display(current_activity) {
     const action_xp_div = document.createElement("div");
     if(activities[current_activity.activity_name].base_skills_names) {
 
-        const percent_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.round(10000*skills[activities[current_activity.activity_name].base_skills_names].current_xp/skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)/100}%`
-        const curr_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.floor(skills[activities[current_activity.activity_name].base_skills_names].current_xp)}`;
-        const needed_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.ceil(skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)}`;
+        const percent_xp = get_total_skill_level(activities[current_activity.activity_name].base_skills_names) == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.round(10000*skills[activities[current_activity.activity_name].base_skills_names].current_xp/skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)/100}%`
+        const curr_xp = get_total_skill_level(activities[current_activity.activity_name].base_skills_names) == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.floor(skills[activities[current_activity.activity_name].base_skills_names].current_xp)}`;
+        const needed_xp = get_total_skill_level(activities[current_activity.activity_name].base_skills_names) == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.ceil(skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)}`;
 
         if(activities[current_activity.activity_name].type !== "GATHERING") {
             action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per in-game minute to `;
@@ -3141,9 +3152,9 @@ function update_displayed_ongoing_activity(current_activity, is_job){
     }
     const action_xp_div = document.getElementById("action_xp_div");
 
-    const percent_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.round(10000*skills[activities[current_activity.activity_name].base_skills_names].current_xp/skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)/100}%`
-    const curr_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.floor(skills[activities[current_activity.activity_name].base_skills_names].current_xp)}`;
-    const needed_xp = skills[activities[current_activity.activity_name].base_skills_names].current_level == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.ceil(skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)}`;
+    const percent_xp = get_total_skill_level(activities[current_activity.activity_name].base_skills_names) == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.round(10000*skills[activities[current_activity.activity_name].base_skills_names].current_xp/skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)/100}%`
+    const curr_xp = get_total_skill_level(activities[current_activity.activity_name].base_skills_names) == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.floor(skills[activities[current_activity.activity_name].base_skills_names].current_xp)}`;
+    const needed_xp = get_total_skill_level(activities[current_activity.activity_name].base_skills_names) == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.ceil(skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)}`;
     
     if(activities[current_activity.activity_name].type !== "GATHERING") {
         action_xp_div.innerText = `Getting ${current_activity.skill_xp_per_tick} base xp per in-game minute to `;
@@ -3587,7 +3598,7 @@ function create_stance_tooltip(stance) {
 
     let target_count = stance.target_count;
     if(target_count > 1 && stance.related_skill) {
-        target_count = target_count + Math.round(target_count * skills[stance.related_skill].current_level/skills[stance.related_skill].max_level);
+        target_count = target_count + Math.round(target_count * get_total_skill_level(stance.related_skill)/skills[stance.related_skill].max_level);
     }
 
     if(target_count > 1) {
@@ -3614,7 +3625,7 @@ function update_stance_tooltip(stance) {
     let target_count = stance.target_count;
     if(target_count > 1){
         if(stance.related_skill) {
-            target_count = target_count + Math.round(target_count * skills[stance.related_skill].current_level/skills[stance.related_skill].max_level);
+            target_count = target_count + Math.round(target_count * get_total_skill_level(stance.related_skill)/skills[stance.related_skill].max_level);
         }
         stance_bar_divs[stance.id].querySelector(".stance_tooltip_hitcount").innerHTML = `${stance.randomize_target_count?"Randomly hits up to":"Hits up to"} ${target_count} enemies</div>`;
     } 
