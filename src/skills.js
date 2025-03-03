@@ -1655,7 +1655,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
 //resource gathering related
 (function(){
     skills["Woodcutting"] = new Skill({skill_id: "Woodcutting", 
-        names: {0: "Woodcutting", 6:"Woodcutting 2"}, 
+        names: {0: "Woodcutting"}, 
         description: "Get better with chopping the wood",
         category: "Gathering",
         base_xp_cost: 10,

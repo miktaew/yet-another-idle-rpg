@@ -1440,7 +1440,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                     }
                 }
                 */
-                if(current_location?.connected_locations) {
+                if(current_location?.connected_locations && !current_activity) {
                     Object.keys(current_location.activities).forEach(activity_key => {
                         if(activities[activity_key].base_skills_names.includes(skill.skill_id)) {
                             update_gathering_tooltip(activities[activity_key]);
@@ -1454,7 +1454,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                     if(item.tags.usable) {
                         const effects = item.effects;
                         for(let i = 0; i < effects.length; i++) {
-                            if(effect_templates[effects[i].effect].effects.bonus_skill_levels[skill.skill_id]) {
+                            if(effect_templates[effects[i].effect].effects?.bonus_skill_levels?.[skill.skill_id]) {
                                 update_displayed_character_inventory({item_key: inv_key});
                                 return;
                             }
