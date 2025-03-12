@@ -1531,22 +1531,21 @@
                             ["recipe_div", "selectable_component", "selectable_material", "recipe_creation_button"], 
                             ["crafting_subpage_button", "crafting_subpage_buttons", "crafting_category", "crafting_mainpage_buttons", "crafting_mainpage_button", "crafting_window"]
                         );
+
                         if(!hovered_element) {
+                            return;
+                        }
+
+                        const tooltip = hovered_element.getElementsByClassName("recipe_tooltip")[0];
+                        if(!tooltip) {
                             return;
                         }
 
                         //set horizontal position
                         document.documentElement.style.setProperty('--recipe_tooltip_left', `${event.pageX - 400}px`);
-                        
-                        let tooltip_height;
-                        if(hovered_element.querySelector(".recipe_creation_button") && !hovered_element.classList.contains("selectable_component")) {
-                            tooltip_height = hovered_element.children[2].children[0].scrollHeight - 250;
-                        } else if(hovered_element.classList.contains("selectable_component")){
-                            tooltip_height = hovered_element.children[1].scrollHeight - 250;
-                        } else {
-                            tooltip_height = hovered_element.children[1].scrollHeight;
-                        }
-                        
+
+                        let tooltip_height = tooltip.scrollHeight;
+
                         const body = document.getElementsByTagName("body")[0];
                         const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
 

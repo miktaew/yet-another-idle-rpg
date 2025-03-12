@@ -61,11 +61,11 @@ class InventoryHaver {
                     this.inventory[items[i].item_key].count -= 1; //remove one if count was not passed
                 }
     
-                if(this.inventory[items[i].item_key].count == 0) { //less than 0 shouldn't happen so no need to check
+                if(this.inventory[items[i].item_key].count == 0) {
                     delete this.inventory[items[i].item_key]; 
                     //removes item from inventory if it's county is less than 1
                 } else if(this.inventory[items[i].item_key].count < 0 || isNaN(this.inventory[items[i].item_key].count)) {
-                    throw new Error(`Item count for key "${items[i].item_key}" reached an illegal value`);
+                    throw new Error(`Item count for key "${items[i].item_key}" reached an illegal value of "${this.inventory[items[i].item_key].count}"`);
                 }
                 
             } else { 

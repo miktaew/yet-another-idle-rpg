@@ -116,7 +116,7 @@ class Skill {
             return;
         }
         xp_to_add = Math.round(xp_to_add*100)/100;
-        const skill_name = this.name(); 
+        let skill_name = this.name();
         //grab name beforehand, in case it changes after levelup (levelup message should appear BEFORE skill name change message, so this is necessary)
 
         this.total_xp = Math.round(100*(this.total_xp + xp_to_add))/100;
@@ -167,6 +167,7 @@ class Skill {
                     this.xp_to_next_lvl = "Max";
                 }
 
+                skill_name = this.name();
                 let message = `${skill_name} has reached level ${this.current_level}`;
 
                 if (Object.keys(gains.stats).length > 0 || Object.keys(gains.xp_multipliers).length > 0) { 
@@ -428,28 +429,51 @@ function format_skill_rewards(milestone){
                                         xp_multipliers: {
                                             Combat: 1.05,
                                         },
-                                        /*just an example to remember
+                                    },
+                                    2: {
                                         xp_multipliers: {
-                                            category_Activity: 1.05,
-                                        }*/
+                                            category_Combat: 1.05,
+                                        },
                                     },
                                     3: {
                                         stats: {
                                             dexterity: {flat: 1},
                                         },
-                                        xp_multipliers: {
-                                            Combat: 1.1,
-                                        }
                                     },
                                     5: {
                                         stats: {
                                             dexterity: {multiplier: 1.05},
                                         },
                                         xp_multipliers: {
-                                            Evasion: 1.1,
-                                            "Shield blocking": 1.1,
+                                            Evasion: 1.05,
+                                            "Shield blocking": 1.05,
                                         }
-                                    }
+                                    },
+                                    7: {
+                                        stats: {
+                                            dexterity: {flat: 1},
+                                        },
+                                        xp_multipliers: {
+                                            Combat: 1.05,
+                                        }
+                                    },
+                                    10: {
+                                        stats: {
+                                            dexterity: {multiplier: 1.05},
+                                        },
+                                        xp_multipliers: {
+                                            category_Combat: 1.05,
+                                        }
+                                    },
+                                    12: {
+                                        stats: {
+                                            dexterity: {flat: 2},
+                                        },
+                                        xp_multipliers: {
+                                            Combat: 1.05,
+                                        }
+                                    },
+                                    
                                 }
                             });    
                                 
@@ -508,6 +532,14 @@ function format_skill_rewards(milestone){
                                                 multiplier: 1.05,
                                             }
                                         },
+                                    },
+                                    12: {
+                                        stats: {
+                                            "agility": {flat: 2},
+                                        },
+                                        xp_multipliers: {
+                                            Equilibrium: 1.05,
+                                        }
                                     }
                                 }
                             });
@@ -674,20 +706,38 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((get_total_skil
                                             },
                                             category: "Environmental",
                                             milestones: {
-                                                3: {
+                                                1: {
                                                     xp_multipliers:{ 
                                                         Evasion: 1.1,
                                                         "Shield blocking": 1.1,
                                                     },
                                                 },
-                                                5: {
+                                                3: {
                                                     xp_multipliers: {
                                                         Combat: 1.1,
+                                                    }
+                                                },
+                                                5: {
+                                                    xp_multipliers: {
+                                                        category_Combat: 1.1,
+                                                    },
+                                                    stats: {
+                                                        intuition: {flat: 1},
                                                     }
                                                 },
                                                 8: {
                                                     xp_multipliers: {
                                                         all_skill: 1.1,
+                                                    }
+                                                },
+                                                10: {
+                                                    xp_multipliers:{ 
+                                                        Evasion: 1.1,
+                                                        "Shield blocking": 1.1,
+                                                        Combat: 1.1,
+                                                    },
+                                                    stats: {
+                                                        intuition: {flat: 1},
                                                     }
                                                 }
                                             }
@@ -712,6 +762,19 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((get_total_skil
                                                     Combat: 1.1,
                                                 }
                                             },
+                                            7: {
+                                                xp_multipliers: {
+                                                    Evasion: 1.1,
+                                                    "Shield blocking": 1.1,
+                                                }
+                                            },
+                                            10: {
+                                                xp_multipliers: {
+                                                    Evasion: 1.1,
+                                                    "Shield blocking": 1.1,
+                                                    Combat: 1.1,
+                                                }
+                                            }
                                         }
                                     });
     skills["Night vision"] = new Skill({
@@ -737,7 +800,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((get_total_skil
                                                 "Shield blocking": 1.05,
                                             }
                                         },
-                                        4: {
+                                        5: {
                                             stats: {
                                                 intuition: {flat: 1},
                                             },
@@ -746,7 +809,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((get_total_skil
                                             }
 
                                             },
-                                        5: {    
+                                        7: {    
                                             xp_multipliers: 
                                             {
                                                 Combat: 1.1,
@@ -755,9 +818,19 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((get_total_skil
                                                 intuition: {multiplier: 1.05},
                                             }
                                         },
-                                        6: {
+                                        8: {
                                             xp_multipliers: {
                                                 "Presence sensing": 1.1,
+                                            }
+                                        },
+                                        10: {
+                                            xp_multipliers: {
+                                                "Presence sensing": 1.2,
+                                                Evasion: 1.05,
+                                                "Shield blocking": 1.05, 
+                                            },
+                                            stats: {
+                                                intuition: {multiplier: 1.05},
                                             }
                                         }
                                     }
@@ -789,7 +862,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((get_total_skil
                             "Shield blocking": 1.1,
                         }
                     },
-                    3: {
+                    4: {
                         stats: {
                             intuition: {flat: 1},
                         },
@@ -798,7 +871,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((get_total_skil
                         }
 
                         },
-                    4: {    
+                    5: {    
                         xp_multipliers: 
                         {
                             all_skill: 1.05,
@@ -807,13 +880,97 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((get_total_skil
                             intuition: {multiplier: 1.1},
                         }
                     },
-                    5: {
+                    7: {
+                        stats: {
+                            intuition: {flat: 1},
+                        },
+                        xp_multipliers: {
+                            hero: 1.05,
+                        }
+                    },
+                    10: {
+                        xp_multipliers: {
+                            all_skill: 1.05,
+                        }
+                    },
+                    12: {
                         xp_multipliers: {
                             all: 1.05,
+                        },
+                        stats: {
+                            intuition: {multiplier: 1.1},
                         }
-                    }
+                    },
                 }
-            });
+    });
+
+    skills["Strength of mind"] = new Skill({
+        skill_id: "Strength of mind", 
+        names: {0: "Strength of mind"}, 
+        description: "Resist and reject the unnatural influence. Turn your psyche into an iron fortress.",
+        category: "Environmental",
+        base_xp_cost: 120,
+        max_level: 10,
+        xp_scaling: 2,
+        get_effect_description: ()=> {
+            return `Reduces eldritch effects by ^${Math.round(100-100*get_total_skill_level("Strength of mind")/skills["Strength of mind"].max_level)/100}`;
+        },
+        milestones: {
+            1: {
+                xp_multipliers: {
+                    all_skill: 1.05,
+                }
+            },
+            2: {    
+                stats: {
+                    intuition: {flat: 1},
+                },
+                xp_multipliers: {
+                    "Literacy": 1.05,
+                    "Persistence": 1.05,
+                }
+            },
+            3: {
+                xp_multipliers: {
+                    hero: 1.05,
+                }
+            },
+            5: {
+                xp_multipliers: {
+                    all_skill: 1.05,
+                }
+            },
+            7: {    
+                stats: {
+                    intuition: {flat: 1},
+                },
+                xp_multipliers: {
+                    "Literacy": 1.05,
+                    "Persistence": 1.05,
+                }
+            },
+            8: {
+                xp_multipliers: {
+                    hero: 1.05,
+                }
+            },
+            10: {
+                xp_multipliers: {
+                    all: 1.05,
+                }
+            },
+            12: {    
+                stats: {
+                    intuition: {multiplier: 1.2},
+                },
+                xp_multipliers: {
+                    "Literacy": 1.05,
+                    "Persistence": 1.05,
+                }
+            },
+        }
+    });
+
     skills["Heat resistance"] = new Skill({
         skill_id: "Heat resistance",
         names: {0: "Heat resistance"},
@@ -1796,7 +1953,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     skills["Persistence"] = new Skill({
         skill_id: "Persistence",
         names: {0: "Persistence"},
-        description: "Being tired is not a reason to give up",
+        description: "Do not give up, no matter what",
         base_xp_cost: 60,
         category: "Character",
         max_level: 30,
@@ -1818,6 +1975,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 },
                 xp_multipliers: {
                     hero: 1.05,
+                    "Strength of mind": 1.05,
                 }
             },
             6: {
@@ -1838,10 +1996,28 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             },
             10: {
                 stats: {
+                    max_stamina: {multiplier: 1.1},
+                },
+                xp_multipliers: {
+                    hero: 1.05,
+                    "Strength of mind": 1.05,
+                }
+            },
+            12: {
+                stats: {
                     max_stamina: {flat: 10},
                 },
                 xp_multipliers: {
-                    all: 1.05,
+                    hero: 1.05,
+                    "Strength of mind": 1.05,
+                }
+            },
+            14: {
+                stats: {
+                    stamina_efficiency: {multiplier: 1.1},
+                },
+                xp_multipliers: {
+                    all_skill: 1.05,
                 }
             }
         },
@@ -1875,42 +2051,27 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             1: {
                 xp_multipliers: {
                     hero: 1.05,
+                    "Strength of mind": 1.05,
                 }
             },
             2: {
                 xp_multipliers: {
                     all_skill: 1.05,
+                }
+            },
+            3: {
+                xp_multipliers: {
+                    all: 1.05,
+                }
+            },
+            5: {
+                xp_multipliers: {
+                    hero: 1.05,
+                    "Strength of mind": 1.05,
                 }
             }
         }
     }); 
-    skills["Strength of mind"] = new Skill({
-        //bonus from persistence, literacy
-        //give bonuses to all xp gains? 
-
-        skill_id: "Strength of mind", 
-        names: {0: "Strength of mind"}, 
-        description: "",
-        category: "Character",
-        base_xp_cost: 120,
-        max_level: 10,
-        xp_scaling: 2,
-        get_effect_description: ()=> {
-            return ``;
-        },
-        milestones: {
-            1: {
-                xp_multipliers: {
-                    all_skill: 1.05,
-                }
-            },
-            2: {
-                xp_multipliers: {
-                    hero: 1.05,
-                }
-            }
-        }
-    });
     skills["Medicine"] = new Skill({
         skill_id: "Medicine",
         names: {0: "Medicine"}, 
@@ -1968,8 +2129,26 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 },
                 xp_multipliers: {
                     "Literacy": 1.05,
+                    "Persistence": 1.05,
                 },
             },
+            7: {
+                intuition: {
+                    flat: 2
+                },
+            },
+            10: {
+                stats: {
+                    intuition: {
+                        flat: 2
+                    },
+                },
+                xp_multipliers: {
+                    "Literacy": 1.05,
+                    "Persistence": 1.05,
+                },
+                
+            }
         }
     });
     

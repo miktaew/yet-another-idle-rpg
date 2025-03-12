@@ -25,7 +25,7 @@ class Recipe {
     constructor({
         name,
         id,
-        is_unlocked = true, //TODO: change to false when unlocking is implemented!
+        is_unlocked = true,
         recipe_type,
         result, //{name, count}
         getResult,
@@ -48,7 +48,7 @@ class ItemRecipe extends Recipe {
         name,
         id,
         materials = [], //{name, count}
-        is_unlocked = true, //TODO: change to false when unlocking is implemented!
+        is_unlocked = true,
         recipe_type,
         result, //{name, count}
         getResult,
@@ -71,13 +71,16 @@ class ItemRecipe extends Recipe {
     }
 
     get_availability() {
+        let ammount = Infinity;
         for(let i = 0; i < this.materials.length; i++) {
             const key = item_templates[this.materials[i].material_id].getInventoryKey();
-            if(!character.inventory[key] || character.inventory[key].count < this.materials[i].count) {
-                return false;
+            if(!character.inventory[key]) {
+                return 0;
             }
+            ammount = Math.floor(Math.min(character.inventory[key].count / this.materials[i].count , ammount));
         }
-        return true;
+        
+        return ammount;
     }
 
     get_is_any_material_present() {

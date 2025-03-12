@@ -810,12 +810,11 @@ body {
 	display: none;
 }
 
-
 .weapon_recipe + .shield_recipe, .shield_recipe + .armor_recipe, .armor_recipe + .clothing_recipe {
 	border-top: 5px solid white;
 }
 
-.recipe_name:hover, .selected_recipe .recipe_name, .crafting_selection:hover, .selected_component_category, .selectable_component:hover, .selectable_material:hover {
+.recipe_name:hover, .recipe_item_name:hover, .recipe_comp_name:hover, .craft_ammount_button:hover, .selected_recipe .recipe_name, .crafting_selection:hover, .selected_component_category, .selectable_component:hover {
 	background-color: var(--active_button_color);
 }
 
@@ -886,8 +885,21 @@ body {
 }
 
 .recipe_name {
-	display: block;
+	display: inline-block;
 	padding-bottom: 5px;
+	width: 100%;
+}
+
+.recipe_item_name {
+	display: inline-block;
+	padding-bottom: 5px;
+	width: 300px;
+}
+
+.recipe_comp_name {
+	display: inline-block;
+	padding-bottom: 5px;
+	width: 287px;
 }
 
 .folded_crafting_selection, .folded_material_list {
@@ -904,6 +916,24 @@ body {
 
 .selected_component_list, .selected_material_list {
 	display: block;
+}
+
+
+.craft_ammount_buttons {
+	display: inline-block;
+	width: 76px;
+	padding-bottom: 2px;
+}
+
+.craft_ammount_button {
+	display: inline-block;
+	width: fit-content;
+	text-align: center;
+	padding: 3px 6px 3px 6px;
+	outline: 1px solid white;
+	outline-offset: -1px;
+	margin: -0.5px;
+	cursor: pointer;
 }
 
 .sl_button {
@@ -966,7 +996,6 @@ i {
 	margin: 1px;
 	font-size: 16px;
 }
-
 
 .character_control_button:hover, .inventory_control_button:hover, 
 .trader_category_button:hover, .storage_category_button:hover, .trader_sorting_button:hover, .storage_sorting_button:hover, .active_selection_button, .character_sorting_button:hover {

@@ -15,7 +15,6 @@
         locations: [
             {
                 location: String, //location key
-                required_clears: Number //only when reward is for combat zones, will make unlock be given only after X full clears instead of first time
                 skip_message: Boolean //to NOT log an unlock message, useful in some fringe cases but generally should be ignored
             }
         ]
@@ -62,6 +61,10 @@
                 recipe_id: String
             } 
         ] 
+        
+        reputation: {
+            "region": Number //flat value of rep gained
+        }
 
         locks: {
             locations: [String] //an array with location keys
@@ -84,8 +87,21 @@
         move_to: {
             location: String //location key
         }
-    
     }
+*/
+
+/*
+    REWARDS WITH REQUIRED CLEARS
+    same format, except for
+    
+    [
+        { 
+            required_clear_count: Number
+            ...Rewards // just the standard rewards, all fields on same depth as required_clear_count is
+        },   
+    ]
+    it's also processed only once
+    
 */
 
 /* ACTION CONDITIONS:

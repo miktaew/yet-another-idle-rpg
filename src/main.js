@@ -68,6 +68,7 @@ import { game_version, get_game_version } from "./game_version.js";
 import { ActiveEffect, effect_templates } from "./active_effects.js";
 import { open_storage, close_storage, move_item_to_storage, remove_item_from_storage, player_storage } from "./storage.js";
 import { Verify_Game_Objects } from "./verifier.js";
+import { ReputationManager } from "./reputation.js";
 
 const save_key = "save data";
 const dev_save_key = "dev save data";
@@ -1361,8 +1362,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
         }
     }
     
-    if(is_visible) 
-    {
+    if(is_visible) {
         if(typeof message !== "undefined"){ 
         //not undefined => levelup happened and levelup message was returned
             leveled = true;
@@ -1534,9 +1534,20 @@ function get_location_rewards(location) {
         process_rewards({rewards: {xp: location.repeatable_reward.xp}, source_type: "location", source_name: location.name, is_first_clear: false, source_id: location.id});
     }
 
+
     //previous two calls give xp, this call omits xp to avoid repeating it
     //repeatable rewards are indeed intended to be called on first clear as well (with the exception of xp, duh)
     process_rewards({rewards: {...location.repeatable_reward, xp: null}, source_type: "location", source_name: location.name, is_first_clear: false, source_id: location.id});
+
+    if(location.rewards_with_clear_requirement) {
+        for(let i = 0; i < location.rewards_with_clear_requirement.length; i++) {
+            if(location.enemy_groups_killed == location.enemy_count * location.rewards_with_clear_requirement[i].required_clear_count)
+            {
+                //only once, on N-th clear
+                process_rewards({rewards: location.rewards_with_clear_requirement[i], source_type: "location", source_name: location.name, is_first_clear: false, source_id: location.id});
+            }
+        }
+    }
 
     location.otherUnlocks();
 
@@ -1583,11 +1594,8 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
     
     if(rewards.locations) {
         if(source_type === "location") {
-            const location = locations[source_id]; //grab source location to check for clear counts
             for(let i = 0; i < rewards.locations.length; i++) {
-                if(!rewards.locations[i].required_clears || location.enemy_groups_killed/location.enemy_count >= location.repeatable_reward.locations[i].required_clears){
-                    unlock_location(locations[rewards.locations[i].location], rewards.locations[i].skip_message);
-                }
+                unlock_location(locations[rewards.locations[i].location], rewards.locations[i].skip_message);
             }
         } else {
             for(let i = 0; i < rewards.locations.length; i++) {
@@ -1727,6 +1735,12 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         }
     }
 
+    if(rewards.reputation) {
+        Object.keys(rewards.reputation).forEach(region => {
+            ReputationManager.add_reputation({region, reputation: rewards.reputation[region]});
+        });
+    }
+
     if(rewards.move_to) {
         if(source_type !== "action") {
             change_location[rewards.move_to.location];
@@ -1759,7 +1773,7 @@ function clear_enemies() {
     current_enemies = null;
 }
 
-function use_recipe(target) {
+function use_recipe(target, ammount_wanted_to_craft = 1) {
 
     const category = target.parentNode.parentNode.dataset.crafting_category;
     const subcategory = target.parentNode.parentNode.dataset.crafting_subcategory;
@@ -1777,44 +1791,76 @@ function use_recipe(target) {
         const recipe_div = document.querySelector(`[data-crafting_category="${category}"] [data-crafting_subcategory="${subcategory}"] [data-recipe_id="${recipe_id}"]`);
         let leveled = false;
         let result;
+        let xp_to_add;
         if(subcategory === "items") {
-            if(selected_recipe.get_availability()) {
-                total_crafting_attempts++;
+
+            let ammount_that_can_be_crafted = Math.min(ammount_wanted_to_craft, selected_recipe.get_availability());
+            let attempted_crafting_ammount = ammount_that_can_be_crafted; //ammount that will be attempted (e.g. 100)
+            let successful_crafting_ammount; //ammount that will succeed (e.g. 100 * 75.6% success = 75 + 60% for another 1)
+            if(ammount_that_can_be_crafted > 0) {
+                
                 const success_chance = selected_recipe.get_success_chance(station_tier);
                 result = selected_recipe.getResult();
-                const {result_id, count} = result;
-
+                let {result_id, count} = result;
                 const is_medicine = item_templates[result_id].tags.medicine;
+
+                const recipe_skill = skills[selected_recipe.recipe_skill];
+                const needed_xp = recipe_skill.xp_to_next_lvl - recipe_skill.current_xp;
+                const xp_per_craft = get_recipe_xp_value({category, subcategory, recipe_id});
+                const estimated_xp_per_craft = xp_per_craft * success_chance;
+                const needed_crafts = Math.ceil(needed_xp/(estimated_xp_per_craft*get_skill_xp_gain(recipe_skill.skill_id)));
                 
+                attempted_crafting_ammount = Math.min(needed_crafts, ammount_that_can_be_crafted);
+                successful_crafting_ammount = Math.floor((attempted_crafting_ammount-1)*success_chance) + 1*(Math.random()<success_chance?1:0);
+
+                let success = 0;
+                let fail = 0;
+                
+                if(attempted_crafting_ammount < ammount_that_can_be_crafted && attempted_crafting_ammount < needed_crafts) {
+                    for(let i = 0; i < 2 && attempted_crafting_ammount+success+fail < ammount_that_can_be_crafted; i++) {
+                        
+                        if(Math.random()<success_chance) {
+                            success++;
+                        } else {
+                            fail++;
+                        }
+                        
+                        if(attempted_crafting_ammount*estimated_xp_per_craft + xp_per_craft*(success+fail/4) >= needed_xp) {
+                            break;
+                        }
+                    }
+                    attempted_crafting_ammount += success + fail;
+                    successful_crafting_ammount += success;
+                }
+                xp_to_add = estimated_xp_per_craft*attempted_crafting_ammount + success*xp_per_craft + fail*xp_per_craft/4;
+
+                total_crafting_attempts += attempted_crafting_ammount;
+                total_crafting_successes += successful_crafting_ammount;
+
                 for(let i = 0; i < selected_recipe.materials.length; i++) {
                     const key = item_templates[selected_recipe.materials[i].material_id].getInventoryKey();
-                    remove_from_character_inventory([{item_key: key, item_count: selected_recipe.materials[i].count}]);
+                    remove_from_character_inventory([{item_key: key, item_count: selected_recipe.materials[i].count*attempted_crafting_ammount}]);
                 } 
-                const exp_value = get_recipe_xp_value({category, subcategory, recipe_id});
-                if(Math.random() < success_chance) {
-                    total_crafting_successes++;
-                    add_to_character_inventory([{item_key: item_templates[result_id].getInventoryKey(), count: count}]);
-                    
-                    log_message(`Created ${item_templates[result_id].getName()} x${count}`, "crafting");
 
-                    leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
-
-                    if(is_medicine) {
-                        add_xp_to_skill({skill: skills["Medicine"], xp_to_add: exp_value/2});
+                if(successful_crafting_ammount > 0) {
+                    add_to_character_inventory([{item_key: item_templates[result_id].getInventoryKey(), count: count*successful_crafting_ammount}]);
+                    let msg = `Created ${item_templates[result_id].getName()} x${count*successful_crafting_ammount}`;
+                    if(attempted_crafting_ammount > 1) {
+                        msg+=` [out of ${count*attempted_crafting_ammount}]`;
                     }
+                    log_message(msg, "crafting");
 
-                    //in future: recover items if applicable (no such recipes yet)
-                    //const recovered = [];
-                    ////stuff
-                    //add_to_character_inventory(recovered);
                 } else {
-                    log_message(`Failed to create ${item_templates[result_id].getName()}!`, "crafting");
+                    log_message(`Failed to create ${item_templates[result_id].getName()}`, "crafting");
+                }
 
-                    leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value/4});
-
-                    if(is_medicine) {
-                        add_xp_to_skill({skill: skills["Medicine"], xp_to_add: exp_value/2});
-                    }
+                leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: xp_to_add});
+                if(is_medicine) {
+                    add_xp_to_skill({skill: skills["Medicine"], xp_to_add: xp_to_add/2});
+                }
+                
+                if(attempted_crafting_ammount < ammount_that_can_be_crafted) {
+                    use_recipe(target, ammount_that_can_be_crafted - attempted_crafting_ammount);
                 }
 
                 update_item_recipe_visibility();
@@ -1825,7 +1871,7 @@ function use_recipe(target) {
                     //todo: reload all recipe tooltips of matching category, except it's kinda pointless if reload happens anyway?
                 }
             } else {
-                console.warn(`Tried to use an unavailable recipe!`);
+                console.warn(`Tried to use a recipe without having enough materials!`);
             }
             
         } else if(subcategory === "components" || selected_recipe.recipe_type === "component" ) {
@@ -2015,7 +2061,8 @@ function create_save() {
                                     total_xp: character.xp.total_xp,
                                 },
                                 hp_to_full: character.stats.full.max_health - character.stats.full.health,
-                                stamina_to_full: character.stats.full.max_stamina - character.stats.full.stamina
+                                stamina_to_full: character.stats.full.max_stamina - character.stats.full.stamina,
+                                reputation: character.reputation,
                             };
         //stats don't get saved, they will be recalculated upon loading
         save_data["player_storage"] = {inventory: {}};
@@ -2283,6 +2330,9 @@ function load(save_data) {
     update_displayed_money();
 
     add_xp_to_character(save_data.character.xp.total_xp, false);
+
+    character.reputation = save_data.character.reputation || {};
+    //todo: call a function to update display (once rep is added to display)
 
     Object.keys(save_data.skills).forEach(function(key){ 
         if(key === "Literacy") {
@@ -2830,6 +2880,25 @@ function load(save_data) {
             }
             if("parent_location" in locations[key]) { // if combat zone
                 locations[key].enemy_groups_killed = save_data.locations[key].enemy_groups_killed || 0;   
+
+                if(compare_game_version("v0.4.5", save_data["game version"])) { //compatibility patch for pre-rep and/or pre-rewrite of rewards with required clear count
+                    if(locations[key].enemy_groups_killed / locations[key].enemy_count >= 1) {
+                        const {rep_rew} = locations[key].first_reward;
+                        if(rep_rew) {
+                            process_rewards({reputation: rep_rew});
+                        }
+                    }
+
+                    if(locations[key].rewards_with_clear_requirement) {
+                        for(let i = 0; i < locations[key].rewards_with_clear_requirement.length; i++) {
+                            if(locations[key].enemy_groups_killed == locations[key].enemy_count * locations[key].rewards_with_clear_requirement[i].required_clear_count)
+                            {
+                                //always do it if there was enough or more than enough clears
+                                process_rewards({rewards: locations[key].rewards_with_clear_requirement[i], source_type: "location", source_name: locations[key].name, is_first_clear: false, source_id: locations[key].id});
+                            }
+                        }
+                    }
+                }
             }
 
             //unlock activities

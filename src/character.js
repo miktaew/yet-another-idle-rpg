@@ -74,6 +74,9 @@ class Hero extends InventoryHaver {
                                 environment: {},
                         }
                 };
+                this.reputation = { //effects go up to 1000
+                        village: 0,
+                };
                 this.bonus_skill_levels = {
                         full: {
                                 //all skills added in main.js in setup()

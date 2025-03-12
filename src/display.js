@@ -2247,12 +2247,16 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
         return;
     }
     const recipe_div = document.createElement("div");
-    recipe_div.innerHTML = `<span class="recipe_name">${recipe.name}</span>`;
 
+    const recipe_name_span = document.createElement("span");
+    recipe_name_span.innerHTML = recipe.name;
+
+    recipe_div.append(recipe_name_span);
     recipe_div.classList.add("recipe_div");
     recipe_div.dataset.recipe_id = recipe_id;
 
     if(subcategory === "items") {
+        recipe_name_span.classList.add("recipe_item_name");
         recipe_div.children[0].innerHTML = '<i class="material-icons icon" style="visibility:hidden"> keyboard_double_arrow_down </i>' + recipe_div.children[0].innerHTML;
         //invisible icon added just so it properly matches in height and text position with recipes in other subcategories
         if(!recipe.get_availability()) {
@@ -2260,12 +2264,40 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
         }
 
         recipe_div.addEventListener("click", (event)=>{
-            if(event.target.classList.contains("recipe_name") && !event.target.parentNode.classList.contains("recipe_unavailable")) {
+            if(event.target.classList.contains("recipe_item_name") && !event.target.parentNode.classList.contains("recipe_unavailable")) {
                 window.useRecipe(event.target);
+            } else if(event.target.classList.contains("craft_ammount_button")) {
+                window.useRecipe(event.target.parentNode, Number(event.target.dataset.craft_ammount));
             }
         });
+
+        const craft_ammount_buttons = document.createElement("div");
+        craft_ammount_buttons.classList.add("craft_ammount_buttons");
+        
+        const button_5 = document.createElement("div");
+        button_5.innerHTML = "5";
+        button_5.dataset.craft_ammount = 5;
+        button_5.classList.add("craft_ammount_button");
+        craft_ammount_buttons.append(button_5);
+
+        const button_10 = document.createElement("div");
+        button_10.innerHTML = "10";
+        button_10.dataset.craft_ammount = 10;
+        button_10.classList.add("craft_ammount_button");
+        craft_ammount_buttons.append(button_10);
+
+        const button_all = document.createElement("div");
+        button_all.innerHTML = "all";
+        button_all.dataset.craft_ammount = Infinity;
+        button_all.classList.add("craft_ammount_button");
+
+        craft_ammount_buttons.append(button_all);
+
+        recipe_div.append(craft_ammount_buttons);
+
         recipe_div.append(create_recipe_tooltip({category, subcategory, recipe_id}));
     } else if(subcategory === "components") {
+        recipe_name_span.classList.add("recipe_name");
         recipe_div.children[0].innerHTML = '<i class="material-icons icon crafting_dropdown_icon"> keyboard_double_arrow_down </i>' + recipe_div.children[0].innerHTML;
         const material_selection = document.createElement("div");
         material_selection.classList.add("folded_material_list");
@@ -2279,6 +2311,9 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
         recipe_div.append(material_selection);
     } else if(recipe.recipe_type === "component") {
         //component but from other category, which generally means clothing
+        
+        recipe_name_span.classList.add("recipe_name");
+        
         if(recipe.item_type === "Armor") {
             recipe_div.classList.add("clothing_recipe");
         }
@@ -2304,6 +2339,8 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
         } else {
             console.warn(`Recipe "${category}" -> "${subcategory}" -> "${recipe_id}" has wrong type of resulting item ("${recipe.item_type}")`)
         }
+
+        recipe_name_span.classList.add("recipe_name");
         
         recipe_div.children[0].innerHTML = '<i class="material-icons icon crafting_dropdown_icon"> keyboard_double_arrow_down </i>' +  recipe_div.children[0].innerHTML;
 
@@ -2584,6 +2621,7 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
  * component_keys is used for automatically selecting two comps
  */
 function update_displayed_component_choice({category, recipe_id, component_keys = {}}) {
+    console.log('d');
     const recipe_div = crafting_pages[category]["equipment"].querySelector(`[data-recipe_id="${recipe_id}"]`);
     const recipe = recipes[category]["equipment"][recipe_id];
 
@@ -2676,19 +2714,50 @@ function update_displayed_material_choice({category, subcategory, recipe_id, ref
     for(let i = 0; i < materials.length; i++) {
         const material_recipe = recipe.materials.filter(material => material.material_id === materials[i].item.id)[0];
         const item_div = document.createElement("div");
-        item_div.innerHTML = `<i class="material-icons icon selected_material_icon"> check </i>${item_templates[material_recipe.result_id].getName()}`;
+        const name_span = document.createElement("span");
+        name_span.innerHTML = `<i class="material-icons icon selected_material_icon"> check </i>${item_templates[material_recipe.result_id].getName()}`;
+        name_span.classList.add("recipe_comp_name");
+        item_div.append(name_span);
         item_div.classList.add("selectable_material");
         item_div.dataset.item_key = materials[i].item.getInventoryKey();
 
         if(material_recipe.count <= materials[i].count) {
             item_div.addEventListener("click", (event)=>{
                 item_div.classList.add("selected_material");
-                window.useRecipe(event.target.parentNode);
+                if(!event.target.classList.contains("craft_ammount_button")) {
+                    window.useRecipe(event.target.parentNode.parentNode);
+                } else{
+                    window.useRecipe(event.target.parentNode.parentNode.parentNode, Number(event.target.dataset.craft_ammount));
+                }
                 item_div.classList.remove("selected_material"); //this is so stupid
             });
         } else {
             item_div.classList.add("recipe_unavailable");
         }
+
+        const craft_ammount_buttons = document.createElement("div");
+        craft_ammount_buttons.classList.add("craft_ammount_buttons");
+        
+        const button_5 = document.createElement("div");
+        button_5.innerHTML = "5";
+        button_5.dataset.craft_ammount = 5;
+        button_5.classList.add("craft_ammount_button");
+        craft_ammount_buttons.append(button_5);
+
+        const button_10 = document.createElement("div");
+        button_10.innerHTML = "10";
+        button_10.dataset.craft_ammount = 10;
+        button_10.classList.add("craft_ammount_button");
+        craft_ammount_buttons.append(button_10);
+
+        const button_all = document.createElement("div");
+        button_all.innerHTML = "all";
+        button_all.dataset.craft_ammount = Infinity;
+        button_all.classList.add("craft_ammount_button");
+
+        craft_ammount_buttons.append(button_all);
+
+        item_div.append(craft_ammount_buttons);
 
         item_div.append(create_recipe_tooltip({category, subcategory, recipe_id, material: material_recipe}));
         material_selections_div.appendChild(item_div);
@@ -3080,6 +3149,14 @@ function start_activity_display(current_activity) {
         } else {
             action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (Maxxed out!)`;
         }
+
+        if(activities[current_activity.activity_name].type !== "GATHERING") {
+            const time_needed = Math.ceil((needed_xp-curr_xp)/current_activity.skill_xp_per_tick);
+            action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
+        } else {
+            const time_needed = Math.ceil(current_activity.gathering_time_needed * (needed_xp-curr_xp)/current_activity.skill_xp_per_tick);
+            action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
+        }
             
     } else {
         console.warn(`Activity "${current_activity.activity_name}" has no skills assigned!`);
@@ -3166,6 +3243,14 @@ function update_displayed_ongoing_activity(current_activity, is_job){
         action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${percent_xp}  [${curr_xp}/${needed_xp}])`;
     } else {
         action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (Maxxed out!)`;
+    }
+
+    if(activities[current_activity.activity_name].type !== "GATHERING") {
+        const time_needed = Math.ceil((needed_xp-curr_xp)/current_activity.skill_xp_per_tick);
+        action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
+    } else {
+        const time_needed = Math.ceil(current_activity.gathering_time_needed * (needed_xp-curr_xp)/current_activity.skill_xp_per_tick);
+        action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
     }
 
     if(current_activity.gained_resources) {

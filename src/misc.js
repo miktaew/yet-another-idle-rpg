@@ -54,11 +54,9 @@ function round_item_price(price) {
 function format_reading_time(time) {
     if(time >= 120) {
         return `${Math.floor(time/60)} hours`;
-    }
-    else if(time >= 60) {
+    } else if(time >= 60) {
         return '1 hour';
-    }
-    else {
+    } else {
         return `${Math.round(time)} minutes`;
     }
 }

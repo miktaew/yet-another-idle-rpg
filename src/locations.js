@@ -5,9 +5,8 @@ import { skills } from "./skills.js";
 import { current_game_time } from "./game_time.js";
 import { activities } from "./activities.js";
 import { get_total_skill_level } from "./character.js";
-const locations = {};
+const locations = {}; //contains all the created locations
 const location_types = {};
-//contains all the created locations
 
 class Location {
     constructor({
@@ -83,6 +82,7 @@ class Combat_zone {
                  leave_text,
                  first_reward = {},
                  repeatable_reward = {},
+                 rewards_with_clear_requirement = [],
                  otherUnlocks,
                  unlock_text,
                  is_challenge = false,
@@ -141,6 +141,7 @@ class Combat_zone {
         this.leave_text = leave_text; //text on option to leave
         this.first_reward = first_reward; //reward for first clear
         this.repeatable_reward = repeatable_reward; //reward for each clear, including first; all unlocks should be in this, just in case
+        this.rewards_with_clear_requirement = rewards_with_clear_requirement; //rewards that are only given on N-th clear
 
         this.is_challenge = is_challenge;
         //challenges can be completed only once 
@@ -866,13 +867,28 @@ function get_location_type_penalty(type, stage, stat, category) {
         parent_location: locations["Village"],
         first_reward: {
             xp: 10,
+            reputation: {"village": 20},
         },
         repeatable_reward: {
             textlines: [
                 {dialogue: "village elder", lines: ["cleared field"]},
             ],
             xp: 5,
-        }
+        },
+        rewards_with_clear_requirement: [
+            {
+                required_clear_count: 1,
+                reputation: {"village": 10},
+            },
+            {
+                required_clear_count: 4,
+                reputation: {"village": 30},
+            },
+            {
+                required_clear_count: 10,
+                reputation: {"village": 50},
+            }
+        ]
     });
     locations["Village"].connected_locations.push({location: locations["Infested field"]});
 
@@ -922,7 +938,17 @@ function get_location_type_penalty(type, stage, stat, category) {
             locations: [{location: "Cave depths"}],
             xp: 10,
             activities: [{location:"Nearby cave", activity:"weightlifting"}, {location:"Nearby cave", activity:"mining"}, {location:"Village", activity:"balancing"}],
-        }
+        },
+        rewards_with_clear_requirement: [
+            {
+                required_clear_count: 1,
+                reputation: {"village": 10},
+            },
+            {
+                required_clear_count: 4,
+                reputation: {"village": 20},
+            },
+        ]
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Cave room"]});
 
@@ -942,9 +968,15 @@ function get_location_type_penalty(type, stage, stat, category) {
         },
         repeatable_reward: {
             textlines: [{dialogue: "village elder", lines: ["cleared cave"]}],
-            locations: [{location: "Suspicious wall", required_clears: 4}],
             xp: 15,
-        }
+        },
+        rewards_with_clear_requirement: [
+            {
+                required_clear_count: 4,
+                locations: [{location: "Suspicious wall"}],
+                reputation: {"village": 40},
+            }
+        ],
     });
     
     locations["Hidden tunnel"] = new Combat_zone({
@@ -984,10 +1016,17 @@ function get_location_type_penalty(type, stage, stat, category) {
         },
         repeatable_reward: {
             xp: 100,
-            locations: [{location: "Mysterious gate", required_clears: 4}],
+            
             activities: [{location:"Nearby cave", activity: "climbing"}],
             actions: [{location: "Nearby cave", action: "climb the mountain"}],
         },
+        rewards_with_clear_requirement: [
+            {
+                required_clear_count: 4,
+                locations: [{location: "Mysterious gate"}],
+            }
+        ],
+
         unlock_text: "As you keep going deeper, you barely notice a pitch black hole. Not even a tiniest speck of light reaches it."
     });
 
@@ -1303,6 +1342,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         parent_location: locations["Village"],
         first_reward: {
             xp: 30,
+            reputation: {"village": 10},
         },
         repeatable_reward: {
             textlines: [{dialogue: "village guard", lines: ["heavy"]}],
@@ -1320,6 +1360,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         parent_location: locations["Village"],
         first_reward: {
             xp: 30,
+            reputation: {"village": 10},
         },
         repeatable_reward: {
             textlines: [{dialogue: "village guard", lines: ["quick"]}],
