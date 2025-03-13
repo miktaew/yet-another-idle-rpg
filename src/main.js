@@ -851,13 +851,11 @@ function set_new_combat({enemies} = {}) {
         const cooldown_multiplier = 1/fastest_cooldown;
         
         character_attack_cooldown *= cooldown_multiplier;
-        //console.log('-----');
         for(let i = 0; i < current_enemies.length; i++) {
             enemy_attack_cooldowns[i] *= cooldown_multiplier;
             enemy_timer_variance_accumulator[i] = 0;
             enemy_timer_adjustment[i] = 0;
             enemy_timers[i] = [Date.now(), Date.now()];
-            //console.log(current_enemies[i].stats.attack_speed, enemy_attack_cooldowns[i]*1000/(40*tickrate));
         }
     } else {
         for(let i = 0; i < current_enemies.length; i++) {
@@ -1805,18 +1803,23 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 const is_medicine = item_templates[result_id].tags.medicine;
 
                 const recipe_skill = skills[selected_recipe.recipe_skill];
-                const needed_xp = recipe_skill.xp_to_next_lvl - recipe_skill.current_xp;
+                const needed_xp = recipe_skill.total_xp_to_next_lvl - recipe_skill.total_xp;
                 const xp_per_craft = get_recipe_xp_value({category, subcategory, recipe_id});
                 const estimated_xp_per_craft = xp_per_craft * success_chance;
                 const needed_crafts = Math.ceil(needed_xp/(estimated_xp_per_craft*get_skill_xp_gain(recipe_skill.skill_id)));
                 
                 attempted_crafting_ammount = Math.min(needed_crafts, ammount_that_can_be_crafted);
-                successful_crafting_ammount = Math.floor((attempted_crafting_ammount-1)*success_chance) + 1*(Math.random()<success_chance?1:0);
+                successful_crafting_ammount = Math.floor((attempted_crafting_ammount-1)*success_chance);
+                const variable_craft = Math.random()<success_chance?1:0;
+                successful_crafting_ammount += variable_craft;
+                
+                const current_gained_xp = (attempted_crafting_ammount-1)*estimated_xp_per_craft + (variable_craft?xp_per_craft:(xp_per_craft/4));
 
                 let success = 0;
                 let fail = 0;
                 
-                if(attempted_crafting_ammount < ammount_that_can_be_crafted && attempted_crafting_ammount < needed_crafts) {
+                if(attempted_crafting_ammount < ammount_that_can_be_crafted && current_gained_xp*get_skill_xp_gain(recipe_skill.skill_id) < needed_xp) {
+                    //if more can be crafted and failed to get enough for a levelup, try to make up to 3 more (since it's 1/4th per fail and there's 1 fail)
                     for(let i = 0; i < 2 && attempted_crafting_ammount+success+fail < ammount_that_can_be_crafted; i++) {
                         
                         if(Math.random()<success_chance) {
@@ -1825,14 +1828,15 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                             fail++;
                         }
                         
-                        if(attempted_crafting_ammount*estimated_xp_per_craft + xp_per_craft*(success+fail/4) >= needed_xp) {
+                        if((current_gained_xp + xp_per_craft*(success+fail/4))*get_skill_xp_gain(recipe_skill.skill_id) >= needed_xp) {
                             break;
                         }
                     }
                     attempted_crafting_ammount += success + fail;
                     successful_crafting_ammount += success;
                 }
-                xp_to_add = estimated_xp_per_craft*attempted_crafting_ammount + success*xp_per_craft + fail*xp_per_craft/4;
+
+                xp_to_add = current_gained_xp + success*xp_per_craft + fail*xp_per_craft/4;
 
                 total_crafting_attempts += attempted_crafting_ammount;
                 total_crafting_successes += successful_crafting_ammount;
@@ -1844,27 +1848,36 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
 
                 if(successful_crafting_ammount > 0) {
                     add_to_character_inventory([{item_key: item_templates[result_id].getInventoryKey(), count: count*successful_crafting_ammount}]);
-                    let msg = `Created ${item_templates[result_id].getName()} x${count*successful_crafting_ammount}`;
+                    let msg = `Created ${item_templates[result_id].getName()}`;
                     if(attempted_crafting_ammount > 1) {
-                        msg+=` [out of ${count*attempted_crafting_ammount}]`;
+                        msg+=` [${count*successful_crafting_ammount} out of ${count*attempted_crafting_ammount}]`;
+                    } else {
+                        msg+= ` x${count*successful_crafting_ammount}`;
                     }
                     log_message(msg, "crafting");
 
                 } else {
-                    log_message(`Failed to create ${item_templates[result_id].getName()}`, "crafting");
+                    let msg = `Failed to create ${item_templates[result_id].getName()}`;
+                    if(attempted_crafting_ammount > 1) {
+                        msg+=` [0 out of ${count*attempted_crafting_ammount}]`;
+                    } else {
+                        msg+= ` x${count*attempted_crafting_ammount}`;
+                    }
+                    log_message(msg, "crafting");
                 }
 
-                leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: xp_to_add});
+                leveled = add_xp_to_skill({skill: recipe_skill, xp_to_add: xp_to_add});
                 if(is_medicine) {
                     add_xp_to_skill({skill: skills["Medicine"], xp_to_add: xp_to_add/2});
                 }
                 
                 if(attempted_crafting_ammount < ammount_that_can_be_crafted) {
                     use_recipe(target, ammount_that_can_be_crafted - attempted_crafting_ammount);
+                } else {
+                    update_item_recipe_visibility();
+                    update_item_recipe_tooltips();
                 }
-
-                update_item_recipe_visibility();
-                update_item_recipe_tooltips();
+                
                 //do those two whether success or fail since materials get used either way
 
                 if(leveled) {
@@ -2543,8 +2556,7 @@ function load(save_data) {
             if(Array.isArray(save_data.character.inventory[key])) { //is a list of unstackable items (equippables or books), needs to be added 1 by 1
                 for(let i = 0; i < save_data.character.inventory[key].length; i++) {
                     try{
-                        if(save_data.character.inventory[key][i].item_type === "EQUIPPABLE" )
-                        {
+                        if(save_data.character.inventory[key][i].item_type === "EQUIPPABLE" ) {
                             if(save_data.character.inventory[key][i].equip_slot === "weapon") {
                                 
                                 const {quality} = save_data.character.inventory[key][i];
@@ -2602,16 +2614,15 @@ function load(save_data) {
                                 }
                             }
                         } else {
-                            item_list.push({item_key: key, count: 1, quality: save_data.character.inventory[key][i].quality*100});
+                            item_list.push({item_id: key, count: 1, quality: save_data.character.inventory[key][i].quality*100});
                         }
                     } catch (error) {
                         console.error(error);
                     }
                 }
-            }
-            else { //is stackable 
+            } else { //is stackable 
                 if(item_templates[key]) {
-                    item_list.push({item_key: key, count: save_data.character.inventory[key].count});
+                    item_list.push({item_id: key, count: save_data.character.inventory[key].count});
                 } else {
                     console.warn(`Inventory item "${key}" from save on version "${save_data["game version"]}" couldn't be found!`);
                     return;
@@ -2796,7 +2807,8 @@ function load(save_data) {
                                             } else if(!item_templates[components.handle]) {
                                                 console.warn(`Skipped item: weapon handle component "${components.handle}" couldn't be found!`);
                                             } else {
-                                                trader_item_list.push({item_key: key, count: 1, quality: quality*100});
+                                                const item = getItem({components, item_type: "EQUIPPABLE", equip_slot: "weapon"});
+                                                trader_item_list.push({item_key: item.getInventoryKey(), count: 1, quality: quality*100});
                                             }
                                         } else if(save_data.traders[trader].inventory[key][i].equip_slot === "off-hand") {
                                             
@@ -2814,14 +2826,16 @@ function load(save_data) {
                                             } else if(!item_templates[components.handle]) {
                                                 console.warn(`Skipped item: shield handle "${components.handle}" couldn't be found!`);
                                             } else {
-                                                trader_item_list.push({item_key: key, count: 1, quality: quality*100});
+                                                //trader_item_list.push({item_key: key, count: 1, quality: quality*100});
+                                                const item = getItem({components, item_type: "EQUIPPABLE", equip_slot: "off-hand"});
+                                                trader_item_list.push({item_key: item.getInventoryKey(), count: 1, quality: quality*100});
                                             }
                                         } else { //armor
-    
                                             const {quality} = save_data.traders[trader].inventory[key][i];
                                             if(save_data.traders[trader].inventory[key][i].components && save_data.traders[trader].inventory[key][i].components.internal.includes(" [component]")) {
                                                 //compatibility for armors from before v0.4.3
-                                                trader_item_list.push({item_key: key, count: 1, quality: quality*100});
+                                                const item = getItem({...item_templates[key]});
+                                                trader_item_list.push({item_key: item.getInventoryKey(), count: 1, quality: quality*100});
                                             } else if(save_data.traders[trader].inventory[key][i].components) {
                                                 let components = save_data.traders[trader].inventory[key][i].components;
                                                 if(!item_templates[components.internal]){
@@ -2829,12 +2843,12 @@ function load(save_data) {
                                                 } else if(components.external && !item_templates[components.external]) {
                                                     console.warn(`Skipped item: external armor component "${components.external}" couldn't be found!`);
                                                 } else {
-                                                    trader_item_list.push({item_key: key, count: 1, quality: quality*100});
-
+                                                    //trader_item_list.push({item_key: key, count: 1, quality: quality*100});
+                                                    const item = getItem({components, item_type: "EQUIPPABLE", equip_slot: "armor"});
+                                                    trader_item_list.push({item_key: item.getInventoryKey(), count: 1, quality: quality*100});
                                                 }
-                                            } else {
-                                                trader_item_list.push({item_key: key, count: 1, quality: quality*100});
-
+                                            } else { //no components, so clothing? not sure, it's old stuff
+                                                trader_item_list.push({item_id: key, count: 1, quality: quality*100});
                                             }
                                         }
                                     } else {
@@ -2844,15 +2858,14 @@ function load(save_data) {
                                     console.error(error);
                                 }
                             }
-                        }
-                        else {
+                        } else {
                             save_data.traders[trader].inventory[key].item.value = item_templates[key].value;
                             if(item_templates[key].item_type === "EQUIPPABLE") {
                                 save_data.traders[trader].inventory[key].item.equip_effect = item_templates[key].equip_effect;
                             } else if(item_templates[key].item_type === "USABLE") {
                                 save_data.traders[trader].inventory[key].item.use_effect = item_templates[key].use_effect;
                             }
-                            trader_item_list.push({item_key: key, count: save_data.traders[trader].inventory[key].count});
+                            trader_item_list.push({item_id: key, count: save_data.traders[trader].inventory[key].count});
                         }
                     }
                 });
@@ -3516,7 +3529,7 @@ function add_all_stuff_to_inventory(){
     })
 }
 
-//add_to_character_inventory([{item_id: "Iron chopping axe", count: 1}]);
+//add_to_character_inventory([{item_id: "Piece of rough wood", count: 1000}]);
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
 

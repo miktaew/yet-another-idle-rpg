@@ -860,6 +860,7 @@ class Book extends Item {
 
 /**
  * @param {Object} item_data 
+ * @param {Object} item_data.item_type
  * @returns {Item} item of proper type, created with item_data
  */
 function getItem(item_data) {
