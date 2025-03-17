@@ -23,17 +23,17 @@ const character = new Hero();
 character.name = "Hero";
 character.titles = {};
 character.base_stats = {
-        max_health: 40, 
-        health: 40,
+        max_health: 100, 
+        health: 100,
         health_regeneration_flat: 0, //in combat
         health_regeneration_percent: 0, //in combat
-        max_stamina: 40,
-        stamina: 40,
+        max_stamina: 100,
+        stamina: 100,
         stamina_regeneration_flat: 0, //in combat
         stamina_regeneration_percenty: 0, //in combat
         stamina_efficiency: 1,
-        max_mana: 0,
-        mana: 0,
+        max_mana: 10,
+        mana: 10,
         mana_regeneration_flat: 0, //in combat
         mana_regeneration_percent: 0, //in combat
         mana_efficiency: 1,
