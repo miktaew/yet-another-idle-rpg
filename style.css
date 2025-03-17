@@ -841,6 +841,11 @@ body {
 	background-color: rgba(128, 128, 128, 0.5);
 	text-align: center;
 }
+.recipe_creation_span {
+	width: 300px;
+	display:inline-block;
+}
+
 .selected_recipe .recipe_creation_button {
 	display: block;
 }
@@ -923,6 +928,7 @@ body {
 	display: inline-block;
 	width: 76px;
 	padding-bottom: 2px;
+	font-size: 16px;
 }
 
 .craft_ammount_button {

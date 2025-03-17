@@ -99,7 +99,7 @@ class ComponentRecipe extends ItemRecipe{
         name,
         id,
         materials = [], 
-        is_unlocked = true, //TODO: change to false when unlocking is implemented!
+        is_unlocked = true,
         result, //{item, count, result_name} where result_name is an item_templates key
         component_type,
         recipe_skill,
@@ -140,6 +140,14 @@ class ComponentRecipe extends ItemRecipe{
         return Math.min(Math.round(100+2*get_total_skill_level(this.recipe_skill)),200);
     }
 
+    /**
+     * checks if quality is completely capped, that is every created item will have the exact same value
+     * @returns {Boolean}
+     */
+    get_is_quality_capped() {
+        return this.get_quality_range()[0] >= this.get_quality_cap();
+    }
+
     get_quality(tier = 0) {
         const quality_range = this.get_quality_range(tier);
         return Math.round(((quality_range[1]-quality_range[0])*Math.random()+quality_range[0])/4)*4;
@@ -151,7 +159,7 @@ class EquipmentRecipe extends Recipe {
         name,
         id,
         components = [], //pair of component types; first letter not capitalized; blade-handle or internal-external
-        is_unlocked = true, //TODO: change to false when unlocking is implemented
+        is_unlocked = true,
         result = null,
         recipe_skill = "Crafting",
         item_type, //Weapon/Armor/Shield
@@ -244,7 +252,6 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         }
     } else if (subcategory === "components" || selected_recipe.recipe_type === "component") {
         const result_level = 8*result_tier;
-
         exp_value = Math.max(exp_value,result_tier * 4 * material_count);
         exp_value = Math.max(0.5*material_count,exp_value*(rarity_multiplier**0.5 - (skill_level/result_level))*rarity_multiplier);
     } else {

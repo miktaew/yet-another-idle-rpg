@@ -2402,10 +2402,39 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
         });
 
         const accept_recipe_button = document.createElement("div");
-        accept_recipe_button.innerHTML = "Create";
+        accept_recipe_button.innerHTML = "<span class='recipe_creation_span'>Create</span>";
         accept_recipe_button.classList.add("recipe_creation_button");
+
+        const craft_ammount_buttons = document.createElement("div");
+        craft_ammount_buttons.classList.add("craft_ammount_buttons");
+        
+        const button_5 = document.createElement("div");
+        button_5.innerHTML = "5";
+        button_5.dataset.craft_ammount = 5;
+        button_5.classList.add("craft_ammount_button");
+        craft_ammount_buttons.append(button_5);
+
+        const button_10 = document.createElement("div");
+        button_10.innerHTML = "10";
+        button_10.dataset.craft_ammount = 10;
+        button_10.classList.add("craft_ammount_button");
+        craft_ammount_buttons.append(button_10);
+
+        const button_all = document.createElement("div");
+        button_all.innerHTML = "all";
+        button_all.dataset.craft_ammount = Infinity;
+        button_all.classList.add("craft_ammount_button");
+
+        craft_ammount_buttons.append(button_all);
+
+        accept_recipe_button.append(craft_ammount_buttons);
+
         accept_recipe_button.addEventListener("click", (event)=>{
-            window.useRecipe(event.target);
+            if(!event.target.classList.contains("craft_ammount_button")) {
+                window.useRecipe(event.target.parentNode);
+            } else {
+                window.useRecipe(event.target.parentNode.parentNode, Number(event.target.dataset.craft_ammount));
+            }
         });
 
         recipe_div.append(component_selections);
@@ -2621,7 +2650,6 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
  * component_keys is used for automatically selecting two comps
  */
 function update_displayed_component_choice({category, recipe_id, component_keys = {}}) {
-    console.log('d');
     const recipe_div = crafting_pages[category]["equipment"].querySelector(`[data-recipe_id="${recipe_id}"]`);
     const recipe = recipes[category]["equipment"][recipe_id];
 
