@@ -1955,7 +1955,7 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                     //grab key, modify it with proper quality value, add (together with count) to list for adding to inv
                     const result_key = result.getInventoryKey();
                     const parsed_key = JSON.parse(result_key);
-                    const crafted_qualities = Object.keys(all_crafted);
+                    const crafted_qualities = Object.keys(all_crafted).map(x => Number(x));
                     const to_add = [];
                     for(let i = 0; i < crafted_qualities.length; i++ ) {
                         const new_key = JSON.stringify({...parsed_key, quality: crafted_qualities[i]});
@@ -2063,7 +2063,7 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                         //grab key, modify it with proper quality value, add (together with count) to list for adding to inv
                         const result_key = result.getInventoryKey();
                         const parsed_key = JSON.parse(result_key);
-                        const crafted_qualities = Object.keys(all_crafted);
+                        const crafted_qualities = Object.keys(all_crafted).map(x => Number(x));
                         const to_add = [];
                         for(let i = 0; i < crafted_qualities.length; i++ ) {
                             const new_key = JSON.stringify({...parsed_key, quality: crafted_qualities[i]});

@@ -201,7 +201,6 @@ function add_to_selling_list(selected_item) {
 
     const present_item = to_sell.items.find(a => a.item_key === selected_item.item_key);
     //find if item is already present in the sell list
-
     let item_count_in_player = character.inventory[selected_item.item_key].count;
 
     if(present_item) {

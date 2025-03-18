@@ -25,7 +25,7 @@ class InventoryHaver {
                 //but at least it wont break if code for creating inventory keys changes
                 let item;
                 if(items[i].quality) {
-                    item = getItem({...item_templates[items[i].item_id], quality: items[i].quality});
+                    item = getItem({...item_templates[items[i].item_id], quality:items[i].quality});
                 } else {
                     item = getItem({...item_templates[items[i].item_id]});
                 }
@@ -41,7 +41,7 @@ class InventoryHaver {
                 anything_new = true;
             } else { //in inventory
                 if(items[i].count === undefined) {
-                    this.inventory[item_key].count = 1;
+                    this.inventory[item_key].count += 1;
                 } else if(typeof items[i].count === "number" && !isNaN(items[i].count)){
                     this.inventory[item_key].count += items[i].count;
                 } else {
@@ -68,7 +68,7 @@ class InventoryHaver {
     
                 if(this.inventory[items[i].item_key].count == 0) {
                     delete this.inventory[items[i].item_key]; 
-                    //removes item from inventory if it's county is less than 1
+                    //removes item from inventory if it's county is 0
                 } else if(this.inventory[items[i].item_key].count < 0 || isNaN(this.inventory[items[i].item_key].count)) {
                     throw new Error(`Item count for key "${items[i].item_key}" reached an illegal value of "${this.inventory[items[i].item_key].count}"`);
                 }
