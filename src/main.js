@@ -1997,29 +1997,87 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 if(!character.inventory[component_1_key] || !character.inventory[component_2_key]) {
                     throw new Error(`Tried to create item with components that are not present in the inventory!`);
                 } else {
+                    //a probably unnecessary check to see if they are actually in inventory
+                    //no need to check how many there is as crafting always takes only 1
+                    if(character.inventory[component_1_key].count && character.inventory[component_2_key].count) {
+                        
+                        const recipe_skill = skills[selected_recipe.recipe_skill]; //should always be "Crafting" but who knows what changes in the future?
+                        let ammount_that_can_be_crafted = Math.min(ammount_wanted_to_craft, character.inventory[component_1_key].count, character.inventory[component_2_key].count);
+                        let needed_xp = recipe_skill.total_xp_to_next_lvl - recipe_skill.total_xp;
+                        let accumulated_xp = 0;
+                        let crafted_items = {};
+                        let crafted_count = 0;
+                        const comp_1 = character.inventory[component_1_key].item;
+                        const comp_2 = character.inventory[component_2_key].item;
+                        const all_crafted = {};
+                        const result = selected_recipe.getResult(comp_1, comp_2, station_tier);
 
-                    //todo: multicrafting
-                    //basically the same as with components?
+                        let quality;
+                        const comp_quality_weighted = selected_recipe.get_component_quality_weighted(comp_1, comp_2);
+                        const comp_tier_max = Math.max(comp_1.component_tier, comp_2.component_tier)
 
-                    total_crafting_attempts++;
-                    total_crafting_successes++;
-                    result = selected_recipe.getResult(character.inventory[component_1_key].item, character.inventory[component_2_key].item, station_tier);
-                    remove_from_character_inventory([{item_key: component_1_key}, {item_key: component_2_key}]);
-                    add_to_character_inventory([{item_key: result.getInventoryKey()}]);
+                        for(let i = 0; i < ammount_that_can_be_crafted; i++) {
+                            quality = selected_recipe.get_quality(comp_quality_weighted, (station_tier-Math.max(comp_tier_max)) || 0);
 
-                    const id_1 = JSON.parse(component_1_key).id;
-                    const id_2 = JSON.parse(component_2_key).id;
+                            crafted_items[quality] = (crafted_items[quality]+1 || 1);
+                            all_crafted[quality] = (all_crafted[quality]+1 || 1);
+                            crafted_count++;
 
-                    const exp_value = get_recipe_xp_value({category, subcategory, recipe_id, selected_components: [item_templates[id_1], item_templates[id_2]], rarity_multiplier: rarity_multipliers[result.getRarity()]})
-                    
-                    log_message(`Created ${result.getName()} [${result.quality}% quality] (+${exp_value} xp)`, "crafting");
+                            accumulated_xp += get_recipe_xp_value({category, subcategory, recipe_id, selected_components: [comp_1, comp_2], rarity_multiplier: rarity_multipliers[getItemRarity(quality)]});
+                            
+                            if(accumulated_xp * get_skill_xp_gain(recipe_skill.skill_id) >= needed_xp) {
+                                const qualities = Object.keys(crafted_items).map(x => Number(x)).sort((a,b)=>b-a);
+                                const highest_qual = qualities[0];
 
-                    leveled = add_xp_to_skill({skill: skills[selected_recipe.recipe_skill], xp_to_add: exp_value});
-                    
-                    const component_keys = {};
-                    component_keys[component_1_key] = true;
-                    component_keys[component_2_key] = true;
-                    update_displayed_component_choice({category, recipe_id, component_keys});
+                                if(crafted_count > 1) {
+                                    log_message(`Created ${result.getName()} x${crafted_count} [highest quality: ${highest_qual}% x${crafted_items[highest_qual]}] (+${Math.floor(accumulated_xp*get_skill_xp_gain(recipe_skill.skill_id))} xp)`, "crafting");
+                                } else {
+                                    log_message(`Created ${result.getName()} [${highest_qual}% quality] x1 (+${Math.floor(accumulated_xp*get_skill_xp_gain(recipe_skill.skill_id))} xp)`, "crafting");
+                                }
+
+                                add_xp_to_skill({skill: recipe_skill, xp_to_add: accumulated_xp});
+
+                                crafted_items = {};
+                                crafted_count = 0;
+                                accumulated_xp = 0;
+                                needed_xp = recipe_skill.total_xp_to_next_lvl - recipe_skill.total_xp;
+                            }
+                        }
+
+                        total_crafting_attempts+=ammount_that_can_be_crafted;
+                        total_crafting_successes+=ammount_that_can_be_crafted;
+
+                        if(crafted_count > 0) {
+                            const qualities = Object.keys(crafted_items).map(x => Number(x)).sort((a,b)=>b-a);
+                            const highest_qual = qualities[0];
+
+                            if(crafted_count > 1) {
+                                log_message(`Created ${result.getName()} x${crafted_count} [highest quality: ${highest_qual}% x${crafted_items[highest_qual]}] (+${Math.floor(accumulated_xp*get_skill_xp_gain(recipe_skill.skill_id))} xp)`, "crafting");
+
+                            } else {
+                                log_message(`Created ${result.getName()} [${highest_qual}% quality] x1 (+${Math.floor(accumulated_xp*get_skill_xp_gain(recipe_skill.skill_id))} xp)`, "crafting");
+                            }
+                            add_xp_to_skill({skill: recipe_skill, xp_to_add: accumulated_xp});
+                        }
+
+                        //grab key, modify it with proper quality value, add (together with count) to list for adding to inv
+                        const result_key = result.getInventoryKey();
+                        const parsed_key = JSON.parse(result_key);
+                        const crafted_qualities = Object.keys(all_crafted);
+                        const to_add = [];
+                        for(let i = 0; i < crafted_qualities.length; i++ ) {
+                            const new_key = JSON.stringify({...parsed_key, quality: crafted_qualities[i]});
+                            to_add.push({item_key: new_key, count: all_crafted[crafted_qualities[i]]}); 
+                        }
+                        add_to_character_inventory(to_add);
+
+                        //remove used mats
+                        remove_from_character_inventory([{item_key: component_1_key, item_count: ammount_that_can_be_crafted}, {item_key: component_2_key, item_count: ammount_that_can_be_crafted}]);
+                        const component_keys = {};
+                        component_keys[component_1_key] = true;
+                        component_keys[component_2_key] = true;
+                        update_displayed_component_choice({category, recipe_id, component_keys});
+                    }
                 }
             }
             //update_displayed_crafting_recipes();
@@ -2032,7 +2090,7 @@ function character_equip_item(item_key) {
     if(current_enemies) {
         reset_combat_loops();
     } else if(current_location.tags.safe_zone) {
-        //todo: update resource gathering tooltips in case there's a skill lvl bonus change
+        //update resource gathering tooltips in case there's a skill lvl bonus change
         Object.keys(current_location.activities).forEach(activity_key => {
             if(current_location.activities[activity_key].gained_resources) {
                 update_gathering_tooltip(current_location.activities[activity_key]);
@@ -3543,6 +3601,8 @@ window.option_remember_filters = option_remember_filters;
 
 window.getDate = get_date;
 
+window.isOnDev = is_on_dev;
+
 window.saveProgress = save_progress;
 window.save_to_file = save_to_file;
 window.load_progress = load_from_file;
@@ -3593,7 +3653,9 @@ function add_all_stuff_to_inventory(){
     })
 }
 
-//add_to_character_inventory([{item_id: "Piece of rough wood", count: 1000}]);
+//add_to_character_inventory([{item_id: "Short iron blade", count: 1000}]);
+//add_to_character_inventory([{item_id: "Long wooden shaft", count: 1000}]);
+
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
 

@@ -23,7 +23,6 @@ class InventoryHaver {
             } else {
                 //this part is so stupid (recreating item just to grab it's key)
                 //but at least it wont break if code for creating inventory keys changes
-                //also not sure if it's in use anywhere anymore
                 let item;
                 if(items[i].quality) {
                     item = getItem({...item_templates[items[i].item_id], quality: items[i].quality});
@@ -32,8 +31,8 @@ class InventoryHaver {
                 }
                 item_key = item.getInventoryKey();
             } 
-            if(!(item_key in this.inventory)) //not in inventory
-            {
+
+            if(!(item_key in this.inventory)) {//not in inventory
                 if(!items[i].count) {
                     items[i].count = 1;
                 }
@@ -41,7 +40,13 @@ class InventoryHaver {
                 this.inventory[item_key] = {item, count: items[i].count};
                 anything_new = true;
             } else { //in inventory
-                this.inventory[item_key].count += (items[i].count || 1);
+                if(items[i].count === undefined) {
+                    this.inventory[item_key].count = 1;
+                } else if(typeof items[i].count === "number" && !isNaN(items[i].count)){
+                    this.inventory[item_key].count += items[i].count;
+                } else {
+                    throw new TypeError(`Tried to add "${items[i].count}" items, which is not a valid number!`);
+                }
             }
         }
         return anything_new;

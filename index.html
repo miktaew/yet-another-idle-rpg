@@ -1265,7 +1265,7 @@
             function saveToFile() {
                 var a = window.document.createElement('a');
                 a.href = window.URL.createObjectURL(new Blob([save_to_file()], {type: 'text/plain'}));
-                a.download = `yet-another-idle-rpg ${getDate()}.txt`;
+                a.download = `yet-another-idle-rpg${isOnDev()?"-dev":""} ${getDate()}.txt`;
 
                 document.body.appendChild(a);
                 a.click();
