@@ -409,6 +409,11 @@ function start_location_action(selected_action) {
     let conditions_status; //[0,...,1]
 
     start_location_action_display(selected_action);
+
+    if(!location_action.can_be_started(character)) {
+        finish_location_action(selected_action, -1);
+        return;
+    }
     
     if(!location_action.check_conditions_on_finish) {
         conditions_status = location_action.get_conditions_status(character);
@@ -454,19 +459,22 @@ function finish_location_action(selected_action, conditions_status){
     
     let result_message = 'If you see this, Miktaew screwed something up. Whoops!';
 
-    if(conditions_status == 0) {
+    if(conditions_status == -1) {
+        //not meeting requirements to begin
+        result_message = action.failure_texts.unable_to_begin[Math.floor(action.failure_texts.unable_to_begin.length * Math.random())];
+    } else if(conditions_status == 0) {
         //lost by failing to meet conditions, nothing to check, deal with it
         result_message = action.failure_texts.conditional_loss[Math.floor(action.failure_texts.conditional_loss.length * Math.random())];
     } else {
-
         const action_result = get_location_action_result(selected_action, conditions_status);
-
+        let is_won = false;
         if(action_result > Math.random()) {
             //win
 
             result_message = action.success_text;
             action.is_finished = true;
             process_rewards({rewards: action.rewards, source_type: "action"});
+            is_won = true;
         } else {
             //random loss
 
@@ -477,6 +485,12 @@ function finish_location_action(selected_action, conditions_status){
             //no need to check if they are in inventory, as without them action would have been conditionally failed before reaching here
             if(action.conditions[0].items_by_id[item_id].remove) {
                 remove_from_character_inventory([{item_key: item_templates[item_id].getInventoryKey(), item_count: action.conditions[0].items_by_id[item_id].count}]);
+            }
+        });
+        Object.keys(action.required.items_by_id || {}).forEach(item_id => {
+            //again no need to check
+            if(action.required.items_by_id[item_id].remove_on_success && is_won || action.required.items_by_id[item_id].remove_on_fail && !is_won) {
+                remove_from_character_inventory([{item_key: item_templates[item_id].getInventoryKey(), item_count: action.required.items_by_id[item_id].count}]);
             }
         });
     }
@@ -522,8 +536,8 @@ function unlock_activity(activity_data) {
         activity_data.activity.is_unlocked = true;
         
         let message = "";
-        if(locations[activity_data.location].activities[activity_data.activity.activity_name].unlock_text) {
-           message = locations[activity_data.location].activities[activity_data.activity.activity_name].unlock_text+":<br>";
+        if(locations[activity_data.location].activities[activity_data.activity.activity_id].unlock_text) {
+           message = locations[activity_data.location].activities[activity_data.activity.activity_id].unlock_text+":<br>";
         }
         log_message(message + `Unlocked activity "${activity_data.activity.activity_name}" in location "${activity_data.location}"`, "activity_unlocked");
     }
@@ -1562,13 +1576,13 @@ function get_location_rewards(location) {
  * @param {Boolean} rewards_data.is_first_clear //exclusively for location rewards (and only for a single message to be logged)
  * @param {String} rewards_data.source_name //in case it's needed for logging a message
  */
-function process_rewards({rewards = {}, source_type, source_name, is_first_clear, source_id, inform_textline = false}) {
-    if(rewards.money && typeof rewards.money === "number") {
+function process_rewards({rewards = {}, source_type, source_name, is_first_clear, source_id, inform_textline = false, only_unlocks = false}) {
+    if(rewards.money && typeof rewards.money === "number" && !only_unlocks) {
         log_message(`${character.name} earned ${format_money(rewards.money)}`);
         add_money_to_character(rewards.money);
     }
 
-    if(rewards.xp && typeof rewards.xp === "number") {
+    if(rewards.xp && typeof rewards.xp === "number" && !only_unlocks) {
         if(source_type === "location") {
             if(is_first_clear) {
                 log_message(`Obtained ${rewards.xp}xp for clearing ${source_name} for the first time`, "location_reward");
@@ -1581,7 +1595,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         add_xp_to_character(rewards.xp);
     }
 
-    if(rewards.skill_xp) {
+    if(rewards.skill_xp && !only_unlocks) {
         Object.keys(rewards.skill_xp).forEach(skill_key => {
             if(typeof rewards.skill_xp[skill_key] === "number") {
                 log_message(`${character.name} gained ${rewards.skill_xp[skill_key]}xp to ${skills[skill_key].name()}`);
@@ -1725,7 +1739,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         }
     }
 
-    if(rewards.items) {
+    if(rewards.items && !only_unlocks) {
         for(let i = 0; i < rewards.items.length; i++) {
             const item = item_templates[rewards.items[i]];
             log_message(`${character.name} obtained "${item.getName()} x${rewards.items[i].count||1}"`);
@@ -1733,13 +1747,13 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         }
     }
 
-    if(rewards.reputation) {
+    if(rewards.reputation && !only_unlocks) {
         Object.keys(rewards.reputation).forEach(region => {
             ReputationManager.add_reputation({region, reputation: rewards.reputation[region]});
         });
     }
 
-    if(rewards.move_to) {
+    if(rewards.move_to && !only_unlocks) {
         if(source_type !== "action") {
             change_location[rewards.move_to.location];
         } else {
@@ -3033,6 +3047,16 @@ function load(save_data) {
                             }
                         }
                     }
+                } else {
+                    if(locations[key].rewards_with_clear_requirement) {
+                        for(let i = 0; i < locations[key].rewards_with_clear_requirement.length; i++) {
+                            if(locations[key].enemy_groups_killed == locations[key].enemy_count * locations[key].rewards_with_clear_requirement[i].required_clear_count)
+                            {
+                                //always do it if there was enough or more than enough clears
+                                process_rewards({rewards: locations[key].rewards_with_clear_requirement[i], source_type: "location", source_name: locations[key].name, is_first_clear: false, source_id: locations[key].id, only_unlocks: true});
+                            }
+                        }
+                    }
                 }
             }
 
@@ -3131,10 +3155,10 @@ function load(save_data) {
     if(save_data.current_activity) {
         //search for it in location from save_data
         const activity_id = save_data.current_activity.activity_id;
-        if(typeof activity_id !== "undefined" && current_location.activities[activity_id] && activities[activity_id]) {
+        if(typeof activity_id !== "undefined" && current_location.activities[activity_id] && activities[current_location.activities[activity_id].activity_name]) {
             
             start_activity(activity_id);
-            if(activities[activity_id].type === "JOB") {
+            if(activities[current_location.activities[activity_id].activity_name].type === "JOB") {
                 current_activity.working_time = save_data.current_activity.working_time;
                 current_activity.earnings = save_data.current_activity.earnings * ((is_from_before_eco_rework == 1)*10 || 1);
                 document.getElementById("action_end_earnings").innerHTML = `(earnings: ${format_money(current_activity.earnings)})`;
@@ -3143,6 +3167,7 @@ function load(save_data) {
             current_activity.gathering_time = save_data.current_activity.gathering_time;
             
         } else {
+            console.log(activity_id);
             console.warn("Couldn't find saved activity! It might have been removed");
         }
     }

@@ -78,7 +78,6 @@ v0.4.5
     - added a new crafting material, coal, which is now used in all smelting recipes
     - added new metal tier, steel, which requires iron + a new ore to craft; added corresponding weapon components
     - implemented personal storage, available at any place with bed, with shared content
-    - implemented reputation system, doesn't really do anything yet; rep gained mostly for clearing certain locations
     - new activity: climbing
     - new skills: climbing, breathing, medicine
     - new book, unlocks some recipes and the medicine skill
@@ -92,6 +91,7 @@ v0.4.5
     - activities (job, training, resource gathering) now display the time needed to level up their related skill (with in-game time format, e.g. 24 hours mean 24 irl minutes at standard tickrate)
     - slightly expanded some skill milestones
 
+    - equipment qualities are now rounded to nearest even value to reduce inventory cluttering (similarly to how components already had it rounded to nearest multiple of 4) 
     - made attack speed penalties from shields harsher; they are now also present on light shields (but not as strong as on heavy shields)
     - reduced value of crafting components to ~80%, but increased full equipment prices to ~125% (components are cheaper, but equipment prices stay mostly the same)
     - crafting recipes now show their xp values in tooltips
@@ -102,7 +102,9 @@ v0.4.5
 
     - slightly rewrote the code for location type penalties, allowing for flat effects (e.g. static hp loss every tick)
     - rewrote combat location N-th clear rewards to a form that allows any reward to have such restriction instead of just location unlocks
+    - implemented partial reputation system, doesn't really do anything yet and is not currently displayed anywhere (will be expanded in future)
 
+    - fixed a bug where some activities where stopped on reload with a warning in console, due to mismatch in keys
     - fixed a bug in crafting, where some equipments would end up with a different component than was chosen
     - fixed a bug with market saturation not working properly (item sold count wasn't being updated, leading to situation where item price reduction only applied in bulk trading)
     - fixed a bug where additional stats on componentless equipment (clothing) didn't scale with rarity

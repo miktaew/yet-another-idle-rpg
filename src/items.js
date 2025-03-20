@@ -377,7 +377,7 @@ class Equippable extends Item {
         this.components = {};
         this.bonus_skill_levels = item_data.bonus_skill_levels || {};
 
-        this.quality = Math.round(item_data.quality) || 100;
+        this.quality = Math.round(Number(item_data.quality)) || 100;
 
         this.tags["equippable"] = true;
     }
@@ -1070,6 +1070,12 @@ item_templates["Medicine for dummies"] = new Book({
         name: "Camping supplies", 
         description: "Bedroll, tent, small chest, and generally just anything that could be needed to establish a camp", 
         value: 2000,
+        saturates_market: false,
+    });
+    item_templates["Coil of rope"] = new OtherItem({
+        name: "Coil of rope", 
+        description: "A nice, long coil of rope, for whatever use you might find",
+        value: 500,
         saturates_market: false,
     });
 

@@ -1,10 +1,9 @@
 "use strict";
 
-import { get_total_level_bonus, get_total_skill_level } from "./character.js";
+import { get_total_level_bonus } from "./character.js";
 import { current_game_time } from "./game_time.js";
 import { InventoryHaver } from "./inventory.js";
 import { item_templates, getItem} from "./items.js";
-import { skills } from "./skills.js";
 
 const traders = {};
 const inventory_templates = {};
@@ -212,6 +211,7 @@ class TradeItem {
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
 
             new TradeItem({item_name: "Camping supplies", count: [1], chance: 1}),
+            new TradeItem({item_name: "Coil of rope", count: [1], chance: 1}),
     ];
 
     inventory_templates["Basic plus"] = 
@@ -261,6 +261,8 @@ class TradeItem {
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
 
             new TradeItem({item_name: "Camping supplies", count: [1], chance: 1}),
+            new TradeItem({item_name: "Coil of rope", count: [1], chance: 1}),
+            
     ];
 
     inventory_templates["Intermediate"] = 
@@ -307,6 +309,7 @@ class TradeItem {
         new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
 
         new TradeItem({item_name: "Camping supplies", count: [1], chance: 1}),
+        new TradeItem({item_name: "Coil of rope", count: [1], chance: 1}),
     ];
 })();
 export {traders};

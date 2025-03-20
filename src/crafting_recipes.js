@@ -221,7 +221,7 @@ class EquipmentRecipe extends Recipe {
 
     get_quality(component_quality, tier = 0) {
         const quality_range = this.get_quality_range(component_quality, tier);
-        return Math.round((quality_range[1]-quality_range[0])*Math.random()+quality_range[0]);
+        return Math.round(((quality_range[1]-quality_range[0])*Math.random()+quality_range[0])/2)*2;
     }
 
     get_component_quality_weighted(component_1, component_2) {
@@ -742,6 +742,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         name: "Charcoal",
         recipe_type: "material",
         materials: [{material_id: "Piece of rough wood", count: 5}], 
+       // materials: [{material_type: "raw wood", count: 5}],
         result: {result_id: "Coal", count: 1},
         success_chance: [0.4,1],
         recipe_level: [1,10],
