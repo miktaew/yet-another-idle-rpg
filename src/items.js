@@ -1095,7 +1095,7 @@ item_templates["Medicine for dummies"] = new Book({
         description: "Tail of a huge rat. Doesn't seem very useful, but maybe some meat could be recovered from it", 
         value: 4,
         price_recovers: true,
-        material_type: "meat source",
+
     });
     item_templates["Rat pelt"] = new Material({
         name: "Rat pelt", 
@@ -1131,7 +1131,6 @@ item_templates["Medicine for dummies"] = new Book({
         description: "Fatty meat of a wild boar, all it needs is to be cooked.",
         value: 20,
         price_recovers: true,
-        material_type: "meat source",
     });
     item_templates["High quality boar tusk"] = new Material({
         name: "High quality boar tusk", 
@@ -1154,7 +1153,6 @@ item_templates["Medicine for dummies"] = new Book({
         description: "Lean meat of a goat, it's pretty tough and needs to be cooked for a long time.",
         value: 25,
         price_recovers: true,
-        material_type: "meat source",
     });
     item_templates["Mountain goat hide"] = new Material({
         name: "Mountain goat hide", 
@@ -1206,7 +1204,6 @@ item_templates["Medicine for dummies"] = new Book({
         saturates_market: true,
         price_recovers: true,
         tags: {"carbon": true},
-        material_type: "flammable",
     });
     item_templates["Piece of rough wood"] = new Material({
         name: "Piece of rough wood", 
@@ -1412,7 +1409,7 @@ item_templates["Medicine for dummies"] = new Book({
                 multiplier: 1.20,
             },
             agility: {
-                flat: 2,
+                multiplier: 1.1,
             }
         }
     });
@@ -1431,7 +1428,7 @@ item_templates["Medicine for dummies"] = new Book({
                 multiplier: 1.30,
             },
             agility: {
-                flat: 5,
+                multiplier: 1.2,
             }
         }
     });
@@ -1450,7 +1447,7 @@ item_templates["Medicine for dummies"] = new Book({
                 multiplier: 1.35,
             },
             agility: {
-                flat: 7,
+                multiplier: 1.3,
             }
         }
     });

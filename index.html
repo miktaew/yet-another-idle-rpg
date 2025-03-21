@@ -1617,9 +1617,9 @@
                         document.documentElement.style.setProperty('--skill_tooltip_left', `${event.pageX - 1150}px`);
 
                         if(event.pageY > bottom_edge_position) {
-                            document.documentElement.style.setProperty('--skill_tooltip_top', `${bottom_edge_position - 380}px`);
+                            document.documentElement.style.setProperty('--skill_tooltip_top', `${bottom_edge_position - 320}px`);
                         } else {
-                            document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 380}px`);
+                            document.documentElement.style.setProperty('--skill_tooltip_top', `${event.pageY - 320}px`);
                         }
                         tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }

@@ -47,6 +47,7 @@
                 color: rgb(17, 17, 17);
                 background-color: rgb(17, 17, 17);
                 width: fit-content;
+                height: fit-content;
                 margin: 0px;
                 padding: 0px;
                 height: fit-content;
@@ -59,7 +60,7 @@
 
 <div id="header">Click on blocks to unfold their content</div>
 
-<button type="button" class="collapsible">v0.4.5</button>
+<button type="button" class="collapsible">v0.4.5 - Actions (and some other things too) </button>
 <div class="content"><pre>
 v0.4.5
     - implemented new feature, location actions. Unlike trainings, they are generally a one-time thing that provides unlocks and other rewards.
@@ -68,18 +69,22 @@ v0.4.5
         with the latter case having different messages for when you failed due to not meeting requirements vs when you were just unlucky and could succeed next time
     
     - made it possible to craft multiple items/components/equips at once (x5/x10/all)
-    - added multiple new locations and combat areas: <div class="spoiler">
-    * bandit hideout in slums
+    - added multiple new locations and combat areas: 
+ <div class="spoiler">    * bandit hideout in slums
     * two locations (one normal, one combat) after opening the 'mysterious gate' (the rat saga continues)
     * multiple mountain locations (one boss, one combat, a few normal + a camp) after climbing up (unlocked by beating one of cave locations)
     </div>
     - added better tools for gathering materials
     - added a mechanic of bonus skill levels (e.g. from better tools); these only apply to the basic effects and do not affect milestones
     - added a new crafting material, coal, which is now used in all smelting recipes
-    - added new metal tier, steel, which requires iron + a new ore to craft; added corresponding weapon components
+        It's own recipe is named "charcoal", don't be confused
+        It is crafted with any "raw" wood, using cheapest first. 
+        Multicrafting will only use one material type on each click, to avoid accidentally burning (ha, got it?) higher tiers
+    - added new metal tier, steel, which requires iron + a new ore to craft; added corresponding weapon components; steel unlocked by:<span class="spoiler">
+        Reaching level 15 in Forging skill</span>
     - implemented personal storage, available at any place with bed, with shared content
     - new activity: climbing
-    - new skills: climbing, breathing, medicine
+    - new skills: Climbing, Breathing, Medicine
     - new book, unlocks some recipes and the medicine skill
     - new spot for meditation + another milestone for the skill
     - skills for gathering materials now belong to a separate skill category (instead of 'Activity skills')
@@ -88,14 +93,15 @@ v0.4.5
     - made it possible for xp multipliers to affect entire skill categories (e.g. all 'Activity' skills)
     - item rarity rank is now directly displayed in tooltip (before that you had to guess from the color/quality)
     - tooltips for relevant crafting skills now show quality caps
-    - activities (job, training, resource gathering) now display the time needed to level up their related skill (with in-game time format, e.g. 24 hours mean 24 irl minutes at standard tickrate)
+    - activities (job, training, resource gathering) now display the time needed to level up their related skill 
+        (with in-game time format, e.g. 24 hours mean 24 irl minutes at standard tickrate)
     - slightly expanded some skill milestones
 
     - equipment qualities are now rounded to nearest even value to reduce inventory cluttering (similarly to how components already had it rounded to nearest multiple of 4) 
     - made attack speed penalties from shields harsher; they are now also present on light shields (but not as strong as on heavy shields)
     - reduced value of crafting components to ~80%, but increased full equipment prices to ~125% (components are cheaper, but equipment prices stay mostly the same)
     - crafting recipes now show their xp values in tooltips
-    - changed the formula for crafting quality cap (100 + 2 * skill_lvl)
+    - changed the formula for crafting quality cap (100 + 2 * skill_lvl), it's a lot harsher than previously
     - buffed success rates of first 2 woodcutting and mining spots
     - buffed success rates of some recipes
     - updated some xp displays to show both the percentage and the raw numbers
@@ -104,7 +110,7 @@ v0.4.5
     - rewrote combat location N-th clear rewards to a form that allows any reward to have such restriction instead of just location unlocks
     - implemented partial reputation system, doesn't really do anything yet and is not currently displayed anywhere (will be expanded in future)
 
-    - fixed a bug where some activities where stopped on reload with a warning in console, due to mismatch in keys
+    - fixed a bug where some activities were stopped on reload with a warning in console, due to mismatch in keys
     - fixed a bug in crafting, where some equipments would end up with a different component than was chosen
     - fixed a bug with market saturation not working properly (item sold count wasn't being updated, leading to situation where item price reduction only applied in bulk trading)
     - fixed a bug where additional stats on componentless equipment (clothing) didn't scale with rarity

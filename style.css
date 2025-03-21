@@ -457,6 +457,11 @@ body {
 			font-style: italic;
 		}
 
+		.skill_flavour_text {
+			color: rgb(190, 190, 190);
+			font-style: italic;
+		}
+
 #skill_list_div {
 	display: block;
 }
@@ -857,6 +862,10 @@ body {
 	position: absolute;
 	font-size: 14px;
 }
+.crafting_tooltip_mat_list {
+	padding-left: 20px;
+}
+
 .recipe_result {
 	border: 1px solid white;
 	padding: 5px;

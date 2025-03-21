@@ -110,13 +110,13 @@ function Verify_Game_Objects() {
                                 if(skill_key !== "all" && skill_key !== "all_skill" && skill_key !== "hero" && !skills[skill_key]) {
                                     if(skill_key.includes("category_")) {
                                         if(!skill_categories[skill_key.replace("category_","")]) {
+                                            has_issue = true;
                                             console.error(`Skill "${key}" has a milestone reward for a non-existent skill "${skill_key}"`);
                                         }
                                     } else {
+                                        has_issue = true;
                                         console.error(`Skill "${key}" has a milestone reward for a non-existent skill "${skill_key}"`);
                                     }
-                                    
-                                    has_issue = true;
                                 }
                             });
                         }

@@ -19,7 +19,6 @@ class ActiveEffect {
         this.tags["effect"] = true;
         this.potency = potency || 0;
         //todo: implement buff/debuff removal; use potency to check if effect A should remove effect B (the stronger survives)
-
     }
 }
 
@@ -40,7 +39,7 @@ effect_templates["Weak healing powder"] = new ActiveEffect({
             health_regeneration_flat: {flat: 1},
         }
     },
-    tags: {"buff": true},
+    tags: {"buff": true, "medical": true},
 });
 effect_templates["Weak healing potion"] = new ActiveEffect({
     name: "Weak healing potion",
@@ -50,7 +49,7 @@ effect_templates["Weak healing potion"] = new ActiveEffect({
             health_regeneration_percent: {flat: 1},
         }
     },
-    tags: {"buff": true},
+    tags: {"buff": true, "medical": true},
 });
 effect_templates["Weak healing balm"] = new ActiveEffect({
     name: "Weak healing balm",
@@ -60,7 +59,7 @@ effect_templates["Weak healing balm"] = new ActiveEffect({
             health_regeneration_percent: {flat: 0.5},
         }
     },
-    tags: {"buff": true},
+    tags: {"buff": true, "medical": true},
 });
 
 effect_templates["Cheap meat meal"] = new ActiveEffect({

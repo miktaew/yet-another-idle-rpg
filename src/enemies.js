@@ -147,12 +147,12 @@ class Enemy {
     });
     enemy_templates["Wall rat"] = new Enemy({
         name: "Wall rat",
-        description: "They don't live in the walls, they ARE the walls. Insane writhing masses of teeth, fangs, and tails, that make no logical sense.",
+        description: "They don't live in the walls, they ARE the walls. Insane writhing masses of teeth, fangs, and tails, that make no logical sense. An abomination that cannot exist, and yet it does.",
         xp_value: 20,
         rank: 6,
         size: "large",
         tags: ["living", "beast", "wolf rat", "monster", "eldritch"],
-        stats: {health: 800, attack: 50, agility: 20, dexterity: 80, intuition: 80, magic: 0, attack_speed: 2, defense: 30},
+        stats: {health: 1000, attack: 70, agility: 20, dexterity: 80, intuition: 80, magic: 0, attack_speed: 2, defense: 30},
         loot_list: [
             {item_name: "Rat tail", chance: 0.1},
             {item_name: "Rat fang", chance: 0.1},
@@ -225,7 +225,7 @@ class Enemy {
         rank: 6,
         tags: ["living", "beast"],
         size: "medium",
-        stats: {health: 600, attack: 120, agility: 120, dexterity: 50, magic: 0, intuition: 50, attack_speed: 2, defense: 30},
+        stats: {health: 600, attack: 120, agility: 120, dexterity: 50, magic: 0, intuition: 50, attack_speed: 0.5, defense: 30},
         loot_list: [
             {item_name: "Mountain goat hide", chance: 0.04},
             {item_name: "Goat meat", chance: 0.02},
@@ -299,7 +299,7 @@ class Enemy {
         rank: 6,
         tags: ["living", "beast"],
         size: "medium",
-        stats: {health: 800, attack: 150, agility: 120, dexterity: 70, magic: 0, intuition: 50, attack_speed: 2, defense: 30},
+        stats: {health: 800, attack: 150, agility: 120, dexterity: 70, magic: 0, intuition: 50, attack_speed: 0.5, defense: 30},
     });
 })()
 

@@ -1081,7 +1081,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         repeatable_reward: {
             xp: 1250,
         },
-        unlock_text: "After a long and ardous fight, you reach a chamber that ends with a massive stone gate. You can see it's guarded by some kind of wolf rats, but much bigger than the ones you fought until now."
+        unlock_text: "You see something. You struggle to comprehend it. When you finally understand, you regret not having been born blind."
     });
 
     locations["Nearby cave"].connected_locations.push({location: locations["Writhing tunnel"]});

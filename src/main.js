@@ -1329,6 +1329,9 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     } else if(xp_to_add < 0) {
         console.error(`Tried to add negative xp to skill ${skill.skill_id}`);
         return leveled;
+    } else if(isNaN(xp_to_add)) {
+        console.error(`Tried to add NaN xp to skill ${skill.skill_id}`);
+        return leveled;
     }
 
     if(use_bonus) {
@@ -1402,7 +1405,10 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
 
             //no point doing any checks for optimization
             update_displayed_stamina_efficiency();
+            
+            process_rewards({rewards: unlocks, inform_overall: should_info});
 
+            //go through unlocked skills (if any) to update skill relations
             for(let i = 0; i < unlocks?.skills?.length; i++) {
                 const unlocked_skill = skills[unlocks.skills[i]];
                 
@@ -1418,6 +1424,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                     continue;
                 }
                 
+                /*
                 unlocked_skill.is_unlocked = true;
         
                 create_new_skill_bar(unlocked_skill);
@@ -1426,6 +1433,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 if(typeof should_info === "undefined" || should_info) {
                     log_message(`Unlocked new skill: ${unlocked_skill.name()}`, "skill_raised");
                 }
+                */
             }
 
             if(typeof should_info === "undefined" || should_info){
@@ -1574,20 +1582,25 @@ function get_location_rewards(location) {
  * @param {Object} rewards_data.rewards //the standard object with rewards
  * @param {String} rewards_data.source_type //location, locationAction, textline
  * @param {Boolean} rewards_data.is_first_clear //exclusively for location rewards (and only for a single message to be logged)
+ * @param {Boolean} rewards_data.inform_textline //if textline unlock is to be logged
  * @param {String} rewards_data.source_name //in case it's needed for logging a message
  */
-function process_rewards({rewards = {}, source_type, source_name, is_first_clear, source_id, inform_textline = false, only_unlocks = false}) {
+function process_rewards({rewards = {}, source_type, source_name, is_first_clear, source_id, inform_overall = true, inform_textline = false, only_unlocks = false}) {
     if(rewards.money && typeof rewards.money === "number" && !only_unlocks) {
-        log_message(`${character.name} earned ${format_money(rewards.money)}`);
+        if(inform_overall) {
+            log_message(`${character.name} earned ${format_money(rewards.money)}`);
+        }
         add_money_to_character(rewards.money);
     }
 
     if(rewards.xp && typeof rewards.xp === "number" && !only_unlocks) {
         if(source_type === "location") {
-            if(is_first_clear) {
-                log_message(`Obtained ${rewards.xp}xp for clearing ${source_name} for the first time`, "location_reward");
-            } else {
-                log_message(`Obtained additional ${rewards.xp}xp for clearing ${source_name}`, "location_reward");
+            if(inform_overall) {
+                if(is_first_clear) {
+                    log_message(`Obtained ${rewards.xp}xp for clearing ${source_name} for the first time`, "location_reward");
+                } else {
+                    log_message(`Obtained additional ${rewards.xp}xp for clearing ${source_name}`, "location_reward");
+                }
             }
         } else {
             //other sources
@@ -1598,7 +1611,9 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
     if(rewards.skill_xp && !only_unlocks) {
         Object.keys(rewards.skill_xp).forEach(skill_key => {
             if(typeof rewards.skill_xp[skill_key] === "number") {
-                log_message(`${character.name} gained ${rewards.skill_xp[skill_key]}xp to ${skills[skill_key].name()}`);
+                if(inform_overall) {
+                    log_message(`${character.name} gained ${rewards.skill_xp[skill_key]}xp to ${skills[skill_key].name()}`);
+                }
                 add_xp_to_skill({skill: skills[skill_key], xp_to_add: rewards.skill_xp[skill_key]});
             }
         });
@@ -1620,7 +1635,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         for(let i = 0; i < rewards.flags.length; i++) {
             const flag = global_flags[rewards.flags[i]];
             global_flags[rewards.flags[i]] = true;
-            if(!flag && flag_unlock_texts[rewards.flags[i]]) {
+            if(!flag && flag_unlock_texts[rewards.flags[i]] && inform_overall) {
                 log_message(`${flag_unlock_texts[rewards.flags[i]]}`, "activity_unlocked");
             }
         }
@@ -1635,7 +1650,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
                     dialogues[rewards.textlines[i].dialogue].textlines[rewards.textlines[i].lines[j]].is_unlocked = true;
                 }
             }
-            if(any_unlocked && inform_textline) {
+            if(any_unlocked && inform_textline && inform_overall) {
                 log_message(`You should talk to ${rewards.textlines[i].dialogue}`, "dialogue_unlocked");
                 //maybe do this only when there's just 1 dialogue with changes?
             }
@@ -1701,8 +1716,9 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
             skills[rewards.skills[i]].is_unlocked = true;
             create_new_skill_bar(skills[rewards.skills[i]]);
             update_displayed_skill_bar(skills[rewards.skills[i]], false);
-            log_message(`Unlocked new skill: ${skills[rewards.skills[i]].name()}`);
-
+            if(inform_overall) {
+                log_message(`Unlocked new skill: ${skills[rewards.skills[i]].name()}`);
+            }
         }
     }
 
@@ -1710,7 +1726,9 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         for(let i = 0; i < rewards.recipes.length; i++) {
             if(!recipes[rewards.recipes[i].category][rewards.recipes[i].subcategory][rewards.recipes[i].recipe_id].is_unlocked) {
                 recipes[rewards.recipes[i].category][rewards.recipes[i].subcategory][rewards.recipes[i].recipe_id].is_unlocked = true;
-                log_message(`Unlocked new recipe: ${recipes[rewards.recipes[i].category][rewards.recipes[i].subcategory][rewards.recipes[i].recipe_id].name}`);
+                if(inform_overall) {
+                    log_message(`Unlocked new recipe: ${recipes[rewards.recipes[i].category][rewards.recipes[i].subcategory][rewards.recipes[i].recipe_id].name}`);
+                }
             }
         }
     }
@@ -1805,7 +1823,8 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
         let result;
         let xp_to_add;
         if(subcategory === "items") {
-            let ammount_that_can_be_crafted = Math.min(ammount_wanted_to_craft, selected_recipe.get_availability());
+            const {available_ammount, materials} = selected_recipe.get_availability()
+            let ammount_that_can_be_crafted = Math.min(ammount_wanted_to_craft, available_ammount);
             let attempted_crafting_ammount = ammount_that_can_be_crafted; //ammount that will be attempted (e.g. 100)
             let successful_crafting_ammount; //ammount that will succeed (e.g. 100 * 75.6% success = 75 + 60% for another 1)
             if(ammount_that_can_be_crafted > 0) { 
@@ -1853,9 +1872,19 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 total_crafting_attempts += attempted_crafting_ammount;
                 total_crafting_successes += successful_crafting_ammount;
 
+                //remove used materials by id
                 for(let i = 0; i < selected_recipe.materials.length; i++) {
-                    const key = item_templates[selected_recipe.materials[i].material_id].getInventoryKey();
-                    remove_from_character_inventory([{item_key: key, item_count: selected_recipe.materials[i].count*attempted_crafting_ammount}]);
+                    if(selected_recipe.materials[i].material_id) {
+                        const key = item_templates[selected_recipe.materials[i].material_id].getInventoryKey();
+                        remove_from_character_inventory([{item_key: key, item_count: selected_recipe.materials[i].count*attempted_crafting_ammount}]);
+                    }
+                } 
+
+                //remove used materials by material_type
+                for(let i = 0; i < materials.length; i++) {
+                    const mat_type = item_templates[materials[i]].material_type;
+                    const mat = selected_recipe.materials.find(x => x.material_type === mat_type);
+                    remove_from_character_inventory([{item_key: item_templates[materials[i]].getInventoryKey(), item_count: mat.count*attempted_crafting_ammount}]);
                 } 
 
                 if(successful_crafting_ammount > 0) {
@@ -3335,9 +3364,14 @@ function update() {
                     }
                 }
 
+                if(activities[current_activity.activitity_name].type === "TRAINING") {
+                    add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.5});
+                } else {
+                    add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.1});
+                }
+
                 current_activity.gathering_time += 1;
-                if(current_activity.gained_resources)
-                {
+                if(current_activity.gained_resources) {
                     if(current_activity.gathering_time >= current_activity.gathering_time_needed) { 
                         const {gathering_time_needed, gained_resources} = current_activity.getActivityEfficiency();
 
@@ -3396,6 +3430,9 @@ function update() {
                 //if gathering: add drops to inventory
 
             } else {
+                //no current activity
+
+                add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.1});
                 const divs = document.getElementsByClassName("activity_div");
                 for(let i = 0; i < divs.length; i++) {
                     const activity = current_location.activities[divs[i].getAttribute("data-activity")];
@@ -3551,7 +3588,7 @@ function run() {
     update_displayed_health();
         
     start_date = Date.now();
-    update();   
+    update();
 }
 
 window.equip_item = character_equip_item;
@@ -3678,7 +3715,7 @@ function add_all_stuff_to_inventory(){
     })
 }
 
-//add_to_character_inventory([{item_id: "Short iron blade", count: 1000}]);
+//add_to_character_inventory([{item_id: "Piece of wood", count: 24}]);
 //add_to_character_inventory([{item_id: "Long wooden shaft", count: 1000}]);
 
 //add_stuff_for_testing();

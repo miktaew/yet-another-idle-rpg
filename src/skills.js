@@ -6,14 +6,6 @@ const skill_categories = {};
 import { get_total_level_bonus, get_total_skill_coefficient, get_total_skill_level } from "./character.js";
 import {stat_names} from "./misc.js";
 
-/*    
-TODO:
-    - elemental resistances for:
-        - lessening environmental penalties of other types (mostly affecting stamina maybe?)
-        - lessening elemental dmg (first need to implement damage types)
-    - locked -> skill needs another action to unlock (doesnt gain xp)
-*/
-
 const weapon_type_to_skill = {
     "axe": "Axes",
     "dagger": "Daggers",
@@ -30,6 +22,7 @@ class Skill {
     constructor({skill_id, 
                   names, 
                   description, 
+                  flavour_text, 
                   max_level = 60, 
                   max_level_coefficient = 1, 
                   max_level_bonus = 0, 
@@ -51,6 +44,7 @@ class Skill {
         this.skill_id = skill_id;
         this.names = names; // put only {0: name} to have skill always named the same, no matter the level
         this.description = description;
+        this.flavour_text = flavour_text;
         this.current_level = 0; //initial lvl
         this.max_level = max_level; //max possible lvl, dont make it too high
         this.max_level_coefficient = max_level_coefficient; //multiplicative bonus for levels
@@ -128,7 +122,7 @@ class Skill {
             else { //levelup
                 
                 let level_after_xp = 0;
-                let unlocks = {skills: []};
+                let unlocks = {skills: [], recipes: []};
 
                 //its alright if this goes over max level, it will be overwritten in a if-else below that
                 while (this.total_xp >= this.total_xp_to_next_lvl) {
@@ -138,6 +132,9 @@ class Skill {
 
                     if(this.milestones[level_after_xp]?.unlocks?.skills) {
                         unlocks.skills.push(...this.milestones[level_after_xp].unlocks.skills);
+                    }
+                    if(this.milestones[level_after_xp]?.unlocks?.recipes) {
+                        unlocks.recipes.push(...this.milestones[level_after_xp].unlocks.recipes);
                     }
                 } //calculates lvl reached after adding xp
                 //probably could be done much more efficiently, but it shouldn't be a problem anyway
@@ -390,15 +387,26 @@ function format_skill_rewards(milestone){
         }
     }
     if(milestone.unlocks) {
-        const unlocked_skills = milestone.unlocks.skills;
-        if(formatted) {
-            formatted += `, <br> Unlocked skill "${milestone.unlocks.skills[0]}"`;
-        } else {
-            formatted = `Unlocked skill "${milestone.unlocks.skills[0]}"`;
+        if(milestone.unlocks.skills) {
+            const unlocked_skills = milestone.unlocks.skills;
+            if(formatted) {
+                formatted += `, <br> Unlocked skill "${milestone.unlocks.skills[0]}"`;
+            } else {
+                formatted = `Unlocked skill "${milestone.unlocks.skills[0]}"`;
+            }
+            for(let i = 1; i < unlocked_skills.length; i++) {
+                formatted += `, "${milestone.unlocks.skills[i]}"`;
+            }
         }
-        for(let i = 1; i < unlocked_skills.length; i++) {
-            formatted += `, "${milestone.unlocks.skills[i]}"`;
+        if(milestone.unlocks.recipes) {
+            const phrasing = milestone.unlocks.recipes.length > 1?"new recipes":"a new recipe";
+            if(formatted) {
+                formatted += `, <br> Unlocked ${phrasing}`;
+            } else {
+                formatted = `Unlocked ${phrasing}`;
+            }
         }
+        
     }
     return formatted;
 }
@@ -1463,6 +1471,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                     5: {
                                         xp_multipliers: {
                                             "Sleeping": 1.1,
+                                            "Breathing": 1.1,
                                             "Presence sensing": 1.05,
                                         }
                                     },
@@ -1482,6 +1491,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                         xp_multipliers: {
                                             all: 1.05,
                                             "Sleeping": 1.1,
+                                            "Breathing": 1.1,
                                             "Presence sensing": 1.05,
                                         }
                                     },
@@ -1495,6 +1505,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                         xp_multipliers: {
                                             all: 1.1,
                                             "Sleeping": 1.1,
+                                            "Breathing": 1.1,
                                             "Presence sensing": 1.1,
                                         }
                                     },
@@ -1531,6 +1542,9 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                             agility: {
                                                 flat: 1
                                             },
+                                        },
+                                        xp_multipliers: {
+                                            "Breathing": 1.1,
                                         }
                                     },
                                     5: {
@@ -1550,6 +1564,9 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                                 multiplier: 1.05,
                                             }
                                         },
+                                        xp_multipliers: {
+                                            "Breathing": 1.05,
+                                        }
                                     },
                                     10: {
                                         stats: {
@@ -1561,6 +1578,9 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                                 multiplier: 1.05,
                                             }
                                         },
+                                        xp_multipliers: {
+                                            "Breathing": 1.1,
+                                        }
                                     },
                                     12: {
                                         stats: {
@@ -1571,6 +1591,9 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                                 flat: 5
                                             }
                                         },
+                                        xp_multipliers: {
+                                            "Breathing": 1.05,
+                                        }
                                     }
                                 },
                                 get_effect_description: ()=> {
@@ -1676,42 +1699,42 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     milestones: {
         1: {
             stats: {
-            agility: {flat: 1},
+                agility: {flat: 1},
             },
         },
         3: {
             stats: {
-            intuition: {flat: 1},
+                intuition: {flat: 1},
             }
         },
         5: {
             stats: {
-            agility: {
-                flat: 1,
-                multiplier: 1.05,
-            },
-            strength: {flat: 1},
-            max_stamina: {multiplier: 1.05},
+                agility: {
+                    flat: 1,
+                    multiplier: 1.05,
+                },
+                strength: {flat: 1},
+                max_stamina: {multiplier: 1.05},
             },
             xp_multipliers: {
-            "Unarmed": 1.1,
+                "Unarmed": 1.1,
             }
         },
         7: {
             stats: {
-            intuition: {flat: 1},
+                intuition: {flat: 1},
             },
         },
         9: {
-        stats: {
-            strength: {flat: 1},
-        }
+            stats: {
+                strength: {flat: 1},
+            }
         },
         10: {
             stats: {
-            agility: {flat: 1},
-            intuition: {multiplier: 1.05},
-            max_stamina: {multiplier: 1.05},
+                agility: {flat: 1},
+                intuition: {multiplier: 1.05},
+                max_stamina: {multiplier: 1.05},
             },
         },
         12: {
@@ -1861,7 +1884,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         max_level: 60,
         get_effect_description: () => {
             return `Quality cap: ${100+get_total_skill_level("Crafting")*2}%`;
-        }
+        },
     });
     skills["Smelting"] = new Skill({
         skill_id: "Smelting", 
@@ -1882,6 +1905,15 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         max_level: 60,
         get_effect_description: () => {
             return `Quality cap: ${100+get_total_skill_level("Forging")*2}%`;
+        },
+        milestones: {
+            15: {
+                unlocks: {
+                    recipes: [
+                        {category: "smelting", subcategory: "items", recipe_id: "Steel ingot"},
+                    ]
+                }
+            }
         }
     });
     skills["Cooking"] = new Skill({
@@ -2044,9 +2076,6 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         base_xp_cost: 120,
         max_level: 10,
         xp_scaling: 2,
-        get_effect_description: ()=> {
-            return `Allows reading harder books`;
-        },
         milestones: {
             1: {
                 xp_multipliers: {
@@ -2085,13 +2114,93 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         skill_id: "Breathing",
         names: {0: "Breathing"}, 
         description: "Oxygen is the most important resource for improving the performance of your body. Learn how to take it in more efficiently.",
-        base_xp_cost: 350,
-        visibility_treshold: 300,
+        flavour_text: "You are now breathing manually",
+        base_xp_cost: 120,
+        visibility_treshold: 110,
         category: "Character",
+        max_level_coefficient: 2,
         max_level: 30,
-        rewards: {
-            
-        }
+        milestones: {
+            3: {
+                xp_multipliers: {
+                    Running: 1.1,
+                    Meditation: 1.1,
+                },
+                stats: {
+                    attack_speed: {
+                        multiplier: 1.02,
+                    }
+                }
+            },
+            5: {
+                stats: {
+                    agility: {
+                        multiplier: 1.05,
+                    },
+                    stamina_efficiency: {
+                        multiplier: 1.05,
+                    }
+                },
+            },
+            7: {
+                xp_multipliers: {
+                    Running: 1.1,
+                    Meditation: 1.1,
+                }
+            },
+            10: {
+                stats: {
+                    strength: {
+                        multiplier: 1.05
+                    },
+                    max_stamina: {
+                        multiplier: 1.05,
+                    },
+                    attack_speed: {
+                        multiplier: 1.02,
+                    }
+                },
+            },
+            12: {
+                stats: {
+                    strength: {
+                        flat: 2
+                    },
+                    agility: {
+                        flat: 2
+                    }
+                },
+                xp_multipliers: {
+                    Running: 1.1,
+                    Meditation: 1.1,
+                }
+            }, 
+            14: {
+                xp_multipliers: {
+                    Running: 1.1,
+                    Meditation: 1.1,
+                },
+                stats: {
+                    attack_speed: {
+                        multiplier: 1.03,
+                    },
+                    stamina_efficiency: {
+                        multiplier: 1.05,
+                    }
+                }
+            }
+        },
+        get_effect_description: ()=> {
+            let value = get_total_skill_coefficient({skill_id:"Breathing",scaling_type:"multiplicative"});
+            if(value >= 100) {
+                value = Math.round(value);
+            } else if(value >= 10 && value < 100) {
+                value = Math.round(value*10)/10; 
+            } else {
+                value = Math.round(value*100)/100;
+            }
+            return `Multiplies strength, agility and stamina by ${value}`;
+          },
     });  
 })();
 
@@ -2133,8 +2242,10 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 },
             },
             7: {
-                intuition: {
-                    flat: 2
+                stats: {
+                    intuition: {
+                        flat: 2
+                    }
                 },
             },
             10: {

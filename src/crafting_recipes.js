@@ -72,25 +72,34 @@ class ItemRecipe extends Recipe {
 
     get_availability() {
         let ammount = Infinity;
+        let materials = [];
         for(let i = 0; i < this.materials.length; i++) {
-            const key = item_templates[this.materials[i].material_id].getInventoryKey();
-            if(!character.inventory[key]) {
-                return 0;
+            if(this.materials[i].material_id) {
+                const key = item_templates[this.materials[i].material_id].getInventoryKey();
+                if(!character.inventory[key]) {
+                    return 0;
+                }
+                ammount = Math.floor(Math.min(character.inventory[key].count / this.materials[i].count, ammount));
+            } else if (this.materials[i].material_type) {
+                let mats = [];
+
+                //going through possible items and checking for their presence would surely be faster
+                Object.keys(character.inventory).forEach(key => {
+                    if(character.inventory[key].item.material_type === this.materials[i].material_type && character.inventory[key].count >= this.materials[i].count) {
+                        mats.push(character.inventory[key]);
+                    }
+                });
+                if(mats.length == 0) {
+                    return 0;
+                }
+
+                mats = mats.sort((a,b) => a.item.getValue()-b.item.getValue());
+                ammount = Math.floor(Math.min(mats[0].count / this.materials[i].count, ammount));
+                materials.push(mats[0].item.id);
             }
-            ammount = Math.floor(Math.min(character.inventory[key].count / this.materials[i].count , ammount));
         }
         
-        return ammount;
-    }
-
-    get_is_any_material_present() {
-        for(let i = 0; i < this.materials.length; i++) {
-            
-            if(character.inventory[this.materials[i].material_id]) {
-                return true;
-            }
-        }
-        return false;
+        return {available_ammount: ammount, materials};
     }
 }
 
@@ -710,8 +719,8 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [5,15],
         recipe_skill: "Smelting",
     });
-    smelting_recipes.items["Steel ingot"] = new ItemRecipe({
-        name: "Steel ingot",
+    smelting_recipes.items["Steel ingot (inefficient)"] = new ItemRecipe({
+        name: "Steel ingot (inefficient)",
         recipe_type: "material",
         materials: [{material_id: "Iron ore", count: 5}, {material_id: "Corbundum ore", count: 5}, {material_id: "Coal", count: 2}],
         result: {result_id: "Steel ingot", count: 1},
@@ -741,8 +750,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     smelting_recipes.items["Charcoal"] = new ItemRecipe({
         name: "Charcoal",
         recipe_type: "material",
-        materials: [{material_id: "Piece of rough wood", count: 5}], 
-       // materials: [{material_type: "raw wood", count: 5}],
+        materials: [{material_type: "raw wood", count: 5}],
         result: {result_id: "Coal", count: 1},
         success_chance: [0.4,1],
         recipe_level: [1,10],
