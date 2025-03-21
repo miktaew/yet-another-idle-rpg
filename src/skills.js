@@ -107,7 +107,7 @@ class Skill {
 
     add_xp({xp_to_add = 0}) {
         if(xp_to_add == 0 || !this.is_unlocked) {
-            return;
+            return {};
         }
         xp_to_add = Math.round(xp_to_add*100)/100;
         let skill_name = this.name();
@@ -1598,14 +1598,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                 },
                                 get_effect_description: ()=> {
                                     let value = get_total_skill_coefficient({skill_id:"Running",scaling_type:"multiplicative"})
-                                    if(value >= 100) {
-                                        value = Math.round(value);
-                                    } else if(value >= 10 && value < 100) {
-                                        value = Math.round(value*10)/10; 
-                                    } else {
-                                        value = Math.round(value*100)/100;
-                                    }
-                                    return `Multiplies stamina efficiency by ${value}`;
+                                    return `Multiplies stamina efficiency by ${Math.round(value*100)/100}`;
                                 },
                             });
     skills["Weightlifting"] = new Skill({skill_id: "Weightlifting",
@@ -1678,14 +1671,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     },
     get_effect_description: ()=> {
       let value = get_total_skill_coefficient({skill_id:"Weightlifting",scaling_type:"multiplicative"})
-      if(value >= 100) {
-          value = Math.round(value);
-      } else if(value >= 10 && value < 100) {
-          value = Math.round(value*10)/10; 
-      } else {
-          value = Math.round(value*100)/100;
-      }
-      return `Multiplies strength by ${value}`;
+      return `Multiplies strength by ${Math.round(value*100)/100}`;
     },
     
     });
@@ -1746,14 +1732,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     },
     get_effect_description: ()=> {
       let value = get_total_skill_coefficient({skill_id:"Equilibrium",scaling_type:"multiplicative"});
-      if(value >= 100) {
-          value = Math.round(value);
-      } else if(value >= 10 && value < 100) {
-          value = Math.round(value*10)/10; 
-      } else {
-          value = Math.round(value*100)/100;
-      }
-      return `Multiplies agility by ${value}`;
+      return `Multiplies agility by ${Math.round(value*100)/100}`;
     },
     
     });
@@ -1820,14 +1799,8 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         },
         get_effect_description: ()=> {
           let value = get_total_skill_coefficient({skill_id:"Climbing",scaling_type:"multiplicative"});
-          if(value >= 100) {
-              value = Math.round(value);
-          } else if(value >= 10 && value < 100) {
-              value = Math.round(value*10)/10; 
-          } else {
-              value = Math.round(value*100)/100;
-          }
-          return `Multiplies strength, agility and stamina by ${value}`;
+
+          return `Multiplies strength, agility and stamina by ${Math.round(value*100)/100}`;
         },
     });
 })();
@@ -2108,7 +2081,12 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         category: "Character",
         max_level: 30,
         visibility_treshold: 0,
+        max_level_coefficient: 3,
         is_unlocked: false,
+        get_effect_description: ()=> {
+            let value = get_total_skill_coefficient({skill_id:"Medicine",scaling_type:"multiplicative"});
+            return `Multiplies effects of medicines by ${Math.round(value*100)/100}`;
+          },
     });
     skills["Breathing"] = new Skill({
         skill_id: "Breathing",
@@ -2192,14 +2170,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         },
         get_effect_description: ()=> {
             let value = get_total_skill_coefficient({skill_id:"Breathing",scaling_type:"multiplicative"});
-            if(value >= 100) {
-                value = Math.round(value);
-            } else if(value >= 10 && value < 100) {
-                value = Math.round(value*10)/10; 
-            } else {
-                value = Math.round(value*100)/100;
-            }
-            return `Multiplies strength, agility and stamina by ${value}`;
+            return `Multiplies strength, agility and stamina by ${Math.round(value*100)/100}`;
           },
     });  
 })();

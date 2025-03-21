@@ -1344,7 +1344,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     
     const prev_name = skill.name();
     const was_hidden = skill.visibility_treshold > skill.total_xp;
-    
+
     let {message, gains, unlocks} = skill.add_xp({xp_to_add: xp_to_add});
     const new_name = skill.name();
     if(skill.parent_skill && add_to_parent) {

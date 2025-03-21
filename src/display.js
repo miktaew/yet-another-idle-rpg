@@ -436,16 +436,22 @@ function create_effect_tooltip(effect_name, duration) {
     tooltip.appendChild(top_div);
 
     const effects_div = document.createElement("div");
+
+    let multiplier = 1;
+    if(effect.tags.medical) {
+            multiplier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id:"Medicine"});
+    }
+
     for(const [key, stat_value] of Object.entries(effect.effects.stats)) {
         tooltip.innerHTML += `<br>${capitalize_first_letter(key.replaceAll("_", " ").replace("flat","").replace("percent",""))} `;
         //for regeneration bonuses, it is assumed they are only flat and not multiplicative
         if(key === "health_regeneration_flat" || key ===  "stamina_regeneration_flat" || key ===  "mana_regeneration_flat" || key === "health_loss_flat") 
         {   
             const sign = stat_value.flat > 0? "+":"";
-            tooltip.innerHTML += `: ${sign}${stat_value.flat}`;
+            tooltip.innerHTML += `: ${sign}${Math.round(100*stat_value.flat*multiplier)/100}`;
         } else if(key === "health_regeneration_percent" || key === "stamina_regeneration_percent" || key === "mana_regeneration_percent" || key === "health_loss_percent") {
             const sign = stat_value.percent > 0? "+":"";
-            tooltip.innerHTML += `: ${sign}${stat_value.flat}%`;
+            tooltip.innerHTML += `: ${sign}${Math.round(100*stat_value.flat*multiplier)/100}%`;
         } else {
             //
         }

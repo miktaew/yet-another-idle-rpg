@@ -285,14 +285,19 @@ character.stats.add_book_bonus = function ({multipliers = {}, xp_multipliers = {
 character.stats.add_active_effect_bonus = function() {
         character.stats.flat.active_effect = {};
         character.stats.multiplier.active_effect = {};
+
         Object.values(active_effects).forEach(effect => {
+                let multiplier = 1;
+                if(effect.tags.medical) {
+                        multiplier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id:"Medicine"});
+                }
                 for(const [key, value] of Object.entries(effect.effects.stats)) {
                         if(value.flat) {
-                                character.stats.flat.active_effect[key] = (character.stats.flat.active_effect[key] || 0) + value.flat;
+                                character.stats.flat.active_effect[key] = (character.stats.flat.active_effect[key] || 0) + value.flat*multiplier;
                         }
 
                         if(value.multiplier) {
-                                character.stats.multiplier.active_effect[key] = (character.stats.multiplier.active_effect[key] || 1) * value.multiplier;
+                                character.stats.multiplier.active_effect[key] = (character.stats.multiplier.active_effect[key] || 1) * value.multiplier*multiplier;
                         }
                 }
                 for(const [key, value] of Object.entries(effect.effects.bonus_skill_levels)) {

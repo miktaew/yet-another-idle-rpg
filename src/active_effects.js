@@ -1,3 +1,4 @@
+
 const effect_templates = {}; 
 //templates, since some effects will appear across multiple items but with different durations
 
@@ -15,6 +16,12 @@ class ActiveEffect {
         this.id = id || name;
         this.duration = duration ?? 0;
         this.effects = effects;
+        if(!this.effects.bonus_skill_levels) {
+            this.effects.bonus_skill_levels = {};
+        }
+        if(!this.effects.stats) {
+            this.effects.stats = {};
+        }
         this.tags = tags || {};
         this.tags["effect"] = true;
         this.potency = potency || 0;
