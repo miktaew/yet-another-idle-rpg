@@ -2080,12 +2080,11 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         description: "Create better medicaments and improve your skill at treating wounds.",
         category: "Character",
         max_level: 30,
-        visibility_treshold: 0,
-        max_level_coefficient: 3,
-        is_unlocked: false,
+        visibility_treshold: 5,
+        max_level_coefficient: 2,
         get_effect_description: ()=> {
             let value = get_total_skill_coefficient({skill_id:"Medicine",scaling_type:"multiplicative"});
-            return `Multiplies effects of medicines by ${Math.round(value*100)/100}`;
+            return `Multiplies additive effects of medicines by ${Math.round((value**2)*100)/100} and multiplicative effects by ${Math.round(value*100)/100}`;
           },
     });
     skills["Breathing"] = new Skill({

@@ -1320,6 +1320,7 @@ function use_stamina(num = 1, use_efficiency = true) {
  * @param skill - skill object 
  * @param {Number} xp_to_add 
  * @param {Boolean} should_info 
+ * @returns {Boolean}
  */
 function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = true, add_to_parent = true})
 {
@@ -1359,7 +1360,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     }
 
     const is_visible = skill.visibility_treshold <= skill.total_xp;
-
+    
     if(was_hidden && is_visible) 
     {
         create_new_skill_bar(skill);
@@ -1909,7 +1910,14 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
 
                 leveled = add_xp_to_skill({skill: recipe_skill, xp_to_add: xp_to_add});
                 if(is_medicine) {
-                    add_xp_to_skill({skill: skills["Medicine"], xp_to_add: xp_to_add/2});
+                    let leveled = add_xp_to_skill({skill: skills["Medicine"], xp_to_add: xp_to_add/2});
+                    if(leveled) {
+                        Object.keys(character.inventory).forEach(item_key => {
+                            if(character.inventory[item_key].item.tags.medicine) {
+                                update_displayed_character_inventory({item_key});
+                            }
+                        });
+                    }
                 }
                 
                 if(attempted_crafting_ammount < ammount_that_can_be_crafted) {
@@ -2179,7 +2187,15 @@ function use_item(item_key) {
         add_to_character_inventory(recovered);
 
         if(item_templates[id].tags.medicine) {
-            add_xp_to_skill({skill: skills["Medicine"], xp_to_add: (item_templates[id].value/10)**.6667});
+            let leveled = add_xp_to_skill({skill: skills["Medicine"], xp_to_add: (item_templates[id].value/10)**.6667});
+            //if levelup, update all medicine tooltips
+            if(leveled) {
+                Object.keys(character.inventory).forEach(item_key => {
+                    if(character.inventory[item_key].item.tags.medicine) {
+                        update_displayed_character_inventory({item_key});
+                    }
+                });
+            }
         }
     }
     remove_from_character_inventory([{item_key}]);

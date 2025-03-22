@@ -3,7 +3,7 @@
 import { traders } from "./traders.js";
 import { current_trader, to_buy, to_sell } from "./trade.js";
 import { skills, get_unlocked_skill_rewards, get_next_skill_milestone } from "./skills.js";
-import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, get_total_skill_coefficient, get_total_skill_level } from "./character.js";
+import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, get_total_skill_coefficient, get_total_skill_level, get_effect_with_bonuses } from "./character.js";
 import { current_enemies, options, 
     can_work, current_location, 
     active_effects, enough_time_for_earnings, 
@@ -438,11 +438,12 @@ function create_effect_tooltip(effect_name, duration) {
     const effects_div = document.createElement("div");
 
     let multiplier = 1;
-    if(effect.tags.medical) {
+    if(effect.tags.medicine) {
             multiplier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id:"Medicine"});
     }
 
-    for(const [key, stat_value] of Object.entries(effect.effects.stats)) {
+    let effects = get_effect_with_bonuses(effect);
+    for(const [key, stat_value] of Object.entries(effects.stats)) {
         tooltip.innerHTML += `<br>${capitalize_first_letter(key.replaceAll("_", " ").replace("flat","").replace("percent",""))} `;
         //for regeneration bonuses, it is assumed they are only flat and not multiplicative
         if(key === "health_regeneration_flat" || key ===  "stamina_regeneration_flat" || key ===  "mana_regeneration_flat" || key === "health_loss_flat") 

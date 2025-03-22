@@ -288,10 +288,9 @@ character.stats.add_active_effect_bonus = function() {
 
         Object.values(active_effects).forEach(effect => {
                 let multiplier = 1;
-                if(effect.tags.medical) {
-                        multiplier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id:"Medicine"});
-                }
-                for(const [key, value] of Object.entries(effect.effects.stats)) {
+
+                let effects = get_effect_with_bonuses(effect);
+                for(const [key, value] of Object.entries(effects.stats)) {
                         if(value.flat) {
                                 character.stats.flat.active_effect[key] = (character.stats.flat.active_effect[key] || 0) + value.flat*multiplier;
                         }
@@ -300,7 +299,7 @@ character.stats.add_active_effect_bonus = function() {
                                 character.stats.multiplier.active_effect[key] = (character.stats.multiplier.active_effect[key] || 1) * value.multiplier*multiplier;
                         }
                 }
-                for(const [key, value] of Object.entries(effect.effects.bonus_skill_levels)) {
+                for(const [key, value] of Object.entries(effects.bonus_skill_levels)) {
                         character.bonus_skill_levels.flat.active_effects[key] = (character.bonus_skill_levels.flat.active_effects[key] || 0) + value;
                 }
         });
@@ -607,21 +606,7 @@ character.get_character_money = function () {
  */
 function add_to_character_inventory(items) {
         const was_anything_new_added = character.add_to_inventory(items);
-        /*
-        for(let i = 0; i < items.length; i++) {
-                let item;
-                if(items[i].item_key) {
-                        item = getItemFromKey(items[i].item_key);
-                } else if(items[i].item_id) {
-                        item = item_templates[items[i].item_id];
-                } else {
-                        return;
-                }
-                
-                if(item.tags.tool && character.equipment[item.equip_slot] === null) {
-                        equip_item_from_inventory(item.getInventoryKey());
-                }     
-        }*/
+
         update_displayed_character_inventory({was_anything_new_added});
 }
 
@@ -747,6 +732,25 @@ function get_total_skill_coefficient({scaling_type, skill_id}) {
         return skills[skill_id].get_coefficient({scaling_type, skill_level: get_total_skill_level(skill_id)});
 }
 
+function get_effect_with_bonuses(active_effect) {
+        let multiplier = 1;
+        if(active_effect.tags.medicine) {
+                multiplier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id:"Medicine"});
+        }
+        let boosted = {stats: {}, bonus_skill_levels: {...active_effect.effects.bonus_skill_levels}};
+        for(const [key, value] of Object.entries(active_effect.effects.stats)) {
+                boosted.stats[key] = {};
+                if(value.flat) {
+                        boosted.stats[key].flat = value.flat*multiplier**2;
+                }
+                if(value.multiplier) {
+                        boosted.stats[key].multiplier = value.multiplier*multiplier;
+                }
+        }
+
+        return boosted;
+}
+
 export {character, add_to_character_inventory, remove_from_character_inventory, equip_item_from_inventory, equip_item, 
         unequip_item, update_character_stats, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, add_location_penalties,
-        get_total_skill_level, get_total_level_bonus, get_total_skill_coefficient};
+        get_total_skill_level, get_total_level_bonus, get_total_skill_coefficient, get_effect_with_bonuses};
