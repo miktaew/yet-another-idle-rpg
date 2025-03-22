@@ -19,7 +19,7 @@ class Location {
                 dialogues = [], 
                 traders = [],
                 types = [], //{type, xp per tick}
-                housing = {present: null}, //{is_unlocked, sleeping_xp_per_tick, text_to_start}
+                housing = {is_present: null}, //{is_unlocked, sleeping_xp_per_tick, text_to_start}
                 light_level = "normal",
                 getDescription,
                 background_noises = [],

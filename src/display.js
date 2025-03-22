@@ -10,7 +10,8 @@ import { current_enemies, options,
     get_current_book, last_location_with_bed, 
     last_combat_location, faved_stances, 
     selected_stance, 
-    global_flags} from "./main.js";
+    global_flags,
+    unlocked_beds} from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time } from "./game_time.js";
@@ -1592,19 +1593,6 @@ function update_displayed_normal_location(location) {
         location_choice_divs["dialogues"] = create_location_choice_dropdown({name: "Talk to someone", icon: "question_answer", class_name: "choice_dialogue"});
 
         location_choice_divs["dialogues"].append(...create_location_choices({location: location, category: "talk"}));
-        /*
-        if(available_dialogues.length > 2) {
-            //there's multiple -> add a choice to location actions that will show all available dialogues        
-            const dialogues_button = document.createElement("div");
-            dialogues_button.setAttribute("data-location", location.name);
-            dialogues_button.classList.add("location_choices");
-            dialogues_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "talk"})');
-            dialogues_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">question_answer</i> Talk to someone';
-            action_div.appendChild(dialogues_button);
-        } else if (available_dialogues.length <= 2) {
-            //there's only 1 -> put it in overall location choice list
-            action_div.append(...create_location_choices({location: location, category: "talk"}));
-        }*/
     }
 
     /////////////////////////
@@ -1616,18 +1604,6 @@ function update_displayed_normal_location(location) {
         location_choice_divs["traders"] = create_location_choice_dropdown({name: "Visit a merchant", icon: "storefront", class_name: "choice_trade"});
 
         location_choice_divs["traders"].append(...create_location_choices({location: location, category: "trade"}));
-        /*
-        if(available_traders.length > 2) {     
-            const traders_button = document.createElement("div");
-            traders_button.setAttribute("data-location", location.name);
-            traders_button.classList.add("location_choices");
-            traders_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "trade"})');
-            traders_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">storefront</i>  Visit a merchant';
-            action_div.appendChild(traders_button);
-        } else if (available_traders.length > 0) {
-            action_div.append(...create_location_choices({location: location, category: "trade"}));
-        }
-        */
     }
     
 
@@ -1643,18 +1619,6 @@ function update_displayed_normal_location(location) {
         location_choice_divs["jobs"] = create_location_choice_dropdown({name: "Find work", icon: "work_outline", class_name: "choice_work"});
 
         location_choice_divs["jobs"].append(...create_location_choices({location: location, category: "work"}));
-        /*
-        if(available_jobs.length > 2) {     
-            const jobs_button = document.createElement("div");
-            jobs_button.setAttribute("data-location", location.name);
-            jobs_button.classList.add("location_choices");
-            jobs_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "work"})');
-            jobs_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">work_outline</i>  Find work';
-            action_div.appendChild(jobs_button);
-        } else if (available_jobs.length <= 2) {
-            action_div.append(...create_location_choices({location: location, category: "work"}));
-        }
-        */
     }
 
 
@@ -1670,19 +1634,6 @@ function update_displayed_normal_location(location) {
         location_choice_divs["trainings"] = create_location_choice_dropdown({name: "Train", icon: "fitness_center", class_name: "choice_train"});
 
         location_choice_divs["trainings"].append(...create_location_choices({location: location, category: "train"}));
-
-        /*
-            if(available_trainings.length > 2) {     
-                const trainings_button = document.createElement("div");
-                trainings_button.setAttribute("data-location", location.name);
-                trainings_button.classList.add("location_choices");
-                trainings_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "train"})');
-                trainings_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">fitness_center</i>  Undertake training';
-                action_div.appendChild(trainings_button);
-            } else if (available_trainings.length <= 2) {
-                action_div.append(...create_location_choices({location: location, category: "train"}));
-            }
-        */
     }
 
     ////////////////////////////////
@@ -1743,23 +1694,6 @@ function update_displayed_normal_location(location) {
         location_choice_divs["locations"] = create_location_choice_dropdown({name: "Move somewhere else", icon: "directions", class_name: "choice_travel"});
 
         location_choice_divs["locations"].append(...create_location_choices({location: location, category: "travel"}));
-    
-        /*
-
-        if(available_locations.length > 3 
-        && ((location.housing?.is_unlocked || 0) + available_trainings.length + available_jobs.length + available_traders.length 
-        + available_dialogues.length + available_actions.length + (location.crafting?.is_unlocked || 0)) > 2) 
-        {
-            const locations_button = document.createElement("div");
-            locations_button.setAttribute("data-location", location.name);
-            locations_button.classList.add("location_choices");
-            locations_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "travel"});');
-            locations_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">directions</i>  Move somewhere else';
-            action_div.appendChild(locations_button);
-        } else {
-            action_div.append(...create_location_choices({location: location, category: "travel"}));
-        }
-        */
     }
 
     ////////////////////////////
@@ -1770,6 +1704,16 @@ function update_displayed_normal_location(location) {
         location_choice_divs["challenges"] = create_location_choice_dropdown({name: "Take on a challenge", icon: "warning_amber", class_name: "choice_travel"});
 
         location_choice_divs["challenges"].append(...create_location_choices({location: location, category: "challenge"}));
+    }
+
+    /////////////////////////////
+    //add buttons for fast travel
+
+    const available_fast_travel = Object.keys(unlocked_beds).filter(key => (key !== location.id && locations[key].is_unlocked && !locations[key].is_finished));
+    if((available_fast_travel.length + (last_combat_location?1:0)) > 0) {
+        location_choice_divs["fast_travel"] = create_location_choice_dropdown({name: "Fast travel", icon: "directions", class_name: "choice_travel"});
+
+        location_choice_divs["fast_travel"].append(...create_location_choices({location: location, category: "fast_travel"}));
     }
 
     action_div.append(...Object.values(location_choice_divs));
@@ -1935,7 +1879,7 @@ function create_location_choices({location, category, is_combat = false}) {
         if(!is_combat){
             for(let i = 0; i < location.connected_locations.length; i++) { 
                 
-                if(location.connected_locations[i].location.is_unlocked == false || location.connected_locations[i].location.is_finished) { //skip if not unlocked or if finished
+                if(!location.connected_locations[i].location.is_unlocked || location.connected_locations[i].location.is_finished) { //skip if not unlocked or if finished
                     continue;
                 }
                 if(location.connected_locations[i].location.is_challenge) {
@@ -1968,20 +1912,6 @@ function create_location_choices({location, category, is_combat = false}) {
         
                 choice_list.push(action);
             } 
-
-            if(last_combat_location && location.connected_locations.filter(loc => loc.location.name === last_combat_location).length == 0) {
-                const last_combat = locations[last_combat_location];
-                const action = document.createElement("div");
-                action.classList.add("travel_combat");
-                
-                action.innerHTML = `<i class="material-icons">warning_amber</i>  Quick return to [${last_combat.name}]`;
-                
-                action.classList.add("action_travel", "location_choice");
-                action.setAttribute("data-travel", last_combat.name);
-                action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
-        
-                choice_list.push(action);
-            }
         } else {
             const action = document.createElement("div");
             action.classList.add("travel_normal", "action_travel", "location_choice");
@@ -2052,6 +1982,39 @@ function create_location_choices({location, category, is_combat = false}) {
             location_action_div.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + location.actions[key].starting_text;
             choice_list.push(location_action_div);
         });
+    } else if (category === "fast_travel") {
+        const available_fast_travel = Object.keys(unlocked_beds).filter(key => key !== location.id); 
+        for(let i = 0; i < available_fast_travel.length; i++) { 
+            if(!locations[available_fast_travel[i]].is_unlocked || locations[available_fast_travel[i]].is_finished) { //skip if not unlocked or if finished
+                continue;
+            }
+
+            const action = document.createElement("div");
+            
+            action.classList.add("travel_normal");
+            
+            action.innerHTML = `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + "Travel to [" + locations[available_fast_travel[i]].name+"]";
+            
+            action.classList.add("action_travel", "location_choice");
+            action.setAttribute("data-travel", location.connected_locations[i].location.name);
+            action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
+    
+            choice_list.push(action);
+        }
+
+        if(last_combat_location) {
+            const last_combat = locations[last_combat_location];
+            const action = document.createElement("div");
+            action.classList.add("travel_combat");
+            
+            action.innerHTML = `<i class="material-icons">warning_amber</i> Travel to [${last_combat.name}]`;
+            
+            action.classList.add("action_travel", "location_choice");
+            action.setAttribute("data-travel", last_combat.name);
+            action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
+    
+            choice_list.push(action);
+        }
     }
 
     return choice_list;

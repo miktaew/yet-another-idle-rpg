@@ -119,6 +119,9 @@ let current_activity;
 let location_action_interval;
 let current_location_action;
 
+//locations for fast travel
+let unlocked_beds = {};
+
 //resting, true -> health regenerates
 let is_resting = true;
 
@@ -1798,6 +1801,10 @@ function unlock_location(location, skip_message) {
             change_location(current_location.name);
         }
     }
+
+    if(location.housing?.is_present && location.housing.is_unlocked) {
+        unlocked_beds[location.id] = true;
+    }
 }
 
 function clear_enemies() {
@@ -3137,6 +3144,7 @@ function load(save_data) {
                     console.warn(`Location "${locations[key].name}" was saved as having a bed unlocked, but it no longer has this mechanic and was skipped!`);
                 } else {
                     locations[key].housing.is_unlocked = true;
+                    unlocked_beds[key] = true;
                 }
                 
             }
@@ -3782,4 +3790,6 @@ export { current_enemies, can_work,
         current_stance, selected_stance,
         faved_stances, options,
         global_flags,
-        character_equip_item };
+        character_equip_item,
+        unlocked_beds
+     };

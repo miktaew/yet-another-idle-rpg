@@ -997,7 +997,7 @@ book_stats["Medicine for dummies"] = new BookData({
             {category: "alchemy", subcategory: "items", recipe_id: "Oneberry juice"},
         ],
         skills: ["Medicine"],
-        skill_xp: {"Medicine": 5},
+        skill_xp: {"Medicine": 20},
     },
 });
 

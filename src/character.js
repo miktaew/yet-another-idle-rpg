@@ -18,14 +18,14 @@ class Hero extends InventoryHaver {
         constructor() {
                 super();
                 this.base_stats = {
-                        max_health: 40, 
-                        health: 40,
+                        max_health: 50, 
+                        health: 50,
                         health_regeneration_flat: 0, //in combat
                         health_regeneration_percent: 0, //in combat
                         health_loss_flat: 0,
                         health_loss_percent: 0,
-                        max_stamina: 40,
-                        stamina: 40,
+                        max_stamina: 50,
+                        stamina: 50,
                         stamina_regeneration_flat: 0, //in combat
                         stamina_regeneration_percenty: 0, //in combat
                         stamina_efficiency: 1,
