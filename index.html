@@ -12,7 +12,7 @@
         <!--favicon-->
         <link rel="icon" href="favicon.ico" type="image/x-icon">
 
-        <Title>Yet Another Idle RPG</Title>
+        <Title>Experimental Idle RPG</Title>
     </head>
 
     <body onload = "prepareGame()">
@@ -62,8 +62,8 @@
                             </div>
                         </div>
                         <div id = "character_mana_value">
-                            0/0 mana
-                        </div>
+                        
+						</div>
                     </div>
 
                     <div id = "character_health_div"> 
@@ -698,6 +698,7 @@
                                 <div id = "skills_xp_multiplier" class="data_entry"></div>
                             </div>
                             <div id = "stamina_efficiency_multiplier" class="data_entry"></div>
+							<div id = "mana_efficiency_multiplier" class="data_entry"></div>
                         </div>
                     </div>
                 </div>
@@ -759,7 +760,7 @@
                                 <div class = "stat_name"> Magic: </div>
                                 <div class = "stat_value" id = "magic_slot"></div> 
                                 <div class = "stat_tooltip"> 
-                                    <div>Your magic power. It affects the power of spells </div>
+                                    <div>Your magic ability. It affects the power of spells and magic power </div>
                                     <div class="stat_breakdown"></div>
                                 </div>
                             </div>
@@ -770,7 +771,7 @@
                                 <div class = "stat_name"> Atk power: </div>
                                 <div class = "stat_value" id = "attack_power_slot"></div> 
                                 <div class = "stat_tooltip"> 
-                                    <div>Attack power. Based on weapon statistics, strength and/or magic </div>
+                                    <div>Attack power. Based on weapon statistics and strength</div>
                                     <div class="stat_breakdown"></div>
                                 </div>
                             </div>
