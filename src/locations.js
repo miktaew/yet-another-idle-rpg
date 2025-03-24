@@ -575,8 +575,6 @@ function get_location_type_penalty(type, stage, stat, category) {
 
     //maybe give all stages a range of skill lvls where they start scaling and where they get fully nullified?
 
-    
-
     if(category === "multiplier") {
         const base = location_types[type].stages[stage].effects[stat].multiplier;
     
@@ -1052,7 +1050,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         },
         repeatable_reward: {
             xp: 250,
-            activities: [{location:"Nearby cave", activity:"meditating"}],
+            activities: [{location:"Nearby cave", activity:"meditating"}, {location:"Nearby cave", activity:"mining3"}],
         },
         unlock_text: "After a long and ardous fight, you reach a chamber that ends with a massive stone gate. You can see it's guarded by some kind of wolf rats, but much bigger than the ones you fought until now."
     });
@@ -1080,27 +1078,29 @@ function get_location_type_penalty(type, stage, stat, category) {
         },
         repeatable_reward: {
             xp: 1250,
+            locations: [{location: "Mysterious depths"}]
         },
-        unlock_text: "You see something. You struggle to comprehend it. When you finally understand, you regret not having been born blind."
+        unlock_text: "You see something. You struggle to comprehend it. When you finally understand, you regret it. It might have been better to be born blind."
     });
 
     locations["Nearby cave"].connected_locations.push({location: locations["Writhing tunnel"]});
 
-    locations["Mysterious depths"] = new Location({ 
+    locations["Mysterious depths"] = new Location({ //not yet unlockable
         connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb back up to the main level of [Nearby cave]"}], 
         getDescription: function() {
-            return  `You find yourself in a large chamber with smooth walls and vaulted ceiling. Th floor is covered in square tiles in the center, yet you cannot help but notice that all these squares make a circle, in some impossible to understand way.
-There's another gate on the wall in front of you, but you have a strange feeling that you won't be able to open it with brute strength. Smaller gates guard tunnels on the sides of the chamber, so maybe you should start with them?`;
+            return  `You find yourself in a large chamber with smooth walls and vaulted ceiling. The floor is covered in square tiles in the center, yet you cannot help but notice that all these squares make a circle, in some impossible to understand way.
+There's another gate on the wall in front of you, but you have a strange feeling that you won't be able to open it with brute strength.`;
         },
         getBackgroundNoises: function() {
-            let noises = ["*You hear rocks rumbling somewhere*", "Squeak!", "*Air vibrates in an impossible to describe manner*", "*You feel an immense sense of something being wrong*"];
+            let noises = ["*You hear rocks rumbling somewhere*", "Squeak!", "*Air vibrates in an impossible to describe manner*", "*You feel an immense sense of something being wrong*", '"All these squares make a circle... All these squares make a circle..."'];
             return noises;
         },
         name: "Mysterious depths",
         is_unlocked: false,
+        unlock_text: "You manage to find a way to another chamber."
     });
 
-    locations["Nearby cave"].connected_locations.push({location: locations["Mysterious depths"]});
+    locations["Nearby cave"].connected_locations.push({location: locations["Mysterious depths"], custom_text: "Climb down to [Mysterious depths]"});
 
     locations["Forest road"] = new Location({ 
         connected_locations: [{location: locations["Village"]}],
@@ -1171,6 +1171,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         repeatable_reward: {
             xp: 100,
             textlines: [{dialogue: "farm supervisor", lines: ["defeated boars"]}],
+            activities: [{location: "Forest road", activity: "woodcutting2"}],
         }
     });
     locations["Forest road"].connected_locations.push({location: locations["Forest clearing"], custom_text: "Go towards the [Forest clearing] in the north"});
@@ -1333,6 +1334,25 @@ There's another gate on the wall in front of you, but you have a strange feeling
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Mountain camp"]});
     locations["Mountain path"].connected_locations.push({location: locations["Mountain camp"]});
+
+    locations["Gentle mountain slope"] = new Combat_zone({
+        description: "A surprisingly gentle clearing, with a herd of angry goats protecting it.",
+        enemies_list: ["Angry mountain goat"],
+        enemy_count: 50,
+        enemy_group_size: [2,4],
+        is_unlocked: false,
+        enemy_stat_variation: 0.2,
+        name: "Gentle mountain slope", 
+        types: [{type: "open", stage: 1, xp_gain: 5}, {type: "thin air", stage: 1, xp_gain: 3}],
+        parent_location: locations["Mountain camp"],
+        first_reward: {
+            xp: 2000,
+        },
+        repeatable_reward: {
+            xp: 1000,
+        }
+    });
+    locations["Mountain camp"].connected_locations.push({location: locations["Gentle mountain slope"]});
 })();
 
 //challenge zones
@@ -1550,12 +1570,26 @@ There's another gate on the wall in front of you, but you have a strange feeling
             skill_xp_per_tick: 5,
             is_unlocked: false,
             gained_resources: {
-                resources: [{name: "Iron ore", ammount: [[1,1], [1,3]], chance: [0.3, 0.7]}], 
+                resources: [{name: "Iron ore", ammount: [[1,1], [1,3]], chance: [0.3, 0.7]}],
                 time_period: [90, 40],
                 skill_required: [7, 17],
                 scales_with_skill: true,
             },
             unlock_text: "Going deeper, you find a vein of an iron ore that seems to be of much higher quality",
+        }),
+        "mining3": new LocationActivity({
+            activity_name: "mining",
+            infinite: true,
+            starting_text: "Mine the atratan vein",
+            skill_xp_per_tick: 10,
+            is_unlocked: false,
+            gained_resources: {
+                resources: [{name: "Atratan ore", ammount: [[1,1], [1,3]], chance: [0.3, 0.7]}],
+                time_period: [120, 60],
+                skill_required: [12, 25],
+                scales_with_skill: true,
+            },
+            unlock_text: "As you finish the fight and get a time to look around, you notice a metal vein of different color than steal. You recall the old craftsman mentioning Atratan, this must be it.",
         }),
     };
     locations["Forest road"].activities = {
@@ -1577,6 +1611,20 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 skill_required: [7, 17],
                 scales_with_skill: true,
             },
+        }),
+        "woodcutting2": new LocationActivity({
+            activity_name: "woodcutting",
+            infinite: true,
+            starting_text: "Gather wood from sturdy trees",
+            skill_xp_per_tick: 10,
+            is_unlocked: false,
+            gained_resources: {
+                resources: [{name: "Piece of ash wood", ammount: [[1,1], [1,3]], chance: [0.3, 1]}],
+                time_period: [120, 60],
+                skill_required: [12, 25],
+                scales_with_skill: true,
+            },
+            unlock_text: "Finishing your fight, you notice that the trees on the side of the clearing look really healthy and sturdy, they could be a useful material.",
         }),
         "herbalism": new LocationActivity({
             activity_name: "herbalism",
@@ -1625,6 +1673,24 @@ There's another gate on the wall in front of you, but you have a strange feeling
             },
         }),
     };
+    locations["Mountain camp"].activities = {
+        "herbalism": new LocationActivity({
+            activity_name: "herbalism",
+            infinite: true,
+            starting_text: "Search for useful herbs on the mountainside",
+            skill_xp_per_tick: 6,
+            is_unlocked: false,
+            gained_resources: {
+                resources: [
+                    {name: "Silver thistle", ammount: [[1,1], [1,1]], chance: [0.1, 0.5]},
+                ], 
+                time_period: [120, 60],
+                skill_required: [7, 17],
+                scales_with_skill: true,
+            },
+            require_tool: true,
+        }),
+    }
 })();
 
 //add actions
@@ -1750,6 +1816,63 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 locks: {
                     locations: ["Mountain path", "Small flat area in mountains"],
                 }
+            },
+        }),
+    },
+    locations["Mountain camp"].actions = {
+        "explore1": new LocationAction({
+            action_id: "explore1",
+            starting_text: "Explore the area further",
+            description: "With the camp created, it's time to keep exploring",
+            action_text: "Looking around",
+            success_text: "You find a reasonably gentle mountain slope with green grass and... more angry goats.",
+            failure_texts: {
+                random_loss: [
+                    "You looked under rocks and between the bushes, but you found nothing. Keep looking!", 
+                    "You looked and looked, but you couldn't find anything. Rest a bit and go back to it!",
+                ],
+            },
+            conditions: [],
+            is_unlocked: true,
+            attempt_duration: 60,
+            success_chances: [0.6],
+            rewards: {
+                locations: [{location: "Gentle mountain slope"}],
+            },
+        }),
+        "explore2": new LocationAction({
+            action_id: "explore2",
+            starting_text: "Keep exploring",
+            description: "You have a feeling that there must be something more of value than just goats.",
+            action_text: "Looking around",
+            success_text: "You notice some plants, that you soon recognize as a potent healing ingredient that was mentioned to you by that old craftsman. It's gonna be useful if you know proper recipes.",
+            failure_texts: {
+                random_loss: [
+                    "You looked under rocks and between the bushes, but you found nothing. Keep looking!", 
+                    "You looked and looked, but you couldn't find anything. Rest a bit and go back to it!",
+                ],
+                conditional_loss: [
+                    "You spot a lot of curious plants. You have a hunch that at least some of them must be useful for something, but you fail to recognize any of them."
+                ]
+            },
+            conditions: [
+                {
+                        
+                    skills: {
+                            "Herbalism": 6,
+                        },
+                },
+                {
+                        skills: {
+                            "Herbalism": 10,
+                        },
+                }
+            ],
+            is_unlocked: true,
+            attempt_duration: 60,
+            success_chances: [0.5],
+            rewards: {
+                activities: [{location:"Gentle mountain slope", activity:"herbalism"}],
             },
         }),
     }

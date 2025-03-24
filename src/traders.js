@@ -207,6 +207,8 @@ class TradeItem {
 
             new TradeItem({item_name: "ABC for kids", count: [1], chance: 1}),
             new TradeItem({item_name: "Old combat manual", count: [1], chance: 0.5}),
+            new TradeItem({item_name: "Butchering and you", count: [1], chance: 0.2}),
+            new TradeItem({item_name: "Medicine for dummies", count: [1], chance: 0.2}),
             
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
 
@@ -234,6 +236,8 @@ class TradeItem {
             new TradeItem({item_name: "Crude iron shield", count: [1], chance: 0.8, quality: [81, 120]}),
             new TradeItem({item_name: "Iron shield", count: [1], chance: 0.6, quality: [40, 80]}),
             new TradeItem({item_name: "Iron shield", count: [1], chance: 0.4, quality: [81, 120]}),
+            new TradeItem({item_name: "Steel shield", count: [1], chance: 0.3, quality: [81, 100]}),
+            new TradeItem({item_name: "Ash wood shield", count: [1], chance: 0.3, quality: [81, 100]}),
 
             new TradeItem({item_name: "Leather vest", count: [1], chance: 0.9, quality: [81, 120]}),
             new TradeItem({item_name: "Leather pants", count: [1], chance: 0.9, quality: [81, 120]}),
@@ -255,8 +259,11 @@ class TradeItem {
             new TradeItem({item_name: "Stale bread", count: [4,10]}),
             new TradeItem({item_name: "Fresh bread", count: [2,5]}),
             new TradeItem({item_name: "Weak healing powder", count: [2,5]}),
+            new TradeItem({item_name: "Oneberry juice", count: [2,5]}),
 
             new TradeItem({item_name: "Twist liek a snek", count: [1], chance: 0.7}),
+            new TradeItem({item_name: "Butchering and you", count: [1], chance: 0.5}),
+            new TradeItem({item_name: "Medicine for dummies", count: [1], chance: 0.5}),
 
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
 
@@ -285,6 +292,8 @@ class TradeItem {
         new TradeItem({item_name: "Crude iron shield", count: [1], chance: 0.8, quality: [81, 120]}),
         new TradeItem({item_name: "Iron shield", count: [1], chance: 0.6, quality: [40, 80]}),
         new TradeItem({item_name: "Iron shield", count: [1], chance: 0.4, quality: [81, 120]}),
+        new TradeItem({item_name: "Steel shield", count: [1], chance: 0.4, quality: [81, 120]}),
+        new TradeItem({item_name: "Ash wood shield", count: [1], chance: 0.4, quality: [81, 120]}),
 
         new TradeItem({item_name: "Leather vest", count: [1], chance: 0.9, quality: [81, 120]}),
         new TradeItem({item_name: "Leather pants", count: [1], chance: 0.9, quality: [81, 120]}),
@@ -299,14 +308,23 @@ class TradeItem {
         new TradeItem({item_name: "Iron chainmail armor", count: [1], chance: 0.8, quality: [81, 120]}),
         new TradeItem({item_name: "Iron chainmail pants", count: [1], chance: 0.8, quality: [81, 120]}),
         new TradeItem({item_name: "Iron chainmail helmet", count: [1], chance: 0.8, quality: [81, 120]}),
+
+        new TradeItem({item_name: "Steel chainmail armor", count: [1], chance: 0.6, quality: [81, 120]}),
+        new TradeItem({item_name: "Steel chainmail pants", count: [1], chance: 0.6, quality: [81, 120]}),
+        new TradeItem({item_name: "Steel chainmail helmet", count: [1], chance: 0.6, quality: [81, 120]}),
+        
         
         new TradeItem({item_name: "Fresh bread", count: [4,10]}),
         new TradeItem({item_name: "Weak healing powder", count: [2,5]}),
-        new TradeItem({item_name: "Weak healing potion", count: [2,5]}),
+        new TradeItem({item_name: "Oneberry juice", count: [2,5]}),
+        new TradeItem({item_name: "Healing powder", count: [2,5]}),
+        new TradeItem({item_name: "Healing potion", count: [2,5]}),
 
-        new TradeItem({item_name: "Twist liek a snek", count: [1], chance: 0.7}),
+        new TradeItem({item_name: "Twist liek a snek", count: [1], chance: 1}),
+        new TradeItem({item_name: "Butchering and you", count: [1], chance: 1}),
+        new TradeItem({item_name: "Medicine for dummies", count: [1], chance: 1}),
 
-        new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
+        new TradeItem({item_name: "Glass phial", count: [10,16], chance: 1}),
 
         new TradeItem({item_name: "Camping supplies", count: [1], chance: 1}),
         new TradeItem({item_name: "Coil of rope", count: [1], chance: 1}),

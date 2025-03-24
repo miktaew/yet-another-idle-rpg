@@ -161,6 +161,8 @@ const tickrate = 1;
 //how many ticks per second
 //1 is the default value; going too high might make the game unstable
 
+const global_xp_multiplier = 1;
+
 //stuff from options panel
 const options = {
     uniform_text_size_in_action: false,
@@ -1339,7 +1341,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     }
 
     if(use_bonus) {
-        xp_to_add = xp_to_add * get_skill_xp_gain(skill.skill_id);
+        xp_to_add = xp_to_add * global_xp_multiplier * get_skill_xp_gain(skill.skill_id);
 
         if(skill.parent_skill) {
             xp_to_add *= skill.get_parent_xp_multiplier();
@@ -3388,7 +3390,7 @@ function update() {
                     }
                 }
 
-                if(activities[current_activity.activitity_name].type === "TRAINING") {
+                if(activities[current_activity.activity_name].type === "TRAINING") {
                     add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.5});
                 } else {
                     add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.1});
@@ -3700,8 +3702,7 @@ if(save_key in localStorage || (is_on_dev() && dev_save_key in localStorage)) {
     load_from_localstorage();
     update_character_stats();
     update_displayed_xp_bonuses();
-}
-else {
+} else {
     add_to_character_inventory([{item_id: "Cheap iron sword", quality: 40}, 
                                 {item_id: "Cheap leather pants", quality: 40},
                                 {item_id: "Stale bread", count: 5},
@@ -3739,8 +3740,8 @@ function add_all_stuff_to_inventory(){
     })
 }
 
-//add_to_character_inventory([{item_id: "Piece of wood", count: 24}]);
-//add_to_character_inventory([{item_id: "Long wooden shaft", count: 1000}]);
+//add_to_character_inventory([{item_id: "Processed wood", count: 1000}]);
+//add_to_character_inventory([{item_id: "Iron ingot", count: 1000}]);
 
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();

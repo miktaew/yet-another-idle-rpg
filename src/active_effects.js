@@ -43,7 +43,16 @@ effect_templates["Weak healing powder"] = new ActiveEffect({
     name: "Weak healing powder",
     effects: {
         stats: {
-            health_regeneration_flat: {flat: 1},
+            health_regeneration_flat: {flat: 2},
+        }
+    },
+    tags: {"buff": true, "medicine": true},
+});
+effect_templates["Healing powder"] = new ActiveEffect({
+    name: "Healing powder",
+    effects: {
+        stats: {
+            health_regeneration_flat: {flat: 5},
         }
     },
     tags: {"buff": true, "medicine": true},
@@ -52,8 +61,18 @@ effect_templates["Weak healing potion"] = new ActiveEffect({
     name: "Weak healing potion",
     effects: {
         stats: {
-            health_regeneration_flat: {flat: 6},
+            health_regeneration_flat: {flat: 8},
             health_regeneration_percent: {flat: 1},
+        }
+    },
+    tags: {"buff": true, "medicine": true},
+});
+effect_templates["Healing potion"] = new ActiveEffect({
+    name: "Healing potion",
+    effects: {
+        stats: {
+            health_regeneration_flat: {flat: 20},
+            health_regeneration_percent: {flat: 2},
         }
     },
     tags: {"buff": true, "medicine": true},

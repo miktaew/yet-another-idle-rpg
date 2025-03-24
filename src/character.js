@@ -740,12 +740,16 @@ function get_effect_with_bonuses(active_effect) {
         let boosted = {stats: {}, bonus_skill_levels: {...active_effect.effects.bonus_skill_levels}};
         for(const [key, value] of Object.entries(active_effect.effects.stats)) {
                 boosted.stats[key] = {};
-                if(value.flat) {
+                if(value.flat && key.includes("_flat")) {
                         boosted.stats[key].flat = value.flat*multiplier**2;
+                }
+                if(value.flat && key.includes("_percent")) {
+                        //this exclusively means percent based regeneration and is therefore treated as multiplicative effect
+                        boosted.stats[key].flat = value.flat*multiplier;
                 }
                 if(value.multiplier) {
                         boosted.stats[key].multiplier = value.multiplier*multiplier;
-                }
+                }      
         }
 
         return boosted;

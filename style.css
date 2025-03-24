@@ -98,7 +98,7 @@ body {
 	visibility: visible;
 	width: 100%;
 	height: 100%;
-	z-index: 1000;
+	z-index: 10;
 	position: absolute;
 	top: 0px;
 	left: 0px;
@@ -185,6 +185,9 @@ body {
 	border-top: 1px dotted white;
 	cursor: pointer;
 	padding: 5px;
+ }
+ .end_dialogue_button {
+	border-bottom: 1px solid white;
  }
 
  .location_choice {
@@ -1193,6 +1196,7 @@ i {
 	position: fixed;
 	width: 100%;
 	height: 40px;
+	z-index: 200;
 	background-image: linear-gradient(to right, #232f47, #15152d);
 	border-top: 2px solid gray;
 	bottom: 0px;

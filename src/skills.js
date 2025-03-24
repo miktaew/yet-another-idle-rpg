@@ -2092,11 +2092,12 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         names: {0: "Breathing"}, 
         description: "Oxygen is the most important resource for improving the performance of your body. Learn how to take it in more efficiently.",
         flavour_text: "You are now breathing manually",
-        base_xp_cost: 120,
-        visibility_treshold: 110,
+        base_xp_cost: 300,
+        visibility_treshold: 290,
+        xp_scaling: 1.5,
         category: "Character",
         max_level_coefficient: 2,
-        max_level: 30,
+        max_level: 40,
         milestones: {
             3: {
                 xp_multipliers: {

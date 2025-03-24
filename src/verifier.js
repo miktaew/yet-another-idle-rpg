@@ -87,7 +87,7 @@ function Verify_Game_Objects() {
                     } else {
                         if(milestone_reward_type_key === "unlocks"){
                             Object.keys(milestone[milestone_reward_type_key]).forEach(unlock_key => {
-                                if(unlock_key !== "skills") {
+                                if(unlock_key !== "skills" && unlock_key !== "recipes") {
                                     console.error(`Skill "${key}" has a milestone reward in form of unlocking "${unlock_key}" which is not supported`);
                                     has_issue = true;
                                 }

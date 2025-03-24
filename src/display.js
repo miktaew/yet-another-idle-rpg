@@ -2864,7 +2864,7 @@ function create_gathering_tooltip(location_activity) {
 }
 
 function update_gathering_tooltip(activity) {
-    let parent = document.querySelector(`[data-activity="${activity.id}"]`);
+    let parent = document.querySelector(`[data-activity="${activity.activity_id}"]`);
     let gathering_tooltip;
     if(parent) {
         gathering_tooltip = parent.getElementsByClassName("job_tooltip")[0];

@@ -71,7 +71,7 @@ v0.4.5
     - made it possible to craft multiple items/components/equips at once (x5/x10/all)
     - added multiple new locations and combat areas: 
  <div class="spoiler">    * bandit hideout in slums
-    * two locations (one normal, one combat) after opening the 'mysterious gate' (the rat saga continues)
+    * two locations (one normal, one combat) after opening the 'mysterious gate' (The Rat Saga continues)
     * multiple mountain locations (one boss, one combat, a few normal + a camp) after climbing up (unlocked by beating one of cave locations)
     </div>
     - added better tools for gathering materials
@@ -79,14 +79,18 @@ v0.4.5
     - added a new crafting material, coal, which is now used in all smelting recipes
         It's own recipe is named "charcoal", don't be confused
         It is crafted with any "raw" wood, using cheapest first. 
-        Multicrafting will only use one material type on each click, to avoid accidentally burning (ha, got it?) higher tiers
-    - added new metal tier, steel, which requires iron + a new ore to craft; added corresponding weapon components; steel unlocked by:<span class="spoiler">
-        Reaching level 15 in Forging skill</span>
+        Multicrafting will only use one material type on each click, to avoid accidentally burning higher tiers (ha, got it?)
+    - added new metal of tier 3, steel, which requires iron + a new ore to craft; added corresponding weapon components; steel unlocked by:<span class="spoiler">
+        Reaching level 15 in Forging skill; needed ore unlocked by beating 'mysterious gate'</span>
+    - added ash wood and ash wood components, added weak monster bone components; both are tier 3
     - implemented personal storage, available at any place with bed, with shared content
     - added fast travel button, allowing quick moving between locations with unlocked beds and/or last combat location (move here from the normal travel category)
     - new activity: climbing
     - new skills: Climbing, Breathing, Medicine
-    - new book, unlocks some recipes and the medicine skill
+    - two new books, both unlock "new" recipes (lots of them already existed and simply got locked behind this) + one of them unlocks Medicine skill
+    - slightly buffed 'weak healing powder' and 'weak healing potion', added stronger versions of both
+    - added some other new ingredients and consumables
+    - added miscellaneous items 'coil of rope' and 'camping supplies', each is currently only used for a singular action
     - new spot for meditation + another milestone for the skill
     - skills for gathering materials now belong to a separate skill category (instead of 'Activity skills')
     - 'high quality wolf fang' and 'high quality boar tusk' can now be crafted from 50 normal versions each
@@ -102,10 +106,11 @@ v0.4.5
     - made attack speed penalties from shields harsher; they are now also present on light shields (but not as strong as on heavy shields)
     - reduced value of crafting components to ~80%, but increased full equipment prices to ~125% (components are cheaper, but equipment prices stay mostly the same)
     - crafting recipes now show their xp values in tooltips
-    - changed the formula for crafting quality cap (100 + 2 * skill_lvl), it's a lot harsher than previously
+    - reduced the crafting quality cap to 100 + 2.8 * skill_lvl
     - buffed success rates of first 2 woodcutting and mining spots
     - buffed success rates of some recipes
     - updated some xp displays to show both the percentage and the raw numbers
+    - bottom panel remain visible on loading screen, to allow importing savefile if something breaks and it gets stuck
 
     - slightly rewrote the code for location type penalties, allowing for flat effects (e.g. static hp loss every tick)
     - rewrote combat location N-th clear rewards to a form that allows any reward to have such restriction instead of just location unlocks
