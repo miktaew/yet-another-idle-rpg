@@ -625,6 +625,15 @@ function remove_from_character_inventory(items) {
  */
 function equip_item(item) {
 
+        if(!item) {
+                update_displayed_equipment();
+                update_displayed_character_inventory();
+                character.stats.add_all_equipment_bonus();
+                
+                update_character_stats();
+                return;
+        }
+
         const prev_item = character.equipment[item.equip_slot];
         unequip_item(item.equip_slot, true);
         character.equipment[item.equip_slot] = item;
