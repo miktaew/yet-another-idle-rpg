@@ -165,7 +165,7 @@ class Enemy {
         xp_value: 3, 
         rank: 2,
         tags: ["living", "beast"],
-        stats: {health: 150, attack: 25, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 12}, 
+        stats: {health: 150, attack: 20, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 12}, 
         loot_list: [
             {item_name: "Wolf fang", chance: 0.03},
             {item_name: "Wolf pelt", chance: 0.01},
@@ -193,7 +193,7 @@ class Enemy {
         xp_value: 4, 
         rank: 3,
         tags: ["living", "beast"],
-        stats: {health: 200, attack: 35, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.3, defense: 20}, 
+        stats: {health: 200, attack: 30, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.3, defense: 20}, 
         loot_list: [
             {item_name: "Wolf fang", chance: 0.04},
             {item_name: "Wolf pelt", chance: 0.02},

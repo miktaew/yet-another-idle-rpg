@@ -2094,7 +2094,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         flavour_text: "You are now breathing manually",
         base_xp_cost: 300,
         visibility_treshold: 290,
-        xp_scaling: 1.5,
+        xp_scaling: 1.6,
         category: "Character",
         max_level_coefficient: 2,
         max_level: 40,

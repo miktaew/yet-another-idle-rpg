@@ -215,7 +215,7 @@ class Textline {
                 is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 4"]}],
-                    locations: [{location: "Forest road"}, {locations: "Infested field"}, {location: "Nearby cave"}],
+                    locations: [{location: "Forest road"}, {location: "Infested field"}, {location: "Nearby cave"}],
                     dialogues: ["village guard"],
                 },
                 locks_lines: ["ask to leave 3", "rats", "cleared cave"],

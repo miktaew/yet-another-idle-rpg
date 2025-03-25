@@ -2625,7 +2625,7 @@ item_templates["Butchering and you"] = new Book({
         name: "Ash wood shield base", description: "Solid wooden shield base, although still nowhere near as resistant as metal", 
         value: 120,
         shield_strength: 8,
-        shield_name: "Wooden shield",
+        shield_name: "Ash wood shield",
         component_tier: 3,
         component_type: "shield base",
         component_stats: {

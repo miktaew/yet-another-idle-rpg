@@ -192,6 +192,8 @@ class TradeItem {
             new TradeItem({item_name: "Cheap leather pants", count: [1], chance: 0.5, quality: [91, 120]}),
             new TradeItem({item_name: "Cheap leather hat", count: [1], quality: [40, 90]}),
             new TradeItem({item_name: "Cheap leather hat", count: [1], chance: 0.5, quality: [91, 120]}),
+            new TradeItem({item_name: "Cheap leather shoes", count: [1], chance: 0.5, quality: [91, 120]}),
+            new TradeItem({item_name: "Leather shoes", count: [1], chance: 0.4, quality: [91, 120]}),
 
             new TradeItem({item_name: "Leather vest", count: [1], chance: 0.7, quality: [60, 120]}),
             new TradeItem({item_name: "Leather pants", count: [1], chance: 0.7, quality: [60, 120]}),

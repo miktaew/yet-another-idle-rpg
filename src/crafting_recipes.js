@@ -842,6 +842,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     }); 
     crafting_recipes.items["Pristine mountain goat horn"] = new ItemRecipe({
         name: "Pristine mountain goat horn",
+        is_unlocked: false,
         recipe_type: "material",
         materials: [{material_id: "Mountain goat horn", count: 50}], 
         result: {result_id: "Pristine mountain goat horn", count: 1},

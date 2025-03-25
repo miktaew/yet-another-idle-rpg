@@ -1710,6 +1710,7 @@ function update_displayed_normal_location(location) {
     //add buttons for fast travel
 
     const available_fast_travel = Object.keys(unlocked_beds).filter(key => (key !== location.id && locations[key].is_unlocked && !locations[key].is_finished));
+
     if((available_fast_travel.length + (last_combat_location?1:0)) > 0) {
         location_choice_divs["fast_travel"] = create_location_choice_dropdown({name: "Fast travel", icon: "directions", class_name: "choice_travel"});
 
@@ -1926,23 +1927,6 @@ function create_location_choices({location, category, is_combat = false}) {
             choice_list.push(action);
         }
 
-        if(last_location_with_bed && !location.housing?.is_unlocked && (!location.connected_locations || location?.connected_locations?.filter(loc => loc.location.name === last_location_with_bed).length == 0)) {
-            const last_bed = locations[last_location_with_bed];
-
-            const action = document.createElement("div");
-            action.classList.add("action_travel", "travel_normal", "location_choice");
-            
-            if(!is_combat) {
-                action.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> `
-            }
-            action.innerHTML += `Quick return to [${last_bed.name}]`;
-
-            action.setAttribute("data-travel", last_bed.name);
-            action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
-    
-            choice_list.push(action);
-        }
-
         choice_list.sort((a,b) => b.classList.contains("travel_normal") - a.classList.contains("travel_normal"));
     } else if (category === "challenge") {
         const available_challenges = location.connected_locations.filter(loc => (loc.location.is_challenge && loc.location.is_unlocked && !loc.location.is_finished));
@@ -1983,6 +1967,7 @@ function create_location_choices({location, category, is_combat = false}) {
             choice_list.push(location_action_div);
         });
     } else if (category === "fast_travel") {
+        
         const available_fast_travel = Object.keys(unlocked_beds).filter(key => key !== location.id); 
         for(let i = 0; i < available_fast_travel.length; i++) { 
             if(!locations[available_fast_travel[i]].is_unlocked || locations[available_fast_travel[i]].is_finished) { //skip if not unlocked or if finished
@@ -1992,11 +1977,11 @@ function create_location_choices({location, category, is_combat = false}) {
             const action = document.createElement("div");
             
             action.classList.add("travel_normal");
-            
+
             action.innerHTML = `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + "Travel to [" + locations[available_fast_travel[i]].name+"]";
             
             action.classList.add("action_travel", "location_choice");
-            action.setAttribute("data-travel", location.connected_locations[i].location.name);
+            action.setAttribute("data-travel", locations[available_fast_travel[i]].name);
             action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
     
             choice_list.push(action);
@@ -2869,7 +2854,7 @@ function update_gathering_tooltip(activity) {
     if(parent) {
         gathering_tooltip = parent.getElementsByClassName("job_tooltip")[0];
     } else {
-        gathering_tooltip = document.getElementById("gathering_progress_bar_max").getElementsByClassName("job_tooltip")[0];
+        gathering_tooltip = document.getElementById("gathering_progress_bar_max")?.getElementsByClassName("job_tooltip")[0];
     }
 
     if(!gathering_tooltip) {
@@ -3189,10 +3174,14 @@ function start_activity_display(current_activity) {
 
         if(activities[current_activity.activity_name].type !== "GATHERING") {
             const time_needed = Math.ceil((needed_xp-curr_xp)/current_activity.skill_xp_per_tick);
-            action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
+            if(!isNaN(time_needed)) {
+                action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
+            }
         } else {
             const time_needed = Math.ceil(current_activity.gathering_time_needed * (needed_xp-curr_xp)/current_activity.skill_xp_per_tick);
-            action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
+            if(!isNaN(time_needed)) {
+                action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
+            }
         }
             
     } else {
@@ -3284,10 +3273,14 @@ function update_displayed_ongoing_activity(current_activity, is_job){
 
     if(activities[current_activity.activity_name].type !== "GATHERING") {
         const time_needed = Math.ceil((needed_xp-curr_xp)/current_activity.skill_xp_per_tick);
-        action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
+        if(!isNaN(time_needed)) {
+            action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
+        }
     } else {
         const time_needed = Math.ceil(current_activity.gathering_time_needed * (needed_xp-curr_xp)/current_activity.skill_xp_per_tick);
-        action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
+        if(!isNaN(time_needed)) {
+            action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
+        }
     }
 
     if(current_activity.gained_resources) {
@@ -3417,7 +3410,7 @@ function create_new_skill_bar(skill) {
 
     }
     if(skill_bar_divs[skill.category][skill.skill_id]) {
-        console.warn(`Tried to create a skillbar for skill "${skill.skill_id}", but it already has one!`);
+        console.trace(`Tried to create a skillbar for skill "${skill.skill_id}", but it already has one!`);
         return;
     }
     skill_bar_divs[skill.category][skill.skill_id] = document.createElement("div");

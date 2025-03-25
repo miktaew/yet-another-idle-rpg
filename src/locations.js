@@ -958,7 +958,7 @@ function get_location_type_penalty(type, stage, stat, category) {
 
     locations["Cave depths"] = new Combat_zone({
         description: "It's dark. And full of rats.", 
-        enemy_count: 50, 
+        enemy_count: 40,
         types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 2, xp_gain: 3}],
         enemies_list: ["Wolf rat"],
         enemy_group_size: [5,8],
@@ -1546,7 +1546,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             infinite: true,
             starting_text: "Sit down and meditate in front of the gate",
             skill_xp_per_tick: 4,
-            is_unlocked: true,
+            is_unlocked: false,
             unlock_text: "As you finish fighting your enemies and it becomes quiet, you feel a strange sense of tranquility. This spot in front of the mysterious gate, surrounded by calm and darkness, seems perfect to sit down and focus your mind."
         }),
         "mining": new LocationActivity({
