@@ -1020,7 +1020,6 @@ function get_location_type_penalty(type, stage, stat, category) {
         },
         repeatable_reward: {
             xp: 100,
-            
             activities: [{location:"Nearby cave", activity: "climbing"}],
             actions: [{location: "Nearby cave", action: "climb the mountain"}],
         },
@@ -1158,7 +1157,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Forest clearing"] = new Combat_zone({
         description: "A surprisingly big clearing hidden in the northern part of the forest, covered with very tall grass and filled with a mass of wild boars",
         enemies_list: ["Boar"],
-        enemy_count: 50, 
+        enemy_count: 50,
         enemy_group_size: [4,7],
         is_unlocked: false,
         enemy_stat_variation: 0.2,
@@ -1239,14 +1238,14 @@ There's another gate on the wall in front of you, but you have a strange feeling
             return noises;
         },
     });
-    locations["Gang hideout"] = new Challenge_zone({ 
+    locations["Gang hideout"] = new Combat_zone({ 
         description: "Hideout of a local gang. Old building with a labirynth of narrow corridors.", 
         enemies_list: ["Slums thug"],
         types: [{type: "narrow", stage: 2, xp_gain: 3}, {type: "dark", stage: 1, xp_gain: 3}],
-        enemy_count: 40,
+        enemy_count: 30,
         is_unlocked: false,
-        enemy_group_size: [3,6],
-        enemy_stat_variation: 0.4,
+        enemy_group_size: [4,5],
+        enemy_stat_variation: 0.1,
         name: "Gang hideout", 
         parent_location: locations["Slums"],
         first_reward: {
@@ -1254,11 +1253,12 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
         repeatable_reward: {
             traders: [{trader: "suspicious trader 2", skip_message: true}],
+            textlines: [{dialogue: "suspicious man", lines: ["defeated gang", "behave 3"]}],
             locks: {
-                //locations: ["Gang hideout"],
-                traders: ["suspicious trader"]
+                traders: ["suspicious trader"],
+                locations: ["Gang hideout"],
+                textlines: {"suspicious man": ["behave 2"]},
             }, 
-            //xp: 1000,
         },
     });
     locations["Slums"].connected_locations.push({location: locations["Gang hideout"]});
@@ -1305,7 +1305,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
 
     locations["Small flat area in mountains"] = new Location({
         connected_locations: [{location: locations["Mountain path"]}],
-        description: "A piece of flatland somewhere in the mountains above the village. It's not that big, but more than enough for a camp.",
+        description: "A piece of flatland somewhere in the mountains, very high above the village. It's not that big, but more than enough for a camp.",
         name: "Small flat area in mountains",
         is_unlocked: false,
         getBackgroundNoises: function() {
@@ -1529,14 +1529,14 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activity_name: "weightlifting",
             infinite: true,
             starting_text: "Try lifting some of the rocks",
-            skill_xp_per_tick: 3,
+            skill_xp_per_tick: 4,
             is_unlocked: false,
             unlock_text: "After the fight, you realize there's quite a lot of rocks of different sizes that could be used for exercises",
         }),
         "climbing": new LocationActivity({
             activity_name: "climbing",
             infinite: true,
-            starting_text: "Attempt climbing the rocks outside",
+            starting_text: "Attempt climbing the mountain walls outside",
             skill_xp_per_tick: 1,
             is_unlocked: false,
             unlock_text: "As you descend deeper and deeper, a sudden thought strikes you - what if you instead tried going up?",
@@ -1597,7 +1597,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activity_name: "running",
             infinite: true,
             starting_text: "Go for a run through the forest",
-            skill_xp_per_tick: 3,
+            skill_xp_per_tick: 4,
         }),
         "woodcutting": new LocationActivity({
             activity_name: "woodcutting",
@@ -1724,7 +1724,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         "climb the mountain": new LocationAction({
             action_id: "climb the mountain",
             starting_text: "Try to climb up the mountain",
-            description: "It is an ardous task that will require some actual skill in climbing, together with good physical abilities. It will take some time, so you need to make sure you won't run out of energy halfway through.",
+            description: "It is an ardous task that will require some good long rope and actual skill in climbing, together with good physical abilities. It will take some time, so you need to make sure you won't run out of energy halfway through.",
             action_text: "Climbing up",
             success_text: "Somehow you did it, you climbed all the way up! Thanks to the rope you tied on your way, further trips up and down will be much easier.",
             failure_texts: {
@@ -1876,6 +1876,25 @@ There's another gate on the wall in front of you, but you have a strange feeling
             },
         }),
     }
+    locations["Forest road"].actions = {
+        "search for boars": new LocationAction({
+            action_id: "search for boars",
+            starting_text: "Search forest for the clearing with boars",
+            description: "It might take some time and a few attempts, but you are sure you can manage",
+            action_text: "Searching the forest",
+            success_text: "There they are! You see a clearing with tall grass and hear unmistakeable grunts and squeals",
+            failure_texts: {
+                random_loss: [
+                    "You search for some time, but end up with nothing. Next time you will try a slightly different direction",
+                ],
+            },
+            attempt_duration: 90,
+            success_chances: [0.5],
+            rewards: {
+                locations: [{location: "Forest clearing"}],
+            },
+        }),
+    };
 })();
 
 //setup ids

@@ -1927,6 +1927,23 @@ function create_location_choices({location, category, is_combat = false}) {
             choice_list.push(action);
         }
 
+        if(last_location_with_bed && !location.housing?.is_unlocked && !location.connected_locations) {
+            const last_bed = locations[last_location_with_bed];
+
+            const action = document.createElement("div");
+            action.classList.add("action_travel", "travel_normal", "location_choice");
+            
+            if(!is_combat) {
+                action.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> `
+            }
+            action.innerHTML += `Quick return to [${last_bed.name}]`;
+
+            action.setAttribute("data-travel", last_bed.name);
+            action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
+    
+            choice_list.push(action);
+        }
+
         choice_list.sort((a,b) => b.classList.contains("travel_normal") - a.classList.contains("travel_normal"));
     } else if (category === "challenge") {
         const available_challenges = location.connected_locations.filter(loc => (loc.location.is_challenge && loc.location.is_unlocked && !loc.location.is_finished));

@@ -1101,7 +1101,7 @@ item_templates["Butchering and you"] = new Book({
     item_templates["Coil of rope"] = new OtherItem({
         name: "Coil of rope", 
         description: "A nice, long coil of rope, for whatever use you might find",
-        value: 500,
+        value: 400,
         saturates_market: false,
     });
 

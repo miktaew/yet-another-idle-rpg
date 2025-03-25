@@ -193,11 +193,13 @@ class TradeItem {
             new TradeItem({item_name: "Cheap leather hat", count: [1], quality: [40, 90]}),
             new TradeItem({item_name: "Cheap leather hat", count: [1], chance: 0.5, quality: [91, 120]}),
             new TradeItem({item_name: "Cheap leather shoes", count: [1], chance: 0.5, quality: [91, 120]}),
-            new TradeItem({item_name: "Leather shoes", count: [1], chance: 0.4, quality: [91, 120]}),
 
-            new TradeItem({item_name: "Leather vest", count: [1], chance: 0.7, quality: [60, 120]}),
-            new TradeItem({item_name: "Leather pants", count: [1], chance: 0.7, quality: [60, 120]}),
-            new TradeItem({item_name: "Leather hat", count: [1], chance: 0.7, quality: [60, 120]}),
+            new TradeItem({item_name: "Leather shoes", count: [1], chance: 0.4, quality: [91, 120]}),
+            new TradeItem({item_name: "Leather vest", count: [1], chance: 0.7, quality: [70, 120]}),
+            new TradeItem({item_name: "Leather pants", count: [1], chance: 0.7, quality: [70, 120]}),
+            new TradeItem({item_name: "Leather hat", count: [1], chance: 0.7, quality: [70, 120]}),
+            new TradeItem({item_name: "Leather gloves", count: [1], chance: 0.7, quality: [70, 120]}),
+
 
             new TradeItem({item_name: "Wolf leather armor", count: [1], chance: 0.3, quality: [60, 120]}),
             new TradeItem({item_name: "Wolf leather armored pants", count: [1], chance: 0.3, quality: [60, 120]}),
@@ -220,10 +222,10 @@ class TradeItem {
 
     inventory_templates["Basic plus"] = 
     [
-            new TradeItem({item_name: "Iron spear", count: [1], quality: [40, 80], chance: 0.8}),
-            new TradeItem({item_name: "Iron dagger", count: [1], quality: [40, 80], chance: 0.8}),
-            new TradeItem({item_name: "Iron sword", count: [1], quality: [40, 80], chance: 0.8}),
-            new TradeItem({item_name: "Iron axe", count: [1], quality: [40, 80], chance: 0.8}),
+            new TradeItem({item_name: "Iron spear", count: [1], quality: [70, 90], chance: 0.8}),
+            new TradeItem({item_name: "Iron dagger", count: [1], quality: [70, 90], chance: 0.8}),
+            new TradeItem({item_name: "Iron sword", count: [1], quality: [70, 90], chance: 0.8}),
+            new TradeItem({item_name: "Iron axe", count: [1], quality: [70, 90], chance: 0.8}),
             new TradeItem({item_name: "Iron battle hammer", count: [1], quality: [40, 80], chance: 0.8}),
 
             new TradeItem({item_name: "Iron spear", count: [1], quality: [81, 120], chance: 0.8}),
@@ -231,6 +233,18 @@ class TradeItem {
             new TradeItem({item_name: "Iron sword", count: [1], quality: [81, 120], chance: 0.8}),
             new TradeItem({item_name: "Iron axe", count: [1], quality: [81, 120], chance: 0.8}),
             new TradeItem({item_name: "Iron battle hammer", count: [1], quality: [81, 120], chance: 0.8}),
+
+            new TradeItem({item_name: "Steel spear", count: [1], quality: [70, 100], chance: 0.6}),
+            new TradeItem({item_name: "Steel dagger", count: [1], quality: [70, 100], chance: 0.6}),
+            new TradeItem({item_name: "Steel sword", count: [1], quality: [70, 100], chance: 0.6}),
+            new TradeItem({item_name: "Steel axe", count: [1], quality: [70, 100], chance: 0.6}),
+            new TradeItem({item_name: "Steel battle hammer", count: [1], quality: [70, 100], chance: 0.6}),
+            
+            new TradeItem({item_name: "Steel spear", count: [1], quality: [81, 120], chance: 0.4}),
+            new TradeItem({item_name: "Steel dagger", count: [1], quality: [81, 120], chance: 0.4}),
+            new TradeItem({item_name: "Steel sword", count: [1], quality: [81, 120], chance: 0.4}),
+            new TradeItem({item_name: "Steel axe", count: [1], quality: [81, 120], chance: 0.4}),
+            new TradeItem({item_name: "Steel battle hammer", count: [1], quality: [81, 120], chance: 0.4}),
 
             new TradeItem({item_name: "Wooden shield", count: [1], quality: [40, 80]}),
             new TradeItem({item_name: "Wooden shield", count: [1], chance: 0.8, quality: [81, 120]}),
@@ -244,9 +258,9 @@ class TradeItem {
             new TradeItem({item_name: "Leather vest", count: [1], chance: 0.9, quality: [81, 120]}),
             new TradeItem({item_name: "Leather pants", count: [1], chance: 0.9, quality: [81, 120]}),
             new TradeItem({item_name: "Leather hat", count: [1], chance: 0.9, quality: [81, 120]}),
-
             new TradeItem({item_name: "Leather shoes", count: [1], chance: 0.8, quality: [91, 120]}),
             new TradeItem({item_name: "Leather gloves", count: [1], chance: 0.8, quality: [91, 120]}),
+
             new TradeItem({item_name: "Wolf leather armor", count: [1], chance: 0.8, quality: [91, 120]}),
             new TradeItem({item_name: "Wolf leather armored pants", count: [1], chance: 0.8, quality: [91, 120]}),
             new TradeItem({item_name: "Wolf leather helmet", count: [1], chance: 0.8, quality: [91, 120]}),
@@ -263,9 +277,9 @@ class TradeItem {
             new TradeItem({item_name: "Weak healing powder", count: [2,5]}),
             new TradeItem({item_name: "Oneberry juice", count: [2,5]}),
 
-            new TradeItem({item_name: "Twist liek a snek", count: [1], chance: 0.7}),
-            new TradeItem({item_name: "Butchering and you", count: [1], chance: 0.5}),
-            new TradeItem({item_name: "Medicine for dummies", count: [1], chance: 0.5}),
+            new TradeItem({item_name: "Twist liek a snek", count: [1], chance: 0.8}),
+            new TradeItem({item_name: "Butchering and you", count: [1], chance: 0.6}),
+            new TradeItem({item_name: "Medicine for dummies", count: [1], chance: 0.6}),
 
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
 
@@ -276,17 +290,23 @@ class TradeItem {
 
     inventory_templates["Intermediate"] = 
     [
-        new TradeItem({item_name: "Iron spear", count: [1], quality: [81, 120], chance: 0.8}),
-        new TradeItem({item_name: "Iron dagger", count: [1], quality: [81, 120], chance: 0.8}),
-        new TradeItem({item_name: "Iron sword", count: [1], quality: [81, 120], chance: 0.8}),
-        new TradeItem({item_name: "Iron axe", count: [1], quality: [81, 120], chance: 0.8}),
-        new TradeItem({item_name: "Iron battle hammer", count: [1], quality: [81, 120], chance: 0.8}),
+        new TradeItem({item_name: "Iron spear", count: [1], quality: [100, 120], chance: 0.8}),
+        new TradeItem({item_name: "Iron dagger", count: [1], quality: [100, 120], chance: 0.8}),
+        new TradeItem({item_name: "Iron sword", count: [1], quality: [100, 120], chance: 0.8}),
+        new TradeItem({item_name: "Iron axe", count: [1], quality: [100, 120], chance: 0.8}),
+        new TradeItem({item_name: "Iron battle hammer", count: [1], quality: [100, 120], chance: 0.8}),
 
-        new TradeItem({item_name: "Steel spear", count: [1], quality: [70, 120], chance: 0.8}),
-        new TradeItem({item_name: "Steel dagger", count: [1], quality: [70, 120], chance: 0.8}),
-        new TradeItem({item_name: "Steel sword", count: [1], quality: [70, 120], chance: 0.8}),
-        new TradeItem({item_name: "Steel axe", count: [1], quality: [70, 120], chance: 0.8}),
-        new TradeItem({item_name: "Steel battle hammer", count: [1], quality: [70, 120], chance: 0.8}),
+        new TradeItem({item_name: "Steel spear", count: [1], quality: [80, 100], chance: 0.8}),
+        new TradeItem({item_name: "Steel dagger", count: [1], quality: [80, 100], chance: 0.8}),
+        new TradeItem({item_name: "Steel sword", count: [1], quality: [80, 100], chance: 0.8}),
+        new TradeItem({item_name: "Steel axe", count: [1], quality: [80, 100], chance: 0.8}),
+        new TradeItem({item_name: "Steel battle hammer", count: [1], quality: [80, 100], chance: 0.8}),
+
+        new TradeItem({item_name: "Steel spear", count: [1], quality: [81, 120], chance: 0.8}),
+        new TradeItem({item_name: "Steel dagger", count: [1], quality: [81, 120], chance: 0.8}),
+        new TradeItem({item_name: "Steel sword", count: [1], quality: [81, 120], chance: 0.8}),
+        new TradeItem({item_name: "Steel axe", count: [1], quality: [81, 120], chance: 0.8}),
+        new TradeItem({item_name: "Steel battle hammer", count: [1], quality: [81, 120], chance: 0.8}),
 
         new TradeItem({item_name: "Wooden shield", count: [1], quality: [40, 80]}),
         new TradeItem({item_name: "Wooden shield", count: [1], chance: 0.8, quality: [81, 120]}),
@@ -300,9 +320,15 @@ class TradeItem {
         new TradeItem({item_name: "Leather vest", count: [1], chance: 0.9, quality: [81, 120]}),
         new TradeItem({item_name: "Leather pants", count: [1], chance: 0.9, quality: [81, 120]}),
         new TradeItem({item_name: "Leather hat", count: [1], chance: 0.9, quality: [81, 120]}),
-
         new TradeItem({item_name: "Leather shoes", count: [1], chance: 0.8, quality: [91, 120]}),
         new TradeItem({item_name: "Leather gloves", count: [1], chance: 0.8, quality: [91, 120]}),
+
+        new TradeItem({item_name: "Goat leather vest", count: [1], chance: 0.5, quality: [81, 120]}),
+        new TradeItem({item_name: "Goat leather pants", count: [1], chance: 0.5, quality: [81, 120]}),
+        new TradeItem({item_name: "Goat leather hat", count: [1], chance: 0.5, quality: [81, 120]}),
+        new TradeItem({item_name: "Goat leather shoes", count: [1], chance: 0.5, quality: [81, 120]}),
+        new TradeItem({item_name: "Goat leather gloves", count: [1], chance: 0.5, quality: [81, 120]}),
+
         new TradeItem({item_name: "Wolf leather armor", count: [1], chance: 0.8, quality: [91, 120]}),
         new TradeItem({item_name: "Wolf leather armored pants", count: [1], chance: 0.8, quality: [91, 120]}),
         new TradeItem({item_name: "Wolf leather helmet", count: [1], chance: 0.8, quality: [91, 120]}),

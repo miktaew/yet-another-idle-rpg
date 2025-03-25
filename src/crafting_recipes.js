@@ -790,6 +790,15 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [5,15],
         recipe_skill: "Crafting",
     });
+    crafting_recipes.items["Processed ash wood"] = new ItemRecipe({
+        name: "Processed ash wood",
+        recipe_type: "material",
+        materials: [{material_id: "Piece of ash wood", count: 5}], 
+        result: {result_id: "Processed ash wood", count: 1},
+        success_chance: [0.4,1],
+        recipe_level: [7,17],
+        recipe_skill: "Crafting",
+    });
     crafting_recipes.items["Processed weak monster bone"] = new ItemRecipe({
         name: "Processed weak monster bone",
         is_unlocked: false,

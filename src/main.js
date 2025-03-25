@@ -484,7 +484,7 @@ function finish_location_action(selected_action, conditions_status){
             result_message = action.failure_texts.random_loss[Math.floor(action.failure_texts.random_loss.length * Math.random())];
         }
 
-        Object.keys(action.conditions[0].items_by_id || {}).forEach(item_id => {
+        Object.keys(action.conditions[0]?.items_by_id || {}).forEach(item_id => {
             //no need to check if they are in inventory, as without them action would have been conditionally failed before reaching here
             if(action.conditions[0].items_by_id[item_id].remove) {
                 remove_from_character_inventory([{item_key: item_templates[item_id].getInventoryKey(), item_count: action.conditions[0].items_by_id[item_id].count}]);
@@ -2284,6 +2284,22 @@ function create_save() {
             //todo: need to rewrite equipment loading first
         //});
 
+        save_data["recipes"] = {};
+        Object.keys(recipes).forEach(category => {
+            save_data["recipes"][category] = {};
+            Object.keys(recipes[category]).forEach(subcategory => {
+                save_data["recipes"][category][subcategory] = {};
+                Object.keys(recipes[category][subcategory]).forEach(recipe_id => {
+                    save_data["recipes"][category][subcategory][recipe_id] = {};
+                    if(recipes[category][subcategory][recipe_id].is_unlocked) {
+                        save_data["recipes"][category][subcategory][recipe_id].is_unlocked = true;
+                    } else if(recipes[category][subcategory][recipe_id].is_finished) {
+                        save_data["recipes"][category][subcategory][recipe_id].is_finished = true;
+                    }
+                });
+            });
+        });
+
         save_data["skills"] = {};
         Object.keys(skills).forEach(function(key) {
             if(!skills[key].is_parent)
@@ -3198,6 +3214,22 @@ function load(save_data) {
             create_new_bestiary_entry(enemy_name);
         });
     }
+
+    if(save_data["recipes"]) {
+        Object.keys(save_data["recipes"]).forEach(category => {
+            Object.keys(save_data["recipes"][category]).forEach(subcategory => {
+                Object.keys(save_data["recipes"][category][subcategory]).forEach(recipe_id => {
+
+                    if(save_data["recipes"][category][subcategory][recipe_id].is_unlocked) {
+                        recipes[category][subcategory][recipe_id].is_unlocked = true;
+                    } else if(save_data["recipes"][category][subcategory][recipe_id].is_finished) {
+                        recipes[category][subcategory][recipe_id].is_finished = true;
+                    }
+                });
+            });
+        });
+    }
+    
 
     update_character_stats();
     update_displayed_character_inventory();

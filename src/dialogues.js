@@ -414,7 +414,7 @@ class Textline {
                 name: "What was that about?",
                 is_unlocked: false,
                 text: "I... We... It was my group that robbed you. I thought you came back from your grave for revenge... Please, I don't know anything. "
-                +"If you want answers, ask my boss. He's somewhere in the town.",
+                +"If you want answers, ask my ex-boss. He's somewhere in the town.",
                 locks_lines: ["defeated"],
                 rewards: {
                     textlines: [{dialogue: "suspicious man", lines: ["behave", "situation"]}],
@@ -456,10 +456,21 @@ class Textline {
                     ],
                 },
             }),
+            "defeated gang": new Textline({
+                name: "That gang you mentioned? I dealt with them.",
+                is_unlocked: false,
+                text: "I know boss, we all heard the commotion! You're the best! I think the local trader already pulled out some gear he was hiding from them, you should check it out!",
+                locks_lines: ["defeated gang"],
+            }),
             "behave 2": new Textline({ 
                 name: "Are you behaving yourself?",
                 is_unlocked: false,
                 text: "Y-yes, I didn't do anything bad since the last time, boss!",
+            }),
+            "behave 3": new Textline({ 
+                name: "Are you behaving yourself?",
+                is_unlocked: false,
+                text: "Of course boss!",
             }),
         }
     });
@@ -505,10 +516,11 @@ class Textline {
                 text: "Actually yes. There's that annoying group of boars that keep destroying our fields. "
                 + "They don't do enough damage to cause any serious problems, but I would certainly be calmer if someone took care of them. "
                 + "Go to the forest and search for a clearing in north, that's where they usually roam when they aren't busy eating our crops."
-                + "I can of course pay you for that, but keep in mind it won't be that much. 2 silver coins is most I can offer, I'm running on a strict budget here.",
+                + "I can of course pay you for that, but keep in mind it won't be that much. 4 silver coins is most I can offer, I'm running on a strict budget here.",
                 required_flags: {yes: ["is_deep_forest_beaten"]},
                 rewards: {
-                    locations: [{location: "Forest clearing"}],
+                    actions: [{location: "Forest road", action: "search for boars"}],
+                    //locations: [{location: "Forest clearing"}],
                 },
                 locks_lines: ["fight"],
             }),
@@ -526,7 +538,7 @@ class Textline {
                 text: "Really? That's great! Here, this is for you.",
                 locks_lines: ["defeated boars"],
                 rewards: {
-                    money: 2000,
+                    money: 4000,
                 }
             }), 
         }

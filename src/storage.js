@@ -1,6 +1,6 @@
 import { InventoryHaver } from "./inventory.js";
 import { exit_displayed_storage, update_displayed_storage } from "./display.js";
-import { add_to_character_inventory, remove_from_character_inventory } from "./character.js";
+import { add_to_character_inventory, remove_from_character_inventory, character } from "./character.js";
 
 const player_storage = new InventoryHaver();
 
@@ -36,16 +36,18 @@ function close_storage(items) {
  * @param {Object} item {item_key, count}
  */
 function move_item_to_storage(item) {
-    remove_from_character_inventory([item]);
-    add_to_storage([item]);
+    let count = Math.min(item.count, character.inventory[item.item_key].count);
+    remove_from_character_inventory([{...item, item_count: count}]);
+    add_to_storage([{...item, count}]);
 }
 
 /**
  * @param {Array} item [{item_key, item_count}]
  */
 function remove_item_from_storage(item) {
-    add_to_character_inventory([item]);
-    remove_from_storage([item]);
+    let count = Math.min(item.count, player_storage.inventory[item.item_key].count);
+    add_to_character_inventory([{...item, count}]);
+    remove_from_storage([{...item, item_count: count}]);
 }
 
 export {
