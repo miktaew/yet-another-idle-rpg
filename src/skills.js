@@ -860,14 +860,14 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((get_total_skil
                             intuition: {flat: 1},
                         },
                         xp_multipliers: {
-                            "Night vision": 1.1,
+                            "Night vision": 1.2,
                         }
                     },
                     
                     2: {
                         xp_multipliers: {
                             Evasion: 1.1,
-                            "Shield blocking": 1.1,
+                            "Shield blocking": 1.2,
                         }
                     },
                     4: {
@@ -883,6 +883,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((get_total_skil
                         xp_multipliers: 
                         {
                             all_skill: 1.05,
+                            "Night vision": 1.2,
                         },
                         stats: {
                             intuition: {multiplier: 1.1},
@@ -894,11 +895,13 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((get_total_skil
                         },
                         xp_multipliers: {
                             hero: 1.05,
+                            "Night vision": 1.2,
                         }
                     },
                     10: {
                         xp_multipliers: {
                             all_skill: 1.05,
+                            "Night vision": 1.2,
                         }
                     },
                     12: {
@@ -1883,7 +1886,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             15: {
                 unlocks: {
                     recipes: [
-                        {category: "smelting", subcategory: "items", recipe_id: "Steel ingot"},
+                        {category: "smelting", subcategory: "items", recipe_id: "Steel ingot (inefficient)"},
                     ]
                 }
             }
@@ -2170,7 +2173,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         },
         get_effect_description: ()=> {
             let value = get_total_skill_coefficient({skill_id:"Breathing",scaling_type:"multiplicative"});
-            return `Multiplies strength, agility and stamina by ${Math.round(value*100)/100}`;
+            return `Multiplies strength, agility and stamina by ${Math.round(value*100)/100}. Reduces this air effects by ^${Math.round(100-100*get_total_skill_level("Breathing")/skills["Breathing"].max_level)/100}`;
           },
     });  
 })();

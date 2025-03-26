@@ -197,7 +197,7 @@ function clear_action_div() {
  * @param {Boolean} options.skip_quality
  * @param {Array} options.quality array with 1 or 2 values (1 - show only it, instead of item's; 2 - show start comparison between the two)
  */
-function create_item_tooltip(item, options) {
+function create_item_tooltip(item, options = {}) {
     let item_tooltip = document.createElement("span");
     item_tooltip.classList.add(options?.class_name || "item_tooltip");
     item_tooltip.innerHTML = create_item_tooltip_content({item, options});
@@ -332,7 +332,7 @@ function create_item_tooltip_content({item, options={}}) {
             item_tooltip += "<br>Effects: "
         }
         for(let i = 0; i < item.effects.length; i++) {
-            item_tooltip += create_effect_tooltip(item.effects[i].effect, item.effects[i].duration).outerHTML;
+            item_tooltip += create_effect_tooltip({effect_name: item.effects[i].effect, duration: item.effects[i].duration}).outerHTML;
         }
     } else if(item.item_type === "BOOK") {
         if(!book_stats[item.name].is_finished) {
@@ -419,9 +419,10 @@ function create_item_tooltip_content({item, options={}}) {
 /** 
  * @param {Object} item_effect from item effects[]
  */
-function create_effect_tooltip(effect_name, duration) {
+function create_effect_tooltip({effect_name, duration, options = {}}) {
     const effect = effect_templates[effect_name];
     const tooltip = document.createElement("div");
+
     tooltip.classList.add("active_effect_tooltip");
 
     const name_span = document.createElement("span");
@@ -2579,7 +2580,7 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
         }
         const xp_val_1 = get_recipe_xp_value({category, subcategory, recipe_id});
         tooltip += `<br>XP value: ${xp_val_1}`;
-        tooltip += `<br>Result:<br><div class="recipe_result">${create_item_tooltip_content({item: item_templates[recipe.getResult().result_id], options: {skip_quality: true}})}</div>`;
+        tooltip += `<br>Result:<br><div class="recipe_result">${create_item_tooltip_content({item: item_templates[recipe.getResult().result_id], options: {skip_quality: true, anchor_tooltip: true}})}</div>`;
     } else if(subcategory === "components"  || recipe.recipe_type === "component") {
         tooltip += `Material required:<br>`;
         if(character.inventory[item_templates[material.material_id].getInventoryKey()]?.count >= material.count) {
@@ -3014,7 +3015,7 @@ function update_displayed_effects() {
 
         effect_divs = {};
         Object.values(active_effects).forEach(effect => {
-            effect_divs[effect.name] = create_effect_tooltip(effect.name, effect.duration);
+            effect_divs[effect.name] = create_effect_tooltip({effect_name: effect.name, duration: effect.duration});
             active_effects_tooltip.appendChild(effect_divs[effect.name]);
         });
     } else {

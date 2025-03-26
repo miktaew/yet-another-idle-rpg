@@ -1050,6 +1050,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         repeatable_reward: {
             xp: 250,
             activities: [{location:"Nearby cave", activity:"meditating"}, {location:"Nearby cave", activity:"mining3"}],
+            actions: [{action: "open the gate", location:"Nearby cave"}]
         },
         unlock_text: "After a long and ardous fight, you reach a chamber that ends with a massive stone gate. You can see it's guarded by some kind of wolf rats, but much bigger than the ones you fought until now."
     });
@@ -1301,7 +1302,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
         unlock_text: "Thanks to your hard effort, you reached a narrow safe spot where you can rest a bit.",
     });
-    locations["Nearby cave"].connected_locations.push({location: locations["Mountain path"]});
+    locations["Nearby cave"].connected_locations.push({location: locations["Mountain path"], custom_text: "Climb up to [Mountain path]"});
 
     locations["Small flat area in mountains"] = new Location({
         connected_locations: [{location: locations["Mountain path"]}],
@@ -1339,7 +1340,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         description: "A surprisingly gentle clearing, with a herd of angry goats protecting it.",
         enemies_list: ["Angry mountain goat"],
         enemy_count: 50,
-        enemy_group_size: [2,4],
+        enemy_group_size: [3,4],
         is_unlocked: false,
         enemy_stat_variation: 0.2,
         name: "Gentle mountain slope", 
@@ -1838,6 +1839,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_chances: [0.6],
             rewards: {
                 locations: [{location: "Gentle mountain slope"}],
+                actions: [{location:"Mountain camp", action: "explore2"}]
             },
         }),
         "explore2": new LocationAction({
@@ -1852,7 +1854,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     "You looked and looked, but you couldn't find anything. Rest a bit and go back to it!",
                 ],
                 conditional_loss: [
-                    "You spot a lot of curious plants. You have a hunch that at least some of them must be useful for something, but you fail to recognize any of them."
+                    "You spot a lot of curious plants. You have a hunch that at least some of them must be useful for something, but you fail to recognize any of them. If only you knew more about herbs..."
                 ]
             },
             conditions: [
@@ -1868,7 +1870,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                         },
                 }
             ],
-            is_unlocked: true,
+            is_unlocked: false,
             attempt_duration: 60,
             success_chances: [0.5],
             rewards: {

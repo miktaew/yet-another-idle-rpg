@@ -3771,7 +3771,7 @@ function add_stuff_for_testing() {
 function add_all_stuff_to_inventory(){
     Object.keys(item_templates).forEach(item => {
         add_to_character_inventory([
-            {item: getItem({...item_templates[item], quality: 150}), count: 5},
+            {item_id: item, count: 1000},
         ]);
     })
 }
