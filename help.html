@@ -43,7 +43,6 @@
             }
 
             .separated { 
-                margin-top: 30px;
                 border-top: 4px solid gray;
             }
         </style>
@@ -59,224 +58,227 @@
 <h3> Before reading the content below, please keep in mind that the more you know about game mechanics, the less fun it might become (or maybe not, depends entirely on you)</h3>
 <br><br>
 
-<button type="button" class="collapsible">Where does current game content end?</button>
-<div class="content">
-    As of <span class="game_version"></span>, the final combat areas are the 'Writhing tunnel', 'Gentle mountain slope' and 'Gang hideout'. It is not yet possible to enter the town nor to open the second gate.
-</div>
+<div id="content_blocks">
+    <button type="button" class="collapsible">Where does current game content end?</button>
+    <div class="content">
+        As of <span class="game_version"></span>, the final combat areas are the 'Writhing tunnel', 'Gentle mountain slope' and 'Gang hideout'. It is not yet possible to enter the town nor to open the second gate.
+    </div>
 
-<button type="button" class="collapsible">Are magic and/or quests implemented?</button>
-<div class="content">
-    As you probably guessed, no. They will come in future.
-</div>
+    <button type="button" class="collapsible">Are magic and/or quests implemented?</button>
+    <div class="content">
+        As you probably guessed, no. They will come in future.
+    </div>
 
-<button type="button" class="collapsible">Economy</button>
-<div class="content">
-    <ul>
-        <li> Money:
-            <ul>
-                <li>
-                    10 W = 1 C, 100 C = 1 S, 100 S = 1 G
-                </li>
-            </ul>
-        </li>
-        <li>
-            Prices
-            <ul>
-                <li>
-                    Traders sell items for prices a lot higher than what they would pay for same item, usually sell price is 200% of buy price.
-                    <br>"Haggling" skill slightly reduces price difference, at max level the value above 100% is cut in half (meaning 200% will turn into 150%, 300% will turn into 200%, etc) 
-                </li>
-            </ul>
-        </li>
-        <li>
-            Market saturation
-            <ul>
-                <li>
-                    As you sell more of enemy loot, its price will slowly go down, stopping at 1/10th of initial value. It applies to all traders. 
-                    <br>The price will recover over time, but it is a very slow process.
-                </li>
-            </ul>
-        </li>
-    </ul>
-</div>
+    <button type="button" class="collapsible">Economy</button>
+    <div class="content">
+        <ul>
+            <li> Money:
+                <ul>
+                    <li>
+                        10 W = 1 C, 100 C = 1 S, 100 S = 1 G
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Prices
+                <ul>
+                    <li>
+                        Traders sell items for prices a lot higher than what they would pay for same item, usually sell price is 200% of buy price.
+                        <br>"Haggling" skill slightly reduces price difference, at max level the value above 100% is cut in half (meaning 200% will turn into 150%, 300% will turn into 200%, etc) 
+                    </li>
+                </ul>
+            </li>
+            <li>
+                Market saturation
+                <ul>
+                    <li>
+                        As you sell more of enemy loot, its price will slowly go down, stopping at 1/10th of initial value. It applies to all traders. 
+                        <br>The price will recover over time, but it is a very slow process.
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
 
-<button type="button" class="collapsible">Crafting</button>
-<div class="content">
-    <ul>
-        <li> Crafting subcategories:
-            <ul>
-                <li> 
-                    Items: mostly mundane things, such as consumables and materials for further crafting
-                </li>
-                <li>
-                    Components: things that can be assembled into equipment of all kinds.<br>
-                    Their quality doesn't directly translate to equipment stats and so their own statistics are displayed as "base value", as in value that they would contribute to a 100% quality piece of equipment
-                </li>
-                <li>
-                    Equipment: the actual stuff that you can put on. Mostly created from components, with the exception of 'clothing' which functions more like wearable components<br>
-                    Quality is based on skill level, quality of components (for non-clothing equipment) and either tier of components (for non-clothing) or tier of resulting clothing item
-                </li>
-            </ul>
-        </li>
-        <li>You can obtain resources from passive activities in locations and/or as a loot from combat; items that can be used for crafting will often (but not always) mention it in their descriptions<br>
-            For passive gathering activities, things such as time needed, success chance, and number of gained items, are all affected by skill level.
-        </li>
-    </ul>
-</div>
+    <button type="button" class="collapsible">Crafting</button>
+    <div class="content">
+        <ul>
+            <li> Crafting subcategories:
+                <ul>
+                    <li> 
+                        Items: mostly mundane things, such as consumables and materials for further crafting
+                    </li>
+                    <li>
+                        Components: things that can be assembled into equipment of all kinds.<br>
+                        Their quality doesn't directly translate to equipment stats and so their own statistics are displayed as "base value", as in value that they would contribute to a 100% quality piece of equipment
+                    </li>
+                    <li>
+                        Equipment: the actual stuff that you can put on. Mostly created from components, with the exception of 'clothing' which functions more like wearable components<br>
+                        Quality is based on skill level, quality of components (for non-clothing equipment) and either tier of components (for non-clothing) or tier of resulting clothing item
+                    </li>
+                </ul>
+            </li>
+            <li>You can obtain resources from passive activities in locations and/or as a loot from combat; items that can be used for crafting will often (but not always) mention it in their descriptions<br>
+                For passive gathering activities, things such as time needed, success chance, and number of gained items, are all affected by skill level.
+            </li>
+        </ul>
+    </div>
 
-<button type="button" class="collapsible">Combat</button>
-<div class="content">
-    <ul>
-        <li>
-            AP / EP:
-            <ul>
-                <li>Summary of stats and skills that affect the chance to hit/evade. It doesn't include situational modifiers (e.g. from skills based on the type of an enemy), but does include environmental modifiers (e.g. lower EP in "narrow" areas) </li>
-                <li>Scaling is non-linear.</li>
-                <li>AP equal to 5 times the enemy EP, results in ~98% chance to hit the target. </li>
-                <li>AP equal to twice the enemy EP, results in ~80% chance to hit the target. </li>
-                <li>AP equal to enemy EP, results in a bit over 50% chance to hit the target. </li>
-                <li>AP equal to half of the enemy EP, results in ~24% chance to hit the target. </li>
-                <li>AP equal to 1/5 of the enemy EP, results in ~5% chance to hit the target. </li>
-            </ul> 
-        </li><br>
-        <li>
-            Hit / dodge chance
-            <ul>
-                <li>Displayed in an enemy during combat</li>
-                <li>They represent ENEMY's chance to hit or to dodge attacks</li>
-            </ul> 
-        </li><br>
-        <li>
-            Defensive measures
-            <ul>
-                <li>"Dodge", if triggered, will always completely negate damage.</li>
-                <li>Shield can absorb damage and has very high base chance to trigger, but usually won't be strong enough to reduce it to 0, although it is possible.</li>
-                <li>"Defense" provides a flat reduction to damage taken. It is applied after shield dmg reduction.<br>
-                    It can't reduce damage taken to less than 1 or 10% of original value, whichever is larger. However, if less than that gets through the shield, that value will be used instead, allowing for very small dmg values and/or full negation.</li>
-            </ul> 
-        </li><br>
-        <li>
-            Attack speed:
-            <ul>
-                <li>
-                    Directly translates to how quickly someone attacks in comparison to another fight participant. 2x more => 2x faster. 2x less => 2x slower.
-                </li>
-                <li>
-                    To avoid insanity and potential problems, when new fight begins, both character and enemies have their attack cooldowns scaled up so that no one attacks faster than once per second.
-                </li>
-            </ul>
-        </li><br>
-        <li>Stamina:
-            <ul>
-                <li>When stamina drops to 0, character's attack speed and attack power are cut in half.</li>
-                <li>Penalty can be lowered via the "Persistence" skill, leveled by fighting with no stamina</li>
-                <li>It can also be delayed by raising the max stamina and/or using food items, which provide stamina regeneration in combat</li>
-            </ul>
-        </li><br>
-        <li>
-            Combat stances:
-            <ul>
-                <li>
-                    Provide different buffs and penalties, being helpful in different situations, in exchange for higher stamina costs.
-                </li>
-                <li>
-                    Switching stance mid-combat will reset your attack bar (no cheesing allowed).
-                </li>
-            </ul>
-        </li>
-    </ul>
-</div>
+    <button type="button" class="collapsible">Combat</button>
+    <div class="content">
+        <ul>
+            <li>
+                AP / EP:
+                <ul>
+                    <li>Summary of stats and skills that affect the chance to hit/evade. It doesn't include situational modifiers (e.g. from skills based on the type of an enemy), but does include environmental modifiers (e.g. lower EP in "narrow" areas) </li>
+                    <li>Scaling is non-linear.</li>
+                    <li>AP equal to 5 times the enemy EP, results in ~98% chance to hit the target. </li>
+                    <li>AP equal to twice the enemy EP, results in ~80% chance to hit the target. </li>
+                    <li>AP equal to enemy EP, results in a bit over 50% chance to hit the target. </li>
+                    <li>AP equal to half of the enemy EP, results in ~24% chance to hit the target. </li>
+                    <li>AP equal to 1/5 of the enemy EP, results in ~5% chance to hit the target. </li>
+                </ul> 
+            </li><br>
+            <li>
+                Hit / dodge chance
+                <ul>
+                    <li>Displayed in an enemy during combat</li>
+                    <li>They represent ENEMY's chance to hit or to dodge attacks</li>
+                </ul> 
+            </li><br>
+            <li>
+                Defensive measures
+                <ul>
+                    <li>"Dodge", if triggered, will always completely negate damage.</li>
+                    <li>Shield can absorb damage and has very high base chance to trigger, but usually won't be strong enough to reduce it to 0, although it is possible.</li>
+                    <li>"Defense" provides a flat reduction to damage taken. It is applied after shield dmg reduction.<br>
+                        It can't reduce damage taken to less than 1 or 10% of original value, whichever is larger. However, if less than that gets through the shield, that value will be used instead, allowing for very small dmg values and/or full negation.</li>
+                </ul> 
+            </li><br>
+            <li>
+                Attack speed:
+                <ul>
+                    <li>
+                        Directly translates to how quickly someone attacks in comparison to another fight participant. 2x more => 2x faster. 2x less => 2x slower.
+                    </li>
+                    <li>
+                        To avoid insanity and potential problems, when new fight begins, both character and enemies have their attack cooldowns scaled up so that no one attacks faster than once per second.
+                    </li>
+                </ul>
+            </li><br>
+            <li>Stamina:
+                <ul>
+                    <li>When stamina drops to 0, character's attack speed and attack power are cut in half.</li>
+                    <li>Penalty can be lowered via the "Persistence" skill, leveled by fighting with no stamina</li>
+                    <li>It can also be delayed by raising the max stamina and/or using food items, which provide stamina regeneration in combat</li>
+                </ul>
+            </li><br>
+            <li>
+                Combat stances:
+                <ul>
+                    <li>
+                        Provide different buffs and penalties, being helpful in different situations, in exchange for higher stamina costs.
+                    </li>
+                    <li>
+                        Switching stance mid-combat will reset your attack bar (no cheesing allowed).
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
 
-<button type="button" class="collapsible">Area types and day-night cycle</button>
-<div class="content">
-    <ul>
-        <li>
-            Certain activities (currently only some jobs) are limited by the time of the day.
-        </li>
-        <li>
-            During night (20 to 4) in normal areas, and whole time in dark areas (e.g. caves), character receives additional penalties to hit/evasion chance.
-            <br>
-            This penalty can be reduced with "Night  vision" skill, which gains xp passively just for being in such place.
-            <br>
-        </li><br>
-        <li>
-            Some combat areas have special properties, which result in penalties to certain stats. E.g. some areas might not offer enough movement space to properly dodge or make a good swing with weapon
-            <br>
-            They usually have a corresponding skill that lowers the penalty and is usually leveled by simply being in such place
-        </li>
-        
-    </ul>
-</div>
-<button type="button" class="collapsible">XP points and unlocks</button>
-<div class="content">
-    <ul>
-        <li> XP:
-            <ul>
-                <li>Harder enemies generally provide more xp. It is not affected by area modifiers, but is affected by how many enemies are in a group (raised to 0.334, giving x2 in a fight against 8)</li>
-                <li>There is also a lot of bonuses from multiple sources (mainly skill milestones and completed books).</li>
-            </ul> 
-        </li><br>
-        <li> Unlocks: 
-            <ul>
-                <li>New locations and actions can be unlocked by talking with someone, by reaching certain levels in skills and by clearing enemy zones (sometimes it might need to be beaten more than once)</li>
-            </ul>
-        </li>
-    </ul>
-</div>
-<button type="button" class="collapsible">Parent skills</button>
-<div class="content">
-    <ul>
-        <li>
-            They multiply leveling speed of their children if these are of lower level
-        </li>
-        <li>
-            They stay on the same level as their highest-leveled child
-        </li>
-    </ul>
-</div>
+    <button type="button" class="collapsible">Area types and day-night cycle</button>
+    <div class="content">
+        <ul>
+            <li>
+                Certain activities (currently only some jobs) are limited by the time of the day.
+            </li>
+            <li>
+                During night (20 to 4) in normal areas, and whole time in dark areas (e.g. caves), character receives additional penalties to hit/evasion chance.
+                <br>
+                This penalty can be reduced with "Night  vision" skill, which gains xp passively just for being in such place.
+                <br>
+            </li><br>
+            <li>
+                Some combat areas have special properties, which result in penalties to certain stats. E.g. some areas might not offer enough movement space to properly dodge or make a good swing with weapon
+                <br>
+                They usually have a corresponding skill that lowers the penalty and is usually leveled by simply being in such place
+            </li>
+            
+        </ul>
+    </div>
+    <button type="button" class="collapsible">XP points and unlocks</button>
+    <div class="content">
+        <ul>
+            <li> XP:
+                <ul>
+                    <li>Harder enemies generally provide more xp. It is not affected by area modifiers, but is affected by how many enemies are in a group (raised to 0.334, giving x2 in a fight against 8)</li>
+                    <li>There is also a lot of bonuses from multiple sources (mainly skill milestones and completed books).</li>
+                </ul> 
+            </li><br>
+            <li> Unlocks: 
+                <ul>
+                    <li>New locations and actions can be unlocked by talking with someone, by reaching certain levels in skills and by clearing enemy zones (sometimes it might need to be beaten more than once)</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <button type="button" class="collapsible">Parent skills</button>
+    <div class="content">
+        <ul>
+            <li>
+                They multiply leveling speed of their children if these are of lower level
+            </li>
+            <li>
+                They stay on the same level as their highest-leveled child
+            </li>
+        </ul>
+    </div>
+    <button type="button" class="collapsible">Items</button>
+    <div class="content">
+        <ul>
+            <li>
+                Equipment quality 
+                <ul>
+                    <li>
+                        All equippable items come with "quality" parameter. It directly multiplies item's basic bonus (attack for weapons, defense for armors, max block for shields) and value.
+                        <br>
+                        On top of that, higher quality ranks (starting at uncommon, which begins at 100%) provide another multiplier (based solely on rank) to not only basic bonus, but also to all other stats it has.
+                        <br>
+                        <pre>
 
-<button type="button" class="collapsible">Items</button>
-<div class="content">
-    <ul>
-        <li>
-            Equipment quality 
-            <ul>
-                <li>
-                    All equippable items come with "quality" parameter. It directly multiplies item's basic bonus (attack for weapons, defense for armors, max block for shields) and value.
-                    <br>
-                    On top of that, higher quality ranks (starting at uncommon, which begins at 100%) provide another multiplier (based solely on rank) to not only basic bonus, but also to all other stats it has.
-                    <br>
-                    <pre>
+        quality     rarity         color      additional multiplier
+        0-49%       trash          gray       x1
+        50-99%      common         white      x1
+        100-129%    uncommon       green      x1.1
+        130-159%    rare           blue       x1.3
+        160-199%    epic           purple     x1.6
+        200-250%    legendary      orange     x2
 
-    quality     rarity         color      additional multiplier
-    0-49%       trash          gray       x1
-    50-99%      common         white      x1
-    100-129%    uncommon       green      x1.1
-    130-159%    rare           blue       x1.3
-    160-199%    epic           purple     x1.6
-    200-250%    legendary      orange     x2
-
-                    </pre>
-                </li>
-                <li>
-                    <strong>As of version <span class="game_version"></span>, highest item quality from merchants is 120%</strong>
-                </li>
-            </ul>
-        </li>
-    </ul>
-</div>
-
-<button type="button" class="collapsible separated">Thanks and acknowledgments</button>
-<div class="content">
-    <ul>
-        <li><a href="https://23html.github.io" target="_blank">Proto23</a> by Corc, a source of inspiration and the sole reason this project was started. Go check it out!</li>
-        <li><a href="https://github.com/turuslan/HackTimer" target="_blank">HackTimer</a> by Turuslan, used to avoid slowdowns when tab is inactive</li> 
-        <li>Material Icons and Symbols by Google</li>
-</div>
-<button type="button" class="collapsible separated">Supporting the game</button>
-<div class="content">
-    If you liked the game and have a github account, consider giving a star to the repository <a href="https://github.com/miktaew/yet-another-idle-rpg" target="_blank">https://github.com/miktaew/yet-another-idle-rpg</a><br>
-    I do not gain anything from it other than a dopamine boost.
+                        </pre>
+                    </li>
+                    <li>
+                        <strong>As of version <span class="game_version"></span>, highest item quality from merchants is 120%</strong>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+    <button type="button" class="collapsible separated">Thanks and acknowledgments</button>
+    <div class="content">
+        <ul>
+            <li><a href="https://23html.github.io" target="_blank">Proto23</a> by Corc, a source of inspiration and the sole reason this project was started. Go check it out!</li>
+            <li><a href="https://github.com/turuslan/HackTimer" target="_blank">HackTimer</a> by Turuslan, used to avoid slowdowns when tab is inactive</li> 
+            <li>Material Icons and Symbols by Google</li>
+    </div>
+    <button type="button" class="collapsible separated">Supporting the game</button>
+    <div class="content">
+        If you liked the game and have a github account, consider giving a star to the repository <a href="https://github.com/miktaew/yet-another-idle-rpg" target="_blank">https://github.com/miktaew/yet-another-idle-rpg</a><br>
+        I do not gain anything from it other than a dopamine boost.
+        <br><br><br>
+        But if you want to throw some actual money at me, I'll be happy to take them. You can support me on my Ko-fi at <a href="https://ko-fi.com/miktaew" target="_blank"> https://ko-fi.com/miktaew </a> (the same link is also at the right side of the bottom panel in game)
+        <br><br>
+    </div>
 </div>
 
 <script>
@@ -294,6 +296,18 @@
             }
         });
     }
+
+    const blocks = document.getElementById("content_blocks");
+    blocks.addEventListener("click", (event) => {
+        if(event.target.classList.contains("collapsible")) {
+            const rect = event.target.nextElementSibling.getBoundingClientRect();
+            const windowHeight = document.documentElement.clientHeight;
+
+            if (rect.top < 0 || rect.bottom > windowHeight) {
+                event.target.nextElementSibling.scrollIntoView({ behavior: 'smooth', block: 'end'});
+            }
+        }
+    });
     
 </script>
 

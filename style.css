@@ -985,6 +985,12 @@ body {
 	background-color: #2c3953;
 }
 
+.financial_link {
+	right: 0px;
+	position: fixed;
+}
+
+
 i {
 	vertical-align: -4px;
 } 
@@ -1192,7 +1198,7 @@ i {
 #bottom_panel_div {
 	display: flex;
 	position: fixed;
-	width: 100%;
+	width: 100vw;
 	height: 40px;
 	z-index: 200;
 	background-image: linear-gradient(to right, #232f47, #15152d);
@@ -1200,15 +1206,10 @@ i {
 	bottom: 0px;
 	left: 0px;
 }
-		@media only screen and (max-height: 857px) {
+
+		@media only screen and (max-width: 1657px) {
 			#bottom_panel_div {
-				position: absolute;
-				top: 810px;
-			}
-		}
-		@media only screen and (max-width: 1241px) {
-			#bottom_panel_div {
-				width: 1250px;
+				width: 1657px;
 			}
 		}
 
