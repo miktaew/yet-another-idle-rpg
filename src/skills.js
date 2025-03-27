@@ -1803,7 +1803,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         get_effect_description: ()=> {
           let value = get_total_skill_coefficient({skill_id:"Climbing",scaling_type:"multiplicative"});
 
-          return `Multiplies strength, agility and stamina by ${Math.round(value*100)/100}`;
+          return `Multiplies strength, dexterity and agility by ${Math.round(value*100)/100}`;
         },
     });
 })();
