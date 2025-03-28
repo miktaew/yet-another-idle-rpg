@@ -100,12 +100,13 @@ v0.4.5
     - activities (job, training, resource gathering) now display the time needed to level up their related skill 
         (with in-game time format, e.g. 24 hours mean 24 irl minutes at standard tickrate)
     - slightly expanded some skill milestones
+    - added a Ko-fi icon with link to my page on the right side of the bottom bar
 
     - equipment qualities are now rounded to nearest even value to reduce inventory cluttering (similarly to how components already had it rounded to nearest multiple of 4) 
-    - made attack speed penalties from shields harsher; they are now also present on light shields (but not as strong as on heavy shields)
+    - made attack speed penalties from shields harsher; they are now also present on light shields (but much weaker than on heavy shields)
     - reduced value of crafting components to ~80%, but increased full equipment prices to ~125% (components are cheaper, but equipment prices stay mostly the same)
     - crafting recipes now show their xp values in tooltips
-    - reduced the crafting quality cap to 100 + 2.8 * skill_lvl
+    - reduced the crafting quality cap to 100 + 2.8 * skill_lvl for equips and 100 + 2 * skill_lvl for components
     - buffed success rates of first 2 woodcutting and mining spots
     - buffed success rates of some recipes
     - updated some xp displays to show both the percentage and the raw numbers
@@ -121,6 +122,7 @@ v0.4.5
     - slightly rewrote the code for location type penalties, allowing for flat effects (e.g. static hp loss every tick)
     - rewrote combat location N-th clear rewards to a form that allows any reward to have such restriction instead of just location unlocks
     - implemented partial reputation system, doesn't really do anything yet and is not currently displayed anywhere (will be expanded in future)
+    - slightly changed display settings of the bottom bar
 
     - fixed a bug where some activities were stopped on reload with a warning in console, due to mismatch in keys
     - fixed a bug in crafting, where some equipments would end up with a different component than was chosen

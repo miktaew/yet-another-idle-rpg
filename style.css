@@ -990,7 +990,6 @@ body {
 	position: fixed;
 }
 
-
 i {
 	vertical-align: -4px;
 } 
@@ -1206,12 +1205,6 @@ i {
 	bottom: 0px;
 	left: 0px;
 }
-
-		@media only screen and (max-width: 1657px) {
-			#bottom_panel_div {
-				width: 1657px;
-			}
-		}
 
 #character_div {
     width: 400px;
@@ -1859,16 +1852,14 @@ i {
 
 #main_content {
     position: absolute;
-	background-image: var(--background_gradient);
 	top: 5px;
 	left: 5px;
-
 	/*
 	kinda necessary to set size, just for background gradient to render properly,
 	as all childs are set to `position: absolute` so they are not in the flow (so they dont affect the size)
 	*/
 	width: 1241px;
-	height: 766px;
+	height: 806px;
 }
 
 #message_log_div {
