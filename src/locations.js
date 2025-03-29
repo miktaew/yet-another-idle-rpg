@@ -13,7 +13,7 @@ class Location {
                 name, 
                 id,
                 description, 
-                connected_locations, 
+                connected_locations = [], 
                 is_unlocked = true, 
                 is_finished = false,
                 dialogues = [], 
@@ -35,7 +35,8 @@ class Location {
         this.getDescription = getDescription || function(){return description;}
         this.background_noises = background_noises;
         this.getBackgroundNoises = getBackgroundNoises || function(){return background_noises;}
-        this.connected_locations = connected_locations; //a list
+        this.connected_locations = connected_locations; 
+        //[{location: Location, custom_text: text that replaces 'Go to [X]', time_needed: Number}]
         this.is_unlocked = is_unlocked;
         this.is_finished = is_finished; //for when it's in any way or form "completed" and player shouldn't be allowed back
         this.dialogues = dialogues;
@@ -801,7 +802,6 @@ function get_location_type_penalty(type, stage, stat, category) {
 //create locations and zones
 (function(){ 
     locations["Village"] = new Location({ 
-        connected_locations: [], 
         getDescription: function() {
             if(locations["Infested field"].enemy_groups_killed >= 5 * locations["Infested field"].enemy_count) { 
                 return "Medium-sized village, built next to a small river at the foot of the mountains. It's surrounded by many fields, a few of them infested by huge rats, which, while an annoyance, don't seem possible to fully eradicate. Other than that, there's nothing interesting around";
@@ -847,7 +847,7 @@ function get_location_type_penalty(type, stage, stat, category) {
     });
 
     locations["Shack"] = new Location({
-        connected_locations: [{location: locations["Village"], custom_text: "Go outside to [Village]"}],
+        connected_locations: [{location: locations["Village"], custom_text: "Go outside to [Village]", time_needed: 15}],
         description: "This small shack was the only spare building in the village. It's surprisingly tidy.",
         name: "Shack",
         is_unlocked: false,
@@ -1251,6 +1251,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         parent_location: locations["Slums"],
         first_reward: {
             xp: 1000,
+            reputation: {slums: 200, town: 50},
         },
         repeatable_reward: {
             traders: [{trader: "suspicious trader 2", skip_message: true}],

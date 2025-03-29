@@ -93,7 +93,7 @@ class Enemy {
         xp_value: 1, 
         rank: 1,
         size: "small",
-        tags: ["living", "beast", "wolf rat", "pest"],
+        tags: ["living", "beast", "wolf rat"],
         stats: {health: 20, attack: 4, agility: 5, dexterity: 4, magic: 0, intuition: 5, attack_speed: 0.8, defense: 1}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
@@ -108,7 +108,7 @@ class Enemy {
         xp_value: 1, 
         rank: 1,
         size: "small",
-        tags: ["living", "beast", "wolf rat", "pest"],
+        tags: ["living", "beast", "wolf rat"],
         stats: {health: 30, attack: 6, agility: 6, dexterity: 5, intuition: 6, magic: 0, attack_speed: 1, defense: 2},
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
@@ -122,7 +122,7 @@ class Enemy {
         xp_value: 4, 
         rank: 1,
         size: "small",
-        tags: ["living", "beast", "wolf rat", "pest"],
+        tags: ["living", "beast", "wolf rat"],
         stats: {health: 80, attack: 32, agility: 30, dexterity: 24, intuition: 24, magic: 0, attack_speed: 1.5, defense: 8}, 
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},

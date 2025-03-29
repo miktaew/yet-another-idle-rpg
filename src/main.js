@@ -119,6 +119,9 @@ let current_activity;
 let location_action_interval;
 let current_location_action;
 
+//time needed to travel from A to B
+const travel_times = {};
+
 //locations for fast travel
 let unlocked_beds = {};
 
@@ -319,9 +322,22 @@ function change_location(location_name) {
         throw `No such location as "${location_name}"`;
     }
 
-    if(typeof current_location !== "undefined" && current_location.name !== location.name ) { 
+    if(typeof current_location !== "undefined" && current_location.name !== location.name){
         //so it's not called when initializing the location on page load or on reloading current location (due to new unlocks)
         log_message(`[ Entering ${location.name} ]`, "message_travel");
+    
+        //search if it's connected, if so check time
+        const connection = current_location.connected_locations.filter(conn => conn.location.name === location_name)[0];
+        if(connection) {
+            //update_timer(connection.time_needed);
+        } else {
+        //otherwise, search for it in fast travel data, which still needs to be filled with pathfinded times
+            if(travel_times[current_location.name][location_name]) {
+                //?
+                //update_timer(travel_times[current_location.name][location_name]);
+            }
+        //otherwise, just don't increase timer?
+        }
     }
 
     if(location.crafting) {
@@ -1590,7 +1606,7 @@ function get_location_rewards(location) {
  * @param {Boolean} rewards_data.inform_textline //if textline unlock is to be logged
  * @param {String} rewards_data.source_name //in case it's needed for logging a message
  */
-function process_rewards({rewards = {}, source_type, source_name, is_first_clear, source_id, inform_overall = true, inform_textline = true, only_unlocks = false}) {
+function process_rewards({rewards = {}, source_type, source_name, is_first_clear, inform_overall = true, inform_textline = true, only_unlocks = false}) {
     if(rewards.money && typeof rewards.money === "number" && !only_unlocks) {
         if(inform_overall) {
             log_message(`${character.name} earned ${format_money(rewards.money)}`);
@@ -3366,9 +3382,10 @@ function load_other_release_save() {
 }
 
 //update game time
-function update_timer() {
-    current_game_time.go_up(is_sleeping ? 6 : 1);
-    update_character_stats(); //done every second, mostly because of daynight cycle; gotta optimize it at some point
+function update_timer(time_in_minutes) {
+    current_game_time.go_up(time_in_minutes || (is_sleeping ? 6 : 1));
+    update_character_stats(); //done every second, probably only used for day-night cycle at this point
+    
     update_displayed_time();
 }
 
