@@ -1705,13 +1705,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
             action_text: "Huffing and puffing",
             success_text: "When you are almost ready to give up, you hear the ancient hinges creak, as the gate slowly moves. Finally, you can continue deeper!",
             failure_texts: {
-                conditional_loss: ["Despite trying your best, you can feel that you are just too weak for it. Maybe train with some weights first?"],
+                conditional_loss: ["Despite trying your best, you can feel that you are just too weak for it. You should get stronger first."],
             },
             conditions: [
                 {
-                    skills: {
-                        "Weightlifting": 10,
-                    },
                     stats: {
                         strength: 150,
                     }

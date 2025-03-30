@@ -327,12 +327,12 @@ function change_location(location_name) {
         log_message(`[ Entering ${location.name} ]`, "message_travel");
     
         //search if it's connected, if so check time
-        const connection = current_location.connected_locations.filter(conn => conn.location.name === location_name)[0];
+        const connection = current_location.connected_locations?.filter(conn => conn.location.name === location_name)[0];
         if(connection) {
             //update_timer(connection.time_needed);
         } else {
         //otherwise, search for it in fast travel data, which still needs to be filled with pathfinded times
-            if(travel_times[current_location.name][location_name]) {
+            if(travel_times[current_location?.name]?.[location_name]) {
                 //?
                 //update_timer(travel_times[current_location.name][location_name]);
             }
@@ -3120,7 +3120,7 @@ function load(save_data) {
             if("parent_location" in locations[key]) { // if combat zone
                 locations[key].enemy_groups_killed = save_data.locations[key].enemy_groups_killed || 0;   
 
-                if(compare_game_version("v0.4.5", save_data["game version"])) { //compatibility patch for pre-rep and/or pre-rewrite of rewards with required clear count
+                if(compare_game_version("v0.4.6", save_data["game version"])) { //compatibility patch for pre-rep and/or pre-rewrite of rewards with required clear count
                     if(locations[key].enemy_groups_killed / locations[key].enemy_count >= 1) {
                         const {rep_rew} = locations[key].first_reward;
                         if(rep_rew) {
