@@ -224,7 +224,7 @@ class Enemy {
         rank: 6,
         tags: ["living", "beast"],
         size: "medium",
-        stats: {health: 600, attack: 120, agility: 120, dexterity: 50, magic: 0, intuition: 50, attack_speed: 0.5, defense: 30},
+        stats: {health: 600, attack: 120, agility: 100, dexterity: 60, magic: 0, intuition: 60, attack_speed: 0.5, defense: 30},
         loot_list: [
             {item_name: "Mountain goat hide", chance: 0.04},
             {item_name: "Goat meat", chance: 0.02},
@@ -298,7 +298,7 @@ class Enemy {
         rank: 6,
         tags: ["living", "beast"],
         size: "medium",
-        stats: {health: 1200, attack: 150, agility: 120, dexterity: 70, magic: 0, intuition: 50, attack_speed: 0.5, defense: 30},
+        stats: {health: 1200, attack: 150, agility: 100, dexterity: 70, magic: 0, intuition: 60, attack_speed: 0.5, defense: 30},
     });
 })()
 
