@@ -1824,7 +1824,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             starting_text: "Explore the area further",
             description: "With the camp created, it's time to keep exploring",
             action_text: "Looking around",
-            success_text: "You find a reasonably gentle mountain slope with green grass and... more angry goats.",
+            success_text: "You find a reasonably gentle mountain slope with green grass and... more angry goats. At least they seem slightly smaller.",
             failure_texts: {
                 random_loss: [
                     "You looked under rocks and between the bushes, but you found nothing. Keep looking!", 
