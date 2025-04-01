@@ -622,7 +622,6 @@ function do_sleeping() {
     if(character.stats.full.stamina < character.stats.full.max_stamina)
     {
         const sleeping_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/30, 5) * (1 + get_total_skill_level("Sleeping")/skills["Sleeping"].max_level)); 
-        //todo: scale it with skill as well
 
         character.stats.full.stamina += (sleeping_stamina_ammount);
         if(character.stats.full.stamina > character.stats.full.max_stamina) {
@@ -1955,7 +1954,7 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 //do those two whether success or fail since materials get used either way
 
                 if(leveled) {
-                    //todo: reload all recipe tooltips of matching category, except it's kinda pointless if reload happens anyway?
+                    //reload all recipe tooltips of matching category, except it's kinda pointless if reload happens anyway?
                 }
             } else {
                 console.warn(`Tried to use a recipe without having enough materials!`);
