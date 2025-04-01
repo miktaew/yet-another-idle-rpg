@@ -12,4 +12,4 @@ Dev release: https://miktaew.github.io/yet-another-idle-rpg-dev/
   
 
 Be warned, balance is not the greatest.
-Using the "export" feature every now and then is highly recommended, especially since there's always a risk of some gamebreaking bugs having made it through the testing undetected.
+Using the "export" feature every now and then is highly recommended, even on main release, since there's always a risk of some gamebreaking bugs having made it through the testing undetected.
