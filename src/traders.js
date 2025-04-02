@@ -94,8 +94,7 @@ class Trader extends InventoryHaver {
                     const item = getItem({...item_templates[inventory_template[i].item_name], quality});
                     inventory[item.getInventoryKey()] = { item: item, count: item_count };
                 } else {
-                    inventory[item_templates[inventory_template[i].item_name].getInventoryKey()] = { item: getItem(item_templates[inventory_template[i].item_name]), count: item_count };
-
+                    inventory[item_templates[inventory_template[i].item_name].getInventoryKey()] = { item: getItem(item_templates[inventory_template[i].item_name]), count: item_count }; 
                 }
             }
         }
@@ -128,7 +127,7 @@ class TradeItem {
     constructor({ item_name,
                   chance = 1,
                   count = [1],
-                  quality = [0.2, 0.8]
+                  quality = [20, 80]
                 }) 
     {
         this.item_name = item_name;
@@ -285,6 +284,10 @@ class TradeItem {
 
             new TradeItem({item_name: "Camping supplies", count: [1], chance: 1}),
             new TradeItem({item_name: "Coil of rope", count: [1], chance: 1}),
+
+            new TradeItem({item_name: "Iron sickle", count: [1], chance: 0.8}),
+            new TradeItem({item_name: "Iron pickaxe", count: [1], chance: 0.8}),
+            new TradeItem({item_name: "Iron chopping axe", count: [1], chance: 0.8}),
             
     ];
 
@@ -356,6 +359,10 @@ class TradeItem {
 
         new TradeItem({item_name: "Camping supplies", count: [1], chance: 1}),
         new TradeItem({item_name: "Coil of rope", count: [1], chance: 1}),
+
+        new TradeItem({item_name: "Iron sickle", count: [1], chance: 1}),
+        new TradeItem({item_name: "Iron pickaxe", count: [1], chance: 1}),
+        new TradeItem({item_name: "Iron chopping axe", count: [1], chance: 1}),
     ];
 })();
 export {traders};

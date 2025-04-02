@@ -511,6 +511,7 @@ class Tool extends Equippable {
         this.components = undefined;
         this.tags["tool"] = true;
         this.tags[this.equip_slot] = true;
+        this.quality = 100;
         if(!this.id) {
             this.id = this.getName();
         }
@@ -2835,7 +2836,7 @@ item_templates["Butchering and you"] = new Book({
         value: 1000,
         equip_slot: "pickaxe",
         bonus_skill_levels: {
-            "Mining": 2,
+            "Mining": 3,
         }
     });
 
@@ -2845,7 +2846,7 @@ item_templates["Butchering and you"] = new Book({
         value: 1000,
         equip_slot: "axe",
         bonus_skill_levels: {
-            "Woodcutting": 2,
+            "Woodcutting": 3,
         }
     });
 
@@ -2855,7 +2856,7 @@ item_templates["Butchering and you"] = new Book({
         value: 1000,
         equip_slot: "sickle",
         bonus_skill_levels: {
-            "Herbalism": 2,
+            "Herbalism": 3,
         }
     });
 })();
