@@ -66,7 +66,7 @@ import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { game_version, get_game_version } from "./game_version.js";
 import { ActiveEffect, effect_templates } from "./active_effects.js";
-import { open_storage, close_storage, move_item_to_storage, remove_item_from_storage, player_storage } from "./storage.js";
+import { open_storage, close_storage, move_item_to_storage, remove_item_from_storage, player_storage, is_storage_open } from "./storage.js";
 import { Verify_Game_Objects } from "./verifier.js";
 import { ReputationManager } from "./reputation.js";
 
@@ -3707,6 +3707,7 @@ window.open_storage = open_storage;
 window.exit_storage = close_storage;
 window.move_item_to_storage = move_item_to_storage;
 window.remove_item_from_storage = remove_item_from_storage;
+window.is_storage_open = is_storage_open;
 
 window.format_money = format_money;
 window.get_character_money = character.get_character_money;

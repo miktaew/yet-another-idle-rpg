@@ -1835,7 +1835,7 @@
                 inventory_div.addEventListener('click', (event)=>move_storage_item(event, "character"), false);
                 storage_div.addEventListener('click', (event)=>move_storage_item(event, "storage"), false);
                 function move_storage_item(event, target) {
-                    if(!in_storage) {
+                    if(!in_storage || !is_storage_open()) {
                         return;
                     }
 
@@ -1869,8 +1869,7 @@
                     if(target==="character") {
                         const selected_item = clicked_element.getAttribute("data-character_item");
                         move_item_to_storage({item_key: selected_item, count: number_to_move});
-                    } 
-                    else if(target==="storage") {
+                    }  else if(target==="storage") {
                         const selected_item = clicked_element.getAttribute("data-storage_item");
                         remove_item_from_storage({item_key: selected_item, count: number_to_move});
                     }

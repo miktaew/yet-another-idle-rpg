@@ -3191,12 +3191,12 @@ function start_activity_display(current_activity) {
         }
 
         if(activities[current_activity.activity_name].type !== "GATHERING") {
-            const time_needed = Math.ceil((needed_xp-curr_xp)/current_activity.skill_xp_per_tick);
+            const time_needed = Math.ceil((needed_xp-curr_xp)/(current_activity.skill_xp_per_tick*get_skill_xp_gain(skills[activities[current_activity.activity_name].base_skills_names].skill_id)));
             if(!isNaN(time_needed)) {
                 action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
             }
         } else {
-            const time_needed = Math.ceil(current_activity.gathering_time_needed * (needed_xp-curr_xp)/current_activity.skill_xp_per_tick);
+            const time_needed = Math.ceil(current_activity.gathering_time_needed * (needed_xp-curr_xp)/(current_activity.skill_xp_per_tick*get_skill_xp_gain(skills[activities[current_activity.activity_name].base_skills_names].skill_id)));
             if(!isNaN(time_needed)) {
                 action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
             }
@@ -3290,12 +3290,12 @@ function update_displayed_ongoing_activity(current_activity, is_job){
     }
 
     if(activities[current_activity.activity_name].type !== "GATHERING") {
-        const time_needed = Math.ceil((needed_xp-curr_xp)/current_activity.skill_xp_per_tick);
+        const time_needed = Math.ceil((needed_xp-curr_xp)/(current_activity.skill_xp_per_tick*get_skill_xp_gain(skills[activities[current_activity.activity_name].base_skills_names].skill_id)));
         if(!isNaN(time_needed)) {
             action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
         }
     } else {
-        const time_needed = Math.ceil(current_activity.gathering_time_needed * (needed_xp-curr_xp)/current_activity.skill_xp_per_tick);
+        const time_needed = Math.ceil(current_activity.gathering_time_needed * (needed_xp-curr_xp)/(current_activity.skill_xp_per_tick*get_skill_xp_gain(skills[activities[current_activity.activity_name].base_skills_names].skill_id)));
         if(!isNaN(time_needed)) {
             action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
         }

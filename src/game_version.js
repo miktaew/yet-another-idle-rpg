@@ -1,6 +1,6 @@
 "use strict";
 
-const game_version = "v0.4.6";
+const game_version = "v0.4.6.1";
 
 function get_game_version() {
     return game_version;

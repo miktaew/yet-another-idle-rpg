@@ -1872,7 +1872,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             attempt_duration: 60,
             success_chances: [0.5],
             rewards: {
-                activities: [{location:"Gentle mountain slope", activity:"herbalism"}],
+                activities: [{location:"Mountain camp", activity:"herbalism"}],
             },
         }),
     }
