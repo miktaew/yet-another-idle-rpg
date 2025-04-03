@@ -340,7 +340,7 @@ function create_item_tooltip_content({item, options={}}) {
         }
         else {
             item_tooltip += `<br><br>Reading it provided ${character.name} with:`;
-            if(book_stats[item.name].bonuses) {
+            if(Object.keys(book_stats[item.name].bonuses).length > 0) {
                 item_tooltip += `<br>- ${format_book_bonuses(book_stats[item.name].bonuses)}`;
             }
             if(book_stats[item.name].rewards?.skills) {
@@ -3272,6 +3272,10 @@ function update_displayed_ongoing_activity(current_activity, is_job){
         }
     }
     const action_xp_div = document.getElementById("action_xp_div");
+    if(!action_xp_div) {
+        console.warn(`Failed to find htmlElement with id "action_xp_div" for activity "${current_activity.activity_id}"`);
+        return;
+    }
 
     const percent_xp = get_total_skill_level(activities[current_activity.activity_name].base_skills_names) == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.round(10000*skills[activities[current_activity.activity_name].base_skills_names].current_xp/skills[activities[current_activity.activity_name].base_skills_names].xp_to_next_lvl)/100}%`
     const curr_xp = get_total_skill_level(activities[current_activity.activity_name].base_skills_names) == skills[activities[current_activity.activity_name].base_skills_names].max_level? "Max": `${Math.floor(skills[activities[current_activity.activity_name].base_skills_names].current_xp)}`;

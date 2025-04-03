@@ -1470,7 +1470,7 @@ item_templates["Butchering and you"] = new Book({
                 multiplier: 1.20,
             },
             agility: {
-                multiplier: 1.1,
+                multiplier: 1.05,
             }
         }
     });
@@ -1489,7 +1489,7 @@ item_templates["Butchering and you"] = new Book({
                 multiplier: 1.30,
             },
             agility: {
-                multiplier: 1.2,
+                multiplier: 1.13,
             }
         }
     });
@@ -1508,7 +1508,7 @@ item_templates["Butchering and you"] = new Book({
                 multiplier: 1.35,
             },
             agility: {
-                multiplier: 1.3,
+                multiplier: 1.2,
             }
         }
     });

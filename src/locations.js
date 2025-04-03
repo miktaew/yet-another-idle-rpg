@@ -1591,7 +1591,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 skill_required: [12, 25],
                 scales_with_skill: true,
             },
-            unlock_text: "As you finish the fight and get a time to look around, you notice a metal vein of different color than steal. You recall the old craftsman mentioning Atratan, this must be it.",
+            unlock_text: "As you finish the fight and get a time to look around, you notice a metal vein of different color than iron. You recall the old craftsman mentioning Atratan, this must be it.",
         }),
     };
     locations["Forest road"].activities = {

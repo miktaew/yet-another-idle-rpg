@@ -115,7 +115,6 @@ class Skill {
 
         this.total_xp = Math.round(100*(this.total_xp + xp_to_add))/100;
         if (this.current_level < this.max_level) { //not max lvl
-
             if (Math.round(100*(xp_to_add + this.current_xp))/100 < this.xp_to_next_lvl) { // no levelup
                 this.current_xp = Math.round(100*(this.current_xp + xp_to_add))/100;
             }
@@ -164,7 +163,8 @@ class Skill {
                     this.xp_to_next_lvl = "Max";
                 }
 
-                skill_name = this.name();
+                skill_name = skill_name==="?????"?this.name():skill_name;
+                //swap name if it was unknown, otherwise leave it as it was (for properly messaging skill name change)
                 let message = `${skill_name} has reached level ${this.current_level}`;
 
                 if (Object.keys(gains.stats).length > 0 || Object.keys(gains.xp_multipliers).length > 0) { 
@@ -2092,7 +2092,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     });
     skills["Breathing"] = new Skill({
         skill_id: "Breathing",
-        names: {0: "Breathing"}, 
+        names: {0: "Breathing"},
         description: "Oxygen is the most important resource for improving the performance of your body. Learn how to take it in more efficiently.",
         flavour_text: "You are now breathing manually",
         base_xp_cost: 300,
@@ -2173,7 +2173,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         },
         get_effect_description: ()=> {
             let value = get_total_skill_coefficient({skill_id:"Breathing",scaling_type:"multiplicative"});
-            return `Multiplies strength, agility and stamina by ${Math.round(value*100)/100}. Reduces this air effects by ^${Math.round(100-100*get_total_skill_level("Breathing")/skills["Breathing"].max_level)/100}`;
+            return `Multiplies strength, agility and stamina by ${Math.round(value*100)/100}. Reduces thin air effects by ^${Math.round(100-100*get_total_skill_level("Breathing")/skills["Breathing"].max_level)/100}`;
           },
     });  
 })();

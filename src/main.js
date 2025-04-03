@@ -647,7 +647,7 @@ function end_sleeping() {
 function start_reading(book_key) {
     
     const book_id = is_JSON(book_key)?JSON.parse(book_key).id:book_key;
-    if(locations[current_location]?.parent_location) {
+    if(current_location?.parent_location) {
         return; //no reading in combat areas
     }
 
@@ -1443,23 +1443,13 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 if(unlocked_skill.is_unlocked) {
                     continue;
                 }
-                
-                /*
-                unlocked_skill.is_unlocked = true;
-        
-                create_new_skill_bar(unlocked_skill);
-                update_displayed_skill_bar(unlocked_skill, false);
-                
-                if(typeof should_info === "undefined" || should_info) {
-                    log_message(`Unlocked new skill: ${unlocked_skill.name()}`, "skill_raised");
-                }
-                */
             }
 
+            
             if(typeof should_info === "undefined" || should_info){
                 log_message(message, "skill_raised");
             }
-            
+
             if(prev_name !== new_name) { //skill name has changed
                 if(which_skills_affect_skill[skill.skill_id]) {
                     for(let i = 0; i < which_skills_affect_skill[skill.skill_id].length; i++) {
@@ -1471,15 +1461,6 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                     log_message(`Skill ${prev_name} upgraded to ${new_name}`, "skill_raised");
                 }
 
-                /*
-                if(current_location?.connected_locations) {
-                    for(let i = 0; i < current_location.activities.length; i++) {
-                        if(activities[current_location.activities[i].activity_name].base_skills_names.includes(skill.skill_id)) {
-                            update_gathering_tooltip(current_location.activities[i]);
-                        }
-                    }
-                }
-                */
                 if(current_location?.connected_locations && !current_activity) {
                     Object.keys(current_location.activities).forEach(activity_key => {
                         if(activities[current_location.activities[activity_key].activity_name].base_skills_names.includes(skill.skill_id)) {
