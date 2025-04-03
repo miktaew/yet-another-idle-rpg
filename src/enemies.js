@@ -160,7 +160,7 @@ class Enemy {
     });
 
     enemy_templates["Starving wolf"] = new Enemy({
-        name: "Starving wolf", description: "A large, wild and hungry canine", 
+        name: "Starving wolf", description: "A big, wild and hungry canine", 
         xp_value: 3, 
         rank: 2,
         tags: ["living", "beast"],
@@ -203,7 +203,7 @@ class Enemy {
 
     enemy_templates["Boar"] = new Enemy({
         name: "Boar", 
-        description: "A large wild creature, with thick skin and large tusks", 
+        description: "A big wild creature, with thick skin and large tusks", 
         xp_value: 8,
         rank: 4,
         tags: ["living", "beast"],
@@ -235,7 +235,7 @@ class Enemy {
 
     enemy_templates["Slums thug"] = new Enemy({
         name: "Slums thug",
-        description: "", 
+        description: "A nasty thug with shabby equipment", 
         add_to_bestiary: false,
         xp_value: 10,
         rank: 5,

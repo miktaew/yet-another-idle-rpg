@@ -1904,7 +1904,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     skills["Alchemy"] = new Skill({
         skill_id: "Alchemy", 
         names: {0: "Alchemy"}, 
-        description: "Extracting and enhancing useful properties of the ingredies",
+        description: "Extracting and enhancing useful properties of the ingredients",
         category: "Crafting",
         base_xp_cost: 40,
         xp_scaling: 1.5,

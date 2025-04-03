@@ -2547,7 +2547,13 @@ function load(save_data) {
 
     add_xp_to_character(save_data.character.xp.total_xp, false);
 
-    character.reputation = save_data.character.reputation || {};
+    Object.keys(save_data.character.reputation || {}).forEach(rep_region => {
+        if(rep_region in character.reputation) {
+            character.reputation[rep_region] = save_data.character.reputation[rep_region];
+        } else {
+            console.warn(`Skipped reputation, no such region as "${rep_region}"`);
+        }
+    })
     //todo: call a function to update display (once rep is added to display)
 
     Object.keys(save_data.skills).forEach(function(key){ 
