@@ -205,6 +205,7 @@ class Combat_zone {
                                             magic: Math.round(enemy.stats.magic * (base - Math.random() * vary)),
                                             intuition: Math.round(enemy.stats.intuition * (base - Math.random() * vary)),
                                             attack_speed: Math.round(enemy.stats.attack_speed * (base - Math.random() * vary) * 100) / 100,
+                                            attack_count: enemy.stats.attack_count,
                                             defense: Math.round(enemy.stats.defense * (base - Math.random() * vary))
                                         },
                                         loot_list: enemy.loot_list,
@@ -224,6 +225,7 @@ class Combat_zone {
                         magic: enemy.stats.magic,
                         intuition: enemy.stats.intuition,
                         attack_speed: enemy.stats.attack_speed,
+                        attack_count: enemy.stats.attack_count,
                         defense: enemy.stats.defense
                     },
                     loot_list: enemy.loot_list,
@@ -1269,7 +1271,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         connected_locations: [{location: locations["Town outskirts"]}],
         description: "The town's center of life, connected to all the markets, guilds, and other important places",
         name: "Town square",
-        is_unlocked: true,
+        is_unlocked: false,
         getBackgroundNoises: function() {
             let noises = [];
             return noises;
@@ -1290,7 +1292,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
     });
 
-    locations["Cat café"].connected_locations.push({location: locations["Town square"]});
+    locations["Town square"].connected_locations.push({location: locations["Cat café"]});
 
     locations["Mountain path"] = new Location({
         connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb down to [Nearby Cave]"}],

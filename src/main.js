@@ -61,7 +61,7 @@ import { end_activity_animation,
          update_location_action_finish_button,
          update_displayed_storage_inventory,
         } from "./display.js";
-import { compare_game_version, get_hit_chance } from "./misc.js";
+import { compare_game_version, get_hit_chance, is_a_older_than_b } from "./misc.js";
 import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { game_version, get_game_version } from "./game_version.js";
@@ -3106,7 +3106,7 @@ function load(save_data) {
             if("parent_location" in locations[key]) { // if combat zone
                 locations[key].enemy_groups_killed = save_data.locations[key].enemy_groups_killed || 0;   
 
-                if(compare_game_version("v0.4.6", save_data["game version"])) { //compatibility patch for pre-rep and/or pre-rewrite of rewards with required clear count
+                if(is_a_older_than_b(save_data["game version"], "v0.4.6")) { //compatibility patch for pre-rep and/or pre-rewrite of rewards with required clear count
                     if(locations[key].enemy_groups_killed / locations[key].enemy_count >= 1) {
                         const {rep_rew} = locations[key].first_reward;
                         if(rep_rew) {
@@ -3177,6 +3177,15 @@ function load(save_data) {
             return;
         }
     }); //load for locations their unlocked status and their killcounts
+
+    if(is_a_older_than_b(save_data["game version"], "v0.4.6.7")) {
+        locations["Town square"].is_unlocked = false;
+        if(save_data["current location"] === "Town square") {
+            save_data["current location"] = "Village";
+        }
+        //tiny lock and location swap as it was accidentally unlocked in 4.6.0 - 4.6.6
+    }
+    
 
     Object.keys(save_data.activities).forEach(function(activity) {
         if(activities[activity]) {
@@ -3543,10 +3552,10 @@ function update() {
         }
         //health loss
         if(character.stats.full.health_loss_flat) {
-            character.stats.full.health += character.stats.full.health_loss_flat;
+            character.stats.full.health -= character.stats.full.health_loss_flat;
         }
         if(character.stats.full.health_loss_percent) {
-            character.stats.full.health += character.stats.full.max_health * character.stats.full.health_loss_percent/100;
+            character.stats.full.health -= character.stats.full.max_health * character.stats.full.health_loss_percent/100;
         }
         //stamina regen
         if(character.stats.full.stamina_regeneration_flat) {

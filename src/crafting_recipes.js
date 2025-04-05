@@ -257,7 +257,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         throw new Error(`Tried to use a recipe that doesn't exist: ${category} -> ${subcategory} -> ${recipe_id}`);
     }
     if(subcategory === "items") {
-        exp_value = Math.max(exp_value,1.5*selected_recipe.recipe_level[1]);
+        exp_value = Math.max(exp_value,1.5*selected_recipe.recipe_level[1])**1.2;
         //maybe scale with materials needed?
         
         if(selected_recipe.recipe_level[1] < skill_level) {
@@ -265,11 +265,11 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         }
     } else if (subcategory === "components" || selected_recipe.recipe_type === "component") {
         const result_level = 8*result_tier;
-        exp_value = Math.max(exp_value,result_tier * 4 * material_count);
+        exp_value = Math.max(exp_value,result_tier * 4 * material_count)**1.2;
         exp_value = Math.max(0.5*material_count,exp_value*(rarity_multiplier**0.5 - (skill_level/result_level))*rarity_multiplier);
     } else {
         const result_level = 8*Math.max(selected_components[0].component_tier,selected_components[1].component_tier);
-        exp_value = Math.max(exp_value,(selected_components[0].component_tier+selected_components[1].component_tier) * 4);
+        exp_value = Math.max(exp_value,(selected_components[0].component_tier+selected_components[1].component_tier) * 4)**1.2;
         exp_value = Math.max(1,exp_value*(rarity_multiplier**0.5 - (skill_level/result_level))*rarity_multiplier);
     }
     return Math.round(10*exp_value)/10;
@@ -735,7 +735,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Steel chainmail", count: 1},
         success_chance: [0.1,1],
         recipe_skill: "Forging",
-        recipe_level: [7,17],
+        recipe_level: [10,20],
     });
 
     crafting_recipes.items["Rat meat chunks"] = new ItemRecipe({
@@ -771,8 +771,8 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_type: "material",
         materials: [{material_id: "Iron ore", count: 5}, {material_id: "Atratan ore", count: 4}, {material_id: "Coal", count: 2}],
         result: {result_id: "Steel ingot", count: 1},
-        success_chance: [0.2,1],
-        recipe_level: [7,17],
+        success_chance: [0.3,1],
+        recipe_level: [10,20],
         recipe_skill: "Smelting",
         is_unlocked: false,
     });
@@ -801,7 +801,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [{material_id: "Piece of ash wood", count: 5}], 
         result: {result_id: "Processed ash wood", count: 1},
         success_chance: [0.4,1],
-        recipe_level: [7,17],
+        recipe_level: [10,20],
         recipe_skill: "Crafting",
     });
     crafting_recipes.items["Processed weak monster bone"] = new ItemRecipe({
@@ -811,7 +811,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [{material_id: "Weak monster bone", count: 5}], 
         result: {result_id: "Processed weak monster bone", count: 1},
         success_chance: [0.1,1],
-        recipe_level: [7,17],
+        recipe_level: [10,20],
         recipe_skill: "Crafting",
     });
     smelting_recipes.items["Charcoal"] = new ItemRecipe({

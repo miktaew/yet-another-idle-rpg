@@ -1883,7 +1883,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             return `Quality cap: ${100+get_total_skill_level("Forging")*2}%`;
         },
         milestones: {
-            15: {
+            10: {
                 unlocks: {
                     recipes: [
                         {category: "smelting", subcategory: "items", recipe_id: "Steel ingot (inefficient)"},
