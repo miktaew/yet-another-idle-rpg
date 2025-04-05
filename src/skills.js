@@ -921,7 +921,7 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((get_total_skil
         description: "Resist and reject the unnatural influence. Turn your psyche into an iron fortress.",
         category: "Environmental",
         base_xp_cost: 120,
-        max_level: 10,
+        max_level: 40,
         xp_scaling: 2,
         get_effect_description: ()=> {
             return `Reduces eldritch effects by ^${Math.round(100-100*get_total_skill_level("Strength of mind")/skills["Strength of mind"].max_level)/100}`;

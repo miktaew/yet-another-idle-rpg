@@ -2407,7 +2407,9 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
         accept_recipe_button.append(craft_ammount_buttons);
 
         accept_recipe_button.addEventListener("click", (event)=>{
-            if(!event.target.classList.contains("craft_ammount_button")) {
+            if(event.target.classList.contains("recipe_creation_button")) {
+                window.useRecipe(event.target);
+            } else if(!event.target.classList.contains("craft_ammount_button")) {
                 window.useRecipe(event.target.parentNode);
             } else {
                 window.useRecipe(event.target.parentNode.parentNode, Number(event.target.dataset.craft_ammount));
@@ -2764,7 +2766,9 @@ function update_displayed_material_choice({category, subcategory, recipe_id, ref
         if(material_recipe.count <= materials[i].count) {
             item_div.addEventListener("click", (event)=>{
                 item_div.classList.add("selected_material");
-                if(!event.target.classList.contains("craft_ammount_button")) {
+                if(event.target.classList.contains("selectable_material")) {
+                    window.useRecipe(event.target.parentNode);
+                } else if(!event.target.classList.contains("craft_ammount_button")) {
                     window.useRecipe(event.target.parentNode.parentNode);
                 } else{
                     window.useRecipe(event.target.parentNode.parentNode.parentNode, Number(event.target.dataset.craft_ammount));
