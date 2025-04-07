@@ -567,7 +567,7 @@ character.wears_armor = function () {
  * @param {*}
  * @returns [actual damage taken; Boolean if character should faint] 
  */
-character.take_damage = function ({damage_value, can_faint = true, give_skill_xp = true}) {
+character.take_damage = function ({damage_values, can_faint = true, give_skill_xp = true}) {
         /*
         TODO:
                 - damage types: "physical", "elemental", "magic"
@@ -577,13 +577,14 @@ character.take_damage = function ({damage_value, can_faint = true, give_skill_xp
         */
         let fainted;
 
-        let damage_taken;
-        if(damage_value < 1) {
-                damage_taken = Math.max(Math.ceil(10*damage_value)/10, 0);
-        } else {
-                damage_taken = Math.ceil(10*Math.max(damage_value - character.stats.full.defense, damage_value*0.1, 1))/10;
-        }
-
+        damage_values = damage_values.map(val => {
+                if(val < 1) {
+                        return Math.max(Math.ceil(10*val)/10, 0);
+                } else {
+                        return Math.ceil(10*Math.max(val - character.stats.full.defense, val*0.1, 1))/10;
+                }
+        });
+        const damage_taken = damage_values.reduce((a,b)=>a+b);
         character.stats.full.health -= damage_taken;
 
         if(character.stats.full.health <= 0 && can_faint) {

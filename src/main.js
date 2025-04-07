@@ -1123,22 +1123,29 @@ function do_enemy_combat_action(enemy_id) {
 
     const enemy_base_damage = attacker.stats.attack;
 
-    let damage_dealt;
+    //let damage_dealt;
+    let damages_dealt = [];
 
     let critted = false;
 
     let partially_blocked = false; //only used for combat info in message log
 
-    damage_dealt = enemy_base_damage * (1.2 - Math.random() * 0.4); //basic 20% deviation for damage
+    for(let i = 0; i < attacker.stats.attack_count; i++) {
+        damages_dealt.push(enemy_base_damage * (1.2 - Math.random() * 0.4)); //basic 20% deviation for damage
+    }
+
+    damages_dealt = damages_dealt.sort((a,b)=>b-a);
     
     if(character.equipment["off-hand"]?.offhand_type === "shield") { //HAS SHIELD
         if(character.stats.full.block_chance > Math.random()) {//BLOCKED THE ATTACK
             add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value});
-            if(character.stats.total_multiplier.block_strength * character.equipment["off-hand"].getShieldStrength() >= damage_dealt) {
+            const blocked = character.stats.total_multiplier.block_strength * character.equipment["off-hand"].getShieldStrength();
+
+            if(blocked > damages_dealt[0]) {
                 log_message(character.name + " blocked an attack", "hero_blocked");
                 return; //damage fully blocked, nothing more can happen 
             } else {
-                damage_dealt -= character.stats.total_multiplier.block_strength * character.equipment["off-hand"].getShieldStrength();
+                damages_dealt = damages_dealt.map(val => Math.max(0,val-blocked));
                 partially_blocked = true;
             }
          } else {
@@ -1159,42 +1166,37 @@ function do_enemy_combat_action(enemy_id) {
     }
 
     total_hits_taken++;
-
     if(enemy_crit_chance > Math.random()){
-        damage_dealt *= enemy_crit_damage;
+        damages_dealt = damages_dealt.map(val => val*enemy_crit_damage);
         critted = true;
         total_crits_taken++;
     }
-    /*
-    head: null, torso: null, 
-        arms: null, ring: null, 
-        weapon: null, "off-hand": null,
-        legs: null, feet: null, 
-        amulet: null
-    */
-    if(!character.wears_armor())
+
+    if(!character.wears_armor()) //no armor so either completely naked or in things with 0 def
     {
         add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: attacker.xp_value});
     } else {
         add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: Math.sqrt(attacker.xp_value)/2});
     }
 
-    let {damage_taken, fainted} = character.take_damage({damage_value: damage_dealt});
+    
+    let {damage_taken, fainted} = character.take_damage({damage_values: damages_dealt});
 
-    if(critted)
-    {
+    const hit_count_msg = damages_dealt.length > 1?` x${damages_dealt.length}`:""
+
+    if(critted) {
         if(partially_blocked) {
-            log_message(character.name + " partially blocked, was critically hit for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked_critically");
+            log_message(character.name + " partially blocked, was critically hit" + hit_count_msg + " for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked_critically");
         } 
         else {
-            log_message(character.name + " was critically hit for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked_critically");
+            log_message(character.name + " was critically hit" + hit_count_msg + " for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked_critically");
         }
     } else {
         if(partially_blocked) {
-            log_message(character.name + " partially blocked, was hit for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked");
+            log_message(character.name + " partially blocked, was hit" + hit_count_msg + " for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked");
         }
         else {
-            log_message(character.name + " was hit for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked");
+            log_message(character.name + " was hit" + hit_count_msg + " for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked");
         }
     }
 

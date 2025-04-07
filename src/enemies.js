@@ -88,13 +88,13 @@ class Enemy {
 
     */
     enemy_templates["Starving wolf rat"] = new Enemy({
-        name: "Starving wolf rat", 
-        description: "Rat with size of a dog, starved and weakened", 
-        xp_value: 1, 
+        name: "Starving wolf rat",
+        description: "Rat with size of a dog, starved and weakened",
+        xp_value: 1,
         rank: 1,
         size: "small",
         tags: ["living", "beast", "wolf rat"],
-        stats: {health: 20, attack: 4, agility: 5, dexterity: 4, magic: 0, intuition: 5, attack_speed: 0.8, defense: 1}, 
+        stats: {health: 20, attack: 4, agility: 5, dexterity: 4, magic: 0, intuition: 5, attack_speed: 0.8, defense: 1},
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
             {item_name: "Rat fang", chance: 0.04},
@@ -103,9 +103,9 @@ class Enemy {
     });
 
     enemy_templates["Wolf rat"] = new Enemy({
-        name: "Wolf rat", 
+        name: "Wolf rat",
         description: "Rat with size of a dog",
-        xp_value: 1, 
+        xp_value: 1,
         rank: 1,
         size: "small",
         tags: ["living", "beast", "wolf rat"],
@@ -119,11 +119,11 @@ class Enemy {
     enemy_templates["Elite wolf rat"] = new Enemy({
         name: "Elite wolf rat",
         description: "Rat with size of a dog, much more ferocious than its relatives",
-        xp_value: 4, 
+        xp_value: 4,
         rank: 1,
         size: "small",
         tags: ["living", "beast", "wolf rat"],
-        stats: {health: 80, attack: 32, agility: 30, dexterity: 24, intuition: 24, magic: 0, attack_speed: 1.5, defense: 8}, 
+        stats: {health: 80, attack: 32, agility: 30, dexterity: 24, intuition: 24, magic: 0, attack_speed: 1.5, defense: 8},
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
             {item_name: "Rat fang", chance: 0.04},
@@ -133,7 +133,7 @@ class Enemy {
     enemy_templates["Elite wolf rat guardian"] = new Enemy({
         name: "Elite wolf rat guardian",
         description: "It's no longer dog-sized, but rather around the size of an average wolf, with thicker skin, longer claws and pure insanity in the eyes",
-        xp_value: 10, 
+        xp_value: 10,
         rank: 4,
         size: "medium",
         tags: ["living", "beast", "wolf rat", "monster"],
@@ -152,7 +152,7 @@ class Enemy {
         rank: 6,
         size: "large",
         tags: ["living", "beast", "wolf rat", "monster", "eldritch"],
-        stats: {health: 1000, attack: 80, agility: 20, dexterity: 90, intuition: 90, magic: 0, attack_speed: 2, defense: 20},
+        stats: {health: 1000, attack: 70, agility: 20, dexterity: 90, intuition: 90, magic: 0, attack_speed: 2, attack_count: 3, defense: 20},
         loot_list: [
             {item_name: "Rat tail", chance: 0.08},
             {item_name: "Rat fang", chance: 0.08},
@@ -161,10 +161,10 @@ class Enemy {
 
     enemy_templates["Starving wolf"] = new Enemy({
         name: "Starving wolf", description: "A big, wild and hungry canine", 
-        xp_value: 3, 
+        xp_value: 3,
         rank: 2,
         tags: ["living", "beast"],
-        stats: {health: 150, attack: 22, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 12}, 
+        stats: {health: 150, attack: 22, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 12},
         loot_list: [
             {item_name: "Wolf fang", chance: 0.03},
             {item_name: "Wolf pelt", chance: 0.01},
@@ -173,12 +173,12 @@ class Enemy {
     });
 
     enemy_templates["Young wolf"] = new Enemy({
-        name: "Young wolf", 
-        description: "A small, wild canine", 
-        xp_value: 3, 
+        name: "Young wolf",
+        description: "A small, wild canine",
+        xp_value: 3,
         rank: 2,
         tags: ["living", "beast"],
-        stats: {health: 120, attack: 25, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.4, defense: 6}, 
+        stats: {health: 120, attack: 25, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.4, defense: 6},
         loot_list: [
             {item_name: "Wolf fang", chance: 0.03},
             {item_name: "Wolf pelt", chance: 0.01},
@@ -187,12 +187,12 @@ class Enemy {
     });
 
     enemy_templates["Wolf"] = new Enemy({
-        name: "Wolf", 
-        description: "A large, wild canine", 
-        xp_value: 4, 
+        name: "Wolf",
+        description: "A large, wild canine",
+        xp_value: 4,
         rank: 3,
         tags: ["living", "beast"],
-        stats: {health: 200, attack: 32, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.3, defense: 20}, 
+        stats: {health: 200, attack: 32, agility: 42, dexterity: 42, intuition: 32, magic: 0, attack_speed: 1.3, defense: 20},
         loot_list: [
             {item_name: "Wolf fang", chance: 0.04},
             {item_name: "Wolf pelt", chance: 0.02},
@@ -202,8 +202,8 @@ class Enemy {
     });
 
     enemy_templates["Boar"] = new Enemy({
-        name: "Boar", 
-        description: "A big wild creature, with thick skin and large tusks", 
+        name: "Boar",
+        description: "A big wild creature, with thick skin and large tusks",
         xp_value: 8,
         rank: 4,
         tags: ["living", "beast"],
@@ -218,8 +218,8 @@ class Enemy {
     });
 
     enemy_templates["Angry mountain goat"] = new Enemy({
-        name: "Angry mountain goat", 
-        description: "It's a mountain goat and it's angry", 
+        name: "Angry mountain goat",
+        description: "It's a mountain goat and it's angry",
         xp_value: 15,
         rank: 6,
         tags: ["living", "beast"],
@@ -235,7 +235,7 @@ class Enemy {
 
     enemy_templates["Slums thug"] = new Enemy({
         name: "Slums thug",
-        description: "A nasty thug with shabby equipment", 
+        description: "A nasty thug with shabby equipment",
         add_to_bestiary: false,
         xp_value: 10,
         rank: 5,

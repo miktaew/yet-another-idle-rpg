@@ -205,7 +205,7 @@ class Combat_zone {
                                             magic: Math.round(enemy.stats.magic * (base - Math.random() * vary)),
                                             intuition: Math.round(enemy.stats.intuition * (base - Math.random() * vary)),
                                             attack_speed: Math.round(enemy.stats.attack_speed * (base - Math.random() * vary) * 100) / 100,
-                                            attack_count: enemy.stats.attack_count,
+                                            attack_count: Math.round((enemy.stats.attack_count || 1) * (base - Math.random() * vary)),
                                             defense: Math.round(enemy.stats.defense * (base - Math.random() * vary))
                                         },
                                         loot_list: enemy.loot_list,
@@ -225,7 +225,7 @@ class Combat_zone {
                         magic: enemy.stats.magic,
                         intuition: enemy.stats.intuition,
                         attack_speed: enemy.stats.attack_speed,
-                        attack_count: enemy.stats.attack_count,
+                        attack_count: enemy.stats.attack_count || 1,
                         defense: enemy.stats.defense
                     },
                     loot_list: enemy.loot_list,

@@ -16,6 +16,8 @@ const weapon_type_to_skill = {
     "wand": "Wands"
 };
 
+let unknown_skill_name = "?????";
+
 const which_skills_affect_skill = {};
 
 class Skill {
@@ -84,7 +86,7 @@ class Skill {
 
     name() {
         if(this.visibility_treshold > this.total_xp) {
-            return "?????";
+            return unknown_skill_name;
         }
         
         const keys = Object.keys(this.names);
@@ -163,7 +165,7 @@ class Skill {
                     this.xp_to_next_lvl = "Max";
                 }
 
-                skill_name = skill_name==="?????"?this.name():skill_name;
+                skill_name = skill_name===unknown_skill_name?this.name():skill_name;
                 //swap name if it was unknown, otherwise leave it as it was (for properly messaging skill name change)
                 let message = `${skill_name} has reached level ${this.current_level}`;
 
