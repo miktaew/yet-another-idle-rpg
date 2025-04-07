@@ -3912,6 +3912,9 @@ function create_new_bestiary_entry(enemy_name) {
 
     stat_2_name.innerHTML = "Attack power:";
     stat_2_value.innerHTML = `${enemy.stats.attack}`;
+    if(enemy.stats.attack_count > 1) {
+        stat_2_value.innerHTML += `x${enemy.stats.attack_count}`;
+    }
     stat_2.append(stat_2_name, stat_2_value);
 
     const stat_3 = document.createElement("div");

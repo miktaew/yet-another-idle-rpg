@@ -228,7 +228,7 @@ class Enemy {
         loot_list: [
             {item_name: "Mountain goat hide", chance: 0.04},
             {item_name: "Goat meat", chance: 0.02},
-            {item_name: "Mountain goat horn", chance: 0.01},
+            {item_name: "Mountain goat horn", chance: 0.02},
             {item_name: "Pristine mountain goat horn", chance: 0.0005},
         ],
     });
