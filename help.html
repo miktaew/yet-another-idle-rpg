@@ -124,6 +124,20 @@
             <li>You can obtain resources from passive activities in locations and/or as a loot from combat; items that can be used for crafting will often (but not always) mention it in their descriptions<br>
                 For passive gathering activities, things such as time needed, success chance, and number of gained items, are all affected by skill level.
             </li>
+            <li>
+                XP and quality caps:
+                <ul>
+                    <li>
+                        Quality of equipment is capped at 100% + 2.8% per skill level.<br>
+                        Quality of components (excluding clothing, which falls under equipment) is capped at 100% + 2% per skill level.<br>
+                        It exists mainly to make higher tier materials catch up with lower tier ones at some point.
+                    </li>
+                    <li>
+                        XP gains from item recipes start going down once you are a few levels over the value needed to max out the success chance, from there they steadily go down to 1.
+                        XP gains from component/equipment recipes start going down once relevant skill is more than 8*item_tier, this value is however also multiplied by sqrt of item's rarity multiplier (e.g. sqrt(1.1) for 'uncommon'). They go down to 0.5*material_count for components and down to 1 for equipments.
+                    </li>
+                </ul>
+            </li>
         </ul>
     </div>
 
@@ -216,12 +230,12 @@
             <li> XP:
                 <ul>
                     <li>Harder enemies generally provide more xp. It is not affected by area modifiers, but is affected by how many enemies are in a group (raised to 0.334, giving x2 in a fight against 8)</li>
-                    <li>There is also a lot of bonuses from multiple sources (mainly skill milestones and completed books).</li>
+                    <li>There is also a lot of bonuses from multiple sources (mainly skill milestones and completed books, but also a nice multiplier based on hero level).</li>
                 </ul> 
             </li><br>
             <li> Unlocks: 
                 <ul>
-                    <li>New locations and actions can be unlocked by talking with someone, by reaching certain levels in skills and by clearing enemy zones (sometimes it might need to be beaten more than once)</li>
+                    <li>New locations, actions, and activities, can be unlocked by talking with someone, by reaching certain levels in skills, by clearing enemy zones (sometimes it might need to be beaten more than once), and by succeeding in actions</li>
                 </ul>
             </li>
         </ul>

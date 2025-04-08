@@ -2319,7 +2319,7 @@ function create_save() {
                 save_data["locations"][key].is_finished = true;
             }
 
-            if("parent_location" in locations[key]) { //combat zone
+            if("parent_location" in locations[key]) { //combat zone //check for is_unlocked too?
                 save_data["locations"][key]["enemy_groups_killed"] = locations[key].enemy_groups_killed;
             }
 

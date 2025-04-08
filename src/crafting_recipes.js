@@ -141,7 +141,7 @@ class ComponentRecipe extends ItemRecipe{
 
     get_quality_range(tier = 0) {
         const skill = skills[this.recipe_skill];
-        const quality = (140+(3*get_total_skill_level(this.recipe_skill) - skill.max_level)+(20*tier))/100;
+        const quality = (130+(3*get_total_skill_level(this.recipe_skill) - skill.max_level)+(15*tier))/100;
         return [Math.max(10,Math.min(this.get_quality_cap(),Math.round(25*(quality-0.15))*4)), Math.max(10,Math.min(this.get_quality_cap(), Math.round(25*(quality+0.1))*4))];
     }
 
@@ -224,7 +224,7 @@ class EquipmentRecipe extends Recipe {
 
     get_quality_range(component_quality, tier = 0) {
         const skill = skills[this.recipe_skill];
-        const quality = (40+component_quality+(3*get_total_skill_level(this.recipe_skill)-skill.max_level)+20*(tier));
+        const quality = (50+component_quality+(3*get_total_skill_level(this.recipe_skill)-skill.max_level)+10*(tier));
         return [Math.max(10,Math.min(this.get_quality_cap(),Math.round(quality-15))), Math.max(10,Math.min(this.get_quality_cap(), Math.round(quality+15)))];
     }
 
@@ -262,15 +262,18 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         
         if(selected_recipe.recipe_level[1] < skill_level) {
             exp_value = Math.max(1,exp_value * Math.max(0,Math.min(5,(selected_recipe.recipe_level[1]+6-skill_level))/5));
+            //penalty kicks in when more than 5 levels more than needed, goes down to 0 within further 5 levels
         }
     } else if (subcategory === "components" || selected_recipe.recipe_type === "component") {
         const result_level = 8*result_tier;
         exp_value = Math.max(exp_value**1.2,((result_tier * 4)**1.2) * material_count);
         exp_value = Math.max(0.5*material_count,exp_value*(rarity_multiplier**0.5 - (skill_level/result_level))*rarity_multiplier);
+        //penalty kicks in when skill level is more than 8*item_tier, but is delayed by sqrt of rarity multiplier
     } else {
         const result_level = 8*Math.max(selected_components[0].component_tier,selected_components[1].component_tier);
         exp_value = Math.max(exp_value,(selected_components[0].component_tier+selected_components[1].component_tier) * 4)**1.2;
         exp_value = Math.max(1,exp_value*(rarity_multiplier**0.5 - (skill_level/result_level))*rarity_multiplier);
+        //penalty kicks in when skill level is more than 8*item_tier, but is delayed by sqrt of rarity multiplier
     }
     return Math.round(10*exp_value)/10;
 }
