@@ -10,7 +10,7 @@ function Game_time(new_time) {
     //only hours and minutes should be allowed to be 0
     //day_count is purely for calculating day of the week, by default it always start at monday (so day_count = 1)
 
-    this.go_up = function(how_much) {
+    this.goUp = function(how_much) {
         this.minute += how_much || 1;
         if(this.minute >= 60) 
         {
@@ -38,7 +38,7 @@ function Game_time(new_time) {
         }
     }
 
-    this.load_time = function(new_time) {
+    this.loadTime = function(new_time) {
         this.year = new_time.year;
         this.month = new_time.month;
         this.day = new_time.day;
@@ -47,14 +47,14 @@ function Game_time(new_time) {
         this.day_count = new_time.day_count;
     }
 
-    this.get_season = function() {
+    this.getSeason = function() {
         if(this.month > 9) return "Winter";
         else if(this.month > 6) return "Autumn";
         else if(this.month > 3) return "Summer";
         else return "Spring";
     }
 
-    this.get_day_of_the_week = function() {
+    this.getDayOfTheWeek = function() {
         switch(this.day_count % 7) {
             case 0:
                 return "Sunday";
@@ -76,7 +76,7 @@ function Game_time(new_time) {
 }
 
 Game_time.prototype.toString = function() {
-    var date_string = this.get_day_of_the_week() + " ";
+    var date_string = this.getDayOfTheWeek() + " ";
     date_string += ((this.day>9?this.day:`0${this.day}`) + "/");
     date_string += ((this.month>9?this.month:`0${this.month}`) + "/");
     date_string += (this.year + " ");
@@ -135,6 +135,12 @@ function format_time({time, long_names, round=true}) { //{time, long_names?}
     return formatted_time;
 }
 
+
+function is_night(time) {
+    time = time || current_game_time;
+    return (time.hour >= 20 || time.hour <= 4);
+}
+
 const current_game_time = new Game_time({year: 999, month: 4, day: 1, hour: 8, minute: 0, day_count: 1});
 
-export {current_game_time, format_time};
+export {current_game_time, format_time, is_night};

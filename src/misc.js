@@ -143,7 +143,6 @@ function is_a_older_than_b(version1, version2) {
     return compare_game_version(version1, version2) < 0;
 }
 
-
 export { expo, format_reading_time, format_working_time, stat_names, get_hit_chance, 
         compare_game_version, is_a_older_than_b,
         round_item_price};

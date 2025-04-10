@@ -1,6 +1,6 @@
 "use strict";
 
-import { current_game_time } from "./game_time.js";
+import { current_game_time, is_night } from "./game_time.js";
 import { item_templates, getItem, book_stats, setLootSoldCount, loot_sold_count, recoverItemPrices, rarity_multipliers, getArmorSlot, getItemFromKey, getItemRarity} from "./items.js";
 import { locations } from "./locations.js";
 import { skill_categories, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
@@ -2497,7 +2497,7 @@ function load(save_data) {
     
     //current enemies are not saved
 
-    current_game_time.load_time(save_data["current time"]);
+    current_game_time.loadTime(save_data["current time"]);
     time_field.innerHTML = current_game_time.toString();
     //set game time
 
@@ -3380,8 +3380,14 @@ function load_other_release_save() {
 
 //update game time
 function update_timer(time_in_minutes) {
-    current_game_time.go_up(time_in_minutes || (is_sleeping ? 6 : 1));
-    update_character_stats(); //done every second, probably only used for day-night cycle at this point
+    const was_night = is_night(current_game_time);
+    current_game_time.goUp(time_in_minutes || (is_sleeping ? 6 : 1));
+
+    //update_character_stats(); //done every second, probably only used for day-night cycle at this point
+    const daynight_change = was_night !== is_night(current_game_time);
+    if(daynight_change) {
+        update_character_stats();
+    }
     
     update_displayed_time();
 }
@@ -3616,7 +3622,7 @@ function update() {
             console.log("Created an automatic backup!");
         }
 
-        if(!is_sleeping && current_location && current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 4)) 
+        if(!is_sleeping && current_location && current_location.light_level === "normal" && is_night()) 
         {
             add_xp_to_skill({skill: skills["Night vision"], xp_to_add: 1});
         }

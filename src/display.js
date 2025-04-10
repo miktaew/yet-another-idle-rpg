@@ -419,7 +419,7 @@ function create_item_tooltip_content({item, options={}}) {
 /** 
  * @param {Object} item_effect from item effects[]
  */
-function create_effect_tooltip({effect_name, duration, options = {}}) {
+function create_effect_tooltip({effect_name, duration}) {
     const effect = effect_templates[effect_name];
     const tooltip = document.createElement("div");
 

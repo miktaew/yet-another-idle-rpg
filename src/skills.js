@@ -1986,7 +1986,6 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 },
                 xp_multipliers: {
                     hero: 1.05,
-                    "Strength of mind": 1.05,
                 }
             },
             6: {
@@ -1995,6 +1994,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 },
                 xp_multipliers: {
                     all: 1.05,
+                    "Strength of mind": 1.05,
                 }
             },
             8: {
@@ -2020,7 +2020,6 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 },
                 xp_multipliers: {
                     hero: 1.05,
-                    "Strength of mind": 1.05,
                 }
             },
             14: {
@@ -2029,6 +2028,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 },
                 xp_multipliers: {
                     all_skill: 1.05,
+                    "Strength of mind": 1.05,
                 }
             }
         },
