@@ -130,7 +130,7 @@ const character_attack_bar = document.getElementById("character_attack_bar");
 //equipment slots
 const equipment_slots_divs = {head: document.getElementById("head_slot"), torso: document.getElementById("torso_slot"),
                               arms: document.getElementById("arms_slot"), ring: document.getElementById("ring_slot"),
-                              weapon: document.getElementById("weapon_slot"), "off-hand": document.getElementById("offhand_slot"),
+                              weapon: document.getElementById("weapon_slot"), "off-hand": document.getElementById("off-hand_slot"),
                               legs: document.getElementById("legs_slot"), feet: document.getElementById("feet_slot"),
                               amulet: document.getElementById("amulet_slot"), artifact: document.getElementById("artifact_slot"),
                               pickaxe: document.getElementById("pickaxe_slot"),
