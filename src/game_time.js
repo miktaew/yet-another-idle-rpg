@@ -12,27 +12,23 @@ function Game_time(new_time) {
 
     this.goUp = function(how_much) {
         this.minute += how_much || 1;
-        if(this.minute >= 60) 
-        {
+        if(this.minute >= 60) {
             this.minute = this.minute - 60;
             this.hour += 1;
         }
     
-        if(this.hour >= 24) 
-        {
+        if(this.hour >= 24) {
             this.hour = this.hour - 24;
             this.day += 1; 
             this.day_count += 1;
         }
     
-        if(this.day > 30) 
-        {
+        if(this.day > 30) {
             this.day = this.day - 30;
             this.month += 1;
         }
     
-        if(this.month > 12) 
-        {
+        if(this.month > 12) {
             this.month = this.month - 12;
             this.year += 1;
         }
@@ -138,7 +134,7 @@ function format_time({time, long_names, round=true}) { //{time, long_names?}
 
 function is_night(time) {
     time = time || current_game_time;
-    return (time.hour >= 20 || time.hour <= 4);
+    return (time.hour >= 20 || time.hour < 4);
 }
 
 const current_game_time = new Game_time({year: 999, month: 4, day: 1, hour: 8, minute: 0, day_count: 1});

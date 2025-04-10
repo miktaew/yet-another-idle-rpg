@@ -9,7 +9,7 @@ import { update_displayed_character_inventory, update_displayed_equipment,
          update_displayed_skill_level, 
          update_displayed_xp_bonuses } from "./display.js";
 import { active_effects, current_location, current_stance } from "./main.js";
-import { current_game_time } from "./game_time.js";
+import { current_game_time, is_night } from "./game_time.js";
 
 const base_block_chance = 0.75; //+20 from the skill
 const base_xp_cost = 10;
@@ -418,7 +418,7 @@ character.stats.add_location_penalties = function() {
                         effects = current_location.get_total_effect().hero_penalty;
                 }
 
-                if(current_location.light_level === "dark" || current_location.light_level === "normal" && (current_game_time.hour >= 20 || current_game_time.hour <= 3)) {
+                if(current_location.light_level === "dark" || current_location.light_level === "normal" && is_night(current_game_time)) {
                         light_modifier = 0.5 + 0.5* get_total_skill_level("Night vision")/skills["Night vision"].max_level;
                         character.stats.multiplier.light_level.evasion_points = light_modifier;
                         character.stats.multiplier.light_level.attack_points = light_modifier;
