@@ -4,6 +4,7 @@ const skills = {};
 const skill_categories = {};
 
 import { get_total_level_bonus, get_total_skill_coefficient, get_total_skill_level } from "./character.js";
+import { get_crafting_quality_caps } from "./crafting_recipes.js";
 import {stat_names} from "./misc.js";
 
 const weapon_type_to_skill = {
@@ -1861,7 +1862,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         xp_scaling: 1.5,
         max_level: 60,
         get_effect_description: () => {
-            return `Quality cap: ${100+get_total_skill_level("Crafting")*2}%`;
+            return `Quality cap: ${get_crafting_quality_caps("Crafting").components}% for comps, ${get_crafting_quality_caps("Crafting").equipment}% for eq`;
         },
     });
     skills["Smelting"] = new Skill({
@@ -1882,7 +1883,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         xp_scaling: 1.5,
         max_level: 60,
         get_effect_description: () => {
-            return `Quality cap: ${100+get_total_skill_level("Forging")*2}%`;
+            return `Quality cap: ${get_crafting_quality_caps("Forging").components}% for comps, ${get_crafting_quality_caps("Forging").equipment}% for eq`;
         },
         milestones: {
             10: {

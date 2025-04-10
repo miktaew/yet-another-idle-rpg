@@ -21,6 +21,13 @@ const alchemy_recipes = {items: {}};
     overal max quality achievable scales with related skills
 */
 
+function get_crafting_quality_caps(skill_name) {
+    return {
+        components: Math.min(Math.round(100+2*get_total_skill_level(skill_name)),200),
+        equipment: Math.min(Math.round(100+2.8*get_total_skill_level(skill_name)),250),
+    }
+}
+
 class Recipe {
     constructor({
         name,
@@ -147,9 +154,9 @@ class ComponentRecipe extends ItemRecipe{
 
     get_quality_cap() {
         if(this.item_type === "Armor") {
-            return Math.min(Math.round(100+2.8*get_total_skill_level(this.recipe_skill)),250);
+            return get_crafting_quality_caps(this.recipe_skill).equipment;
         } else {
-            return Math.min(Math.round(100+2*get_total_skill_level(this.recipe_skill)),200);
+            return get_crafting_quality_caps(this.recipe_skill).components;
         }
     }
 
@@ -229,7 +236,7 @@ class EquipmentRecipe extends Recipe {
     }
 
     get_quality_cap() {
-        return Math.min(Math.round(100+2.8*get_total_skill_level(this.recipe_skill)),250);
+        return get_crafting_quality_caps(this.recipe_skill).equipment;
     }
 
     get_quality(component_quality, tier = 0) {
@@ -1010,4 +1017,4 @@ const recipes = {
     alchemy: alchemy_recipes
 }
 
-export {recipes, get_recipe_xp_value}
+export {recipes, get_recipe_xp_value, get_crafting_quality_caps}
