@@ -581,7 +581,7 @@ character.take_damage = function ({damage_values, can_faint = true, give_skill_x
                 if(val < 1) {
                         return Math.max(Math.ceil(10*val)/10, 0);
                 } else {
-                        return Math.ceil(10*Math.max(val - character.stats.full.defense, val*0.1, 1))/10;
+                        return Math.ceil(10*Math.max(val - character.stats.full.defense, val*0.05, 1))/10;
                 }
         });
         const damage_taken = damage_values.reduce((a,b)=>a+b);

@@ -2714,7 +2714,11 @@ function load(save_data) {
                 //if it's present, item is "simple" (no components)
                 //and if it has no quality, it's something non-equippable
                 if(item_templates[id]) {
-                    item_list.push({item_key: key, count: save_data.character.inventory[key].count, quality: quality});
+                    if(id === "Coal" && is_a_older_than_b(save_data["game version"], "v0.4.6.12")) {
+                        item_list.push({item_key: item_templates["Charcoal"].getInventoryKey(), count: save_data.character.inventory[key].count, quality: quality});
+                    } else {
+                        item_list.push({item_key: key, count: save_data.character.inventory[key].count, quality: quality});
+                    }
                 } else {
                     console.warn(`Inventory item "${key}" from save on version "${save_data["game version"]} couldn't be found!`);
                     return;

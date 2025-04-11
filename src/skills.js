@@ -1883,7 +1883,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         xp_scaling: 1.5,
         max_level: 60,
         get_effect_description: () => {
-            return `Quality cap: ${get_crafting_quality_caps("Forging").components}% for comps, ${get_crafting_quality_caps("Forging").equipment}% for eq`;
+            return `Quality cap: ${get_crafting_quality_caps("Forging").components}% for components`;
         },
         milestones: {
             10: {

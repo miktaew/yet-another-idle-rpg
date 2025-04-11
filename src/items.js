@@ -1225,15 +1225,24 @@ item_templates["Butchering and you"] = new Book({
         material_type: "raw metal",
     });
     item_templates["Coal"] = new Material({
-        name: "Coal", 
+        name: "Coal",
         description: "A flammable material with extremely high carbon content.",
+        value: 7,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "coal",
+    });
+
+    item_templates["Charcoal"] = new Material({
+        name: "Charcoal",
+        description: "A flammable material with extremely high carbon content, created by strongly heating wood.",
         value: 5,
         saturates_market: true,
         price_recovers: true,
-        tags: {"carbon": true},
+        material_type: "coal",
     });
     item_templates["Piece of rough wood"] = new Material({
-        name: "Piece of rough wood", 
+        name: "Piece of rough wood",
         description: "Cheapest form of wood. There's a lot of bark and malformed pieces.",
         value: 2,
         saturates_market: true,
@@ -1241,7 +1250,7 @@ item_templates["Butchering and you"] = new Book({
         material_type: "raw wood",
     });
     item_templates["Piece of wood"] = new Material({
-        name: "Piece of wood", 
+        name: "Piece of wood",
         description: "Average quality wood. There's a lot of bark and malformed pieces.",
         value: 4,
         saturates_market: true,
@@ -1249,7 +1258,7 @@ item_templates["Butchering and you"] = new Book({
         material_type: "raw wood",
     });
     item_templates["Piece of ash wood"] = new Material({
-        name: "Piece of ash wood", 
+        name: "Piece of ash wood",
         description: "Strong yet elastic, it's best wood you can hope to find around. There's a lot of bark and malformed pieces.",
         value: 7,
         saturates_market: true,
@@ -1258,7 +1267,7 @@ item_templates["Butchering and you"] = new Book({
     });
 
     item_templates["Belmart leaf"] = new Material({
-        name: "Belmart leaf", 
+        name: "Belmart leaf",
         description: "Small, round, dark-green leaves with with very good disinfectant properties",
         value: 8,
         saturates_market: true,
@@ -1267,7 +1276,7 @@ item_templates["Butchering and you"] = new Book({
     });
 
     item_templates["Golmoon leaf"] = new Material({
-        name: "Golmoon leaf", 
+        name: "Golmoon leaf",
         description: "Big green-brown leaves that can be applied to wounds to speed up their healing",
         value: 8,
         saturates_market: true,
@@ -1276,7 +1285,7 @@ item_templates["Butchering and you"] = new Book({
     });
 
     item_templates["Oneberry"] = new Material({
-        name: "Oneberry", 
+        name: "Oneberry",
         description: "Small blue berries capable of stimulating body's natural healing",
         value: 8,
         saturates_market: true,
@@ -1285,7 +1294,7 @@ item_templates["Butchering and you"] = new Book({
     });
 
     item_templates["Silver thistle"] = new Material({
-        name: "Silver thistle", 
+        name: "Silver thistle",
         description: "Rare herb that usually grows high up in mountains, a potent healing ingredient",
         value: 20,
         saturates_market: true,
@@ -1294,7 +1303,7 @@ item_templates["Butchering and you"] = new Book({
     });
 
     item_templates["Wool"] = new Material({
-        name: "Wool", 
+        name: "Wool",
         description: "A handful of wool, raw and unprocessed",
         value: 8,
         saturates_market: true,
@@ -1307,8 +1316,8 @@ item_templates["Butchering and you"] = new Book({
 (function(){
     item_templates["Low quality iron ingot"] = new Material({
         id: "Low quality iron ingot",
-        name: "Low quality iron ingot", 
-        description: "It has a lot of impurities, resulting in it being noticeably below the market standard", 
+        name: "Low quality iron ingot",
+        description: "It has a lot of impurities, resulting in it being noticeably below the market standard",
         value: 10,
         saturates_market: true,
         price_recovers: true,
@@ -1316,8 +1325,8 @@ item_templates["Butchering and you"] = new Book({
     });
     item_templates["Iron ingot"] = new Material({
         id: "Iron ingot",
-        name: "Iron ingot", 
-        description: "It doesn't suffer from any excessive impurities and can be used without worries.", 
+        name: "Iron ingot",
+        description: "It doesn't suffer from any excessive impurities and can be used without worries.",
         value: 20,
         saturates_market: true,
         price_recovers: true,
@@ -1325,7 +1334,7 @@ item_templates["Butchering and you"] = new Book({
     });
     item_templates["Steel ingot"] = new Material({
         id: "Steel ingot",
-        name: "Steel ingot", 
+        name: "Steel ingot",
         description: "Basic alloy of iron, harder and more resistant.",
         value: 40,
         saturates_market: true,
@@ -1341,7 +1350,7 @@ item_templates["Butchering and you"] = new Book({
         material_type: "piece of leather",
     });
     item_templates["Piece of wolf leather"] = new Material({
-        name: "Piece of wolf leather", 
+        name: "Piece of wolf leather",
         description: "Somewhat strong, should offer some protection when turned into armor",
         value: 20,
         saturates_market: true,
@@ -1349,7 +1358,7 @@ item_templates["Butchering and you"] = new Book({
         material_type: "piece of leather",
     });
     item_templates["Piece of boar leather"] = new Material({
-        name: "Piece of boar leather", 
+        name: "Piece of boar leather",
         description: "Thick and resistant leather, too stiff for clothes but perfect for armor",
         value: 30,
         saturates_market: true,
@@ -1373,7 +1382,7 @@ item_templates["Butchering and you"] = new Book({
         material_type: "fat",
     });
     item_templates["Wool cloth"] = new Material({
-        name: "Wool cloth", 
+        name: "Wool cloth",
         description: "Thick and warm, might possibly absorb some punches",
         value: 8,
         saturates_market: true,
@@ -1381,7 +1390,7 @@ item_templates["Butchering and you"] = new Book({
         material_type: "fabric",
     });
     item_templates["Iron chainmail"] = new Material({
-        name: "Iron chainmail", 
+        name: "Iron chainmail",
         description: "Dozens of tiny iron rings linked together. Nowhere near a wearable form, turning it into armor will still take a lot of effort and focus",
         value: 12,
         saturates_market: true,
@@ -1389,7 +1398,7 @@ item_templates["Butchering and you"] = new Book({
         material_type: "chainmail",
     });
     item_templates["Steel chainmail"] = new Material({
-        name: "Steel chainmail", 
+        name: "Steel chainmail",
         description: "Dozens of tiny steel rings linked together. Nowhere near a wearable form, turning it into armor will still take a lot of effort and focus",
         value: 18,
         saturates_market: true,
@@ -1397,7 +1406,7 @@ item_templates["Butchering and you"] = new Book({
         material_type: "chainmail",
     });
     item_templates["Scraps of wolf rat meat"] = new Material({
-        name: "Scraps of wolf rat meat", 
+        name: "Scraps of wolf rat meat",
         description: "Ignoring where they come from and all the attached diseases, they actually look edible. Just remember to cook it first.",
         value: 8,
         saturates_market: true,
@@ -1405,7 +1414,7 @@ item_templates["Butchering and you"] = new Book({
         material_type: "meat",
     });
     item_templates["Processed rough wood"] = new Material({
-        name: "Processed rough wood", 
+        name: "Processed rough wood",
         description: "Cheapest form of wood, ready to be used. Despite being rather weak, it still has a lot of uses.",
         value: 6,
         saturates_market: true,
@@ -1414,7 +1423,7 @@ item_templates["Butchering and you"] = new Book({
     });
 
     item_templates["Processed wood"] = new Material({
-        name: "Processed wood", 
+        name: "Processed wood",
         description: "Average quality wood, ready to be used.",
         value: 11,
         saturates_market: true,
@@ -1423,7 +1432,7 @@ item_templates["Butchering and you"] = new Book({
     });
 
     item_templates["Processed ash wood"] = new Material({
-        name: "Processed ash wood", 
+        name: "Processed ash wood",
         description: "High quality wood, just waiting to be turned into a piece of equipment.",
         value: 20,
         saturates_market: true,
