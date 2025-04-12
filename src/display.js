@@ -3562,7 +3562,7 @@ function update_displayed_skill_bar(skill, leveled_up=true) {
 }
 
 function update_displayed_skill_level(skill) {
-    if(!skill_bar_divs[skill.category][skill.skill_id]) {
+    if(!skill_bar_divs[skill.category]?.[skill.skill_id]) {
         return;
     }
 

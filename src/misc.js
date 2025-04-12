@@ -106,9 +106,8 @@ function get_hit_chance(attack_points, evasion_points) {
     } else if(result >= 0.10) {
         result = 0.01 + (result-0.1)**1.2;
     } else {
-        result = result**1.3;
+        result = 0;
     }
-    
 
     return result;
 }

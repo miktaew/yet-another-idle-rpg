@@ -423,7 +423,7 @@ function format_skill_rewards(milestone){
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
                                 get_effect_description: ()=> {
-                                    return `Multiplies hit chance by ${Math.round(get_total_skill_coefficient({skill_id:"Combat",scaling_type:"multiplicative"})*1000)/1000}`;
+                                    return `Multiplies AP by ${Math.round(get_total_skill_coefficient({skill_id:"Combat",scaling_type:"multiplicative"})*1000)/1000}`;
                                 }});
     
     skills["Pest killer"] = new Skill({skill_id: "Pest killer", 
@@ -433,7 +433,7 @@ function format_skill_rewards(milestone){
                                 category: "Combat",
                                 base_xp_cost: 100,
                                 get_effect_description: ()=> {
-                                    return `Multiplies hit chance against small-type enemies by ${Math.round(get_total_skill_coefficient({skill_id:"Pest killer",scaling_type:"multiplicative"})*1000)/1000}`;
+                                    return `Multiplies AP against small-type enemies by ${Math.round(get_total_skill_coefficient({skill_id:"Pest killer",scaling_type:"multiplicative"})*1000)/1000}`;
                                 },
                                 milestones: {
                                     1: {
@@ -494,7 +494,7 @@ function format_skill_rewards(milestone){
                                 max_level_coefficient: 2,
                                 category: "Combat",
                                 get_effect_description: ()=> {
-                                    return `Multiplies evasion against large-type enemies by ${Math.round(get_total_skill_coefficient({skill_id:"Giant slayer",scaling_type:"multiplicative"})*1000)/1000}`;
+                                    return `Multiplies EP against large-type enemies by ${Math.round(get_total_skill_coefficient({skill_id:"Giant slayer",scaling_type:"multiplicative"})*1000)/1000}`;
                                 }});
 
     skills["Evasion"] = new Skill({skill_id: "Evasion", 
@@ -504,7 +504,7 @@ function format_skill_rewards(milestone){
                                 base_xp_cost: 20,
                                 category: "Combat",
                                 get_effect_description: ()=> {
-                                    return `Multiplies your evasion chance by ${Math.round(get_total_skill_coefficient({skill_id:"Evasion",scaling_type:"multiplicative"})*1000)/1000}`;
+                                    return `Multiplies EP by ${Math.round(get_total_skill_coefficient({skill_id:"Evasion",scaling_type:"multiplicative"})*1000)/1000}`;
                                 },
                                 milestones: {
                                     1: {

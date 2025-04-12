@@ -185,6 +185,9 @@ v0.4.6.12
     - replaced 'coal' with 'charcoal'; swapped coal-using recipes to use material type 'coal' instead of specific item
     - fixed 'forging' skill tooltip to only show quality cap for components, as that skill has no full eq items
     - reduced minimum dmg getting through armor from 10% to 5%
+v0.4.6.13
+    - slightly changed hit/dodge formula to allow an actual 0% chance of being hit; due to this, changed modifiers from enemy group count and enemy size (via skill) to be applied to AP/EP instead (since multiplying 0 by them would be meaningless), which might change how much impact they have
+    - fix a bug on equipping better tools if the related skill was not unlocked
 </pre>
 </div>
 <button type="button" class="collapsible">v0.4.3/v0.4.4 - GUI remake and Crafting</button>

@@ -1152,7 +1152,7 @@ function do_enemy_combat_action(enemy_id) {
             add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value/2});
          }
     } else { // HAS NO SHIELD
-        const hit_chance = get_hit_chance(attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1), character.stats.full.evasion_points)/evasion_chance_modifier;
+        const hit_chance = get_hit_chance(attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1), character.stats.full.evasion_points*evasion_chance_modifier);
 
         if(hit_chance < Math.random()) { //EVADED ATTACK
             const xp_to_add = character.wears_armor() ? attacker.xp_value : attacker.xp_value * 1.5; 
@@ -1236,7 +1236,7 @@ function do_character_combat_action({target, attack_power}) {
         add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: target.xp_value});
     }
 
-    const hit_chance = get_hit_chance(character.stats.full.attack_points, target.stats.agility * Math.sqrt(target.stats.intuition ?? 1)) * hit_chance_modifier;
+    const hit_chance = get_hit_chance(character.stats.full.attack_points * hit_chance_modifier, target.stats.agility * Math.sqrt(target.stats.intuition ?? 1));
 
     if(hit_chance > Math.random()) {//hero's attack hits
 

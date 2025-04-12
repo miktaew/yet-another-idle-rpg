@@ -16,6 +16,7 @@ const ReputationManager = {
 
 
     //for future: some unlocks for reaching certain values?
+    //they could be handled via unmarked quests, but doing that here should be cleaner
 }
 
 
