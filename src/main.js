@@ -3314,7 +3314,7 @@ function load(save_data) {
                 current_activity.earnings = save_data.current_activity.earnings * ((is_from_before_eco_rework == 1)*10 || 1);
                 document.getElementById("action_end_earnings").innerHTML = `(earnings: ${format_money(current_activity.earnings)})`;
             } else if(activities[current_location.activities[activity_id].activity_name].type === "GATHERING") {
-                current_activity.gathered_materials = save_data.current_activity.gathered_materials;
+                current_activity.gathered_materials = save_data.current_activity.gathered_materials || {};
             }
 
             current_activity.gathering_time = save_data.current_activity.gathering_time;

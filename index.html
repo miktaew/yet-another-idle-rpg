@@ -1294,19 +1294,6 @@
                     event.target.value = ""; //necessary to allow loading same file more than once in a row without refreshing
             };
 
-            function hardReset() {
-                let confirmation = prompt(`This will erase all your progress and you will have to start from the very beginning. If you are sure this is what you want, type "reset" below`);
-
-                if(confirmation === "reset" || confirmation === `"reset"`) {
-                    localStorage.removeItem("save data");
-                    window.location.reload();
-                    return false;
-                }
-                else {
-                    console.log("Hard reset was cancelled.");
-                }
-            }
-
             function importOtherSave() {
                 let confirmation = prompt(`This will import the savefile from the other release - dev if you are on main, main if you are on dev. In the first case it might break your game if dev save was made on newer game version. If you are sure this is what you want, type "import" below`);
 

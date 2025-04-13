@@ -86,7 +86,7 @@ class Skill {
     }
 
     name() {
-        if(this.visibility_treshold > this.total_xp) {
+        if(this.visibility_treshold > this.total_xp || !this.is_unlocked) {
             return unknown_skill_name;
         }
         
