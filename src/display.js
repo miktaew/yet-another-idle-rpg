@@ -1501,8 +1501,8 @@ function update_displayed_enemies() {
                 hero_evasion_chance_modifier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Giant slayer"});
             }
         
-            const evasion_chance = 1 - get_hit_chance(character.stats.full.attack_points, current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition ?? 1)) * hero_hit_chance_modifier;
-            let hit_chance = get_hit_chance(current_enemies[i].stats.dexterity * Math.sqrt(current_enemies[i].stats.intuition ?? 1), character.stats.full.evasion_points) / hero_evasion_chance_modifier;
+            const evasion_chance = 1 - get_hit_chance(character.stats.full.attack_points*hero_hit_chance_modifier, current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition ?? 1));
+            let hit_chance = get_hit_chance(current_enemies[i].stats.dexterity * Math.sqrt(current_enemies[i].stats.intuition ?? 1), character.stats.full.evasion_points*hero_evasion_chance_modifier);
 
             if(character.equipment["off-hand"]?.offhand_type === "shield") { //has shield
                 hit_chance = 1;
