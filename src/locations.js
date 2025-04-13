@@ -1206,7 +1206,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
                 noises.push("Please, do you have a coin to spare?");
             } else {
-                if(locations["Gang hideout"].is_finished) {
+                if(!locations["Gang hideout"].is_finished) {
                     noises.push("*Sounds of someone getting repeatedly stabbed*", "Scammed some fools for money today, time to get drunk!");
                 }
             }

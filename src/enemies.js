@@ -236,7 +236,6 @@ class Enemy {
     enemy_templates["Slums thug"] = new Enemy({
         name: "Slums thug",
         description: "A nasty thug with shabby equipment",
-        add_to_bestiary: false,
         xp_value: 10,
         rank: 5,
         tags: ["living", "human"],
