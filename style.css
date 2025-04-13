@@ -130,7 +130,11 @@ body {
 
  .message_items_obtained {
 	 color: gold;
-	 font-weight: bold;
+ }
+
+ .message_total_items_obtained {
+	color: gold;
+	font-weight: bold;
  }
 
  .message_victory {

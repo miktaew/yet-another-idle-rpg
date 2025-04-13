@@ -954,7 +954,7 @@
                     <label for="options_textsize">Increase size of text in dialogues</label>
                 </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_bed_return" name="options_bed_return" value="options_bed_return" onclick = "option_bed_return()"/>
+                    <input type="checkbox" id="options_bed_return" name="options_bed_return" value="options_bed_return" onclick = "option_bed_return()" checked/>
                     <label for="options_bed_return">Return to last bed upon defeat</label>
                 </div>
                 <div class="options_choice">
@@ -964,6 +964,14 @@
                 <div class="options_choice">
                     <input type="checkbox" id="options_dont_autoswitch_to_combat" name="options_dont_autoswitch_to_combat" value="options_dont_autoswitch_to_combat" onclick = "option_combat_autoswitch()"/>
                     <label for="options_dont_autoswitch_to_combat">Don't autoswitch out from inventory when starting combat</label>
+                </div>
+                <div class="options_choice">
+                    <input type="checkbox" id="options_log_all_gathering" name="options_log_all_gathering" value="options_log_all_gathering" onclick = "option_log_all_gathering()" checked/>
+                    <label for="options_log_all_gathering">Log gathered materials for every gathering period</label>
+                </div>
+                <div class="options_choice">
+                    <input type="checkbox" id="options_log_gathering_result" name="options_log_gathering_result" value="options_log_gathering_result" onclick = "option_log_gathering_result()" checked/>
+                    <label for="options_log_gathering_result">Log total gathered materials on gathering finish</label>
                 </div>
             </div>
             <div id="close_options" onclick="closeOptions()"> X </div>
@@ -1362,6 +1370,12 @@
 
             function prepareGame() { //called on body loaded
                 document.getElementById("changelog_button").children[0].innerHTML = get_game_version();
+
+                document.body.addEventListener('keyup', (event)=>{
+                    if(event.key === "Escape") {
+                            closeOptions();
+                    }
+                }, false)
 
                 let tooltip_move_ticks = 60;
                 let tooltip_wait = 0;

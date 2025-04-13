@@ -169,10 +169,12 @@ const global_xp_multiplier = 1;
 //stuff from options panel
 const options = {
     uniform_text_size_in_action: false,
-    auto_return_to_bed: false,
+    auto_return_to_bed: true,
     remember_message_log_filters: false,
     remember_sorting_options: false,
     combat_disable_autoswitch: false,
+    log_every_gathering_period: true,
+    log_total_gathering_gain: true,
 };
 
 let message_log_filters = {
@@ -305,6 +307,33 @@ function option_combat_autoswitch(option) {
     }
 }
 
+function option_log_all_gathering(option) {
+    const checkbox = document.getElementById("options_log_all_gathering");
+
+    if(checkbox.checked || option) {
+        options.log_every_gathering_period = true;
+    } else {
+        options.log_every_gathering_period = false;
+    }
+    if(option) {
+        checkbox.checked = option;
+    }
+}
+
+function option_log_gathering_result(option) {
+    const checkbox = document.getElementById("options_log_gathering_result");
+
+    if(checkbox.checked || option) {
+        options.log_total_gathering_gain = true;
+    } else {
+        options.log_total_gathering_gain = false;
+    }
+
+    if(option) {
+        checkbox.checked = option;
+    }
+}
+
 function change_location(location_name) {
     
     let location = locations[location_name] || current_location;
@@ -394,6 +423,7 @@ function start_activity(selected_activity) {
             current_activity = null;
             return;
         }
+        current_activity.gathered_materials = {};
     } else throw `"${activities[current_activity.activity_name].type}" is not a valid activity type!`;
 
     current_activity.gathering_time = 0;
@@ -411,6 +441,15 @@ function end_activity() {
     if(current_activity.earnings) {
         log_message(`${character.name} earned ${format_money(current_activity.earnings)}`, "activity_money");
         add_money_to_character(current_activity.earnings);
+    }
+
+    if(current_activity.gathered_materials && options.log_total_gathering_gain) {
+        const loot = []; 
+        Object.keys(current_activity.gathered_materials).forEach(mat_key => {
+            loot.push({item_key: mat_key, count: current_activity.gathered_materials[mat_key]});
+        });
+
+        log_loot({loot_list: loot, is_a_summary: true});
     }
     end_activity_animation(); //clears the "animation"
     current_activity = null;
@@ -1286,7 +1325,7 @@ function do_character_combat_action({target, attack_power}) {
 
             let loot = target.get_loot();
             if(loot.length > 0) {
-                log_loot(loot);
+                log_loot({loot_list: loot, is_combat: true});
                 loot = loot.map(x => {return {item_key: item_templates[x.item_id].getInventoryKey(), count: x.count}});
                 add_to_character_inventory(loot);
             }
@@ -2364,6 +2403,7 @@ function create_save() {
                                              working_time: current_activity.working_time, 
                                              earnings: current_activity.earnings,
                                              gathering_time: current_activity.gathering_time,
+                                             gathered_materials: current_activity.gathered_materials,
                                             };
         }
         
@@ -2539,6 +2579,9 @@ function load(save_data) {
         })
     }
     option_remember_filters(options.remember_message_log_filters);
+
+    option_log_all_gathering(options.log_every_gathering_period);
+    option_log_gathering_result(options.log_total_gathering_gain);
 
     //this can be removed at some point
     const is_from_before_eco_rework = compare_game_version("v0.3.5", save_data["game version"]) == 1;
@@ -3270,6 +3313,8 @@ function load(save_data) {
                 current_activity.working_time = save_data.current_activity.working_time;
                 current_activity.earnings = save_data.current_activity.earnings * ((is_from_before_eco_rework == 1)*10 || 1);
                 document.getElementById("action_end_earnings").innerHTML = `(earnings: ${format_money(current_activity.earnings)})`;
+            } else if(activities[current_location.activities[activity_id].activity_name].type === "GATHERING") {
+                current_activity.gathered_materials = save_data.current_activity.gathered_materials;
             }
 
             current_activity.gathering_time = save_data.current_activity.gathering_time;
@@ -3382,6 +3427,22 @@ function load_other_release_save() {
     }
 }
 
+function hard_reset() {
+    let confirmation = prompt(`This will erase all your progress and you will have to start from the very beginning. If you are sure this is what you want, type "reset" below`);
+
+    if(confirmation === "reset" || confirmation === `"reset"`) {
+        if(is_on_dev()) {
+            localStorage.removeItem(dev_save_key);
+        } else {
+            localStorage.removeItem(save_key);
+        }
+        window.location.reload();
+        return false;
+    } else {
+        console.log("Hard reset was cancelled.");
+    }
+}
+
 //update game time
 function update_timer(time_in_minutes) {
     const was_night = is_night(current_game_time);
@@ -3476,7 +3537,14 @@ function update() {
                         }
 
                         if(items.length > 0) {
-                            log_loot(items, false);
+                            if(options.log_every_gathering_period) {
+                                log_loot({loot_list: items});
+                            }
+
+                            for(let i = 0; i < items.length; i++) {
+                                current_activity.gathered_materials[items[i].item_key] = (current_activity.gathered_materials[items[i].item_key] + items[i].count || items[i].count);
+                            }
+                            
                             add_to_character_inventory(items);
                         }
 
@@ -3747,6 +3815,8 @@ window.option_uniform_textsize = option_uniform_textsize;
 window.option_bed_return = option_bed_return;
 window.option_combat_autoswitch = option_combat_autoswitch;
 window.option_remember_filters = option_remember_filters;
+window.option_log_all_gathering = option_log_all_gathering;
+window.option_log_gathering_result = option_log_gathering_result;
 
 window.getDate = get_date;
 
@@ -3757,6 +3827,7 @@ window.save_to_file = save_to_file;
 window.load_progress = load_from_file;
 window.loadBackup = load_backup;
 window.importOtherReleaseSave = load_other_release_save;
+window.hardReset = hard_reset;
 window.get_game_version = get_game_version;
 
 if(save_key in localStorage || (is_on_dev() && dev_save_key in localStorage)) {

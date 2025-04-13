@@ -543,6 +543,11 @@ function end_activity_animation(remove) {
             group_to_add = "message_loot";
             message_count.message_loot += 1;
             break;
+        case "total_gathered_loot":
+            class_to_add = "message_total_items_obtained";
+            group_to_add = "message_loot";
+            message_count.message_loot += 1;
+            break;
         case "location_reward":
             group_to_add = "message_loot";
             message_count.message_loot += 1;
@@ -606,11 +611,11 @@ function end_activity_animation(remove) {
     }
 
     if(group_to_add === "message_combat" && message_count.message_combat > 80
-    || group_to_add === "message_loot" && message_count.message_loot > 20
+    || group_to_add === "message_loot" && message_count.message_loot > 28
     || group_to_add === "message_unlocks" && message_count.message_unlocks > 40
-    || group_to_add === "message_events" && message_count.message_events > 20
-    || group_to_add === "message_background" && message_count.message_background > 20
-    || group_to_add === "message_crafting" && message_count.message_crafting > 20
+    || group_to_add === "message_events" && message_count.message_events > 40
+    || group_to_add === "message_background" && message_count.message_background > 28
+    || group_to_add === "message_crafting" && message_count.message_crafting > 28
     ) {
         // find first child with specified group
         // delete it
@@ -687,7 +692,7 @@ function clear_message_log() {
 /**
  * @param {Array} loot_list [{item, count},...] 
  */
-function log_loot(loot_list, is_combat=true) {
+function log_loot({loot_list, is_combat=false, is_a_summary=false}) {
     
     if(loot_list.length == 0) {
         return;
@@ -699,7 +704,22 @@ function log_loot(loot_list, is_combat=true) {
     } else if(loot_list[0].item_key) {
         item = getItemFromKey(loot_list[0].item_key);
     }
-    let message = `${is_combat?"Looted":"Gained"} "` + item.getName() + `" x` + loot_list[0]["count"];
+
+    let message;
+    let message_type;
+    if(is_combat) {
+        message_type = "combat_loot";
+        message = 'Looted "';
+    } else if(is_a_summary) {
+        message_type = "total_gathered_loot";
+        message = 'Gained in total: "';
+    } else {
+        message_type = "gathered_loot";
+        message = 'Gained "';
+    }
+
+    message += item.getName() + `" x` + loot_list[0]["count"];
+
     if(loot_list.length > 1) {
         for(let i = 1; i < loot_list.length; i++) {
             if(loot_list[i].item_id) {
@@ -711,7 +731,7 @@ function log_loot(loot_list, is_combat=true) {
         }
     }
 
-    log_message(message, `${is_combat?"combat_loot":"gathered_loot"}`);
+    log_message(message, message_type);
 }
 
 /**
