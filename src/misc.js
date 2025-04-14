@@ -124,7 +124,7 @@ function compare_game_version(version_a, version_b) {
         if(Number.parseInt(a[i]) && Number.parseInt(b[i])) {
             temp = [Number.parseInt(a[i]), Number.parseInt(b[i])] 
         } else {
-            temp = [a[i], b[i]];
+            temp = [a[i] || 0, b[i] || 0];
         }
         if(temp[0] === temp[1]) {
             continue;

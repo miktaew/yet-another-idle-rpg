@@ -1263,6 +1263,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 locations: ["Gang hideout"],
                 textlines: {"suspicious man": ["behave 2"]},
             }, 
+            move_to: {location: "Slums"},
         },
     });
     locations["Slums"].connected_locations.push({location: locations["Gang hideout"]});

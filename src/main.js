@@ -1664,13 +1664,13 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
     if(rewards.locations) {
         //if(source_type === "location") {
             for(let i = 0; i < rewards.locations.length; i++) {
-                unlock_location(locations[rewards.locations[i].location], rewards.locations[i].skip_message);
+                unlock_location({location: locations[rewards.locations[i].location], skip_message: (inform_overall && rewards.locations[i].skip_message)});
             }
-        //} else {
+        /*} else {
             for(let i = 0; i < rewards.locations.length; i++) {
                 unlock_location(locations[rewards.locations[i].location], rewards.locations[i].skip_message);
             }
-        //}
+        }*/
     }
 
     if(rewards.flags) {
@@ -1827,7 +1827,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
  * 
  * @param location game location object 
  */
-function unlock_location(location, skip_message) {
+function unlock_location({location, skip_message}) {
     if(!location.is_unlocked){
         location.is_unlocked = true;
         if(!skip_message) {
@@ -1835,8 +1835,9 @@ function unlock_location(location, skip_message) {
             log_message(message, "location_unlocked");
         }
 
-        //reloads the location (assumption is that a new one was unlocked by clearing a zone)
-        if(!current_dialogue && !current_location_action) {
+        //reloads the current location just in case it needs the new unlock to be added to current display
+        //current action check most probably unnecessary
+        if(current_location && !current_dialogue && !current_location_action) {
             change_location(current_location.name);
         }
     }
