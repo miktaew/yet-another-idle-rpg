@@ -26,7 +26,7 @@ function start_trade(trader_key) {
     traders[trader_key].refresh();
     current_trader = trader_key;
     
-    update_displayed_trader();
+    update_displayed_trader(true);
 }
 
 function cancel_trade() {

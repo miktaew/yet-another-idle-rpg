@@ -13,8 +13,10 @@ function Game_time(new_time) {
     this.goUp = function(how_much) {
         this.minute += how_much || 1;
         if(this.minute >= 60) {
-            this.minute = this.minute - 60;
-            this.hour += 1;
+            const m = this.minute % 60;
+            const h = this.minute - m;
+            this.minute = m;
+            this.hour += h;
         }
     
         if(this.hour >= 24) {

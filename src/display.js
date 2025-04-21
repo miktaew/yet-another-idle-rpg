@@ -763,11 +763,11 @@ function start_activity_animation(settings) {
      }, 600);
 }
 
-function update_displayed_trader() {
+function update_displayed_trader(is_newly_open) {
     action_div.style.display = "none";
     trade_div.style.display = "inherit";
     document.getElementById("trader_cost_mult_value").textContent = `${Math.round(100 * (traders[current_trader].getProfitMargin()))}%`
-    update_displayed_trader_inventory();
+    update_displayed_trader_inventory({is_newly_open});
 }
 
 function update_displayed_storage() {
@@ -976,7 +976,7 @@ function sort_displayed_inventory({sort_by = "name", target = "character", chang
     }).forEach(node => target.appendChild(node));
 }
 
-function update_displayed_trader_inventory({item_key, trader_sorting="name", sorting_direction="asc", was_anything_new_added=false} = {}) {
+function update_displayed_trader_inventory({item_key, trader_sorting="name", sorting_direction="asc", was_anything_new_added=false, is_newly_open=false} = {}) {
     const trader = traders[current_trader];
 
     //removal of unneeded divs
@@ -1041,6 +1041,13 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
                     } else {
                         trader_item_divs[inventory_key].getElementsByClassName("item_count")[0].innerText = ``;
                     }
+                }
+
+                //grab price div and update it
+                //do it only when opening trader, not on in-trade refreshes
+                if(is_newly_open) {
+                    const price_span = trader_item_divs[inventory_key].getElementsByClassName("item_value")[0];
+                    price_span.innerHTML =  `${format_money(round_item_price(trader.inventory[inventory_key].item.getValue()*(traders[current_trader].getProfitMargin() || 1)), true)}`;
                 }
             }
         });
@@ -1383,7 +1390,7 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
     item_control_div.classList.add(`${item_class}_control`, `${target_class_name}_control`, `${target_class_name}_${target_item.item_type.toLowerCase()}`);
     item_control_div.setAttribute(`data-${target_class_name}`, `${target_item.getInventoryKey()}`)
     item_control_div.setAttribute("data-item_count", `${item_count}`)
-    item_control_div.setAttribute("data-item_value", `${target_item.getValue()}`);
+    item_control_div.setAttribute("data-item_value", `${target_item.getValue()}`); //is only used as sorting param
     item_control_div.appendChild(item_div);
 
     if(target === "character") {

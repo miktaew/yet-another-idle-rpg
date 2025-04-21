@@ -135,7 +135,7 @@ function getEquipmentValue(components, quality) {
     Object.values(components).forEach(component => {
         value += item_templates[component].value;
     });
-    return round_item_price(value * (quality/100 ) * rarity_multipliers[getItemRarity(quality)]);
+    return round_item_price(1.25 * value * (quality/100 ) * rarity_multipliers[getItemRarity(quality)]);
 }
 
 class Item {
@@ -570,11 +570,9 @@ class Shield extends Equippable {
 
     getValue(quality) {
         if(!this.value) {
-            //value of shield base + value of handle, both multiplied by quality and rarity
-            this.value = 1.25*(item_templates[this.components.shield_base].value + item_templates[this.components.handle].value)
-                                  * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)];
+            this.value = getEquipmentValue(this.components,quality);
         }
-        return round_item_price(this.value);
+        return this.value;
     } 
 }
 
@@ -683,9 +681,7 @@ class Armor extends Equippable {
 
     getValue(quality) { 
         if(this.components) {
-            //value of internal + value of external (if present), both multiplied by quality and rarity
-            return round_item_price(1.25*(item_templates[this.components.internal].value + (item_templates[this.components.external]?.value || 0))
-                            * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)]);
+            return getEquipmentValue(this.components,quality);
         } else {
             return round_item_price(item_templates[this.id].value * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)]);
         }
@@ -781,8 +777,7 @@ class Weapon extends Equippable {
 
     getValue(quality) {
         if(!this.value) {
-            //value of handle + value of head, both multiplied by quality and rarity
-            this.value = 1.25*(item_templates[this.components.handle].value + item_templates[this.components.head].value) * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)]
+            this.value = getEquipmentValue(this.components,quality);
         }
         return round_item_price(this.value);
     } 
