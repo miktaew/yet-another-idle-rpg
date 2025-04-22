@@ -288,10 +288,10 @@ character.stats.add_active_effect_bonus = function() {
         character.stats.flat.active_effect = {};
         character.stats.multiplier.active_effect = {};
 
-        Object.values(active_effects).forEach(effect => {
+        Object.keys(active_effects).forEach(effect_key => {
                 let multiplier = 1;
 
-                let effects = get_effect_with_bonuses(effect);
+                let effects = get_effect_with_bonuses(active_effects[effect_key]);
                 for(const [key, value] of Object.entries(effects.stats)) {
                         if(value.flat) {
                                 character.stats.flat.active_effect[key] = (character.stats.flat.active_effect[key] || 0) + value.flat*multiplier;

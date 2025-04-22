@@ -20,19 +20,25 @@ function Game_time(new_time) {
         }
     
         if(this.hour >= 24) {
-            this.hour = this.hour - 24;
-            this.day += 1; 
-            this.day_count += 1;
+            const h = this.hour % 24;
+            const d = this.hour - h;
+            this.hour = h;
+            this.day += d; 
+            this.day_count += d;
         }
     
         if(this.day > 30) {
-            this.day = this.day - 30;
-            this.month += 1;
+            const d = this.day % 30;
+            const m = this.day - d;
+            this.day = d;
+            this.month += m;
         }
     
         if(this.month > 12) {
-            this.month = this.month - 12;
-            this.year += 1;
+            const m = this.month % 12;
+            const y = this.month - m;
+            this.month = m;
+            this.year += y;
         }
     }
 

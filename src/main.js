@@ -1959,6 +1959,8 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 if(is_medicine) {
                     let leveled = add_xp_to_skill({skill: skills["Medicine"], xp_to_add: xp_to_add/2});
                     if(leveled) {
+                        character.stats.add_active_effect_bonus();
+                        update_character_stats();
                         Object.keys(character.inventory).forEach(item_key => {
                             if(character.inventory[item_key].item.tags.medicine) {
                                 update_displayed_character_inventory({item_key});
@@ -2238,6 +2240,8 @@ function use_item(item_key) {
             let leveled = add_xp_to_skill({skill: skills["Medicine"], xp_to_add: (item_templates[id].value/10)**.6667});
             //if levelup, update all medicine tooltips
             if(leveled) {
+                character.stats.add_active_effect_bonus();
+                update_character_stats();
                 Object.keys(character.inventory).forEach(item_key => {
                     if(character.inventory[item_key].item.tags.medicine) {
                         update_displayed_character_inventory({item_key});
@@ -3252,8 +3256,9 @@ function load(save_data) {
     //load active effects if save is not from before their rework
     if(compare_game_version(save_data["game version"], "v0.4.4") >= 0){
         Object.keys(save_data.active_effects).forEach(function(effect) {
-            active_effects[effect] = save_data.active_effects[effect];
+            active_effects[effect] =  new ActiveEffect({...effect_templates[effect], duration: save_data.active_effects[effect].duration});
         });
+        character.stats.add_active_effect_bonus();
     }
     if(save_data.character.hp_to_full == null || save_data.character.hp_to_full >= character.stats.full.max_health) {
         character.stats.full.health = 1;
@@ -3321,8 +3326,7 @@ function load(save_data) {
             current_activity.gathering_time = save_data.current_activity.gathering_time;
             
         } else {
-            console.log(activity_id);
-            console.warn("Couldn't find saved activity! It might have been removed");
+            console.warn(`Couldn't find saved activity "${activity_id}"! It might have been removed`);
         }
     }
 
@@ -3873,8 +3877,8 @@ function add_all_stuff_to_inventory(){
     })
 }
 
-//add_to_character_inventory([{item_id: "Processed wood", count: 1000}]);
-//add_to_character_inventory([{item_id: "Iron ingot", count: 1000}]);
+//add_to_character_inventory([{item_id: "Healing powder", count: 1000}]);
+//add_to_character_inventory([{item_id: "Weak healing powder", count: 1000}]);
 
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();

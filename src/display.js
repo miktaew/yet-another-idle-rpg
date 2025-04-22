@@ -332,7 +332,7 @@ function create_item_tooltip_content({item, options={}}) {
             item_tooltip += "<br>Effects: "
         }
         for(let i = 0; i < item.effects.length; i++) {
-            item_tooltip += create_effect_tooltip({effect_name: item.effects[i].effect, duration: item.effects[i].duration}).outerHTML;
+            item_tooltip += create_effect_tooltip({effect_name: item.effects[i].effect, duration: item.effects[i].duration, add_bonus: true}).outerHTML;
         }
     } else if(item.item_type === "BOOK") {
         if(!book_stats[item.name].is_finished) {
@@ -419,7 +419,7 @@ function create_item_tooltip_content({item, options={}}) {
 /** 
  * @param {Object} item_effect from item effects[]
  */
-function create_effect_tooltip({effect_name, duration}) {
+function create_effect_tooltip({effect_name, duration, add_bonus=false}) {
     const effect = effect_templates[effect_name];
     const tooltip = document.createElement("div");
 
@@ -439,22 +439,22 @@ function create_effect_tooltip({effect_name, duration}) {
 
     const effects_div = document.createElement("div");
 
-    let multiplier = 1;
-    if(effect.tags.medicine) {
-            multiplier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id:"Medicine"});
+    let effects;
+    if(add_bonus) {
+        effects = get_effect_with_bonuses(effect);
+    } else {
+        effects = effect.effects;
     }
-
-    let effects = get_effect_with_bonuses(effect);
     for(const [key, stat_value] of Object.entries(effects.stats)) {
         tooltip.innerHTML += `<br>${capitalize_first_letter(key.replaceAll("_", " ").replace("flat","").replace("percent",""))} `;
         //for regeneration bonuses, it is assumed they are only flat and not multiplicative
         if(key === "health_regeneration_flat" || key ===  "stamina_regeneration_flat" || key ===  "mana_regeneration_flat" || key === "health_loss_flat") 
         {   
             const sign = stat_value.flat > 0? "+":"";
-            tooltip.innerHTML += `: ${sign}${Math.round(100*stat_value.flat*multiplier)/100}`;
+            tooltip.innerHTML += `: ${sign}${Math.round(100*stat_value.flat)/100}`;
         } else if(key === "health_regeneration_percent" || key === "stamina_regeneration_percent" || key === "mana_regeneration_percent" || key === "health_loss_percent") {
             const sign = stat_value.percent > 0? "+":"";
-            tooltip.innerHTML += `: ${sign}${Math.round(100*stat_value.flat*multiplier)/100}%`;
+            tooltip.innerHTML += `: ${sign}${Math.round(100*stat_value.flat)/100}%`;
         } else {
             //
         }
@@ -3049,7 +3049,7 @@ function update_displayed_effects() {
 
         effect_divs = {};
         Object.values(active_effects).forEach(effect => {
-            effect_divs[effect.name] = create_effect_tooltip({effect_name: effect.name, duration: effect.duration});
+            effect_divs[effect.name] = create_effect_tooltip({effect_name: effect.name, duration: effect.duration, add_bonus: true});
             active_effects_tooltip.appendChild(effect_divs[effect.name]);
         });
     } else {
