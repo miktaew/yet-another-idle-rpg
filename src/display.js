@@ -3190,9 +3190,12 @@ function update_displayed_dialogue(dialogue_key) {
     action_div.appendChild(end_dialogue_div);
 }
 
-function update_displayed_textline_answer(text) {
-    document.getElementById("dialogue_answer_div").innerText = text;
-    document.getElementById("dialogue_answer_div").style.padding = "10px";
+function update_displayed_textline_answer({text, is_description}) {
+    if(is_description) {
+        document.getElementById("dialogue_answer_div").innerHTML =  "*"+text+"*";
+    } else {
+        document.getElementById("dialogue_answer_div").innerHTML = '<i>"' + text + '"</i>';
+    }
 }
 
 function exit_displayed_trade() {

@@ -826,6 +826,9 @@ function start_dialogue(dialogue_key) {
     current_dialogue = dialogue_key;
 
     update_displayed_dialogue(dialogue_key);
+    if(!document.getElementById("dialogue_answer_div").innerHTML) {
+        update_displayed_textline_answer({text: dialogues[dialogue_key].getDescription(), is_description: true});
+    }
 }
 
 function end_dialogue() {
@@ -851,7 +854,7 @@ function start_textline(textline_key){
     }
 
     start_dialogue(current_dialogue);
-    update_displayed_textline_answer(textline.text);
+    update_displayed_textline_answer({text: textline.text});
 }
 
 function unlock_combat_stance(stance_id) {

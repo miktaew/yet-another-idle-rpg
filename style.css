@@ -320,13 +320,10 @@ body {
 }
 	#dialogue_answer_div {
 		border-bottom: 1px solid white;
-		font-style: italic;
 		text-align: center;
 		background-color: #15152d;
 		font-size: var(--options_action_textsize);
-		/*
-			padding set to 5 through code
-		*/
+		padding: 10px;
 	}
 
 .inventory_item, .trader_item {

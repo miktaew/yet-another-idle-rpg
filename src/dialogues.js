@@ -11,6 +11,8 @@ class Dialogue {
         is_unlocked = true, 
         is_finished = false, 
         textlines = {}, 
+        description = "",
+        getDescription = ()=>{return this.description;},
         location_name
     })  {
         this.name = name; //displayed name, e.g. "Village elder"
@@ -20,6 +22,8 @@ class Dialogue {
         this.is_unlocked = is_unlocked;
         this.is_finished = is_finished; //separate bool to remove dialogue option if it's finished
         this.textlines = textlines; //all the lines in dialogue
+        this.description = description;
+        this.getDescription = getDescription;
 
         this.location_name = location_name; //this is purely informative and wrong value shouldn't cause any actual issues
 
@@ -235,7 +239,8 @@ class Textline {
                 is_unlocked: false,
                 locks_lines: ["new tunnel"],
             }),
-        }
+        },
+        description: "You see an older man who, despite his white hair, still has a strong posture. He eyes you curiously."
     });
 
     dialogues["old craftsman"] = new Dialogue({
@@ -302,7 +307,8 @@ class Textline {
                 text: "Ahh, there aren't any secrets, you just need to keep practicing it. Just don't spend your entire life working on same louse materials, try to work on stronger stuff when you feel confident. There's a limit to how much you can learn by working with rat leather, isn't there?",
                 is_unlocked: false,
             }),
-        }
+        },
+        description: "You see an old man who clearly experienced a lot in life. His wearing some handmade accessories. Despite his age, his fingers seem exceptionally nimble.",
     });
 
     dialogues["village guard"] = new Dialogue({
@@ -387,7 +393,8 @@ class Textline {
                     stances: ["wide"]
                 }
             }),
-        }
+        },
+        description: "You see a man in light armor, with a spear in his hand and two daggers on his belt. "
     });
 
     dialogues["gate guard"] = new Dialogue({
@@ -397,7 +404,8 @@ class Textline {
                 name: "Hello, can I get in?",
                 text: "The town is currently closed to everyone who isn't a citizen or a guild member. No exceptions.",
             }), 
-        }
+        },
+        description: "You see a man in steel chainmail, with a spear in his hand and a sword on his belt."
     });
     dialogues["suspicious man"] = new Dialogue({
         name: "suspicious man",
@@ -472,7 +480,8 @@ class Textline {
                 is_unlocked: false,
                 text: "Of course boss!",
             }),
-        }
+        },
+        description: "You see a man in shabby clothes and with messy hair, who keeps looking around. He appears to have multiple nervous ticks."
     });
     dialogues["farm supervisor"] = new Dialogue({
         name: "farm supervisor",
@@ -541,64 +550,68 @@ class Textline {
                     money: 4000,
                 }
             }), 
-        }
+        },
+        description: "You see a well dressed man with a notebook on his belt. Despite seeming more like a scribe, he's buff and tanned."
     });
 
     dialogues["cute little rat"] = new Dialogue({
-        "name": "cute little rat",
-        "hello": new Textline({ 
-            name: "Uhm, hi?",
-            text: "Hello, o mighty adventurer!",
-            rewards: {
-                textlines: [{dialogue: "cute little rat", lines: ["what"]}],
-            },
-            locks_lines: ["hello"],
-        }),
-        "what": new Textline({ 
-            name: "What... are you?",
-            text: "Me name be Rator Rathai, the Rat Prince Who Be Promised!",
-            rewards: {
-                textlines: [{dialogue: "cute little rat", lines: ["walls"]}],
-            },
-            locks_lines: ["what"],
-        }),
-        "who": new Textline({ 
-            name: "Promised by who?",
-            text: "By my papa, the great Rat God, of course! The He who bring infite rat blessings uppon this dimension!",
-            rewards: {
-                textlines: [{dialogue: "cute little rat", lines: ["monsters"]}],
-            },
-            locks_lines: ["who"],
-        }),
-        "monsters": new Textline({ 
-            name: "Are those strange monsters that I fought on the way amonst those 'blessings' you speak of?",
-            text: "No no, they don't be blessings, they be the blessed! Creatures of all the creation, who embrace the gift of my papa! Monsters, animals, adventurers, plants, papa accepts all!",
-            rewards: {
-                textlines: [{dialogue: "cute little rat", lines: ["walls", "kill", "mind"]}],
-            },
-            locks_lines: ["monsters"],
-        }),
-        "mind": new Textline({ 
-            name: "And you don't mind that I slaughtered them?",
-            text: "Why? It's the rule of the world that the strong kill the weak and papa believe it too! Besides, maybe you be join us one day? Embrace the truth of your inner rat and reject the human shell!",
-            locks_lines: ["mind"],
-        }),
-        "walls": new Textline({ 
-            name: "So some of those wall-like things could have once been human?",
-            text: "Only in soul. They once be acolytes of papa, but not be worthy so be cast down to guard the path.",
-            rewards: {
-                textlines: [{dialogue: "cute little rat", lines: ["walls"]}],
-            },
-            locks_lines: ["monsters"],
-        }),
-        "kill": new Textline({ 
-            name: "Okay, give me one reason why I shouldn't kill you.",
-            text: "I don't mind, if I die my soul be return to papa. But my blood be full of papa power, don't do it unless you want to face him personally.",
-            rewards: {
-                textlines: [{dialogue: "cute little rat", lines: ["walls"]}],
-            },
-            locks_lines: ["kill"],
-        }),
+        name: "cute little rat",
+        textlines: {
+            "hello": new Textline({ 
+                name: "Uhm, hi?",
+                text: "Hello, o mighty adventurer!",
+                rewards: {
+                    textlines: [{dialogue: "cute little rat", lines: ["what"]}],
+                },
+                locks_lines: ["hello"],
+            }),
+            "what": new Textline({ 
+                name: "What... are you?",
+                text: "Me name be Rator Rathai, the Rat Prince Who Be Promised!",
+                rewards: {
+                    textlines: [{dialogue: "cute little rat", lines: ["walls"]}],
+                },
+                locks_lines: ["what"],
+            }),
+            "who": new Textline({ 
+                name: "Promised by who?",
+                text: "By my papa, the great Rat God, of course! The He who bring infite rat blessings uppon this dimension!",
+                rewards: {
+                    textlines: [{dialogue: "cute little rat", lines: ["monsters"]}],
+                },
+                locks_lines: ["who"],
+            }),
+            "monsters": new Textline({ 
+                name: "Are those strange monsters that I fought on the way amonst those 'blessings' you speak of?",
+                text: "No no, they don't be blessings, they be the blessed! Creatures of all the creation, who embrace the gift of my papa! Monsters, animals, adventurers, plants, papa accepts all!",
+                rewards: {
+                    textlines: [{dialogue: "cute little rat", lines: ["walls", "kill", "mind"]}],
+                },
+                locks_lines: ["monsters"],
+            }),
+            "mind": new Textline({ 
+                name: "And you don't mind that I slaughtered them?",
+                text: "Why? It's the rule of the world that the strong kill the weak and papa believe it too! Besides, maybe you be join us one day? Embrace the truth of your inner rat and reject the human shell!",
+                locks_lines: ["mind"],
+            }),
+            "walls": new Textline({ 
+                name: "So some of those wall-like things could have once been human?",
+                text: "Only in soul. They once be acolytes of papa, but not be worthy so be cast down to guard the path.",
+                rewards: {
+                    textlines: [{dialogue: "cute little rat", lines: ["walls"]}],
+                },
+                locks_lines: ["monsters"],
+            }),
+            "kill": new Textline({ 
+                name: "Okay, give me one reason why I shouldn't kill you.",
+                text: "I don't mind, if I die my soul be return to papa. But my blood be full of papa power, don't do it unless you want to face him personally.",
+                rewards: {
+                    textlines: [{dialogue: "cute little rat", lines: ["walls"]}],
+                },
+                locks_lines: ["kill"],
+            }),
+        },
+        description: "You see a cute little rat. It appears completely harmless. It has a cute litle crown on its cute little head and is sitting on a cute little comfortable pillow."
     });
 })();
 

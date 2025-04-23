@@ -681,7 +681,10 @@ class Armor extends Equippable {
 
     getValue(quality) { 
         if(this.components) {
-            return getEquipmentValue(this.components,quality);
+            if(!this.value) {
+                this.value = getEquipmentValue(this.components,quality);
+            }
+            return this.value;
         } else {
             return round_item_price(item_templates[this.id].value * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)]);
         }
