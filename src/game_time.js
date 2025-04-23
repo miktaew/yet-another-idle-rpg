@@ -14,14 +14,14 @@ function Game_time(new_time) {
         this.minute += how_much || 1;
         if(this.minute >= 60) {
             const m = this.minute % 60;
-            const h = this.minute - m;
+            const h = Math.floor(this.minute/60);
             this.minute = m;
             this.hour += h;
         }
     
         if(this.hour >= 24) {
             const h = this.hour % 24;
-            const d = this.hour - h;
+            const d = Math.floor(this.hour/24);
             this.hour = h;
             this.day += d; 
             this.day_count += d;
@@ -29,14 +29,14 @@ function Game_time(new_time) {
     
         if(this.day > 30) {
             const d = this.day % 30;
-            const m = this.day - d;
+            const m = Math.floor(this.day/30);
             this.day = d;
             this.month += m;
         }
     
         if(this.month > 12) {
             const m = this.month % 12;
-            const y = this.month - m;
+            const y = Math.floor(this.month / 12);
             this.month = m;
             this.year += y;
         }
