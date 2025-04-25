@@ -3880,11 +3880,20 @@ function add_all_stuff_to_inventory(){
     })
 }
 
+function add_all_active_effects(duration){
+    Object.keys(effect_templates).forEach(effect_key => {
+        active_effects[effect_key] = new ActiveEffect({...effect_templates[effect_key], duration});
+    });
+    character.stats.add_active_effect_bonus();
+    update_displayed_effects();
+}
+
 //add_to_character_inventory([{item_id: "Healing powder", count: 1000}]);
 //add_to_character_inventory([{item_id: "Weak healing powder", count: 1000}]);
 
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
+//add_all_active_effects(120);
 
 update_displayed_equipment();
 sort_displayed_inventory({sort_by: "name", target: "character"});

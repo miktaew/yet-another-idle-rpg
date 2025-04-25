@@ -21,12 +21,6 @@
             LOADING
         </div>
 
-        <!-- tooltip for active character effects-->
-        <div id = "effects_tooltip"> 
-            No active effects            
-        </div>
-
-
         <div id = "main_content">
             
 
@@ -863,6 +857,9 @@
                             <div id = "effects_div">
                                 <div> Active effects: </div>
                                 <div id = "active_effect_count"> 0 </div>
+                                <div id = "effects_tooltip"> 
+                                    No active effects            
+                                </div>
                             </div>
                         </div>
 
@@ -1755,18 +1752,33 @@
                 function move_effects_tooltip(event) {
                     if(Date.now() >= tooltip_wait) {
                         const hovered_element = event.target;
-                        effects_tooltip.style.display = "block";
                         if(hovered_element.id === "effects_div" || hovered_element.parentNode.id === "effects_div") {
-                            effects_tooltip.style.left = event.pageX + "px";
-                            effects_tooltip.style.top = event.pageY + 30 + "px";
+                        
+                            const elems = document.querySelectorAll("#effects_tooltip .active_effect_tooltip");
+                            
+                            const body = document.getElementsByTagName("body")[0];
+                            const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
+                            
+                            const bottom_edge_position = 
+                                window.innerHeight + window.scrollY - 33 - (scrollbar_X_visible?10:0);
+
+                            const max_height = bottom_edge_position - event.clientY;
+
+                            effects_tooltip.style.left = event.clientX - 100 + "px";
+                            effects_tooltip.style.top = event.clientY - 300 + "px";
+                            effects_tooltip.style.maxHeight = max_height + "px";
+
+                            const gap = 5; //4px of gap + 1px of margin top
+                            let total_height = 0;
+                            for(let i = 0 ; i < elems.length; i++) {
+                                total_height += elems[i].offsetHeight+gap;
+                            }
+
+                            const columns = Math.ceil(total_height / (max_height+4));
+                            effects_tooltip.style.width = (columns * 210 || 120)+ "px";
                         } 
                         tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
-                }
-
-                active_effects_div.addEventListener('mouseout', end_effects_tooltip, false);
-                function end_effects_tooltip(event) {
-                    effects_tooltip.style.display = "none";
                 }
 
                 //move clicked items to proper list

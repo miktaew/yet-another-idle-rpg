@@ -361,7 +361,7 @@ body {
 	padding: 5px;
 	position: absolute;
 	z-index: 1000;
-	width: 200px;
+	width: 210px;
 	pointer-events: none;
 	font-size: 14px;
 	border: 1px solid white;
@@ -409,8 +409,7 @@ body {
 
 .equipment_slot_div:hover .item_tooltip, .trader_item_control:hover .item_tooltip, .inventory_item_control:hover .item_tooltip, 
 .equipped_item_control:hover .item_tooltip, 
-.start_activity:hover .job_tooltip, .activity_unavailable:hover .job_tooltip, #gathering_progress_bar_max:hover .job_tooltip,
-.effects_div:hover .effects_tooltip, #location_name_div:hover .location_tooltip, .selectable_component:hover .item_tooltip{
+.start_activity:hover .job_tooltip, .activity_unavailable:hover .job_tooltip, #gathering_progress_bar_max:hover .job_tooltip, #location_name_div:hover .location_tooltip, .selectable_component:hover .item_tooltip{
 	display: block;
 }
 
@@ -630,6 +629,8 @@ body {
 	border-radius: 10px;
 	padding: 3px;
 	margin-top: 1px;
+	height: fit-content;
+	width: 200px;
 }
 .active_effect_name_and_duration {
 	width: 100%;
@@ -1359,27 +1360,27 @@ i {
 	bottom: 0px;
 }
 
-#effects_div {
-	font-size: 16px;
-	padding-top: 2px;
-	padding-bottom: 2px;
-	padding-left: 4px;
-	width: 200px;
-	background-color: #232f47;
+#character_effects{
+	position: absolute;
+	top: 158px;
+	left: 100px;
 }
-		#character_effects{
-			position: absolute;
-			top: 158px;
-			left: 100px;
-		}
+	#effects_div {
+		font-size: 16px;
+		padding-top: 2px;
+		padding-bottom: 2px;
+		padding-left: 4px;
 
-#effects_div div{
+		background-color: #232f47;
+	}	
+
+#effects_div div:not(#effects_tooltip){
 	display: inline-block;
 }
 
 #effects_tooltip {
-	display: none;
 	position: absolute;
+	display: none;
 	left: 220px;
 	z-index: 1000;
 	background-color: var(--tooltip_background_color);
@@ -1387,10 +1388,15 @@ i {
 	border-radius: 10px;
 	margin-left: 30px;
 	padding: 10px; 
-	max-width: 300px;
-	width: fit-content;
-	height: auto;
 	border: 1px solid white;
+	flex-wrap: wrap;
+	flex-direction: column;
+	gap: 4px;
+	align-content: flex-start;
+}
+
+#effects_div:hover #effects_tooltip {
+	display: flex;
 }
 
 #exit_trade_button {
