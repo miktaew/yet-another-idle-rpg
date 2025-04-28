@@ -221,6 +221,19 @@ body {
 	display: block;
  }
 
+ .fast_travel_name {
+	display: inline-block;
+	width: 305px;
+ }
+
+ .fast_travel_removal_button {
+	border: 1px solid gray;
+ }
+
+ .fast_travel_removal_button:hover {
+	background-color: var(--active_button_color);
+ }
+
  #action_status_div, #action_end_div {
 	text-align: center;
 	font-size: 20px;
@@ -306,7 +319,7 @@ body {
 	cursor: not-allowed;
 }
 
-.action_travel:hover, .start_dialogue:hover, .start_trade:hover, .start_location_action:hover, .start_activity:hover, 
+.action_travel:hover:not(:has(.fast_travel_removal_button:hover)), .start_dialogue:hover, .start_trade:hover, .start_location_action:hover, .start_activity:hover, 
 .location_choices:hover, .choices_return_button:hover, .location_choice_dropdown:not(.location_choice_dropdown_expanded):hover, .dialogue_textline:hover, .end_dialogue_button:hover, .dialogue_trade:hover  {
 	background-color: #2c3953;
 }
@@ -1782,6 +1795,12 @@ i {
 			height:fit-content;
 			float: left;
 			z-index: 2;
+		}
+		#location_icon_span i:not(.location_bed_icon):hover {
+			background-color: var(--active_button_color);
+		}
+		#location_icon_span i:not(.location_bed_icon) {
+			cursor: pointer;
 		}
 		#location_types_div {
 			left: 292px;

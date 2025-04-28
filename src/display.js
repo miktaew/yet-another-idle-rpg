@@ -16,7 +16,7 @@ import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time, is_night } from "./game_time.js";
 import { book_stats, item_templates, Weapon, Armor, Shield, rarity_multipliers, getItemRarity, getItemFromKey } from "./items.js";
-import { get_location_type_penalty, location_types, locations } from "./locations.js";
+import { favourite_locations, get_location_type_penalty, location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
 import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price, format_working_time } from "./misc.js"
 //import { stances } from "./combat_stances.js";
@@ -32,6 +32,7 @@ const trade_div = document.getElementById("trade_div");
 const storage_div = document.getElementById("storage_div");
 
 const location_name_span = document.getElementById("location_name_span");
+const location_icon_span = document.getElementById("location_icon_span");
 const location_types_div = document.getElementById("location_types_div");
 const location_tooltip = document.getElementById("location_name_tooltip");
 
@@ -1569,6 +1570,11 @@ function update_displayed_normal_location(location) {
     combat_switch.style.cursor = "default";
     combat_switch.style.color = "gray";
 
+    location_name_span.innerText = current_location.name;
+    document.getElementById("location_description_div").innerText = current_location.getDescription();
+
+    update_location_icon(location);
+
     /////////////////////////////
     //add button to open crafting
     if(global_flags.is_crafting_unlocked) {
@@ -1681,18 +1687,6 @@ function update_displayed_normal_location(location) {
             location_choice_divs["gatherings"] = create_location_choice_dropdown({name: "Gather resources", icon: "search", class_name: "choice_gather"});
     
             location_choice_divs["gatherings"].append(...create_location_choices({location: location, category: "gather"}));
-            /*
-            if(available_gatherings.length > 2) {     
-                const gatherings_button = document.createElement("div");
-                gatherings_button.setAttribute("data-location", location.name);
-                gatherings_button.classList.add("location_choices");
-                gatherings_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "gather"})');
-                gatherings_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">search</i>  Gather resources';
-                action_div.appendChild(gatherings_button);
-            } else if (available_gatherings.length <= 2) {
-                action_div.append(...create_location_choices({location: location, category: "gather"}));
-            }
-            */
         }
         
     }
@@ -1702,19 +1696,6 @@ function update_displayed_normal_location(location) {
         location_choice_divs["actions"] = create_location_choice_dropdown({name: "Take an action", icon: "circle", class_name: "choice_action"});
 
         location_choice_divs["actions"].append(...create_location_choices({location: location, category: "action"}));
-    
-        /*
-        if(available_actions.length > 2) {
-            const actions_button = document.createElement("div");
-            actions_button.setAttribute("data-location", location.name);
-            actions_button.classList.add("location_choices");
-            actions_button.setAttribute("onclick", 'update_displayed_location_choices({location_name: this.getAttribute("data-location"), category: "action"})');
-            actions_button.innerHTML = '<i class="material-icons">format_list_bulleted</i><i class="material-icons">circle</i>  Take an action';
-            action_div.appendChild(actions_button);
-        } else if(available_actions.length <= 2) {
-            action_div.append(...create_location_choices({location: location, category: "action"}));
-        }
-            */
     }
 
     /////////////////////////////////
@@ -1740,7 +1721,11 @@ function update_displayed_normal_location(location) {
     /////////////////////////////
     //add buttons for fast travel
 
-    const available_fast_travel = Object.keys(unlocked_beds).filter(key => (key !== location.id && locations[key].is_unlocked && !locations[key].is_finished));
+    const available_fast_travel = 
+    [
+        ...Object.keys(favourite_locations).filter(key => (key !== current_location.id)), 
+        ...Object.keys(unlocked_beds).filter(key => (key !== location.id && locations[key].is_unlocked && !locations[key].is_finished))
+    ];
 
     if((available_fast_travel.length + (last_combat_location?1:0)) > 0) {
         location_choice_divs["fast_travel"] = create_location_choice_dropdown({name: "Fast travel", icon: "directions", class_name: "choice_travel"});
@@ -1749,9 +1734,16 @@ function update_displayed_normal_location(location) {
     }
 
     action_div.append(...Object.values(location_choice_divs));
+}
 
-    location_name_span.innerText = current_location.name;
-    document.getElementById("location_description_div").innerText = current_location.getDescription();
+function update_location_icon() {
+    if(current_location.housing && current_location.housing.is_unlocked) {
+        location_icon_span.innerHTML = '<i class="material-icons location_bed_icon">bed</i>'
+    } else if(favourite_locations[current_location.id]) {
+        location_icon_span.innerHTML = '<i class="material-icons">star</i>'
+    } else {
+        location_icon_span.innerHTML = '<i class="material-icons">star_border</i>'
+    }
 }
 
 function create_location_choice_dropdown({name, icon, class_name}) {
@@ -1939,7 +1931,7 @@ function create_location_choices({location, category, is_combat = false}) {
                 }
             
                 action.classList.add("action_travel", "location_choice");
-                action.setAttribute("data-travel", location.connected_locations[i].location.name);
+                action.setAttribute("data-travel", location.connected_locations[i].location.id);
                 action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
         
                 choice_list.push(action);
@@ -1952,7 +1944,7 @@ function create_location_choices({location, category, is_combat = false}) {
             } else {
                 action.innerHTML = "Go back to [" + location.parent_location.name + "]";
             }
-            action.setAttribute("data-travel", location.parent_location.name);
+            action.setAttribute("data-travel", location.parent_location.id);
             action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
 
             choice_list.push(action);
@@ -1991,7 +1983,7 @@ function create_location_choices({location, category, is_combat = false}) {
             }
             
             action.classList.add("action_travel");
-            action.setAttribute("data-travel", available_challenges[i].location.name);
+            action.setAttribute("data-travel", available_challenges[i].location.id);
             action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
     
             choice_list.push(action);
@@ -2015,51 +2007,92 @@ function create_location_choices({location, category, is_combat = false}) {
             choice_list.push(location_action_div);
         });
     } else if (category === "fast_travel") {
-        
-        const available_fast_travel = Object.keys(unlocked_beds).filter(key => key !== location.id); 
-        for(let i = 0; i < available_fast_travel.length; i++) { 
-            if(!locations[available_fast_travel[i]].is_unlocked || locations[available_fast_travel[i]].is_finished) { //skip if not unlocked or if finished
-                continue;
-            }
-
-            const action = document.createElement("div");
-            
-            action.classList.add("travel_normal");
-
-            action.innerHTML = `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + "Travel to [" + locations[available_fast_travel[i]].name+"]";
-            
-            action.classList.add("action_travel", "location_choice");
-            action.setAttribute("data-travel", locations[available_fast_travel[i]].name);
-            action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
-    
-            choice_list.push(action);
-        }
-
-        if(last_combat_location) {
-            const last_combat = locations[last_combat_location];
-            const action = document.createElement("div");
-            action.classList.add("travel_combat");
-            
-            action.innerHTML = `<i class="material-icons">warning_amber</i> Travel to [${last_combat.name}]`;
-            
-            action.classList.add("action_travel", "location_choice");
-            action.setAttribute("data-travel", last_combat.name);
-            action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
-    
-            choice_list.push(action);
-        }
+        choice_list = create_fast_travel_choices();
     }
 
     return choice_list;
 }
 
-function update_displayed_location_choices({location_name, category, add_icons, is_combat}) {
-    action_div.replaceChildren(...create_location_choices({location: locations[location_name], category: category, add_icons: add_icons, is_combat: is_combat}));
-    const return_button = document.createElement("div");
-    return_button.innerHTML = "<i class='material-icons'>arrow_back</i> Return";
-    return_button.setAttribute("onclick", "reload_normal_location()");
-    return_button.classList.add("choices_return_button");
-    action_div.appendChild(return_button);
+function create_fast_travel_choices() {
+    let choice_list = [];
+
+    let available_fast_travel = 
+    [
+        ...Object.keys(favourite_locations).filter(key => (key !== current_location.id)),
+        ...Object.keys(unlocked_beds).filter(key => (key !== location.id && locations[key].is_unlocked && !locations[key].is_finished))
+    ];
+
+    if(last_combat_location && !available_fast_travel.includes(last_combat_location)) {
+        available_fast_travel.push(last_combat_location);
+    }
+
+    available_fast_travel = available_fast_travel.sort((a,b) => {
+        if(locations[a].housing?.is_unlocked && !locations[b].housing?.is_unlocked) {
+            return -1;
+        } else if(!locations[a].housing?.is_unlocked && locations[b].housing?.is_unlocked) {
+            return 1;
+        } else {
+            if(locations[a].tags.safe_zone && !locations[b].tags.safe_zone) {
+                return -1;
+            } else if(!locations[a].tags.safe_zone && locations[b].tags.safe_zone) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    });
+
+    for(let i = 0; i < available_fast_travel.length; i++) { 
+        if(!locations[available_fast_travel[i]].is_unlocked || locations[available_fast_travel[i]].is_finished) { //skip if not unlocked or if finished
+            continue;
+        }
+
+        const action = document.createElement("div");
+
+        if(locations[available_fast_travel[i]].tags.safe_zone) {
+        
+            action.classList.add("travel_normal");
+
+            if(locations[available_fast_travel[i]].housing?.is_unlocked) {
+                action.innerHTML = `<i class="material-icons">bed</i> <span class="fast_travel_name">` + "Travel to [" + locations[available_fast_travel[i]].name+"]</span>";
+            } else {
+                action.innerHTML = `<i class="material-icons location_choice_icon">check_box_outline_blank</i> <span class="fast_travel_name">` + "Travel to [" + locations[available_fast_travel[i]].name+"]</span>";
+            }
+            
+            action.classList.add("action_travel", "location_choice");
+            action.setAttribute("data-travel", locations[available_fast_travel[i]].name);
+            action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'), event);");
+        } else {            
+            action.classList.add("travel_combat");
+            
+            action.innerHTML = `<i class="material-icons">warning_amber</i> <span class="fast_travel_name">Travel to [${locations[available_fast_travel[i]].name}]</span>`;
+            
+            action.classList.add("action_travel", "location_choice");
+            action.setAttribute("data-travel", locations[available_fast_travel[i]].name);
+            action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'), event);");
+        }
+
+        if(!locations[available_fast_travel[i]].housing?.is_unlocked && locations[available_fast_travel[i]].id !== last_combat_location) {
+            const removal_button = document.createElement("span");
+            removal_button.innerHTML = `<i class="material-icons fast_travel_removal_button">close</i>`;
+            removal_button.setAttribute("onclick","remove_location_from_favourites({location_id:this.parentNode.getAttribute('data-travel')})");
+            action.appendChild(removal_button);
+        }
+
+        choice_list.push(action);
+    }
+    return choice_list;
+}
+
+function remove_fast_travel_choice({location_id}) {
+    const element = location_choice_divs["fast_travel"].querySelector(`[data-travel="${location_id}"`);
+    if(location_id === last_combat_location || locations[location_id].housing?.is_unlocked) {
+        //remove only button
+        element.getElementsByClassName("fast_travel_removal_button")[0].parentNode.remove();
+    } else {
+        //remove full element
+        element.remove();
+    }
 }
 
 function update_displayed_combat_location(location) {
@@ -2068,6 +2101,8 @@ function update_displayed_combat_location(location) {
     clear_action_div();
     location_types_div.innerHTML = "";
     let action;
+
+    update_location_icon(location);
 
     enemy_count_div.style.display = "block";
     combat_div.style.display = "block";
@@ -4197,7 +4232,7 @@ export {
     update_character_attack_bar,
     clear_message_log,
     update_enemy_attack_bar,
-    update_displayed_location_choices,
+    remove_fast_travel_choice,
     create_new_bestiary_entry,
     update_bestiary_entry,
     clear_bestiary,
@@ -4229,5 +4264,6 @@ export {
     update_location_action_progress_bar,
     update_location_action_finish_button,
     update_displayed_storage, exit_displayed_storage,
-    update_displayed_storage_inventory
+    update_displayed_storage_inventory,
+    update_location_icon
 }

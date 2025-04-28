@@ -74,6 +74,7 @@
                     <div id = "time_div"> </div>
                     
                     <div id = "location_name_div">
+                        <span id = "location_icon_span"></span>
                         <span id = "location_name_span"></span>
                         <span id = "location_name_tooltip"></span>
                     </div>
@@ -1384,6 +1385,11 @@
                             update_displayed_character_inventory(character_sorting);
                         }
                     }
+                }
+
+                const location_icon_span = document.getElementById("location_icon_span");
+                location_icon_span.onclick = (event) => {
+                    handleLocationIconClick();
                 }
 
                 const item_tooltip_margin = Number(getComputedStyle(document.querySelector('.item_tooltip'))["margin-left"].replace("px",""));

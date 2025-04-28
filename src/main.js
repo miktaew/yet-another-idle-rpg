@@ -2,7 +2,7 @@
 
 import { current_game_time, is_night } from "./game_time.js";
 import { item_templates, getItem, book_stats, setLootSoldCount, loot_sold_count, recoverItemPrices, rarity_multipliers, getArmorSlot, getItemFromKey, getItemRarity} from "./items.js";
-import { locations } from "./locations.js";
+import { locations, favourite_locations } from "./locations.js";
 import { skill_categories, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
 import { enemy_killcount } from "./enemies.js";
@@ -32,7 +32,7 @@ import { end_activity_animation,
          create_new_skill_bar, update_displayed_skill_bar, update_displayed_skill_description,
          update_displayed_ongoing_activity, 
          update_enemy_attack_bar, update_character_attack_bar,
-         update_displayed_location_choices,
+         remove_fast_travel_choice,
          create_new_bestiary_entry,
          update_bestiary_entry,
          start_reading_display,
@@ -60,6 +60,7 @@ import { end_activity_animation,
          update_location_action_progress_bar,
          update_location_action_finish_button,
          update_displayed_storage_inventory,
+         update_location_icon,
         } from "./display.js";
 import { compare_game_version, get_hit_chance, is_a_older_than_b } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -334,8 +335,15 @@ function option_log_gathering_result(option) {
     }
 }
 
-function change_location(location_name) {
-    
+/**
+ * 
+ * @param {String} location_name actually a location id
+ */
+function change_location(location_name, event) {
+    if(event?.target.classList.contains("fast_travel_removal_button")) {
+        return;
+    }
+
     let location = locations[location_name] || current_location;
 
     if(location_name !== current_location?.name && location.is_finished) {
@@ -351,17 +359,17 @@ function change_location(location_name) {
         throw `No such location as "${location_name}"`;
     }
 
-    if(typeof current_location !== "undefined" && current_location.name !== location.name){
-        //so it's not called when initializing the location on page load or on reloading current location (due to new unlocks)
-        log_message(`[ Entering ${location.name} ]`, "message_travel");
+    if(typeof current_location !== "undefined" && current_location.id !== location.id){
+        //so it's not called when initializing the location on page load or on reloading current location due to new unlocks
+        log_message(`[ Entering ${location.id} ]`, "message_travel");
     
         //search if it's connected, if so check time
-        const connection = current_location.connected_locations?.filter(conn => conn.location.name === location_name)[0];
+        const connection = current_location.connected_locations?.filter(conn => conn.location.id === location_name)[0];
         if(connection) {
             //update_timer(connection.time_needed);
         } else {
         //otherwise, search for it in fast travel data, which still needs to be filled with pathfinded times
-            if(travel_times[current_location?.name]?.[location_name]) {
+            if(travel_times[current_location?.id]?.[location_name]) {
                 //?
                 //update_timer(travel_times[current_location.name][location_name]);
             }
@@ -385,8 +393,19 @@ function change_location(location_name) {
         start_combat();
 
         if(!current_location.is_challenge) {
-            last_combat_location = current_location.name;
+            last_combat_location = current_location.id;
         }
+    }
+}
+
+function handle_location_icon_click() {
+    if(current_location.housing && current_location.housing.is_unlocked) {
+        return;
+        //nothing
+    } else if(favourite_locations[current_location.id]) {
+        remove_location_from_favourites({location_id: current_location.id});
+    } else {
+        add_location_to_favourites({location_id: current_location.id});
     }
 }
 
@@ -453,7 +472,7 @@ function end_activity() {
     }
     end_activity_animation(); //clears the "animation"
     current_activity = null;
-    change_location(current_location.name);
+    change_location(current_location.id);
 }
 
 /**
@@ -564,7 +583,7 @@ function end_location_action() {
     end_activity_animation();
     clearInterval(location_action_interval);
     current_location_action = null;
-    change_location(current_location.name);
+    change_location(current_location.id);
 }
 
 /**
@@ -674,12 +693,12 @@ function start_sleeping() {
     start_sleeping_display();
     is_sleeping = true;
 
-    last_location_with_bed = current_location.name;
+    last_location_with_bed = current_location.id;
 }
 
 function end_sleeping() {
     is_sleeping = false;
-    change_location(current_location.name);
+    change_location(current_location.id);
     end_activity_animation();
 }
 
@@ -717,7 +736,7 @@ function start_reading(book_key) {
 }
 
 function end_reading() {
-    change_location(current_location.name);
+    change_location(current_location.id);
     end_activity_animation();
     
     const book_id = is_reading;
@@ -1251,7 +1270,7 @@ function do_enemy_combat_action(enemy_id) {
             change_location(last_location_with_bed);
             start_sleeping();
         } else {
-            change_location(current_location.parent_location.name);
+            change_location(current_location.parent_location.id);
         }
         return;
     }
@@ -1587,8 +1606,7 @@ function get_location_rewards(location) {
     if(location.enemy_groups_killed == location.enemy_count) { //first clear
 
         if(location.is_challenge) {
-            location.is_finished = true;
-            last_combat_location = null;
+            lock_location(location.id);
         }
         should_return = true;
         
@@ -1617,7 +1635,7 @@ function get_location_rewards(location) {
     location.otherUnlocks();
 
     if(should_return) {
-        change_location(current_location.parent_location.name); //go back to parent location, only on first clear
+        change_location(current_location.parent_location.id); //go back to parent location, only on first clear
     }
 }
 
@@ -1790,10 +1808,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         }
         if(rewards.locks.locations) {
             for(let i = 0; i < rewards.locks.locations.length; i++) {
-                locations[rewards.locks.locations[i]].is_finished = true;
-                if(last_combat_location === rewards.locks.locations[i]) {
-                    last_combat_location = null;
-                }
+                lock_location({location: locations[rewards.locks.locations[i].location]});
             }
         }
         if(rewards.locks.traders) {
@@ -1841,13 +1856,46 @@ function unlock_location({location, skip_message}) {
         //reloads the current location just in case it needs the new unlock to be added to current display
         //current action check most probably unnecessary
         if(current_location && !current_dialogue && !current_location_action) {
-            change_location(current_location.name);
+            change_location(current_location.id);
         }
     }
 
     if(location.housing?.is_present && location.housing.is_unlocked) {
         unlocked_beds[location.id] = true;
     }
+}
+
+function lock_location({location}) {
+    if(favourite_locations[location.id]) {
+        delete favourite_locations[location.id];
+        remove_fast_travel_choice({location_id: location.id});
+    }
+
+    location.is_finished = true;
+    if(last_combat_location === location.id) {
+        last_combat_location = null;
+    }
+}
+
+function add_location_to_favourites({location_id}) {
+    if(favourite_locations[location_id]) {
+        console.warn(`Tried to favourite location "${locations[location_id].name}" despite it already being in favourites`);
+        return;
+    }
+
+    favourite_locations[location_id] = true;
+    update_location_icon();
+}
+
+function remove_location_from_favourites({location_id}) {
+    if(!favourite_locations[location_id]) {
+        console.warn(`Tried to unfavourite location "${locations[location_id].name}" despite it not being in favourites`);
+        return;
+    }
+
+    delete favourite_locations[location_id];
+    update_location_icon();
+    remove_fast_travel_choice({location_id});
 }
 
 function clear_enemies() {
@@ -2354,7 +2402,7 @@ function create_save() {
             }
         }); //only save total xp of each skill, again in case of any changes
         
-        save_data["current location"] = current_location.name;
+        save_data["current location"] = current_location.id;
 
         save_data["locations"] = {};
         Object.keys(locations).forEach(function(key) { 
@@ -2398,6 +2446,8 @@ function create_save() {
                 save_data["locations"][key].housing_unlocked = true;
             }
         }); //save locations' (and their activities'/actions') unlocked status and their killcounts
+
+        save_data.favourite_locations = favourite_locations;
 
         save_data["activities"] = {};
         Object.keys(activities).forEach(function(activity) {
@@ -3225,7 +3275,9 @@ function load(save_data) {
                     console.warn(`Location "${locations[key].name}" was saved as having a bed unlocked, but it no longer has this mechanic and was skipped!`);
                 } else {
                     locations[key].housing.is_unlocked = true;
-                    unlocked_beds[key] = true;
+                    if(save_data.locations[key].is_unlocked) {
+                        unlocked_beds[key] = true;
+                    }
                 }
                 
             }
@@ -3296,6 +3348,16 @@ function load(save_data) {
                     }
                 });
             });
+        });
+    }
+
+    if(save_data.favourite_locations) {
+        Object.keys(save_data.favourite_locations).forEach(location_key => {
+            if(locations[location_key]) {
+                favourite_locations[location_key] = true;
+            } else {
+                console.warn(`Saved favourite locations included "${location_key}", which is not a valid location id`);
+            }
         });
     }
     
@@ -3758,12 +3820,14 @@ window.unequip_item = character_unequip_item;
 
 window.change_location = change_location;
 window.reload_normal_location = reload_normal_location;
+window.handleLocationIconClick = handle_location_icon_click;
+window.remove_location_from_favourites = remove_location_from_favourites;
 
 window.start_dialogue = start_dialogue;
 window.end_dialogue = end_dialogue;
 window.start_textline = start_textline;
 
-window.update_displayed_location_choices = update_displayed_location_choices;
+window.remove_fast_travel_choice = remove_fast_travel_choice;
 
 window.start_activity = start_activity;
 window.end_activity = end_activity;
@@ -3893,7 +3957,7 @@ function add_all_active_effects(duration){
 
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
-//add_all_active_effects(120);
+add_all_active_effects(120);
 
 update_displayed_equipment();
 sort_displayed_inventory({sort_by: "name", target: "character"});
@@ -3942,4 +4006,4 @@ export { current_enemies, can_work,
         global_flags,
         character_equip_item,
         unlocked_beds
-     };
+};

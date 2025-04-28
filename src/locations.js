@@ -8,6 +8,8 @@ import { get_total_skill_level } from "./character.js";
 const locations = {}; //contains all the created locations
 const location_types = {};
 
+const favourite_locations = {};
+
 class Location {
     constructor({
                 name, 
@@ -19,7 +21,7 @@ class Location {
                 dialogues = [], 
                 traders = [],
                 types = [], //{type, xp per tick}
-                housing = {is_present: null}, //{is_unlocked, sleeping_xp_per_tick, text_to_start}
+                housing = {is_present: null},
                 light_level = "normal",
                 getDescription,
                 background_noises = [],
@@ -45,6 +47,14 @@ class Location {
         this.actions = {};
         this.types = types;
         this.housing = housing;
+        /*
+            housing: {
+                is_present: Boolean,
+                is_unlocked: Boolean, 
+                sleeping_xp_per_tick: Number,
+                text_to_start: String
+            }
+        */
 
         this.light_level = light_level; //not really used for this type
         this.crafting = crafting;
@@ -135,7 +145,7 @@ class Combat_zone {
         }
 
         this.parent_location = parent_location;
-        if(!locations[this.parent_location.name]) {
+        if(!locations[this.parent_location.id]) {
             throw new Error(`Couldn't add parent location "${this.parent_location.name}" to zone "${this.name}"`)
         }
 
@@ -1908,4 +1918,4 @@ There's another gate on the wall in front of you, but you have a strange feeling
         });
     });
 })();
-export {locations, location_types, get_location_type_penalty};
+export {locations, location_types, get_location_type_penalty, favourite_locations};
