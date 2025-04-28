@@ -1606,7 +1606,7 @@ function get_location_rewards(location) {
     if(location.enemy_groups_killed == location.enemy_count) { //first clear
 
         if(location.is_challenge) {
-            lock_location(location.id);
+            lock_location({location});
         }
         should_return = true;
         
@@ -1808,7 +1808,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         }
         if(rewards.locks.locations) {
             for(let i = 0; i < rewards.locks.locations.length; i++) {
-                lock_location({location: locations[rewards.locks.locations[i].location]});
+                lock_location({location: locations[rewards.locks.locations[i]]});
             }
         }
         if(rewards.locks.traders) {
