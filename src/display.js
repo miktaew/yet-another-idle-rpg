@@ -1753,10 +1753,18 @@ function create_location_choice_dropdown({name, icon, class_name}) {
     elem.classList.add("location_choice_dropdown", class_name);
 
     elem.addEventListener("click", (event)=>{
-        if(event.target.classList.contains("location_choice_dropdown")) {
-            event.target.classList.toggle("location_choice_dropdown_expanded");
-        } else if(event.target.classList.contains("material-icons")) {
-            event.target.parentNode.classList.toggle("location_choice_dropdown_expanded");
+        let target = event.target;
+        if(target.classList.contains("material-icons")) {
+            target = target.parentNode;
+        }
+
+        if(target.classList.contains("location_choice_dropdown")) {
+            target.classList.toggle("location_choice_dropdown_expanded");
+
+            //done after toggling class, so it will trigger if class was NOT present when clicked
+            if(target.classList.contains("location_choice_dropdown_expanded")) {
+                target.scrollIntoView({block: "end", inline: "nearest", behavior: "smooth"});
+            }
         }
     });
 

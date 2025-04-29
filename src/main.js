@@ -403,7 +403,7 @@ function handle_location_icon_click() {
         return;
         //nothing
     } else if(favourite_locations[current_location.id]) {
-        remove_location_from_favourites({location_id: current_location.id});
+        remove_location_from_favourites({location_id: current_location.id, update_choices: false});
     } else {
         add_location_to_favourites({location_id: current_location.id});
     }
@@ -1887,7 +1887,7 @@ function add_location_to_favourites({location_id}) {
     update_location_icon();
 }
 
-function remove_location_from_favourites({location_id}) {
+function remove_location_from_favourites({location_id, update_choices = true}) {
     if(!favourite_locations[location_id]) {
         console.warn(`Tried to unfavourite location "${locations[location_id].name}" despite it not being in favourites`);
         return;
@@ -1895,7 +1895,9 @@ function remove_location_from_favourites({location_id}) {
 
     delete favourite_locations[location_id];
     update_location_icon();
-    remove_fast_travel_choice({location_id});
+    if(update_choices) {
+        remove_fast_travel_choice({location_id});
+    }
 }
 
 function clear_enemies() {
