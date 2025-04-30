@@ -3959,7 +3959,7 @@ function add_all_active_effects(duration){
 
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
-add_all_active_effects(120);
+//add_all_active_effects(120);
 
 update_displayed_equipment();
 sort_displayed_inventory({sort_by: "name", target: "character"});
