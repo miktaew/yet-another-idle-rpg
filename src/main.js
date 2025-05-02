@@ -3638,12 +3638,7 @@ function update() {
                 //if effect not active, use item and return
                 if(!active_effects[effects[0].effect]) {
                     use_item(inv_key);
-
-                    if(!character.inventory[inv_key]) {
-                        //if out of item, remove it from auto-consume
-                        remove_consumable_from_favourites(item_id);
-                    }
-
+                    //use will call remove item which will call remove consumable from favs, so nothing more to do here
                     return;
                 }
             });
