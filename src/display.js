@@ -11,7 +11,8 @@ import { current_enemies, options,
     last_combat_location, faved_stances, 
     selected_stance, 
     global_flags,
-    unlocked_beds} from "./main.js";
+    unlocked_beds,
+    favourite_consumables} from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time, is_night } from "./game_time.js";
@@ -1399,7 +1400,16 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
             const item_use_button = document.createElement("div");
             item_use_button.classList.add("item_use_button");
             item_use_button.innerText = "[use]";
+            const item_auto_use_button = document.createElement("div");
+            item_auto_use_button.classList.add("item_auto_use_button");
+            item_auto_use_button.innerText = "auto";
+
+            if(favourite_consumables[target_item.id]) {
+                item_auto_use_button.classList.add("item_auto_use_button_active");
+            }
+
             item_additional.appendChild(item_use_button);
+            item_additional.appendChild(item_auto_use_button);
         } else if(target_item.item_type === "BOOK") {
             const item_read_button = document.createElement("div");
             item_read_button.classList.add("item_use_button");
@@ -3025,7 +3035,13 @@ function update_displayed_stats() { //updates displayed stats
     update_stat_description("defensive_points");
     update_stat_description("attack_points");
 
-    attack_stats.children[0].innerHTML = `Atk pwr: ${Math.round(character.get_attack_power()*10)/10}`;
+    let atk = character.get_attack_power();
+    if(atk > 100) {
+        atk = Math.round(atk);
+    } else {
+        atk = Math.round(10*atk)/10;
+    }
+    attack_stats.children[0].innerHTML = `Atk: ${atk}`;
     attack_stats.children[1].innerHTML = `Atk spd: ${Math.round(character.get_attack_speed()*100)/100}`;
     attack_stats.children[2].innerHTML = `AP:  ${Math.round(ap)}`;
     attack_stats.children[4].innerHTML = `Def: ${Math.round(character.stats.full.defense)} `;

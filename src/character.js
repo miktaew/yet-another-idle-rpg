@@ -8,8 +8,9 @@ import { update_displayed_character_inventory, update_displayed_equipment,
          update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain,
          update_displayed_skill_level, 
          update_displayed_xp_bonuses } from "./display.js";
-import { active_effects, current_location, current_stance } from "./main.js";
+import { active_effects, current_location, current_stance, favourite_consumables, remove_consumable_from_favourites } from "./main.js";
 import { current_game_time, is_night } from "./game_time.js";
+import { item_templates } from "./items.js";
 
 const base_block_chance = 0.75; //+20 from the skill
 const base_xp_cost = 10;
@@ -620,6 +621,16 @@ function add_to_character_inventory(items) {
 function remove_from_character_inventory(items) {
         character.remove_from_inventory(items);
         update_displayed_character_inventory();
+
+        for(let i = 0; i < items.length; i++) {
+                if(character.inventory[items[i].item_key]) {
+                        continue;
+                }
+                const {id} = JSON.parse(items[i].item_key);
+                if(id && item_templates[id].tags.consumable && favourite_consumables[id]) {
+                        remove_consumable_from_favourites(id);
+                }
+        }
 }
 
 /**

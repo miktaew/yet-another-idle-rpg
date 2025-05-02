@@ -1373,17 +1373,22 @@
                     let clicked_element = event.target;
                     if(clicked_element.classList.contains("equip_item_button")) {
                         equip_item(clicked_element.parentNode.parentNode.getAttribute("data-character_item"));
-                    }
-                    else if(clicked_element.classList.contains("unequip_item_button")) {
+                    } else if(clicked_element.classList.contains("unequip_item_button")) {
                         unequip_item(clicked_element.parentNode.parentNode.getAttribute("data-item_slot"));
-                    } 
-                    else if(clicked_element.classList.contains("item_use_button")) {
+                    } else if(clicked_element.classList.contains("item_use_button")) {
                         if(clicked_element.parentNode.parentNode.classList.contains("character_item_book")) {
+                            //is book -> read
                             start_reading(clicked_element.parentNode.parentNode.getAttribute("data-character_item"));
                         } else {
+                            //is usable -> use
                             use_item(clicked_element.parentNode.parentNode.getAttribute("data-character_item"));
                             update_displayed_character_inventory(character_sorting);
                         }
+                    } else if(clicked_element.classList.contains("item_auto_use_button")) {
+                        //is auto use button, grab key, read id, change fav status
+                        const item_id = JSON.parse(clicked_element.parentNode.parentNode.dataset.character_item).id;
+                        change_consumable_favourite_status(item_id);
+                        clicked_element.classList.toggle("item_auto_use_button_active");
                     }
                 }
 

@@ -127,7 +127,7 @@ class Skill {
                 let unlocks = {skills: [], recipes: []};
 
                 //its alright if this goes over max level, it will be overwritten in a if-else below that
-                while (this.total_xp >= this.total_xp_to_next_lvl) {
+                while(this.total_xp >= this.total_xp_to_next_lvl) {
 
                     level_after_xp += 1;
                     this.total_xp_to_next_lvl = Math.round(100*this.base_xp_cost * (1 - this.xp_scaling ** (level_after_xp + 1)) / (1 - this.xp_scaling))/100;

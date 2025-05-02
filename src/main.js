@@ -161,6 +161,9 @@ let selected_stance = stances["normal"];
 let current_stance = stances["normal"];
 const faved_stances = {};
 
+const favourite_consumables = {};
+//consumables that are to be used automatically if their effect runs out
+
 const tickrate = 1;
 //how many ticks per second
 //1 is the default value; going too high might make the game unstable
@@ -176,6 +179,7 @@ const options = {
     combat_disable_autoswitch: false,
     log_every_gathering_period: true,
     log_total_gathering_gain: true,
+    auto_use_when_longest_runs_out: true,
 };
 
 let message_log_filters = {
@@ -1503,9 +1507,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                     which_skills_affect_skill[unlocks.skills[i]] = [skill.skill_id];
                 }
 
-                if(unlocked_skill.is_unlocked) {
-                    continue;
-                }
+                //update_displayed_skill_bar(unlocked_skill, false);
             }
 
             
@@ -1782,6 +1784,10 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
                 update_displayed_skill_bar(skills[rewards.skills[i]], false);
                 if(inform_overall) {
                     log_message(`Unlocked new skill: ${skills[rewards.skills[i]].name()}`);
+                }
+
+                for(let j = 0; j < which_skills_affect_skill[rewards.skills[i]].length; j++) {
+                    update_displayed_skill_bar(skills[which_skills_affect_skill[rewards.skills[i]][j]], false);
                 }
             }
         }
@@ -2264,7 +2270,6 @@ function character_unequip_item(item_slot) {
 function use_item(item_key) { 
     const {id} = JSON.parse(item_key);
     const item_effects = item_templates[id].effects;
-
     let used = false;
     for(let i = 0; i < item_effects.length; i++) {
         const duration = item_templates[id].effects[i].duration;
@@ -2304,6 +2309,44 @@ function use_item(item_key) {
         }
     }
     remove_from_character_inventory([{item_key}]);
+}
+
+function add_consumable_to_favourites(item_id) {
+    if(!item_templates[item_id]) {
+        throw new Error(`Tried to add "${item_id}" to auto consume, but no such item exists.`);
+    } else if(!item_templates[item_id].tags.usable) {
+        throw new Error(`Tried to add "${item_id}" to auto consume, but it's not a consumable.`);
+    }
+    favourite_consumables[item_id] = true;
+    //update autouse button display? currently done in .html
+}
+
+function remove_consumable_from_favourites(item_id) {
+    if(!favourite_consumables[item_id]) {
+        throw new Error(`Tried to remove "${item_id}" from auto consume, but it's not there.`);
+    }
+    delete favourite_consumables[item_id];
+    if(character.inventory[item_templates[item_id].getInventoryKey()]) {
+        //update autouse button display? currently done in .html
+    }
+}
+
+function change_consumable_favourite_status(item_id) {
+    if(!item_templates[item_id]) {
+        throw new Error(`Tried to change "${item_id}" auto consum status, but no such item exists.`);
+    } else if(!item_templates[item_id].tags.usable) {
+        throw new Error(`Tried to change "${item_id}" auto consume status, but it's not a consumable.`);
+    }
+
+    if(favourite_consumables[item_id]) {
+        remove_consumable_from_favourites(item_id);
+    } else {
+        add_consumable_to_favourites(item_id);
+    }
+
+    if(character.inventory[item_templates[item_id].getInventoryKey()]) {
+        //update autouse button display? currently done in .html
+    }
 }
 
 function get_date() {
@@ -2378,6 +2421,8 @@ function create_save() {
             //save_data["character"].equipment[key] = true;
             //todo: need to rewrite equipment loading first
         //});
+
+        save_data["favourite_consumables"] = favourite_consumables;
 
         save_data["recipes"] = {};
         Object.keys(recipes).forEach(category => {
@@ -2651,6 +2696,10 @@ function load(save_data) {
     update_displayed_money();
 
     add_xp_to_character(save_data.character.xp.total_xp, false);
+
+    Object.keys(save_data.favourite_consumables || {}).forEach(key => {
+        favourite_consumables[key] = true;
+    });
 
     Object.keys(save_data.character.reputation || {}).forEach(rep_region => {
         if(rep_region in character.reputation) {
@@ -3554,8 +3603,50 @@ function update() {
             update_displayed_character_inventory();
         }
 
+        //update effect durations and displays;
+        Object.keys(active_effects).forEach(key => {
+            active_effects[key].duration--;
+            if(active_effects[key].duration <= 0) {
+                delete active_effects[key];
+                character.stats.add_active_effect_bonus();
+                update_character_stats();
+            }
+        });
+        update_displayed_effect_durations();
+        update_displayed_effects();
+
         if("parent_location" in current_location){ //if it's a combat_zone
-            //nothing here i guess?
+
+            //use consumables if their longest effect ran out
+            //remove them from list if there are no more in inventory
+            Object.keys(favourite_consumables).forEach(item_id => {
+                const inv_key = item_templates[item_id].getInventoryKey();
+                if(!character.inventory[inv_key]) {
+                    //if out of item, remove it from auto-consume
+                    remove_consumable_from_favourites(item_id);
+                    return;
+                }
+
+                const effects = item_templates[item_id].effects.sort((a,b) => {
+                    if(options.auto_use_when_longest_runs_out) {
+                        return b.duration-a.duration;
+                    } else {
+                         return a.duration-b.duration;
+                    }
+                });
+
+                //if effect not active, use item and return
+                if(!active_effects[effects[0].effect]) {
+                    use_item(inv_key);
+
+                    if(!character.inventory[inv_key]) {
+                        //if out of item, remove it from auto-consume
+                        remove_consumable_from_favourites(item_id);
+                    }
+
+                    return;
+                }
+            });
         } else { //everything other than combat
             if(is_sleeping) {
                 do_sleeping();
@@ -3683,17 +3774,6 @@ function update() {
                 }
             }
         }
-
-        Object.keys(active_effects).forEach(key => {
-            active_effects[key].duration--;
-            if(active_effects[key].duration <= 0) {
-                delete active_effects[key];
-                character.stats.add_active_effect_bonus();
-                update_character_stats();
-            }
-        });
-        update_displayed_effect_durations();
-        update_displayed_effects();
 
         //health regen
         if(character.stats.full.health_regeneration_flat) {
@@ -3863,6 +3943,7 @@ window.format_money = format_money;
 window.get_character_money = character.get_character_money;
 
 window.use_item = use_item;
+window.change_consumable_favourite_status = change_consumable_favourite_status;
 
 window.do_enemy_combat_action = do_enemy_combat_action;
 
@@ -3960,6 +4041,7 @@ function add_all_active_effects(duration){
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
 //add_all_active_effects(120);
+//add_consumable_to_favourites("Stale bread");
 
 update_displayed_equipment();
 sort_displayed_inventory({sort_by: "name", target: "character"});
@@ -4007,5 +4089,7 @@ export { current_enemies, can_work,
         faved_stances, options,
         global_flags,
         character_equip_item,
-        unlocked_beds
+        unlocked_beds,
+        favourite_consumables,
+        remove_consumable_from_favourites
 };

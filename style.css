@@ -575,6 +575,26 @@ body {
 	float: left;
 }
 
+.item_auto_use_button {
+	display: var(--item_use_button_display);
+	background-color: gray;
+	height: 100%;
+	width: 39px;
+	cursor: pointer;
+	text-align: center;
+	margin-left: 3px;
+	float: left;
+}
+
+.item_auto_use_button:hover {
+	background-color: var(--active_button_color);
+}
+
+.item_auto_use_button_active {
+	background-color: var(--active_button_color);
+	font-weight: bold;
+}
+
 .item_value {
 	text-align: right;
 	font-size: 13px;
