@@ -627,7 +627,7 @@ function remove_from_character_inventory(items) {
                         continue;
                 }
                 const {id} = JSON.parse(items[i].item_key);
-                if(id && item_templates[id].tags.consumable && favourite_consumables[id]) {
+                if(id && item_templates[id].tags.usable && favourite_consumables[id]) {
                         remove_consumable_from_favourites(id);
                 }
         }
