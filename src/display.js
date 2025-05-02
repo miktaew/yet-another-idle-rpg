@@ -2383,6 +2383,10 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
         material_selection.classList.add("folded_material_list");
         recipe_div.addEventListener("click", (event)=>{
             if(event.target.classList.contains("recipe_name") || event.target.classList.contains("crafting_dropdown_icon")) {
+
+                remove_class_from_all("selected_component_list");
+                remove_class_from_all("selected_component_category");
+                
                 window.updateDisplayedMaterialChoice({category, subcategory, recipe_id});
                 toggle_exclusive_class({element: recipe_div, class_name: "selected_recipe"});
             } 
@@ -2424,14 +2428,12 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
 
         recipe_div.addEventListener("click", (event)=>{
             if(event.target.classList.contains("recipe_name") || event.target.classList.contains("crafting_dropdown_icon")) {
-                
-                const expanded_divs = recipe_div.querySelectorAll(".selected_component_category");
-                for(let i = 0; i < expanded_divs.length; i++) {
-                    expanded_divs.item(i).classList.remove("selected_component_category");
-                    expanded_divs.item(i).nextSibling.classList.remove("selected_component_list");
-                }
+
+                remove_class_from_all("selected_component_list");
+                remove_class_from_all("selected_component_category");
                 
                 toggle_exclusive_class({element: recipe_div, class_name: "selected_recipe"});
+
                 window.updateDisplayedComponentChoice({category, subcategory, recipe_id});
 
                 update_recipe_tooltip({category, subcategory, recipe_id, components: []});
@@ -2440,7 +2442,7 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
 
         component_selection_1.parentNode.children[0].addEventListener("click", (event)=>{
             //unfold a list for selection; its content already loaded by a different function
-            if(event.target.classList.contains("crafting_selection")) {
+            if(event.target.classList.contains("crafting_selection") || event.target.classList.contains("subcrafting_dropdown_icon")) {
                 component_selection_1.children[1].classList.toggle("selected_component_list");
                 component_selection_1.children[0].classList.toggle("selected_component_category");
                 if(recipe_div.querySelectorAll(".folded_crafting_selection").item(0).lastChild 
@@ -2452,7 +2454,7 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
         });
         component_selection_2.parentNode.children[1].addEventListener("click", (event)=>{
             //unfold a list for selection; its content already loaded by a different function
-            if(event.target.classList.contains("crafting_selection")) {
+            if(event.target.classList.contains("crafting_selection")  || event.target.classList.contains("subcrafting_dropdown_icon")) {
                 component_selection_2.children[1].classList.toggle("selected_component_list");
                 component_selection_2.children[0].classList.toggle("selected_component_category");
                 if(!is_element_above_x(recipe_div.querySelector(".recipe_creation_button"), document.getElementById("exit_crafting_button"))) {
@@ -4206,6 +4208,12 @@ function toggle_exclusive_class({element, siblings_only=false, class_name}) {
 
     if(!has_class) {
         element.classList.add(class_name);
+    }
+}
+function remove_class_from_all(class_name) {
+    const elems = document.getElementsByClassName(class_name);
+    while(elems.length > 0) {
+        elems.item(0).classList.remove(class_name);
     }
 }
 
