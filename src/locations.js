@@ -1338,7 +1338,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         housing: {
             is_present: true,
             is_unlocked: true,
-            sleeping_xp_per_tick: 180,
+            sleeping_xp_per_tick: 8,
             text_to_sleep: "Take a nap on the bedroll",
         },
         is_unlocked: false,

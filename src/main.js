@@ -2280,6 +2280,7 @@ function use_item(item_key) {
         }
         //goes through item effects, checking if it has any that is either not currently active or with longer duration than any active
     }
+    
     if(used) {
         update_displayed_effects();
         character.stats.add_active_effect_bonus();
@@ -2307,8 +2308,9 @@ function use_item(item_key) {
                 });
             }
         }
+
+        remove_from_character_inventory([{item_key}]);
     }
-    remove_from_character_inventory([{item_key}]);
 }
 
 function add_consumable_to_favourites(item_id) {
