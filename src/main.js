@@ -1056,7 +1056,7 @@ function do_enemy_attack_loop(enemy_id, count, is_new = false) {
 }
 
 function clear_enemy_attack_loop(enemy_id) {
-    clearInterval(enemy_attack_loops[enemy_id]);
+    clearTimeout(enemy_attack_loops[enemy_id]);
 }
 
 /**
@@ -1104,7 +1104,7 @@ function set_character_attack_loop({base_cooldown}) {
     let actual_cooldown = base_cooldown / character.get_stamina_multiplier();
 
     let attack_power = character.get_attack_power();
-    do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets});
+    do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets, target_count});
 }
 
 /**
@@ -1114,8 +1114,7 @@ function set_character_attack_loop({base_cooldown}) {
  * @param {String} attack_power 
  * @param {String} attack_type 
  */
-function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets, count, is_new = true}) {
-    count = count || 0;
+function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets, count = 0, is_new = true, target_count = 1}) {
     update_character_attack_bar(count/60);
 
     if(is_new) {
@@ -1151,7 +1150,6 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
             if(current_enemies.filter(enemy => enemy.is_alive).length != 0) { //set next loop if there's still an enemy left;
                 set_character_attack_loop({base_cooldown});
             } else { //all enemies defeated, do relevant things and set new combat
-
                 current_location.enemy_groups_killed += 1;
                 if(current_location.enemy_groups_killed > 0 && current_location.enemy_groups_killed % current_location.enemy_count == 0) {
                     get_location_rewards(current_location);
@@ -1161,7 +1159,7 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
                 set_new_combat();
             }
         }
-        do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets, count, is_new: false});
+        do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets: current_enemies.filter(enemy => enemy.is_alive).slice(-target_count), target_count, count, is_new: false});
 
         if(character_timer_variance_accumulator <= maximum_time_correction/tickrate && character_timer_variance_accumulator >= -maximum_time_correction/tickrate) {
             character_timer_adjustment = character_timer_variance_accumulator;
@@ -1179,12 +1177,12 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
 }
 
 function clear_character_attack_loop() {
-    clearInterval(character_attack_loop);
+    clearTimeout(character_attack_loop);
 }
 
 function clear_all_enemy_attack_loops() {
     Object.keys(enemy_attack_loops).forEach((key) => {
-        clearInterval(enemy_attack_loops[key]);
+        clearTimeout(enemy_attack_loops[key]);
     });
 }
 
