@@ -1158,8 +1158,9 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
         
                 set_new_combat();
             }
+        } else {
+            do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets, target_count, count, is_new: false});
         }
-        do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets: current_enemies.filter(enemy => enemy.is_alive).slice(-target_count), target_count, count, is_new: false});
 
         if(character_timer_variance_accumulator <= maximum_time_correction/tickrate && character_timer_variance_accumulator >= -maximum_time_correction/tickrate) {
             character_timer_adjustment = character_timer_variance_accumulator;

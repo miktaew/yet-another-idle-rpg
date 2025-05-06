@@ -7,7 +7,8 @@ import { update_displayed_character_inventory, update_displayed_equipment,
          update_displayed_health, update_displayed_stamina, 
          update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain,
          update_displayed_skill_level, 
-         update_displayed_xp_bonuses } from "./display.js";
+         update_displayed_xp_bonuses, 
+         update_displayed_stamina_efficiency} from "./display.js";
 import { active_effects, current_location, current_stance, favourite_consumables, remove_consumable_from_favourites } from "./main.js";
 import { current_game_time, is_night } from "./game_time.js";
 import { item_templates } from "./items.js";
@@ -720,6 +721,7 @@ function update_character_stats() {
         update_displayed_stats();
         update_displayed_health();
         update_displayed_stamina();
+        update_displayed_stamina_efficiency();
         
         //update_displayed_mana();
 }
