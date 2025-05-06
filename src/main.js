@@ -112,6 +112,13 @@ let enemy_timer_adjustment = [];
 let enemy_timers = [];
 let character_attack_loop;
 
+let character_timer_variance_accumulator = 0;
+let character_timer_adjustment = 0;
+let character_timers = [];
+
+const maximum_time_correction = 10;
+//maximum time correction for combat, in miliseconds
+
 //current location
 let current_location;
 
@@ -962,6 +969,9 @@ function set_new_combat({enemies} = {}) {
             enemy_timers[i] = [Date.now(), Date.now()];
         }
     }
+    character_timer_variance_accumulator = 0;
+    character_timer_adjustment = 0;
+    character_timers = [Date.now(), Date.now()];
 
     //attach loops
     for(let i = 0; i < current_enemies.length; i++) {
@@ -1029,24 +1039,24 @@ function do_enemy_attack_loop(enemy_id, count, is_new = false) {
         }
         do_enemy_attack_loop(enemy_id, count);
 
-        if(enemy_timer_variance_accumulator[enemy_id] <= 5/tickrate && enemy_timer_variance_accumulator[enemy_id] >= -5/tickrate) {
-            enemy_timer_adjustment[enemy_id] = time_variance_accumulator;
+        if(enemy_timer_variance_accumulator[enemy_id] <= maximum_time_correction/tickrate && enemy_timer_variance_accumulator[enemy_id] >= -maximum_time_correction/tickrate) {
+            enemy_timer_adjustment[enemy_id] = enemy_timer_variance_accumulator[enemy_id];
         } else {
-            if(enemy_timer_variance_accumulator[enemy_id] > 5/tickrate) {
-                enemy_timer_adjustment[enemy_id] = 5/tickrate;
+            if(enemy_timer_variance_accumulator[enemy_id] > maximum_time_correction/tickrate) {
+                enemy_timer_adjustment[enemy_id] = maximum_time_correction/tickrate;
             }
             else {
-                if(enemy_timer_variance_accumulator[enemy_id] < -5/tickrate) {
-                    enemy_timer_adjustment[enemy_id] = -5/tickrate;
+                if(enemy_timer_variance_accumulator[enemy_id] < -maximum_time_correction/tickrate) {
+                    enemy_timer_adjustment[enemy_id] = -maximum_time_correction/tickrate;
                 }
             }
-        } //limits the maximum correction to +/- 5ms, just to be safe
+        } //limits the maximum correction, just to be safe
 
     }, enemy_attack_cooldowns[enemy_id]*1000/(60*tickrate) - enemy_timer_adjustment[enemy_id]);
 }
 
 function clear_enemy_attack_loop(enemy_id) {
-    clearTimeout(enemy_attack_loops[enemy_id]);
+    clearInterval(enemy_attack_loops[enemy_id]);
 }
 
 /**
@@ -1104,10 +1114,21 @@ function set_character_attack_loop({base_cooldown}) {
  * @param {String} attack_power 
  * @param {String} attack_type 
  */
-function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets}) {
-    let count = 0;
+function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets, count, is_new = true}) {
+    count = count || 0;
+    update_character_attack_bar(count/60);
+
+    if(is_new) {
+        character_timer_variance_accumulator = 0;
+        character_timer_adjustment = 0;
+    }
+
     clear_character_attack_loop();
-    character_attack_loop = setInterval(() => {
+    character_attack_loop = setTimeout(() => {
+        character_timers[0] = Date.now(); 
+        character_timer_variance_accumulator += ((character_timers[0] - character_timers[1]) - actual_cooldown*1000/(60*tickrate));
+
+        character_timers[1] = Date.now();
         update_character_attack_bar(count/60);
         count++;
         if(count >= 60) {
@@ -1140,7 +1161,21 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
                 set_new_combat();
             }
         }
-    }, actual_cooldown*1000/(60*tickrate));
+        do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets, count, is_new: false});
+
+        if(character_timer_variance_accumulator <= maximum_time_correction/tickrate && character_timer_variance_accumulator >= -maximum_time_correction/tickrate) {
+            character_timer_adjustment = character_timer_variance_accumulator;
+        } else {
+            if(character_timer_variance_accumulator > maximum_time_correction/tickrate) {
+                character_timer_adjustment = maximum_time_correction/tickrate;
+            }
+            else {
+                if(character_timer_variance_accumulator < -maximum_time_correction/tickrate) {
+                    character_timer_adjustment = -maximum_time_correction/tickrate;
+                }
+            }
+        } //limits the maximum correction, just to be safe
+    }, actual_cooldown*1000/(60*tickrate) - character_timer_adjustment);
 }
 
 function clear_character_attack_loop() {
@@ -1150,7 +1185,7 @@ function clear_character_attack_loop() {
 function clear_all_enemy_attack_loops() {
     Object.keys(enemy_attack_loops).forEach((key) => {
         clearInterval(enemy_attack_loops[key]);
-    })
+    });
 }
 
 function start_combat() {
@@ -1493,7 +1528,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
             //no point doing any checks for optimization
             update_displayed_stamina_efficiency();
             
-            process_rewards({rewards: unlocks, inform_overall: should_info});
+            process_rewards({source_name: skill.skill_id, source_type: "skill", rewards: unlocks, inform_overall: should_info});
 
             //go through unlocked skills (if any) to update skill relations
             for(let i = 0; i < unlocks?.skills?.length; i++) {
@@ -1786,7 +1821,20 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
                     log_message(`Unlocked new skill: ${skills[rewards.skills[i]].name()}`);
                 }
 
-                for(let j = 0; j < which_skills_affect_skill[rewards.skills[i]].length; j++) {
+                if(source_type === "skill") {
+                    if(!which_skills_affect_skill[rewards.skills[i]]) {
+                        which_skills_affect_skill[rewards.skills[i]] = [];
+                    }
+
+                    if(skills[source_name]) {
+                        which_skills_affect_skill[rewards.skills[i]].push(source_name);
+                    } else {
+                        console.error(`Tried to register skill "${source_name}" as related to "${rewards.skills[i]}", but the former does not exist!`);
+                    }
+                }
+
+                //update all related skills; may be none if unlock was not from another skill, so need to check with '?'
+                for(let j = 0; j < which_skills_affect_skill[rewards.skills[i]]?.length; j++) {
                     update_displayed_skill_bar(skills[which_skills_affect_skill[rewards.skills[i]][j]], false);
                 }
             }
@@ -2709,12 +2757,12 @@ function load(save_data) {
         } else {
             console.warn(`Skipped reputation, no such region as "${rep_region}"`);
         }
-    })
+    });
     //todo: call a function to update display (once rep is added to display)
 
-    Object.keys(save_data.skills).forEach(function(key){ 
+    Object.keys(save_data.skills).forEach(key => { 
         if(key === "Literacy") {
-            return; //done separately, for compatibility with older saves (can be eventually remove)
+            return; //done separately, for compatibility with older saves (can be eventually removed)
         }
         if(skills[key] && !skills[key].is_parent){
             if(save_data.skills[key].total_xp > 0) {

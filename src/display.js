@@ -3620,7 +3620,7 @@ function update_displayed_skill_bar(skill, leveled_up=true) {
     update_displayed_skill_level(skill);
 
     if(skill.current_xp !== "Max") {
-        skill_bar_divs[skill.category][skill.skill_id].children[0].children[0].children[1].innerHTML = `${100*Math.round(skill.current_xp/skill.xp_to_next_lvl*1000)/1000}%`;
+        skill_bar_divs[skill.category][skill.skill_id].children[0].children[0].children[1].innerHTML = `${100*Math.floor(skill.current_xp/skill.xp_to_next_lvl*1000)/1000}%`;
         skill_bar_divs[skill.category][skill.skill_id].children[0].children[2].children[0].innerHTML = `${expo(skill.current_xp)}/${expo(skill.xp_to_next_lvl)}`;
 
     } else {

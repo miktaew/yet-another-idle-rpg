@@ -239,6 +239,10 @@ v0.4.6.30
     - fixed a bug with auto-use with a serious error if item ran out in combat
 v0.4.6.31
     - fixed absurdly high sleeping xp gain in mountain camp
+v0.4.6.32
+    - rewrote character attack loop to use setTimeout instead of setInterval, in consistency with how enemy attack loops work; this should mitigate a cooldown discrepancy on Firefox, which seems to result from differences in implementations
+    - fixed a serious game loading bug if you had 'Sleeping' on level 5 (higher/lower levels were fine, it was just an issue with game trying to update display of related skills when act of unlocking another skill was not enough to register the unlocker as related)
+    - skill level progress % is now rounded down in display 
 </pre>
 </div>
 <button type="button" class="collapsible">v0.4.3/v0.4.4 - GUI remake and Crafting</button>
