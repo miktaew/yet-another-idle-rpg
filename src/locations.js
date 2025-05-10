@@ -816,7 +816,7 @@ function get_location_type_penalty(type, stage, stat, category) {
                     dexterity: {multiplier: 0.8},
                     intuition: {multiplier: 0.5},
                     stamina_efficiency: {multiplier: 0.75},
-                    health_loss_flat: {flat: 5},
+                    health_loss_flat: {flat: -5},
                 }
             },
             2: {
@@ -827,7 +827,7 @@ function get_location_type_penalty(type, stage, stat, category) {
                     dexterity: {multiplier: 0.3},
                     intuition: {multiplier: 0.2},
                     stamina_efficiency: {multiplier: 0.5},
-                    health_loss_flat: {flat: 50},
+                    health_loss_flat: {flat: -50},
                 }
             }
         }
