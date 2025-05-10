@@ -650,8 +650,7 @@ function add_money_to_character(money_num) {
 
 //single tick of resting
 function do_resting() {
-    if(character.stats.full.health < character.stats.full.max_health)
-    {
+    if(character.stats.full.health < character.stats.full.max_health) {
         const resting_heal_ammount = Math.max(character.stats.full.max_health * 0.01,2); 
         //todo: scale it with skill, because why not?; maybe up to x2 bonus
 
@@ -662,8 +661,7 @@ function do_resting() {
         update_displayed_health();
     }
 
-    if(character.stats.full.stamina < character.stats.full.max_stamina)
-    {
+    if(character.stats.full.stamina < character.stats.full.max_stamina) {
         const resting_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/120, 2)); 
         //todo: scale it with skill as well
 
@@ -677,8 +675,7 @@ function do_resting() {
 }
 
 function do_sleeping() {
-    if(character.stats.full.health < character.stats.full.max_health)
-    {
+    if(character.stats.full.health < character.stats.full.max_health) {
         const sleeping_heal_ammount = Math.round(Math.max(character.stats.full.max_health * 0.04, 5) * (1 + get_total_skill_level("Sleeping")/skills["Sleeping"].max_level));
         
         character.stats.full.health += (sleeping_heal_ammount);
@@ -688,8 +685,7 @@ function do_sleeping() {
         update_displayed_health();
     }
 
-    if(character.stats.full.stamina < character.stats.full.max_stamina)
-    {
+    if(character.stats.full.stamina < character.stats.full.max_stamina) {
         const sleeping_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/30, 5) * (1 + get_total_skill_level("Sleeping")/skills["Sleeping"].max_level)); 
 
         character.stats.full.stamina += (sleeping_stamina_ammount);
@@ -1300,16 +1296,7 @@ function do_enemy_combat_action(enemy_id) {
     }
 
     if(fainted) {
-        total_deaths++;
-        log_message(character.name + " has lost consciousness", "hero_defeat");
-
-        update_displayed_health();
-        if(options.auto_return_to_bed && last_location_with_bed) {
-            change_location(last_location_with_bed);
-            start_sleeping();
-        } else {
-            change_location(current_location.parent_location.id);
-        }
+        kill_player();
         return;
     }
 
@@ -1417,6 +1404,21 @@ function kill_enemy(target) {
     }
     const enemy_id = current_enemies.findIndex(enemy => enemy===target);
     clear_enemy_attack_loop(enemy_id);
+}
+
+function kill_player({is_combat = true} = {}) {
+    if(is_combat) {
+        total_deaths++;
+        log_message(character.name + " has lost consciousness", "hero_defeat");
+
+        update_displayed_health();
+        if(options.auto_return_to_bed && last_location_with_bed) {
+            change_location(last_location_with_bed);
+            start_sleeping();
+        } else {
+            change_location(current_location.parent_location.id);
+        }
+    }
 }
 
 function use_stamina(num = 1, use_efficiency = true) {
@@ -3828,11 +3830,16 @@ function update() {
         }
         //health loss
         if(character.stats.full.health_loss_flat) {
-            character.stats.full.health -= character.stats.full.health_loss_flat;
+            character.stats.full.health += character.stats.full.health_loss_flat;
         }
         if(character.stats.full.health_loss_percent) {
-            character.stats.full.health -= character.stats.full.max_health * character.stats.full.health_loss_percent/100;
+            character.stats.full.health += character.stats.full.max_health * character.stats.full.health_loss_percent/100;
         }
+
+        if(character.stats.full.health <= 0) {
+            kill_player({is_combat: "parent_location" in current_location});
+        }
+
         //stamina regen
         if(character.stats.full.stamina_regeneration_flat) {
             character.stats.full.stamina += character.stats.full.stamina_regeneration_flat;
@@ -3856,7 +3863,9 @@ function update() {
             character.stats.full.stamina = character.stats.full.max_stamina
         }
 
-        if(character.stats.full.health_regeneration_flat || character.stats.full.health_regeneration_percent) {
+        if(character.stats.full.health_regeneration_flat || character.stats.full.health_regeneration_percent 
+            || character.stats.full.health_loss_flat || character.stats.full.health_loss_percent
+        ) {
             update_displayed_health();
         }
         if(character.stats.full.stamina_regeneration_flat || character.stats.full.stamina_regeneration_percent) {

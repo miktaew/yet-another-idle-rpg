@@ -24,12 +24,12 @@ class Hero extends InventoryHaver {
                         health: 50,
                         health_regeneration_flat: 0, //in combat
                         health_regeneration_percent: 0, //in combat
-                        health_loss_flat: 0,
+                        health_loss_flat: 0, //despite the name, it's values below 0 that mean actual health loss
                         health_loss_percent: 0,
                         max_stamina: 50,
                         stamina: 50,
                         stamina_regeneration_flat: 0, //in combat
-                        stamina_regeneration_percenty: 0, //in combat
+                        stamina_regeneration_percent: 0, //in combat
                         stamina_efficiency: 1,
                         max_mana: 0,
                         mana: 0,
@@ -479,12 +479,11 @@ character.update_stats = function () {
         character.stats.total_multiplier[stat] = stat_mult || 1;
 
         if(stat === "health") {
-                character.stats.full["health"] = Math.max(1, character.stats.full["max_health"] - missing_health);
-        }
-        else if(stat === "stamina") {
-                character.stats.full["stamina"] = Math.max(0, character.stats.full["max_stamina"] - missing_stamina);
+                character.stats.full.health = Math.max(0, character.stats.full["max_health"] - missing_health);
+        } else if(stat === "stamina") {
+                character.stats.full.stamina = Math.max(0, character.stats.full["max_stamina"] - missing_stamina);
         } else if(stat === "mana") {
-                character.stats.full["mana"] = Math.max(0, character.stats.full["max_mana"] - missing_mana);
+                character.stats.full.mana = Math.max(0, character.stats.full["max_mana"] - missing_mana);
         }
     });
 

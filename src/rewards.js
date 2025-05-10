@@ -1,5 +1,5 @@
 /*
-    Not in use, just a reference sheet for some stuff
+    Not in use yet, currently just references for rewards objects; will be reworked into class later on (probably)
 */
 
 /*  REWARDS:
@@ -99,28 +99,4 @@
     ]
     it's also processed only once
     
-*/
-
-/* ACTION CONDITIONS:
-{
-    money: {
-        number: Number, //how much money to require
-        remove: Boolean //if should be removed from inventory or kept
-    }
-    stats: [
-        "stat_id": Number //required stat
-    ],
-
-    skills: [
-        "skill_id": Number //required level
-    ],
-    items_by_id: 
-    [
-        {
-            "item_id": {
-                count: Number,
-                remove: Boolean
-        }
-    ]
-}
 */

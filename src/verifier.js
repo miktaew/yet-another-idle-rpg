@@ -7,6 +7,7 @@ import { item_templates } from "./items.js";
 import { locations } from "./locations.js";
 import { skills, skill_categories } from "./skills.js";
 import { traders } from "./traders.js";
+//import { quest_templates } from "./quests.js"; todo
 
 function Verify_Game_Objects() {
     let results = [0,0];

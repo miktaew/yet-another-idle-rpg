@@ -111,7 +111,7 @@ effect_templates["Slight food poisoning"] = new ActiveEffect({
     name: "Slight food poisoning",
     effects: {
         stats: {
-            health_regeneration_flat: {flat: -0.5},
+            health_loss_flat: {flat: -0.5},
         }
     },
     tags: {"debuff": true, "poison": true},
