@@ -3351,7 +3351,7 @@ function load(save_data) {
                     if(!locations[key].activities[save_data.locations[key].unlocked_activities[i]]) {
                         continue;
                     }
-                    if(save_data.locations[key].unlocked_activities[i] === "plowing the fields") {
+                    if(save_data.locations[key].unlocked_activities[i] === "plowing the fields") { //old compatibility patch
                         locations[key].activities["fieldwork"].is_unlocked = true;
                     } else {
                         locations[key].activities[save_data.locations[key].unlocked_activities[i]].is_unlocked = true;
@@ -3401,7 +3401,7 @@ function load(save_data) {
     Object.keys(save_data.activities).forEach(function(activity) {
         if(activities[activity]) {
             activities[activity].is_unlocked = save_data.activities[activity].is_unlocked || false;
-        } else if(activity === "plowing the fields") {
+        } else if(activity === "plowing the fields") { //old compatibility patch
             activities["fieldwork"].is_unlocked = save_data.activities[activity].is_unlocked || false;
         } else {
             console.warn(`Activity "${activity}" couldn't be found!`);
@@ -4072,10 +4072,10 @@ function add_stuff_for_testing() {
     ]);
 }
 
-function add_all_stuff_to_inventory(){
+function add_all_stuff_to_inventory(count = 10){
     Object.keys(item_templates).forEach(item => {
         add_to_character_inventory([
-            {item_id: item, count: 1000},
+            {item_id: item, count: count},
         ]);
     })
 }

@@ -20,11 +20,23 @@ esbuild
         console.log("Javascript build complete!");
         const htmlPath = 'index.html';
         let htmlContent = fs.readFileSync(htmlPath, 'utf8');
+
+        if(!htmlContent.search(/<script type="module" src="dist\/bundle\.[^"]*\.js"><\/script>/)) {
+            console.log('Failed to update the bundle link in .html!');
+            return;
+        }
+
         htmlContent = htmlContent.replace(
             /<script type="module" src="dist\/bundle\.[^"]*\.js"><\/script>/,
             `<script type="module" src="${output_name}"></script>`
         );
-        fs.writeFileSync(htmlPath, htmlContent);
-        console.log("Bundle link in HTML has been updated!");
+        try {
+            fs.writeFileSync(htmlPath, htmlContent);
+            console.log("Bundle link in .html has been updated!");
+        } catch (err) {
+            console.log('Failed to update the bundle link in .html!');
+            console.error(err);
+        }
+        
     }).catch(() => process.exit(1));
 
