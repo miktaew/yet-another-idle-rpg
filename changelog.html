@@ -6,6 +6,9 @@
         <script type="module" src = "src/game_version.js"> </script>
 
         <style>
+            body {
+                font-family: Arial, Helvetica, sans-serif;
+            }
             .collapsible {
                 background-color: #eee;
                 color: #444;
@@ -42,11 +45,217 @@
                 margin-bottom: 20px;
                 font-family: sans-serif;
             }
+
+            .spoiler {
+                color: rgb(17, 17, 17);
+                background-color: rgb(17, 17, 17);
+                width: fit-content;
+                height: fit-content;
+                margin: 0px;
+                padding: 0px;
+                height: fit-content;
+            }
+            .spoiler:hover {
+                color: white;
+            }
         </style>
     </head>
 
 <div id="header">Click on blocks to unfold their content</div>
 
+<button type="button" class="collapsible">v0.4.6 - Actions (and some other things too) [testing release: 01/04/2025 / main release: 18/05/2024] </button>
+<div class="content"><pre>
+v0.4.6
+    - implemented new feature, location actions. Unlike trainings, they are generally a one-time thing that provides unlocks and other rewards.
+        They can take different time to complete; have different conditions that are not fully specified but will be hinted at by descriptions; 
+        might check if conditions are met either before or after the attempt and may either be guaranteed to succeed if so or just have a chance for it,
+        with the latter case having different messages for when you failed due to not meeting requirements vs when you were just unlucky and could succeed next time
+    
+    - made it possible to craft multiple items/components/equips at once (x5/x10/all)
+    - added a mechanic of bonus skill levels (e.g. from better tools); these only apply to the basic effects and do not affect milestones
+    - implemented personal storage, available at any place with bed, with shared content
+    - added fast travel button, allowing quick moving between locations with unlocked beds and/or last combat location (move here from the normal travel category)
+
+    - added multiple new locations and combat areas: <span class="spoiler">
+    * bandit hideout in slums
+    * two locations (one normal, one combat) after opening the 'mysterious gate' (The Rat Saga continues)
+    * multiple mountain locations (one boss, one combat, a few normal + a camp) after climbing up (unlocked by beating one of cave locations)</span>
+    - added better tools for gathering materials
+    - added a new crafting material, coal, which is now used in all smelting recipes
+        It's own recipe is named "charcoal", don't be confused
+        It is crafted with any "raw" wood, using cheapest first. 
+        Multicrafting will only use one material type on each click, to avoid accidentally burning higher tiers (ha, got it?)
+    - added new metal of tier 3, steel, which requires iron + a new ore to craft; added corresponding weapon components; steel unlocked by:<span class="spoiler">
+        Reaching level 15 in Forging skill; needed ore unlocked by beating 'mysterious gate'</span>
+    - added ash wood and ash wood components, added weak monster bone components; both are tier 3
+    - new activity: climbing
+    - new skills: Climbing, Breathing, Medicine. Breathing gains xp passively at a low rate (which increases x5 when in any training)
+    - two new books, both unlock "new" recipes (lots of them already existed and simply got locked behind this) + one of them unlocks Medicine skill
+    - slightly buffed 'weak healing powder' and 'weak healing potion', added stronger versions of both
+    - added some other new ingredients and consumables
+    - added miscellaneous items 'coil of rope' and 'camping supplies', each is currently only used for a singular action
+    - new spot for meditation + another milestone for the skill
+    - skills for gathering materials now belong to a separate skill category (instead of 'Activity skills')
+    - 'high quality wolf fang' and 'high quality boar tusk' can now be crafted from 50 normal versions each
+    - location navigation now uses similar structure as skill display, that is they are grouped together and expand on click
+    - made it possible for xp multipliers to affect entire skill categories (e.g. all 'Activity' skills)
+    - item rarity rank is now directly displayed in tooltip (before that you had to guess from the color/quality)
+    - tooltips for relevant crafting skills now show quality caps
+    - activities (job, training, resource gathering) now display the time needed to level up their related skill 
+        (with in-game time format, e.g. 24 hours mean 24 irl minutes at standard tickrate)
+    - slightly expanded some skill milestones
+    - added a Ko-fi icon with link to my page on the right side of the bottom bar
+
+    - equipment qualities are now rounded to nearest even value to reduce inventory cluttering (similarly to how components already had it rounded to nearest multiple of 4) 
+    - made attack speed penalties from shields harsher; they are now also present on light shields (but much weaker than on heavy shields)
+    - reduced value of crafting components to ~80%, but increased full equipment prices to ~125% (components are cheaper, but equipment prices stay mostly the same)
+    - crafting recipes now show their xp values in tooltips
+    - reduced the crafting quality cap to 100 + 2.8 * skill_lvl for equips and 100 + 2 * skill_lvl for components
+    - buffed success rates of first 2 woodcutting and mining spots
+    - buffed success rates of some recipes
+    - updated some xp displays to show both the percentage and the raw numbers
+    - bottom panel remains visible on loading screen, to allow importing savefile if something breaks and it gets stuck
+    - buffed starting health/stamina from 40 to 50
+    - slightly nerfed 'starving wolf rats' and 'wolf rats'
+    - slightly nerfed 'starving wolfs' and 'wolves'
+    - reduced hero level xp cost scaling from 1.8 to 1.7 (this is a buff)
+    - location with boars is now not unlocked directly through dialogue, it instead unlocks an action in the "forest road" to search for the area with them
+        If you already went through that dialogue, you will just keep the area unlocked and the action should never appear
+    - increased reward for dealing with boars to 4 S
+
+    - slightly rewrote the code for location type penalties, allowing for flat effects (e.g. static hp loss every tick)
+    - rewrote combat location N-th clear rewards to a form that allows any reward to have such restriction instead of just location unlocks
+    - implemented partial reputation system, doesn't really do anything yet and is not currently displayed anywhere (will be expanded in future)
+    - slightly changed display settings of the bottom bar
+
+    - fixed a bug where some activities were stopped on reload with a warning in console, due to mismatch in keys
+    - fixed a bug in crafting, where some equipments would end up with a different component than was chosen
+    - fixed a bug with market saturation not working properly (item sold count wasn't being updated, leading to situation where item price reduction only applied in bulk trading)
+    - fixed a bug where additional stats on componentless equipment (clothing) didn't scale with rarity
+    - fixed a bug in crafting equipment, where component quality was ignored in tooltips
+    - fixed a bug where if skill changed name on levelup, the level increase message would use the new one 
+        (it was "skill Y leveled up, skill X was upgraded to Y", instead of "skill X leveled up, skill X was upgraded to Y")
+    - fixed a bug with display of unlocked skill milestones, where descriptions sometimes included ", ,"
+    - fixed a bug where clicking dropdown icons on skill categories wouldn't expand the content
+    - fixed issues with compatibility for saves from some older versions
+v0.4.6.1
+    - fixed a broken unlock in mountains
+    - fixed a bug with clicked items being moved to storage when it wasn't open
+    - time to next level now takes skill xp bonuses into account
+v0.4.6.2
+    - added missing tools to trader inventories
+v0.4.6.3
+    - fixed a bug with wrong tool type on sickles, which made herb gathering impossible
+v0.4.6.4
+    - fixed typo in breathing skill's description
+    - fixed typo in atratan ore unlock
+    - fixed descriptions of some books
+    - fixed a bug that allowed reading books while in combat
+    - fixed wrong name order in message about skill name change, hopefuly this time for real
+    - reduced agility multipliers on short blades
+v0.4.6.5
+    - fixed typo in alchemy skill description
+    - fixed bug with reputation rewards breaking the game
+v0.4.6.6
+    - increased 'strength of mind' max level from 10 to 40, slightly reduced xp cost scaling
+    - fixed missing steel chainmail component recipes
+    - fixed minor errors when clicking wrong spots on the crafting list for components/equipments
+v0.4.6.7
+    - changed level scaling of tier 3 material recipes from 7/17 to 10/20
+    - moved steel unlock from forging 15 to forging 10
+    - raised crafting xp gains to ^1.2
+    - fixed town being unlocked (there was literally nothing there, just an empty town square)
+    - fixed eldritch effect restoring health instead of taking it
+v0.4.6.8
+    - tweaked crafting xp exponent for components to be applied before the material count multiplier
+    - implemented multi-attacks for enemies; it makes multiple hits in same attack, all under singular dodge/block/crit calculation
+    - buffed Wall Rats by giving them x3 multi-attacks (but slightly reduced their damage)
+    - changed font on the help page and changelog to the one used in game
+    - increased mountain goat horn droprate to match boar tusks'
+v0.4.6.9
+    - added short explanation of quality/xp caps in crafting section of help page, updated some other sections as they were slightly outdated
+    - slightly changed crafting quality formulas (reduced difference per tier, slightly changed base value param)
+v0.4.6.10
+    - fixed wrong crafting quality caps in skill tooltips
+v0.4.6.11
+    - moved 'strength of mind' bonuses in 'persistence' milestones to slightly higher levels
+    - fixed minor bug where it was impossible to unequip shield by clicking its slot in 'Equipment' tab
+    - attempted to optimize game by removing some probably-unneeded stat updates, will be reversed if they turn out to be in fact needed
+v0.4.6.12
+    - replaced 'coal' with 'charcoal'; swapped coal-using recipes to use material type 'coal' instead of specific item
+    - fixed 'forging' skill tooltip to only show quality cap for components, as that skill has no full eq items
+    - reduced minimum dmg getting through armor from 10% to 5%
+v0.4.6.13
+    - slightly changed hit/dodge formula to allow an actual 0% chance of being hit; due to this, changed modifiers from enemy group count and enemy size (via skill) to be applied to AP/EP instead (since multiplying 0 by them would be meaningless), which might change how much impact they have
+    - fixed a bug on equipping better tools if the related skill was not unlocked
+v0.4.6.14
+    - fixed 'hard reset' only working for non-dev save (doing that even if you were on dev, whoops)
+    - options panel can now be closed with 'Escape' key
+    - added options to log gathering gains per gathering period and to log total gathering gains when it's finished, both checked by default
+    - increased max message count for some categories
+    - added bug-related section to help page
+v0.4.6.15
+    - 'hard reset' might not have been fixed properly
+    - fixed minor bug where 'Meditation', and possibly some other skills, appeared in tooltips with their full name instead of '?????' despite not being unlocked
+    - fixed occasional bug where switching to .14 while in gathering action would cause an error due to .gathered_materials being undefined
+v0.4.6.16
+    - fixed displayed enemy hit/dodge not reflecting actual chances
+v0.4.6.17
+    - fixed wrong condition where BGM that was supposed to be used in "Slums" while the gang was not defeated, was instead used AFTER it was defeated
+    - 'Slums thug' now appears in bestiary
+v0.4.6.18
+    - fixed issue with 'Gang hideout' not locking properly
+    - fixed version comparing function not working properly if there was a different number of positions (e.g. comparing 0.4.6 and 0.4.6.1)
+    - fixed a serious error on loading if trying to award some past missed location unlocks
+v0.4.6.19
+    - fixed a bug where visiting two traders would result in the latter displaying former's prices for some items (despite different profit margins); this wasn't affecting actual trade prices, just display
+    - fixed a bug where displayed prices of equipment were incorrect
+v0.4.6.20
+    - fixed a bug where effects of medicines weren't updating properly with skill level
+v0.4.6.21
+    - fixed a bug where prices of armor were being displayed as "nothing"
+    - slightly changed code for displaying dialogue answers, made it possible to set an initial description
+v0.4.6.22
+    - fixed a bug with in-game date increasing incorrectly
+v0.4.6.23
+    - another fix for in-game date
+    - fixed a display issue of active effects tooltip extending out of view if there were too many effects, now it wraps into additional columns
+v0.4.6.24
+    - expanded fast travel system to allow favouriting any location (by clicking a star icon next to its name)
+v0.4.6.25
+    - fixed a bug with location locking (i.e. beating challenges / the gang hideout)
+v0.4.6.26
+    - fixed a bug on unfavouriting a location you're in
+    - content of location choices is now automatically scrolled into view if it would go out of display
+v0.4.6.27
+    - fixed that thing with all active effects getting activated at once
+v0.4.6.28
+    - added an auto-use option for consumables; it only triggers in combat and is "forgotten" once item runs out
+    - replaced "atk pwr" with "atk" in hero combat tab to free some space, changed rounding a bit (values greater/equal to 100 are now rounded to integer)
+    - fixed a bug where meditation was still occasionally displayed as '?????' in some tooltips despite being unlocked
+v0.4.6.29
+    - fixed a bug where some displayed components in equipment tab of crafting stayed visible after switching to another recipe
+v0.4.6.30
+    - fixed a bug with auto-use with a serious error if item ran out in combat
+v0.4.6.31
+    - fixed absurdly high sleeping xp gain in mountain camp
+v0.4.6.32
+    - rewrote character attack loop to use setTimeout instead of setInterval, in consistency with how enemy attack loops work; this should mitigate a cooldown discrepancy on Firefox, which seems to result from differences in implementations
+    - fixed a serious game loading bug if you had 'Sleeping' on level 5 (higher/lower levels were fine, it was just an issue with game trying to update display of related skills when act of unlocking another skill was not enough to register the unlocker as related)
+    - skill level progress % is now rounded down in display 
+v0.4.6.33
+    - fixed another bug with combat loop
+v0.4.6.34
+    - fixed minor bug where stamina efficiency was displaying wrong value
+v0.4.6.35
+    - fixed a bug where negative health regen behaved incorrectly in combat if it was the cause of health reaching 0 (instead of enemy attacks causing it)
+v0.4.6.36
+    - code is now bundled
+v0.4.6.37
+    - fixed a bug with additional attack power of heavier weapon handles not being included in calculations (therefore doing nothing)
+======= released to main
+</pre>
+</div>
 <button type="button" class="collapsible">v0.4.3/v0.4.4 - GUI remake and Crafting</button>
 <div class="content"><pre>
 v0.4.3
@@ -188,6 +397,8 @@ v0.4.4g
 v0.4.4h
     - fixed displayed money not updating after obtaining cash via dialogue
     - fix for a bug with saves not loading on dev in some circumstances
+v0.4.4i
+    - fixed bug with additional stats of components
 </pre>
 </div>
 <button type="button" class="collapsible">v0.4 - Combat Stances</button>

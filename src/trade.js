@@ -26,7 +26,7 @@ function start_trade(trader_key) {
     traders[trader_key].refresh();
     current_trader = trader_key;
     
-    update_displayed_trader();
+    update_displayed_trader(true);
 }
 
 function cancel_trade() {
@@ -64,18 +64,20 @@ function accept_trade() {
             //remove from trader inventory
 
             const item = to_buy.items.pop();
-
-            const actual_item = traders[current_trader].inventory[item.item_key].item;
             
             item.item_count = item.count;
             to_remove.push(item);
 
-            item_list.push({item: actual_item, count: item.count});
+            item_list.push({item_key: item.item_key, count: item.count});
         }
         
         if(to_remove.length > 0) {
             add_to_character_inventory(item_list);
             remove_from_trader_inventory(current_trader,to_remove);
+
+            for(let i = 0; i < item_list.length; i++) {
+                update_displayed_character_inventory({item_key: item_list[i].item_key});
+            }
         }
         
 
@@ -87,25 +89,28 @@ function accept_trade() {
             //add to trader inventory
             
             const item = to_sell.items.pop();
-
-            const actual_item = character.inventory[item.item_key].item;
             
             item.item_count = item.count;
             to_remove.push(item);
 
-            item_list.push({item: actual_item, count: item.count});
+            item_list.push({item_key: item.item_key, count: item.count});
         
-            if(item.id && item_templates[item.id]?.saturates_market) {
-                if(!loot_sold_count[item.id]) {
-                    loot_sold_count[item.id] = {sold: 0, recovered: 0};
+            const {id} = JSON.parse(item.item_key);
+            if(id && item_templates[id]?.saturates_market) {
+                if(!loot_sold_count[id]) {
+                    loot_sold_count[id] = {sold: 0, recovered: 0};
                 }
-                loot_sold_count[item.id].sold = loot_sold_count[item.id]?.sold + (item.count || 1);
+                loot_sold_count[id].sold = loot_sold_count[id]?.sold + (item.count || 1);
             }
         }
         
         if(to_remove.length > 0) {
             add_to_trader_inventory(current_trader,item_list);
             remove_from_character_inventory(to_remove);
+
+            for(let i = 0; i < item_list.length; i++) {
+                update_displayed_trader_inventory({item_key: item_list[i].item_key});
+            }
         }
     }
 
@@ -190,7 +195,6 @@ function add_to_selling_list(selected_item) {
 
     const present_item = to_sell.items.find(a => a.item_key === selected_item.item_key);
     //find if item is already present in the sell list
-
     let item_count_in_player = character.inventory[selected_item.item_key].count;
 
     if(present_item) {

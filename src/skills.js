@@ -3,16 +3,9 @@
 const skills = {};
 const skill_categories = {};
 
-import {character} from "./character.js";
+import { get_total_level_bonus, get_total_skill_coefficient, get_total_skill_level } from "./character.js";
+import { get_crafting_quality_caps } from "./crafting_recipes.js";
 import {stat_names} from "./misc.js";
-
-/*    
-TODO:
-    - elemental resistances for:
-        - lessening environmental penalties of other types (mostly affecting stamina maybe?)
-        - lessening elemental dmg (first need to implement damage types)
-    - locked -> skill needs another action to unlock (doesnt gain xp)
-*/
 
 const weapon_type_to_skill = {
     "axe": "Axes",
@@ -24,12 +17,15 @@ const weapon_type_to_skill = {
     "wand": "Wands"
 };
 
+let unknown_skill_name = "?????";
+
 const which_skills_affect_skill = {};
 
 class Skill {
-    constructor({ skill_id, 
+    constructor({skill_id, 
                   names, 
                   description, 
+                  flavour_text, 
                   max_level = 60, 
                   max_level_coefficient = 1, 
                   max_level_bonus = 0, 
@@ -37,7 +33,7 @@ class Skill {
                   visibility_treshold = 10,
                   get_effect_description = () => { return ''; }, 
                   parent_skill = null, 
-                  rewards, 
+                  milestones = {},
                   xp_scaling = 1.8,
                   is_unlocked = true,
                   category,
@@ -51,6 +47,7 @@ class Skill {
         this.skill_id = skill_id;
         this.names = names; // put only {0: name} to have skill always named the same, no matter the level
         this.description = description;
+        this.flavour_text = flavour_text;
         this.current_level = 0; //initial lvl
         this.max_level = max_level; //max possible lvl, dont make it too high
         this.max_level_coefficient = max_level_coefficient; //multiplicative bonus for levels
@@ -70,8 +67,8 @@ class Skill {
             this.category = "Miscellaneous";
         } else {
             this.category = category;
-            skill_categories[this.category] = this;
         }
+        skill_categories[this.category] = true;
         
         if(parent_skill) {
             if(skills[parent_skill]) {
@@ -82,15 +79,15 @@ class Skill {
             }
         }
 
-        this.rewards = rewards; //leveling rewards (and levels on which they are given)
+        this.milestones = milestones;
 
         this.xp_scaling = xp_scaling > 1 ? xp_scaling : 1.6;
         //how many times more xp needed for next level
     }
 
     name() {
-        if(this.visibility_treshold > this.total_xp) {
-            return "?????";
+        if(this.visibility_treshold > this.total_xp || !this.is_unlocked) {
+            return unknown_skill_name;
         }
         
         const keys = Object.keys(this.names);
@@ -113,29 +110,33 @@ class Skill {
 
     add_xp({xp_to_add = 0}) {
         if(xp_to_add == 0 || !this.is_unlocked) {
-            return;
+            return {};
         }
         xp_to_add = Math.round(xp_to_add*100)/100;
+        let skill_name = this.name();
+        //grab name beforehand, in case it changes after levelup (levelup message should appear BEFORE skill name change message, so this is necessary)
 
         this.total_xp = Math.round(100*(this.total_xp + xp_to_add))/100;
         if (this.current_level < this.max_level) { //not max lvl
-
             if (Math.round(100*(xp_to_add + this.current_xp))/100 < this.xp_to_next_lvl) { // no levelup
                 this.current_xp = Math.round(100*(this.current_xp + xp_to_add))/100;
             }
             else { //levelup
                 
                 let level_after_xp = 0;
-                let unlocks = {skills: []};
+                let unlocks = {skills: [], recipes: []};
 
                 //its alright if this goes over max level, it will be overwritten in a if-else below that
-                while (this.total_xp >= this.total_xp_to_next_lvl) {
+                while(this.total_xp >= this.total_xp_to_next_lvl) {
 
                     level_after_xp += 1;
                     this.total_xp_to_next_lvl = Math.round(100*this.base_xp_cost * (1 - this.xp_scaling ** (level_after_xp + 1)) / (1 - this.xp_scaling))/100;
 
-                    if(this.rewards?.milestones[level_after_xp]?.unlocks?.skills) {
-                        unlocks.skills.push(...this.rewards.milestones[level_after_xp].unlocks.skills);
+                    if(this.milestones[level_after_xp]?.unlocks?.skills) {
+                        unlocks.skills.push(...this.milestones[level_after_xp].unlocks.skills);
+                    }
+                    if(this.milestones[level_after_xp]?.unlocks?.recipes) {
+                        unlocks.recipes.push(...this.milestones[level_after_xp].unlocks.recipes);
                     }
                 } //calculates lvl reached after adding xp
                 //probably could be done much more efficiently, but it shouldn't be a problem anyway
@@ -165,10 +166,12 @@ class Skill {
                     this.xp_to_next_lvl = "Max";
                 }
 
-                let message = `${this.name()} has reached level ${this.current_level}`;
+                skill_name = skill_name===unknown_skill_name?this.name():skill_name;
+                //swap name if it was unknown, otherwise leave it as it was (for properly messaging skill name change)
+                let message = `${skill_name} has reached level ${this.current_level}`;
 
                 if (Object.keys(gains.stats).length > 0 || Object.keys(gains.xp_multipliers).length > 0) { 
-                    message += `<br><br> Thanks to ${this.name()} reaching new milestone, ${character.name} gained: `;
+                    message += `<br><br> Thanks to ${skill_name} reaching new milestone, %HeroName% gained: `;
 
                     if (gains.stats) {
                         Object.keys(gains.stats).forEach(stat => {
@@ -184,7 +187,7 @@ class Skill {
                     if (gains.xp_multipliers) {
                         Object.keys(gains.xp_multipliers).forEach(xp_multiplier => {
                             let name;
-                            if(xp_multiplier !== "all" && xp_multiplier !== "hero" && xp_multiplier !== "all_skill") {
+                            if(xp_multiplier !== "all" && xp_multiplier !== "hero" && xp_multiplier !== "all_skill" && !xp_multiplier.includes("category_")) {
                                 name = skills[xp_multiplier].name();
                                 if(!skills[xp_multiplier]) {
                                     console.warn(`Skill ${this.skill_id} tried to reward an xp multiplier for something that doesn't exist: ${xp_multiplier}. I could be a misspelled skill name`);
@@ -192,7 +195,13 @@ class Skill {
                             } else {
                                 name = xp_multiplier.replace("_"," ");
                             }
-                            message += `<br> x${Math.round(100*gains.xp_multipliers[xp_multiplier])/100} ${name} xp gain`;
+
+                            if(xp_multiplier.includes("category_")) {
+                                message += `<br> x${Math.round(100*gains.xp_multipliers[xp_multiplier])/100} ${name.replace("category_", "")} skills xp gain`;
+                            } else {
+                                message += `<br> x${Math.round(100*gains.xp_multipliers[xp_multiplier])/100} ${name} xp gain`;
+
+                            }
                         });
                     }
                 }
@@ -216,9 +225,9 @@ class Skill {
         let xp_multipliers;
 
         for (let i = this.current_level + 1; i <= level; i++) {
-            if (this.rewards?.milestones[i]) {
-                stats = this.rewards.milestones[i].stats;
-                xp_multipliers = this.rewards.milestones[i].xp_multipliers;
+            if (this.milestones[i]) {
+                stats = this.milestones[i].stats;
+                xp_multipliers = this.milestones[i].xp_multipliers;
                 
                 if(stats) {
                     Object.keys(stats).forEach(stat => {
@@ -236,14 +245,14 @@ class Skill {
                 }
 
                 if(xp_multipliers) {
-                    Object.keys(xp_multipliers).forEach(multiplier => {
-                        gains.xp_multipliers[multiplier] = (gains.xp_multipliers[multiplier] || 1) * xp_multipliers[multiplier];
-                        if(which_skills_affect_skill[multiplier]) {
-                            if(!which_skills_affect_skill[multiplier].includes(this.skill_id)) {
-                                which_skills_affect_skill[multiplier].push(this.skill_id);
+                    Object.keys(xp_multipliers).forEach(multiplier_key => {
+                        gains.xp_multipliers[multiplier_key] = (gains.xp_multipliers[multiplier_key] || 1) * xp_multipliers[multiplier_key];
+                        if(which_skills_affect_skill[multiplier_key]) {
+                            if(!which_skills_affect_skill[multiplier_key].includes(this.skill_id)) {
+                                which_skills_affect_skill[multiplier_key].push(this.skill_id);
                             }
                         } else {
-                            which_skills_affect_skill[multiplier] = [this.skill_id];
+                            which_skills_affect_skill[multiplier_key] = [this.skill_id];
                         }
                        
                     });
@@ -259,20 +268,20 @@ class Skill {
         
         return gains;
     }
-    get_coefficient(scaling_type) { //starts from 1
+    get_coefficient({scaling_type, skill_level}) { //starts from 1
         //maybe lvl as param, with current lvl being used if it's undefined?
 
         switch (scaling_type) {
             case "flat":
-                return 1 + Math.round((this.max_level_coefficient - 1) * this.current_level / this.max_level * 1000) / 1000;
+                return 1 + Math.round((this.max_level_coefficient - 1) * (skill_level || this.current_level) / this.max_level * 1000) / 1000;
             case "multiplicative":
-                return Math.round(Math.pow(this.max_level_coefficient, this.current_level / this.max_level) * 1000) / 1000;
+                return Math.round(Math.pow(this.max_level_coefficient, (skill_level || this.current_level) / this.max_level) * 1000) / 1000;
             default: //same as on multiplicative
-                return Math.round(Math.pow(this.max_level_coefficient, this.current_level / this.max_level) * 1000) / 1000;
+                return Math.round(Math.pow(this.max_level_coefficient, (skill_level || this.current_level) / this.max_level) * 1000) / 1000;
         }
     }
-    get_level_bonus() { //starts from 0
-        return this.max_level_bonus * this.current_level / this.max_level;
+    get_level_bonus(level) { //starts from 0
+        return this.max_level_bonus * (level || this.current_level) / this.max_level;
     }
     get_parent_xp_multiplier() {
         if(this.parent_skill) {
@@ -289,42 +298,20 @@ class Skill {
  */
 function get_unlocked_skill_rewards(skill_id) {
     let unlocked_rewards = '';
+    const skill = skills[skill_id];
     
-    if(skills[skill_id].rewards){ //rewards
-        const milestones = Object.keys(skills[skill_id].rewards.milestones).filter(level => level <= skills[skill_id].current_level);
+        const milestones = Object.keys(skill.milestones).filter(level => level <= skill.current_level);
         if(milestones.length > 0) {
-            unlocked_rewards = `lvl ${milestones[0]}: ${format_skill_rewards(skills[skill_id].rewards.milestones[milestones[0]])}`;
+            unlocked_rewards = `lvl ${milestones[0]}: ${format_skill_rewards(skill.milestones[milestones[0]])}`;
             for(let i = 1; i < milestones.length; i++) {
-                unlocked_rewards += `<br>\n\nlvl ${milestones[i]}: ${format_skill_rewards(skills[skill_id].rewards.milestones[milestones[i]])}`;
+                unlocked_rewards += `<br>\n\nlvl ${milestones[i]}: ${format_skill_rewards(skill.milestones[milestones[i]])}`;
             }
+        } else { //no rewards
+            return '';
         }
-    } else { //no rewards
-        return '';
-    }
 
     return unlocked_rewards;
 }
-
-/**
- * gets rewards for next lvl
- * @param {String} skill_id key used in skills object
- * @returns rewards for next level, formatted to a string
- */
-/*
-function get_next_skill_reward(skill_id) {
-    if(skills[skill_id].current_level !== "Max!") {
-        let rewards = skills[skill_id].rewards.milestones[get_next_skill_milestone(skill_id)];
-        
-        if(rewards) {
-            return format_skill_rewards(rewards);
-        } else {
-            return '';
-        }
-    } else {
-        return '';
-    }
-}
-*/
 
 /**
  * 
@@ -332,12 +319,9 @@ function get_next_skill_reward(skill_id) {
  * @returns next lvl at which skill has any rewards
  */
 function get_next_skill_milestone(skill_id){
-    let milestone;
-    if(skills[skill_id].rewards){
-        milestone = Object.keys(skills[skill_id].rewards.milestones).find(
-            level => level > skills[skill_id].current_level);
-    }
-    return milestone;
+
+    return Object.keys(skills[skill_id].milestones).find(
+        level => level > skills[skill_id].current_level);
 }
 
 /**
@@ -364,8 +348,11 @@ function format_skill_rewards(milestone){
                 }
             }
         });
+
         if(formatted) {
-            formatted += ", " + temp;
+            if(temp) {
+                formatted += ", " + temp;
+            }
         } else {
             formatted = temp;
         }
@@ -375,7 +362,11 @@ function format_skill_rewards(milestone){
         const xp_multipliers = Object.keys(milestone.xp_multipliers);
         let name;
         if(xp_multipliers[0] !== "all" && xp_multipliers[0] !== "hero" && xp_multipliers[0] !== "all_skill") {
-            name = skills[xp_multipliers[0]].name();
+            if(xp_multipliers[0].includes("category_")) {
+                name = xp_multipliers[0].replace("category_", "") + " skills";
+            } else {
+                name = skills[xp_multipliers[0]].name();
+            }
         } else {
             name = xp_multipliers[0].replace("_"," ");
         }
@@ -387,7 +378,11 @@ function format_skill_rewards(milestone){
         for(let i = 1; i < xp_multipliers.length; i++) {
             let name;
             if(xp_multipliers[i] !== "all" && xp_multipliers[i] !== "hero" && xp_multipliers[i] !== "all_skill") {
-                name = skills[xp_multipliers[i]].name();
+                if(xp_multipliers[i].includes("category_")) {
+                    name = xp_multipliers[i].replace("category_", "") + " skills";
+                } else {
+                    name = skills[xp_multipliers[i]].name();
+                }
             } else {
                 name = xp_multipliers[i].replace("_"," ");
             }
@@ -395,15 +390,26 @@ function format_skill_rewards(milestone){
         }
     }
     if(milestone.unlocks) {
-        const unlocked_skills = milestone.unlocks.skills;
-        if(formatted) {
-            formatted += `, <br> Unlocked skill "${milestone.unlocks.skills[0]}"`;
-        } else {
-            formatted = `Unlocked skill "${milestone.unlocks.skills[0]}"`;
+        if(milestone.unlocks.skills) {
+            const unlocked_skills = milestone.unlocks.skills;
+            if(formatted) {
+                formatted += `, <br> Unlocked skill "${milestone.unlocks.skills[0]}"`;
+            } else {
+                formatted = `Unlocked skill "${milestone.unlocks.skills[0]}"`;
+            }
+            for(let i = 1; i < unlocked_skills.length; i++) {
+                formatted += `, "${milestone.unlocks.skills[i]}"`;
+            }
         }
-        for(let i = 1; i < unlocked_skills.length; i++) {
-            formatted += `, "${milestone.unlocks.skills[i]}"`;
+        if(milestone.unlocks.recipes) {
+            const phrasing = milestone.unlocks.recipes.length > 1?"new recipes":"a new recipe";
+            if(formatted) {
+                formatted += `, <br> Unlocked ${phrasing}`;
+            } else {
+                formatted = `Unlocked ${phrasing}`;
+            }
         }
+        
     }
     return formatted;
 }
@@ -417,7 +423,7 @@ function format_skill_rewards(milestone){
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
                                 get_effect_description: ()=> {
-                                    return `Multiplies hit chance by ${Math.round(skills["Combat"].get_coefficient("multiplicative")*1000)/1000}`;
+                                    return `Multiplies AP by ${Math.round(get_total_skill_coefficient({skill_id:"Combat",scaling_type:"multiplicative"})*1000)/1000}`;
                                 }});
     
     skills["Pest killer"] = new Skill({skill_id: "Pest killer", 
@@ -427,34 +433,58 @@ function format_skill_rewards(milestone){
                                 category: "Combat",
                                 base_xp_cost: 100,
                                 get_effect_description: ()=> {
-                                    return `Multiplies hit chance against small-type enemies by ${Math.round(skills["Pest killer"].get_coefficient("multiplicative")*1000)/1000}`;
+                                    return `Multiplies AP against small-type enemies by ${Math.round(get_total_skill_coefficient({skill_id:"Pest killer",scaling_type:"multiplicative"})*1000)/1000}`;
                                 },
-                                rewards:
-                                {
-                                    milestones: {
-                                        1: {
-                                            xp_multipliers: {
-                                                Combat: 1.05,
-                                            }
+                                milestones: {
+                                    1: {
+                                        xp_multipliers: {
+                                            Combat: 1.05,
                                         },
-                                        3: {
-                                            stats: {
-                                                dexterity: {flat: 1},
-                                            },
-                                            xp_multipliers: {
-                                                Combat: 1.1,
-                                            }
+                                    },
+                                    2: {
+                                        xp_multipliers: {
+                                            category_Combat: 1.05,
                                         },
-                                        5: {
-                                            stats: {
-                                                dexterity: {multiplier: 1.05},
-                                            },
-                                            xp_multipliers: {
-                                                Evasion: 1.1,
-                                                "Shield blocking": 1.1,
-                                            }
+                                    },
+                                    3: {
+                                        stats: {
+                                            dexterity: {flat: 1},
+                                        },
+                                    },
+                                    5: {
+                                        stats: {
+                                            dexterity: {multiplier: 1.05},
+                                        },
+                                        xp_multipliers: {
+                                            Evasion: 1.05,
+                                            "Shield blocking": 1.05,
                                         }
-                                    }
+                                    },
+                                    7: {
+                                        stats: {
+                                            dexterity: {flat: 1},
+                                        },
+                                        xp_multipliers: {
+                                            Combat: 1.05,
+                                        }
+                                    },
+                                    10: {
+                                        stats: {
+                                            dexterity: {multiplier: 1.05},
+                                        },
+                                        xp_multipliers: {
+                                            category_Combat: 1.05,
+                                        }
+                                    },
+                                    12: {
+                                        stats: {
+                                            dexterity: {flat: 2},
+                                        },
+                                        xp_multipliers: {
+                                            Combat: 1.05,
+                                        }
+                                    },
+                                    
                                 }
                             });    
                                 
@@ -464,7 +494,7 @@ function format_skill_rewards(milestone){
                                 max_level_coefficient: 2,
                                 category: "Combat",
                                 get_effect_description: ()=> {
-                                    return `Multiplies evasion against large-type enemies by ${Math.round(skills["Giant slayer"].get_coefficient("multiplicative")*1000)/1000}`;
+                                    return `Multiplies EP against large-type enemies by ${Math.round(get_total_skill_coefficient({skill_id:"Giant slayer",scaling_type:"multiplicative"})*1000)/1000}`;
                                 }});
 
     skills["Evasion"] = new Skill({skill_id: "Evasion", 
@@ -474,46 +504,52 @@ function format_skill_rewards(milestone){
                                 base_xp_cost: 20,
                                 category: "Combat",
                                 get_effect_description: ()=> {
-                                    return `Multiplies your evasion chance by ${Math.round(skills["Evasion"].get_coefficient("multiplicative")*1000)/1000}`;
+                                    return `Multiplies EP by ${Math.round(get_total_skill_coefficient({skill_id:"Evasion",scaling_type:"multiplicative"})*1000)/1000}`;
                                 },
-                                rewards: {
-                                    milestones: {
-                                        1: {
-                                            stats: {
-                                                "agility": {flat: 1},
+                                milestones: {
+                                    1: {
+                                        stats: {
+                                            "agility": {flat: 1},
+                                        }
+                                    },
+                                    3: {
+                                        stats: {
+                                            "agility": {flat: 1},
+                                        },
+                                        xp_multipliers: {
+                                            Equilibrium: 1.05,
+                                        }
+                                    },
+                                    5: {
+                                        stats: {
+                                            "agility": {
+                                                flat: 1,
+                                                multiplier: 1.05,
                                             }
                                         },
-                                        3: {
-                                            stats: {
-                                                "agility": {flat: 1},
-                                            },
-                                            xp_multipliers: {
-                                                Equilibrium: 1.05,
+                                    },
+                                    7: {
+                                        stats: {
+                                            "agility": {flat: 2},
+                                        },
+                                        xp_multipliers: {
+                                            Equilibrium: 1.05,
+                                        }
+                                    },
+                                    10: {
+                                        stats: {
+                                            "agility": {
+                                                flat: 1,
+                                                multiplier: 1.05,
                                             }
                                         },
-                                        5: {
-                                            stats: {
-                                                "agility": {
-                                                    flat: 1,
-                                                    multiplier: 1.05,
-                                                }
-                                            },
+                                    },
+                                    12: {
+                                        stats: {
+                                            "agility": {flat: 2},
                                         },
-                                        7: {
-                                            stats: {
-                                                "agility": {flat: 2},
-                                            },
-                                            xp_multipliers: {
-                                                Equilibrium: 1.05,
-                                            }
-                                        },
-                                        10: {
-                                            stats: {
-                                                "agility": {
-                                                    flat: 1,
-                                                    multiplier: 1.05,
-                                                }
-                                            },
+                                        xp_multipliers: {
+                                            Equilibrium: 1.05,
                                         }
                                     }
                                 }
@@ -525,7 +561,7 @@ function format_skill_rewards(milestone){
                                     max_level_bonus: 0.2,
                                     category: "Combat",
                                     get_effect_description: ()=> {
-                                        return `Increases block chance by flat ${Math.round(skills["Shield blocking"].get_level_bonus()*1000)/10}%. Increases blocked damage by ${Math.round(skills["Shield blocking"].get_level_bonus()*5000)/10}%`;
+                                        return `Increases block chance by flat ${Math.round(get_total_level_bonus("Shield blocking")*1000)/10}%. Increases blocked damage by ${Math.round(get_total_level_bonus("Shield blocking")*5000)/10}%`;
                                     }});
     
      skills["Unarmed"] = new Skill({skill_id: "Unarmed", 
@@ -533,61 +569,59 @@ function format_skill_rewards(milestone){
                                     description: "It's definitely, unquestionably, undoubtedly better to just use a weapon instead of doing this. But sure, why not?",
                                     category: "Combat",
                                     get_effect_description: ()=> {
-                                        return `Multiplies damage dealt in unarmed combat by ${Math.round(skills["Unarmed"].get_coefficient("multiplicative")*1000)/1000}. 
-Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarmed"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
+                                        return `Multiplies damage dealt in unarmed combat by ${Math.round(get_total_skill_coefficient({skill_id:"Unarmed",scaling_type:"multiplicative"})*1000)/1000}. 
+Multiplies attack speed and AP in unarmed combat by ${Math.round((get_total_skill_coefficient({skill_id:"Unarmed",scaling_type:"multiplicative"})**0.3333)*1000)/1000}`;
                                     },
                                     max_level_coefficient: 64, //even with 8x more it's still gonna be worse than just using a weapon lol
-                                    rewards: {
-                                        milestones: {
-                                            2: {
-                                                stats: {
-                                                    "strength": {flat: 1},
-                                                },
-                                                xp_multipliers: {
-                                                    Weightlifting: 1.05,
-                                                }
+                                    milestones: {
+                                        2: {
+                                            stats: {
+                                                "strength": {flat: 1},
                                             },
-                                            4: {
-                                                stats: {
-                                                    "strength": {flat: 1},
-                                                    "dexterity": {flat: 1},
-                                                }
+                                            xp_multipliers: {
+                                                Weightlifting: 1.05,
+                                            }
+                                        },
+                                        4: {
+                                            stats: {
+                                                "strength": {flat: 1},
+                                                "dexterity": {flat: 1},
+                                            }
+                                        },
+                                        6: {
+                                            stats: {
+                                                "strength": {flat: 1},
+                                                "dexterity": {flat: 1},
+                                                "agility": {flat: 1},
                                             },
-                                            6: {
-                                                stats: {
-                                                    "strength": {flat: 1},
-                                                    "dexterity": {flat: 1},
-                                                    "agility": {flat: 1},
-                                                },
-                                                xp_multipliers: {
-                                                    Weightlifting: 1.1,
-                                                }
+                                            xp_multipliers: {
+                                                Weightlifting: 1.1,
+                                            }
+                                        },
+                                        8: {
+                                            stats: {
+                                                "strength": {flat: 1},
+                                                "dexterity": {flat: 1},
+                                                "agility": {flat: 1},
+                                            }
+                                        },
+                                        10: {
+                                            stats: {
+                                                "strength": {flat: 2},
+                                                "dexterity": {flat: 1},
+                                                "agility": {flat: 1},
                                             },
-                                            8: {
-                                                stats: {
-                                                    "strength": {flat: 1},
-                                                    "dexterity": {flat: 1},
-                                                    "agility": {flat: 1},
-                                                }
-                                            },
-                                            10: {
-                                                stats: {
-                                                    "strength": {flat: 2},
-                                                    "dexterity": {flat: 1},
-                                                    "agility": {flat: 1},
-                                                },
-                                                xp_multipliers: {
-                                                    Running: 1.2,
-                                                }
-                                            },
-                                            12: {
-                                                stats: {
-                                                    "strength": {flat: 2},
-                                                    "dexterity": {flat: 2},
-                                                    "agility": {flat: 2},
-                                                }
-                                            },
-                                        }
+                                            xp_multipliers: {
+                                                Running: 1.2,
+                                            }
+                                        },
+                                        12: {
+                                            stats: {
+                                                "strength": {flat: 2},
+                                                "dexterity": {flat: 2},
+                                                "agility": {flat: 2},
+                                            }
+                                        },
                                     }});                                
 })();
 
@@ -679,26 +713,42 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                             names: {0: "Spatial awareness"}, 
                                             description: "Understanding where you are in relation to other creatures and objects", 
                                             get_effect_description: ()=> {
-                                                return `Reduces environmental penalty in open areas by ^${Math.round(100-100*skills["Spatial awareness"].current_level/skills["Spatial awareness"].max_level)/100}`;
+                                                return `Reduces environmental penalty in open areas by ^${Math.round(100-100*get_total_skill_level("Spatial awareness")/skills["Spatial awareness"].max_level)/100}`;
                                             },
                                             category: "Environmental",
-                                            rewards: {
-                                                milestones: {
-                                                    3: {
-                                                        xp_multipliers:{ 
-                                                            Evasion: 1.1,
-                                                            "Shield blocking": 1.1,
-                                                        },
+                                            milestones: {
+                                                1: {
+                                                    xp_multipliers:{ 
+                                                        Evasion: 1.1,
+                                                        "Shield blocking": 1.1,
                                                     },
-                                                    5: {
-                                                        xp_multipliers: {
-                                                            Combat: 1.1,
-                                                        }
+                                                },
+                                                3: {
+                                                    xp_multipliers: {
+                                                        Combat: 1.1,
+                                                    }
+                                                },
+                                                5: {
+                                                    xp_multipliers: {
+                                                        category_Combat: 1.1,
                                                     },
-                                                    8: {
-                                                        xp_multipliers: {
-                                                            all_skill: 1.1,
-                                                        }
+                                                    stats: {
+                                                        intuition: {flat: 1},
+                                                    }
+                                                },
+                                                8: {
+                                                    xp_multipliers: {
+                                                        all_skill: 1.1,
+                                                    }
+                                                },
+                                                10: {
+                                                    xp_multipliers:{ 
+                                                        Evasion: 1.1,
+                                                        "Shield blocking": 1.1,
+                                                        Combat: 1.1,
+                                                    },
+                                                    stats: {
+                                                        intuition: {flat: 1},
                                                     }
                                                 }
                                             }
@@ -709,21 +759,32 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                         description: "Learn how to fight in narrow environment, where there's not much space for dodging attacks", 
                                         category: "Environmental",
                                         get_effect_description: ()=> {
-                                            return `Reduces environmental penalty in narrow areas by ^${Math.round(100-100*skills["Tight maneuvers"].current_level/skills["Tight maneuvers"].max_level)/100}`;
+                                            return `Reduces environmental penalty in narrow areas by ^${Math.round(100-100*get_total_skill_level("Tight maneuvers")/skills["Tight maneuvers"].max_level)/100}`;
                                         },
-                                        rewards: {
-                                            milestones: {
-                                                3: {
-                                                    xp_multipliers: {
-                                                        Evasion: 1.1,
-                                                        "Shield blocking": 1.1,
-                                                    }
-                                                },
-                                                5: {
-                                                    xp_multipliers: {
-                                                        Combat: 1.1,
-                                                    }
-                                                },
+                                        milestones: {
+                                            3: {
+                                                xp_multipliers: {
+                                                    Evasion: 1.1,
+                                                    "Shield blocking": 1.1,
+                                                }
+                                            },
+                                            5: {
+                                                xp_multipliers: {
+                                                    Combat: 1.1,
+                                                }
+                                            },
+                                            7: {
+                                                xp_multipliers: {
+                                                    Evasion: 1.1,
+                                                    "Shield blocking": 1.1,
+                                                }
+                                            },
+                                            10: {
+                                                xp_multipliers: {
+                                                    Evasion: 1.1,
+                                                    "Shield blocking": 1.1,
+                                                    Combat: 1.1,
+                                                }
                                             }
                                         }
                                     });
@@ -736,43 +797,51 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                     max_level: 10,
                                     category: "Environmental",
                                     get_effect_description: () => {
-                                        return `Reduces darkness penalty (except for 'pure darkness') by ^${Math.round(100-100*skills["Night vision"].current_level/skills["Night vision"].max_level)/100}`;
+                                        return `Reduces darkness penalty (except for 'pure darkness') by ^${Math.round(100-100*get_total_skill_level("Night vision")/skills["Night vision"].max_level)/100}`;
                                     },
-                                    rewards: {
-                                        milestones: {
-                                            2: {
-                                                stats: {
-                                                    intuition: {flat: 1},
-                                                }
+                                    milestones: {
+                                        2: {
+                                            stats: {
+                                                intuition: {flat: 1},
+                                            }
+                                        },
+                                        3: {
+                                            xp_multipliers: {
+                                                Evasion: 1.05,
+                                                "Shield blocking": 1.05,
+                                            }
+                                        },
+                                        5: {
+                                            stats: {
+                                                intuition: {flat: 1},
                                             },
-                                            3: {
-                                                xp_multipliers: {
-                                                    Evasion: 1.05,
-                                                    "Shield blocking": 1.05,
-                                                }
-                                            },
-                                            4: {
-                                                stats: {
-                                                    intuition: {flat: 1},
-                                                },
-                                                xp_multipliers: {
-                                                   "Presence sensing": 1.05
-                                                }
+                                            xp_multipliers: {
+                                                "Presence sensing": 1.05
+                                            }
 
-                                             },
-                                            5: {    
-                                                xp_multipliers: 
-                                                {
-                                                    Combat: 1.1,
-                                                },
-                                                stats: {
-                                                    intuition: {multiplier: 1.05},
-                                                }
                                             },
-                                            6: {
-                                                xp_multipliers: {
-                                                    "Presence sensing": 1.1,
-                                                }
+                                        7: {    
+                                            xp_multipliers: 
+                                            {
+                                                Combat: 1.1,
+                                            },
+                                            stats: {
+                                                intuition: {multiplier: 1.05},
+                                            }
+                                        },
+                                        8: {
+                                            xp_multipliers: {
+                                                "Presence sensing": 1.1,
+                                            }
+                                        },
+                                        10: {
+                                            xp_multipliers: {
+                                                "Presence sensing": 1.2,
+                                                Evasion: 1.05,
+                                                "Shield blocking": 1.05, 
+                                            },
+                                            stats: {
+                                                intuition: {multiplier: 1.05},
                                             }
                                         }
                                     }
@@ -786,51 +855,136 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                 max_level: 20,
                 category: "Environmental",
                 get_effect_description: () => {
-                    return `Reduces extreme darkness penalty by ^${Math.round(100-100*skills["Presence sensing"].current_level/skills["Presence sensing"].max_level)/100}`;
+                    return `Reduces extreme darkness penalty by ^${Math.round(100-100*get_total_skill_level("Presence sensing")/skills["Presence sensing"].max_level)/100}`;
                 },
-                rewards: {
-                    milestones: {
-                        1: {
-                            stats: {
-                                intuition: {flat: 1},
-                            },
-                            xp_multipliers: {
-                                "Night vision": 1.1,
-                            }
+                milestones: {
+                    1: {
+                        stats: {
+                            intuition: {flat: 1},
                         },
-                        
-                        2: {
-                            xp_multipliers: {
-                                Evasion: 1.1,
-                                "Shield blocking": 1.1,
-                            }
-                        },
-                        3: {
-                            stats: {
-                                intuition: {flat: 1},
-                            },
-                            xp_multipliers: {
-                               "Combat": 1.1
-                            }
-
-                         },
-                        4: {    
-                            xp_multipliers: 
-                            {
-                                all_skill: 1.05,
-                            },
-                            stats: {
-                                intuition: {multiplier: 1.1},
-                            }
-                        },
-                        5: {
-                            xp_multipliers: {
-                                all: 1.05,
-                            }
+                        xp_multipliers: {
+                            "Night vision": 1.2,
                         }
-                    }
+                    },
+                    
+                    2: {
+                        xp_multipliers: {
+                            Evasion: 1.1,
+                            "Shield blocking": 1.2,
+                        }
+                    },
+                    4: {
+                        stats: {
+                            intuition: {flat: 1},
+                        },
+                        xp_multipliers: {
+                            "Combat": 1.1
+                        }
+
+                        },
+                    5: {    
+                        xp_multipliers: 
+                        {
+                            all_skill: 1.05,
+                            "Night vision": 1.2,
+                        },
+                        stats: {
+                            intuition: {multiplier: 1.1},
+                        }
+                    },
+                    7: {
+                        stats: {
+                            intuition: {flat: 1},
+                        },
+                        xp_multipliers: {
+                            hero: 1.05,
+                            "Night vision": 1.2,
+                        }
+                    },
+                    10: {
+                        xp_multipliers: {
+                            all_skill: 1.05,
+                            "Night vision": 1.2,
+                        }
+                    },
+                    12: {
+                        xp_multipliers: {
+                            all: 1.05,
+                        },
+                        stats: {
+                            intuition: {multiplier: 1.1},
+                        }
+                    },
                 }
-            });
+    });
+
+    skills["Strength of mind"] = new Skill({
+        skill_id: "Strength of mind", 
+        names: {0: "Strength of mind"}, 
+        description: "Resist and reject the unnatural influence. Turn your psyche into an iron fortress.",
+        category: "Environmental",
+        base_xp_cost: 120,
+        max_level: 40,
+        xp_scaling: 1.9,
+        get_effect_description: ()=> {
+            return `Reduces eldritch effects by ^${Math.round(100-100*get_total_skill_level("Strength of mind")/skills["Strength of mind"].max_level)/100}`;
+        },
+        milestones: {
+            1: {
+                xp_multipliers: {
+                    all_skill: 1.05,
+                }
+            },
+            2: {    
+                stats: {
+                    intuition: {flat: 1},
+                },
+                xp_multipliers: {
+                    "Literacy": 1.05,
+                    "Persistence": 1.05,
+                }
+            },
+            3: {
+                xp_multipliers: {
+                    hero: 1.05,
+                }
+            },
+            5: {
+                xp_multipliers: {
+                    all_skill: 1.05,
+                }
+            },
+            7: {    
+                stats: {
+                    intuition: {flat: 1},
+                },
+                xp_multipliers: {
+                    "Literacy": 1.05,
+                    "Persistence": 1.05,
+                }
+            },
+            8: {
+                xp_multipliers: {
+                    hero: 1.05,
+                }
+            },
+            10: {
+                xp_multipliers: {
+                    all: 1.05,
+                }
+            },
+            12: {    
+                stats: {
+                    intuition: {multiplier: 1.2},
+                },
+                xp_multipliers: {
+                    "Literacy": 1.05,
+                    "Persistence": 1.05,
+                }
+            },
+        }
+    });
+
     skills["Heat resistance"] = new Skill({
         skill_id: "Heat resistance",
         names: {0: "Heat resistance"},
@@ -879,51 +1033,49 @@ Multiplies attack speed and AP in unarmed combat by ${Math.round((skills["Unarme
                                     },
                                 });
     skills["Swords"] = new Skill({skill_id: "Swords", 
-                                  parent_skill: "Weapon mastery",
-                                  names: {0: "Swordsmanship"}, 
-                                  category: "Weapon",
-                                  description: "The noble art of swordsmanship", 
-                                  get_effect_description: ()=> {
-                                      return `Multiplies damage dealt with swords by ${Math.round(skills["Swords"].get_coefficient("multiplicative")*1000)/1000}.
-Multiplies AP with swords by ${Math.round((skills["Swords"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
-                                  },
-                                  rewards: {
-                                    milestones: {
-                                        1: {
-                                            stats: {
-                                                "dexterity": {flat: 1},
-                                            }
+                                parent_skill: "Weapon mastery",
+                                names: {0: "Swordsmanship"}, 
+                                category: "Weapon",
+                                description: "The noble art of swordsmanship", 
+                                get_effect_description: ()=> {
+                                    return `Multiplies damage dealt with swords by ${Math.round(get_total_skill_coefficient({skill_id:"Swords",scaling_type:"multiplicative"})*1000)/1000}.
+Multiplies AP with swords by ${Math.round((get_total_skill_coefficient({skill_id:"Swords",scaling_type:"multiplicative"})**0.3333)*1000)/1000}`;
+                                },
+                                milestones: {
+                                    1: {
+                                        stats: {
+                                            "dexterity": {flat: 1},
+                                        }
+                                    },
+                                    3: {
+                                        stats: {
+                                            "agility": {flat: 1},
+                                        }
+                                    },
+                                    5: {
+                                        stats: {
+                                            "strength": {flat: 1},
+                                            "crit_rate": {flat: 0.01},
                                         },
-                                        3: {
-                                            stats: {
-                                                "agility": {flat: 1},
-                                            }
+                                    },
+                                    7: {
+                                        stats: {
+                                            "dexterity": {flat: 1},
+                                        }
+                                    },
+                                    10: {
+                                        stats: {
+                                            "agility": {flat: 1},
+                                            "crit_multiplier": {flat: 0.1}, 
                                         },
-                                        5: {
-                                            stats: {
-                                                "strength": {flat: 1},
-                                                "crit_rate": {flat: 0.01},
-                                            },
-                                        },
-                                        7: {
-                                            stats: {
-                                                "dexterity": {flat: 1},
-                                            }
-                                        },
-                                        10: {
-                                            stats: {
-                                                "agility": {flat: 1},
-                                                "crit_multiplier": {flat: 0.1}, 
-                                            },
-                                        },
-                                        12: {
-                                            stats: {
-                                                "dexterity": {flat: 2},
-                                            }
-                                        },
-                                    }
-                                 },
-                                 max_level_coefficient: 8
+                                    },
+                                    12: {
+                                        stats: {
+                                            "dexterity": {flat: 2},
+                                        }
+                                    },
+                                },
+                                max_level_coefficient: 8
                             });
 
     skills["Axes"] = new Skill({skill_id: "Axes", 
@@ -932,45 +1084,43 @@ Multiplies AP with swords by ${Math.round((skills["Swords"].get_coefficient("mul
                                 category: "Weapon",
                                 description: "Ability to fight with use of axes", 
                                 get_effect_description: ()=> {
-                                    return `Multiplies damage dealt with axes by ${Math.round(skills["Axes"].get_coefficient("multiplicative")*1000)/1000}.
-Multiplies AP with axes by ${Math.round((skills["Axes"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
+                                    return `Multiplies damage dealt with axes by ${Math.round(get_total_skill_coefficient({skill_id:"Axes",scaling_type:"multiplicative"})*1000)/1000}.
+Multiplies AP with axes by ${Math.round((get_total_skill_coefficient({skill_id:"Axes",scaling_type:"multiplicative"})**0.3333)*1000)/1000}`;
                                 },
-                                rewards: {
-                                    milestones: {
-                                        1: {
-                                            stats: {
-                                                "dexterity": {flat: 1},
-                                            }
+                                milestones: {
+                                    1: {
+                                        stats: {
+                                            "dexterity": {flat: 1},
+                                        }
+                                    },
+                                    3: {
+                                        stats: {
+                                            "strength": {flat: 1},
+                                        }
+                                    },
+                                    5: {
+                                        stats: {
+                                            "dexterity": {flat: 1},
+                                            "strength": {flat: 1},
                                         },
-                                        3: {
-                                            stats: {
-                                                "strength": {flat: 1},
-                                            }
+
+                                    },
+                                    7: {
+                                        stats: {
+                                            "dexterity": {flat: 1},
+                                        }
+                                    },
+                                    10: {
+                                        stats: {
+                                                "strength": {multiplier: 1.05},
                                         },
-                                        5: {
-                                            stats: {
-                                                "dexterity": {flat: 1},
-                                                "strength": {flat: 1},
-                                            },
-    
-                                        },
-                                        7: {
-                                            stats: {
-                                                "dexterity": {flat: 1},
-                                            }
-                                        },
-                                        10: {
-                                            stats: {
-                                                    "strength": {flat: 1.05},
-                                            },
-                                        },
-                                        12: {
-                                            stats: {
-                                                "dexterity": {flat: 2},
-                                            }
-                                        },
-                                    }
-                                 },
+                                    },
+                                    12: {
+                                        stats: {
+                                            "dexterity": {flat: 2},
+                                        }
+                                    },
+                                },
                                 max_level_coefficient: 8});
 
     skills["Spears"] = new Skill({skill_id: "Spears", 
@@ -979,46 +1129,45 @@ Multiplies AP with axes by ${Math.round((skills["Axes"].get_coefficient("multipl
                                 category: "Weapon",
                                 description: "The ability to fight with the most deadly weapon in the history", 
                                 get_effect_description: ()=> {
-                                    return `Multiplies damage dealt with spears by ${Math.round(skills["Spears"].get_coefficient("multiplicative")*1000)/1000}.
-Multiplies AP with spears by ${Math.round((skills["Spears"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
+                                    return `Multiplies damage dealt with spears by ${Math.round(get_total_skill_coefficient({skill_id:"Spears",scaling_type:"multiplicative"})*1000)/1000}.
+Multiplies AP with spears by ${Math.round((get_total_skill_coefficient({skill_id:"Spears",scaling_type:"multiplicative"})**0.3333)*1000)/1000}`;
                                 },
-                                rewards: {
-                                    milestones: {
-                                        1: {
-                                            stats: {
-                                                "dexterity": {flat: 1},
-                                            }
+                                milestones: {
+                                    1: {
+                                        stats: {
+                                            "dexterity": {flat: 1},
+                                        }
+                                    },
+                                    3: {
+                                        stats: {
+                                            "dexterity": {flat: 1},
+                                        }
+                                    },
+                                    5: {
+                                        stats: {
+                                            "strength": {flat: 1},
+                                            "crit_rate": {flat: 0.01},
                                         },
-                                        3: {
-                                            stats: {
-                                                "dexterity": {flat: 1},
-                                            }
+                                    },
+                                    7: {
+                                        stats: {
+                                            "dexterity": {flat: 1},
+                                        }
+                                    },
+                                    10: {
+                                        stats: {
+                                            "strength": {flat: 1},
+                                            "crit_multiplier": {flat: 0.1}, 
                                         },
-                                        5: {
-                                            stats: {
-                                                "strength": {flat: 1},
-                                                "crit_rate": {flat: 0.01},
-                                            },
-                                        },
-                                        7: {
-                                            stats: {
-                                                "dexterity": {flat: 1},
-                                            }
-                                        },
-                                        10: {
-                                            stats: {
-                                                "strength": {flat: 1},
-                                                "crit_multiplier": {flat: 0.1}, 
-                                            },
-                                        },
-                                        12: {
-                                            stats: {
-                                                "dexterity": {flat: 2},
-                                            }
-                                        },
-                                    }
-                                 },
-                                max_level_coefficient: 8});
+                                    },
+                                    12: {
+                                        stats: {
+                                            "dexterity": {flat: 2},
+                                        }
+                                    },
+                                },
+                                max_level_coefficient: 8
+                            });
 
     skills["Hammers"] = new Skill({skill_id: "Hammers", 
                                         parent_skill: "Weapon mastery",
@@ -1026,46 +1175,45 @@ Multiplies AP with spears by ${Math.round((skills["Spears"].get_coefficient("mul
                                         category: "Weapon",
                                         description: "Ability to fight with use of battle hammers. Why bother trying to cut someone, when you can just crack all their bones?", 
                                         get_effect_description: ()=> {
-                                            return `Multiplies damage dealt with battle hammers by ${Math.round(skills["Hammers"].get_coefficient("multiplicative")*1000)/1000}.
-Multiplies AP with hammers by ${Math.round((skills["Hammers"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
+                                            return `Multiplies damage dealt with battle hammers by ${Math.round(get_total_skill_coefficient({skill_id:"Hammers",scaling_type:"multiplicative"})*1000)/1000}.
+Multiplies AP with hammers by ${Math.round((get_total_skill_coefficient({skill_id:"Hammers",scaling_type:"multiplicative"})**0.3333)*1000)/1000}`;
                                         },
-                                        rewards: {
-                                            milestones: {
-                                                1: {
-                                                    stats: {
-                                                        "strength": {flat: 1},
-                                                    }
+                                        milestones: {
+                                            1: {
+                                                stats: {
+                                                    "strength": {flat: 1},
+                                                }
+                                            },
+                                            3: {
+                                                stats: {
+                                                    "strength": {flat: 1},
+                                                }
+                                            },
+                                            5: {
+                                                stats: {
+                                                    "strength": {flat: 1},
+                                                    "dexterity": {flat: 1},
                                                 },
-                                                3: {
-                                                    stats: {
-                                                        "strength": {flat: 1},
-                                                    }
+                                            },
+                                            7: {
+                                                stats: {
+                                                    "strength": {flat: 1},
+                                                }
+                                            },
+                                            10: {
+                                                stats: {
+                                                    "strength": {flat: 1},
+                                                    "dexterity": {flat: 1}, 
                                                 },
-                                                5: {
-                                                    stats: {
-                                                        "strength": {flat: 1},
-                                                        "dexterity": {flat: 1},
-                                                    },
-                                                },
-                                                7: {
-                                                    stats: {
-                                                        "strength": {flat: 1},
-                                                    }
-                                                },
-                                                10: {
-                                                    stats: {
-                                                        "strength": {flat: 1},
-                                                        "dexterity": {flat: 1}, 
-                                                    },
-                                                },
-                                                12: {
-                                                    stats: {
-                                                        "dexterity": {flat: 2},
-                                                    }
-                                                },
-                                            }
-                                         },
-                                        max_level_coefficient: 8});
+                                            },
+                                            12: {
+                                                stats: {
+                                                    "dexterity": {flat: 2},
+                                                }
+                                            },
+                                        },
+                                        max_level_coefficient: 8
+                                    });
 
     skills["Daggers"] = new Skill({skill_id: "Daggers",
                                 parent_skill: "Weapon mastery",
@@ -1073,46 +1221,45 @@ Multiplies AP with hammers by ${Math.round((skills["Hammers"].get_coefficient("m
                                 category: "Weapon",
                                 description: "The looked upon art of fighting (and stabbing) with daggers",
                                 get_effect_description: ()=> {
-                                    return `Multiplies damage dealt with daggers by ${Math.round(skills["Daggers"].get_coefficient("multiplicative")*1000)/1000}.
-Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("multiplicative")**0.3333)*1000)/1000}`;
+                                    return `Multiplies damage dealt with daggers by ${Math.round(get_total_skill_coefficient({skill_id:"Daggers",scaling_type:"multiplicative"})*1000)/1000}.
+Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_id:"Daggers",scaling_type:"multiplicative"})**0.3333)*1000)/1000}`;
                                 },
-                                rewards: {
-                                    milestones: {
-                                        1: {
-                                            stats: {
-                                                "dexterity": {flat: 1},
-                                            }
+                                milestones: {
+                                    1: {
+                                        stats: {
+                                            "dexterity": {flat: 1},
+                                        }
+                                    },
+                                    3: {
+                                        stats: {
+                                            "agility": {flat: 1},
+                                        }
+                                    },
+                                    5: {
+                                        stats: {
+                                            "crit_multiplier": {flat: 0.1},
+                                            "crit_rate": {flat: 0.01},
                                         },
-                                        3: {
-                                            stats: {
-                                                "agility": {flat: 1},
-                                            }
+                                    },
+                                    7: {
+                                        stats: {
+                                            "dexterity": {flat: 1},
+                                        }
+                                    },
+                                    10: {
+                                        stats: {
+                                            "crit_rate": {flat: 0.02},
+                                            "crit_multiplier": {flat: 0.1}, 
                                         },
-                                        5: {
-                                            stats: {
-                                                "crit_multiplier": {flat: 0.1},
-                                                "crit_rate": {flat: 0.01},
-                                            },
-                                        },
-                                        7: {
-                                            stats: {
-                                                "dexterity": {flat: 1},
-                                            }
-                                        },
-                                        10: {
-                                            stats: {
-                                                "crit_rate": {flat: 0.02},
-                                                "crit_multiplier": {flat: 0.1}, 
-                                            },
-                                        },
-                                        12: {
-                                            stats: {
-                                                "dexterity": {flat: 2},
-                                            }
-                                        },
-                                    }
-                                 },
-                                max_level_coefficient: 8});
+                                    },
+                                    12: {
+                                        stats: {
+                                            "dexterity": {flat: 2},
+                                        }
+                                    },
+                                },
+                                max_level_coefficient: 8
+                            });
 
     skills["Wands"] = new Skill({skill_id: "Wands", 
                                 parent_skill: "Weapon mastery",
@@ -1120,7 +1267,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                 category: "Weapon",
                                 description: "Ability to cast spells with magic wands, increases damage dealt", 
                                 get_effect_description: ()=> {
-                                    return `Multiplies damage dealt with wands by ${Math.round(skills["Wands"].get_coefficient("multiplicative")*1000)/1000}`;
+                                    return `Multiplies damage dealt with wands by ${Math.round(get_total_skill_coefficient({skill_id:"Wands",scaling_type:"multiplicative"})*1000)/1000}`;
                                 },
                                 max_level_coefficient: 8});
 
@@ -1130,7 +1277,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                 category: "Weapon",
                                 description: "Ability to cast spells with magic staffs, increases damage dealt", 
                                 get_effect_description: ()=> {
-                                    return `Multiplies damage dealth with staffs by ${Math.round(skills["Staffs"].get_coefficient("multiplicative")*1000)/1000}`;
+                                    return `Multiplies damage dealth with staffs by ${Math.round(get_total_skill_coefficient({skill_id:"Staffs",scaling_type:"multiplicative"})*1000)/1000}`;
                                 },
                                 max_level_coefficient: 8});
 })();
@@ -1145,78 +1292,76 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                 max_level: 10,
                                 xp_scaling: 1.6,
                                 max_level_coefficient: 2,
-                                rewards: {
-                                    milestones: {
-                                        1: {
-                                            stats: {
-                                                max_stamina: {flat: 2},
-                                            },
+                                milestones: {
+                                    1: {
+                                        stats: {
+                                            max_stamina: {flat: 2},
                                         },
-                                        2: {
-                                            stats: {
-                                                strength: {flat: 1}
-                                            },
+                                    },
+                                    2: {
+                                        stats: {
+                                            strength: {flat: 1}
                                         },
-                                        3: {
-                                            stats: {
-                                                dexterity: {flat: 1},
-                                                max_stamina: {flat: 2},
-                                            }
+                                    },
+                                    3: {
+                                        stats: {
+                                            dexterity: {flat: 1},
+                                            max_stamina: {flat: 2},
+                                        }
+                                    },
+                                    4: {
+                                        stats: {
+                                            strength: {flat: 1},
+                                            max_stamina: {flat: 2},
+                                        }
+                                    },
+                                    5: {
+                                        stats: {
+                                            strength: {flat: 1},
+                                            max_stamina: {flat: 2},
                                         },
-                                        4: {
-                                            stats: {
-                                                strength: {flat: 1},
-                                                max_stamina: {flat: 2},
-                                            }
+                                        xp_multipliers: {
+                                            "Herbalism": 1.05,
+                                        }
+                                    },
+                                    6: {
+                                        stats: {
+                                            strength: {flat: 1},
                                         },
-                                        5: {
-                                            stats: {
-                                                strength: {flat: 1},
-                                                max_stamina: {flat: 2},
-                                            },
-                                            xp_multipliers: {
-                                                "Herbalism": 1.05,
-                                            }
+                                        xp_multipliers: {
+                                            Weightlifting: 1.1,
+                                        }
+                                    },
+                                    7: {
+                                        stats: {
+                                            dexterity: {flat: 1},
+                                            max_stamina: {flat: 2},
                                         },
-                                        6: {
-                                            stats: {
-                                                strength: {flat: 1},
-                                            },
-                                            xp_multipliers: {
-                                                Weightlifting: 1.1,
-                                            }
+                                        xp_multipliers: {
+                                            "Unarmed": 1.05,
+                                        }
+                                    },
+                                    8: {
+                                        stats: {
+                                            strength: {flat: 1},
+                                            max_stamina: {flat: 2},
+                                        }
+                                    },
+                                    9: {
+                                        stats: {
+                                            strength: {flat: 1},
+                                            dexterity: {flat: 1},
                                         },
-                                        7: {
-                                            stats: {
-                                                dexterity: {flat: 1},
-                                                max_stamina: {flat: 2},
-                                            },
-                                            xp_multipliers: {
-                                                "Unarmed": 1.05,
-                                            }
+                                    },
+                                    10: {
+                                        stats: {
+                                            max_stamina: {flat: 4},
+                                            strength: {multiplier: 1.05},
+                                            dexterity: {multiplier: 1.05},
                                         },
-                                        8: {
-                                            stats: {
-                                                strength: {flat: 1},
-                                                max_stamina: {flat: 2},
-                                            }
-                                        },
-                                        9: {
-                                            stats: {
-                                                strength: {flat: 1},
-                                                dexterity: {flat: 1},
-                                            },
-                                        },
-                                        10: {
-                                            stats: {
-                                                max_stamina: {flat: 4},
-                                                strength: {multiplier: 1.05},
-                                                dexterity: {multiplier: 1.05},
-                                            },
-                                            xp_multipliers: {
-                                                "Unarmed": 1.1,
-                                                "Herbalism": 1.1,
-                                            }
+                                        xp_multipliers: {
+                                            "Unarmed": 1.1,
+                                            "Herbalism": 1.1,
                                         }
                                     }
                                 }});
@@ -1233,75 +1378,73 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                     category: "Activity",
                                     max_level: 10,
                                     max_level_coefficient: 2.5,    
-                                    rewards: {
-                                        milestones: {
-                                            2: {
-                                                stats: {
-                                                    "max_health": {
-                                                        flat: 10,
-                                                        multiplier: 1.05,
-                                                    }
-                                                },
-                                                xp_multipliers: {
-                                                    all: 1.05,
+                                    milestones: {
+                                        2: {
+                                            stats: {
+                                                "max_health": {
+                                                    flat: 10,
+                                                    multiplier: 1.05,
                                                 }
                                             },
-                                            4: {
-                                                stats: {
-                                                    "max_health": {
-                                                        flat: 20,
-                                                        multiplier: 1.05,
-                                                    }
-                                                },
-                                                xp_multipliers: {
-                                                    all: 1.05,
-                                                },
-                                            },
-                                            5: {
-                                                unlocks: {
-                                                    skills: [
-                                                        "Meditation"
-                                                    ]
+                                            xp_multipliers: {
+                                                all: 1.05,
+                                            }
+                                        },
+                                        4: {
+                                            stats: {
+                                                "max_health": {
+                                                    flat: 20,
+                                                    multiplier: 1.05,
                                                 }
                                             },
-                                            6: {
-                                                stats: {
-                                                    "max_health": {
-                                                        flat: 30,
-                                                        multiplier: 1.05,
-                                                    }
-                                                },
-                                                xp_multipliers: {
-                                                    all: 1.05,
-                                                    "Meditation": 1.1,
+                                            xp_multipliers: {
+                                                all: 1.05,
+                                            },
+                                        },
+                                        5: {
+                                            unlocks: {
+                                                skills: [
+                                                    "Meditation"
+                                                ]
+                                            }
+                                        },
+                                        6: {
+                                            stats: {
+                                                "max_health": {
+                                                    flat: 30,
+                                                    multiplier: 1.05,
                                                 }
                                             },
-                                            8: {
-                                                stats: {
-                                                    "max_health": {
-                                                        flat: 40,
-                                                        multiplier: 1.05,
-                                                    }
-                                                },
-                                                xp_multipliers: {
-                                                    all: 1.05,
+                                            xp_multipliers: {
+                                                all: 1.05,
+                                                "Meditation": 1.1,
+                                            }
+                                        },
+                                        8: {
+                                            stats: {
+                                                "max_health": {
+                                                    flat: 40,
+                                                    multiplier: 1.05,
                                                 }
                                             },
-                                            10: {
-                                                stats: {
-                                                    "max_health": {
-                                                        flat: 50,
-                                                        multiplier: 1.1,
-                                                    }
-                                                },
-                                                xp_multipliers: {
-                                                    all: 1.1,
-                                                    "Meditation": 1.1,
+                                            xp_multipliers: {
+                                                all: 1.05,
+                                            }
+                                        },
+                                        10: {
+                                            stats: {
+                                                "max_health": {
+                                                    flat: 50,
+                                                    multiplier: 1.1,
                                                 }
+                                            },
+                                            xp_multipliers: {
+                                                all: 1.1,
+                                                "Meditation": 1.1,
                                             }
                                         }
                                     }
-                                });
+                                });                         
     skills["Meditation"] = new Skill({skill_id: "Meditation",
                                 names: {0: "Meditation"}, 
                                 description: "Focus your mind",
@@ -1310,146 +1453,160 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                                 max_level: 30, 
                                 is_unlocked: false,
                                 visibility_treshold: 0,
-                                rewards: {
-                                    milestones: {
-                                        2: {
-                                            stats: {
-                                                "intuition": {flat: 1},
-                                            },
-                                            xp_multipliers: {
-                                                all: 1.05,
-                                                "Presence sensing": 1.05,
+                                milestones: {
+                                    2: {
+                                        stats: {
+                                            "intuition": {flat: 1},
+                                        },
+                                        xp_multipliers: {
+                                            all: 1.05,
+                                            "Presence sensing": 1.05,
+                                        }
+                                    },
+                                    4: {
+                                        stats: {
+                                            "intuition": {
+                                                flat: 1, 
+                                                multiplier: 1.05
                                             }
                                         },
-                                        4: {
-                                            stats: {
-                                                "intuition": {
-                                                    flat: 1, 
-                                                    multiplier: 1.05
-                                                }
-                                            },
-                                            xp_multipliers: {
-                                                all: 1.05,
+                                        xp_multipliers: {
+                                            all: 1.05,
+                                        }
+                                    },
+                                    5: {
+                                        xp_multipliers: {
+                                            "Sleeping": 1.1,
+                                            "Breathing": 1.1,
+                                            "Presence sensing": 1.05,
+                                        }
+                                    },
+                                    6: {
+                                        stats: {
+                                            "intuition": {
+                                                flat: 2,
                                             }
                                         },
-                                        5: {
-                                            xp_multipliers: {
-                                                "Sleeping": 1.1,
-                                                "Presence sensing": 1.05,
-                                            }
-                                        },
-                                        6: {
-                                            stats: {
-                                                "intuition": {
-                                                    flat: 2,
-                                                }
+                                    },
+                                    8: {
+                                        stats: {
+                                            "intuition": {
+                                                multiplier: 1.05
                                             },
                                         },
-                                        8: {
-                                            stats: {
-                                                "intuition": {
-                                                    multiplier: 1.05
-                                                },
-                                            },
-                                            xp_multipliers: {
-                                                all: 1.05,
-                                                "Sleeping": 1.1,
-                                                "Presence sensing": 1.05,
+                                        xp_multipliers: {
+                                            all: 1.05,
+                                            "Sleeping": 1.1,
+                                            "Breathing": 1.1,
+                                            "Presence sensing": 1.05,
+                                        }
+                                    },
+                                    10: {
+                                        stats: {
+                                            "intuition": {
+                                                flat: 2,
+                                                multiplier: 1.05
                                             }
                                         },
-                                        10: {
-                                            stats: {
-                                                "intuition": {
-                                                    flat: 2,
-                                                    multiplier: 1.05
-                                                }
-                                            },
-                                            xp_multipliers: {
-                                                all: 1.1,
-                                                "Sleeping": 1.1,
-                                                "Presence sensing": 1.1,
+                                        xp_multipliers: {
+                                            all: 1.1,
+                                            "Sleeping": 1.1,
+                                            "Breathing": 1.1,
+                                            "Presence sensing": 1.1,
+                                        }
+                                    },
+                                    12: {
+                                        stats: {
+                                            "intuition": {
+                                                flat: 2,
                                             }
+                                        },
+                                        xp_multipliers: {
+                                            all: 1.05,
+                                            "Presence sensing": 1.1,
                                         }
                                     }
                                 }
                             });                            
     skills["Running"] = new Skill({skill_id: "Running",
-                                  description: "Great way to improve the efficiency of the body",
-                                  names: {0: "Running"},
-                                  max_level: 50,
-                                  category: "Activity",
-                                  max_level_coefficient: 2,
-                                  base_xp_cost: 50,
-                                  rewards: {
-                                    milestones: {
-                                        1: {
-                                            stats: {
-                                                agility: {
-                                                    flat: 1
-                                                },
+                                description: "Great way to improve the efficiency of the body",
+                                names: {0: "Running"},
+                                max_level: 50,
+                                category: "Activity",
+                                max_level_coefficient: 2,
+                                base_xp_cost: 50,
+                                milestones: {
+                                    1: {
+                                        stats: {
+                                            agility: {
+                                                flat: 1
+                                            },
+                                        },
+                                    },
+                                    3: {
+                                        stats: {
+                                            agility: {
+                                                flat: 1
+                                            },
+                                        },
+                                        xp_multipliers: {
+                                            "Breathing": 1.1,
+                                        }
+                                    },
+                                    5: {
+                                        stats: {
+                                            agility: {
+                                                flat: 1,
+                                            },
+                                            max_stamina: {
+                                                multiplier: 1.05,
+                                            }
+                                        },                                          
+                                    },
+                                    7: {
+                                        stats: {
+                                            agility: {
+                                                flat: 1,
+                                                multiplier: 1.05,
                                             }
                                         },
-                                        3: {
-                                            stats: {
-                                                agility: {
-                                                    flat: 1
-                                                },
+                                        xp_multipliers: {
+                                            "Breathing": 1.05,
+                                        }
+                                    },
+                                    10: {
+                                        stats: {
+                                            agility: {
+                                                flat: 1,
+                                                multiplier: 1.05,
+                                            },
+                                            max_stamina: {
+                                                multiplier: 1.05,
                                             }
                                         },
-                                        5: {
-                                            stats: {
-                                                agility: {
-                                                    flat: 1,
-                                                },
-                                                max_stamina: {
-                                                    multiplier: 1.05,
-                                                }
-                                            },                                          
-                                        },
-                                        7: {
-                                            stats: {
-                                                agility: {
-                                                    flat: 1,
-                                                    multiplier: 1.05,
-                                                }
+                                        xp_multipliers: {
+                                            "Breathing": 1.1,
+                                        }
+                                    },
+                                    12: {
+                                        stats: {
+                                            agility: {
+                                                flat: 2
                                             },
+                                            max_stamina: {
+                                                flat: 5
+                                            }
                                         },
-                                        10: {
-                                            stats: {
-                                                agility: {
-                                                    flat: 1,
-                                                    multiplier: 1.05,
-                                                },
-                                                max_stamina: {
-                                                    multiplier: 1.05,
-                                                }
-                                            },
-                                        },
-                                        12: {
-                                            stats: {
-                                                agility: {
-                                                    flat: 2
-                                                },
-                                                max_stamina: {
-                                                    flat: 5
-                                                }
-                                            },
+                                        xp_multipliers: {
+                                            "Breathing": 1.05,
                                         }
                                     }
-                                  },
-                                  get_effect_description: ()=> {
-                                    let value = skills["Running"].get_coefficient("multiplicative");
-                                    if(value >= 100) {
-                                        value = Math.round(value);
-                                    } else if(value >= 10 && value < 100) {
-                                        value = Math.round(value*10)/10; 
-                                    } else {
-                                        value = Math.round(value*100)/100;
-                                    }
-                                    return `Multiplies stamina efficiency by ${value}`;
-                                  },
-                                  
-                                });
+                                },
+                                get_effect_description: ()=> {
+                                    let value = get_total_skill_coefficient({skill_id:"Running",scaling_type:"multiplicative"})
+                                    return `Multiplies stamina efficiency by ${Math.round(value*100)/100}`;
+                                },
+                            });
     skills["Weightlifting"] = new Skill({skill_id: "Weightlifting",
     description: "No better way to get stronger than by lifting heavy things",
     names: {0: "Weightlifting"},
@@ -1457,58 +1614,57 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     category: "Activity",
     max_level_coefficient: 4,
     base_xp_cost: 50,
-    rewards: {
-      milestones: {
-          1: {
-              stats: {
-                strength: {
-                    flat: 1
-                },
-              },
-          },
-          3: {
-              stats: {
-                strength: {
-                    flat: 1
-                },
-              },
-              xp_multipliers: {
+    milestones: {
+        1: {
+            stats: {
+            strength: {
+                flat: 1
+            },
+            },
+        },
+        3: {
+            stats: {
+            strength: {
+                flat: 1
+            },
+            },
+            xp_multipliers: {
                 "Unarmed": 1.05,
-              }
-          },
-          5: {
-              stats: {
-                strength: {
-                    flat: 1,
-                    multiplier: 1.05,
-                },
-                max_stamina: {
-                    multiplier: 1.05,
-                }
-              },
-          },
-          7: {
-              stats: {
+            }
+        },
+        5: {
+            stats: {
+            strength: {
+                flat: 1,
+                multiplier: 1.05,
+            },
+            max_stamina: {
+                multiplier: 1.05,
+            }
+            },
+        },
+        7: {
+            stats: {
                 strength: {
                     flat: 1
                 },
-              },
-              xp_multipliers: {
+            },
+            xp_multipliers: {
                 "Unarmed": 1.1,
-              }
-          },
-          10: {
-              stats: {
-                  strength: {
-                    flat: 1, 
-                    multiplier: 1.05
-                },
-                max_stamina: {
-                    multiplier: 1.05,
-                }
-              },
-          },
-          12: {
+            }
+        },
+        10: {
+            stats: {
+                strength: {
+                flat: 1, 
+                multiplier: 1.05
+            },
+            max_stamina: {
+                multiplier: 1.05,
+            }
+            },
+        },
+        12: {
             stats: {
                 strength: {
                     flat: 2
@@ -1517,19 +1673,11 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
                     flat: 5
                 }
             }
-          }
-      }
+        }
     },
     get_effect_description: ()=> {
-      let value = skills["Weightlifting"].get_coefficient("multiplicative");
-      if(value >= 100) {
-          value = Math.round(value);
-      } else if(value >= 10 && value < 100) {
-          value = Math.round(value*10)/10; 
-      } else {
-          value = Math.round(value*100)/100;
-      }
-      return `Multiplies strength by ${value}`;
+      let value = get_total_skill_coefficient({skill_id:"Weightlifting",scaling_type:"multiplicative"})
+      return `Multiplies strength by ${Math.round(value*100)/100}`;
     },
     
     });
@@ -1540,68 +1688,126 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     max_level: 50,
     max_level_coefficient: 4,
     base_xp_cost: 50,
-    rewards: {
-      milestones: {
-          1: {
-              stats: {
+    milestones: {
+        1: {
+            stats: {
                 agility: {flat: 1},
-              },
-          },
-          3: {
-              stats: {
+            },
+        },
+        3: {
+            stats: {
                 intuition: {flat: 1},
-              }
-          },
-          5: {
-              stats: {
+            }
+        },
+        5: {
+            stats: {
                 agility: {
                     flat: 1,
                     multiplier: 1.05,
                 },
                 strength: {flat: 1},
                 max_stamina: {multiplier: 1.05},
-              },
-              xp_multipliers: {
+            },
+            xp_multipliers: {
                 "Unarmed": 1.1,
-              }
-          },
-          7: {
-              stats: {
+            }
+        },
+        7: {
+            stats: {
                 intuition: {flat: 1},
-              },
-          },
-          9: {
+            },
+        },
+        9: {
             stats: {
                 strength: {flat: 1},
             }
-          },
-          10: {
-              stats: {
+        },
+        10: {
+            stats: {
                 agility: {flat: 1},
                 intuition: {multiplier: 1.05},
                 max_stamina: {multiplier: 1.05},
-              },
-          },
-          12: {
+            },
+        },
+        12: {
             stats: {
                 agility: {flat: 1},
                 strength: {flat: 1},
             }
-          }
-      }
+        }
     },
     get_effect_description: ()=> {
-      let value = skills["Equilibrium"].get_coefficient("multiplicative");
-      if(value >= 100) {
-          value = Math.round(value);
-      } else if(value >= 10 && value < 100) {
-          value = Math.round(value*10)/10; 
-      } else {
-          value = Math.round(value*100)/100;
-      }
-      return `Multiplies agility by ${value}`;
+      let value = get_total_skill_coefficient({skill_id:"Equilibrium",scaling_type:"multiplicative"});
+      return `Multiplies agility by ${Math.round(value*100)/100}`;
     },
     
+    });
+
+    skills["Climbing"] = new Skill({skill_id: "Climbing",
+        description: "Intense and slightly dangerous form of training that involves majority of your muscles",
+        names: {0: "Climbing"},
+        max_level: 50,
+        category: "Activity",
+        max_level_coefficient: 2,
+        base_xp_cost: 50,
+        milestones: {
+            1: {
+                stats: {
+                    agility: {
+                        flat: 1
+                    },
+                },
+            },
+            3: {
+                stats: {
+                    strength: {
+                        flat: 1
+                    },
+                },
+            },
+            5: {
+                stats: {
+                    agility: {
+                        multiplier: 1.05,
+                    },
+                    max_stamina: {
+                        multiplier: 1.03,
+                    }
+                },
+            },
+            7: {
+                stats: {
+                    strength: {
+                        flat: 1
+                    },
+                },
+            },
+            10: {
+                stats: {
+                    strength: {
+                        multiplier: 1.05
+                    },
+                    max_stamina: {
+                        multiplier: 1.03,
+                    }
+                },
+            },
+            12: {
+                stats: {
+                    strength: {
+                        flat: 2
+                    },
+                    agility: {
+                        flat: 2
+                    }
+                }
+            }
+        },
+        get_effect_description: ()=> {
+          let value = get_total_skill_coefficient({skill_id:"Climbing",scaling_type:"multiplicative"});
+
+          return `Multiplies strength, dexterity and agility by ${Math.round(value*100)/100}`;
+        },
     });
 })();
 
@@ -1610,7 +1816,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     skills["Woodcutting"] = new Skill({skill_id: "Woodcutting", 
         names: {0: "Woodcutting"}, 
         description: "Get better with chopping the wood",
-        category: "Activity",
+        category: "Gathering",
         base_xp_cost: 10,
         visibility_treshold: 4,
         xp_scaling: 1.6,
@@ -1619,7 +1825,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     skills["Mining"] = new Skill({skill_id: "Mining",
         names: {0: "Mining"}, 
         description: "Get better with mining the ores",
-        category: "Activity",
+        category: "Gathering",
         base_xp_cost: 10,
         visibility_treshold: 4,
         xp_scaling: 1.6,
@@ -1628,7 +1834,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     skills["Herbalism"] = new Skill({skill_id: "Herbalism",
         names: {0: "Herbalism"}, 
         description: "Knowledge of useful plants and mushrooms",
-        category: "Activity",
+        category: "Gathering",
         base_xp_cost: 10,
         visibility_treshold: 4,
         xp_scaling: 1.6,
@@ -1638,7 +1844,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         skill_id: "Animal handling",
         names: {0: "Animal handling"}, 
         description: "Knowledge and skills required to deal with a wide variety of animals",
-        category: "Activity",
+        category: "Gathering",
         base_xp_cost: 10,
         visibility_treshold: 4,
         xp_scaling: 1.6,
@@ -1650,11 +1856,14 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     skills["Crafting"] = new Skill({
         skill_id: "Crafting", 
         names: {0: "Crafting"}, 
-        description: "The art of preparing different elements and assembling them together",
+        description: "Turn smaller pieces into one bigger thing",
         category: "Crafting",
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
+        get_effect_description: () => {
+            return `Quality cap: ${get_crafting_quality_caps("Crafting").components}% for comps, ${get_crafting_quality_caps("Crafting").equipment}% for eq`;
+        },
     });
     skills["Smelting"] = new Skill({
         skill_id: "Smelting", 
@@ -1673,6 +1882,18 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
+        get_effect_description: () => {
+            return `Quality cap: ${get_crafting_quality_caps("Forging").components}% for components`;
+        },
+        milestones: {
+            10: {
+                unlocks: {
+                    recipes: [
+                        {category: "smelting", subcategory: "items", recipe_id: "Steel ingot (inefficient)"},
+                    ]
+                }
+            }
+        }
     });
     skills["Cooking"] = new Skill({
         skill_id: "Cooking", 
@@ -1686,7 +1907,7 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     skills["Alchemy"] = new Skill({
         skill_id: "Alchemy", 
         names: {0: "Alchemy"}, 
-        description: "Extracting and enhancing useful properties of the ingredies",
+        description: "Extracting and enhancing useful properties of the ingredients",
         category: "Crafting",
         base_xp_cost: 40,
         xp_scaling: 1.5,
@@ -1706,34 +1927,32 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         max_level: 30,
         max_level_bonus: 30,
         get_effect_description: ()=> {
-            return `Increases base defense by ${Math.round(skills["Iron skin"].get_level_bonus())}`;
+            return `Increases base defense by ${Math.round(get_total_level_bonus("Iron skin"))}`;
         },
-        rewards: {
-            milestones: {
-                3: {
-                    stats: {
-                        max_health: {multiplier: 1.01},
-                    }
-                },
-                5: {
-                    stats: {
-                        max_health: {multiplier: 1.01},
-                    }
-                },
-                7: {
-                    stats: {
-                        max_health: {multiplier: 1.02},
-                    }
-                },
-                10: {
-                    stats: {
-                        max_health: {multiplier: 1.02},
-                    }
-                },
-                12: {
-                    stats: {
-                        max_health: {multiplier: 1.02},
-                    }
+        milestones: {
+            3: {
+                stats: {
+                    max_health: {multiplier: 1.01},
+                }
+            },
+            5: {
+                stats: {
+                    max_health: {multiplier: 1.01},
+                }
+            },
+            7: {
+                stats: {
+                    max_health: {multiplier: 1.02},
+                }
+            },
+            10: {
+                stats: {
+                    max_health: {multiplier: 1.02},
+                }
+            },
+            12: {
+                stats: {
+                    max_health: {multiplier: 1.02},
                 }
             }
         }
@@ -1745,56 +1964,72 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
     skills["Persistence"] = new Skill({
         skill_id: "Persistence",
         names: {0: "Persistence"},
-        description: "Being tired is not a reason to give up",
+        description: "Do not give up, no matter what",
         base_xp_cost: 60,
         category: "Character",
         max_level: 30,
         get_effect_description: ()=> {
-            return `Increases low stamina stat multiplier to x${(50+Math.round(skills["Persistence"].get_level_bonus()*100000)/1000)/100} (originally x0.5)`;
+            return `Increases low stamina stat multiplier to x${(50+Math.round(get_total_level_bonus("Persistence")*100000)/1000)/100} (originally x0.5)`;
         },
-        rewards: {
-            milestones: {
-                2: {
-                    stats: {
-                        max_stamina: {flat: 5},
-                    },
-                    xp_multipliers: {
-                        all_skill: 1.05,
-                    }
+        milestones: {
+            2: {
+                stats: {
+                    max_stamina: {flat: 5},
                 },
-                4: {
-                    stats: {
-                        max_stamina: {flat: 5},
-                    },
-                    xp_multipliers: {
-                        hero: 1.05,
-                    }
-                },
-                6: {
-                    stats: {
-                        max_stamina: {flat: 10},
-                    },
-                    xp_multipliers: {
-                        all: 1.05,
-                    }
-                },
-                8: {
-                    stats: {
-                        max_stamina: {flat: 10},
-                    },
-                    xp_multipliers: {
-                        all: 1.05,
-                    }
-                },
-                10: {
-                    stats: {
-                        max_stamina: {flat: 10},
-                    },
-                    xp_multipliers: {
-                        all: 1.05,
-                    }
+                xp_multipliers: {
+                    all_skill: 1.05,
                 }
-
+            },
+            4: {
+                stats: {
+                    max_stamina: {flat: 5},
+                },
+                xp_multipliers: {
+                    hero: 1.05,
+                }
+            },
+            6: {
+                stats: {
+                    max_stamina: {flat: 10},
+                },
+                xp_multipliers: {
+                    all: 1.05,
+                    "Strength of mind": 1.05,
+                }
+            },
+            8: {
+                stats: {
+                    max_stamina: {flat: 10},
+                },
+                xp_multipliers: {
+                    all: 1.05,
+                }
+            },
+            10: {
+                stats: {
+                    max_stamina: {multiplier: 1.1},
+                },
+                xp_multipliers: {
+                    hero: 1.05,
+                    "Strength of mind": 1.05,
+                }
+            },
+            12: {
+                stats: {
+                    max_stamina: {flat: 10},
+                },
+                xp_multipliers: {
+                    hero: 1.05,
+                }
+            },
+            14: {
+                stats: {
+                    stamina_efficiency: {multiplier: 1.1},
+                },
+                xp_multipliers: {
+                    all_skill: 1.05,
+                    "Strength of mind": 1.05,
+                }
             }
         },
         max_level_bonus: 0.3
@@ -1808,10 +2043,8 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         get_effect_description: ()=> {
             return ``;
         },
-        rewards: {
-            milestones: {
-                //todo when skill is in use somewhere
-            }
+        milestones: {
+            //todo when skill is in use somewhere
         }
     }); 
     skills["Literacy"] = new Skill({
@@ -1822,24 +2055,130 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         base_xp_cost: 120,
         max_level: 10,
         xp_scaling: 2,
-        get_effect_description: ()=> {
-            return `Allows reading harder books`;
-        },
-        rewards: {
-            milestones: {
-                1: {
-                    xp_multipliers: {
-                        hero: 1.05,
-                    }
-                },
-                2: {
-                    xp_multipliers: {
-                        all_skill: 1.05,
-                    }
+        milestones: {
+            1: {
+                xp_multipliers: {
+                    hero: 1.05,
+                    "Strength of mind": 1.05,
+                }
+            },
+            2: {
+                xp_multipliers: {
+                    all_skill: 1.05,
+                }
+            },
+            3: {
+                xp_multipliers: {
+                    all: 1.05,
+                }
+            },
+            5: {
+                xp_multipliers: {
+                    hero: 1.05,
+                    "Strength of mind": 1.05,
                 }
             }
         }
     }); 
+    skills["Medicine"] = new Skill({
+        skill_id: "Medicine",
+        names: {0: "Medicine"}, 
+        description: "Create better medicaments and improve your skill at treating wounds.",
+        category: "Character",
+        max_level: 30,
+        visibility_treshold: 5,
+        max_level_coefficient: 2,
+        get_effect_description: ()=> {
+            let value = get_total_skill_coefficient({skill_id:"Medicine",scaling_type:"multiplicative"});
+            return `Multiplies additive effects of medicines by ${Math.round((value**2)*100)/100} and multiplicative effects by ${Math.round(value*100)/100}`;
+          },
+    });
+    skills["Breathing"] = new Skill({
+        skill_id: "Breathing",
+        names: {0: "Breathing"},
+        description: "Oxygen is the most important resource for improving the performance of your body. Learn how to take it in more efficiently.",
+        flavour_text: "You are now breathing manually",
+        base_xp_cost: 300,
+        visibility_treshold: 290,
+        xp_scaling: 1.6,
+        category: "Character",
+        max_level_coefficient: 2,
+        max_level: 40,
+        milestones: {
+            3: {
+                xp_multipliers: {
+                    Running: 1.1,
+                    Meditation: 1.1,
+                },
+                stats: {
+                    attack_speed: {
+                        multiplier: 1.02,
+                    }
+                }
+            },
+            5: {
+                stats: {
+                    agility: {
+                        multiplier: 1.05,
+                    },
+                    stamina_efficiency: {
+                        multiplier: 1.05,
+                    }
+                },
+            },
+            7: {
+                xp_multipliers: {
+                    Running: 1.1,
+                    Meditation: 1.1,
+                }
+            },
+            10: {
+                stats: {
+                    strength: {
+                        multiplier: 1.05
+                    },
+                    max_stamina: {
+                        multiplier: 1.05,
+                    },
+                    attack_speed: {
+                        multiplier: 1.02,
+                    }
+                },
+            },
+            12: {
+                stats: {
+                    strength: {
+                        flat: 2
+                    },
+                    agility: {
+                        flat: 2
+                    }
+                },
+                xp_multipliers: {
+                    Running: 1.1,
+                    Meditation: 1.1,
+                }
+            }, 
+            14: {
+                xp_multipliers: {
+                    Running: 1.1,
+                    Meditation: 1.1,
+                },
+                stats: {
+                    attack_speed: {
+                        multiplier: 1.03,
+                    },
+                    stamina_efficiency: {
+                        multiplier: 1.05,
+                    }
+                }
+            }
+        },
+        get_effect_description: ()=> {
+            let value = get_total_skill_coefficient({skill_id:"Breathing",scaling_type:"multiplicative"});
+            return `Multiplies strength, agility and stamina by ${Math.round(value*100)/100}. Reduces thin air effects by ^${Math.round(100-100*get_total_skill_level("Breathing")/skills["Breathing"].max_level)/100}`;
+          },
+    });  
 })();
 
 //miscellaneous skills
@@ -1852,11 +2191,55 @@ Multiplies AP with daggers by ${Math.round((skills["Daggers"].get_coefficient("m
         base_xp_cost: 100,
         max_level: 25,
         get_effect_description: ()=> {
-            return `Lowers trader cost multiplier to ${Math.round((1 - skills["Haggling"].get_level_bonus())*100)}% of original value`;
+            return `Lowers trader cost multiplier to ${Math.round((1 - get_total_level_bonus("Haggling"))*100)}% of original value`;
         },
-        max_level_bonus: 0.5
+        max_level_bonus: 0.5,
+        milestones: {
+            2: {
+                stats: {
+                    intuition: {
+                        flat: 1
+                    },
+                },
+            },
+            3: {
+                xp_multipliers: {
+                    "Literacy": 1.05,
+                },
+            },
+            5: {
+                stats: {
+                    intuition: {
+                        flat: 2
+                    },
+                },
+                xp_multipliers: {
+                    "Literacy": 1.05,
+                    "Persistence": 1.05,
+                },
+            },
+            7: {
+                stats: {
+                    intuition: {
+                        flat: 2
+                    }
+                },
+            },
+            10: {
+                stats: {
+                    intuition: {
+                        flat: 2
+                    },
+                },
+                xp_multipliers: {
+                    "Literacy": 1.05,
+                    "Persistence": 1.05,
+                },
+                
+            }
+        }
     });
     
 })();
 
-export {skills, get_unlocked_skill_rewards, get_next_skill_milestone, weapon_type_to_skill, which_skills_affect_skill};
+export {skills, skill_categories, get_unlocked_skill_rewards, get_next_skill_milestone, weapon_type_to_skill, which_skills_affect_skill};

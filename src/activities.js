@@ -21,7 +21,7 @@ class Activity {
         this.action_text = action_text; //text displayed in action div, e.g. "Working the fields"
         this.base_skills_names = base_skills_names;
         //skills that affect efficiency of an activity and are raised when performing it
-        //some will have only 1 (e.g. "foraging", "mining") and some multiple
+        //originally meant to allow multiple, but with current implementation of stuff, doing that would break a lot of things
         this.tags = [];
         this.is_unlocked = is_unlocked;
     }
@@ -111,6 +111,13 @@ class Gathering extends Training {
         base_skills_names: ["Meditation"],
         is_unlocked: true,
     });
+    activities["climbing"] = new Training({
+        name: "climbing",
+        action_text: "Looking for next grip to hold to",
+        description: "An advanced exercise that uses majority of muscles in the body",
+        base_skills_names: ["Climbing"],
+        is_unlocked: true,
+    });
 })();
 
 //resource gatherings
@@ -138,7 +145,7 @@ class Gathering extends Training {
         description: "Look for any useful plants and mushrooms",
         base_skills_names: ["Herbalism"],
         is_unlocked: true,
-        required_tool_type: "herb sickle",
+        required_tool_type: "sickle",
     });
 
     activities["animal care"] = new Gathering({
