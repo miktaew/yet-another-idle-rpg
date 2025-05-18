@@ -1,9 +1,9 @@
 
 import * as esbuild from 'esbuild';
 import * as fs from 'fs';
+import { styleText } from 'node:util';
 import { get_game_version } from './src/game_version.js';
 
-const output_name = `dist/bundle.${get_game_version()}.js`;
 
 esbuild
     .build({
@@ -11,7 +11,7 @@ esbuild
         bundle: true,
         sourcemap: true,
         minify: true,
-        outfile: output_name,
+        outfile: `dist/bundle.js`,
         platform: "browser",
         target: "es2020",
         format: 'iife',
@@ -21,20 +21,22 @@ esbuild
         const htmlPath = 'index.html';
         let htmlContent = fs.readFileSync(htmlPath, 'utf8');
 
-        if(!htmlContent.search(/<script type="module" src="dist\/bundle\.[^"]*\.js"><\/script>/)) {
-            console.log('Failed to update the bundle link in .html!');
+        console.log(htmlContent.search(/dist\/bundle\.js\?version=[^&"]+/))
+
+        if(htmlContent.search(/dist\/bundle\.js\?version=[^&"]+/) == -1) {
+            console.log(styleText("red", 'Failed to update the bundle version in .html!'));
             return;
         }
 
         htmlContent = htmlContent.replace(
-            /<script type="module" src="dist\/bundle\.[^"]*\.js"><\/script>/,
-            `<script type="module" src="${output_name}"></script>`
+            /dist\/bundle\.js\?version=[^&"]+/,
+            `dist/bundle.js?version=${get_game_version()}`
         );
         try {
             fs.writeFileSync(htmlPath, htmlContent);
-            console.log("Bundle link in .html has been updated!");
+            console.log("Bundle version in .html has been updated!");
         } catch (err) {
-            console.log('Failed to update the bundle link in .html!');
+            console.log(styleText("red", 'Failed to update the bundle version in .html!'));
             console.error(err);
         }
         
