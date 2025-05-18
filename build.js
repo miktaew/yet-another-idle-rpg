@@ -21,8 +21,6 @@ esbuild
         const htmlPath = 'index.html';
         let htmlContent = fs.readFileSync(htmlPath, 'utf8');
 
-        console.log(htmlContent.search(/dist\/bundle\.js\?version=[^&"]+/))
-
         if(htmlContent.search(/dist\/bundle\.js\?version=[^&"]+/) == -1) {
             console.log(styleText("red", 'Failed to update the bundle version in .html!'));
             return;
