@@ -3595,6 +3595,12 @@ function create_new_skill_bar(skill) {
     update_displayed_skill_xp_gain(skill);
 }
 
+/**
+ * 
+ * @param {Skill} skill 
+ * @param {Boolean} leveled_up 
+ * @returns 
+ */
 function update_displayed_skill_bar(skill, leveled_up=true) {
     /*
     skill_bar divs: 

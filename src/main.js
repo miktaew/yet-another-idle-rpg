@@ -1483,8 +1483,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
 
     const is_visible = skill.visibility_treshold <= skill.total_xp;
     
-    if(was_hidden && is_visible) 
-    {
+    if(was_hidden && is_visible) {
         create_new_skill_bar(skill);
         update_displayed_skill_bar(skill, false);
         
@@ -1501,6 +1500,14 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     }
     
     if(is_visible) {
+        if(prev_name !== new_name) { //skill name has changed; this may trigger on levelup OR on becoming visible
+            if(which_skills_affect_skill[skill.skill_id]) {
+                for(let i = 0; i < which_skills_affect_skill[skill.skill_id].length; i++) {
+                    update_displayed_skill_bar(skills[which_skills_affect_skill[skill.skill_id][i]], false);
+                }
+            }
+        }
+
         if(typeof message !== "undefined"){ 
         //not undefined => levelup happened and levelup message was returned
             leveled = true;
@@ -1530,34 +1537,13 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
             update_displayed_stamina_efficiency();
             
             process_rewards({source_name: skill.skill_id, source_type: "skill", rewards: unlocks, inform_overall: should_info});
-
-            //go through unlocked skills (if any) to update skill relations
-            for(let i = 0; i < unlocks?.skills?.length; i++) {
-                const unlocked_skill = skills[unlocks.skills[i]];
-                
-                if(which_skills_affect_skill[unlocks.skills[i]]) {
-                    if(!which_skills_affect_skill[unlocks.skills[i]].includes(skill.skill_id)) {
-                        which_skills_affect_skill[unlocks.skills[i]].push(skill.skill_id);
-                    }
-                } else {
-                    which_skills_affect_skill[unlocks.skills[i]] = [skill.skill_id];
-                }
-
-                //update_displayed_skill_bar(unlocked_skill, false);
-            }
-
             
             if(typeof should_info === "undefined" || should_info){
                 log_message(message, "skill_raised");
             }
 
             if(prev_name !== new_name) { //skill name has changed
-                if(which_skills_affect_skill[skill.skill_id]) {
-                    for(let i = 0; i < which_skills_affect_skill[skill.skill_id].length; i++) {
-                        update_displayed_skill_bar(skills[which_skills_affect_skill[skill.skill_id][i]], false);
-                    }
-                }
-
+                //display of skill name in other places (like tooltips of other skills) is handled slightly earlier
                 if(!was_hidden && (typeof should_info === "undefined" || should_info)) {
                     log_message(`Skill ${prev_name} upgraded to ${new_name}`, "skill_raised");
                 }
@@ -1915,7 +1901,7 @@ function unlock_location({location, skip_message}) {
         }
     }
 
-    if(location.housing?.is_present && location.housing.is_unlocked) {
+    if(location.housing?.is_unlocked) {
         unlocked_beds[location.id] = true;
     }
 }
@@ -2482,11 +2468,8 @@ function create_save() {
                 save_data["recipes"][category][subcategory] = {};
                 Object.keys(recipes[category][subcategory]).forEach(recipe_id => {
                     save_data["recipes"][category][subcategory][recipe_id] = {};
-                    if(recipes[category][subcategory][recipe_id].is_unlocked) {
-                        save_data["recipes"][category][subcategory][recipe_id].is_unlocked = true;
-                    } else if(recipes[category][subcategory][recipe_id].is_finished) {
-                        save_data["recipes"][category][subcategory][recipe_id].is_finished = true;
-                    }
+                    save_data["recipes"][category][subcategory][recipe_id].is_unlocked = recipes[category][subcategory][recipe_id].is_unlocked;
+                    save_data["recipes"][category][subcategory][recipe_id].is_finished = recipes[category][subcategory][recipe_id].is_finished;
                 });
             });
         });
@@ -3373,7 +3356,7 @@ function load(save_data) {
             }
 
             if(save_data.locations[key].housing_unlocked) {
-                if(!locations[key].housing) {
+                if(!Object.keys(locations[key].housing).length) {
                     console.warn(`Location "${locations[key].name}" was saved as having a bed unlocked, but it no longer has this mechanic and was skipped!`);
                 } else {
                     locations[key].housing.is_unlocked = true;
@@ -3381,8 +3364,12 @@ function load(save_data) {
                         unlocked_beds[key] = true;
                     }
                 }
-                
+            } else if(locations[key].housing?.is_unlocked){ {
+                unlocked_beds[key] = true;
             }
+
+            }
+
         } else {
             console.warn(`Location "${key}" couldn't be found!`);
             return;
@@ -3438,16 +3425,13 @@ function load(save_data) {
         });
     }
 
+    
     if(save_data["recipes"]) {
         Object.keys(save_data["recipes"]).forEach(category => {
             Object.keys(save_data["recipes"][category]).forEach(subcategory => {
                 Object.keys(save_data["recipes"][category][subcategory]).forEach(recipe_id => {
-
-                    if(save_data["recipes"][category][subcategory][recipe_id].is_unlocked) {
-                        recipes[category][subcategory][recipe_id].is_unlocked = true;
-                    } else if(save_data["recipes"][category][subcategory][recipe_id].is_finished) {
-                        recipes[category][subcategory][recipe_id].is_finished = true;
-                    }
+                    recipes[category][subcategory][recipe_id].is_unlocked = save_data["recipes"][category][subcategory][recipe_id].is_unlocked ?? false;
+                    recipes[category][subcategory][recipe_id].is_finished = save_data["recipes"][category][subcategory][recipe_id].is_finished ?? false;
                 });
             });
         });
@@ -3693,6 +3677,8 @@ function update() {
                     return;
                 }
             });
+
+            add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.1});
         } else { //everything other than combat
             if(is_sleeping) {
                 do_sleeping();
@@ -4089,7 +4075,7 @@ function add_all_active_effects(duration){
 }
 
 //add_to_character_inventory([{item_id: "Healing powder", count: 1000}]);
-//add_to_character_inventory([{item_id: "Weak healing powder", count: 1000}]);
+//add_to_character_inventory([{item_id: "Medicine for dummies", count: 10}]);
 
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
@@ -4100,6 +4086,7 @@ update_displayed_equipment();
 sort_displayed_inventory({sort_by: "name", target: "character"});
 
 run();
+
 
 //Verify_Game_Objects();
 window.Verify_Game_Objects = Verify_Game_Objects;

@@ -583,7 +583,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         name: "Shield",
         components: ["shield base","shield handle"],
         item_type: "Shield",
-    })
+    });
 
     //full armor
     crafting_recipes.equipment["Helmet"] = new EquipmentRecipe({
@@ -751,7 +751,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     crafting_recipes.items["Rat meat chunks"] = new ItemRecipe({
         name: "Rat meat chunks",
         recipe_type: "material",
-        materials: [{material_id: "Rat tail", count: 8}], 
+        materials: [{material_id: "Rat tail", count: 3}],
         result: {result_id: "Rat meat chunks", count: 1},
         success_chance: [0.4,1],
         recipe_level: [1,5],
