@@ -567,7 +567,7 @@ class Textline {
             }),
             "what": new Textline({ 
                 name: "What... are you?",
-                text: "Me name be Rator Rathai, the Rat Prince Who Be Promised!",
+                text: "Me name be Ratzor Rathai, the Rat Prince Who Be Promised!",
                 rewards: {
                     textlines: [{dialogue: "cute little rat", lines: ["walls"]}],
                 },

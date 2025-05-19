@@ -21,7 +21,7 @@ class Location {
                 dialogues = [], 
                 traders = [],
                 types = [], //{type, xp per tick}
-                housing = {is_present: null},
+                housing = {},
                 light_level = "normal",
                 getDescription,
                 background_noises = [],
@@ -49,7 +49,6 @@ class Location {
         this.housing = housing;
         /*
             housing: {
-                is_present: Boolean,
                 is_unlocked: Boolean, 
                 sleeping_xp_per_tick: Number,
                 text_to_start: String
@@ -1359,7 +1358,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         description: "A nice safe camp in mountains created by you, a perfect base for further exploration.",
         name: "Mountain camp",
         housing: {
-            is_present: true,
             is_unlocked: true,
             sleeping_xp_per_tick: 8,
             text_to_sleep: "Take a nap on the bedroll",

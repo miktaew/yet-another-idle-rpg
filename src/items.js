@@ -999,9 +999,12 @@ book_stats["Medicine for dummies"] = new BookData({
             {category: "alchemy", subcategory: "items", recipe_id: "Healing powder"},
             {category: "alchemy", subcategory: "items", recipe_id: "Healing potion"},
         ],
-        skills: ["Medicine"],
-        skill_xp: {"Medicine": 20},
     },
+    bonuses: {
+        xp_multipliers: {
+            Medicine: 1.2,
+        },
+    }
 });
 
 book_stats["Butchering and you"] = new BookData({
