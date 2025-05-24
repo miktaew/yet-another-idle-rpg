@@ -34,6 +34,9 @@
         which kinda makes spears very average, but they also get bonus crit so whatever
 */
 
+//as a note, try to not give dexterity/agility from weapons and instead use attack_points/evasion_points, this is in regards of possible skill checks;
+//leaving it on armor seems fine on the other hand, as it makes much more sense for worn clothing to impact such a situation
+
 import { round_item_price } from "./misc.js";
 
 const rarity_multipliers = {
@@ -1481,7 +1484,7 @@ item_templates["Butchering and you"] = new Book({
             attack_speed: {
                 multiplier: 1.20,
             },
-            agility: {
+            evasion_points: {
                 multiplier: 1.05,
             }
         }
@@ -1500,7 +1503,7 @@ item_templates["Butchering and you"] = new Book({
             attack_speed: {
                 multiplier: 1.30,
             },
-            agility: {
+            evasion_points: {
                 multiplier: 1.13,
             }
         }
@@ -1519,7 +1522,7 @@ item_templates["Butchering and you"] = new Book({
             attack_speed: {
                 multiplier: 1.35,
             },
-            agility: {
+            evasion_points: {
                 multiplier: 1.2,
             }
         }
@@ -1538,6 +1541,9 @@ item_templates["Butchering and you"] = new Book({
             crit_rate: {
                 flat: 0.02,
             },
+            attack_points: {
+                multiplier: 1.05,
+            }
         }
     });
     item_templates["Long iron blade"] = new WeaponComponent({
@@ -1554,6 +1560,9 @@ item_templates["Butchering and you"] = new Book({
             crit_rate: {
                 flat: 0.04,
             },
+            attack_points: {
+                multiplier: 1.13,
+            }
         }
     });
     item_templates["Long steel blade"] = new WeaponComponent({
@@ -1570,6 +1579,9 @@ item_templates["Butchering and you"] = new Book({
             crit_rate: {
                 flat: 0.05,
             },
+            attack_points: {
+                multiplier: 1.2,
+            }
         }
     });
     item_templates["Cheap iron axe head"] = new WeaponComponent({
