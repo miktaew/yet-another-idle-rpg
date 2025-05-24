@@ -2933,8 +2933,8 @@ function create_location_action_tooltip(location_action) {
  */
 function create_gathering_tooltip(location_activity) {
     const gathering_tooltip = document.createElement("div");
-    //gathering_tooltip.id = "gathering_tooltip";
     gathering_tooltip.classList.add("job_tooltip");
+    gathering_tooltip.dataset.job_tooltip = location_activity.activity_id;
 
     const {gathering_time_needed, gained_resources} = location_activity.getActivityEfficiency();
 
@@ -2955,13 +2955,18 @@ function create_gathering_tooltip(location_activity) {
     return gathering_tooltip;
 }
 
+/**
+ * Updates gathering tooltip, both for location view and for an ongoing gathering
+ * @param {LocationActivity} activity 
+ * @returns 
+ */
 function update_gathering_tooltip(activity) {
     let parent = document.querySelector(`[data-activity="${activity.activity_id}"]`);
     let gathering_tooltip;
     if(parent) {
         gathering_tooltip = parent.getElementsByClassName("job_tooltip")[0];
     } else {
-        gathering_tooltip = document.getElementById("gathering_progress_bar_max")?.getElementsByClassName("job_tooltip")[0];
+        gathering_tooltip = document.getElementById("gathering_progress_bar_max")?.querySelector(`[data-job_tooltip="${activity.activity_id}"]`);
     }
 
     if(!gathering_tooltip) {
@@ -3883,8 +3888,13 @@ function update_displayed_stance(stance) {
     document.getElementById("character_stance_name").children[0].innerHTML = stance.name;
 
     const selection = document.getElementById("character_stance_selection");
-    if(selection.children && selection.querySelector(`[data-stance='${stance.id}']`)) {
-        selection.querySelector(`[data-stance='${stance.id}']`).children[0].checked = true;
+
+    if(selection.children) {
+        if(selection.querySelector(`[data-stance='${stance.id}']`)) {
+            selection.querySelector(`[data-stance='${stance.id}']`).children[0].checked = true;
+        } else if(!faved_stances[stance.id] && selection.querySelector('[data-stance] :checked')) {
+            selection.querySelector('[data-stance] :checked').checked = false;
+        }
     }
 }
 

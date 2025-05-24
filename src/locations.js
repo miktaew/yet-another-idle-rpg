@@ -382,7 +382,7 @@ class LocationActivity{
                     this.gained_resources.skill_required[1]-this.gained_resources.skill_required[0]+1, Math.max(0,get_total_skill_level(activities[this.activity_name].base_skills_names[i])-this.gained_resources.skill_required[0]+1)
                 )/(this.gained_resources.skill_required[1]-this.gained_resources.skill_required[0]+1);
             }
-            skill_modifier = (skill_level_sum/(activities[this.activity_name].base_skills_names?.length || 1)) || 1;
+            skill_modifier = (skill_level_sum/(activities[this.activity_name].base_skills_names?.length || 1));
         }
         const gathering_time_needed = Math.floor(this.gained_resources.time_period[0]*(this.gained_resources.time_period[1]/this.gained_resources.time_period[0])**skill_modifier);
 

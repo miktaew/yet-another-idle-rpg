@@ -357,10 +357,12 @@ character.stats.add_weapon_type_bonuses = function() {
                 character.stats.multiplier.skills.attack_power = get_total_skill_coefficient({skill_id:"Unarmed"});
                 character.stats.multiplier.skills.attack_speed = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id:"Unarmed"})**0.3333;
                 character.stats.multiplier.skills.attack_points = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id:"Unarmed"})**0.3333;
+                character.stats.multiplier.skills.evasion_points = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id:"Unarmed"})**0.3333;
         } else {
                 character.stats.multiplier.skills.attack_speed = 1;
                 character.stats.multiplier.skills.attack_power = get_total_skill_coefficient({skill_id:weapon_type_to_skill[character.equipment.weapon.weapon_type]});
                 character.stats.multiplier.skills.attack_points = get_total_skill_coefficient({skill_id:weapon_type_to_skill[character.equipment.weapon.weapon_type]})**0.3333;
+                character.stats.multiplier.skills.evasion_points = 1;
         }
 }
 

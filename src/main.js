@@ -3750,7 +3750,6 @@ function update() {
                             }
                             
                             //if(leveled) {
-                                //update_gathering_tooltip(current_activity.activity_name);
                                 update_gathering_tooltip(current_activity);
                             //}
                         }
