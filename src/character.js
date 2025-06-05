@@ -12,6 +12,7 @@ import { update_displayed_character_inventory, update_displayed_equipment,
 import { active_effects, current_location, current_stance, favourite_consumables, remove_consumable_from_favourites } from "./main.js";
 import { current_game_time, is_night } from "./game_time.js";
 import { item_templates } from "./items.js";
+import { skill_consumable_tags } from "./misc.js";
 
 const base_block_chance = 0.75; //+20 from the skill
 const base_xp_cost = 10;
@@ -761,9 +762,12 @@ function get_total_skill_coefficient({scaling_type, skill_id}) {
 
 function get_effect_with_bonuses(active_effect) {
         let multiplier = 1;
-        if(active_effect.tags.medicine) {
-                multiplier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id:"Medicine"});
-        }
+        Object.keys(skill_consumable_tags).forEach(skill_id => {
+                if(active_effect.tags[skill_consumable_tags[skill_id]]) {
+                        multiplier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: skill_id});
+                }
+        });
+
         let boosted = {stats: {}, bonus_skill_levels: {...active_effect.effects.bonus_skill_levels}};
         for(const [key, value] of Object.entries(active_effect.effects.stats)) {
                 boosted.stats[key] = {};

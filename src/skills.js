@@ -1371,6 +1371,9 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     skills["Sleeping"] = new Skill({skill_id: "Sleeping",
                                     names: {0: "Sleeping"}, 
                                     description: "Good, regular sleep is the basis of getting stronger and helps your body heal.",
+                                    get_effect_description: ()=>{
+                                        return `Multiplies health restored when sleeping by ${Math.round(100*(1 + get_total_skill_level("Sleeping")/skills["Sleeping"].max_level))/100}`;
+                                    },
                                     base_xp_cost: 1000,
                                     visibility_treshold: 300,
                                     xp_scaling: 2,
@@ -2092,6 +2095,63 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             return `Multiplies additive effects of medicines by ${Math.round((value**2)*100)/100} and multiplicative effects by ${Math.round(value*100)/100}`;
           },
     });
+    skills["Gluttony"] = new Skill({
+        skill_id: "Gluttony",
+        names: {0: "Gluttony"}, 
+        description: "The more you eat the better you will be at digesting, right?",
+        category: "Character",
+        max_level: 30,
+        visibility_treshold: 5,
+        max_level_coefficient: 2,
+        get_effect_description: ()=> {
+            let value = get_total_skill_coefficient({skill_id:"Gluttony",scaling_type:"multiplicative"});
+            return `Multiplies additive effects of foods by ${Math.round((value**2)*100)/100} and multiplicative effects by ${Math.round(value*100)/100}`;
+        },
+        milestones: {
+            3: {
+                xp_multipliers: {
+                    hero: 1.05,
+                }
+            },
+            5: {
+                stats: {
+                    max_health: {
+                        flat: 20,
+                    }
+                },
+                xp_multipliers: {
+                    "Regeneration": 1.1,
+                }
+            },
+            7: {
+                stats: {
+                    health_regeneration_flat: {
+                        flat: 0.2,
+                    }
+                }
+            },
+            10: {
+                stats: {
+                    stamina_regeneration_flat: {
+                        flat: 0.1,
+                    }
+                },
+                xp_multipliers: {
+                    hero: 1.05,
+                }
+            },
+            12: {
+                stats: {
+                    health_regeneration_flat: {
+                        flat: 0.3,
+                    }
+                },
+                xp_multipliers: {
+                    "Regeneration": 1.1,
+                }
+            }
+        }
+    });
     skills["Breathing"] = new Skill({
         skill_id: "Breathing",
         names: {0: "Breathing"},
@@ -2122,13 +2182,18 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                     },
                     stamina_efficiency: {
                         multiplier: 1.05,
-                    }
+                    },
                 },
             },
             7: {
                 xp_multipliers: {
                     Running: 1.1,
                     Meditation: 1.1,
+                },
+                stats: {
+                    stamina_regeneration_flat: {
+                        flat: 0.1,
+                    }
                 }
             },
             10: {
@@ -2151,6 +2216,9 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                     },
                     agility: {
                         flat: 2
+                    },
+                    stamina_regeneration_flat: {
+                        flat: 0.1,
                     }
                 },
                 xp_multipliers: {
@@ -2178,6 +2246,74 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             return `Multiplies strength, agility and stamina by ${Math.round(value*100)/100}. Reduces thin air effects by ^${Math.round(100-100*get_total_skill_level("Breathing")/skills["Breathing"].max_level)/100}`;
           },
     });  
+    skills["Regeneration"] = new Skill({skill_id: "Regeneration",
+                                names: {0: "Regeneration"}, 
+                                description: "As your body regenerates more and more, it slowly becomes more proficient in this task.",
+                                get_effect_description: ()=>{
+                                    return `Multiplies health restored when resting or sleeping by ${Math.round(100*(1 + 3*get_total_skill_level("Regeneration")/skills["Regeneration"].max_level))/100}`;
+                                },
+                                base_xp_cost: 600,
+                                visibility_treshold: 500,
+                                xp_scaling: 1.4,
+                                category: "Character",
+                                max_level: 40,
+                                max_level_coefficient: 2.5,    
+                                milestones: {
+                                    1: {
+                                        stats: {
+                                            max_health: {
+                                                flat: 10,
+                                            }
+                                        }
+                                    },
+                                    3: {
+                                        stats: {
+                                            max_health: {
+                                                flat: 10,
+                                            }
+                                        }
+                                    },
+                                    5: {
+                                        stats: {
+                                            health_regeneration_flat: {
+                                                flat: 0.3,
+                                            }
+                                        }
+                                    },
+                                    7: {
+                                        stats: {
+                                            max_health: {
+                                                flat: 20,
+                                            }
+                                        }
+                                    },
+                                    10: {
+                                        stats: {
+                                            max_health: {
+                                                flat: 20,
+                                            },
+                                            health_regeneration_flat: {
+                                                flat: 0.3,
+                                            }
+                                        }
+                                    },
+                                    12: {
+                                        stats: {
+                                            max_health: {
+                                                flat: 20,
+                                            },
+                                        }
+                                    },
+                                    15: {
+                                        stats: {
+                                            health_regeneration_flat: {
+                                                flat: 0.5,
+                                            }
+                                        }
+                                    },
+                                    
+                                }
+                            });  
 })();
 
 //miscellaneous skills

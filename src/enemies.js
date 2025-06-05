@@ -4,6 +4,8 @@ let enemy_templates = {};
 let enemy_killcount = {};
 //enemy templates; locations create new enemies based on them
 
+const enemy_tags = {};
+
 class Enemy {
     constructor({
         name, 
@@ -30,6 +32,7 @@ class Enemy {
         this.tags = {};
         for(let i = 0; i <tags.length; i++) {
             this.tags[tags[i]] = true;
+            enemy_tags[tags[i]] = true;
         }
         this.tags[size] = true;
 
@@ -42,7 +45,7 @@ class Enemy {
         }
 
     }
-    get_loot() {
+    get_loot({drop_chance_modifier = 1} = {}) {
         // goes through items and calculates drops
         // result is in form [{item: Item, count: item_count}, {...}, {...}]
         let loot = [];
@@ -50,7 +53,7 @@ class Enemy {
         
         for (let i = 0; i < this.loot_list.length; i++) {
             item = this.loot_list[i];
-            if (item.chance * this.get_droprate_modifier() >= Math.random()) {
+            if (item.chance * this.get_droprate_modifier(drop_chance_modifier) >= Math.random()) {
                 // checks if it should drop
                 let item_count = 1;
                 if ("count" in item) {
@@ -64,15 +67,13 @@ class Enemy {
         return loot;
     }
 
-    get_droprate_modifier() {
-        let droprate_modifier = 1;
-        /*
-        if(enemy_killcount[this.name] >= 999) {
-            droprate_modifier = 0.1;
-        } else if(enemy_killcount[this.name]) {
-            droprate_modifier = 111/(111+enemy_killcount[this.name]);
-        }
-        */
+    /**
+     * does kinda nothing nowadays, used to be more important, but leaving it in case some more things impacting droprate are added
+     * @param {*} drop_chance_modifier 
+     * @returns 
+     */
+    get_droprate_modifier(drop_chance_modifier) {
+        let droprate_modifier = 1 * drop_chance_modifier;
         return droprate_modifier;
     }
 }
@@ -301,4 +302,4 @@ class Enemy {
     });
 })()
 
-export {Enemy, enemy_templates, enemy_killcount};
+export {Enemy, enemy_templates, enemy_killcount, enemy_tags};

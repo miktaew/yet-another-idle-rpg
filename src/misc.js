@@ -3,10 +3,12 @@
 const stat_names = {"strength": "str",
     "health": "hp",
     "max_health": "hp", //same as for "health"
-    "health_regenaration_flat": "hp regen",
+    "health_regeneration_flat": "hp regen",
     "health_regeneration_multiplier": "hp regen",
     "health_loss_flat": "hp loss",
     "health_loss_multiplier": "hp loss",
+    "stamina_regeneration_flat": "stam regen",
+    "stamina_regeneration_multiplier": "stam regen",
     "max_stamina": "stamina",
     "agility": "agl",
     "dexterity": "dex",
@@ -23,6 +25,17 @@ const stat_names = {"strength": "str",
     "evasion_points": "EP",
     "attack_points": "AP",
 };
+
+//skill-tag mapping for when consumables are used
+const skill_consumable_tags = {
+    "Medicine": "medicine",
+    "Gluttony": "food"
+}
+
+//additional skill-tag mapping for crafting
+const skill_crafting_tags = {
+    "Medicine": "medicine",
+}
 
 function expo(number, precision = 2)
 {
@@ -144,4 +157,5 @@ function is_a_older_than_b(version1, version2) {
 
 export { expo, format_reading_time, format_working_time, stat_names, get_hit_chance, 
         compare_game_version, is_a_older_than_b,
-        round_item_price};
+        round_item_price,
+        skill_consumable_tags, skill_crafting_tags};
