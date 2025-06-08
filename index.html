@@ -15,17 +15,17 @@
 
         <meta name="google-site-verification" content="IgjSYOU5-uUlX2dSA22IZ-aU9GvRbmQ5uie5qjuRWQg" />
         
-        <meta name="description" content="An idle RPG game based on Proto23">
+        <meta name="description" content="A text-based idle RPG game inspired by Proto23, with heavy focus on progression through skill leveling, created by Miktaew.">
         <meta name="author" content="Miktaew">
         <meta property="og:title" content="Yet Another Idle RPG">
-        <meta property="og:description" content="An idle RPG game based on Proto23">
+        <meta property="og:description" content="A text-based idle RPG game inspired by Proto23, with heavy focus on progression through skill leveling, created by Miktaew.">
         <meta property="og:image" content="https://miktaew.github.io/yet-another-idle-rpg-dev/resources/img/bigger_icon.png">
         <script type="application/ld+json">
         {
             "@context": "https://schema.org",
             "@type": "WebPage",
             "headline": "Yet Another Idle RPG",
-            "description": "An idle RPG game based on Proto23",
+            "description": "A text-based idle RPG game inspired by Proto23, with heavy focus on progression through skill leveling, created by Miktaew.",
             "image": "https://miktaew.github.io/yet-another-idle-rpg-dev/resources/img/bigger_icon.png",
             "author": {
                 "@type": "Person",
@@ -163,12 +163,12 @@
 
                 <!-- location info (name, type[safe/combat], weather, time, etc?)-->
                 <div id = "location_div" class = "box_div"> 
-                    <div id = "location_description_div">
+                    <div id = "location_description_div" data-nosnippet>
                         
                     </div>
                 </div>
 
-                <div id = "combat_div" class = "box_div">
+                <div id = "combat_div" class = "box_div" data-nosnippet>
                     <div id = "enemies_div">
                         <div id = "enemy_0_div" class = "enemy_div">
                             <div>
@@ -955,7 +955,7 @@
             </div>
         </div>
 
-        <div id = "bottom_panel_div">
+        <div id = "bottom_panel_div" data-nosnippet>
             <div id = "save_button" class = "sl_button" onclick = "saveProgress()"> Save </div>
             <div id = "save_to_file_button" class = "sl_button" onclick = "saveToFile()"> Export </div>
             <label id = "load_from_file_button" class = "sl_button" for = "saved_file_input"> Import </label> 
@@ -967,7 +967,7 @@
             <div id = "ko_fi_link" class = "financial_link" title="Support me on Ko-fi!"><a href="https://ko-fi.com/miktaew" target="_blank"><img src="resources/img/ko-fi icon.png" style="height:40px"></img></a></div>
         </div>
 
-        <div id="options_panel">
+        <div id="options_panel" data-nosnippet>
             <div id="options_choices">
                 <div class="options_choice">
                     <input type="checkbox" id="options_textsize" name="options_textsize" value="options_textsize" onclick = "option_uniform_textsize()" />
