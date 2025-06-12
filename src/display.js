@@ -80,6 +80,9 @@ const skill_list = document.getElementById("skill_list");
 const stance_bar_divs = {};
 const stance_list = document.getElementById("stance_list");
 
+const booklist_entry_divs = {};
+const booklist_list = document.getElementById("books_list");
+
 const bestiary_entry_divs = {};
 const bestiary_list = document.getElementById("bestiary_list");
 
@@ -3181,7 +3184,7 @@ function update_displayed_character_xp(did_level = false) {
         charaxter_xp_value
     */
     character_xp_div.children[0].children[0].style.width = `${100*character.xp.current_xp/character.xp.xp_to_next_lvl}%`;
-    character_xp_div.children[1].innerText = `${Math.floor(character.xp.current_xp)}/${Math.ceil(character.xp.xp_to_next_lvl)} xp`;
+    character_xp_div.children[1].innerText = `${expo(character.xp.current_xp)} / ${expo(character.xp.xp_to_next_lvl)} xp`;
 
     if(did_level) {
         character_level_div.innerText = `Level: ${character.xp.current_level}`;
@@ -3288,7 +3291,7 @@ function start_activity_display(current_activity) {
         }
         
         if(curr_xp !== "Max") {
-            action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${percent_xp}  [${curr_xp}/${needed_xp}])`;
+            action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${percent_xp}  [${expo(curr_xp)} / ${expo(needed_xp)}])`;
         } else {
             action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (Maxxed out!)`;
         }
@@ -3391,7 +3394,7 @@ function update_displayed_ongoing_activity(current_activity, is_job){
     }
 
     if(curr_xp !== "Max") {
-        action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${percent_xp}  [${curr_xp}/${needed_xp}])`;
+        action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (${percent_xp}  [${expo(curr_xp)} / ${expo(needed_xp)}])`;
     } else {
         action_xp_div.innerText += ` ${skills[activities[current_activity.activity_name].base_skills_names].name()} (Maxxed out!)`;
     }
@@ -3630,11 +3633,13 @@ function update_displayed_skill_bar(skill, leveled_up=true) {
 
     update_displayed_skill_level(skill);
 
-    if(skill.current_xp !== "Max") {
+    if (skill.current_xp !== "Max") {
+        skill_bar_divs[skill.category][skill.skill_id].children[0].classList.remove("skill_bar_capped");
         skill_bar_divs[skill.category][skill.skill_id].children[0].children[0].children[1].innerHTML = `${100*Math.floor(skill.current_xp/skill.xp_to_next_lvl*1000)/1000}%`;
-        skill_bar_divs[skill.category][skill.skill_id].children[0].children[2].children[0].innerHTML = `${expo(skill.current_xp)}/${expo(skill.xp_to_next_lvl)}`;
+        skill_bar_divs[skill.category][skill.skill_id].children[0].children[2].children[0].innerHTML = `${expo(skill.current_xp)} / ${expo(skill.xp_to_next_lvl)}`;
 
     } else {
+        skill_bar_divs[skill.category][skill.skill_id].children[0].classList.add("skill_bar_capped");
         skill_bar_divs[skill.category][skill.skill_id].children[0].children[0].children[1].innerHTML = `Max!`;
         skill_bar_divs[skill.category][skill.skill_id].children[0].children[2].children[0].innerHTML = `Maxed out!`;
     }
@@ -4152,6 +4157,55 @@ function clear_bestiary() {
     });
 }
 
+/**
+ * creates a new booklist entry;
+ * called when a new enemy is killed (or, you know, loading a save)
+ * @param {String} enemy_name 
+ */
+function create_new_booklist_entry(book_name) {
+    booklist_entry_divs[book_name] = document.createElement("div");
+    
+    let book = item_templates[book_name];
+
+    let name_div = document.createElement("div");
+    name_div.innerHTML = book_name;
+    name_div.classList.add("bestiary_entry_name");
+
+    let tooltip = create_item_tooltip(book);//document.createElement("div");
+    tooltip.classList.add("bestiary_entry_tooltip")
+    //tooltip.appendChild(create_item_tooltip(book));
+
+    booklist_entry_divs[book_name].appendChild(name_div);
+    booklist_entry_divs[book_name].appendChild(tooltip);
+    booklist_entry_divs[book_name].setAttribute("data-book", book_name);
+    booklist_entry_divs[book_name].classList.add("bestiary_entry_div");
+
+    booklist_list.appendChild(booklist_entry_divs[book_name]);
+
+    //sorts booklist_list div by book title
+    [...booklist_list.children].sort((a,b)=>a.getAttribute("data-book") - b.getAttribute("data-book"))
+                                .forEach(node=>booklist_list.appendChild(node));
+}
+
+/**
+ * updates the bestiary entry of an enemy, that is killcount and on-hover droprates
+ * @param {String} book_name 
+ */
+function update_booklist_entry(book_name, read) {
+    if (!booklist_entry_divs[book_name]) {
+        create_new_booklist_entry(book_name);
+    }
+
+    booklist_entry_divs[book_name].children[1].innerHTML = create_item_tooltip_content({item: item_templates[book_name]});
+    booklist_entry_divs[book_name].style.display = read ? "flex" : "none";
+}
+
+function clear_booklist() {
+    Object.keys(booklist_entry_divs).forEach((book) => {
+        delete booklist_entry_divs[book];
+    });
+}
+
 function clear_skill_list(){
     while(skill_list.firstChild) {
         skill_list.removeChild(skill_list.lastChild);
@@ -4313,5 +4367,7 @@ export {
     update_location_action_finish_button,
     update_displayed_storage, exit_displayed_storage,
     update_displayed_storage_inventory,
-    update_location_icon
+    update_location_icon,
+    skill_list,
+    update_booklist_entry
 }

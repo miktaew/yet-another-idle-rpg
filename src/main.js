@@ -61,6 +61,8 @@ import { end_activity_animation,
          update_location_action_finish_button,
          update_displayed_storage_inventory,
          update_location_icon,
+         skill_list,
+         update_booklist_entry
         } from "./display.js";
 import { compare_game_version, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -791,6 +793,7 @@ function do_reading() {
     const book = book_stats[is_reading];
     if(book_stats[is_reading].is_finished) {
         log_message(`Finished the book "${is_reading}"`);
+        update_booklist_entry(is_reading, true);
         end_reading();
         update_character_stats();
         process_rewards({rewards: book.rewards});
@@ -2661,6 +2664,11 @@ function create_save() {
             crafting: document.documentElement.style.getPropertyValue('--message_crafting_display') !== "none",
         };
 
+        save_data["skill_list_state"] = {};
+        for (let i = 0; i < skill_list.childElementCount; i++) {
+            save_data["skill_list_state"][i] = skill_list.children[i].classList.contains("skill_category_expanded");
+        }
+
         return JSON.stringify(save_data);
     } catch(error) {
         console.error("Something went wrong on saving the game!");
@@ -2811,6 +2819,8 @@ function load(save_data) {
                     total_book_xp += book_stats[book].accumulated_time * book_stats[book].literacy_xp_rate;
                 }
             }
+
+            update_booklist_entry(book, save_data.books[book].is_finished);
         });
         if(total_book_xp > literacy_xp) {
             add_xp_to_skill({skill: skills["Literacy"], should_info: false, xp_to_add: total_book_xp, use_bonus: false});
@@ -3479,7 +3489,14 @@ function load(save_data) {
             }
         });
     }
-    
+
+    if (save_data.skill_list_state) {
+        Object.keys(save_data.skill_list_state).forEach(index => {
+            if (skill_list.childElementCount > 0 && save_data.skill_list_state[index]) {
+                skill_list.children[index].classList.add("skill_category_expanded");
+            }
+        })
+    }
 
     update_character_stats();
     update_displayed_character_inventory();
