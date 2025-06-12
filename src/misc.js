@@ -24,18 +24,20 @@ const stat_names = {"strength": "str",
     "attack_points": "AP",
 };
 
-function expo(number, precision = 2)
+function expo(number, precision = 3)
 {
+    let expo_threshold = 10000000;
+
     if(number == 0) {
         return 0;
-    } else if(number >= 1000 || number < 0.01) {
+    } else if (number >= expo_threshold || number < 0.01) {
         return Number.parseFloat(number).toExponential(precision).replace(/[+-]/g,"");
     } else if(number > 10) {
-        return Math.round(number);
+        return Math.round(number).toLocaleString();
     } else if(number > 1) {
-        return Math.round(number*10)/10;
+        return (Math.round(number * 10) / 10).toLocaleString();
     } else {
-        return Math.round(number*100)/100;
+        return (Math.round(number * 100) / 100).toLocaleString();
     }
 }
 

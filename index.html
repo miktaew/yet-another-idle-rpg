@@ -701,6 +701,7 @@
                                     Sort by level
                                 </div>
                             </div>
+                        </div>
                     </div>
                     <div id = "stance_list_div">
                         <table id = "stance_list">
@@ -727,6 +728,7 @@
                     <div id = "journal_control_div" class="activable_buttons">
                         <div id = "journal_show_quests" class = "journal_control_button" onclick = "showQuests()"> Quests </div>
                         <div id = "journal_show_bestiary" class = "journal_control_button active_selection_button" onclick = "showBestiary()"> Bestiary </div>
+                        <div id = "journal_show_books" class = "journal_control_button" onclick = "showReadBooks()"> Anthology </div>
                         <div id = "journal_show_data" class = "journal_control_button" onclick = "showData()"> Data </div>
                     </div>
                     <div id = "quests_box_div">
@@ -741,7 +743,11 @@
                         <div id = "bestiary_list">
 
                         </div>
-                        
+                    </div>
+                    <div id="books_box_div">
+                        <div id="books_list">
+
+                        </div>
                     </div>
                     <div id = "data_box_div">
                         <div id = "data_list">
@@ -767,7 +773,7 @@
                                 <div class = "stat_tooltip"> 
                                     <div>Your strength. It affects power of physical attacks</div>
                                     <div class="stat_breakdown"></div>
-                             </div>
+                                </div>
                             </div>
                             <div class = "stat_slot_div"> 
                                 <div class = "stat_name"> Agility: </div>
@@ -923,7 +929,7 @@
                         <div id = "character_show_tools" class = "character_control_button" onclick = "showCharacterTools()"> Tools </div>
                     </div>
                 </div>
-
+            </div>
 
             <!-- message log -->
             <div id = "message_log_div" class = "box_div">
@@ -964,7 +970,7 @@
             <div id = "options_button" class = "game_info" onclick="openOptions()"><span><i class="material-icons">settings</i></span></div>
             <div id = "changelog_button" class = "game_info"><a href="changelog.html" target="_blank"></a></div>
             <div id = "help_button" class = "game_info"><a href="help.html" target="_blank"><i class="material-icons">help_outline</i></a></div>
-            <div id = "ko_fi_link" class = "financial_link" title="Support me on Ko-fi!"><a href="https://ko-fi.com/miktaew" target="_blank"><img src="resources/img/ko-fi icon.png" style="height:40px"></img></a></div>
+            <div id = "ko_fi_link" class = "financial_link" title="Support me on Ko-fi!"><a href="https://ko-fi.com/miktaew" target="_blank"><img src="resources/img/ko-fi icon.png" style="height:40px" /></a></div>
         </div>
 
         <div id="options_panel">
@@ -1128,17 +1134,26 @@
             function showData() {
                 document.getElementById("data_box_div").style.display = "block";
                 document.getElementById("quests_box_div").style.display = "none";
+                document.getElementById("books_box_div").style.display = "none";
                 document.getElementById("bestiary_box_div").style.display = "none";
             }
             function showQuests() {
                 document.getElementById("data_box_div").style.display = "none";
                 document.getElementById("quests_box_div").style.display = "block";
+                document.getElementById("books_box_div").style.display = "none";
                 document.getElementById("bestiary_box_div").style.display = "none";
             }
             function showBestiary() {
                 document.getElementById("data_box_div").style.display = "none";
                 document.getElementById("quests_box_div").style.display = "none";
+                document.getElementById("books_box_div").style.display = "none";
                 document.getElementById("bestiary_box_div").style.display = "block";
+            }
+            function showReadBooks() {
+                document.getElementById("data_box_div").style.display = "none";
+                document.getElementById("quests_box_div").style.display = "none";
+                document.getElementById("books_box_div").style.display = "block";
+                document.getElementById("bestiary_box_div").style.display = "none";
             }
 
             function showCharacterStats() {
@@ -1777,6 +1792,11 @@
                         tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
                 }
+
+                //book list entry tooltips
+                const books_box_div = document.getElementById("books_box_div");
+                books_box_div.addEventListener('mousemove', move_bestiary_entry_tooltip, false);
+
 
                 //active effects tooltip
                 const active_effects_div = document.getElementById("effects_div");
