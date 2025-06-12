@@ -24,6 +24,7 @@ import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { effect_templates } from "./active_effects.js";
 import { player_storage } from "./storage.js";
+import { QuestManager, quests } from "./quests.js";
 
 let activity_anim; //for the activity and locationAction animation interval
 
@@ -88,6 +89,9 @@ const bestiary_list = document.getElementById("bestiary_list");
 
 const combat_switch = document.getElementById("switch_to_combat")
 const inventory_switch = document.getElementById("switch_to_inventory")
+
+const quest_entry_divs = {};
+const quest_list = document.getElementById("quest_list");
 
 const data_entry_divs = {
                             character: document.getElementById("character_xp_multiplier"),
@@ -4221,6 +4225,118 @@ function update_character_attack_bar(num) {
     character_attack_bar.style.width = `${Math.min(num*100,100)}%`;
 }
 
+/**
+ * Adds quest to display
+ * @param {String} quest_id 
+ * @returns 
+ */
+function add_quest_to_display(quest_id) {
+    if(quest_entry_divs[quest_id]) {
+        console.warn(`Tried to add quest "${quest_id}" to display, but it's already there!`);
+        return;
+    } else if(quests[quest_id].is_hidden) {
+        //do not display hidden quests (that's the whole point)
+        console.warn(`Tried to add quest "${quest_id}" to display, but it's a hidden quest!`);
+        return;
+    }
+
+    const quest_div = create_displayed_quest_content(quest_id);
+    quest_entry_divs[quest_id] = quest_div;
+    quest_list.appendChild(quest_div);
+}
+
+/**
+ * 
+ * @param {*} quest_id 
+ * @returns 
+ */
+function update_displayed_quest(quest_id) {
+    if(quest_entry_divs[quest_id]) {
+        console.warn(`Tried to update display of quest "${quest_id}", but it's not in display!`);
+        return;
+    } else if(quests[quest_id].is_hidden) {
+        console.warn(`Tried to update display of quest "${quest_id}", but it's a hidden quest!`);
+        return;
+    }
+
+    //todo
+
+}
+
+/**
+ * Creates and returns a quest div to be used by other functions
+ * @param {String} quest_id 
+ * @returns {HTMLDivElement}
+ */
+function create_displayed_quest_content(quest_id) {
+
+    const quest = quests[quest_id];
+
+    const quest_div = document.createElement("div");
+    const quest_content = document.createElement("div");
+    const quest_description = document.createElement("div");
+    const quest_name = document.createElement("div");
+    quest_div.classList.add("quest_div");
+    //add an icon to show whether finished or active
+    //add a dropdown icon
+
+    quest_name.innerHTML = quest.GetQuestName();
+    quest_name.classList.add("quest_name_div");
+
+    quest_description.innerHTML = quest.GetQuestDescription(quest_id);
+    quest_description.classList.add("quest_description_div");
+    
+    const quest_tasks_div = document.createElement("div");
+    //put task description and tasks into it
+    //set color based on completion status
+
+    let unfinished_index = quest.is_finished?quest.quest_tasks.length:quest.quest_tasks.findIndex(x => !x.is_finished);
+    //quest finished - no unfinished tasks, need to go through all for display; quest not finished - do a normal search
+
+    for(let i = 0; i < unfinished_index; i++) {
+        if(!quest.quest_tasks[i].is_hidden) {
+            quest_tasks_div.appendChild(create_displayed_quest_task(quest_id, i));
+        }
+    }
+
+    if(!quest.is_finished) {
+        //there should still be an unfinished task left, add it do display as well
+        if(!quest.quest_tasks[unfinished_index].is_hidden) {
+            quest_tasks_div.appendChild(create_displayed_quest_task(quest_id, unfinished_index));
+        }
+    }
+
+    quest_content.appendChild(quest_name);
+    quest_content.appendChild(quest_description);
+    quest_content.appendChild(quest_tasks_div);
+    quest_div.appendChild(quest_content);
+    return quest_div;
+}
+
+function create_displayed_quest_task(quest_id, task_index) {
+    const task = quests[quest_id].quest_tasks[task_index];
+    const task_div = document.createElement("div");
+
+    const task_status_icon_span = document.createElement("span");
+    //todo: add an icon depending on whether task is completed or not
+
+    const task_desc_div = document.createElement("div");
+    task_desc_div.innerHTML = task.task_description;
+
+    const task_conditions_div = document.createElement("div");
+
+    //go through keys, check all stuff, blah blah
+
+    task_div.appendChild(task_status_icon_span);
+    task_div.appendChild(task_desc_div);
+    task_div.appendChild(task_conditions_div);
+    return task_div;
+}
+
+function update_displayed_quest_tasks(quest_id) {
+
+}
+
 function update_backup_load_button(date_string){
     if(date_string) {
         backup_load_button.innerText = `Load the backup autosave [${date_string.replaceAll("_",":")}]`;
@@ -4369,5 +4485,6 @@ export {
     update_displayed_storage_inventory,
     update_location_icon,
     skill_list,
-    update_booklist_entry
+    update_booklist_entry,
+    add_quest_to_display
 }

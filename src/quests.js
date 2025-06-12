@@ -1,5 +1,7 @@
 "use strict";
 
+import { add_quest_to_display } from "./display.js";
+
 const quests = {};
 const active_quests = {};
 
@@ -28,7 +30,7 @@ class QuestTask {
         Object.keys(this.task_condition).forEach(task_group => {
             Object.keys(this.task_condition[task_group]).forEach(task_type => {
                     Object.keys(this.task_condition[task_group][task_type]).forEach(task_target_id => {
-                        this.task_condition[task_group][task_type][task_target_id] = {current: 0, target: this.task_condition[task_group][task_type][task_target_id]};
+                        this.task_condition[task_group][task_type][task_target_id].current = 0;
                     });
             });
         });
@@ -58,6 +60,7 @@ class Quest {
         this.quest_reward = quest_rewards || {};
         this.is_hidden = is_hidden;
         this.is_finished = is_finished;
+        this.is_repeatable = is_repeatable;
         this.quest_condition = quest_condition;
         this.GetQuestName = GetQuestName;
         this.GetQuestDescription = GetQuestDescription;
@@ -88,7 +91,10 @@ const QuestManager = {
         } else {
             console.error(`Cannot start quest "${quest_id}"; it's either finished and not repeatable, or already active`);
         }
-        //todo: update display if quest is not hidden
+
+        if(!quest.is_hidden) {
+            add_quest_to_display(quest_id);
+        }
     },
 
     IsQuestActive(quest_id) {
@@ -118,7 +124,7 @@ const QuestManager = {
         }
     },
 
-    CatchQuestEvent({quest_event_type, quest_event_target, quest_event_count}) {
+    CatchQuestEvent({quest_event_type, quest_event_target, quest_event_count, additional_quest_triggers = []}) {
         Object.keys(active_quests).forEach(active_quest_id => {
             const current_task_index = active_quests[active_quest_id].quest_tasks.findIndex(task => !task.is_finished); //just get the first unfinished
             const current_task = active_quests[active_quest_id].quest_tasks[current_task_index];
@@ -126,17 +132,14 @@ const QuestManager = {
             let is_any_met = false;
             let is_all_met = true;
 
-            //todo: add progress to tasks
-            //check same task progress, if value is same or higher as in task condition 
-
-
             Object.keys(current_task.task_condition).forEach(task_group => {
                 /*
                         task_group (any/all): {
                             task_type (kill/kill_any/clear/something_else?): { <- quest_event_type
                                 task_target_id (some related id): { <- quest_event_target
                                     target: Number,
-                                    current: Number
+                                    current: Number,
+                                    requirements: [], //additional triggers needed, like "weapon_unarmed"
                                 }
                             }
                         }
@@ -144,8 +147,11 @@ const QuestManager = {
                         //
 
                         any: {
-                            kill: {"Wolf rat": { target: 10, current: 0, "Wolf": {target: 5, current: 0}}, //by id
-                            kill_any: {"Pest": {}}, //by tags
+                            kill: { //by id
+                                    "Wolf rat": { target: 10, current: 0, requirements: [],}, 
+                                    "Wolf": {target: 5, current: 0, requirements: [],}
+                            },
+                            kill_any: {"Pest": {requirements: [], target: , current: ,}}}, //by tags
                             clear: {"Infested field": {}} //by id
                         }
                         all:{
@@ -161,7 +167,19 @@ const QuestManager = {
                         }
                     });
 
+                    //if event is of proper type, check further conditions, increase the count and check if it's completed
                     if(quest_event_type in current_task.task_condition[task_group] && quest_event_target in current_task.task_condition[task_group][quest_event_type]) {
+
+                        //let requirements_met = true;
+
+                        //return if additional requirements are not met (not present in additional triggers)
+                        for(let i = 0; i < current_task.task_condition[task_group][quest_event_type].requirements.length; i++) {
+                            if(!additional_quest_triggers.includes(current_task.task_condition[task_group][quest_event_type].requirements[i])) {
+                                //requirements_met = false;
+                                return;
+                            }
+                        }
+
                         current_task.task_condition[task_group][quest_event_type][quest_event_target].current += quest_event_count;
 
                         //any => set to true after first met, as only one is needed
@@ -184,7 +202,7 @@ const QuestManager = {
                 this.FinishQuest(active_quest_id);
             }
         });
-    }
+    },
 };
 
 quests["Lost memory"] = new Quest({
@@ -215,7 +233,7 @@ quests["Lost memory"] = new Quest({
             task_condition: {
                 any: {
                     clear: {
-                        "Infested field": 1
+                        "Infested field": {target: 1},
                     },
                 }
             },
@@ -226,14 +244,14 @@ quests["Lost memory"] = new Quest({
 quests["Test quest"] = new Quest({
     quest_name: "Test quest",
     id: "Test quest",
-    quest_description: "This is a test quest",
+    quest_description: "Raaaaaaaaaaat ratratratratrat rat rat rat",
     quest_tasks: [
         new QuestTask({
             task_description: "blah",
             task_condition: {
                 any: {
                     kill: {
-                        "Wolf rat": 10,
+                        "Wolf rat": {target: 10}
                     }
                 }
             }

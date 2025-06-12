@@ -4128,6 +4128,8 @@ sort_displayed_inventory({sort_by: "name", target: "character"});
 
 run();
 
+QuestManager.StartQuest("Test quest");
+
 //Verify_Game_Objects();
 window.Verify_Game_Objects = Verify_Game_Objects;
 
