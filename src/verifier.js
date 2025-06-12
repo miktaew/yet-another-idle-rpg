@@ -2,12 +2,12 @@ import { effect_templates } from "./active_effects.js";
 import { activities } from "./activities.js";
 import { character } from "./character.js";
 import { dialogues } from "./dialogues.js";
-import { enemy_templates } from "./enemies.js";
+import { enemy_templates, enemy_tags } from "./enemies.js";
 import { item_templates } from "./items.js";
 import { locations } from "./locations.js";
 import { skills, skill_categories } from "./skills.js";
 import { traders } from "./traders.js";
-//import { quest_templates } from "./quests.js"; todo
+import { quests } from "./quests.js";
 
 function Verify_Game_Objects() {
     let results = [0,0];

@@ -84,6 +84,8 @@ class Combat_zone {
                  is_finished = false,
                  types = [], //{type, xp_gain}
                  enemy_groups_list = [],
+                 is_enemy_groups_list_random = true,
+                 predefined_lineup_on_nth_group = 0,
                  enemies_list = [], 
                  enemy_group_size = [1,1],
                  enemy_count = 30,
@@ -109,7 +111,9 @@ class Combat_zone {
         this.is_finished = is_finished;
         this.types = types; //special properties of the location, e.g. "narrow" or "dark"
         this.enemy_groups_list = enemy_groups_list; //predefined enemy teams, names only
-        this.enemies_list = enemies_list; //possible enemies (to be used if there's no enemy_groups_list), names only
+        this.is_enemy_groups_list_random = is_enemy_groups_list_random; //only used when enemy_groups_list is present; false will result in enemy groups being used in the provided order
+        this.predefined_lineup_on_nth_group = predefined_lineup_on_nth_group; //if not 0, every nth fight will be from enemy_groups_list instead of randomized from enemies_list
+        this.enemies_list = enemies_list; //possible enemies (to be used if there's no enemy_groups_list or if it exists but is to only be used every n fights), names only
         this.enemy_group_size = enemy_group_size; // [min, max], used only if enemy_groups_list is not provided
         if(!this.enemy_groups_list){
             if(this.enemy_group_size[0] < 1) {
@@ -180,10 +184,18 @@ class Combat_zone {
         const enemies = [];
         let enemy_group = [];
 
-        if(this.enemy_groups_list.length > 0) { // PREDEFINED GROUPS EXIST
+        if(this.enemy_groups_list.length > 0 || this.enemy_groups_killed%this.predefined_lineup_on_nth_group == 0) { // PREDEFINED GROUPS EXIST
 
-            const index = Math.floor(Math.random() * this.enemy_groups_list.length);
-            enemy_group = this.enemy_groups_list[index]; //names
+            if(this.is_enemy_groups_list_random) { 
+                //choose randomly
+                const index = Math.floor(Math.random() * this.enemy_groups_list.length);
+                enemy_group = this.enemy_groups_list[index].enemies; //names
+            } else { 
+                //choose in order provided
+                const index = this.enemy_groups_killed % this.enemy_groups_list.length;
+                enemy_group = this.enemy_groups_list[index].enemies; //names
+            }
+            
 
         } else {  // PREDEFINED GROUPS DON'T EXIST
 

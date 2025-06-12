@@ -2891,6 +2891,7 @@ item_templates["Butchering and you"] = new Book({
         name: "Stale bread", description: "Big piece of an old bread, still edible.", 
         value: 20,
         effects: [{effect: "Basic meal", duration: 60}],
+        tags: {"food": true},
     });
 
     item_templates["Fresh bread"] = new UsableItem({
@@ -2898,29 +2899,35 @@ item_templates["Butchering and you"] = new Book({
         description: "Freshly baked bread, delicious.", 
         value: 40,
         effects: [{effect: "Basic meal", duration: 150}],
+        tags: {"food": true},
     });
 
     item_templates["Carrot"] = new UsableItem({
         name: "Carrot", description: "A delicious root that can be eaten raw.", 
         value: 20,
         effects: [{effect: "Basic meal", duration: 10}],
+        tags: {"food": true},
     });
 
     item_templates["Cooked carrot"] = new UsableItem({
         name: "Cooked carrot", description: "A delicious root, cooked.",
         value: 30,
         effects: [{effect: "Basic meal", duration: 150}],
+        tags: {"food": true},
     });
 
     item_templates["Potato"] = new UsableItem({
-        name: "Potato", description: "A common tuber with versatile culinary usage. Just remember to cook it first.", 
+        name: "Potato", description: "A common tuber with versatile culinary usage. Just remember to cook it first!", 
         value: 15,
         effects: [{effect: "Slight food poisoning", duration: 20}],
+        tags: {"food": true},
     });
+
     item_templates["Cooked potato"] = new UsableItem({
         name: "Potato", description: "A common tuber with versatile culinary usage, though this one was simply cooked.", 
         value: 40,
         effects: [{effect: "Basic meal", duration: 150}],
+        tags: {"food": true},
     });
 
     item_templates["Weak healing powder"] = new UsableItem({
@@ -2968,6 +2975,7 @@ item_templates["Butchering and you"] = new Book({
         description: "Smell might be fine now, but it still seems like a bad idea to eat it",
         value: 10,
         effects: [{effect: "Cheap meat meal", duration: 45}, {effect: "Slight food poisoning", duration: 45}],
+        tags: {"food": true},
     });
 
     item_templates["Roasted purified rat meat"] = new UsableItem({
@@ -2975,6 +2983,7 @@ item_templates["Butchering and you"] = new Book({
         description: "Smells alright and should be safe to eat, yet you still have some doubts",
         value: 20,
         effects: [{effect: "Cheap meat meal", duration: 45}],
+        tags: {"food": true},
     });
 
     item_templates["Fried pork"] = new UsableItem({
@@ -2982,13 +2991,15 @@ item_templates["Butchering and you"] = new Book({
         description: "It's dripping with fat and smells fantastic, all it lacks is some spices and a good side dish.",
         value: 40,
         effects: [{effect: "Simple meat meal", duration: 90}],
+        tags: {"food": true},
     });
 
     item_templates["Fried goat meat"] = new UsableItem({
         name: "Fried goat meat",
-        description: "It has a nice aroma, but is a bit too tough. Perhaps a stew would have been a better choice.",
+        description: "It has a nice aroma, but is a bit too tough. Perhaps a stew would have been a better choice?",
         value: 40,
         effects: [{effect: "Simple meat meal", duration: 90}],
+        tags: {"food": true},
     });
 
 })();

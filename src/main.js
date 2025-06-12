@@ -64,7 +64,7 @@ import { end_activity_animation,
          skill_list,
          update_booklist_entry
         } from "./display.js";
-import { compare_game_version, get_hit_chance, is_a_older_than_b } from "./misc.js";
+import { compare_game_version, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { game_version, get_game_version } from "./game_version.js";
@@ -72,6 +72,7 @@ import { ActiveEffect, effect_templates } from "./active_effects.js";
 import { open_storage, close_storage, move_item_to_storage, remove_item_from_storage, player_storage, is_storage_open } from "./storage.js";
 import { Verify_Game_Objects } from "./verifier.js";
 import { ReputationManager } from "./reputation.js";
+import { quests, QuestManager, active_quests } from "./quests.js";
 
 const save_key = "save data";
 const dev_save_key = "dev save data";
@@ -650,17 +651,50 @@ function add_money_to_character(money_num) {
     update_displayed_money();
 }
 
+/**
+ * 
+ * @param {Object} params
+ * @param {Number} params.ammount 
+ * @param {Boolean} params.add_xp 
+ * @param {Number} params.xp_to_add skippable
+ * @returns 
+ */
+function update_health({ammount_to_restore = 0, ammount_to_loose = 0, add_xp = true} = {}) {
+    if(!ammount_to_restore && !ammount_to_loose) {
+        //no change, nothing to do
+        return;
+    }
+
+    //actual change: smaller between missing and balance of lose/restoration
+    const actual_health_change = Math.min(character.stats.full.max_health - character.stats.full.health, ammount_to_restore-ammount_to_loose);
+    //actual healing: smaller between missing+lose and restoration
+    const actual_healing_done = Math.min(character.stats.full.max_health - character.stats.full.health + ammount_to_loose, ammount_to_restore);
+
+    //anything changed - update health and display
+    if(actual_health_change) {
+        character.stats.full.health += actual_health_change;
+
+        update_displayed_health();
+    }
+
+    //anything actually healed - add xp
+    if(actual_healing_done && add_xp) {
+        add_xp_to_skill({skill: skills["Regeneration"], xp_to_add: actual_healing_done});
+    }
+
+    //out of hp - set hp to 0, kill
+    if(character.stats.full.health <= 0) {
+        character.stats.full.health = 0;
+        kill_player({is_combat: "parent_location" in current_location});
+    }
+}
+
 //single tick of resting
 function do_resting() {
     if(character.stats.full.health < character.stats.full.max_health) {
-        const resting_heal_ammount = Math.max(character.stats.full.max_health * 0.01,2); 
-        //todo: scale it with skill, because why not?; maybe up to x2 bonus
+        const resting_heal_ammount =  Math.round(Math.max(character.stats.full.max_health * 0.01, 2) * (1 + 3*get_total_skill_level("Regeneration")/skills["Regeneration"].max_level));
 
-        character.stats.full.health += (resting_heal_ammount);
-        if(character.stats.full.health > character.stats.full.max_health) {
-            character.stats.full.health = character.stats.full.max_health;
-        } 
-        update_displayed_health();
+        update_health({ammount_to_restore: resting_heal_ammount});
     }
 
     if(character.stats.full.stamina < character.stats.full.max_stamina) {
@@ -678,13 +712,9 @@ function do_resting() {
 
 function do_sleeping() {
     if(character.stats.full.health < character.stats.full.max_health) {
-        const sleeping_heal_ammount = Math.round(Math.max(character.stats.full.max_health * 0.04, 5) * (1 + get_total_skill_level("Sleeping")/skills["Sleeping"].max_level));
+        const sleeping_heal_ammount = Math.round(Math.max(character.stats.full.max_health * 0.04, 5) * (1 + get_total_skill_level("Sleeping")/skills["Sleeping"].max_level) * (1 + 3*get_total_skill_level("Regeneration")/skills["Regeneration"].max_level));
         
-        character.stats.full.health += (sleeping_heal_ammount);
-        if(character.stats.full.health > character.stats.full.max_health) {
-            character.stats.full.health = character.stats.full.max_health;
-        } 
-        update_displayed_health();
+        update_health({ammount_to_restore: sleeping_heal_ammount});
     }
 
     if(character.stats.full.stamina < character.stats.full.max_stamina) {
@@ -1134,7 +1164,7 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
             let leveled = false;
 
             for(let i = 0; i < targets.length; i++) {
-                do_character_combat_action({target: targets[i], attack_power});
+                do_character_combat_action({target: targets[i], attack_power, target_count: targets.length});
             }
 
             if(current_stance.related_skill) {
@@ -1306,7 +1336,7 @@ function do_enemy_combat_action(enemy_id) {
     update_displayed_health();
 }
 
-function do_character_combat_action({target, attack_power}) {
+function do_character_combat_action({target, attack_power, target_count}) {
 
     const hero_base_damage = attack_power;
 
@@ -1316,13 +1346,13 @@ function do_character_combat_action({target, attack_power}) {
     
     let hit_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/4); // down to ~ 60% if there's full 8 enemies
     
-    add_xp_to_skill({skill: skills["Combat"], xp_to_add: target.xp_value});
+    add_xp_to_skill({skill: skills["Combat"], xp_to_add: target.xp_value/target_count});
 
     if(target.size === "small") {
-        add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: target.xp_value});
+        add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: target.xp_value/target_count});
         hit_chance_modifier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Pest killer"});
     } else if(target.size === "large") {
-        add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: target.xp_value});
+        add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: target.xp_value/target_count});
     }
 
     const hit_chance = get_hit_chance(character.stats.full.attack_points * hit_chance_modifier, target.stats.agility * Math.sqrt(target.stats.intuition ?? 1));
@@ -1333,11 +1363,11 @@ function do_character_combat_action({target, attack_power}) {
         if(character.equipment.weapon != null) {
             damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) )/10;
 
-            add_xp_to_skill({skill: skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]], xp_to_add: target.xp_value}); 
+            add_xp_to_skill({skill: skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]], xp_to_add: target.xp_value/target_count}); 
 
         } else {
             damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) )/10;
-            add_xp_to_skill({skill: skills['Unarmed'], xp_to_add: target.xp_value});
+            add_xp_to_skill({skill: skills['Unarmed'], xp_to_add: target.xp_value/target_count});
         }
         //small randomization by up to 20%, then bonus from skill
         
@@ -1369,11 +1399,11 @@ function do_character_combat_action({target, attack_power}) {
 
             log_message(target.name + " was defeated", "enemy_defeated");
 
-            //gained xp multiplied ny TOTAL size of enemy group raised to 1/3
+            //gained xp multiplied by TOTAL size of enemy group raised to 1/3
             let xp_reward = target.xp_value * (current_enemies.length**0.3334);
             add_xp_to_character(xp_reward, true);
 
-            let loot = target.get_loot();
+            let loot = target.get_loot({drop_chance_modifier: 1/current_enemies.length**0.6667});
             if(loot.length > 0) {
                 log_loot({loot_list: loot, is_combat: true});
                 loot = loot.map(x => {return {item_key: item_templates[x.item_id].getInventoryKey(), count: x.count}});
@@ -2333,19 +2363,22 @@ function use_item(item_key) {
         });
         add_to_character_inventory(recovered);
 
-        if(item_templates[id].tags.medicine) {
-            let leveled = add_xp_to_skill({skill: skills["Medicine"], xp_to_add: (item_templates[id].value/10)**.6667});
-            //if levelup, update all medicine tooltips
-            if(leveled) {
-                character.stats.add_active_effect_bonus();
-                update_character_stats();
-                Object.keys(character.inventory).forEach(item_key => {
-                    if(character.inventory[item_key].item.tags.medicine) {
-                        update_displayed_character_inventory({item_key});
-                    }
-                });
+        //update consuming-related skills if relevant tags are present
+        Object.keys(skill_consumable_tags).forEach(skill_id => {
+            if(item_templates[id].tags[skill_consumable_tags[skill_id]]) {
+                let leveled = add_xp_to_skill({skill: skills[skill_id], xp_to_add: (item_templates[id].value/10)**.6667});
+                //if levelup, update all related tooltips
+                if(leveled) {
+                    character.stats.add_active_effect_bonus();
+                    update_character_stats();
+                    Object.keys(character.inventory).forEach(item_key => {
+                        if(character.inventory[item_key].item.tags[skill_consumable_tags[skill_id]]) {
+                            update_displayed_character_inventory({item_key});
+                        }
+                    });
+                }
             }
-        }
+        });
 
         remove_from_character_inventory([{item_key}]);
     }
@@ -3823,24 +3856,25 @@ function update() {
             }
         }
 
+
+        let health_to_add = 0;
+        let health_to_subtract = 0
         //health regen
         if(character.stats.full.health_regeneration_flat) {
-            character.stats.full.health += character.stats.full.health_regeneration_flat;
+            health_to_add += character.stats.full.health_regeneration_flat;
         }
         if(character.stats.full.health_regeneration_percent) {
-            character.stats.full.health += character.stats.full.max_health * character.stats.full.health_regeneration_percent/100;
+            health_to_add += character.stats.full.max_health * character.stats.full.health_regeneration_percent/100;
         }
         //health loss
         if(character.stats.full.health_loss_flat) {
-            character.stats.full.health += character.stats.full.health_loss_flat;
+            health_to_subtract += character.stats.full.health_loss_flat;
         }
         if(character.stats.full.health_loss_percent) {
-            character.stats.full.health += character.stats.full.max_health * character.stats.full.health_loss_percent/100;
+            health_to_subtract += character.stats.full.max_health * character.stats.full.health_loss_percent/100;
         }
 
-        if(character.stats.full.health <= 0) {
-            kill_player({is_combat: "parent_location" in current_location});
-        }
+        update_health({ammount_to_restore: health_to_add, ammount_to_loose: health_to_subtract});
 
         //stamina regen
         if(character.stats.full.stamina_regeneration_flat) {
@@ -3857,19 +3891,10 @@ function update() {
             character.stats.full.mana += character.stats.full.max_mana * character.stats.full.mana_regeneration_percent/100;
         }
 
-        if(character.stats.full.health > character.stats.full.max_health) {
-            character.stats.full.health = character.stats.full.max_health
-        }
-
         if(character.stats.full.stamina > character.stats.full.max_stamina) {
             character.stats.full.stamina = character.stats.full.max_stamina
         }
 
-        if(character.stats.full.health_regeneration_flat || character.stats.full.health_regeneration_percent 
-            || character.stats.full.health_loss_flat || character.stats.full.health_loss_percent
-        ) {
-            update_displayed_health();
-        }
         if(character.stats.full.stamina_regeneration_flat || character.stats.full.stamina_regeneration_percent) {
             update_displayed_stamina();
         }
@@ -4102,7 +4127,6 @@ update_displayed_equipment();
 sort_displayed_inventory({sort_by: "name", target: "character"});
 
 run();
-
 
 //Verify_Game_Objects();
 window.Verify_Game_Objects = Verify_Game_Objects;
