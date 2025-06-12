@@ -4,8 +4,8 @@
         <link rel = "stylesheet" href = "style.css">
         
         <script type="module" src="src/HackTimer/HackTimer.min.js"></script>
-        <script type='module' src="dist/bundle.js?version=v0.4.6.39"></script>
-        <!--script type="module" src="src/main.js"></script-->
+        <!--script type='module' src="dist/bundle.js?version=v0.4.6.39"></script-->
+        <script type="module" src="src/main.js"></script>
 
         <!--Icons-->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -691,15 +691,14 @@
 
                 <div id="skills_and_stances_div" class="box_div">
                     <div id = "skill_list_div">
-                            <div id = "skill_list">
+                        <div id = "skill_list">
+                        </div>
+                        <div id = "skill_sorting_buttons" class="activable_buttons"> 
+                            <div id = "skill_sort_by_name" class = "skill_sorting_button active_selection_button" onclick='sortSkills({sort_by:"name"})'>
+                                Sort by name
                             </div>
-                            <div id = "skill_sorting_buttons" class="activable_buttons"> 
-                                <div id = "skill_sort_by_name" class = "skill_sorting_button active_selection_button" onclick='sortSkills({sort_by:"name"})'>
-                                    Sort by name
-                                </div>
-                                <div id = "skill_sort_by_level" class = "skill_sorting_button" onclick='sortSkills({sort_by:"level"})'>
-                                    Sort by level
-                                </div>
+                            <div id = "skill_sort_by_level" class = "skill_sorting_button" onclick='sortSkills({sort_by:"level"})'>
+                                Sort by level
                             </div>
                         </div>
                     </div>
