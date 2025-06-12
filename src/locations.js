@@ -434,6 +434,7 @@ class LocationAction{
         is_unlocked = false,
         repeatable = false,
         check_conditions_on_finish = true,
+        unlock_text,
     }) {
         this.starting_text = starting_text; //text on the button to start
         this.action_name = action_name || starting_text;
@@ -497,6 +498,7 @@ class LocationAction{
         this.is_unlocked = is_unlocked;
         this.is_finished = false; //really same as is_locked but with a more fitting name
         this.repeatable = repeatable;
+        this.unlock_text = unlock_text;
     }
 
     /**
@@ -1197,7 +1199,13 @@ There's another gate on the wall in front of you, but you have a strange feeling
             xp: 35,
             flags: ["is_deep_forest_beaten"],
             activities: [{location:"Forest road", activity: "woodcutting"}],
-        }
+        },
+        rewards_with_clear_requirement: [
+            {
+                required_clear_count: 4,
+                actions: [{action: "follow the trail", location:"Forest road"}]
+            }
+        ],
     });
     locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture into the [Deep forest]"});
 
@@ -1221,6 +1229,28 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }
     });
     locations["Forest road"].connected_locations.push({location: locations["Forest clearing"], custom_text: "Go towards the [Forest clearing] in the north"});
+
+    locations["Forest den"] = new Combat_zone({
+        description: "A relatively large cave in the depths of the forest, filled with hordes of direwolves.",
+        enemies_list: ["Direwolf"],
+        enemy_count: 50,
+        enemy_group_size: [2,3],
+        enemy_groups_list: [{enemies: ["Direwolf hunter"]}],
+        is_enemy_groups_list_random: true,
+        predefined_lineup_on_nth_group: 4,
+        is_unlocked: false,
+        enemy_stat_variation: 0.2,
+        name: "Forest den", 
+        types: [{type: "narrow", stage: 2, xp_gain: 5}, {type: "dark", stage: 2, xp_gain: 5}],
+        parent_location: locations["Forest road"],
+        first_reward: {
+            xp: 2000,
+        },
+        repeatable_reward: {
+            xp: 1000,
+        }
+    });
+    locations["Forest road"].connected_locations.push({location: locations["Forest den"], custom_text: "Enter the [Forest den]"});
 
     locations["Town outskirts"] = new Location({ 
         connected_locations: [{location: locations["Forest road"], custom_text: "Return to the [Forest road]"}],
@@ -1939,6 +1969,24 @@ There's another gate on the wall in front of you, but you have a strange feeling
             rewards: {
                 locations: [{location: "Forest clearing"}],
             },
+        }),
+        "follow the trail": new LocationAction({
+            action_id: "follow the trail",
+            starting_text: "Follow the mysterious trail deeper into the forest...",
+            description: "It doesn't seem to be a smart thing to do",
+            action_text: "Following the trail",
+            success_text: "The trail leads you to a large cave. There's some broken bones lying around the entrance",
+            failure_texts: {
+                random_loss: [
+                    "At some point you got distracted and lost your way",
+                ],
+            },
+            attempt_duration: 180,
+            success_chances: [0.7],
+            rewards: {
+                locations: [{location: "Forest den"}],
+            },
+            unlock_text: "At some point during your fights, you notice a path trodden by animals. There's a lot of footprints that look like wolf's, except much larger..."
         }),
     };
 })();

@@ -1643,6 +1643,18 @@ i {
 		padding-top: 5px;
 		margin-bottom: 5px;
 	}
+		.quest_div {
+			border: 1px solid gray;
+			margin-left: 1px;
+		}
+		.quest_name_div {
+			font-weight: bold;
+			margin-left: 2px;
+		}
+		.quest_description_div {
+			font-size: 14px;
+			margin-left: 2px;
+		}
 
 	#journal_control_div {
 		font-size: 20px;
