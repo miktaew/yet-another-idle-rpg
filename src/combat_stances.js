@@ -102,7 +102,8 @@ stances["defensive"] = new Stance({
     related_skill: "Defensive measures",
     stat_multipliers: {
         attack_power: 0.8,
-        agility: 1.2,
+        attack_speed: 0.8,
+        evasion_points: 1.2,
         block_strength: 1.1,
     },
     target_count: 1,

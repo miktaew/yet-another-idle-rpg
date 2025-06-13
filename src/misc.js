@@ -26,6 +26,12 @@ const stat_names = {"strength": "str",
     "attack_points": "AP",
 };
 
+const task_type_names = {
+    "kill": "kill",
+    "kill_any": "kill",
+    "clear": "clear",
+}
+
 //skill-tag mapping for when consumables are used
 const skill_consumable_tags = {
     "Medicine": "medicine",
@@ -33,8 +39,8 @@ const skill_consumable_tags = {
 }
 
 //additional skill-tag mapping for crafting
-const skill_crafting_tags = {
-    "Medicine": "medicine",
+const crafting_tags_to_skills = {
+    "medicine": "Medicine",
 }
 
 function expo(number, precision = 2)
@@ -155,7 +161,7 @@ function is_a_older_than_b(version1, version2) {
     return compare_game_version(version1, version2) < 0;
 }
 
-export { expo, format_reading_time, format_working_time, stat_names, get_hit_chance, 
+export { expo, format_reading_time, format_working_time, 
+        get_hit_chance, round_item_price,
         compare_game_version, is_a_older_than_b,
-        round_item_price,
-        skill_consumable_tags, skill_crafting_tags};
+        stat_names, task_type_names, skill_consumable_tags, crafting_tags_to_skills};

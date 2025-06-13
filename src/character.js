@@ -13,6 +13,7 @@ import { active_effects, current_location, current_stance, favourite_consumables
 import { current_game_time, is_night } from "./game_time.js";
 import { item_templates } from "./items.js";
 import { skill_consumable_tags } from "./misc.js";
+import { get_current_temperature } from "./weather.js";
 
 const base_block_chance = 0.75; //+20 from the skill
 const base_xp_cost = 10;
@@ -66,6 +67,7 @@ class Hero extends InventoryHaver {
                                 books: {},
                                 light_level: {},
                                 environment: {},
+                                weather: {},
                         },
                         multiplier: {
                                 skills: {},
@@ -75,6 +77,7 @@ class Hero extends InventoryHaver {
                                 stance: {},
                                 light_level: {},
                                 environment: {},
+                                weather: {},
                         }
                 };
                 this.reputation = { //effects go up to 1000?
@@ -444,6 +447,37 @@ character.stats.add_location_penalties = function() {
 }
 
 /**
+ * 
+ * @returns character temperature tolerance; a stub for now, to be based on clothing worn
+ */
+character.get_character_temperature_tolerance = function(){
+        return 0;
+}
+
+/**
+ * adds the effects from weather (temperature), currently limited to stamina efficiency
+ */
+character.stats.add_weather_effects = function() {
+        const temperature = get_current_temperature();
+        const temperature_tolerance = character.get_character_temperature_tolerance();
+        let stam_modifier = 1;
+        const temperature_bounds = [temperature + temperature_tolerance, temperature - temperature_tolerance];
+        if(temperature_bounds[1] > 45 || temperature_bounds[0] < 0) {
+                stam_modifier = 0.1;
+        } else if(temperature_bounds[1] > 40 || temperature_bounds[0] < 5) {
+                stam_modifier = 0.3;
+        } else if(temperature_bounds[1] > 35 || temperature_bounds[0] < 10) {
+                stam_modifier = 0.5;
+        } else if(temperature_bounds[1] >= 30 || temperature_bounds[0] < 15) {
+                stam_modifier = 0.8;
+        }
+        //add to stats
+
+        character.stats.multiplier.weather.stamina_efficiency = stam_modifier;
+
+}
+
+/**
  * full stat recalculation, call whenever something changes
  */
 character.update_stats = function () {
@@ -713,12 +747,21 @@ function add_location_penalties() {
         character.stats.add_location_penalties();
 }
 
+function add_weather_effects() {
+        character.stats.add_weather_effects();
+}
+
+function get_character_temperature_tolerance() {
+        return character.get_character_temperature_tolerance();
+}
+
 /**
  * updates character stats + their display 
  */
 function update_character_stats() {
         character.stats.add_location_penalties();
         character.update_stats();
+        character.stats.add_weather_effects();
 
         update_displayed_stats();
         update_displayed_health();

@@ -467,8 +467,11 @@ class Textline {
             "defeated gang": new Textline({
                 name: "That gang you mentioned? I dealt with them.",
                 is_unlocked: false,
-                text: "I know boss, we all heard the commotion! You're the best! I think the local trader already pulled out some gear he was hiding from them, you should check it out!",
+                text: "I know boss, we all heard the commotion! You're the best! I think the local trader already pulled out some gear he was hiding from them, you should check it out! <br><strong>*Pauses for a moment*</strong> I wish I had shown you my defensive tricks before that, it might have made your job easier...",
                 locks_lines: ["defeated gang"],
+                rewards: {
+                    textlines: [{dialogue: "suspicious man", lines: ["tricks"]}],
+                }
             }),
             "behave 2": new Textline({ 
                 name: "Are you behaving yourself?",
@@ -479,8 +482,19 @@ class Textline {
                 name: "Are you behaving yourself?",
                 is_unlocked: false,
                 text: "Of course boss!",
+                rewards: {
+                    textlines: [{dialogue: "suspicious man", lines: ["tricks"]}],
+                }
             }),
-        },
+            "tricks": new Textline({ 
+                name: "You said something about defensive tricks? Show me",
+                is_unlocked: false,
+                text: "Sure, boss! So, it's really about focusing on your legs to either jump away faster or to better brace the shield, and... <strong>He continues explaining for a while</strong>",
+                rewards: {
+                    stances: ["defensive"],
+                }
+            }),
+        }, 
         description: "You see a man in shabby clothes and with messy hair, who keeps looking around. He appears to have multiple nervous ticks."
     });
     dialogues["farm supervisor"] = new Dialogue({

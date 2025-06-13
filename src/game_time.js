@@ -58,6 +58,13 @@ function Game_time(new_time) {
         else return "Spring";
     }
 
+    this.getTimeOfDay = function() {
+        if (this.hour >= 21 || this.hour < 3) return "Night";
+        else if(this.hour >= 3 && this.hour < 8) return "Dawn";
+        else if(this.hour >= 8 && this.hour < 18) return "Day";
+        else return "Dusk";
+    }
+
     this.getDayOfTheWeek = function() {
         switch(this.day_count % 7) {
             case 0:

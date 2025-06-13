@@ -19,12 +19,13 @@ import { format_time, current_game_time, is_night } from "./game_time.js";
 import { book_stats, item_templates, Weapon, Armor, Shield, rarity_multipliers, getItemRarity, getItemFromKey } from "./items.js";
 import { favourite_locations, get_location_type_penalty, location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
-import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price, format_working_time } from "./misc.js"
+import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price, format_working_time, task_type_names } from "./misc.js"
 //import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { effect_templates } from "./active_effects.js";
 import { player_storage } from "./storage.js";
-import { QuestManager, quests } from "./quests.js";
+import { questManager, quests } from "./quests.js";
+import { get_current_temperature } from "./weather.js";
 
 let activity_anim; //for the activity and locationAction animation interval
 
@@ -74,6 +75,7 @@ const active_effects_tooltip = document.getElementById("effects_tooltip");
 const active_effect_count = document.getElementById("active_effect_count");
 
 const time_field = document.getElementById("time_div");
+const weather_field = document.getElementById("weather_div");
 
 const skill_bar_divs = {};
 const skill_list = document.getElementById("skill_list");
@@ -2627,7 +2629,7 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
     const station_tier = current_location?.crafting?.tiers[category] || 1;
     let tooltip = "";
     if(subcategory === "items") {
-        const success_chance = Math.round(100*recipe.get_success_chance());
+        const success_chance = Math.round(100*recipe.get_success_chance(station_tier));
         tooltip += `Success chance: <b><span style="color:${success_chance > 74?"lime":success_chance>49?"yellow":success_chance>24?"orange":"red"}">${success_chance}%</span></b><br><br>Materials required:<br>`;
         for(let i = 0; i < recipe.materials.length; i++) {
             if(recipe.materials[i].material_id) {
@@ -3147,6 +3149,10 @@ function update_displayed_time() {
     } else {
         time_field.innerHTML = current_game_time.toString() + '<span class="material-icons icon icon_day">light_mode</span>';
     }
+}
+
+function update_displayed_temperature() {
+    weather_field.innerHTML = '<span class="material-icons icon">thermostat</span>' + get_current_temperature() +"°C";
 }
 
 /** 
@@ -3920,14 +3926,13 @@ function update_displayed_faved_stances(stances) {
         list.innerHTML += node;
     });
 
-
     //different stamina cost: cheaper first; same stamina cost: sort alphabetically
     [...list.children].sort((a,b)=>{
         const stance_a = stances[a.getAttribute("data-stance")];
         const stance_b = stances[b.getAttribute("data-stance")];
 
-        if(!stance_a || !stance_b || !stance_a.is_unlocked || !stance_b.is_unlocked) {
-            console.error(`No such stance as either '${stance_a}' or '${stance_b}', or at least one of them is not yet unlocked!`);
+        if(!stance_a || !stance_b) {
+            console.error(`No such stance as either '${stance_a}' or '${stance_b}'!`);
         }
         
         if(stance_a.stamina_cost < stance_b.stamina_cost) {
@@ -4280,10 +4285,10 @@ function create_displayed_quest_content(quest_id) {
     //add an icon to show whether finished or active
     //add a dropdown icon
 
-    quest_name.innerHTML = quest.GetQuestName();
+    quest_name.innerHTML = quest.getQuestName();
     quest_name.classList.add("quest_name_div");
 
-    quest_description.innerHTML = quest.GetQuestDescription(quest_id);
+    quest_description.innerHTML = quest.getQuestDescription(quest_id);
     quest_description.classList.add("quest_description_div");
     
     const quest_tasks_div = document.createElement("div");
@@ -4318,14 +4323,59 @@ function create_displayed_quest_task(quest_id, task_index) {
     const task_div = document.createElement("div");
 
     const task_status_icon_span = document.createElement("span");
-    //todo: add an icon depending on whether task is completed or not
+    task_status_icon_span.classList.add("task_status_icon");
+    if(task.is_finished) {
+        task_div.classList.add("task_finished");
+        task_status_icon_span.innerHTML = '<i class="material-icons">check_box</i>';
+    } else {
+        task_status_icon_span.innerHTML = '<i class="material-icons">check_box_outline_blank</i>';
+    }
 
     const task_desc_div = document.createElement("div");
     task_desc_div.innerHTML = task.task_description;
 
     const task_conditions_div = document.createElement("div");
 
-    //go through keys, check all stuff, blah blah
+    /*
+    task_group (any/all): {
+        task_type (kill/kill_any/clear/something_else?): { <- quest_event_type
+            task_target_id (some related id): { <- quest_event_target
+                target: Number,
+                current: Number,
+                requirements: [], //additional triggers needed, like "weapon_unarmed"
+    */
+    //goes through the properties and sets up display
+    let total_tasks = 0;
+    Object.keys(task.task_condition).forEach(task_group => {
+        const task_condition_div = document.createElement("div");
+        task_condition_div.classList.add("task_condition_div");
+        if(Object.keys(task.task_condition[task_group]).length) {
+            task_condition_div.innerHTML += task_group + ":";
+            Object.keys(task.task_condition[task_group]).forEach(task_type => {
+                const task_type_div = document.createElement("div");
+                task_type_div.classList.add("task_type_div");
+                task_type_div.innerHTML += task_type_names[task_type] +":";
+                Object.keys(task.task_condition[task_group][task_type]).forEach(task_target_id => {
+                    const task_target_div = document.createElement("div");
+                    task_target_div.classList.add("task_target_div");
+                    task_target_div.innerHTML += task_target_id + ": " + task.task_condition[task_group][task_type][task_target_id].current +"/"+task.task_condition[task_group][task_type][task_target_id].target;
+                    task_type_div.appendChild(task_target_div);
+                    total_tasks++;
+                });
+                task_condition_div.appendChild(task_type_div);
+            });
+        }
+        
+        task_conditions_div.appendChild(task_condition_div);
+    });
+    
+    if(total_tasks == 1) {
+        //hides the "any"/"all" texts if there's only 1 task, as there's no point in displaying them in this specific case
+        const divs = task_conditions_div.getElementsByClassName("task_condition_div");
+        for(let i = 0; i < divs.length; i++) {
+            divs.item(i).innerHTML = divs.item(i).innerHTML.replace("any:","").replace("all:","");
+        }
+    }
 
     task_div.appendChild(task_status_icon_span);
     task_div.appendChild(task_desc_div);
@@ -4434,7 +4484,7 @@ export {
     update_displayed_effect_durations,
     capitalize_first_letter,
     format_money,
-    update_displayed_time,
+    update_displayed_time, update_displayed_temperature,
     update_displayed_character_xp,
     update_displayed_dialogue,
     update_displayed_textline_answer,

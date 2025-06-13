@@ -1646,6 +1646,7 @@ i {
 		.quest_div {
 			border: 1px solid gray;
 			margin-left: 1px;
+			padding: 2px;
 		}
 		.quest_name_div {
 			font-weight: bold;
@@ -1654,6 +1655,22 @@ i {
 		.quest_description_div {
 			font-size: 14px;
 			margin-left: 2px;
+			border-bottom: 1px solid white;
+		}
+		.task_status_icon {
+			float: left;
+		}
+		.task_status_icon i {
+			font-size: 18px;
+		}
+		.task_finished {
+			color: silver;
+		}
+		.task_condition_div {
+			padding-left: 16px;
+		}
+		.task_type_div, .task_target_div {
+			padding-left: 12px;
 		}
 
 	#journal_control_div {
@@ -1877,20 +1894,30 @@ i {
 						display: block;
 					}
 
-		#time_div {
-			padding: 2px;
-			text-align: right;
+		#time_and_weather_div {
 			border-bottom: 1px solid white;
 		}
-			.icon {
-				position: relative;
-				top:3px;
+			#time_div {
+				text-align: right;
+				width: 300px;
+				display: inline-block;
+				padding: 2px;
 			}
-			.icon_night {
-				color: gray;
-			}
-			.icon_day {
-				color: orange;
+				.icon {
+					position: relative;
+					top: 3px;
+				}
+				.icon_night {
+					color: gray;
+				}
+				.icon_day {
+					color: orange;
+				}
+			#weather_div {
+				width: 85px;
+				display: inline-block;
+				padding: 2px;
+				text-align: right;
 			}
 #location_name_div:hover #location_description_tooltip {
 	display: block;
