@@ -915,6 +915,7 @@
                             <div class = "equipment_slot_div" id = "amulet_slot"> amulet </div>
                             <div class = "equipment_slot_div" id = "artifact_slot"> artifact </div>
                         </div>
+                        <div class = "equipment_slot_div equipment_slot_div_long" id = "cape_slot"> cape </div>
                     </div>
 
                     <div id = "character_tools_div">
@@ -1557,8 +1558,8 @@
                     if(Date.now() >= tooltip_wait) {
                         let hovered_element = event.target;
                         if(hovered_element.classList.contains("equipment_slot_div")){
-                            hovered_element.children[0].style.left = event.pageX + "px";
-                            hovered_element.children[0].style.top = event.pageY - 130 + "px";
+                            document.documentElement.style.setProperty('--item_tooltip_top', `${ event.pageY - 150}px`);
+                            document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX - 50}px`);
                         }
                         tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
@@ -1620,12 +1621,8 @@
                 //unequip item
                 equipment_div.onclick = function(event) {
                     let clicked_element = event.target;
-                    if(clicked_element.classList.contains("equipment_slot_div") && !clicked_element.classList.contains("equipment_slot_empty"))
-                    {
+                    if(clicked_element.classList.contains("equipment_slot_div") && !clicked_element.classList.contains("equipment_slot_empty")) {
                         unequip_item(clicked_element.id.replace("_slot", ""));
-
-                        clicked_element.children[0].style.left = event.pageX + "px";
-                        clicked_element.children[0].style.top = event.pageY + "px";
                     }
                 }
 

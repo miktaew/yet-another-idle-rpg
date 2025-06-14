@@ -826,8 +826,12 @@ function can_work(selected_job) {
                 
                 return false;
             }
-        } else {
-            //ends on the next day (i.e. working through the night)        
+        } else { //ends on the next day (i.e. working through the night)
+            if(!selected_job.availability_time.includes(current_game_time.getSeason(current_game_time.day+1))) {
+                //ends on new season during which it's not available
+                return false;
+            }  
+
             if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.start*60
                 //too late
                 ||
@@ -861,7 +865,13 @@ function enough_time_for_earnings(selected_job) {
                 return false;
             }
         } else {
-            //ends on the next day (i.e. working through the night)        
+            //ends on the next day (i.e. working through the night)
+  
+            if(!selected_job.availability_time.includes(current_game_time.getSeason(current_game_time.day+1))) {
+                //ends on new season during which it's not available
+                return false;
+            } 
+
             if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.start*60
                 //timer is past the starting hour, so it's the same day as job starts
                 && 

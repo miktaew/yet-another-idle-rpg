@@ -51,10 +51,17 @@ function Game_time(new_time) {
         this.day_count = new_time.day_count;
     }
 
-    this.getSeason = function() {
-        if(this.month > 9) return "Winter";
-        else if(this.month > 6) return "Autumn";
-        else if(this.month > 3) return "Summer";
+    this.getSeason = function(day_count) {
+        let month;
+        if(day_count) {
+            month = this.month + Math.floor((this.day + day_count)/30);
+        } else {
+            month = this.month;
+        }
+
+        if(month > 9) return "Winter";
+        else if(month > 6) return "Autumn";
+        else if(month > 3) return "Summer";
         else return "Spring";
     }
 
@@ -68,31 +75,31 @@ function Game_time(new_time) {
     this.getDayOfTheWeek = function() {
         switch(this.day_count % 7) {
             case 0:
-                return "Sunday";
+                return "Sun";
             case 1: 
-                return "Monday";
+                return "Mon";
             case 2:
-                return "Tuesday";
+                return "Tue";
             case 3: 
-                return "Wednesday";
+                return "Wed";
             case 4:
-                return "Thursday";
+                return "Thu";
             case 5:
-                return "Friday";
+                return "Fri";
             case 6:
-                return "Saturday";
+                return "Sat";
         }
     }	
 
 }
 
 Game_time.prototype.toString = function() {
-    var date_string = this.getDayOfTheWeek() + " ";
+    let date_string = this.getDayOfTheWeek() + ", " + this.getSeason() +" ";
     date_string += ((this.day>9?this.day:`0${this.day}`) + "/");
     date_string += ((this.month>9?this.month:`0${this.month}`) + "/");
     date_string += (this.year + " ");
     date_string += ((this.hour>9?this.hour:`0${this.hour}`) + ":");
-    date_string += this.minute>9?this.minute:`0${this.minute}`;
+    date_string += (this.minute>9?this.minute:`0${this.minute}`) + ", "+this.getTimeOfDay();
     return date_string;
 }
 
@@ -146,12 +153,13 @@ function format_time({time, long_names, round=true}) { //{time, long_names?}
     return formatted_time;
 }
 
-
 function is_night(time) {
     time = time || current_game_time;
     return (time.hour >= 20 || time.hour < 4);
 }
 
+const seasons = ["Spring","Summer","Autumn","Winter"];
+
 const current_game_time = new Game_time({year: 999, month: 4, day: 1, hour: 8, minute: 0, day_count: 1});
 
-export {current_game_time, format_time, is_night};
+export {current_game_time, format_time, is_night, seasons};

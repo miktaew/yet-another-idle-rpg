@@ -33,6 +33,7 @@ class Location {
                 reverse_day_night_temperatures = false,
                 temperature_range_modifier = 1,
                 temperature_modifier = 0,
+                is_under_roof = false,
             }) {
         // always a safe zone
 
@@ -83,7 +84,7 @@ class Location {
         this.reverse_day_night_temperatures = reverse_day_night_temperatures; //true -> nights are warmer, days are colder
         this.temperature_range_modifier = temperature_range_modifier; //flat modifier to how much temperature varies from base
         this.temperature_modifier = temperature_modifier; //flat modifier to temperature, applied AFTER range modifier
-       
+        this.is_under_roof = is_under_roof; //only for weather display
     }
 }
 
@@ -116,6 +117,7 @@ class Combat_zone {
                  reverse_day_night_temperatures = false,
                  temperature_range_modifier = 1,
                  temperature_modifier = 0,
+                 is_under_roof = false,
                 }) {
 
         this.name = name;
@@ -200,6 +202,7 @@ class Combat_zone {
         this.reverse_day_night_temperatures = reverse_day_night_temperatures; //true -> nights are warmer, days are colder
         this.temperature_range_modifier = temperature_range_modifier; //flat modifier to how much temperature varies from base
         this.temperature_modifier = temperature_modifier; //flat modifier to temperature, applied AFTER range modifier
+        this.is_under_roof = is_under_roof; //only for weather display
     }
 
     get_next_enemies() {
@@ -373,6 +376,7 @@ class LocationActivity{
                  working_period = 60,
                  infinite = false,
                  availability_time,
+                 availability_seasons,
                  skill_xp_per_tick = 1,
                  unlock_text,
                  gained_resources,
@@ -394,6 +398,7 @@ class LocationActivity{
             throw new Error("LocationActivities that are not infinitely available, require a specified time of availability!");
         }
         this.availability_time = availability_time; //if not infinite -> hours between which it's available
+        this.availability_seasons = availability_seasons; //if not infinite -> seasons when it's available
         
         this.skill_xp_per_tick = skill_xp_per_tick; //skill xp gained per game tick (default -> 1 in-game minute)
 
@@ -927,7 +932,8 @@ function get_location_type_penalty(type, stage, stat, category) {
             text_to_sleep: "Take a nap",
             sleeping_xp_per_tick: 1},
         is_temperature_static: true,
-    })
+        is_under_roof: true,
+    });
 
     locations["Village"].connected_locations.push({location: locations["Shack"]});
     //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
@@ -993,6 +999,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         temperature_range_modifier: 0.8,
         name: "Nearby cave",
         is_unlocked: false,
+        is_under_roof: true,
     });
     locations["Village"].connected_locations.push({location: locations["Nearby cave"]});
     //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
@@ -1027,6 +1034,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             },
         ],
         temperature_range_modifier: 0.7,
+        is_under_roof: true,
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Cave room"]});
 
@@ -1056,6 +1064,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             }
         ],
         temperature_range_modifier: 0.6,
+        is_under_roof: true,
     });
     
     locations["Hidden tunnel"] = new Combat_zone({
@@ -1079,6 +1088,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         },
         is_temperature_static: true,
         temperature_range_modifier: 0.5,
+        is_under_roof: true,
         unlock_text: "As the wall falls apart, you find yourself in front of a new tunnel, leading even deeper. And of course, it's full of wolf rats."
     });
     locations["Pitch black tunnel"] = new Combat_zone({
@@ -1108,6 +1118,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         ],
         is_temperature_static: true,
         static_temperature: 18,
+        is_under_roof: true,
         unlock_text: "As you keep going deeper, you barely notice a pitch black hole. Not even a tiniest speck of light reaches it."
     });
 
@@ -1132,6 +1143,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         },
         is_temperature_static: true,
         static_temperature: 20,
+        is_under_roof: true,
         unlock_text: "After a long and ardous fight, you reach a chamber that ends with a massive stone gate. You can see it's guarded by some kind of wolf rats, but much bigger than the ones you fought until now."
     });
 
@@ -1162,7 +1174,8 @@ function get_location_type_penalty(type, stage, stat, category) {
         },
         is_temperature_static: true,
         static_temperature: 20,
-        unlock_text: "You see something. You struggle to comprehend it. When you finally understand, you regret it. It might have been better to be born blind."
+        is_under_roof: true,
+        unlock_text: "You see something. You struggle to comprehend it. When you finally understand, you regret it instantly. It might have been better to be born blind."
     });
 
     locations["Nearby cave"].connected_locations.push({location: locations["Writhing tunnel"]});
@@ -1182,6 +1195,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         unlock_text: "You manage to find a way to another chamber.",
         is_temperature_static: true,
         static_temperature: 20,
+        is_under_roof: true,
     });
 
     locations["Nearby cave"].connected_locations.push({location: locations["Mysterious depths"], custom_text: "Climb down to [Mysterious depths]"});
@@ -1286,6 +1300,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             xp: 1000,
         },
         temperature_range_modifier: 0.8,
+        is_under_roof: true,
     });
     locations["Forest road"].connected_locations.push({location: locations["Forest den"], custom_text: "Enter the [Forest den]"});
 
@@ -1378,6 +1393,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             move_to: {location: "Slums"},
         },
         temperature_range_modifier: 0.6,
+        is_under_roof: true,
     });
     locations["Slums"].connected_locations.push({location: locations["Gang hideout"]});
 
@@ -1404,6 +1420,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["Meow", "Nya", "Mrrr", "Mrrrp meow", "*A cat jumps on your lap*", "*A cat brushes on your leg*"];
             return noises;
         },
+        is_under_roof: true,
+        is_temperature_static: true,
+        static_temperature: 20,
     });
 
     locations["Town square"].connected_locations.push({location: locations["Cat café"]});
@@ -1535,7 +1554,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             textlines: [{dialogue: "village elder", lines: ["new tunnel"]}],
             xp: 20,
         },
-        unlock_text: "At some point, one of wolf rats tries to escape through a previously unnoticed hole in a nearby wall. There might be another tunnel behind it!"
+        unlock_text: "At some point, one of wolf rats tries to escape through a previously unnoticed hole in a nearby wall. There might be another tunnel behind it!",
+        is_under_roof: true,
+        temperature_range_modifier: 0.8,
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Suspicious wall"], custom_text: "Try to break the suspicious wall"});
 
@@ -1591,6 +1612,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             working_period: 60*2,
             availability_time: {start: 6, end: 20},
+            availability_seasons: ["Spring","Summer","Autumn"],
             skill_xp_per_tick: 1, 
         }),
         "running": new LocationActivity({
@@ -1777,6 +1799,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             working_period: 60*2,
             availability_time: {start: 6, end: 20},
+            availability_seasons: ["Spring", "Summer", "Autumn"],
             skill_xp_per_tick: 2,
         }),
         "animal care": new LocationActivity({

@@ -1,6 +1,7 @@
 "use strict";
 
-const stat_names = {"strength": "str",
+const stat_names = {
+    "strength": "str",
     "health": "hp",
     "max_health": "hp", //same as for "health"
     "health_regeneration_flat": "hp regen",

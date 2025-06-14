@@ -52,6 +52,8 @@ class Hero extends InventoryHaver {
                         block_chance: 0,
                         evasion_points: 0, //EP
                         attack_points: 0, //AP
+                        heat_tolerance: 0,
+                        cold_tolerance: 0,
                 };
                 this.name = "Hero";
                 this.titles = {};
@@ -115,6 +117,7 @@ class Hero extends InventoryHaver {
                         weapon: null, "off-hand": null,
                         legs: null, feet: null, 
                         amulet: null, artifact: null,
+                        cape: null,
                 
                         axe: null, 
                         pickaxe: null,
@@ -450,8 +453,13 @@ character.stats.add_location_penalties = function() {
  * 
  * @returns character temperature tolerance; a stub for now, to be based on clothing worn
  */
-character.get_character_temperature_tolerance = function(){
-        return 0;
+character.get_character_cold_tolerance = function(){
+        return character.stats.full.cold_tolerance;
+
+        //just make these two normal stats...
+}
+character.get_character_heat_tolerance = function(){
+        return character.stats.full.heat_tolerance;
 }
 
 /**
@@ -459,9 +467,8 @@ character.get_character_temperature_tolerance = function(){
  */
 character.stats.add_weather_effects = function() {
         const temperature = get_current_temperature();
-        const temperature_tolerance = character.get_character_temperature_tolerance();
         let stam_modifier = 1;
-        const temperature_bounds = [temperature + temperature_tolerance, temperature - temperature_tolerance];
+        const temperature_bounds = [temperature + get_character_cold_tolerance(), temperature - get_character_heat_tolerance()];
         if(temperature_bounds[1] > 45 || temperature_bounds[0] < 0) {
                 stam_modifier = 0.1;
         } else if(temperature_bounds[1] > 40 || temperature_bounds[0] < 5) {
@@ -597,7 +604,8 @@ character.wears_armor = function () {
                 (character.equipment.torso && character.equipment.torso.getDefense() !== 0) ||
                 (character.equipment.arms && character.equipment.arms.getDefense() !== 0) ||
                 (character.equipment.legs && character.equipment.legs.getDefense() !== 0) ||
-                (character.equipment.feet && character.equipment.feet.getDefense() !== 0);
+                (character.equipment.feet && character.equipment.feet.getDefense() !== 0) ||
+                (character.equipment.cape && character.equipment.cape.getDefense() !== 0);
 }
 
 /**
@@ -751,8 +759,11 @@ function add_weather_effects() {
         character.stats.add_weather_effects();
 }
 
-function get_character_temperature_tolerance() {
-        return character.get_character_temperature_tolerance();
+function get_character_cold_tolerance() {
+        return character.get_character_cold_tolerance();
+}
+function get_character_heat_tolerance() {
+        return character.get_character_heat_tolerance();
 }
 
 /**

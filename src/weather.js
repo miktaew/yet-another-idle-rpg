@@ -18,22 +18,20 @@ const daytime_temperature_modifiers = {
     Dusk: -4,
 };
 
-
 //for additional pseudo-randomization
 const daycount_temperature_modifier = {
     0: 0,
     1: -1,
-    2: 1,
-    3: 2,
+    2: 0,
+    3: -2,
     4: 3,
     5: 6,
     6: 1,
     7: -2,
-    8: -3, 
+    8: 0,
     9: -5,
     10: -1,
 };
-
 
 /**
  * @description calculates temperature in a simple deterministic manner, based on time of year, time of day, daycount, and location modifier
@@ -64,4 +62,11 @@ function get_current_temperature() {
                                                 );
 }
 
-export {get_current_temperature};
+/**
+ * temperature based for now
+ */
+function is_raining() {
+    return daycount_temperature_modifier[current_game_time.day_count%11] < 0;
+}
+
+export {get_current_temperature, is_raining};

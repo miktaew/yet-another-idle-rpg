@@ -15,7 +15,7 @@ import { current_enemies, options,
     favourite_consumables} from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
-import { format_time, current_game_time, is_night } from "./game_time.js";
+import { format_time, current_game_time, is_night, seasons } from "./game_time.js";
 import { book_stats, item_templates, Weapon, Armor, Shield, rarity_multipliers, getItemRarity, getItemFromKey } from "./items.js";
 import { favourite_locations, get_location_type_penalty, location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
@@ -25,7 +25,7 @@ import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { effect_templates } from "./active_effects.js";
 import { player_storage } from "./storage.js";
 import { questManager, quests } from "./quests.js";
-import { get_current_temperature } from "./weather.js";
+import { get_current_temperature, is_raining } from "./weather.js";
 
 let activity_anim; //for the activity and locationAction animation interval
 
@@ -144,6 +144,7 @@ const equipment_slots_divs = {head: document.getElementById("head_slot"), torso:
                               weapon: document.getElementById("weapon_slot"), "off-hand": document.getElementById("off-hand_slot"),
                               legs: document.getElementById("legs_slot"), feet: document.getElementById("feet_slot"),
                               amulet: document.getElementById("amulet_slot"), artifact: document.getElementById("artifact_slot"),
+                              cape: document.getElementById("cape_slot"),
                               pickaxe: document.getElementById("pickaxe_slot"),
                               axe: document.getElementById("axe_slot"),
                               sickle: document.getElementById("sickle_slot"),
@@ -1473,7 +1474,7 @@ function update_displayed_equipment() {
         } else {
             equipment_slots_divs[key].innerHTML = character.equipment[key].getName();
             equipment_slots_divs[key].classList.remove("equipment_slot_empty");
-
+            
             eq_tooltip = create_item_tooltip(character.equipment[key]);
         }
         equipment_slots_divs[key].appendChild(eq_tooltip);
@@ -1873,7 +1874,17 @@ function create_location_choices({location, category, is_combat = false}) {
             const job_tooltip = document.createElement("div");
             job_tooltip.classList.add("job_tooltip");
             if(!location.activities[key].infinite){
-                job_tooltip.innerHTML = `Available from ${location.activities[key].availability_time.start} to ${location.activities[key].availability_time.end} <br>`;
+                if(location.activities[key].availability_time) {
+                    job_tooltip.innerHTML = `Available from ${location.activities[key].availability_time.start} to ${location.activities[key].availability_time.end} <br>`;
+                }
+                if(location.activities[key].availability_seasons) {
+                    if(location.activities[key].availability_seasons.length === 3) {
+                        const unavailable_seasons = seasons.filter(x => !location.activities[key].availability_seasons.includes(x));
+                        job_tooltip.innerHTML = `Not available during ${unavailable_seasons.toString().replaceAll(",",", ")} <br>`;
+                    } else {
+                        job_tooltip.innerHTML = `Available during ${location.activities[key].availability_seasons.toString().replaceAll(",",", ")} <br>`;
+                    }
+                }
             }
             job_tooltip.innerHTML += `Pays ${format_money(location.activities[key].get_payment())} per every ` +  
                     `${format_working_time(location.activities[key].working_period)} worked`;
@@ -3144,15 +3155,27 @@ function update_displayed_effect_durations() {
 }
 
 function update_displayed_time() {
-    if(is_night(current_game_time)) {
-        time_field.innerHTML = current_game_time.toString() + '<span class="material-icons icon icon_night">nightlight_round</span>';
-    } else {
-        time_field.innerHTML = current_game_time.toString() + '<span class="material-icons icon icon_day">light_mode</span>';
-    }
+    time_field.innerHTML = current_game_time.toString();
 }
 
 function update_displayed_temperature() {
-    weather_field.innerHTML = '<span class="material-icons icon">thermostat</span>' + get_current_temperature() +"°C";
+    const temperature = get_current_temperature();
+    if(current_location.is_under_roof) {
+        weather_field.innerHTML = temperature +"°C";
+    } else {
+        if(is_raining()) {
+            if(temperature > 0) {
+                //rain/clouds
+                weather_field.innerHTML = '<span class="material-icons icon">cloud</span>' + temperature +"°C";
+            } else {
+                //snow
+                weather_field.innerHTML = '<span class="material-icons icon">ac_unit</span>' + temperature +"°C";
+            }
+        } else {
+            //no icon
+            weather_field.innerHTML = temperature +"°C";
+        }
+    }
 }
 
 /** 
