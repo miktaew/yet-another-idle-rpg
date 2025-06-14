@@ -66,9 +66,9 @@ function Game_time(new_time) {
     }
 
     this.getTimeOfDay = function() {
-        if (this.hour >= 21 || this.hour < 3) return "Night";
-        else if(this.hour >= 3 && this.hour < 8) return "Dawn";
-        else if(this.hour >= 8 && this.hour < 18) return "Day";
+        if (this.hour >= 21 || this.hour < 4) return "Night";
+        else if(this.hour >= 4 && this.hour < 8) return "Dawn";
+        else if(this.hour >= 8 && this.hour < 18) return "Noon";
         else return "Dusk";
     }
 
@@ -94,12 +94,12 @@ function Game_time(new_time) {
 }
 
 Game_time.prototype.toString = function() {
-    let date_string = this.getDayOfTheWeek() + ", " + this.getSeason() +" ";
-    date_string += ((this.day>9?this.day:`0${this.day}`) + "/");
+    let date_string = ((this.day>9?this.day:`0${this.day}`) + "/");
     date_string += ((this.month>9?this.month:`0${this.month}`) + "/");
     date_string += (this.year + " ");
     date_string += ((this.hour>9?this.hour:`0${this.hour}`) + ":");
-    date_string += (this.minute>9?this.minute:`0${this.minute}`) + ", "+this.getTimeOfDay();
+    date_string += (this.minute>9?this.minute:`0${this.minute}`) + ", ";
+    date_string += this.getSeason() + ", " + this.getDayOfTheWeek();
     return date_string;
 }
 

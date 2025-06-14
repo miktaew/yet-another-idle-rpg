@@ -455,9 +455,8 @@ character.stats.add_location_penalties = function() {
  */
 character.get_character_cold_tolerance = function(){
         return character.stats.full.cold_tolerance;
-
-        //just make these two normal stats...
 }
+
 character.get_character_heat_tolerance = function(){
         return character.stats.full.heat_tolerance;
 }

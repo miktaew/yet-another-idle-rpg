@@ -1993,6 +1993,8 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             6: {
                 stats: {
                     max_stamina: {flat: 10},
+                    heat_tolerance: {flat: 1},
+                    cold_tolerance: {flat: 1},
                 },
                 xp_multipliers: {
                     all: 1.05,
@@ -2019,6 +2021,8 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             12: {
                 stats: {
                     max_stamina: {flat: 10},
+                    heat_tolerance: {flat: 1},
+                    cold_tolerance: {flat: 1},
                 },
                 xp_multipliers: {
                     hero: 1.05,
@@ -2134,7 +2138,8 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 stats: {
                     stamina_regeneration_flat: {
                         flat: 0.1,
-                    }
+                    },
+                    cold_tolerance: {flat: 1},
                 },
                 xp_multipliers: {
                     hero: 1.05,

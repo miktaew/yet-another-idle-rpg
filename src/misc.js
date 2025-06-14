@@ -25,6 +25,8 @@ const stat_names = {
     "evasion": "EP",
     "evasion_points": "EP",
     "attack_points": "AP",
+    "heat_tolerance": "heat resistance",
+    "cold_tolerance": "cold resistance",
 };
 
 const task_type_names = {

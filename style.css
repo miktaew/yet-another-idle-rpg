@@ -1900,10 +1900,11 @@ i {
 
 		#time_and_weather_div {
 			border-bottom: 1px solid white;
+			padding: 3px 0px 2px 0px;
 		}
 			#time_div {
 				text-align: left;
-				width: 300px;
+				width: 310px;
 				display: inline-block;
 				padding: 2px;
 			}
@@ -1911,17 +1912,14 @@ i {
 					position: relative;
 					top: 3px;
 				}
-				.icon_night {
-					color: gray;
-				}
-				.icon_day {
-					color: orange;
-				}
 			#weather_div {
-				width: 85px;
+				width: 75px;
 				display: inline-block;
 				padding: 2px;
 				text-align: right;
+			}
+			#weather_div .icon {
+				font-size: 18px;
 			}
 #location_name_div:hover #location_description_tooltip {
 	display: block;

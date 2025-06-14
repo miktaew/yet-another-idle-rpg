@@ -3155,7 +3155,11 @@ function update_displayed_effect_durations() {
 }
 
 function update_displayed_time() {
-    time_field.innerHTML = current_game_time.toString();
+    let time_of_the_day = current_game_time.getTimeOfDay();
+
+    //color coding like it used to be done with icon?
+
+    time_field.innerHTML = current_game_time.toString() + ", <b>" + time_of_the_day + "</b>";
 }
 
 function update_displayed_temperature() {
@@ -3176,6 +3180,14 @@ function update_displayed_temperature() {
             weather_field.innerHTML = temperature +"°C";
         }
     }
+}
+
+function create_temperature_tooltip() {
+
+}
+
+function update_temperature_tooltip() {
+    
 }
 
 /** 
