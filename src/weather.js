@@ -1,8 +1,10 @@
 "use strict";
-import { current_game_time } from "./game_time.js";
+import { current_game_time, Game_Time } from "./game_time.js";
 import { current_location } from "./main.js";
 
 const base_temperature = 20; //in celsius
+
+let previous_temperature;
 
 const seasonal_temperature_modifiers = {
     Winter: -20,
@@ -12,10 +14,8 @@ const seasonal_temperature_modifiers = {
 };
 
 const daytime_temperature_modifiers = {
-    Night: -8,
-    Dawn: -4,
-    Day: 3,
-    Dusk: -4,
+    Plus: 3, //14:00
+    Minus: -8, //5:00
 };
 
 //for additional pseudo-randomization
@@ -33,12 +33,36 @@ const daycount_temperature_modifier = {
     10: -1,
 };
 
+// 0: no rain; other: rain plus temperature modifier
+const rain_cycle = {
+    0: 0,
+    1: 0,
+    2: 0,
+    3: 0,
+    4: -1,
+    5: -2,
+    6: -2,
+    7: -2,
+    8: 0,
+    9: 0,
+    10: 0,
+    11: -1,
+    12: 0,
+};
+
 /**
- * @description calculates temperature in a simple deterministic manner, based on time of year, time of day, daycount, and location modifier
- */ 
-function get_current_temperature() {
+ * 
+ * @param {Game_Time} time 
+ * @returns {String} just 
+ */
+function get_temperature_peak_time(time) {
+        if (time.hour >= 14 || time.hour < 5) return "Plus";
+        else return "Minus";
+}
+
+function get_temperature_at(time) {
     if(!current_location) {
-        return;
+        throw new Error(`Cannot provide temperature when current_location is '${typeof current_location}'!`);
     }
 
     if(current_location.is_temperature_static) {
@@ -54,19 +78,96 @@ function get_current_temperature() {
     if(isNaN(location_modifier)) {
         throw new Error(`Temperature modifier for "${current_location.name}" is not a number!`);
     }
-
-    return base_temperature + current_location.temperature_modifier
-                            + location_modifier*(seasonal_temperature_modifiers[current_game_time.getSeason()] 
-                                                 + daytime_temperature_modifiers[current_game_time.getTimeOfDay()] 
-                                                 + daycount_temperature_modifier[current_game_time.day_count%11]
+        
+    let total_modifier = current_location.temperature_modifier
+                           + location_modifier*(seasonal_temperature_modifiers[time.getSeason()] 
+                                                 + daytime_temperature_modifiers[get_temperature_peak_time(time)] 
+                                                 + daycount_temperature_modifier[time.day_count%11]
                                                 );
+                                                
+    //rain only reduces higher temperatures, but is neutral when it's 10 and less           
+    if(total_modifier > 10) {
+        total_modifier = Math.max(10,total_modifier + location_modifier*rain_cycle[time.day_count%13]);
+    }
+    
+    return base_temperature + total_modifier;
+}
+
+/**
+ * @description calculates temperature in a simple deterministic manner, based on time of year, time of day, daycount, and location modifier
+ */ 
+function get_current_temperature() {
+    return get_temperature_at(current_game_time);
+}
+
+/**
+ * 
+ * @returns temperature that's "smoothed" based on current temperature, temperature at next change and time between last and next change
+ */
+function get_current_temperature_smoothed() {
+
+    if(!previous_temperature) {
+        previous_temperature = get_current_temperature();
+    }
+
+    let prev_temperature_time;
+    let next_temperature_time;
+    let total_minutes_betwen_changes;
+
+
+    if(current_game_time.hour >= 14) {
+        //next change is at 5 next day
+        next_temperature_time = {hours: 5, days: 1};
+        prev_temperature_time = {hour: 14};
+        total_minutes_betwen_changes = 900;
+        previous_temperature = get_current_temperature();
+    } else if(current_game_time.hour < 5) {
+        //next change is at 5 same day
+        next_temperature_time = {hours: 5, days: 0};
+        prev_temperature_time = {hour: 14};
+        total_minutes_betwen_changes = 900;
+
+    } else if(current_game_time.hour >= 5) {
+        //next change is at 14
+        next_temperature_time = {hours: 14, days: 0};
+        prev_temperature_time = {hour: 5};
+        total_minutes_betwen_changes = 540;
+        previous_temperature = get_current_temperature();
+    }
+
+    let minutes_passed;
+
+    if(current_game_time.hour < prev_temperature_time.hour) {
+        //day change occured
+        minutes_passed = 60*(24-prev_temperature_time.hour + current_game_time.hour) + current_game_time.minute;
+    } else {
+        //no day change
+        minutes_passed = 60*(current_game_time.hour-prev_temperature_time.hour) + current_game_time.minute;
+    }
+
+    const ratio = minutes_passed/total_minutes_betwen_changes;
+    
+    //grab the next temperature at adequately incremented time
+    const next_temperature = get_temperature_at(new Game_Time({
+                                                        year: current_game_time.year,
+                                                        month: current_game_time.month,
+                                                        day: current_game_time.day + next_temperature_time.days,
+                                                        hour: next_temperature_time.hours,
+                                                        minute: 0,
+                                                        day_count: current_game_time.day_count+next_temperature_time.days,
+                                                    }));
+
+    //calculate from prev, next and how close timewise it is                        
+    return Math.round(10*(previous_temperature + ratio*(next_temperature-previous_temperature)))/10;
 }
 
 /**
  * temperature based for now
  */
 function is_raining() {
-    return daycount_temperature_modifier[current_game_time.day_count%11] < 0;
+    return rain_cycle[current_game_time.day_count%13] < 0;
 }
 
-export {get_current_temperature, is_raining};
+export {
+    get_current_temperature_smoothed, is_raining,
+};

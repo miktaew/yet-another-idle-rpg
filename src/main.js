@@ -74,7 +74,7 @@ import { open_storage, close_storage, move_item_to_storage, remove_item_from_sto
 import { Verify_Game_Objects } from "./verifier.js";
 import { ReputationManager } from "./reputation.js";
 import { quests, questManager, active_quests } from "./quests.js";
-import { get_current_temperature } from "./weather.js";
+import { get_current_temperature_smoothed } from "./weather.js";
 
 const save_key = "save data";
 const dev_save_key = "dev save data";
@@ -3725,7 +3725,7 @@ function update() {
         update_displayed_effect_durations();
         update_displayed_effects();
 
-        const new_temperature = get_current_temperature();
+        const new_temperature = get_current_temperature_smoothed();
 
         //temperature changed => update display, update stats if needed
         if(current_temperature !== new_temperature) {
@@ -4111,8 +4111,6 @@ if(save_key in localStorage || (is_on_dev() && dev_save_key in localStorage)) {
                                 {item_id: "Stale bread", count: 5},
                             ]);
 
-    equip_item_from_inventory({item_name: "Cheap iron sword", item_id: 0});
-    equip_item_from_inventory({item_name: "Cheap leather pants", item_id: 0});
     add_xp_to_character(0);
     character.money = 102;
     update_displayed_money();
@@ -4151,6 +4149,13 @@ function add_all_active_effects(duration){
     update_displayed_effects();
 }
 
+function add_active_effect(effect_key, duration){
+    active_effects[effect_key] = new ActiveEffect({...effect_templates[effect_key], duration});
+    character.stats.add_active_effect_bonus();
+    update_displayed_effects();
+}
+
+
 //add_to_character_inventory([{item_id: "Healing powder", count: 1000}]);
 //add_to_character_inventory([{item_id: "Medicine for dummies", count: 10}]);
 
@@ -4161,6 +4166,8 @@ function add_all_active_effects(duration){
 
 update_displayed_equipment();
 sort_displayed_inventory({sort_by: "name", target: "character"});
+
+//add_active_effect("Hypothermia", 6000);
 
 run();
 

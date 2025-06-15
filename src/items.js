@@ -2656,7 +2656,7 @@ item_templates["Butchering and you"] = new Book({
         description: "Simple woollen hat to protect your head.",
         value: 300,
         component_type: "helmet interior",
-        base_defense: 1,
+        base_defense: 0,
         component_tier: 2,
         component_stats: {
             attack_speed: {
@@ -2673,10 +2673,10 @@ item_templates["Butchering and you"] = new Book({
 
     item_templates["Wool gloves"] = new Armor({
         name: "Wool gloves",
-        description: "Warm and comfy, but they don't provide much protection.",
+        description: "Warm and comfy, but they don't provide any protection.",
         value: 300,
         component_type: "glove interior",
-        base_defense: 1,
+        base_defense: 0,
         component_tier: 2,
         stats: {
             cold_protection: {

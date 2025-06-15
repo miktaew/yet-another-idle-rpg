@@ -13,10 +13,18 @@ import { active_effects, current_location, current_stance, favourite_consumables
 import { current_game_time, is_night } from "./game_time.js";
 import { item_templates } from "./items.js";
 import { skill_consumable_tags } from "./misc.js";
-import { get_current_temperature } from "./weather.js";
 
 const base_block_chance = 0.75; //+20 from the skill
 const base_xp_cost = 10;
+
+const time_until_cold = 60;
+const time_until_cold_when_wet = 20;
+
+//temperatures for effects 'cold','very cold','freezing','hypothermia'
+const cold_status_temperatures = [10,5,0,-5];
+//array for matching the names of aforementioned effects
+const weather_effects = ["Cold","Very cold","Freezing","Hypothermia"];
+
 
 class Hero extends InventoryHaver {
         constructor() {
@@ -69,7 +77,6 @@ class Hero extends InventoryHaver {
                                 books: {},
                                 light_level: {},
                                 environment: {},
-                                weather: {},
                         },
                         multiplier: {
                                 skills: {},
@@ -79,7 +86,6 @@ class Hero extends InventoryHaver {
                                 stance: {},
                                 light_level: {},
                                 environment: {},
-                                weather: {},
                         }
                 };
                 this.reputation = { //effects go up to 1000?
@@ -464,6 +470,8 @@ character.get_character_heat_tolerance = function(){
 /**
  * adds the effects from weather (temperature), currently limited to stamina efficiency
  */
+
+/*
 character.stats.add_weather_effects = function() {
         const temperature = get_current_temperature();
         let stam_modifier = 1;
@@ -480,9 +488,8 @@ character.stats.add_weather_effects = function() {
         //add to stats
 
         character.stats.multiplier.weather.stamina_efficiency = stam_modifier;
-
 }
-
+*/
 /**
  * full stat recalculation, call whenever something changes
  */
@@ -755,7 +762,7 @@ function add_location_penalties() {
 }
 
 function add_weather_effects() {
-        character.stats.add_weather_effects();
+        //character.stats.add_weather_effects();
 }
 
 function get_character_cold_tolerance() {
@@ -771,7 +778,7 @@ function get_character_heat_tolerance() {
 function update_character_stats() {
         character.stats.add_location_penalties();
         character.update_stats();
-        character.stats.add_weather_effects();
+        //character.stats.add_weather_effects();
 
         update_displayed_stats();
         update_displayed_health();
@@ -824,18 +831,17 @@ function get_effect_with_bonuses(active_effect) {
         let boosted = {stats: {}, bonus_skill_levels: {...active_effect.effects.bonus_skill_levels}};
         for(const [key, value] of Object.entries(active_effect.effects.stats)) {
                 boosted.stats[key] = {};
-                if(value.flat && key.includes("_flat")) {
-                        boosted.stats[key].flat = value.flat*multiplier**2;
-                }
-                if(value.flat && key.includes("_percent")) {
-                        //this exclusively means percent based regeneration and is therefore treated as multiplicative effect
-                        boosted.stats[key].flat = value.flat*multiplier;
-                }
-                if(value.multiplier) {
+                if(value.flat) {
+                        if(key.includes("_percent")) {
+                                //this exclusively means percent based regeneration and is therefore treated as multiplicative effect
+                                boosted.stats[key].flat = value.flat*multiplier;
+                        } else {
+                                boosted.stats[key].flat = value.flat*multiplier**2;
+                        }
+                } else if(value.multiplier) {
                         boosted.stats[key].multiplier = value.multiplier*multiplier;
                 }      
         }
-
         return boosted;
 }
 

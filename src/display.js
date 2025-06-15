@@ -25,7 +25,7 @@ import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { effect_templates } from "./active_effects.js";
 import { player_storage } from "./storage.js";
 import { questManager, quests } from "./quests.js";
-import { get_current_temperature, is_raining } from "./weather.js";
+import { get_current_temperature_smoothed, is_raining } from "./weather.js";
 
 let activity_anim; //for the activity and locationAction animation interval
 
@@ -458,18 +458,44 @@ function create_effect_tooltip({effect_name, duration, add_bonus=false}) {
         effects = effect.effects;
     }
     for(const [key, stat_value] of Object.entries(effects.stats)) {
-        tooltip.innerHTML += `<br>${capitalize_first_letter(key.replaceAll("_", " ").replace("flat","").replace("percent",""))} `;
-        //for regeneration bonuses, it is assumed they are only flat and not multiplicative
-        if(key === "health_regeneration_flat" || key ===  "stamina_regeneration_flat" || key ===  "mana_regeneration_flat" || key === "health_loss_flat") 
-        {   
+
+        tooltip.innerHTML += `<br>${capitalize_first_letter(stat_names[key])}`;
+        
+        let flat = false;
+        if(stat_value.flat) {
             const sign = stat_value.flat > 0? "+":"";
             tooltip.innerHTML += `: ${sign}${Math.round(100*stat_value.flat)/100}`;
+            flat = true;
+        }
+
+        if(stat_value.multiplier) {
+            if(flat) {
+                tooltip.innerHTML += `, x${Math.round(100*stat_value.multiplier)/100}`;
+            } else {
+                tooltip.innerHTML += `: x${Math.round(100*stat_value.multiplier)/100}`;
+            }
+        }
+        /*
+        if(key === "health_regeneration_flat" || key ===  "stamina_regeneration_flat" || key ===  "mana_regeneration_flat" || key === "health_loss_flat") 
+        {   
+            if(stat_value.flat) {
+                const sign = stat_value.flat > 0? "+":"";
+                tooltip.innerHTML += `: ${sign}${Math.round(100*stat_value.flat)/100}`;
+            }
+            if(stat_value.multiplier) {
+                tooltip.innerHTML += `: x${Math.round(100*stat_value.multiplier)/100}`;
+            }
         } else if(key === "health_regeneration_percent" || key === "stamina_regeneration_percent" || key === "mana_regeneration_percent" || key === "health_loss_percent") {
-            const sign = stat_value.percent > 0? "+":"";
-            tooltip.innerHTML += `: ${sign}${Math.round(100*stat_value.flat)/100}%`;
+            if(stat_value.flat) {
+                const sign = stat_value.flat > 0? "+":"";
+                tooltip.innerHTML += `: ${sign}${Math.round(100*stat_value.flat)/100}%`;
+            }
+            if(stat_value.multiplier) {
+                tooltip.innerHTML += `: x${Math.round(100*stat_value.multiplier)/100}`;
+            }
         } else {
             //
-        }
+        }*/
     }
 
     tooltip.appendChild(effects_div);
@@ -3127,6 +3153,7 @@ function update_displayed_effects() {
     const effect_count = Object.keys(active_effects).length;
     active_effect_count.innerText = effect_count;
     if(effect_count > 0) {
+        //effects exist, refresh the whole displayed content
         active_effects_tooltip.innerHTML = '';
         
         Object.values(effect_divs).forEach(eff => {
@@ -3139,6 +3166,7 @@ function update_displayed_effects() {
             active_effects_tooltip.appendChild(effect_divs[effect.name]);
         });
     } else {
+        //no effects
         active_effects_tooltip.innerHTML = 'No active effects';
     }
     update_displayed_effect_durations();
@@ -3155,7 +3183,7 @@ function update_displayed_effect_durations() {
 }
 
 function update_displayed_time() {
-    let time_of_the_day = current_game_time.getTimeOfDay();
+    let time_of_the_day = current_game_time.getTimeOfDaySimple();
 
     //color coding like it used to be done with icon?
 
@@ -3163,7 +3191,7 @@ function update_displayed_time() {
 }
 
 function update_displayed_temperature() {
-    const temperature = get_current_temperature();
+    const temperature = get_current_temperature_smoothed();
     if(current_location.is_under_roof) {
         weather_field.innerHTML = temperature +"°C";
     } else {
@@ -3176,7 +3204,7 @@ function update_displayed_temperature() {
                 weather_field.innerHTML = '<span class="material-icons icon">ac_unit</span>' + temperature +"°C";
             }
         } else {
-            //no icon
+            //normal weather, no icon
             weather_field.innerHTML = temperature +"°C";
         }
     }
