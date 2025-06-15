@@ -795,6 +795,51 @@ class Weapon extends Equippable {
     }
 }
 
+class Cape extends Equippable {
+    constructor(item_data) {
+        super(item_data);
+        this.components = undefined;
+        this.equip_slot = "cape";
+        this.stats = item_data.stats;
+
+        this.tags["cape"] = true;
+
+        if(!item_data.name) {
+            throw new Error(`Component-less item needs to be provided a name!`);
+        }
+        this.name = item_data.name;
+        if(!item_data.value) {
+            throw new Error(`Component-less item "${this.getName()}" needs to be provided a monetary value!`);
+        }
+
+        this.value = item_data.value;
+        this.base_defense = item_data.base_defense;
+
+        if(!this.id) {
+            this.id = this.getName();
+        }
+    }
+    
+
+    getDefense(quality) {
+        if(!quality) {
+            if(!this.defense_value) {
+                this.defense_value = this.calculateDefense(this.quality);
+            }
+            return this.defense_value;
+        } else {
+            return this.calculateDefense(quality);
+        }
+    }
+    calculateDefense(quality) {
+        return Math.ceil((this.base_defense || 0)  * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality || this.quality)]);
+    }
+
+    getValue(quality) { 
+        return round_item_price(item_templates[this.id].value * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)]);
+    }
+}
+
 //////////////////////////////
 //////////////////////////////
 //////////////////////////////
@@ -881,6 +926,8 @@ function getItem(item_data) {
                 case "pickaxe":
                 case "sickle":
                     return new Tool(item_data);
+                case "cape":
+                    return new Cape(item_data);
                 default:
                     return new Armor(item_data);
             }
@@ -2175,6 +2222,9 @@ item_templates["Butchering and you"] = new Book({
             },
             agility: {
                 multiplier: 0.9,
+            },
+            cold_protection: {
+                flat: -1,
             }
         }
     });
@@ -2192,6 +2242,9 @@ item_templates["Butchering and you"] = new Book({
             },
             agility: {
                 multiplier: 0.9,
+            },
+            cold_protection: {
+                flat: -1,
             }
         }
     });
@@ -2210,6 +2263,9 @@ item_templates["Butchering and you"] = new Book({
             },
             agility: {
                 multiplier: 0.9,
+            },
+            cold_protection: {
+                flat: -1,
             }
         }
     });
@@ -2227,6 +2283,9 @@ item_templates["Butchering and you"] = new Book({
             },
             agility: {
                 multiplier: 0.9,
+            },
+            cold_protection: {
+                flat: -1,
             }
         }
     });
@@ -2245,6 +2304,9 @@ item_templates["Butchering and you"] = new Book({
             },
             agility: {
                 multiplier: 0.9,
+            },
+            cold_protection: {
+                flat: -1,
             }
         }
     });
@@ -2262,6 +2324,9 @@ item_templates["Butchering and you"] = new Book({
             },
             agility: {
                 multiplier: 0.9,
+            },
+            cold_protection: {
+                flat: -1,
             }
         }
     });
@@ -2280,6 +2345,9 @@ item_templates["Butchering and you"] = new Book({
             },
             agility: {
                 multiplier: 0.9,
+            },
+            cold_protection: {
+                flat: -1,
             }
         }
     });
@@ -2297,6 +2365,9 @@ item_templates["Butchering and you"] = new Book({
             },
             agility: {
                 multiplier: 0.9,
+            },
+            cold_protection: {
+                flat: -1,
             }
         }
     });
@@ -2312,6 +2383,9 @@ item_templates["Butchering and you"] = new Book({
         component_stats: {
             agility: {
                 multiplier: 0.9,
+            },
+            cold_protection: {
+                flat: -1,
             }
         }
     });
@@ -2326,13 +2400,16 @@ item_templates["Butchering and you"] = new Book({
         component_stats: {
             agility: {
                 multiplier: 0.9,
+            },
+            cold_protection: {
+                flat: -1,
             }
         }
     });
 
 })();
 
-//clothing (functions both as weak armor and as an armor component):
+//clothing (functions both as weak armor and as an armor component) and capes:
 (function(){
     item_templates["Cheap leather vest"] = new Armor({
         name: "Cheap leather vest", 
@@ -2345,6 +2422,9 @@ item_templates["Butchering and you"] = new Book({
             attack_speed: {
                 multiplier: 0.99,
             },
+            cold_protection: {
+                flat: 1,
+            }
         }
     });
     item_templates["Leather vest"] = new Armor({
@@ -2354,6 +2434,11 @@ item_templates["Butchering and you"] = new Book({
         component_type: "chestplate interior",
         base_defense: 2,
         component_tier: 2,
+        component_stats: {
+            cold_protection: {
+                flat: 1,
+            }
+        }
     });
     item_templates["Goat leather vest"] = new Armor({
         name: "Goat leather vest", 
@@ -2362,6 +2447,11 @@ item_templates["Butchering and you"] = new Book({
         component_type: "chestplate interior",
         base_defense: 3,
         component_tier: 3,
+        component_stats: {
+            cold_protection: {
+                flat: 1,
+            }
+        }
     });
 
     item_templates["Cheap leather pants"] = new Armor({
@@ -2375,6 +2465,9 @@ item_templates["Butchering and you"] = new Book({
             attack_speed: {
                 multiplier: 0.99,
             },
+            cold_protection: {
+                flat: 1,
+            }
         }
     });
     item_templates["Leather pants"] = new Armor({
@@ -2384,6 +2477,11 @@ item_templates["Butchering and you"] = new Book({
         component_type: "leg armor interior",
         base_defense: 2,
         component_tier: 2,
+        component_stats: {
+            cold_protection: {
+                flat: 2,
+            }
+        }
     });
     item_templates["Goat leather pants"] = new Armor({
         name: "Goat leather pants", 
@@ -2392,6 +2490,11 @@ item_templates["Butchering and you"] = new Book({
         component_type: "leg armor interior",
         base_defense: 3,
         component_tier: 3,
+        component_stats: {
+            cold_protection: {
+                flat: 2,
+            }
+        }
     });
 
     item_templates["Cheap leather hat"] = new Armor({
@@ -2405,6 +2508,9 @@ item_templates["Butchering and you"] = new Book({
             attack_speed: {
                 multiplier: 0.99,
             },
+            cold_protection: {
+                flat: 1,
+            }
         }
     });
 
@@ -2415,6 +2521,9 @@ item_templates["Butchering and you"] = new Book({
         component_type: "helmet interior",
         base_defense: 2,
         component_tier: 2,
+        cold_protection: {
+                flat: 1,
+        }
     });
 
     item_templates["Goat leather hat"] = new Armor({
@@ -2424,6 +2533,9 @@ item_templates["Butchering and you"] = new Book({
         component_type: "helmet interior",
         base_defense: 3,
         component_tier: 3,
+        cold_protection: {
+                flat: 1,
+        }
     });
 
     item_templates["Leather gloves"] = new Armor({
@@ -2433,6 +2545,9 @@ item_templates["Butchering and you"] = new Book({
         component_type: "glove interior",
         base_defense: 1,
         component_tier: 2,
+        cold_protection: {
+                flat: 2,
+        }
     });
     item_templates["Goat leather gloves"] = new Armor({
         name: "Goat leather gloves", 
@@ -2441,6 +2556,9 @@ item_templates["Butchering and you"] = new Book({
         component_type: "glove interior",
         base_defense: 2,
         component_tier: 3,
+        cold_protection: {
+                flat: 2,
+        }
     });
 
     item_templates["Cheap leather shoes"] = new Armor({
@@ -2454,6 +2572,9 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 1.05,
             },
+            cold_protection: {
+                flat: 2,
+            }
         }
     });
 
@@ -2471,6 +2592,9 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 1.1,
             },
+            cold_protection: {
+                flat: 2,
+            }
         }
     });
     item_templates["Goat leather shoes"] = new Armor({
@@ -2487,6 +2611,9 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 1.15,
             },
+            cold_protection: {
+                flat: 2,
+            }
         }
     });
 
@@ -2504,6 +2631,9 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 1.02,
             },
+            cold_protection: {
+                flat: 3,
+            }
         }
     });
 
@@ -2514,6 +2644,11 @@ item_templates["Butchering and you"] = new Book({
         component_type: "leg armor interior",
         base_defense: 1,
         component_tier: 2,
+        stats: {
+            cold_protection: {
+                flat: 3,
+            }
+        }
     });
 
     item_templates["Wool hat"] = new Armor({
@@ -2530,6 +2665,9 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 1.01,
             },
+            cold_protection: {
+                flat: 2,
+            }
         }
     });
 
@@ -2540,6 +2678,67 @@ item_templates["Butchering and you"] = new Book({
         component_type: "glove interior",
         base_defense: 1,
         component_tier: 2,
+        stats: {
+            cold_protection: {
+                flat: 2,
+            }
+        }
+    });
+
+    item_templates["Rat pelt cape"] = new Cape({
+        name: "Rat pelt cape", 
+        description: "It's a cape... made of wolf rat pelts. Only for poor or insane.",
+        value: 20,
+        stats: {
+            cold_protection: {
+                flat: 1,
+            }
+        }
+    });
+    item_templates["Wolf pelt cape"] = new Cape({
+        name: "Wolf pelt cape", 
+        description: "An elegant cape made from wolf pelts. Doesn't provide much protection, but is light enough to not hinder your movements.",
+        value: 200,
+        base_defense: 1,
+        stats: {
+            cold_protection: {
+                flat: 4,
+            }
+        }
+    });
+    item_templates["Boar hide cape"] = new Cape({
+        name: "Boar hide cape", 
+        description: "A rough cape made from boar hides. Offers a nice protection, but is heavy and stiff.",
+        value: 300,
+        base_defense: 5,
+        stats: {
+            attack_speed: {
+                multiplier: 0.9,
+            },
+            agility: {
+                multiplier: 0.9,
+            },
+            cold_protection: {
+                flat: 5,
+            }
+        }
+    });
+    item_templates["Goat hide cape"] = new Cape({
+        name: "Goat hide pelt", 
+        description: "A rough cape made from goat hides",
+        value: 300,
+        base_defense: 3,
+        stats: {
+            attack_speed: {
+                multiplier: 0.98,
+            },
+            agility: {
+                multiplier: 0.95,
+            },
+            cold_protection: {
+                flat: 3,
+            }
+        }
     });
 })();
 
@@ -3011,7 +3210,7 @@ Object.keys(item_templates).forEach(id => {
 export {
     item_templates, 
     Item, OtherItem, UsableItem, 
-    Armor, Shield, Weapon, Artifact, Book, 
+    Armor, Shield, Weapon, Cape, Artifact, Book, 
     WeaponComponent, ArmorComponent, ShieldComponent,
     getItem, getItemFromKey,
     setLootSoldCount, recoverItemPrices, round_item_price, getArmorSlot, getEquipmentValue,

@@ -49,8 +49,8 @@ class Quest {
                 is_hidden = false, //hidden quests are not visible and are meant to function as additional unlock mechanism; name and description are skipped
                 is_finished = false,
                 is_repeatable = false, //true => doesn't get locked after completion and can be gained again
-                GetQuestName = ()=>{return this.quest_name;},
-                GetQuestDescription = ()=>{return this.quest_description;},
+                getQuestName = ()=>{return this.quest_name;},
+                getQuestDescription = ()=>{return this.quest_description;},
     }) {
         this.quest_name = quest_name;
         this.quest_id = quest_id || quest_name;
@@ -62,11 +62,11 @@ class Quest {
         this.is_finished = is_finished;
         this.is_repeatable = is_repeatable;
         this.quest_condition = quest_condition;
-        this.GetQuestName = GetQuestName;
-        this.GetQuestDescription = GetQuestDescription;
+        this.getQuestName = getQuestName;
+        this.getQuestDescription = getQuestDescription;
     }
 
-    GetCompletedUniqueTaskCount(){
+    getCompletedUniqueTaskCount(){
         if(this.quest_tasks.length == 0) {
             return 0;
         } else {
@@ -74,7 +74,7 @@ class Quest {
         }
     }
 
-    GetCompletedTaskCount(){
+    getCompletedTaskCount(){
         if(this.quest_tasks.length == 0) {
             return 0;
         } else {
@@ -83,10 +83,10 @@ class Quest {
     }
 }
 
-const QuestManager = {
-    StartQuest(quest_id) {
+const questManager = {
+    startQuest(quest_id) {
         const quest = quests[quest_id];
-        if((!quest.is_finished || quest.is_repeatable) && !this.IsQuestActive(quest_id)) {
+        if((!quest.is_finished || quest.is_repeatable) && !this.isQuestActive(quest_id)) {
             active_quests[quest_id] = new Quest(quests[quest_id]);
         } else {
             console.error(`Cannot start quest "${quest_id}"; it's either finished and not repeatable, or already active`);
@@ -97,12 +97,12 @@ const QuestManager = {
         }
     },
 
-    IsQuestActive(quest_id) {
+    isQuestActive(quest_id) {
         return active_quests[quest_id];
     },
 
-    FinishQuest(quest_id) {
-        if(this.IsQuestActive(quest_id)) {
+    finishQuest(quest_id) {
+        if(this.isQuestActive(quest_id)) {
             let quest = quests[quest_id];
             if(!quest.is_repeatable) {
                 quest.is_finished = true;
@@ -114,8 +114,8 @@ const QuestManager = {
         }
     },
 
-    FinishQuestTask(quest_id, task_index) {
-        if(this.IsQuestActive(quest_id)) {
+    finishQuestTask(quest_id, task_index) {
+        if(this.isQuestActive(quest_id)) {
             let quest = quests[quest_id];
             quest.quest_tasks[task_index].is_finished = true;
             //todo: update display if quest is not hidden
@@ -124,7 +124,7 @@ const QuestManager = {
         }
     },
 
-    CatchQuestEvent({quest_event_type, quest_event_target, quest_event_count, additional_quest_triggers = []}) {
+    catchQuestEvent({quest_event_type, quest_event_target, quest_event_count, additional_quest_triggers = []}) {
         Object.keys(active_quests).forEach(active_quest_id => {
             const current_task_index = active_quests[active_quest_id].quest_tasks.findIndex(task => !task.is_finished); //just get the first unfinished
             const current_task = active_quests[active_quest_id].quest_tasks[current_task_index];
@@ -194,12 +194,12 @@ const QuestManager = {
             });
 
             if(is_any_met && is_all_met) { //completed
-                this.FinishQuestTask(active_quests[active_quest_id].quest_id, current_task_index);
+                this.finishQuestTask(active_quests[active_quest_id].quest_id, current_task_index);
             }
 
             const remaining_tasks = active_quests[active_quest_id].quest_tasks.filter(task => !task.is_finished);
             if(remaining_tasks.length == 0) { //no more tasks
-                this.FinishQuest(active_quest_id);
+                this.finishQuest(active_quest_id);
             }
         });
     },
@@ -207,16 +207,16 @@ const QuestManager = {
 
 quests["Lost memory"] = new Quest({
     quest_name: "???",
-    GetQuestName: ()=>{
-        const completed_tasks = QuestManager.GetCompletedtaskCount();
+    getQuestName: ()=>{
+        const completed_tasks = questManager.getCompletedtaskCount();
         if(completed_tasks == 0) {
             return "???";
         } else {
             return "The Search";
         }
     },
-    GetQuestDescription: ()=>{
-        const completed_tasks = QuestManager.GetCompletedtaskCount();
+    getQuestDescription: ()=>{
+        const completed_tasks = questManager.getCompletedtaskCount();
         if(completed_tasks == 0) {
             return "You woke up in some village and you have no idea how you got here or who you are. Just what could have happened?";
         } else if(completed_tasks == 1) {
@@ -247,7 +247,7 @@ quests["Test quest"] = new Quest({
     quest_description: "Raaaaaaaaaaat ratratratratrat rat rat rat",
     quest_tasks: [
         new QuestTask({
-            task_description: "blah",
+            task_description: "task 1 blah blah",
             task_condition: {
                 any: {
                     kill: {
@@ -271,4 +271,4 @@ quests["Infinite rat saga"] = new Quest({
 });
 */
 
-export { quests, active_quests, QuestManager};
+export { quests, active_quests, questManager};

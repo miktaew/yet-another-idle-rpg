@@ -28,6 +28,12 @@ class Location {
                 getBackgroundNoises,
                 crafting = null,
                 tags = {},
+                is_temperature_static = false,
+                static_temperature = null,
+                reverse_day_night_temperatures = false,
+                temperature_range_modifier = 1,
+                temperature_modifier = 0,
+                is_under_roof = false,
             }) {
         // always a safe zone
 
@@ -72,6 +78,13 @@ class Location {
             }
         },
          */
+
+        this.is_temperature_static = is_temperature_static; //true -> uses static temperature, either provided or default
+        this.static_temperature = static_temperature;
+        this.reverse_day_night_temperatures = reverse_day_night_temperatures; //true -> nights are warmer, days are colder
+        this.temperature_range_modifier = temperature_range_modifier; //flat modifier to how much temperature varies from base
+        this.temperature_modifier = temperature_modifier; //flat modifier to temperature, applied AFTER range modifier
+        this.is_under_roof = is_under_roof; //only for weather display
     }
 }
 
@@ -99,6 +112,12 @@ class Combat_zone {
                  unlock_text,
                  is_challenge = false,
                  tags = {},
+                 is_temperature_static = false,
+                 static_temperature = null,
+                 reverse_day_night_temperatures = false,
+                 temperature_range_modifier = 1,
+                 temperature_modifier = 0,
+                 is_under_roof = false,
                 }) {
 
         this.name = name;
@@ -177,6 +196,13 @@ class Combat_zone {
 
         this.tags = tags;
         this.tags["Combat zone"] = true;
+
+        this.is_temperature_static = is_temperature_static; //true -> uses static temperature, either provided or default
+        this.static_temperature = static_temperature;
+        this.reverse_day_night_temperatures = reverse_day_night_temperatures; //true -> nights are warmer, days are colder
+        this.temperature_range_modifier = temperature_range_modifier; //flat modifier to how much temperature varies from base
+        this.temperature_modifier = temperature_modifier; //flat modifier to temperature, applied AFTER range modifier
+        this.is_under_roof = is_under_roof; //only for weather display
     }
 
     get_next_enemies() {
@@ -350,6 +376,7 @@ class LocationActivity{
                  working_period = 60,
                  infinite = false,
                  availability_time,
+                 availability_seasons,
                  skill_xp_per_tick = 1,
                  unlock_text,
                  gained_resources,
@@ -371,6 +398,7 @@ class LocationActivity{
             throw new Error("LocationActivities that are not infinitely available, require a specified time of availability!");
         }
         this.availability_time = availability_time; //if not infinite -> hours between which it's available
+        this.availability_seasons = availability_seasons; //if not infinite -> seasons when it's available
         
         this.skill_xp_per_tick = skill_xp_per_tick; //skill xp gained per game tick (default -> 1 in-game minute)
 
@@ -903,7 +931,9 @@ function get_location_type_penalty(type, stage, stat, category) {
             is_unlocked: true,
             text_to_sleep: "Take a nap",
             sleeping_xp_per_tick: 1},
-    })
+        is_temperature_static: true,
+        is_under_roof: true,
+    });
 
     locations["Village"].connected_locations.push({location: locations["Shack"]});
     //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
@@ -966,8 +996,10 @@ function get_location_type_penalty(type, stage, stat, category) {
             let noises = ["*You hear rocks rumbling somewhere*", "Squeak!", ];
             return noises;
         },
+        temperature_range_modifier: 0.8,
         name: "Nearby cave",
         is_unlocked: false,
+        is_under_roof: true,
     });
     locations["Village"].connected_locations.push({location: locations["Nearby cave"]});
     //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
@@ -1000,7 +1032,9 @@ function get_location_type_penalty(type, stage, stat, category) {
                 required_clear_count: 4,
                 reputation: {"village": 20},
             },
-        ]
+        ],
+        temperature_range_modifier: 0.7,
+        is_under_roof: true,
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Cave room"]});
 
@@ -1029,6 +1063,8 @@ function get_location_type_penalty(type, stage, stat, category) {
                 reputation: {"village": 40},
             }
         ],
+        temperature_range_modifier: 0.6,
+        is_under_roof: true,
     });
     
     locations["Hidden tunnel"] = new Combat_zone({
@@ -1050,6 +1086,9 @@ function get_location_type_penalty(type, stage, stat, category) {
             xp: 50,
             activities: [{location:"Nearby cave", activity:"mining2"}],
         },
+        is_temperature_static: true,
+        temperature_range_modifier: 0.5,
+        is_under_roof: true,
         unlock_text: "As the wall falls apart, you find yourself in front of a new tunnel, leading even deeper. And of course, it's full of wolf rats."
     });
     locations["Pitch black tunnel"] = new Combat_zone({
@@ -1077,7 +1116,9 @@ function get_location_type_penalty(type, stage, stat, category) {
                 locations: [{location: "Mysterious gate"}],
             }
         ],
-
+        is_temperature_static: true,
+        static_temperature: 18,
+        is_under_roof: true,
         unlock_text: "As you keep going deeper, you barely notice a pitch black hole. Not even a tiniest speck of light reaches it."
     });
 
@@ -1100,6 +1141,9 @@ function get_location_type_penalty(type, stage, stat, category) {
             activities: [{location:"Nearby cave", activity:"meditating"}, {location:"Nearby cave", activity:"mining3"}],
             actions: [{action: "open the gate", location:"Nearby cave"}]
         },
+        is_temperature_static: true,
+        static_temperature: 20,
+        is_under_roof: true,
         unlock_text: "After a long and ardous fight, you reach a chamber that ends with a massive stone gate. You can see it's guarded by some kind of wolf rats, but much bigger than the ones you fought until now."
     });
 
@@ -1128,7 +1172,10 @@ function get_location_type_penalty(type, stage, stat, category) {
             xp: 1250,
             locations: [{location: "Mysterious depths"}]
         },
-        unlock_text: "You see something. You struggle to comprehend it. When you finally understand, you regret it. It might have been better to be born blind."
+        is_temperature_static: true,
+        static_temperature: 20,
+        is_under_roof: true,
+        unlock_text: "You see something. You struggle to comprehend it. When you finally understand, you regret it instantly. It might have been better to be born blind."
     });
 
     locations["Nearby cave"].connected_locations.push({location: locations["Writhing tunnel"]});
@@ -1145,7 +1192,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
         name: "Mysterious depths",
         is_unlocked: false,
-        unlock_text: "You manage to find a way to another chamber."
+        unlock_text: "You manage to find a way to another chamber.",
+        is_temperature_static: true,
+        static_temperature: 20,
+        is_under_roof: true,
     });
 
     locations["Nearby cave"].connected_locations.push({location: locations["Mysterious depths"], custom_text: "Climb down to [Mysterious depths]"});
@@ -1248,7 +1298,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
         repeatable_reward: {
             xp: 1000,
-        }
+        },
+        temperature_range_modifier: 0.8,
+        is_under_roof: true,
     });
     locations["Forest road"].connected_locations.push({location: locations["Forest den"], custom_text: "Enter the [Forest den]"});
 
@@ -1274,6 +1326,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         is_unlocked: true,
         dialogues: ["suspicious man"],
         traders: ["suspicious trader", "suspicious trader 2"],
+        temperature_range_modifier: 0.9,
         getBackgroundNoises: function() {
             let noises = ["Cough cough", "*You hear someone sobbing*", "*You see someone sleeping in an alleyway.*"];
             
@@ -1339,6 +1392,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             }, 
             move_to: {location: "Slums"},
         },
+        temperature_range_modifier: 0.6,
+        is_under_roof: true,
     });
     locations["Slums"].connected_locations.push({location: locations["Gang hideout"]});
 
@@ -1365,6 +1420,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["Meow", "Nya", "Mrrr", "Mrrrp meow", "*A cat jumps on your lap*", "*A cat brushes on your leg*"];
             return noises;
         },
+        is_under_roof: true,
+        is_temperature_static: true,
+        static_temperature: 20,
     });
 
     locations["Town square"].connected_locations.push({location: locations["Cat café"]});
@@ -1378,6 +1436,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["You hear a rock tumble and fall down. It takes a very long time to hit the ground...", "Strong wind whooshes past you"];
             return noises;
         },
+        temperature_modifier: -2,
         unlock_text: "Thanks to your hard effort, you reached a narrow safe spot where you can rest a bit.",
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Mountain path"], custom_text: "Climb up to [Mountain path]"});
@@ -1391,13 +1450,14 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["You hear a rock tumble and fall down. It takes a very long time to hit the ground...", "Strong wind whooshes past you", "A pair of birds flies right above you"];
             return noises;
         },
+        temperature_modifier: -2,
         unlock_text: "You finally got to a place where a camp can be established",
     });
     locations["Mountain path"].connected_locations.push({location: locations["Small flat area in mountains"]});
     
     locations["Mountain camp"] = new Location({
         connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb down to [Nearby cave]"}],
-        description: "A nice safe camp in mountains created by you, a perfect base for further exploration.",
+        description: "A nice safe camp with a crackling fire, created by you to be a perfect base for further exploration.",
         name: "Mountain camp",
         housing: {
             is_unlocked: true,
@@ -1409,6 +1469,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["You hear a rock tumble and fall down. It takes a very long time to hit the ground...", "Strong wind whooshes past you", "A pair of birds flies right above you"];
             return noises;
         },
+        temperature_range_modifier: 0.5,
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Mountain camp"]});
     locations["Mountain path"].connected_locations.push({location: locations["Mountain camp"]});
@@ -1428,7 +1489,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
         repeatable_reward: {
             xp: 1000,
-        }
+        },
+        temperature_modifier: -2,
     });
     locations["Mountain camp"].connected_locations.push({location: locations["Gentle mountain slope"]});
 })();
@@ -1492,7 +1554,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             textlines: [{dialogue: "village elder", lines: ["new tunnel"]}],
             xp: 20,
         },
-        unlock_text: "At some point, one of wolf rats tries to escape through a previously unnoticed hole in a nearby wall. There might be another tunnel behind it!"
+        unlock_text: "At some point, one of wolf rats tries to escape through a previously unnoticed hole in a nearby wall. There might be another tunnel behind it!",
+        is_under_roof: true,
+        temperature_range_modifier: 0.8,
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Suspicious wall"], custom_text: "Try to break the suspicious wall"});
 
@@ -1530,7 +1594,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             locations: [{location: "Small flat area in mountains"}],
             xp: 500,
         },
-        unlock_text: "Defend yourself!"
+        unlock_text: "A very angry goat blocks your way!",
+        temperature_modifier: -2,
     });
     locations["Mountain path"].connected_locations.push({location: locations["Fight the angry mountain goat"], custom_text: "Fight the angry goat"});
 })();
@@ -1547,6 +1612,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             working_period: 60*2,
             availability_time: {start: 6, end: 20},
+            availability_seasons: ["Spring","Summer","Autumn"],
             skill_xp_per_tick: 1, 
         }),
         "running": new LocationActivity({
@@ -1733,6 +1799,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             working_period: 60*2,
             availability_time: {start: 6, end: 20},
+            availability_seasons: ["Spring", "Summer", "Autumn"],
             skill_xp_per_tick: 2,
         }),
         "animal care": new LocationActivity({

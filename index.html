@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<HTML>
+<HTML lang="en">
     <head>
         <link rel = "stylesheet" href = "style.css">
         
@@ -13,7 +13,7 @@
         <!--favicon-->
         <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
-        <meta name="google-site-verification" content="IgjSYOU5-uUlX2dSA22IZ-aU9GvRbmQ5uie5qjuRWQg" />
+        <meta name="google-site-verification" content="IgjSYOU5-uUlX2dSA22IZ-aU9GvRbmQ5uie5qjuRWQg">
         
         <meta name="description" content="A text-based idle RPG game inspired by Proto23, with heavy focus on progression through skill leveling, created by Miktaew.">
         <meta name="author" content="Miktaew">
@@ -44,8 +44,6 @@
         </div>
 
         <div id = "main_content">
-            
-
             <div id = "global_content"> <!-- stuff that needs to be available in both area page and character page-->
                 <!-- basic character info (name, title, hp)-->
                 <div id = "basic_character_info_div" class = "box_div">
@@ -93,8 +91,11 @@
                 </div>
 
                 <div id = "time_and_location" class = "box_div">
-                    <div id = "time_div"> </div>
-                    
+                    <div id = "time_and_weather_div"> 
+                        <div id = "time_div"> </div>
+                        <div id = "weather_div">123 </div>
+                    </div>
+                
                     <div id = "location_name_div">
                         <span id = "location_icon_span"></span>
                         <span id = "location_name_span"></span>
@@ -913,6 +914,7 @@
                             <div class = "equipment_slot_div" id = "amulet_slot"> amulet </div>
                             <div class = "equipment_slot_div" id = "artifact_slot"> artifact </div>
                         </div>
+                        <div class = "equipment_slot_div equipment_slot_div_long" id = "cape_slot"> cape </div>
                     </div>
 
                     <div id = "character_tools_div">
@@ -968,33 +970,33 @@
             <div id = "options_button" class = "game_info" onclick="openOptions()"><span><i class="material-icons">settings</i></span></div>
             <div id = "changelog_button" class = "game_info"><a href="changelog.html" target="_blank"></a></div>
             <div id = "help_button" class = "game_info"><a href="help.html" target="_blank"><i class="material-icons">help_outline</i></a></div>
-            <div id = "ko_fi_link" class = "financial_link" title="Support me on Ko-fi!"><a href="https://ko-fi.com/miktaew" target="_blank"><img src="resources/img/ko-fi icon.png" style="height:40px" /></a></div>
+            <div id = "ko_fi_link" class = "financial_link" title="Support me on Ko-fi!"><a href="https://ko-fi.com/miktaew" target="_blank"><img src="resources/img/ko-fi_icon.png" style="height:40px" alt="Ko-fi icon"></a></div>
         </div>
 
         <div id="options_panel" data-nosnippet>
             <div id="options_choices">
                 <div class="options_choice">
-                    <input type="checkbox" id="options_textsize" name="options_textsize" value="options_textsize" onclick = "option_uniform_textsize()" />
+                    <input type="checkbox" id="options_textsize" name="options_textsize" value="options_textsize" onclick = "option_uniform_textsize()" >
                     <label for="options_textsize">Increase size of text in dialogues</label>
                 </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_bed_return" name="options_bed_return" value="options_bed_return" onclick = "option_bed_return()" checked/>
+                    <input type="checkbox" id="options_bed_return" name="options_bed_return" value="options_bed_return" onclick = "option_bed_return()" checked>
                     <label for="options_bed_return">Return to last bed upon defeat</label>
                 </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_save_messagelog_settings" name="options_save_messagelog_settings" value="options_save_messagelog_settings" onclick = "option_remember_filters()"/>
+                    <input type="checkbox" id="options_save_messagelog_settings" name="options_save_messagelog_settings" value="options_save_messagelog_settings" onclick = "option_remember_filters()">
                     <label for="options_save_messagelog_settings">Remember message log filters</label>
                 </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_dont_autoswitch_to_combat" name="options_dont_autoswitch_to_combat" value="options_dont_autoswitch_to_combat" onclick = "option_combat_autoswitch()"/>
+                    <input type="checkbox" id="options_dont_autoswitch_to_combat" name="options_dont_autoswitch_to_combat" value="options_dont_autoswitch_to_combat" onclick = "option_combat_autoswitch()">
                     <label for="options_dont_autoswitch_to_combat">Don't autoswitch out from inventory when starting combat</label>
                 </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_log_all_gathering" name="options_log_all_gathering" value="options_log_all_gathering" onclick = "option_log_all_gathering()" checked/>
+                    <input type="checkbox" id="options_log_all_gathering" name="options_log_all_gathering" value="options_log_all_gathering" onclick = "option_log_all_gathering()" checked>
                     <label for="options_log_all_gathering">Log gathered materials for every gathering period</label>
                 </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_log_gathering_result" name="options_log_gathering_result" value="options_log_gathering_result" onclick = "option_log_gathering_result()" checked/>
+                    <input type="checkbox" id="options_log_gathering_result" name="options_log_gathering_result" value="options_log_gathering_result" onclick = "option_log_gathering_result()" checked>
                     <label for="options_log_gathering_result">Log total gathered materials on gathering finish</label>
                 </div>
             </div>
@@ -1555,8 +1557,8 @@
                     if(Date.now() >= tooltip_wait) {
                         let hovered_element = event.target;
                         if(hovered_element.classList.contains("equipment_slot_div")){
-                            hovered_element.children[0].style.left = event.pageX + "px";
-                            hovered_element.children[0].style.top = event.pageY - 130 + "px";
+                            document.documentElement.style.setProperty('--item_tooltip_top', `${ event.pageY - 150}px`);
+                            document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX - 50}px`);
                         }
                         tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
@@ -1618,12 +1620,8 @@
                 //unequip item
                 equipment_div.onclick = function(event) {
                     let clicked_element = event.target;
-                    if(clicked_element.classList.contains("equipment_slot_div") && !clicked_element.classList.contains("equipment_slot_empty"))
-                    {
+                    if(clicked_element.classList.contains("equipment_slot_div") && !clicked_element.classList.contains("equipment_slot_empty")) {
                         unequip_item(clicked_element.id.replace("_slot", ""));
-
-                        clicked_element.children[0].style.left = event.pageX + "px";
-                        clicked_element.children[0].style.top = event.pageY + "px";
                     }
                 }
 

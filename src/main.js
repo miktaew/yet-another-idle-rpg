@@ -62,9 +62,10 @@ import { end_activity_animation,
          update_displayed_storage_inventory,
          update_location_icon,
          skill_list,
-         update_booklist_entry
+         update_booklist_entry,
+         update_displayed_temperature
         } from "./display.js";
-import { compare_game_version, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
+import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { game_version, get_game_version } from "./game_version.js";
@@ -72,7 +73,8 @@ import { ActiveEffect, effect_templates } from "./active_effects.js";
 import { open_storage, close_storage, move_item_to_storage, remove_item_from_storage, player_storage, is_storage_open } from "./storage.js";
 import { Verify_Game_Objects } from "./verifier.js";
 import { ReputationManager } from "./reputation.js";
-import { quests, QuestManager, active_quests } from "./quests.js";
+import { quests, questManager, active_quests } from "./quests.js";
+import { get_current_temperature } from "./weather.js";
 
 const save_key = "save data";
 const dev_save_key = "dev save data";
@@ -104,6 +106,8 @@ let total_hits_taken = 0;
 let strongest_hit = 0;
 let gathered_materials = {};
 
+//temperature
+let current_temperature = 20;
 
 //current enemy
 let current_enemies = null;
@@ -397,6 +401,7 @@ function change_location(location_name, event) {
     
     current_location = location;
 
+    update_displayed_temperature();
     update_character_stats();
 
     if("connected_locations" in current_location) { 
@@ -821,8 +826,12 @@ function can_work(selected_job) {
                 
                 return false;
             }
-        } else {
-            //ends on the next day (i.e. working through the night)        
+        } else { //ends on the next day (i.e. working through the night)
+            if(!selected_job.availability_time.includes(current_game_time.getSeason(current_game_time.day+1))) {
+                //ends on new season during which it's not available
+                return false;
+            }  
+
             if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.start*60
                 //too late
                 ||
@@ -856,7 +865,13 @@ function enough_time_for_earnings(selected_job) {
                 return false;
             }
         } else {
-            //ends on the next day (i.e. working through the night)        
+            //ends on the next day (i.e. working through the night)
+  
+            if(!selected_job.availability_time.includes(current_game_time.getSeason(current_game_time.day+1))) {
+                //ends on new season during which it's not available
+                return false;
+            } 
+
             if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.start*60
                 //timer is past the starting hour, so it's the same day as job starts
                 && 
@@ -1463,6 +1478,12 @@ function use_stamina(num = 1, use_efficiency = true) {
     }
 
     if(character.stats.full.stamina < 1) {
+
+        //double the gain if hp under 20%
+        if(character.stats.full.health/character.stats.full.max_health < 0.2) {
+            num *= 2;
+        }
+
         add_xp_to_skill({skill: skills["Persistence"], xp_to_add: num});
         update_displayed_stats();
     }
@@ -2006,7 +2027,6 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 const success_chance = selected_recipe.get_success_chance(station_tier);
                 result = selected_recipe.getResult();
                 let {result_id, count} = result;
-                const is_medicine = item_templates[result_id].tags.medicine;
 
                 const recipe_skill = skills[selected_recipe.recipe_skill];
                 const needed_xp = recipe_skill.total_xp_to_next_lvl - recipe_skill.total_xp;
@@ -2083,18 +2103,21 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 }
 
                 leveled = add_xp_to_skill({skill: recipe_skill, xp_to_add: xp_to_add});
-                if(is_medicine) {
-                    let leveled = add_xp_to_skill({skill: skills["Medicine"], xp_to_add: xp_to_add/2});
-                    if(leveled) {
-                        character.stats.add_active_effect_bonus();
-                        update_character_stats();
-                        Object.keys(character.inventory).forEach(item_key => {
-                            if(character.inventory[item_key].item.tags.medicine) {
-                                update_displayed_character_inventory({item_key});
-                            }
-                        });
+                Object.keys(item_templates[result_id].tags).forEach(tag => {
+                    const skill_id = crafting_tags_to_skills[tag];
+                    if(skill_id) {
+                        let leveled = add_xp_to_skill({skill: skills[skill_id], xp_to_add: xp_to_add/2});
+                        if(leveled) {
+                            character.stats.add_active_effect_bonus();
+                            update_character_stats();
+                            Object.keys(character.inventory).forEach(item_key => {
+                                if(character.inventory[item_key].item.tags.medicine) {
+                                    update_displayed_character_inventory({item_key});
+                                }
+                            });
+                        }
                     }
-                }
+                });
                 
                 if(attempted_crafting_ammount < ammount_that_can_be_crafted) {
                     use_recipe(target, ammount_that_can_be_crafted - attempted_crafting_ammount);
@@ -3679,6 +3702,7 @@ function update() {
         and end_date is when previous_tick ended
         */
 
+        let were_stats_updated = false;
         const prev_day = current_game_time.day;
         update_timer();
 
@@ -3695,10 +3719,23 @@ function update() {
                 delete active_effects[key];
                 character.stats.add_active_effect_bonus();
                 update_character_stats();
+                were_stats_updated = true; //only for later, as skipping update in here would be bad
             }
         });
         update_displayed_effect_durations();
         update_displayed_effects();
+
+        const new_temperature = get_current_temperature();
+
+        //temperature changed => update display, update stats if needed
+        if(current_temperature !== new_temperature) {
+            update_displayed_temperature();
+            if(!were_stats_updated) {
+                update_character_stats();
+            }
+        }
+
+        current_temperature = new_temperature;
 
         if("parent_location" in current_location){ //if it's a combat_zone
 
@@ -3926,8 +3963,7 @@ function update() {
             console.log("Created an automatic backup!");
         }
 
-        if(!is_sleeping && current_location && current_location.light_level === "normal" && is_night()) 
-        {
+        if(!is_sleeping && current_location && current_location.light_level === "normal" && is_night()) {
             add_xp_to_skill({skill: skills["Night vision"], xp_to_add: 1});
         }
 
@@ -4128,7 +4164,7 @@ sort_displayed_inventory({sort_by: "name", target: "character"});
 
 run();
 
-QuestManager.StartQuest("Test quest");
+questManager.startQuest("Test quest");
 
 //Verify_Game_Objects();
 window.Verify_Game_Objects = Verify_Game_Objects;
