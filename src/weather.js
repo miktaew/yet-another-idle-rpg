@@ -4,7 +4,7 @@ import { current_location } from "./main.js";
 
 const base_temperature = 20; //in celsius
 
-let previous_temperature;
+let previous_temperature_modifier;
 
 const seasonal_temperature_modifiers = {
     Winter: -20,
@@ -60,6 +60,14 @@ function get_temperature_peak_time(time) {
         else return "Minus";
 }
 
+function get_nonlocational_temperature_modifier(time) {    
+    return (seasonal_temperature_modifiers[time.getSeason()] 
+                            + daytime_temperature_modifiers[get_temperature_peak_time(time)] 
+                            + daycount_temperature_modifier[time.day_count%11]
+                            + rain_cycle[time.day_count%13]
+                        );
+}
+
 function get_temperature_at(time) {
     if(!current_location) {
         throw new Error(`Cannot provide temperature when current_location is '${typeof current_location}'!`);
@@ -83,13 +91,9 @@ function get_temperature_at(time) {
                            + location_modifier*(seasonal_temperature_modifiers[time.getSeason()] 
                                                  + daytime_temperature_modifiers[get_temperature_peak_time(time)] 
                                                  + daycount_temperature_modifier[time.day_count%11]
+                                                 + rain_cycle[time.day_count%13]
                                                 );
-                                                
-    //rain only reduces higher temperatures, but is neutral when it's 10 and less           
-    if(total_modifier > 10) {
-        total_modifier = Math.max(10,total_modifier + location_modifier*rain_cycle[time.day_count%13]);
-    }
-    
+
     return base_temperature + total_modifier;
 }
 
@@ -106,21 +110,20 @@ function get_current_temperature() {
  */
 function get_current_temperature_smoothed() {
 
-    if(!previous_temperature) {
-        previous_temperature = get_current_temperature();
+    if(!previous_temperature_modifier) {
+        previous_temperature_modifier = get_nonlocational_temperature_modifier(current_game_time);
     }
 
     let prev_temperature_time;
     let next_temperature_time;
     let total_minutes_betwen_changes;
 
-
     if(current_game_time.hour >= 14) {
         //next change is at 5 next day
         next_temperature_time = {hours: 5, days: 1};
         prev_temperature_time = {hour: 14};
         total_minutes_betwen_changes = 900;
-        previous_temperature = get_current_temperature();
+        previous_temperature_modifier = get_nonlocational_temperature_modifier(current_game_time);
     } else if(current_game_time.hour < 5) {
         //next change is at 5 same day
         next_temperature_time = {hours: 5, days: 0};
@@ -132,7 +135,7 @@ function get_current_temperature_smoothed() {
         next_temperature_time = {hours: 14, days: 0};
         prev_temperature_time = {hour: 5};
         total_minutes_betwen_changes = 540;
-        previous_temperature = get_current_temperature();
+        previous_temperature_modifier = get_nonlocational_temperature_modifier(current_game_time);
     }
 
     let minutes_passed;
@@ -147,8 +150,8 @@ function get_current_temperature_smoothed() {
 
     const ratio = minutes_passed/total_minutes_betwen_changes;
     
-    //grab the next temperature at adequately incremented time
-    const next_temperature = get_temperature_at(new Game_Time({
+    //grab the next temperature modifier at adequately incremented time
+    const next_temperature_modifier = get_nonlocational_temperature_modifier(new Game_Time({
                                                         year: current_game_time.year,
                                                         month: current_game_time.month,
                                                         day: current_game_time.day + next_temperature_time.days,
@@ -157,12 +160,28 @@ function get_current_temperature_smoothed() {
                                                         day_count: current_game_time.day_count+next_temperature_time.days,
                                                     }));
 
-    //calculate from prev, next and how close timewise it is                        
-    return Math.round(10*(previous_temperature + ratio*(next_temperature-previous_temperature)))/10;
+
+    const location_modifier = current_location.temperature_range_modifier; //modifier to how much it differs from base, applied before location's flat modifier
+
+    if(isNaN(location_modifier)) {
+        throw new Error(`Temperature modifier for "${current_location.name}" is not a number!`);
+    }
+
+    //calculate from prev, next and how close timewise it is, include location modifiers
+
+    return Math.round(
+            10*(
+                base_temperature 
+                + (current_location.temperature_modifier || 0) 
+                + location_modifier
+                    * (previous_temperature_modifier
+                        +
+                        ratio*(next_temperature_modifier - previous_temperature_modifier)
+              )))/10;
 }
 
 /**
- * temperature based for now
+ * based on a simple 13-long cycle
  */
 function is_raining() {
     return rain_cycle[current_game_time.day_count%13] < 0;
