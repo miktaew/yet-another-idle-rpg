@@ -17,6 +17,9 @@ import { skill_consumable_tags } from "./misc.js";
 const base_block_chance = 0.75; //+20 from the skill
 const base_xp_cost = 10;
 
+
+
+//4 things below: for weather; why here? because it's related to the hero, I guess
 const time_until_cold = 60;
 const time_until_cold_when_wet = 20;
 
@@ -62,6 +65,7 @@ class Hero extends InventoryHaver {
                         attack_points: 0, //AP
                         heat_tolerance: 0,
                         cold_tolerance: 0,
+                        unarmed_power: 1, //base damage for unarmed, as it has no weapon dmg to scale with
                 };
                 this.name = "Hero";
                 this.titles = {};
@@ -403,6 +407,8 @@ character.stats.add_all_skill_level_bonus = function() {
 
         character.stats.multiplier.skills.max_stamina = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Breathing"});
 
+        character.stats.flat.skills.unarmed_power = skills["Unarmed"].current_level * 0.1;
+
         character.stats.add_weapon_type_bonuses();
 }
 
@@ -539,10 +545,12 @@ character.update_stats = function () {
 
      
     if(character.equipment.weapon != null) { 
+        //has weapon
         character.stats.full.attack_power = (character.stats.full.strength/10) * character.equipment.weapon.getAttack() * character.stats.total_multiplier.attack_power;
-    } 
-    else {
-        character.stats.full.attack_power = (character.stats.full.strength/10) * character.stats.total_multiplier.attack_power;
+    } else {
+        //has no weapon
+        //character.stats.full.attack_power = (character.stats.full.strength/10) * (1+skills["Unarmed"].current_level*0.1) * character.stats.total_multiplier.attack_power;
+        character.stats.full.attack_power = (character.stats.full.strength/10) * character.stats.total_multiplier.attack_power * character.stats.full.unarmed_power;
     }
     
     character.stats.total_flat.attack_power = character.stats.full.attack_power/character.stats.total_multiplier.attack_power;

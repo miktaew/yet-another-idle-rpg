@@ -569,7 +569,8 @@ function format_skill_rewards(milestone){
                                     category: "Combat",
                                     get_effect_description: ()=> {
                                         return `Multiplies damage dealt in unarmed combat by ${Math.round(get_total_skill_coefficient({skill_id:"Unarmed",scaling_type:"multiplicative"})*1000)/1000}. 
-Multiplies attack speed, EP and AP in unarmed combat by ${Math.round((get_total_skill_coefficient({skill_id:"Unarmed",scaling_type:"multiplicative"})**0.3333)*1000)/1000}`;
+Multiplies attack speed, EP and AP in unarmed combat by ${Math.round((get_total_skill_coefficient({skill_id:"Unarmed",scaling_type:"multiplicative"})**0.3333)*1000)/1000}.
+Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
                                     },
                                     max_level_coefficient: 64, //even with 8x more it's still gonna be worse than just using a weapon lol
                                     milestones: {
@@ -1940,6 +1941,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             5: {
                 stats: {
                     max_health: {multiplier: 1.01},
+                    unarmed_power: {flat: 0.4},
                 }
             },
             7: {
@@ -1950,6 +1952,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             10: {
                 stats: {
                     max_health: {multiplier: 1.02},
+                    unarmed_power: {flat: 0.6},
                 }
             },
             12: {
