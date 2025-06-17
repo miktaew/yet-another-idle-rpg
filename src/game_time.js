@@ -1,17 +1,17 @@
 "use strict";
 
-function Game_time(new_time) {
+function Game_Time(new_time) {
     this.year = new_time.year;
     this.month = new_time.month;
     this.day = new_time.day;
     this.hour = new_time.hour;
     this.minute = new_time.minute;
-    this.day_count = new_time.day_count;
+    this.day_count = new_time.day_count ?? 1;
     //only hours and minutes should be allowed to be 0
     //day_count is purely for calculating day of the week, by default it always start at monday (so day_count = 1)
 
     this.goUp = function(how_much) {
-        this.minute += how_much || 1;
+        this.minute += how_much ?? 1;
         if(this.minute >= 60) {
             const m = this.minute % 60;
             const h = Math.floor(this.minute/60);
@@ -42,6 +42,10 @@ function Game_time(new_time) {
         }
     }
 
+    this.goUp(0); 
+    //just in case someone passes a value that's not exactly correct, in a situation where it won't ever get incremented so it won't automatically fix
+    //e.g. in weather when grabbing date for next weather, as a change in month would not be reflected and adding a manual recalculation there would be just stupid
+
     this.loadTime = function(new_time) {
         this.year = new_time.year;
         this.month = new_time.month;
@@ -68,8 +72,14 @@ function Game_time(new_time) {
     this.getTimeOfDay = function() {
         if (this.hour >= 21 || this.hour < 4) return "Night";
         else if(this.hour >= 4 && this.hour < 8) return "Dawn";
-        else if(this.hour >= 8 && this.hour < 18) return "Noon";
+        else if(this.hour >= 8 && this.hour < 18) return "Day";
         else return "Dusk";
+    }
+    
+    this.getTimeOfDaySimple = function() {
+        //changing this also requires changing values in get_current_temperature_smoothed() in weather.js
+        if (this.hour >= 21 || this.hour < 4) return "Night";
+        else return "Day";
     }
 
     this.getDayOfTheWeek = function() {
@@ -90,10 +100,9 @@ function Game_time(new_time) {
                 return "Sat";
         }
     }	
-
 }
 
-Game_time.prototype.toString = function() {
+Game_Time.prototype.toString = function() {
     let date_string = ((this.day>9?this.day:`0${this.day}`) + "/");
     date_string += ((this.month>9?this.month:`0${this.month}`) + "/");
     date_string += (this.year + " ");
@@ -160,6 +169,6 @@ function is_night(time) {
 
 const seasons = ["Spring","Summer","Autumn","Winter"];
 
-const current_game_time = new Game_time({year: 999, month: 4, day: 1, hour: 8, minute: 0, day_count: 1});
+const current_game_time = new Game_Time({year: 999, month: 4, day: 1, hour: 8, minute: 0, day_count: 1});
 
-export {current_game_time, format_time, is_night, seasons};
+export {current_game_time, format_time, is_night, seasons, Game_Time};

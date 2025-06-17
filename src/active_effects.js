@@ -29,6 +29,63 @@ class ActiveEffect {
     }
 }
 
+//weather effects
+effect_templates["Wet"] = new ActiveEffect({
+    name: "Wet",
+    effects: {
+        stats: {
+            cold_tolerance: {flat: -5},
+        }
+    },
+});
+
+effect_templates["Cold"] = new ActiveEffect({
+    name: "Cold",
+    effects: {
+        stats: {
+            stamina_efficiency: {muliplier: 0.8},
+        }
+    },
+});
+effect_templates["Very cold"] = new ActiveEffect({
+    name: "Very cold",
+    effects: {
+        stats: {
+            stamina_efficiency: {muliplier: 0.6},
+            dexterity: {multiplier: 0.9},
+            agility: {multiplier: 0.9},
+            health_regeneration_flat: {muliplier: 0.9},
+            health_regeneration_percent: {muliplier: 0.9},
+        }
+    },
+});
+effect_templates["Freezing"] = new ActiveEffect({
+    name: "Freezing",
+    effects: {
+        stats: {
+            stamina_efficiency: {muliplier: 0.3},
+            dexterity: {multiplier: 0.6},
+            agility: {multiplier: 0.6},
+            health_regeneration_flat: {muliplier: 0.6},
+            health_regeneration_percent: {muliplier: 0.6},
+        }
+    },
+});
+effect_templates["Hypothermia"] = new ActiveEffect({
+    name: "Hypothermia",
+    effects: {
+        stats: {
+            stamina_efficiency: {multiplier: 0.1},
+            dexterity: {multiplier: 0.3},
+            agility: {multiplier: 0.3},
+            health_regeneration_flat: {multiplier: 0.2},
+            health_regeneration_percent: {multiplier: 0.2},
+        }
+    },
+});
+/////////////////////////////////////////
+
+
 effect_templates["Basic meal"] = new ActiveEffect({
     name: "Basic meal",
     effects: {

@@ -931,7 +931,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             is_unlocked: true,
             text_to_sleep: "Take a nap",
             sleeping_xp_per_tick: 1},
-        is_temperature_static: true,
+        temperature_range_modifier: 0.4,
         is_under_roof: true,
     });
 
