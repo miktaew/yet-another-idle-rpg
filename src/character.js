@@ -18,15 +18,16 @@ const base_block_chance = 0.75; //+20 from the skill
 const base_xp_cost = 10;
 
 
-
-//4 things below: for weather; why here? because it's related to the hero, I guess
+//6 things below: for weather; why here? because it's related to the hero, I guess
+const time_until_wet = 10;
 const time_until_cold = 60;
 const time_until_cold_when_wet = 20;
 
 //temperatures for effects 'cold','very cold','freezing','hypothermia'
-const cold_status_temperatures = [10,5,0,-5];
+const cold_status_temperatures = [14,8,2,-4];
 //array for matching the names of aforementioned effects
-const weather_effects = ["Cold","Very cold","Freezing","Hypothermia"];
+const cold_status_effects = ["Cold","Very cold","Freezing","Hypothermia"];
+const cold_status_counters = [0,0,0,0];
 
 
 class Hero extends InventoryHaver {
@@ -855,4 +856,8 @@ function get_effect_with_bonuses(active_effect) {
 
 export {character, add_to_character_inventory, remove_from_character_inventory, equip_item_from_inventory, equip_item, 
         unequip_item, update_character_stats, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, add_location_penalties,
-        get_total_skill_level, get_total_level_bonus, get_total_skill_coefficient, get_effect_with_bonuses};
+        get_total_skill_level, get_total_level_bonus, get_total_skill_coefficient, get_effect_with_bonuses,
+        time_until_wet, time_until_cold, time_until_cold_when_wet, 
+        cold_status_temperatures, cold_status_effects, cold_status_counters,
+        get_character_cold_tolerance
+};

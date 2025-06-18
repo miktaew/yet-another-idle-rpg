@@ -15,7 +15,14 @@ import { character,
          update_character_stats,
          get_skill_xp_gain, 
          get_total_skill_coefficient,
-         get_total_skill_level} from "./character.js";
+         get_total_skill_level,
+         time_until_wet,
+         cold_status_temperatures,
+         cold_status_counters,
+         time_until_cold,
+         time_until_cold_when_wet,
+         cold_status_effects,
+         get_character_cold_tolerance} from "./character.js";
 import { activities } from "./activities.js";
 import { end_activity_animation, 
          update_displayed_character_inventory, update_displayed_trader_inventory, sort_displayed_inventory, sort_displayed_skills,
@@ -74,7 +81,7 @@ import { open_storage, close_storage, move_item_to_storage, remove_item_from_sto
 import { Verify_Game_Objects } from "./verifier.js";
 import { ReputationManager } from "./reputation.js";
 import { quests, questManager, active_quests } from "./quests.js";
-import { get_current_temperature_smoothed } from "./weather.js";
+import { get_current_temperature_smoothed, is_raining } from "./weather.js";
 
 const save_key = "save data";
 const dev_save_key = "dev save data";
@@ -108,6 +115,8 @@ let gathered_materials = {};
 
 //temperature
 let current_temperature = 20;
+
+let rain_counter = 0;
 
 //current enemy
 let current_enemies = null;
@@ -178,7 +187,7 @@ const faved_stances = {};
 const favourite_consumables = {};
 //consumables that are to be used automatically if their effect runs out
 
-const tickrate = 1;
+const tickrate = 60;
 //how many ticks per second
 //1 is the default value; going too high might make the game unstable
 
@@ -1376,11 +1385,13 @@ function do_character_combat_action({target, attack_power, target_count}) {
 
         total_hits_done++;
         if(character.equipment.weapon != null) {
+            //if has weapon
             damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) )/10;
 
             add_xp_to_skill({skill: skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]], xp_to_add: target.xp_value/target_count}); 
 
         } else {
+            //if has no weapon
             damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) )/10;
             add_xp_to_skill({skill: skills['Unarmed'], xp_to_add: target.xp_value/target_count});
         }
@@ -3689,7 +3700,7 @@ function update_timer(time_in_minutes) {
 function update() {
     setTimeout(() => {
         end_date = Date.now(); 
-        //basically when previous tick ends
+        //basically when previous tick ends, used for timer smoothing
 
         time_variance_accumulator += ((end_date - start_date) - 1000/tickrate);
         //duration of previous tick, minus time it was supposed to take
@@ -3716,10 +3727,11 @@ function update() {
         Object.keys(active_effects).forEach(key => {
             active_effects[key].duration--;
             if(active_effects[key].duration <= 0) {
+                //duration ended - remove effect
                 delete active_effects[key];
                 character.stats.add_active_effect_bonus();
                 update_character_stats();
-                were_stats_updated = true; //only for later, as skipping update in here would be bad
+                were_stats_updated = true; //only for use later, as skipping update in here would be bad
             }
         });
         update_displayed_effect_durations();
@@ -3736,6 +3748,42 @@ function update() {
         }
 
         current_temperature = new_temperature;
+
+        if(is_raining() && !current_location.is_under_roof) {
+            //can get wet
+            if(rain_counter >= time_until_wet) {
+                //been in rain long enough, add wet even if present
+                add_active_effect("Wet",30);
+            } else {
+                //haven't been in rain long enough, increase the counter
+                rain_counter++;
+            }
+        } else {
+            if(rain_counter > 0) {
+                //not in rain, reduce rain counter
+                rain_counter--;
+            }
+        }
+
+        //add cold status if applicable
+        let was_effect_added = false;
+        console.log(cold_status_counters);
+        for(let i = cold_status_temperatures.length - 1; i >= 0; i--) {
+            if(current_temperature + get_character_cold_tolerance() <= cold_status_temperatures[i]) {
+                if((active_effects["Wet"] && cold_status_counters[i] >= time_until_cold_when_wet) || (cold_status_counters[i] >= time_until_cold)) {
+                    if(was_effect_added) {
+                        continue;
+                    }
+                    add_active_effect(cold_status_effects[i],60);
+                } else {
+                    cold_status_counters[i]++;
+                }
+            } else {
+                if(cold_status_counters[i] > 0) {
+                    cold_status_counters[i]--;
+                }
+            }
+        }
 
         if("parent_location" in current_location){ //if it's a combat_zone
 
@@ -4150,6 +4198,31 @@ function add_all_active_effects(duration){
 }
 
 function add_active_effect(effect_key, duration){
+    let do_not_apply_because_stronger_is_active = false; //readable names are good, right?
+    Object.keys(active_effects).forEach(effect => {
+        if(do_not_apply_because_stronger_is_active) {
+            return;
+        }
+        Object.keys(effect_templates[effect].group_tags).forEach(group_tag => {
+            if(do_not_apply_because_stronger_is_active) {
+                return;
+            }
+            if(group_tag in effect_templates[effect_key].group_tags) {
+                if(effect_templates[effect].group_tags[group_tag] > effect_templates[effect_key].group_tags[group_tag]) {
+                    //stronger effect is active, skip
+                    do_not_apply_because_stronger_is_active = true; 
+                } else {
+                    //aply the effect normally, remove the weaker
+                    delete active_effects[effect];
+                }
+            }
+        });
+    });
+
+    if(do_not_apply_because_stronger_is_active) {
+        //shouldn't need any recalculations or display updates as nothing was changed
+        return;
+    }
     active_effects[effect_key] = new ActiveEffect({...effect_templates[effect_key], duration});
     character.stats.add_active_effect_bonus();
     update_displayed_effects();
