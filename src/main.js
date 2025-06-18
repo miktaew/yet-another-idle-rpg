@@ -187,7 +187,7 @@ const faved_stances = {};
 const favourite_consumables = {};
 //consumables that are to be used automatically if their effect runs out
 
-const tickrate = 60;
+const tickrate = 1;
 //how many ticks per second
 //1 is the default value; going too high might make the game unstable
 
