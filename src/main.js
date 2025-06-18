@@ -3767,7 +3767,6 @@ function update() {
 
         //add cold status if applicable
         let was_effect_added = false;
-        console.log(cold_status_counters);
         for(let i = cold_status_temperatures.length - 1; i >= 0; i--) {
             if(current_temperature + get_character_cold_tolerance() <= cold_status_temperatures[i]) {
                 if((active_effects["Wet"] && cold_status_counters[i] >= time_until_cold_when_wet) || (cold_status_counters[i] >= time_until_cold)) {
