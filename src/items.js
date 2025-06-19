@@ -2521,8 +2521,10 @@ item_templates["Butchering and you"] = new Book({
         component_type: "helmet interior",
         base_defense: 2,
         component_tier: 2,
-        cold_protection: {
+        component_stats: {
+            cold_protection: {
                 flat: 1,
+            }
         }
     });
 
@@ -2533,8 +2535,10 @@ item_templates["Butchering and you"] = new Book({
         component_type: "helmet interior",
         base_defense: 3,
         component_tier: 3,
-        cold_protection: {
-                flat: 1,
+        component_stats: {
+            cold_protection: {
+                    flat: 1,
+            }
         }
     });
 
@@ -2545,8 +2549,10 @@ item_templates["Butchering and you"] = new Book({
         component_type: "glove interior",
         base_defense: 1,
         component_tier: 2,
-        cold_protection: {
+        component_stats: {
+            cold_protection: {
                 flat: 2,
+            }
         }
     });
     item_templates["Goat leather gloves"] = new Armor({
@@ -2556,8 +2562,10 @@ item_templates["Butchering and you"] = new Book({
         component_type: "glove interior",
         base_defense: 2,
         component_tier: 3,
-        cold_protection: {
+        component_stats: {
+            cold_protection: {
                 flat: 2,
+            }
         }
     });
 
@@ -2644,7 +2652,7 @@ item_templates["Butchering and you"] = new Book({
         component_type: "leg armor interior",
         base_defense: 1,
         component_tier: 2,
-        stats: {
+        component_stats: {
             cold_protection: {
                 flat: 3,
             }
@@ -2678,7 +2686,7 @@ item_templates["Butchering and you"] = new Book({
         component_type: "glove interior",
         base_defense: 0,
         component_tier: 2,
-        stats: {
+        component_stats: {
             cold_protection: {
                 flat: 2,
             }

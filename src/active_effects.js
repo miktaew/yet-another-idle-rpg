@@ -11,7 +11,7 @@ class ActiveEffect {
      * @param {Number} effect_data.duration
      * @param {Object} effect_data.effects {stats}
      */
-    constructor({name, id, duration, effects, tags, potency}) {
+    constructor({name, id, duration, effects, tags, potency, group_tags}) {
         this.name = name;
         this.id = id || name;
         this.duration = duration ?? 0;
@@ -23,9 +23,11 @@ class ActiveEffect {
             this.effects.stats = {};
         }
         this.tags = tags || {};
+        this.group_tags = group_tags || {}; //used for grouping and prioritizing highest in group; instead of simple 'true', values are Numbers with higher = more important
         this.tags["effect"] = true;
         this.potency = potency || 0;
         //todo: implement buff/debuff removal; use potency to check if effect A should remove effect B (the stronger survives)
+        //or make it work with group_tags instead?
     }
 }
 
@@ -43,33 +45,36 @@ effect_templates["Cold"] = new ActiveEffect({
     name: "Cold",
     effects: {
         stats: {
-            stamina_efficiency: {muliplier: 0.8},
+            stamina_efficiency: {multiplier: 0.8},
         }
     },
+    group_tags: {cold: 1},
 });
 effect_templates["Very cold"] = new ActiveEffect({
     name: "Very cold",
     effects: {
         stats: {
-            stamina_efficiency: {muliplier: 0.6},
+            stamina_efficiency: {multiplier: 0.6},
             dexterity: {multiplier: 0.9},
             agility: {multiplier: 0.9},
-            health_regeneration_flat: {muliplier: 0.9},
-            health_regeneration_percent: {muliplier: 0.9},
+            health_regeneration_flat: {multiplier: 0.9},
+            health_regeneration_percent: {multiplier: 0.9},
         }
     },
+    group_tags: {cold: 2},
 });
 effect_templates["Freezing"] = new ActiveEffect({
     name: "Freezing",
     effects: {
         stats: {
-            stamina_efficiency: {muliplier: 0.3},
+            stamina_efficiency: {multiplier: 0.3},
             dexterity: {multiplier: 0.6},
             agility: {multiplier: 0.6},
-            health_regeneration_flat: {muliplier: 0.6},
-            health_regeneration_percent: {muliplier: 0.6},
+            health_regeneration_flat: {multiplier: 0.6},
+            health_regeneration_percent: {multiplier: 0.6},
         }
     },
+    group_tags: {cold: 3},
 });
 effect_templates["Hypothermia"] = new ActiveEffect({
     name: "Hypothermia",
@@ -82,6 +87,7 @@ effect_templates["Hypothermia"] = new ActiveEffect({
             health_regeneration_percent: {multiplier: 0.2},
         }
     },
+    group_tags: {cold: 4},
 });
 /////////////////////////////////////////
 

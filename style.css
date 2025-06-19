@@ -1919,7 +1919,7 @@ i {
 				text-align: right;
 			}
 			#weather_div .icon {
-				font-size: 18px;
+				font-size: 16px;
 			}
 #location_name_div:hover #location_description_tooltip {
 	display: block;

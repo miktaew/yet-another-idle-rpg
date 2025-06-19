@@ -27,6 +27,7 @@ const stat_names = {
     "attack_points": "AP",
     "heat_tolerance": "heat resistance",
     "cold_tolerance": "cold resistance",
+    "unarmed_power": "unarmed base dmg",
 };
 
 const task_type_names = {
