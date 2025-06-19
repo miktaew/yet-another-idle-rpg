@@ -2146,8 +2146,8 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 console.warn(`Tried to use a recipe without having enough materials!`);
             }
             
-        } else if(subcategory === "components" || selected_recipe.recipe_type === "component" ) {
-            //either component or clothing
+        } else if(subcategory === "components" || selected_recipe.recipe_type === "component" || selected_recipe.recipe_type === "componentless" ) {
+            //either component, clothing, or componentless
             //read the selected material, pass it as param
 
             const material_div = recipe_div.children[1].querySelector(".selected_material");
@@ -2172,13 +2172,14 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                     let quality;
 
                     for(let i = 0; i < ammount_that_can_be_crafted; i++) {
-                        quality = selected_recipe.get_quality(station_tier - result.component_tier);
+                        const result_tier = result.component_tier ?? result.item_tier;
+                        quality = selected_recipe.get_quality(station_tier - result_tier);
 
                         crafted_items[quality] = (crafted_items[quality]+1 || 1);
                         all_crafted[quality] = (all_crafted[quality]+1 || 1);
                         crafted_count++;
 
-                        accumulated_xp += get_recipe_xp_value({category, subcategory, recipe_id, material_count:recipe_material.count, result_tier: result.component_tier, rarity_multiplier: rarity_multipliers[getItemRarity(quality)]});
+                        accumulated_xp += get_recipe_xp_value({category, subcategory, recipe_id, material_count:recipe_material.count, result_tier: result_tier, rarity_multiplier: rarity_multipliers[getItemRarity(quality)]});
                         if(accumulated_xp * get_skill_xp_gain(recipe_skill.skill_id) >= needed_xp) {
                             const qualities = Object.keys(crafted_items).map(x => Number(x)).sort((a,b)=>b-a);
                             const highest_qual = qualities[0];
