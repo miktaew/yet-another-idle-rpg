@@ -790,6 +790,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     });
     crafting_recipes.items["Processed wolf pelt"] = new ItemRecipe({
         name: "Processed wolf pelt",
+        is_unlocked: false,
         recipe_type: "material",
         materials: [{material_id: "Wolf pelt", count: 8}],
         result: {result_id: "Processed wolf pelt", count: 1},
@@ -799,6 +800,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     });
     crafting_recipes.items["Processed boar hide"] = new ItemRecipe({
         name: "Processed boar hide",
+        is_unlocked: false,
         recipe_type: "material",
         materials: [{material_id: "Boar hide", count: 8}],
         result: {result_id: "Processed boar hide", count: 1},
@@ -808,8 +810,9 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     });
     crafting_recipes.items["Processed goat hide"] = new ItemRecipe({
         name: "Processed goat hide",
+        is_unlocked: false,
         recipe_type: "material",
-        materials: [{material_id: "Goat hide", count: 8}],
+        materials: [{material_id: "Mountain goat hide", count: 8}],
         result: {result_id: "Processed goat hide", count: 1},
         success_chance: [0.2,1],
         recipe_level: [5,15],

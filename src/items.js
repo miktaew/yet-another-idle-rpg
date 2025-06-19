@@ -1067,6 +1067,9 @@ book_stats["Butchering and you"] = new BookData({
             {category: "crafting", subcategory: "items", recipe_id: "Piece of wolf leather"},
             {category: "crafting", subcategory: "items", recipe_id: "Piece of boar leather"},
             {category: "crafting", subcategory: "items", recipe_id: "Piece of goat leather"},
+            {category: "crafting", subcategory: "items", recipe_id: "Processed wolf pelt"},
+            {category: "crafting", subcategory: "items", recipe_id: "Processed boar hide"},
+            {category: "crafting", subcategory: "items", recipe_id: "Processed goat hide"},
             {category: "cooking", subcategory: "items", recipe_id: "Animal fat"},
             {category: "crafting", subcategory: "items", recipe_id: "High quality wolf fang"},
             {category: "crafting", subcategory: "items", recipe_id: "High quality boar tusk"},
@@ -2734,7 +2737,7 @@ item_templates["Butchering and you"] = new Book({
         value: 20,
         base_stats: {
             cold_protection: {
-                flat: 1,
+                flat: 2,
             }
         }
     });
@@ -2743,7 +2746,7 @@ item_templates["Butchering and you"] = new Book({
         description: "An elegant cape made from wolf pelts. Doesn't provide much protection, but is light enough to not hinder your movements.",
         value: 200,
         item_tier: 2,
-        base_defense: 1,
+        base_defense: 2,
         base_stats: {
             cold_protection: {
                 flat: 4,
@@ -2782,7 +2785,7 @@ item_templates["Butchering and you"] = new Book({
                 multiplier: 0.95,
             },
             cold_protection: {
-                flat: 3,
+                flat: 4,
             }
         }
     });
