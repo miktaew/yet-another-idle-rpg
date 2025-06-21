@@ -1,7 +1,7 @@
 "use strict";
 
 import { character, get_total_skill_level } from "./character.js";
-import { Armor, ArmorComponent, Shield, ShieldComponent, Weapon, WeaponComponent, item_templates } from "./items.js";
+import { Armor, ArmorComponent, Cape, Shield, ShieldComponent, Weapon, WeaponComponent, item_templates } from "./items.js";
 import { skills } from "./skills.js";
 
 const crafting_recipes = {items: {}, components: {}, equipment: {}};
@@ -174,6 +174,50 @@ class ComponentRecipe extends ItemRecipe{
     }
 }
 
+class ComponentlessEquipRecipe extends ItemRecipe{
+    constructor({
+        name,
+        id,
+        materials = [], 
+        is_unlocked = true,
+        result, //{item, count, result_name} where result_name is an item_templates key
+        recipe_skill,
+        item_type,
+    }) {
+        super({name, id, materials, is_unlocked, recipe_type: "componentless", result, recipe_level: [1,1], recipe_skill, getResult: null, success_rate: [1,1]})
+        this.item_type = item_type;
+        this.getResult = function(material, station_tier = 1){
+            const result = item_templates[this.materials.filter(x => x.material_id===material.id)[0].result_id];
+            //return based on material used
+            let quality = this.get_quality((station_tier-result.item_tier) || 0);
+            return new Cape({...item_templates[result.id], quality: quality});
+        }
+    }
+
+    get_quality_range(tier = 0) {
+        const skill = skills[this.recipe_skill];
+        const quality = (130+(3*get_total_skill_level(this.recipe_skill) - skill.max_level)+(15*tier))/100;
+        return [Math.max(10,Math.min(this.get_quality_cap(),Math.round(25*(quality-0.15))*4)), Math.max(10,Math.min(this.get_quality_cap(), Math.round(25*(quality+0.1))*4))];
+    }
+
+    get_quality_cap() {
+        return get_crafting_quality_caps(this.recipe_skill).equipment;
+    }
+
+    /**
+     * checks if quality is completely capped, that is every created item will have the exact same value
+     * @returns {Boolean}
+     */
+    get_is_quality_capped() {
+        return this.get_quality_range()[0] >= this.get_quality_cap();
+    }
+
+    get_quality(tier = 0) {
+        const quality_range = this.get_quality_range(tier);
+        return Math.round(((quality_range[1]-quality_range[0])*Math.random()+quality_range[0])/4)*4;
+    }
+}
+
 class EquipmentRecipe extends Recipe {
     constructor({
         name,
@@ -271,7 +315,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
             exp_value = Math.max(1,exp_value * Math.max(0,Math.min(5,(selected_recipe.recipe_level[1]+6-skill_level))/5));
             //penalty kicks in when more than 5 levels more than needed, goes down to 0 within further 5 levels
         }
-    } else if (subcategory === "components" || selected_recipe.recipe_type === "component") {
+    } else if (subcategory === "components" || selected_recipe.recipe_type === "component" || selected_recipe.recipe_type === "componentless") {
         const result_level = 8*result_tier;
         exp_value = Math.max(exp_value**1.2,((result_tier * 4)**1.2) * material_count);
         exp_value = Math.max(0.5*material_count,exp_value*(rarity_multiplier**0.5 - (skill_level/result_level))*rarity_multiplier);
@@ -679,6 +723,21 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     
 })();
 
+//componentless equipment (currently just capes)
+(()=>{
+    crafting_recipes.equipment["Cape"] = new ComponentlessEquipRecipe({
+        name: "Cape",
+        materials: [
+            {material_id: "Processed rat pelt", count: 8, result_id: "Rat pelt cape"},
+            {material_id: "Processed wolf pelt", count: 8, result_id: "Wolf pelt cape"},
+            {material_id: "Processed boar hide", count: 8, result_id: "Boar hide cape"},
+            {material_id: "Processed goat hide", count: 8, result_id: "Goat hide cape"},
+        ],
+        item_type: "Cape",
+        recipe_skill: "Crafting",
+    });
+})();
+
 //materials
 (function(){
     crafting_recipes.items["Piece of wolf rat leather"] = new ItemRecipe({
@@ -719,6 +778,45 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         success_chance: [0.2,1],
         recipe_skill: "Crafting",
         recipe_level: [5,15],
+    });
+    crafting_recipes.items["Processed rat pelt"] = new ItemRecipe({
+        name: "Processed rat pelt",
+        recipe_type: "material",
+        materials: [{material_id: "Rat pelt", count: 8}],
+        result: {result_id: "Processed rat pelt", count: 1},
+        success_chance: [0.4,1],
+        recipe_level: [1,5],
+        recipe_skill: "Crafting",
+    });
+    crafting_recipes.items["Processed wolf pelt"] = new ItemRecipe({
+        name: "Processed wolf pelt",
+        is_unlocked: false,
+        recipe_type: "material",
+        materials: [{material_id: "Wolf pelt", count: 8}],
+        result: {result_id: "Processed wolf pelt", count: 1},
+        success_chance: [0.2,1],
+        recipe_level: [1,10],
+        recipe_skill: "Crafting",
+    });
+    crafting_recipes.items["Processed boar hide"] = new ItemRecipe({
+        name: "Processed boar hide",
+        is_unlocked: false,
+        recipe_type: "material",
+        materials: [{material_id: "Boar hide", count: 8}],
+        result: {result_id: "Processed boar hide", count: 1},
+        success_chance: [0.2,1],
+        recipe_level: [5,15],
+        recipe_skill: "Crafting",
+    });
+    crafting_recipes.items["Processed goat hide"] = new ItemRecipe({
+        name: "Processed goat hide",
+        is_unlocked: false,
+        recipe_type: "material",
+        materials: [{material_id: "Mountain goat hide", count: 8}],
+        result: {result_id: "Processed goat hide", count: 1},
+        success_chance: [0.2,1],
+        recipe_level: [5,15],
+        recipe_skill: "Crafting",
     });
     crafting_recipes.items["Wool cloth"] = new ItemRecipe({
         name: "Wool cloth",

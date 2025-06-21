@@ -1494,6 +1494,11 @@ function use_stamina(num = 1, use_efficiency = true) {
         if(character.stats.full.health/character.stats.full.max_health < 0.2) {
             num *= 2;
         }
+        for(let i = 0; i < cold_status_effects.length; i++) {
+            if(active_effects[cold_status_effects[i]]) {
+                num *= (1.19**i); //~x2 at i==4
+            }
+        }
 
         add_xp_to_skill({skill: skills["Persistence"], xp_to_add: num});
         update_displayed_stats();
@@ -2146,8 +2151,8 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 console.warn(`Tried to use a recipe without having enough materials!`);
             }
             
-        } else if(subcategory === "components" || selected_recipe.recipe_type === "component" ) {
-            //either component or clothing
+        } else if(subcategory === "components" || selected_recipe.recipe_type === "component" || selected_recipe.recipe_type === "componentless" ) {
+            //either component, clothing, or componentless
             //read the selected material, pass it as param
 
             const material_div = recipe_div.children[1].querySelector(".selected_material");
@@ -2172,13 +2177,14 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                     let quality;
 
                     for(let i = 0; i < ammount_that_can_be_crafted; i++) {
-                        quality = selected_recipe.get_quality(station_tier - result.component_tier);
+                        const result_tier = result.component_tier ?? result.item_tier;
+                        quality = selected_recipe.get_quality(station_tier - result_tier);
 
                         crafted_items[quality] = (crafted_items[quality]+1 || 1);
                         all_crafted[quality] = (all_crafted[quality]+1 || 1);
                         crafted_count++;
 
-                        accumulated_xp += get_recipe_xp_value({category, subcategory, recipe_id, material_count:recipe_material.count, result_tier: result.component_tier, rarity_multiplier: rarity_multipliers[getItemRarity(quality)]});
+                        accumulated_xp += get_recipe_xp_value({category, subcategory, recipe_id, material_count:recipe_material.count, result_tier: result_tier, rarity_multiplier: rarity_multipliers[getItemRarity(quality)]});
                         if(accumulated_xp * get_skill_xp_gain(recipe_skill.skill_id) >= needed_xp) {
                             const qualities = Object.keys(crafted_items).map(x => Number(x)).sort((a,b)=>b-a);
                             const highest_qual = qualities[0];
@@ -2659,7 +2665,7 @@ function create_save() {
                 //check both conditions, on loading set as finished if either 'is_finished' or has enough time accumulated
                 save_data["books"][book] = {
                     accumulated_time: book_stats[book].accumulated_time,
-                    is_finished: book_stats[book].is_finished
+                    is_finished: book_stats[book].is_finished,
                 };
             }
         });
@@ -2846,6 +2852,7 @@ function load(save_data) {
                 if(save_data.books[book].is_finished) {
                     item_templates[book].setAsFinished();
                     character.stats.add_book_bonus(book_stats[book].bonuses);
+                    process_rewards({rewards: book_stats[book].rewards, only_unlocks: true, inform_overall: false});
 
                     total_book_xp += book_stats[book].required_time * book_stats[book].literacy_xp_rate;
                 } else {
@@ -3507,8 +3514,16 @@ function load(save_data) {
         Object.keys(save_data["recipes"]).forEach(category => {
             Object.keys(save_data["recipes"][category]).forEach(subcategory => {
                 Object.keys(save_data["recipes"][category][subcategory]).forEach(recipe_id => {
-                    recipes[category][subcategory][recipe_id].is_unlocked = save_data["recipes"][category][subcategory][recipe_id].is_unlocked ?? false;
-                    recipes[category][subcategory][recipe_id].is_finished = save_data["recipes"][category][subcategory][recipe_id].is_finished ?? false;
+                    if(!recipes[category][subcategory][recipe_id]) {
+                        console.warn(`Could not find recipe "${category}"->"${subcategory}"->"${recipe_id}". It might have been removed.`);
+                        return;
+                    }
+                    if(save_data["recipes"][category][subcategory][recipe_id].is_unlocked) {
+                        recipes[category][subcategory][recipe_id].is_unlocked = true;
+                    }
+                    if(save_data["recipes"][category][subcategory][recipe_id].is_finished) {
+                        recipes[category][subcategory][recipe_id].is_finished = true;
+                    }
                 });
             });
         });

@@ -455,23 +455,24 @@ class Equippable extends Item {
                 }
             });
         } else { //no components, only needs to apply quality to already present stats
-            Object.keys(this.component_stats).forEach(stat => {
+            let used_stats = this.component_stats || this.base_stats || {};
+            Object.keys(used_stats).forEach(stat => {
                 stats[stat] = {};
-                if(this.component_stats[stat].multiplier){
+                if(used_stats[stat].multiplier){
                     stats[stat].multiplier = 1;
-                    if(this.component_stats[stat].multiplier >= 1) {
-                        stats[stat].multiplier = Math.round(100 * (1 + (this.component_stats[stat].multiplier - 1) * rarity_multipliers[this.getRarity(quality)]))/100;
+                    if(used_stats[stat].multiplier >= 1) {
+                        stats[stat].multiplier = Math.round(100 * (1 + (used_stats[stat].multiplier - 1) * rarity_multipliers[this.getRarity(quality)]))/100;
                     } else {
-                        stats[stat].multiplier = Math.round(100 * this.component_stats[stat].multiplier)/100;
+                        stats[stat].multiplier = Math.round(100 * used_stats[stat].multiplier)/100;
                     }
                 }
 
-                if(this.component_stats[stat].flat){
+                if(used_stats[stat].flat){
                     stats[stat].flat = 0;
-                    if(this.component_stats[stat].flat > 0) {
-                        stats[stat].flat = Math.round(100 * this.component_stats[stat].flat * rarity_multipliers[this.getRarity(quality)])/100;
+                    if(used_stats[stat].flat > 0) {
+                        stats[stat].flat = Math.round(100 * used_stats[stat].flat * rarity_multipliers[this.getRarity(quality)])/100;
                     } else {
-                        stats[stat].flat = Math.round(100 * this.component_stats[stat].flat)/100;
+                        stats[stat].flat = Math.round(100 * used_stats[stat].flat)/100;
                     }
                 }
             });
@@ -581,7 +582,7 @@ class Shield extends Equippable {
 
 class Armor extends Equippable {
     /*
-        can be componentless, effectively being an equippable internal part
+        can have no components, effectively being an equippable internal part;
 
         naming convention:
         if full_armor_name in external
@@ -800,7 +801,8 @@ class Cape extends Equippable {
         super(item_data);
         this.components = undefined;
         this.equip_slot = "cape";
-        this.stats = item_data.stats;
+        this.base_stats = item_data.base_stats;
+        this.item_tier = item_data.item_tier;
 
         this.tags["cape"] = true;
 
@@ -1065,6 +1067,9 @@ book_stats["Butchering and you"] = new BookData({
             {category: "crafting", subcategory: "items", recipe_id: "Piece of wolf leather"},
             {category: "crafting", subcategory: "items", recipe_id: "Piece of boar leather"},
             {category: "crafting", subcategory: "items", recipe_id: "Piece of goat leather"},
+            {category: "crafting", subcategory: "items", recipe_id: "Processed wolf pelt"},
+            {category: "crafting", subcategory: "items", recipe_id: "Processed boar hide"},
+            {category: "crafting", subcategory: "items", recipe_id: "Processed goat hide"},
             {category: "cooking", subcategory: "items", recipe_id: "Animal fat"},
             {category: "crafting", subcategory: "items", recipe_id: "High quality wolf fang"},
             {category: "crafting", subcategory: "items", recipe_id: "High quality boar tusk"},
@@ -1402,6 +1407,14 @@ item_templates["Butchering and you"] = new Book({
         price_recovers: true,
         material_type: "piece of leather",
     });
+    item_templates["Processed rat pelt"] = new Material({
+        name: "Processed rat pelt", 
+        description: "Processed pelt of a huge rat. It's of a barely acceptable quality, but it's still a miracle with how terrible the basic material was.", 
+        value: 20,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "processed pelt",
+    });
     item_templates["Piece of wolf leather"] = new Material({
         name: "Piece of wolf leather",
         description: "Somewhat strong, should offer some protection when turned into armor",
@@ -1409,6 +1422,14 @@ item_templates["Butchering and you"] = new Book({
         saturates_market: true,
         price_recovers: true,
         material_type: "piece of leather",
+    });
+    item_templates["Processed wolf pelt"] = new Material({
+        name: "Processed wolf pelt", 
+        description: "Processed pelt of a wild wolf. It's a nice, stylish material.",
+        value: 40,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "processed pelt",
     });
     item_templates["Piece of boar leather"] = new Material({
         name: "Piece of boar leather",
@@ -1418,6 +1439,14 @@ item_templates["Butchering and you"] = new Book({
         price_recovers: true,
         material_type: "piece of leather",
     });
+    item_templates["Processed boar hide"] = new Material({
+        name: "Processed boar hide", 
+        description: "Processed hide of a wild boar. It's a rough, heavy material, but it's quite strong.",
+        value: 60,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "processed pelt",
+    });
     item_templates["Piece of goat leather"] = new Material({
         name: "Piece of goat leather",
         description: "Thick and resistant, just barely elastic enough to be used for clothing",
@@ -1426,6 +1455,14 @@ item_templates["Butchering and you"] = new Book({
         price_recovers: true,
         material_type: "piece of leather"
     }),
+    item_templates["Processed goat hide"] = new Material({
+        name: "Processed goat hide", 
+        description: "Processed hide of a wild goat. It's a rough and resistant material.",
+        value: 80,
+        saturates_market: true,
+        price_recovers: true,
+        material_type: "processed pelt",
+    });
     item_templates["Animal fat"] = new Material({
         name: "Animal fat",
         description: "White, thick, oily substance, rendered from animal tissue.",
@@ -2695,11 +2732,12 @@ item_templates["Butchering and you"] = new Book({
 
     item_templates["Rat pelt cape"] = new Cape({
         name: "Rat pelt cape", 
+        item_tier: 1,
         description: "It's a cape... made of wolf rat pelts. Only for poor or insane.",
         value: 20,
-        stats: {
+        base_stats: {
             cold_protection: {
-                flat: 1,
+                flat: 2,
             }
         }
     });
@@ -2707,8 +2745,9 @@ item_templates["Butchering and you"] = new Book({
         name: "Wolf pelt cape", 
         description: "An elegant cape made from wolf pelts. Doesn't provide much protection, but is light enough to not hinder your movements.",
         value: 200,
-        base_defense: 1,
-        stats: {
+        item_tier: 2,
+        base_defense: 2,
+        base_stats: {
             cold_protection: {
                 flat: 4,
             }
@@ -2718,8 +2757,9 @@ item_templates["Butchering and you"] = new Book({
         name: "Boar hide cape", 
         description: "A rough cape made from boar hides. Offers a nice protection, but is heavy and stiff.",
         value: 300,
+        item_tier: 3,
         base_defense: 5,
-        stats: {
+        base_stats: {
             attack_speed: {
                 multiplier: 0.9,
             },
@@ -2735,8 +2775,9 @@ item_templates["Butchering and you"] = new Book({
         name: "Goat hide pelt", 
         description: "A rough cape made from goat hides",
         value: 300,
+        item_tier: 3,
         base_defense: 3,
-        stats: {
+        base_stats: {
             attack_speed: {
                 multiplier: 0.98,
             },
@@ -2744,7 +2785,7 @@ item_templates["Butchering and you"] = new Book({
                 multiplier: 0.95,
             },
             cold_protection: {
-                flat: 3,
+                flat: 4,
             }
         }
     });
