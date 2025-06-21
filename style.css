@@ -52,6 +52,9 @@
 	--location_desc_tooltip_left: 0px;
 	--location_desc_tooltip_visibility: hidden;
 
+	--temperature_tooltip_top: 0px;
+	--temperature_tooltip_left: 0px;
+
 
 	--stance_tooltip_top: 0px;
 	--stance_tooltip_left: 0px;
@@ -71,6 +74,8 @@
 
 	--active_button_color: #435270;
 	--tooltip_background_color: rgba(92, 92, 92, 0.97);
+
+	--onclick_button_color: rgb(75, 99, 145);
 }
 
 body {
@@ -331,6 +336,10 @@ body {
 	cursor: pointer;
 	padding: 5px;
 }
+	.dialogue_textline:active{
+		color: var(--onclick_button_color);
+	}
+
 	#dialogue_answer_div {
 		border-bottom: 1px solid white;
 		text-align: center;
@@ -541,8 +550,16 @@ body {
 	width: 48px;
 }
 
+.equip_item_button:active {
+	color: var(--onclick_button_color);
+}
+
 .unequip_item_button {
 	width: 60px;
+}
+
+.unequip_item_button:active {
+	color: var(--onclick_button_color);
 }
 
 .book_finished + .item_use_button {
@@ -573,6 +590,10 @@ body {
 	font-size: 13px;
 	text-align: right;
 	float: left;
+}
+
+.item_use_button:active {
+	color: var(--onclick_button_color);
 }
 
 .item_auto_use_button {
@@ -899,6 +920,11 @@ body {
 	background-color: rgba(128, 128, 128, 0.5);
 	text-align: center;
 }
+
+.recipe_creation_button:active{
+	color: var(--onclick_button_color);
+}
+
 .recipe_creation_span {
 	width: 300px;
 	display:inline-block;
@@ -961,10 +987,18 @@ body {
 	width: 300px;
 }
 
+.recipe_item_name:active{
+	color: var(--onclick_button_color);
+}
+
 .recipe_comp_name {
 	display: inline-block;
 	padding-bottom: 5px;
 	width: 287px;
+}
+
+.recipe_comp_name:active{
+	color: var(--onclick_button_color);
 }
 
 .folded_crafting_selection, .folded_material_list {
@@ -1002,6 +1036,10 @@ body {
 	cursor: pointer;
 }
 
+.craft_ammount_button:active{
+	color: var(--onclick_button_color);
+}
+
 .sl_button {
 	width: fit-content;
 	padding: 10px 10px;
@@ -1016,6 +1054,10 @@ body {
 .sl_button:hover {
 	background-image: none;
 	background-color: #2c3953;
+}
+
+.sl_button:active {
+	background-color: var(--onclick_button_color);
 }
 
 .game_info a, .game_info span {
@@ -1904,7 +1946,7 @@ i {
 		}
 			#time_div {
 				text-align: left;
-				width: 310px;
+				width: 305px;
 				display: inline-block;
 				padding: 2px;
 			}
@@ -1913,13 +1955,38 @@ i {
 					top: 3px;
 				}
 			#weather_div {
-				width: 75px;
+				width: 80px;
 				display: inline-block;
 				padding: 2px;
 				text-align: right;
 			}
 			#weather_div .icon {
 				font-size: 16px;
+			}
+			.cold_temperature {
+				color: #00acc1;
+			}
+			#temperature_tooltip {
+				display: none;
+				position: absolute;
+				z-index: 1000;
+				font-style: italic;
+				background-color: var(--tooltip_background_color);
+				border-radius: 10px;
+				margin-left: 30px;
+				padding: 5px;
+				width: 300px;
+				height: auto;
+				font-size: 16px;
+				border-radius: 10px;
+				padding: 5px;
+				top: var(--temperature_tooltip_top);
+				left: var(--temperature_tooltip_left);
+				text-align: left;
+				border: 1px solid white;
+			}
+			#weather_div:hover #temperature_tooltip {
+				display: block;
 			}
 #location_name_div:hover #location_description_tooltip {
 	display: block;

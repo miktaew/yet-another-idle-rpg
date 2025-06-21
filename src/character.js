@@ -25,9 +25,9 @@ const time_until_cold_when_wet = 20;
 
 //temperatures for effects 'cold','very cold','freezing','hypothermia'
 const cold_status_temperatures = [14,8,2,-4];
+const lowest_tolerable_temperature = cold_status_temperatures[0];
 //array for matching the names of aforementioned effects
 const cold_status_effects = ["Cold","Very cold","Freezing","Hypothermia"];
-const cold_status_counters = [0,0,0,0];
 
 
 class Hero extends InventoryHaver {
@@ -475,29 +475,6 @@ character.get_character_heat_tolerance = function(){
 }
 
 /**
- * adds the effects from weather (temperature), currently limited to stamina efficiency
- */
-
-/*
-character.stats.add_weather_effects = function() {
-        const temperature = get_current_temperature();
-        let stam_modifier = 1;
-        const temperature_bounds = [temperature + get_character_cold_tolerance(), temperature - get_character_heat_tolerance()];
-        if(temperature_bounds[1] > 45 || temperature_bounds[0] < 0) {
-                stam_modifier = 0.1;
-        } else if(temperature_bounds[1] > 40 || temperature_bounds[0] < 5) {
-                stam_modifier = 0.3;
-        } else if(temperature_bounds[1] > 35 || temperature_bounds[0] < 10) {
-                stam_modifier = 0.5;
-        } else if(temperature_bounds[1] >= 30 || temperature_bounds[0] < 15) {
-                stam_modifier = 0.8;
-        }
-        //add to stats
-
-        character.stats.multiplier.weather.stamina_efficiency = stam_modifier;
-}
-*/
-/**
  * full stat recalculation, call whenever something changes
  */
 character.update_stats = function () {
@@ -787,7 +764,6 @@ function get_character_heat_tolerance() {
 function update_character_stats() {
         character.stats.add_location_penalties();
         character.update_stats();
-        //character.stats.add_weather_effects();
 
         update_displayed_stats();
         update_displayed_health();
@@ -858,6 +834,6 @@ export {character, add_to_character_inventory, remove_from_character_inventory, 
         unequip_item, update_character_stats, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, add_location_penalties,
         get_total_skill_level, get_total_level_bonus, get_total_skill_coefficient, get_effect_with_bonuses,
         time_until_wet, time_until_cold, time_until_cold_when_wet, 
-        cold_status_temperatures, cold_status_effects, cold_status_counters,
-        get_character_cold_tolerance
+        cold_status_temperatures, cold_status_effects,
+        get_character_cold_tolerance, lowest_tolerable_temperature
 };

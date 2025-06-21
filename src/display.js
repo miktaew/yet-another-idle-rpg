@@ -3,7 +3,7 @@
 import { traders } from "./traders.js";
 import { current_trader, to_buy, to_sell } from "./trade.js";
 import { skills, get_unlocked_skill_rewards, get_next_skill_milestone } from "./skills.js";
-import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, get_total_skill_coefficient, get_total_skill_level, get_effect_with_bonuses } from "./character.js";
+import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, get_total_skill_coefficient, get_total_skill_level, get_effect_with_bonuses, cold_status_effects, cold_status_temperatures, get_character_cold_tolerance, lowest_tolerable_temperature } from "./character.js";
 import { current_enemies, options, 
     can_work, current_location, 
     active_effects, enough_time_for_earnings, 
@@ -3118,12 +3118,20 @@ function update_stat_description(stat) {
         return;
     }
 
+    target.innerHTML = create_stat_breakdown(stat);
+    
+    return;
+}
+
+function create_stat_breakdown(stat) {
+    let html_string = "";
+
     if(stat === "attack_power") {
-        target.innerHTML = 
+        html_string += 
         `<br>Breakdown:
         <br>Base value (weapon * str/10): ${Math.round(100* character.stats.total_flat.attack_power)/100}`;
     } else if (stat === "attack_points"){
-        target.innerHTML = 
+        html_string += 
         `<br>Breakdown:
         <br>Base value: ${Math.round(100* character.stats.total_flat.attack_points)/100}`;
     } else if(stat === "defensive_points"){
@@ -3132,28 +3140,29 @@ function update_stat_description(stat) {
         } else {
             stat = "evasion_points";
         }
-        target.innerHTML = 
+        html_string += 
             `<br>Breakdown:
             <br>Base value: ${Math.round(100 * character.stats.total_flat[stat])/100}`;
     } else {
-        target.innerHTML = 
+       html_string += 
         `<br>Breakdown:
         <br>Base value: ${Math.round(100*character.base_stats[stat])/100}`;
     }
 
     Object.keys(character.stats.flat).forEach(stat_type => {
         if(character.stats.flat[stat_type][stat] && character.stats.flat[stat_type][stat] !== 0) {
-            target.innerHTML += `<br>${capitalize_first_letter(stat_type.replace("_"," "))}: +${Math.round(100*character.stats.flat[stat_type][stat])/100}`;
+            const sign = character.stats.flat[stat_type][stat]>=0?"+":"";
+            html_string +=  `<br>${capitalize_first_letter(stat_type.replace("_"," "))}: ${sign}${Math.round(100*character.stats.flat[stat_type][stat])/100}`;
         }
     });
 
     Object.keys(character.stats.multiplier).forEach(stat_type => {
         if(character.stats.multiplier[stat_type][stat] && character.stats.multiplier[stat_type][stat] !== 1) {
-            target.innerHTML += `<br>${capitalize_first_letter(stat_type.replace("_"," "))}: x${Math.round(100*character.stats.multiplier[stat_type][stat])/100}`;
+            html_string +=  `<br>${capitalize_first_letter(stat_type.replace("_"," "))}: x${Math.round(100*character.stats.multiplier[stat_type][stat])/100}`;
         }
     });
-    
-    return;
+
+    return html_string;
 }
 
 function update_displayed_effects() {
@@ -3199,30 +3208,43 @@ function update_displayed_time() {
 
 function update_displayed_temperature() {
     const temperature = get_current_temperature_smoothed();
+
+    //whether temperature is low enough to give any cold effect
+    const is_cold = temperature < (cold_status_temperatures[0]-get_character_cold_tolerance())?true:false;
+    let temperature_class = "normal_temperature";
+    if(is_cold) {
+        temperature_class = "cold_temperature";
+    }
+
     if(current_location.is_under_roof) {
         weather_field.innerHTML = temperature +"°C";
     } else {
         if(is_raining()) {
             if(temperature > 0) {
                 //rain/clouds
-                weather_field.innerHTML = '<span class="material-icons icon">cloud</span>' + temperature +"°C";
+                weather_field.innerHTML = `<span class="material-icons icon">cloud</span><span class="${temperature_class}">` + temperature +"°C</span>";
             } else {
                 //snow
-                weather_field.innerHTML = '<span class="material-icons icon">ac_unit</span>' + temperature +"°C";
+                weather_field.innerHTML = `<span class="material-icons icon">ac_unit</span><span class="${temperature_class}">` + temperature +"°C</span>";
             }
         } else {
             //normal weather, no icon
-            weather_field.innerHTML = temperature +"°C";
+            weather_field.innerHTML = `<span class="${temperature_class}">` + temperature +"°C</span>";
         }
     }
+
+    weather_field.appendChild(create_temperature_tooltip());
 }
 
 function create_temperature_tooltip() {
+    const tooltip = document.createElement("div");
 
-}
+    tooltip.id = "temperature_tooltip";
+    tooltip.innerHTML = `Lowest tolerable temperature: <strong>${Math.round(10*(lowest_tolerable_temperature - get_character_cold_tolerance()))/10}</strong>`;
+    tooltip.innerHTML += `<br>(<strong>${lowest_tolerable_temperature}</strong> base minus <strong>${get_character_cold_tolerance()}</strong> cold protection)<br>`;
+    tooltip.innerHTML += create_stat_breakdown("cold_tolerance");
 
-function update_temperature_tooltip() {
-    
+    return tooltip;
 }
 
 /** 

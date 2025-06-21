@@ -1618,6 +1618,16 @@
                     }
                 }
 
+                let temperature_div = document.getElementById("weather_div");
+                temperature_div.addEventListener('mousemove', move_temperature_tooltip, false);
+                function move_temperature_tooltip(event) {
+                    if(Date.now() >= tooltip_wait) {
+                        document.documentElement.style.setProperty('--temperature_tooltip_top', `${event.pageY}px`);
+                        document.documentElement.style.setProperty('--temperature_tooltip_left', `${event.pageX - 780}px`);
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
+                    }
+                }
+
                 //unequip item
                 equipment_div.onclick = function(event) {
                     let clicked_element = event.target;

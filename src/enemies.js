@@ -220,7 +220,7 @@ class Enemy {
 
     enemy_templates["Direwolf hunter"] = new Enemy({
         name: "Direwolf hunter",
-        description: "A powerful wild wolf variant of unmatched ferocity, exceptionally large even for a direwolf",
+        description: "A powerful wild wolf variant of unmatched ferocity, the strongest and heaviest out of all direwolves",
         xp_value: 30,
         rank: 8,
         tags: ["living", "beast"],
@@ -231,7 +231,7 @@ class Enemy {
             {item_name: "Weak monster bone", chance: 0.03},
             {item_name: "High quality wolf fang", chance: 0.0015}
         ],
-        size: "large"
+        size: "medium"
     });
 
     enemy_templates["Boar"] = new Enemy({
