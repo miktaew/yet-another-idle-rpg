@@ -1413,7 +1413,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Cat café"] = new Location({ 
         connected_locations: [{location: locations["Town square"]}],
         description: `A cat café in the center of town. There are multiple kitties of all kinds, but two females especially catch your eyes
- - a chubby mackerel tabby with a white belly and neck, and a slender tortoishell that seems blind on the right eye. There's a single worker in the café, a man with with long ponytail and glasses.`,
+ - a chubby mackerel tabby with a white belly and neck, and a slender tortoishell that seems blind on the right eye. There's a single worker in the café, a person of ambiguous gender with with long ponytail and glasses.`,
         name: "Cat café",
         is_unlocked: true,
         getBackgroundNoises: function() {
@@ -1818,6 +1818,15 @@ There's another gate on the wall in front of you, but you have a strange feeling
             },
         }),
     };
+    locations["Mountain path"].activities = {
+        "balancing": new LocationActivity({
+            activity_name: "balancing",
+            infinite: true,
+            starting_text: "Stupidly risk your life by trying to balance on some stones on the very edge of the cliff",
+            skill_xp_per_tick: 4,
+            is_unlocked: true,
+        }),
+    }
     locations["Mountain camp"].activities = {
         "herbalism": new LocationActivity({
             activity_name: "herbalism",
@@ -1834,6 +1843,20 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 scales_with_skill: true,
             },
             require_tool: true,
+        }),
+        "balancing": new LocationActivity({
+            activity_name: "balancing",
+            infinite: true,
+            starting_text: "Stupidly risk your life by trying to balance on some stones on the very edge of the cliff",
+            skill_xp_per_tick: 4,
+            is_unlocked: true,
+        }),
+        "climbing": new LocationActivity({
+            activity_name: "climbing",
+            infinite: true,
+            starting_text: "Take a lesson from the goats and try to climb a wall near the camp",
+            skill_xp_per_tick: 4,
+            is_unlocked: true,
         }),
     }
 })();

@@ -138,6 +138,10 @@ function get_current_temperature_smoothed() {
         previous_temperature_modifier = get_nonlocational_temperature_modifier(current_game_time);
     }
 
+    if(current_location.is_temperature_static) {
+        return current_location.static_temperature;
+    }
+
     let minutes_passed;
 
     if(current_game_time.hour < prev_temperature_time.hour) {

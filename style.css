@@ -70,7 +70,7 @@
 	--actions_div_top: var(--actions_div_top_default);
 
 	--options_action_textsize: 16px;
-	--location_name_div_width: 250px;
+	--location_name_div_width: 270px;
 
 	--active_button_color: #435270;
 	--tooltip_background_color: rgba(92, 92, 92, 0.97);
@@ -362,9 +362,16 @@ body {
 	padding-top: 1px;
 }
 
+.equipped_item_control:hover {
+	background-color: var(--active_button_color);
+}
+
 .inventory_item_control {
 	border-bottom: 1px dotted white;
 	width: 383px;
+}
+.inventory_item_control:hover {
+	background-color: var(--active_button_color);
 }
 .item_additional_content {
 	float: right;
@@ -1692,15 +1699,20 @@ i {
 		.quest_div {
 			border: 1px solid gray;
 			margin-left: 1px;
-			padding: 2px;
 		}
+		.quest_div :not(.quest_name_div) {
+			display: none;
+		}
+			.quest_div_expanded :not(.quest_name_div) {
+				display: block;
+			}
 		.quest_name_div {
 			font-weight: bold;
-			margin-left: 2px;
+			padding-left: 2px;
 		}
 		.quest_description_div {
 			font-size: 14px;
-			margin-left: 2px;
+			padding-left: 2px;
 			border-bottom: 1px solid white;
 		}
 		.task_status_icon {
@@ -1736,39 +1748,48 @@ i {
 				height: 255px;
 			}
 
-			#quests_box_div, #data_box_div, #books_box_div{
+			#data_box_div, #books_box_div{
 				width: 100%;
 				height: 300px;
 				display: none;
 				overflow-y: scroll;
 			}
 
-			#bestiary_box_div{
+			#quests_box_div {
 				width: 100%;
 				height: 300px;
 				display: block;
 				overflow-y: scroll;
-
 			}
-				.bestiary_entry_div, .data_entry {
+
+			#bestiary_box_div{
+				width: 100%;
+				height: 300px;
+				display: none;
+				overflow-y: scroll;
+			}
+				.bestiary_entry_div, .data_entry, .anthology_entry_div {
 					width: 380px;
 					display: flex;
 					box-shadow: 0 -1px 0 gray, 0 1px 0 gray;
 					margin-bottom: 1px;
 				}
-					.bestiary_entry_name {
+				.bestiary_entry_div:hover, .anthology_entry_div:hover {
+					background-color: var(--active_button_color);
+				}
+					.bestiary_entry_name, .anthology_entry_name {
 						float: left;
 						width:295px;
 						text-align: left;
 						padding-left: 5px;
 					}
-					.bestiary_entry_kill_count{
+					.bestiary_entry_kill_count {
 						text-align: right;
 						width:90px;
 						padding-right: 5px;
 					}
 
-					.bestiary_entry_tooltip {
+					.bestiary_entry_tooltip, .anthology_entry_tooltip {
 						display: none;
 						background-color: var(--tooltip_background_color);
 						border-radius: 10px;
@@ -1781,7 +1802,7 @@ i {
 						pointer-events: none;
 						border: 1px solid white;
 					}
-						.bestiary_entry_div:hover .bestiary_entry_tooltip {
+						.bestiary_entry_div:hover .bestiary_entry_tooltip, .anthology_entry_div:hover .anthology_entry_tooltip {
 							display: block;
 						}
 
@@ -1878,116 +1899,121 @@ i {
 
 #location_div {
 	width: 400px;
-	height: 263px;
+	height: 297px;
 	left: 410px;
-	top: 70px;
+	top: 36px;
 	border-top: 0px;
 }
-		#location_description_div {
-			height: 113px;
-			font-style: italic;
-			color: rgb(224, 224, 224);
-			padding: 5px;
+	#location_description_div {
+		height: 113px;
+		font-style: italic;
+		color: rgb(224, 224, 224);
+		padding: 5px;
+		float: none;
+		display: inline-block;
+	}
+	#location_name_div {
+		padding: 4px;
+		width: var(--location_name_div_width);
+		height: fit-content;
+		float: left;
+		z-index: 2;
+		border-bottom: 1px solid white;
+		font-size: 18px;
+	}
+	#location_icon_span i:not(.location_bed_icon):hover {
+		background-color: var(--active_button_color);
+	}
+	#location_icon_span i:not(.location_bed_icon) {
+		cursor: pointer;
+	}
+	#location_types_div {
+		left: 292px;
+		width: 100px;
+		height: 23px;
+		padding: 2px;
+		position: absolute;
+		text-align: right;
+		font-size: 12px;
+		top: 0px;
+	}
+		.location_type_div {
+			float: left;
+			width: 50px;
 		}
+
+			.location_type_tooltip {
+				display: none;
+				background-color: var(--tooltip_background_color);
+				border-radius: 10px;
+				padding: 5px;
+				position: absolute;
+				z-index: 1000;
+				width: 200px;
+				top: var(--location_type_tooltip_top);
+				left: var(--location_type_tooltip_left);
+				pointer-events: none;
+				text-align: left;
+			}
+
+				.location_type_div:hover .location_type_tooltip {
+					display: block;
+				}
+
 
 #time_and_location {
 	left: 410px;
 	width: 400px;
 	font-size: 18px;
 }
-		#location_name_div {
-			padding: 4px;
-			width: var(--location_name_div_width);
-			height:fit-content;
-			float: left;
-			z-index: 2;
-		}
-		#location_icon_span i:not(.location_bed_icon):hover {
-			background-color: var(--active_button_color);
-		}
-		#location_icon_span i:not(.location_bed_icon) {
-			cursor: pointer;
-		}
-		#location_types_div {
-			left: 292px;
-			width: 100px;
-			height: 23px;
+	#time_and_weather_div {
+		border-bottom: 1px solid white;
+		padding: 3px 0px 2px 0px;
+	}
+		#time_div {
+			text-align: left;
+			width: 305px;
+			display: inline-block;
 			padding: 2px;
-			position: absolute;
+		}
+			.icon {
+				position: relative;
+				top: 3px;
+			}
+		#weather_div {
+			width: 80px;
+			display: inline-block;
+			padding: 2px;
 			text-align: right;
-			font-size: 12px;
 		}
-			.location_type_div {
-				float: left;
-				width: 50px;
-			}
-
-				.location_type_tooltip {
-					display: none;
-					background-color: var(--tooltip_background_color);
-					border-radius: 10px;
-					padding: 5px;
-					position: absolute;
-					z-index: 1000;
-					width: 200px;
-					top: var(--location_type_tooltip_top);
-					left: var(--location_type_tooltip_left);
-					pointer-events: none;
-					text-align: left;
-				}
-
-					.location_type_div:hover .location_type_tooltip {
-						display: block;
-					}
-
-		#time_and_weather_div {
-			border-bottom: 1px solid white;
-			padding: 3px 0px 2px 0px;
+		#weather_div .icon {
+			font-size: 16px;
 		}
-			#time_div {
-				text-align: left;
-				width: 305px;
-				display: inline-block;
-				padding: 2px;
-			}
-				.icon {
-					position: relative;
-					top: 3px;
-				}
-			#weather_div {
-				width: 80px;
-				display: inline-block;
-				padding: 2px;
-				text-align: right;
-			}
-			#weather_div .icon {
-				font-size: 16px;
-			}
-			.cold_temperature {
-				color: #00acc1;
-			}
-			#temperature_tooltip {
-				display: none;
-				position: absolute;
-				z-index: 1000;
-				font-style: italic;
-				background-color: var(--tooltip_background_color);
-				border-radius: 10px;
-				margin-left: 30px;
-				padding: 5px;
-				width: 300px;
-				height: auto;
-				font-size: 16px;
-				border-radius: 10px;
-				padding: 5px;
-				top: var(--temperature_tooltip_top);
-				left: var(--temperature_tooltip_left);
-				text-align: left;
-				border: 1px solid white;
-			}
-			#weather_div:hover #temperature_tooltip {
-				display: block;
-			}
+		.cold_temperature {
+			color: #00acc1;
+		}
+		#temperature_tooltip {
+			display: none;
+			position: absolute;
+			z-index: 1000;
+			font-style: italic;
+			background-color: var(--tooltip_background_color);
+			border-radius: 10px;
+			margin-left: 30px;
+			padding: 5px;
+			width: 300px;
+			height: auto;
+			font-size: 16px;
+			border-radius: 10px;
+			padding: 5px;
+			top: var(--temperature_tooltip_top);
+			left: var(--temperature_tooltip_left);
+			text-align: left;
+			border: 1px solid white;
+		}
+		#weather_div:hover #temperature_tooltip {
+			display: block;
+		}
 #location_name_div:hover #location_description_tooltip {
 	display: block;
 }
