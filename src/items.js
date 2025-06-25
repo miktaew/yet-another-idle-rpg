@@ -2260,7 +2260,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 0.9,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: -1,
             }
         }
@@ -2280,7 +2280,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 0.9,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: -1,
             }
         }
@@ -2301,7 +2301,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 0.9,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: -1,
             }
         }
@@ -2321,7 +2321,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 0.9,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: -1,
             }
         }
@@ -2342,7 +2342,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 0.9,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: -1,
             }
         }
@@ -2362,7 +2362,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 0.9,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: -1,
             }
         }
@@ -2383,7 +2383,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 0.9,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: -1,
             }
         }
@@ -2403,7 +2403,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 0.9,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: -1,
             }
         }
@@ -2421,7 +2421,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 0.9,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: -1,
             }
         }
@@ -2438,7 +2438,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 0.9,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: -1,
             }
         }
@@ -2459,7 +2459,7 @@ item_templates["Butchering and you"] = new Book({
             attack_speed: {
                 multiplier: 0.99,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: 1,
             }
         }
@@ -2472,7 +2472,7 @@ item_templates["Butchering and you"] = new Book({
         base_defense: 2,
         component_tier: 2,
         component_stats: {
-            cold_protection: {
+            cold_tolerance: {
                 flat: 1,
             }
         }
@@ -2485,7 +2485,7 @@ item_templates["Butchering and you"] = new Book({
         base_defense: 3,
         component_tier: 3,
         component_stats: {
-            cold_protection: {
+            cold_tolerance: {
                 flat: 1,
             }
         }
@@ -2502,7 +2502,7 @@ item_templates["Butchering and you"] = new Book({
             attack_speed: {
                 multiplier: 0.99,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: 1,
             }
         }
@@ -2515,7 +2515,7 @@ item_templates["Butchering and you"] = new Book({
         base_defense: 2,
         component_tier: 2,
         component_stats: {
-            cold_protection: {
+            cold_tolerance: {
                 flat: 2,
             }
         }
@@ -2528,7 +2528,7 @@ item_templates["Butchering and you"] = new Book({
         base_defense: 3,
         component_tier: 3,
         component_stats: {
-            cold_protection: {
+            cold_tolerance: {
                 flat: 2,
             }
         }
@@ -2545,7 +2545,7 @@ item_templates["Butchering and you"] = new Book({
             attack_speed: {
                 multiplier: 0.99,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: 1,
             }
         }
@@ -2559,7 +2559,7 @@ item_templates["Butchering and you"] = new Book({
         base_defense: 2,
         component_tier: 2,
         component_stats: {
-            cold_protection: {
+            cold_tolerance: {
                 flat: 1,
             }
         }
@@ -2573,7 +2573,7 @@ item_templates["Butchering and you"] = new Book({
         base_defense: 3,
         component_tier: 3,
         component_stats: {
-            cold_protection: {
+            cold_tolerance: {
                     flat: 1,
             }
         }
@@ -2587,7 +2587,7 @@ item_templates["Butchering and you"] = new Book({
         base_defense: 1,
         component_tier: 2,
         component_stats: {
-            cold_protection: {
+            cold_tolerance: {
                 flat: 2,
             }
         }
@@ -2600,7 +2600,7 @@ item_templates["Butchering and you"] = new Book({
         base_defense: 2,
         component_tier: 3,
         component_stats: {
-            cold_protection: {
+            cold_tolerance: {
                 flat: 2,
             }
         }
@@ -2617,7 +2617,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 1.05,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: 2,
             }
         }
@@ -2637,7 +2637,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 1.1,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: 2,
             }
         }
@@ -2656,7 +2656,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 1.15,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: 2,
             }
         }
@@ -2676,7 +2676,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 1.02,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: 3,
             }
         }
@@ -2690,7 +2690,7 @@ item_templates["Butchering and you"] = new Book({
         base_defense: 1,
         component_tier: 2,
         component_stats: {
-            cold_protection: {
+            cold_tolerance: {
                 flat: 3,
             }
         }
@@ -2710,7 +2710,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 1.01,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: 2,
             }
         }
@@ -2724,7 +2724,7 @@ item_templates["Butchering and you"] = new Book({
         base_defense: 0,
         component_tier: 2,
         component_stats: {
-            cold_protection: {
+            cold_tolerance: {
                 flat: 2,
             }
         }
@@ -2736,7 +2736,7 @@ item_templates["Butchering and you"] = new Book({
         description: "It's a cape... made of wolf rat pelts. Only for poor or insane.",
         value: 20,
         base_stats: {
-            cold_protection: {
+            cold_tolerance: {
                 flat: 2,
             }
         }
@@ -2748,7 +2748,7 @@ item_templates["Butchering and you"] = new Book({
         item_tier: 2,
         base_defense: 2,
         base_stats: {
-            cold_protection: {
+            cold_tolerance: {
                 flat: 4,
             }
         }
@@ -2766,7 +2766,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 0.9,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: 5,
             }
         }
@@ -2784,7 +2784,7 @@ item_templates["Butchering and you"] = new Book({
             agility: {
                 multiplier: 0.95,
             },
-            cold_protection: {
+            cold_tolerance: {
                 flat: 4,
             }
         }

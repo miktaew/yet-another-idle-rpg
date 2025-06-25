@@ -18,7 +18,6 @@ import { character,
          get_total_skill_level,
          time_until_wet,
          cold_status_temperatures,
-         cold_status_counters,
          time_until_cold,
          time_until_cold_when_wet,
          cold_status_effects,
@@ -117,6 +116,7 @@ let gathered_materials = {};
 let current_temperature = 20;
 
 let rain_counter = 0;
+const cold_status_counters = [0,0,0,0];
 
 //current enemy
 let current_enemies = null;
@@ -2522,6 +2522,9 @@ function create_save() {
         //stats don't get saved, they will be recalculated upon loading
         save_data["player_storage"] = {inventory: {}};
 
+        save_data.rain_counter = rain_counter;
+        save_data.cold_status_counters = cold_status_counters;
+
         Object.keys(character.inventory).forEach(key =>{
             save_data["character"].inventory[key] = {count: character.inventory[key].count};
         });
@@ -2811,6 +2814,11 @@ function load(save_data) {
     update_displayed_money();
 
     add_xp_to_character(save_data.character.xp.total_xp, false);
+
+    rain_counter = save_data.rain_counter || 0;
+    for(let i = 0; i < save_data.cold_status_counters?.length; i++) {
+        cold_status_counters[i] = save_data.cold_status_counters[i] || 0;
+    }
 
     Object.keys(save_data.favourite_consumables || {}).forEach(key => {
         favourite_consumables[key] = true;
@@ -3752,17 +3760,7 @@ function update() {
         update_displayed_effect_durations();
         update_displayed_effects();
 
-        const new_temperature = get_current_temperature_smoothed();
-
-        //temperature changed => update display, update stats if needed
-        if(current_temperature !== new_temperature) {
-            update_displayed_temperature();
-            if(!were_stats_updated) {
-                update_character_stats();
-            }
-        }
-
-        current_temperature = new_temperature;
+        
 
         if(is_raining() && !current_location.is_under_roof) {
             //can get wet
@@ -3779,6 +3777,20 @@ function update() {
                 rain_counter--;
             }
         }
+
+        const new_temperature = get_current_temperature_smoothed();
+        //temp lower than first in array plus tolerance
+
+        //temperature changed => update stats if needed
+        if(current_temperature !== new_temperature) {
+            if(!were_stats_updated) {
+                update_character_stats();
+            }
+        }
+        //update temperature display every tick, it's just easiest this way
+        update_displayed_temperature();
+
+        current_temperature = new_temperature;
 
         //add cold status if applicable
         let was_effect_added = false;
@@ -4240,6 +4252,7 @@ function add_active_effect(effect_key, duration){
     active_effects[effect_key] = new ActiveEffect({...effect_templates[effect_key], duration});
     character.stats.add_active_effect_bonus();
     update_displayed_effects();
+    update_character_stats();
 }
 
 
