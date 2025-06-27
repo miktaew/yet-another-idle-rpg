@@ -55,10 +55,8 @@ effect_templates["Very cold"] = new ActiveEffect({
     effects: {
         stats: {
             stamina_efficiency: {multiplier: 0.6},
-            dexterity: {multiplier: 0.9},
-            agility: {multiplier: 0.9},
-            health_regeneration_flat: {multiplier: 0.9},
-            health_regeneration_percent: {multiplier: 0.9},
+            dexterity: {multiplier: 0.8},
+            agility: {multiplier: 0.8},
         }
     },
     group_tags: {cold: 2},

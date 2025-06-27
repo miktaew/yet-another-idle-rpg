@@ -4235,12 +4235,12 @@ function create_new_bestiary_entry(enemy_name) {
     bestiary_entry_divs[enemy_name].appendChild(kill_counter);
     bestiary_entry_divs[enemy_name].appendChild(bestiary_tooltip);
 
-    bestiary_entry_divs[enemy_name].setAttribute("data-bestiary", enemy.rank);
+    bestiary_entry_divs[enemy_name].setAttribute("data-bestiary_rank", enemy.rank);
     bestiary_entry_divs[enemy_name].classList.add("bestiary_entry_div");
     bestiary_list.appendChild(bestiary_entry_divs[enemy_name]);
 
     //sorts bestiary_list div by enemy rank
-    [...bestiary_list.children].sort((a,b)=>parseInt(a.getAttribute("data-bestiary")) - parseInt(b.getAttribute("data-bestiary")))
+    [...bestiary_list.children].sort((a,b)=>parseInt(a.getAttribute("data-bestiary_rank")) - parseInt(b.getAttribute("data-bestiary_rank")))
                                 .forEach(node=>bestiary_list.appendChild(node));
 }
 
@@ -4270,16 +4270,16 @@ function create_new_booklist_entry(book_name) {
 
     let name_div = document.createElement("div");
     name_div.innerHTML = book_name;
-    name_div.classList.add("bestiary_entry_name");
+    name_div.classList.add("anthology_entry_name");
 
     let tooltip = create_item_tooltip(book);//document.createElement("div");
-    tooltip.classList.add("bestiary_entry_tooltip")
+    tooltip.classList.add("anthology_entry_tooltip")
     //tooltip.appendChild(create_item_tooltip(book));
 
     booklist_entry_divs[book_name].appendChild(name_div);
     booklist_entry_divs[book_name].appendChild(tooltip);
     booklist_entry_divs[book_name].setAttribute("data-book", book_name);
-    booklist_entry_divs[book_name].classList.add("bestiary_entry_div");
+    booklist_entry_divs[book_name].classList.add("anthology_entry_div");
 
     booklist_list.appendChild(booklist_entry_divs[book_name]);
 
@@ -4370,7 +4370,6 @@ function create_displayed_quest_content(quest_id) {
     const quest = quests[quest_id];
 
     const quest_div = document.createElement("div");
-    const quest_content = document.createElement("div");
     const quest_description = document.createElement("div");
     const quest_name = document.createElement("div");
     quest_div.classList.add("quest_div");
@@ -4384,6 +4383,7 @@ function create_displayed_quest_content(quest_id) {
     quest_description.classList.add("quest_description_div");
     
     const quest_tasks_div = document.createElement("div");
+    quest_tasks_div.classList.add("quest_task_list_div");
     //put task description and tasks into it
     //set color based on completion status
 
@@ -4403,16 +4403,23 @@ function create_displayed_quest_content(quest_id) {
         }
     }
 
-    quest_content.appendChild(quest_name);
-    quest_content.appendChild(quest_description);
-    quest_content.appendChild(quest_tasks_div);
-    quest_div.appendChild(quest_content);
+    quest_div.appendChild(quest_name);
+    quest_div.appendChild(quest_description);
+    quest_div.appendChild(quest_tasks_div);
+
+    quest_div.addEventListener("click", (event) => {
+        if(event.target.classList.contains("quest_name_div")) {
+            quest_div.classList.toggle("quest_div_expanded");
+        }
+    });
+
     return quest_div;
 }
 
 function create_displayed_quest_task(quest_id, task_index) {
     const task = quests[quest_id].quest_tasks[task_index];
     const task_div = document.createElement("div");
+    task_div.classList.add("quest_task_div");
 
     const task_status_icon_span = document.createElement("span");
     task_status_icon_span.classList.add("task_status_icon");
@@ -4424,6 +4431,7 @@ function create_displayed_quest_task(quest_id, task_index) {
     }
 
     const task_desc_div = document.createElement("div");
+    task_desc_div.classList.add("task_description_div");
     task_desc_div.innerHTML = task.task_description;
 
     const task_conditions_div = document.createElement("div");
@@ -4439,9 +4447,9 @@ function create_displayed_quest_task(quest_id, task_index) {
     //goes through the properties and sets up display
     let total_tasks = 0;
     Object.keys(task.task_condition).forEach(task_group => {
-        const task_condition_div = document.createElement("div");
-        task_condition_div.classList.add("task_condition_div");
         if(Object.keys(task.task_condition[task_group]).length) {
+            const task_condition_div = document.createElement("div");
+            task_condition_div.classList.add("task_condition_div");
             task_condition_div.innerHTML += task_group + ":";
             Object.keys(task.task_condition[task_group]).forEach(task_type => {
                 const task_type_div = document.createElement("div");
@@ -4456,9 +4464,9 @@ function create_displayed_quest_task(quest_id, task_index) {
                 });
                 task_condition_div.appendChild(task_type_div);
             });
+
+            task_conditions_div.appendChild(task_condition_div);
         }
-        
-        task_conditions_div.appendChild(task_condition_div);
     });
     
     if(total_tasks == 1) {

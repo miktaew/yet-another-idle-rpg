@@ -666,7 +666,7 @@ function add_money_to_character(money_num) {
 }
 
 /**
- * 
+ * @description Handles health change from beneficial and harmful sources
  * @param {Object} params
  * @param {Number} params.ammount 
  * @param {Boolean} params.add_xp 

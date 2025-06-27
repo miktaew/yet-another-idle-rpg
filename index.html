@@ -44,7 +44,7 @@
         </div>
 
         <div id = "main_content">
-            <div id = "global_content"> <!-- stuff that needs to be available in both area page and character page-->
+            <div id = "global_content"> 
                 <!-- basic character info (name, title, hp)-->
                 <div id = "basic_character_info_div" class = "box_div">
                     <div id = "character_name_div"> 
@@ -96,14 +96,7 @@
                         <div id = "weather_div">123 </div>
                     </div>
                 
-                    <div id = "location_name_div">
-                        <span id = "location_icon_span"></span>
-                        <span id = "location_name_span"></span>
-                        <span id = "location_name_tooltip"></span>
-                    </div>
-                    <div id = "location_types_div">
-                        
-                    </div>
+                    
                 </div>
 
                 <!-- inventory list -->
@@ -162,8 +155,16 @@
                     <div id="switch_to_combat" onclick="switchToCombat()">Combat</div>
                 </div>
 
-                <!-- location info (name, type[safe/combat], weather, time, etc?)-->
+                <!-- location info (name, types, description, etc?)-->
                 <div id = "location_div" class = "box_div"> 
+                    <div id = "location_name_div">
+                        <span id = "location_icon_span"></span>
+                        <span id = "location_name_span"></span>
+                        <span id = "location_name_tooltip"></span>
+                    </div>
+                    <div id = "location_types_div">
+                        
+                    </div>
                     <div id = "location_description_div" data-nosnippet>
                         
                     </div>
@@ -725,8 +726,8 @@
 
                 <div id = "journal_div" class = "box_div">
                     <div id = "journal_control_div" class="activable_buttons">
-                        <div id = "journal_show_quests" class = "journal_control_button" onclick = "showQuests()"> Quests </div>
-                        <div id = "journal_show_bestiary" class = "journal_control_button active_selection_button" onclick = "showBestiary()"> Bestiary </div>
+                        <div id = "journal_show_quests" class = "journal_control_button active_selection_button" onclick = "showQuests()"> Quests </div>
+                        <div id = "journal_show_bestiary" class = "journal_control_button" onclick = "showBestiary()"> Bestiary </div>
                         <div id = "journal_show_books" class = "journal_control_button" onclick = "showReadBooks()"> Anthology </div>
                         <div id = "journal_show_data" class = "journal_control_button" onclick = "showData()"> Data </div>
                     </div>
@@ -1801,8 +1802,33 @@
 
                 //book list entry tooltips
                 const books_box_div = document.getElementById("books_box_div");
-                books_box_div.addEventListener('mousemove', move_bestiary_entry_tooltip, false);
+                books_box_div.addEventListener('mousemove', move_anthology_entry_tooltip, false);
+                function move_anthology_entry_tooltip(event) {
+                    if(Date.now() >= tooltip_wait) {
+                        let hovered_element = retarget_clicked_to_class(event.target,["anthology_entry_div"],[]);
+                        if(!hovered_element) {
+                            return;
+                        }
+                        
+                        const tooltip_height = hovered_element.children[0].scrollHeight;
+                        
+                        const body = document.getElementsByTagName("body")[0];
+                        const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
 
+                        const bottom_edge_position = 
+                            window.innerHeight - tooltip_height + window.scrollY - 33 - (scrollbar_X_visible?10:0);
+                        
+                        //uses same vars as bestiary for now
+                        document.documentElement.style.setProperty('--bestiary_entry_tooltip_left', `${event.pageX - 1250}px`);
+
+                        if(event.pageY > bottom_edge_position) {
+                            document.documentElement.style.setProperty('--bestiary_entry_tooltip_top', `${bottom_edge_position}px`);
+                        } else {
+                            document.documentElement.style.setProperty('--bestiary_entry_tooltip_top', `${event.pageY}px`);
+                        }
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
+                    }
+                }
 
                 //active effects tooltip
                 const active_effects_div = document.getElementById("effects_div");

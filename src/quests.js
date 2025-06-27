@@ -173,8 +173,8 @@ const questManager = {
                         //let requirements_met = true;
 
                         //return if additional requirements are not met (not present in additional triggers)
-                        for(let i = 0; i < current_task.task_condition[task_group][quest_event_type].requirements.length; i++) {
-                            if(!additional_quest_triggers.includes(current_task.task_condition[task_group][quest_event_type].requirements[i])) {
+                        for(let i = 0; i < current_task.task_condition[task_group][quest_event_type][quest_event_target].requirements?.length; i++) {
+                            if(!additional_quest_triggers.includes(current_task.task_condition[task_group][quest_event_type][quest_event_target].requirements[i])) {
                                 //requirements_met = false;
                                 return;
                             }
@@ -228,16 +228,7 @@ quests["Lost memory"] = new Quest({
     questline: "Lost memory",
     quest_tasks: [
         new QuestTask({task_description: "Find out what happened"}),
-        new QuestTask({
-            task_description: "Help with the wolf rat infestation",
-            task_condition: {
-                any: {
-                    clear: {
-                        "Infested field": {target: 1},
-                    },
-                }
-            },
-        }),
+        new QuestTask({task_description: "Help with the wolf rat infestation"}),
     ]
 });
 
