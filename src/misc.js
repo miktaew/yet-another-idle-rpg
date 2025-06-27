@@ -165,7 +165,13 @@ function is_a_older_than_b(version1, version2) {
     return compare_game_version(version1, version2) < 0;
 }
 
+function celsius_to_fahrenheit(num) {
+    return 32 + num*9/5;
+}
+
 export { expo, format_reading_time, format_working_time, 
         get_hit_chance, round_item_price,
         compare_game_version, is_a_older_than_b,
-        stat_names, task_type_names, skill_consumable_tags, crafting_tags_to_skills};
+        stat_names, task_type_names, skill_consumable_tags, crafting_tags_to_skills,
+        celsius_to_fahrenheit
+    };

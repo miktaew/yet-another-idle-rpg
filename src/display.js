@@ -19,7 +19,7 @@ import { format_time, current_game_time, is_night, seasons } from "./game_time.j
 import { book_stats, item_templates, Weapon, Armor, Shield, rarity_multipliers, getItemRarity, getItemFromKey } from "./items.js";
 import { favourite_locations, get_location_type_penalty, location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
-import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price, format_working_time, task_type_names } from "./misc.js"
+import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price, format_working_time, task_type_names, celsius_to_fahrenheit } from "./misc.js"
 //import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { effect_templates } from "./active_effects.js";
@@ -3208,6 +3208,9 @@ function update_displayed_time() {
 
 function update_displayed_temperature() {
     const temperature = get_current_temperature_smoothed();
+    let displayed_temperature = options.use_uncivilised_temperature_scale?celsius_to_fahrenheit(temperature):temperature;
+
+    const temperature_unit = options.use_uncivilised_temperature_scale?"°F":"°C";
 
     //whether temperature is low enough to give any cold effect
     const is_cold = temperature < (cold_status_temperatures[0]-get_character_cold_tolerance())?true:false;
@@ -3216,20 +3219,26 @@ function update_displayed_temperature() {
         temperature_class = "cold_temperature";
     }
 
+    displayed_temperature = displayed_temperature.toString();
+    if(!displayed_temperature.includes(".")) {
+        //checks if there's a decimal, adds a trailing zero if not
+        displayed_temperature += ".0";
+    }
+
     if(current_location.is_under_roof) {
-        weather_field.innerHTML = temperature +"°C";
+        weather_field.innerHTML = temperature +temperature_unit;
     } else {
         if(is_raining()) {
             if(temperature > 0) {
                 //rain/clouds
-                weather_field.innerHTML = `<span class="material-icons icon">cloud</span><span class="${temperature_class}">` + temperature +"°C</span>";
+                weather_field.innerHTML = `<span class="material-icons icon">cloud</span><span class="${temperature_class}">` + displayed_temperature +temperature_unit+"</span>";
             } else {
                 //snow
-                weather_field.innerHTML = `<span class="material-icons icon">ac_unit</span><span class="${temperature_class}">` + temperature +"°C</span>";
+                weather_field.innerHTML = `<span class="material-icons icon">ac_unit</span><span class="${temperature_class}">` + displayed_temperature +temperature_unit+"</span>";
             }
         } else {
             //normal weather, no icon
-            weather_field.innerHTML = `<span class="${temperature_class}">` + temperature +"°C</span>";
+            weather_field.innerHTML = `<span class="${temperature_class}">` + displayed_temperature +temperature_unit+"</span>";
         }
     }
 
@@ -3240,9 +3249,16 @@ function create_temperature_tooltip() {
     const tooltip = document.createElement("div");
 
     tooltip.id = "temperature_tooltip";
-    tooltip.innerHTML = `Lowest tolerable temperature: <strong>${Math.round(10*(lowest_tolerable_temperature - get_character_cold_tolerance()))/10}</strong>`;
-    tooltip.innerHTML += `<br>(<strong>${lowest_tolerable_temperature}</strong> base minus <strong>${get_character_cold_tolerance()}</strong> cold protection)<br>`;
-    tooltip.innerHTML += create_stat_breakdown("cold_tolerance");
+    if(!options.use_uncivilised_temperature_scale) {
+         tooltip.innerHTML = `Lowest tolerable temperature: <strong>${Math.round(10*(lowest_tolerable_temperature - get_character_cold_tolerance()))/10}</strong>`;
+        tooltip.innerHTML += `<br>(<strong>${lowest_tolerable_temperature}</strong> base minus <strong>${Math.round(10*get_character_cold_tolerance())/10}</strong> cold protection)<br>`;
+        tooltip.innerHTML += create_stat_breakdown("cold_tolerance");
+    } else {
+        tooltip.innerHTML = `Lowest tolerable temperature: <strong>${Math.round(10*(celsius_to_fahrenheit(lowest_tolerable_temperature - get_character_cold_tolerance())))/10}</strong>`;
+        tooltip.innerHTML += `<br>(<strong>${Math.round(10*celsius_to_fahrenheit(lowest_tolerable_temperature))/10}</strong> base minus <strong>${Math.round(10*celsius_to_fahrenheit(get_character_cold_tolerance())-320)/10}</strong> cold protection)<br>`;
+        tooltip.innerHTML += create_stat_breakdown("cold_tolerance");
+        tooltip.innerHTML += `<br>Scale conversion: x1.8`;
+    }
 
     return tooltip;
 }
@@ -4356,7 +4372,7 @@ function update_displayed_quest(quest_id) {
         return;
     }
 
-    //todo
+    //todo: update tasks, update name and update description
 
 }
 
@@ -4484,7 +4500,7 @@ function create_displayed_quest_task(quest_id, task_index) {
 }
 
 function update_displayed_quest_tasks(quest_id) {
-
+    //todo: just update whole thing
 }
 
 function update_backup_load_button(date_string){

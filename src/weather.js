@@ -1,6 +1,7 @@
 "use strict";
 import { current_game_time, Game_Time } from "./game_time.js";
 import { current_location } from "./main.js";
+import { celsius_to_fahrenheit } from "./misc.js";
 
 const base_temperature = 20; //in celsius
 
@@ -73,7 +74,7 @@ function get_temperature_at(time) {
         throw new Error(`Cannot provide temperature when current_location is '${typeof current_location}'!`);
     }
 
-    if(current_location.is_temperature_static) {
+    if(current_location?.is_temperature_static) {
         if(current_location.static_temperature !== null) {
            return current_location.static_temperature;
         } else {
@@ -109,6 +110,10 @@ function get_current_temperature() {
  * @returns temperature that's "smoothed" based on current temperature, temperature at next change and time between last and next change
  */
 function get_current_temperature_smoothed() {
+
+    if(!current_location) {
+        return 0;
+    }
 
     if(!previous_temperature_modifier) {
         previous_temperature_modifier = get_nonlocational_temperature_modifier(current_game_time);
