@@ -148,7 +148,6 @@ const equipment_slots_divs = {head: document.getElementById("head_slot"), torso:
                               pickaxe: document.getElementById("pickaxe_slot"),
                               axe: document.getElementById("axe_slot"),
                               sickle: document.getElementById("sickle_slot"),
-                              fishing: document.getElementById("fishing_slot")
 };
 
 const rarity_colors = {
@@ -2249,10 +2248,10 @@ function update_displayed_combat_location(location) {
     location_tooltip.classList.add("location_tooltip");
     
     document.getElementById("location_description_div").innerText = current_location.getDescription();
-    create_location_types_display(current_location, location_types_div);
+    create_location_types_display(current_location);
 }
 
-function create_location_types_display(current_location, parent_div){
+function create_location_types_display(current_location){
     for(let i = 0; i < current_location.types?.length; i++) {
         const type_div = document.createElement("div");
 
@@ -2291,13 +2290,13 @@ function create_location_types_display(current_location, parent_div){
         } //other effects to be done when/if they are added
 
         type_div.appendChild(type_tooltip);
-        parent_div.appendChild(type_div);
+        location_types_div.appendChild(type_div);
     }
 }
 
 function update_displayed_location_types(current_location){
     location_types_div.innerHTML = "";
-    create_location_types_display(current_location, location_types_div);
+    create_location_types_display(current_location);
 }
 
 function open_crafting_window() {
@@ -4706,6 +4705,5 @@ export {
     update_location_icon,
     skill_list,
     update_booklist_entry,
-    add_quest_to_display,
-    create_location_types_display
+    add_quest_to_display
 }

@@ -548,7 +548,7 @@
                             </div>
                             <div id = "trader_sort_by_type" class = "trader_sorting_button" onclick='sortTraderInventory("type")'>
                                 Sort by type
-                            </div>
+                        </div>
                         </div>
                         <div id = "trader_category_buttons" class="activable_buttons">
                             <div id = "trader_category_all" class = "trader_category_button active_selection_button" onclick='showAllTraderItems()'>
@@ -603,7 +603,7 @@
                             </div>
                             <div id = "storage_sort_by_type" class = "storage_sorting_button" onclick='sortStorageInventory("type")'>
                                 Sort by type
-                            </div>
+                        </div>
                         </div>
                         <div id = "storage_category_buttons" class="activable_buttons">
                             <div id = "storage_category_all" class = "storage_category_button active_selection_button" onclick='showAllStorageItems()'>
@@ -739,7 +739,6 @@
                     <div id = "journal_control_div" class="activable_buttons">
                         <div id = "journal_show_quests" class = "journal_control_button active_selection_button" onclick = "showQuests()"> Quests </div>
                         <div id = "journal_show_bestiary" class = "journal_control_button" onclick = "showBestiary()"> Bestiary </div>
-                        <!--<div id = "journal_show_travelogue" class = "journal_control_button" onclick = "showTravelogue()"> Travelogue </div>-->
                         <div id = "journal_show_books" class = "journal_control_button" onclick = "showReadBooks()"> Anthology </div>
                         <div id = "journal_show_data" class = "journal_control_button" onclick = "showData()"> Data </div>
                     </div>
@@ -753,11 +752,6 @@
                     </div>
                     <div id = "bestiary_box_div">
                         <div id = "bestiary_list">
-
-                        </div>
-                    </div>
-                    <div id = "travelogue_box_div">
-                        <div id = "travelogue_list">
 
                         </div>
                     </div>
@@ -939,7 +933,6 @@
                         <div class = "equipment_slot_div" id = "axe_slot"> axe </div>
                         <div class = "equipment_slot_div" id = "pickaxe_slot"> pickaxe </div>
                         <div class = "equipment_slot_div" id = "sickle_slot"> sickle </div>
-                        <!--<div class = "equipment_slot_div" id = "fishing_slot"> fishing rod </div>-->
                     </div>
 
                     <div id = "character_control_div" class="activable_buttons">
@@ -1166,35 +1159,24 @@
                 document.getElementById("quests_box_div").style.display = "none";
                 document.getElementById("books_box_div").style.display = "none";
                 document.getElementById("bestiary_box_div").style.display = "none";
-                document.getElementById("travelogue_box_div").style.display = "none";
             }
             function showQuests() {
                 document.getElementById("data_box_div").style.display = "none";
                 document.getElementById("quests_box_div").style.display = "block";
                 document.getElementById("books_box_div").style.display = "none";
                 document.getElementById("bestiary_box_div").style.display = "none";
-                document.getElementById("travelogue_box_div").style.display = "none";
             }
             function showBestiary() {
                 document.getElementById("data_box_div").style.display = "none";
                 document.getElementById("quests_box_div").style.display = "none";
                 document.getElementById("books_box_div").style.display = "none";
                 document.getElementById("bestiary_box_div").style.display = "block";
-                document.getElementById("travelogue_box_div").style.display = "none";
-            }
-            function showTravelogue() {
-                document.getElementById("data_box_div").style.display = "none";
-                document.getElementById("quests_box_div").style.display = "none";
-                document.getElementById("books_box_div").style.display = "none";
-                document.getElementById("bestiary_box_div").style.display = "none";
-                document.getElementById("travelogue_box_div").style.display = "block";
             }
             function showReadBooks() {
                 document.getElementById("data_box_div").style.display = "none";
                 document.getElementById("quests_box_div").style.display = "none";
                 document.getElementById("books_box_div").style.display = "block";
                 document.getElementById("bestiary_box_div").style.display = "none";
-                document.getElementById("travelogue_box_div").style.display = "none";
             }
 
             function showCharacterStats() {

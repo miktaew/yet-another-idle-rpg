@@ -2089,4 +2089,4 @@ There's another gate on the wall in front of you, but you have a strange feeling
         });
     });
 })();
-export { Location, locations, location_types, get_location_type_penalty, favourite_locations};
+export {locations, location_types, get_location_type_penalty, favourite_locations};

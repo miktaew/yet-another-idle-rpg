@@ -6,6 +6,3 @@ package.json
 .eslintrc.json
 .dependency-cruiser.js
 dependency-graph.svg
-*.ts
-*.js.map
-Web.config
