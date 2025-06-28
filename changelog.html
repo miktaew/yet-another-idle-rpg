@@ -72,13 +72,14 @@ v0.5.0??
     - added new equipment category, capes; they are rather expensive in terms of material cost, but provide the most cold protection out of all item types and allow you to feel fancy
     - added skill <span class="spoiler">'Regeneration' which increases effectiveness of passive healing (sleeping/resting)</span>
     - added skill <span class="spoiler">'Gluttony'  to complement 'medicine' by increasing the effects of the food items (unlike medicine, this one doesn't get xp from crafting)</span>
-    - added a new combat zone in forest
+    - added a new combat zone available from <span class="spoiler">'Forest road'</span>
     - added another stance, available from <span class="spoiler">'Suspicious man' after helping out in the 'Slums' (it technically existed before, but was impossible to unlock);
         as usual with new unlocks, if you already used the textline that's supposed to unlock it then you can get it from the repeatable one instead</span>
-    - 'Persistence' xp gains are now doubled when under 20% hp (you still need to be out of stamina); they are also increased when under any cold effect, the stronger the more, up to x2 at 'Hypothermia'
+    - added a new skill and training: <span class="spoiler">'Swimming'</span>, available at <span class="spoiler">'Village', after talking to 'Villag Elder' (unlocked by same eraly textline as running/weightlifting trainings; otherwise just ask him about leaving)</span>
     - added a new spot for training 'Equilibrium' at <span class="spoiler">'Mountain path' and 'Mountain camp'</span>
     - added a new spot for training 'Climbing' at <span class="spoiler">'Mountain camp'</span>
-
+    - 'Persistence' xp gains are now doubled when under 20% hp (you still need to be out of stamina); they are also increased when under any cold effect, the stronger the more, up to x2 at 'Hypothermia'
+    
     - reduced defense on some wool items
     - for multi-target attacks, skill xp gains are now divided by target count to provide similar xp gains as with single-target attacks; character xp is unchanged
     - for multi-target attacks, loot drop chances are now divided by target count ^ (2/3) (killing 8 enemies with 1 attack should only give 2x loot instead of 8x)
@@ -88,6 +89,8 @@ v0.5.0??
 
     - updated enemy lineup creation code to allow for using predefined groups in their order (instead of choosing one randomly),
      and to allow for using a predefined group every N clears with other fights using random enemies
+    - made it possible for activities to apply effects
+    - made it possible for active effects to affect xp gains
     
      - fixed an issue with incorrect display of some of game settings after reloading
 
@@ -95,6 +98,10 @@ courtesy of OnonokiNonon:
     - fixed display issues with inventory and fast travel on Firefox
     - maxed out skills are now displayed with a darker shade of green
     - skill categories now persist their open/closed state
+    - skills can now be sorted by progress (how close they are to next level, with maxed out skills always displayed last)
+    - inventory can now by sorted by type: components/materials of the same type are grouped together, equipment is sorted by slot, etc.
+    - harvesting actions can now have their own ambience (BGM) messages
+    - actions that give experience now show time to level up in realtime hours
     - larger xp numbers now display with separators and switch to scientific notation at a much higher threshold
     - added a new category to the journal, listing all the books Hero has read and their effects
 

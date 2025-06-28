@@ -155,7 +155,7 @@ class Textline {
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["rats", "ask to leave 2", "equipment"]}],
                     locations: [{location: "Infested field"}],
-                    activities: [{location:"Village", activity:"weightlifting"}, {location:"Village",activity:"running"}],
+                    activities: [{location:"Village", activity:"weightlifting"}, {location:"Village",activity:"running"}, {location:"Village",activity:"swimming"}],
                 },
                 locks_lines: ["need to"],
             }),
@@ -183,6 +183,9 @@ class Textline {
                 name: "Can I leave the village?",
                 text: "We talked about this, you are still too weak",
                 is_unlocked: false,
+                rewards: {
+                    activities: [{location:"Village",activity:"swimming"}],
+                },
             }),
             "rats": new Textline({
                 name: "Are wolf rats a big issue?",
@@ -210,6 +213,7 @@ class Textline {
                 rewards: {
                     locations: [{location: "Nearby cave"}, {location: "Infested field"}],
                     dialogues: ["old craftsman"],
+                    activities: [{location:"Village",activity:"swimming"}],
                 },
                 is_unlocked: false,
             }),
@@ -231,6 +235,7 @@ class Textline {
                 rewards: {
                     locations: [{location: "Forest road"}, {location: "Infested field"}, {location: "Nearby cave"}],
                     dialogues: ["village guard", "old craftsman"],
+                    activities: [{location:"Village",activity:"swimming"}],
                 },
             }),
             "new tunnel": new Textline({

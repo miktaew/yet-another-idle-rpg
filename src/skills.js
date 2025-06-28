@@ -1448,305 +1448,382 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                         }
                                     }
                                 });                         
-    skills["Meditation"] = new Skill({skill_id: "Meditation",
-                                names: {0: "Meditation"}, 
-                                description: "Focus your mind",
-                                base_xp_cost: 200,
-                                category: "Activity",
-                                max_level: 30, 
-                                is_unlocked: false,
-                                visibility_treshold: 0,
-                                milestones: {
-                                    2: {
-                                        stats: {
-                                            "intuition": {flat: 1},
-                                        },
-                                        xp_multipliers: {
-                                            all: 1.05,
-                                            "Presence sensing": 1.05,
-                                        }
-                                    },
-                                    4: {
-                                        stats: {
-                                            "intuition": {
-                                                flat: 1, 
-                                                multiplier: 1.05
-                                            }
-                                        },
-                                        xp_multipliers: {
-                                            all: 1.05,
-                                        }
-                                    },
-                                    5: {
-                                        xp_multipliers: {
-                                            "Sleeping": 1.1,
-                                            "Breathing": 1.1,
-                                            "Presence sensing": 1.05,
-                                        }
-                                    },
-                                    6: {
-                                        stats: {
-                                            "intuition": {
-                                                flat: 2,
-                                            }
-                                        },
-                                    },
-                                    8: {
-                                        stats: {
-                                            "intuition": {
-                                                multiplier: 1.05
-                                            },
-                                        },
-                                        xp_multipliers: {
-                                            all: 1.05,
-                                            "Sleeping": 1.1,
-                                            "Breathing": 1.1,
-                                            "Presence sensing": 1.05,
-                                        }
-                                    },
-                                    10: {
-                                        stats: {
-                                            "intuition": {
-                                                flat: 2,
-                                                multiplier: 1.05
-                                            }
-                                        },
-                                        xp_multipliers: {
-                                            all: 1.1,
-                                            "Sleeping": 1.1,
-                                            "Breathing": 1.1,
-                                            "Presence sensing": 1.1,
-                                        }
-                                    },
-                                    12: {
-                                        stats: {
-                                            "intuition": {
-                                                flat: 2,
-                                            }
-                                        },
-                                        xp_multipliers: {
-                                            all: 1.05,
-                                            "Presence sensing": 1.1,
-                                        }
-                                    }
-                                }
-                            });                            
-    skills["Running"] = new Skill({skill_id: "Running",
-                                description: "Great way to improve the efficiency of the body",
-                                names: {0: "Running"},
-                                max_level: 50,
-                                category: "Activity",
-                                max_level_coefficient: 2,
-                                base_xp_cost: 50,
-                                milestones: {
-                                    1: {
-                                        stats: {
-                                            agility: {
-                                                flat: 1
-                                            },
-                                        },
-                                    },
-                                    3: {
-                                        stats: {
-                                            agility: {
-                                                flat: 1
-                                            },
-                                        },
-                                        xp_multipliers: {
-                                            "Breathing": 1.1,
-                                        }
-                                    },
-                                    5: {
-                                        stats: {
-                                            agility: {
-                                                flat: 1,
-                                            },
-                                            max_stamina: {
-                                                multiplier: 1.05,
-                                            }
-                                        },                                          
-                                    },
-                                    7: {
-                                        stats: {
-                                            agility: {
-                                                flat: 1,
-                                                multiplier: 1.05,
-                                            }
-                                        },
-                                        xp_multipliers: {
-                                            "Breathing": 1.05,
-                                        }
-                                    },
-                                    10: {
-                                        stats: {
-                                            agility: {
-                                                flat: 1,
-                                                multiplier: 1.05,
-                                            },
-                                            max_stamina: {
-                                                multiplier: 1.05,
-                                            }
-                                        },
-                                        xp_multipliers: {
-                                            "Breathing": 1.1,
-                                        }
-                                    },
-                                    12: {
-                                        stats: {
-                                            agility: {
-                                                flat: 2
-                                            },
-                                            max_stamina: {
-                                                flat: 5
-                                            }
-                                        },
-                                        xp_multipliers: {
-                                            "Breathing": 1.05,
-                                        }
-                                    }
-                                },
-                                get_effect_description: ()=> {
-                                    let value = get_total_skill_coefficient({skill_id:"Running",scaling_type:"multiplicative"})
-                                    return `Multiplies stamina efficiency by ${Math.round(value*100)/100}`;
-                                },
-                            });
-    skills["Weightlifting"] = new Skill({skill_id: "Weightlifting",
-    description: "No better way to get stronger than by lifting heavy things",
-    names: {0: "Weightlifting"},
-    max_level: 50,
-    category: "Activity",
-    max_level_coefficient: 4,
-    base_xp_cost: 50,
-    milestones: {
-        1: {
-            stats: {
-            strength: {
-                flat: 1
+    skills["Meditation"] = new Skill({
+        skill_id: "Meditation",
+        names: {0: "Meditation"}, 
+        description: "Focus your mind",
+        base_xp_cost: 200,
+        category: "Activity",
+        max_level: 30, 
+        is_unlocked: false,
+        visibility_treshold: 0,
+        milestones: {
+            2: {
+                stats: {
+                    "intuition": {flat: 1},
+                },
+                xp_multipliers: {
+                    all: 1.05,
+                    "Presence sensing": 1.05,
+                }
             },
+            4: {
+                stats: {
+                    "intuition": {
+                        flat: 1, 
+                        multiplier: 1.05
+                    }
+                },
+                xp_multipliers: {
+                    all: 1.05,
+                }
             },
-        },
-        3: {
-            stats: {
-            strength: {
-                flat: 1
+            5: {
+                xp_multipliers: {
+                    "Sleeping": 1.1,
+                    "Breathing": 1.1,
+                    "Presence sensing": 1.05,
+                }
             },
-            },
-            xp_multipliers: {
-                "Unarmed": 1.05,
-            }
-        },
-        5: {
-            stats: {
-            strength: {
-                flat: 1,
-                multiplier: 1.05,
-            },
-            max_stamina: {
-                multiplier: 1.05,
-            }
-            },
-        },
-        7: {
-            stats: {
-                strength: {
-                    flat: 1
+            6: {
+                stats: {
+                    "intuition": {
+                        flat: 2,
+                    }
                 },
             },
-            xp_multipliers: {
-                "Unarmed": 1.1,
-            }
-        },
-        10: {
-            stats: {
-                strength: {
-                flat: 1, 
-                multiplier: 1.05
-            },
-            max_stamina: {
-                multiplier: 1.05,
-            }
-            },
-        },
-        12: {
-            stats: {
-                strength: {
-                    flat: 2
+            8: {
+                stats: {
+                    "intuition": {
+                        multiplier: 1.05
+                    },
                 },
-                max_stamina: {
-                    flat: 5
+                xp_multipliers: {
+                    all: 1.05,
+                    "Sleeping": 1.1,
+                    "Breathing": 1.1,
+                    "Presence sensing": 1.05,
+                }
+            },
+            10: {
+                stats: {
+                    "intuition": {
+                        flat: 2,
+                        multiplier: 1.05
+                    }
+                },
+                xp_multipliers: {
+                    all: 1.1,
+                    "Sleeping": 1.1,
+                    "Breathing": 1.1,
+                    "Presence sensing": 1.1,
+                }
+            },
+            12: {
+                stats: {
+                    "intuition": {
+                        flat: 2,
+                    }
+                },
+                xp_multipliers: {
+                    all: 1.05,
+                    "Presence sensing": 1.1,
                 }
             }
         }
-    },
-    get_effect_description: ()=> {
-      let value = get_total_skill_coefficient({skill_id:"Weightlifting",scaling_type:"multiplicative"})
-      return `Multiplies strength by ${Math.round(value*100)/100}`;
-    },
-    
-    });
-    skills["Equilibrium"] = new Skill({skill_id: "Equilibrium",
-    description: "Nothing will throw you off your balance (at least the physical one)",
-    names: {0: "Equilibrium"},
-    category: "Activity",
-    max_level: 50,
-    max_level_coefficient: 4,
-    base_xp_cost: 50,
-    milestones: {
-        1: {
-            stats: {
-                agility: {flat: 1},
-            },
-        },
-        3: {
-            stats: {
-                intuition: {flat: 1},
-            }
-        },
-        5: {
-            stats: {
-                agility: {
-                    flat: 1,
-                    multiplier: 1.05,
+    });                  
+    skills["Running"] = new Skill({
+        skill_id: "Running",
+        description: "Great way to improve the efficiency of the body",
+        names: {0: "Running"},
+        max_level: 50,
+        category: "Activity",
+        max_level_coefficient: 2,
+        base_xp_cost: 50,
+        milestones: {
+            1: {
+                stats: {
+                    agility: {
+                        flat: 1
+                    },
                 },
-                strength: {flat: 1},
-                max_stamina: {multiplier: 1.05},
             },
-            xp_multipliers: {
-                "Unarmed": 1.1,
+            3: {
+                stats: {
+                    agility: {
+                        flat: 1
+                    },
+                },
+                xp_multipliers: {
+                    "Breathing": 1.1,
+                }
+            },
+            5: {
+                stats: {
+                    agility: {
+                        flat: 1,
+                    },
+                    max_stamina: {
+                        multiplier: 1.05,
+                    }
+                },                                          
+            },
+            7: {
+                stats: {
+                    agility: {
+                        flat: 1,
+                        multiplier: 1.05,
+                    }
+                },
+                xp_multipliers: {
+                    "Breathing": 1.05,
+                }
+            },
+            10: {
+                stats: {
+                    agility: {
+                        flat: 1,
+                        multiplier: 1.05,
+                    },
+                    max_stamina: {
+                        multiplier: 1.05,
+                    }
+                },
+                xp_multipliers: {
+                    "Breathing": 1.1,
+                }
+            },
+            12: {
+                stats: {
+                    agility: {
+                        flat: 2
+                    },
+                    max_stamina: {
+                        flat: 5
+                    }
+                },
+                xp_multipliers: {
+                    "Breathing": 1.05,
+                }
             }
         },
-        7: {
-            stats: {
-                intuition: {flat: 1},
-            },
+        get_effect_description: ()=> {
+            let value = get_total_skill_coefficient({skill_id:"Running",scaling_type:"multiplicative"})
+            return `Multiplies stamina efficiency by ${Math.round(value*100)/100}`;
         },
-        9: {
-            stats: {
-                strength: {flat: 1},
+    });
+    skills["Weightlifting"] = new Skill({
+        skill_id: "Weightlifting",
+        description: "No better way to get stronger than by lifting heavy things",
+        names: {0: "Weightlifting"},
+        max_level: 50,
+        category: "Activity",
+        max_level_coefficient: 4,
+        base_xp_cost: 50,
+        milestones: {
+            1: {
+                stats: {
+                    strength: {
+                        flat: 1
+                    },
+                },
+            },
+            3: {
+                stats: {
+                    strength: {
+                        flat: 1
+                    },
+                },
+                xp_multipliers: {
+                    "Unarmed": 1.05,
+                }
+            },
+            5: {
+                stats: {
+                    strength: {
+                        flat: 1,
+                        multiplier: 1.05,
+                    },
+                    max_stamina: {
+                        multiplier: 1.05,
+                    }
+                },
+            },
+            7: {
+                stats: {
+                    strength: {
+                        flat: 1
+                    },
+                },
+                xp_multipliers: {
+                    "Unarmed": 1.1,
+                }
+            },
+            10: {
+                stats: {
+                    strength: {
+                        flat: 1, 
+                        multiplier: 1.05
+                    },
+                    max_stamina: {
+                        multiplier: 1.05,
+                    }
+                },
+            },
+            12: {
+                stats: {
+                    strength: {
+                        flat: 2
+                    },
+                    max_stamina: {
+                        flat: 5
+                    }
+                }
             }
         },
-        10: {
-            stats: {
-                agility: {flat: 1},
-                intuition: {multiplier: 1.05},
-                max_stamina: {multiplier: 1.05},
-            },
+        get_effect_description: ()=> {
+        let value = get_total_skill_coefficient({skill_id:"Weightlifting",scaling_type:"multiplicative"})
+        return `Multiplies strength by ${Math.round(value*100)/100}`;
         },
-        12: {
-            stats: {
-                agility: {flat: 1},
-                strength: {flat: 1},
+    });
+    skills["Swimming"] = new Skill({
+        skill_id: "Swimming",
+        description: "A nice, gentle, and relaxing exercise. Just remember to be careful.",
+        flavour_text: "Do not swim when drunk",
+        names: {0: "Swimming"},
+        max_level: 50,
+        category: "Activity",
+        max_level_coefficient: 2,
+        base_xp_cost: 50,
+        milestones: {
+            1: {
+                stats: {
+                    agility: {
+                        flat: 1
+                    },
+                },
+            },
+            3: {
+                stats: {
+                    strength: {
+                        flat: 1
+                    },
+                },
+                xp_multipliers: {
+                    "Breathing": 1.05,
+                }
+            },
+            5: {
+                stats: {
+                    agility: {
+                        multiplier: 1.05,
+                    },
+                    max_stamina: {
+                        multiplier: 1.05,
+                    }
+                },
+            },
+            7: {
+                stats: {
+                    agility: {
+                        flat: 1,
+                    }
+                },
+                xp_multipliers: {
+                    "Breathing": 1.1,
+                }
+            },
+            10: {
+                stats: {
+                    agility: {
+                        multiplier: 1.05,
+                    },
+                    max_stamina: {
+                        multiplier: 1.05,
+                    }
+                },
+            },
+            12: {
+                stats: {
+                    agility: {
+                        flat: 2,
+                    },
+                    max_stamina: {
+                        flat: 10,
+                    }
+                }
             }
-        }
-    },
-    get_effect_description: ()=> {
-      let value = get_total_skill_coefficient({skill_id:"Equilibrium",scaling_type:"multiplicative"});
-      return `Multiplies agility by ${Math.round(value*100)/100}`;
-    },
-    
+        },
+        get_effect_description: ()=> {
+        let value = get_total_skill_coefficient({skill_id:"Swimming",scaling_type:"multiplicative"})
+        return `Multiplies agility and stamina by ${Math.round(value*100)/100}`;
+        },
     });
 
-    skills["Climbing"] = new Skill({skill_id: "Climbing",
+    skills["Equilibrium"] = new Skill({
+        skill_id: "Equilibrium",
+        description: "Nothing will throw you off your balance (at least the physical one)",
+        names: {0: "Equilibrium"},
+        category: "Activity",
+        max_level: 50,
+        max_level_coefficient: 4,
+        base_xp_cost: 50,
+        milestones: {
+            1: {
+                stats: {
+                    agility: {flat: 1},
+                },
+            },
+            3: {
+                stats: {
+                    intuition: {flat: 1},
+                }
+            },
+            5: {
+                stats: {
+                    agility: {
+                        flat: 1,
+                        multiplier: 1.05,
+                    },
+                    strength: {flat: 1},
+                    max_stamina: {multiplier: 1.05},
+                },
+                xp_multipliers: {
+                    "Unarmed": 1.1,
+                }
+            },
+            7: {
+                stats: {
+                    intuition: {flat: 1},
+                },
+            },
+            9: {
+                stats: {
+                    strength: {flat: 1},
+                }
+            },
+            10: {
+                stats: {
+                    agility: {flat: 1},
+                    intuition: {multiplier: 1.05},
+                    max_stamina: {multiplier: 1.05},
+                },
+            },
+            12: {
+                stats: {
+                    agility: {flat: 1},
+                    strength: {flat: 1},
+                }
+            }
+        },
+        get_effect_description: ()=> {
+        let value = get_total_skill_coefficient({skill_id:"Equilibrium",scaling_type:"multiplicative"});
+        return `Multiplies agility by ${Math.round(value*100)/100}`;
+        },
+    });
+
+    skills["Climbing"] = new Skill({
+        skill_id: "Climbing",
         description: "Intense and slightly dangerous form of training that involves majority of your muscles",
         names: {0: "Climbing"},
         max_level: 50,

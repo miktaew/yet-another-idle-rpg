@@ -457,8 +457,8 @@ function create_effect_tooltip({effect_name, duration, add_bonus=false}) {
     } else {
         effects = effect.effects;
     }
-    for(const [key, stat_value] of Object.entries(effects.stats)) {
 
+    for(const [key, stat_value] of Object.entries(effects.stats)) {
         tooltip.innerHTML += `<br>${capitalize_first_letter(stat_names[key])}`;
         
         let flat = false;
@@ -475,27 +475,32 @@ function create_effect_tooltip({effect_name, duration, add_bonus=false}) {
                 tooltip.innerHTML += `: x${Math.round(100*stat_value.multiplier)/100}`;
             }
         }
-        /*
-        if(key === "health_regeneration_flat" || key ===  "stamina_regeneration_flat" || key ===  "mana_regeneration_flat" || key === "health_loss_flat") 
-        {   
-            if(stat_value.flat) {
-                const sign = stat_value.flat > 0? "+":"";
-                tooltip.innerHTML += `: ${sign}${Math.round(100*stat_value.flat)/100}`;
-            }
-            if(stat_value.multiplier) {
-                tooltip.innerHTML += `: x${Math.round(100*stat_value.multiplier)/100}`;
-            }
-        } else if(key === "health_regeneration_percent" || key === "stamina_regeneration_percent" || key === "mana_regeneration_percent" || key === "health_loss_percent") {
-            if(stat_value.flat) {
-                const sign = stat_value.flat > 0? "+":"";
-                tooltip.innerHTML += `: ${sign}${Math.round(100*stat_value.flat)/100}%`;
-            }
-            if(stat_value.multiplier) {
-                tooltip.innerHTML += `: x${Math.round(100*stat_value.multiplier)/100}`;
-            }
+    }
+
+    
+    const xp_multipliers = Object.keys(effects.xp_multipliers);
+    if(xp_multipliers.length > 0) {
+        let name;
+        if(xp_multipliers[0] !== "all" && xp_multipliers[0] !== "hero" && xp_multipliers[0] !== "all_skill") {
+            name = skills[xp_multipliers[0]].name();
         } else {
-            //
-        }*/
+            name = xp_multipliers[0].replace("_"," ");
+        }
+        name = capitalize_first_letter(name);
+        if(tooltip.innerHTML) {
+            tooltip.innerHTML += `<br>${name} xp gain: x${effects.xp_multipliers[xp_multipliers[0]]}`;
+        } else {
+            tooltip.innerHTML = `${name} xp gain: x${effects.xp_multipliers[xp_multipliers[0]]}`;
+        }
+        for(let i = 1; i < xp_multipliers.length; i++) {
+            let name;
+            if(xp_multipliers[i] !== "all" && xp_multipliers[i] !== "hero" && xp_multipliers[i] !== "all_skill") {
+                name = skills[xp_multipliers[i]].name();
+            } else {
+                name = xp_multipliers[i].replace("_"," ");
+            }
+            tooltip.innerHTML += `<br>${name} xp gain: x${effects.xp_multipliers[xp_multipliers[i]]}`;
+        }
     }
 
     tooltip.appendChild(effects_div);

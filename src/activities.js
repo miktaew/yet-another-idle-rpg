@@ -5,7 +5,7 @@ const activities = {};
 /*
     A bit complicated with activities defined both here and in locations, but:
     - multiple locations can have "same" activity available, though with different xp/money gains
-    - activity can be overall unlocked, but not yet available in specific location
+    - activity can be overall unlocked, but not yet available in specific location (or vice versa)
 */
 
 class Activity {
@@ -108,6 +108,13 @@ class Gathering extends Training {
         base_skills_names: ["Equilibrium"],
         is_unlocked: true,
     });
+    activities["swimming"] = new Training({
+        name: "swimming",
+        action_text: "Splish, splash, splosh",
+        description: "One of the most basic exercises",
+        base_skills_names: ["Swimming"],
+        is_unlocked: true,
+    });
     activities["meditating"] = new Training({
         name: "meditating",
         action_text: "Focusing your mind",
@@ -133,7 +140,7 @@ class Gathering extends Training {
         base_skills_names: ["Mining"],
         is_unlocked: true,
         required_tool_type: "pickaxe",
-        getBackgroundNoises: () => ["clang clang", "clink clink", "tink tink", "crunch", "*Your pickaxe strikes a the heart of the rock*"]
+        getBackgroundNoises: () => ["clang clang", "clink clink", "tink tink", "crunch", "*Your pickaxe strikes the heart of the rock*"]
     });
     activities["woodcutting"] = new Gathering({
         name: "woodcutting",
