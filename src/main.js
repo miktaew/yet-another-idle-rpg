@@ -3984,9 +3984,15 @@ function update() {
                 }
             }
 
-            const sounds = current_location.getBackgroundNoises();
+            let sounds = current_location.getBackgroundNoises();
             if(sounds.length > 0){
                 if(Math.random() < 1/600) {
+                    log_message(`"${sounds[Math.floor(Math.random()*sounds.length)]}"`, "background");
+                }
+            }
+            if (current_activity && Math.random() < 1/100) {
+                sounds = activities[current_activity.activity_name].getBackgroundNoises();
+                if(sounds.length > 0){
                     log_message(`"${sounds[Math.floor(Math.random()*sounds.length)]}"`, "background");
                 }
             }

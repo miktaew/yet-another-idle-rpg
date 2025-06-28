@@ -968,9 +968,56 @@ function sort_displayed_inventory({sort_by = "name", target = "character", chang
             return -1;
         }
 
-        //other items by either name or otherwise by value
+        //other items by properties, name or otherwise by value
+        if (sort_by === "type") {
+            //slot
+            if (a.dataset.item_slot != b.dataset.item_slot) { 
+                return Object.keys(equipment_slots_divs).indexOf(a.dataset.item_slot) - Object.keys(equipment_slots_divs).indexOf(b.dataset.item_slot);
+            }
 
-        if(sort_by === "name") {
+            //usable
+            if (a.classList.contains("character_item_usable") != b.classList.contains("character_item_usable")) {
+                return b.classList.contains("character_item_usable") - a.classList.contains("character_item_usable");
+            }
+            if (a.classList.contains("trader_item_usable") != b.classList.contains("trader_item_usable")) {
+                return b.classList.contains("trader_item_usable") - a.classList.contains("trader_item_usable");
+            }
+            if (a.classList.contains("storage_item_usable") != b.classList.contains("storage_item_usable")) {
+                return b.classList.contains("storage_item_usable") - a.classList.contains("storage_item_usable");
+            }
+
+            let item_template_a = null;
+            let item_template_b = null;
+
+            if (target === inventory_div) {
+                item_template_a = item_templates[JSON.parse(a.dataset.character_item).id];
+                item_template_b = item_templates[JSON.parse(b.dataset.character_item).id];
+            }
+            else if (target === trader_inventory_div) {
+                item_template_a = item_templates[JSON.parse(a.dataset.trader_item).id];
+                item_template_b = item_templates[JSON.parse(b.dataset.trader_item).id];
+            }
+            else if (target === storage_inventory_div) {
+                item_template_a = item_templates[JSON.parse(a.dataset.storage_item).id];
+                item_template_b = item_templates[JSON.parse(b.dataset.storage_item).id];
+            }
+
+            if (item_template_a && item_template_b) {
+                if (item_template_a.material_type != item_template_b.material_type) { 
+                    return item_template_a.material_type > item_template_b.material_type ? plus : minus;
+                }
+                if (item_template_a.component_type != item_template_b.component_type) { 
+                    return item_template_a.component_type > item_template_b.component_types ? plus : minus;
+                }
+                if (item_template_a.component_tier != item_template_b.component_tier) { 
+                    return item_template_a.component_tier > item_template_b.component_tier ? plus : minus;
+                }
+            }
+
+            //...otherwise, fall back to sorting by name
+        }
+
+        if (sort_by === "name" || sort_by === "type") {
 
             const name_a = a.children[0].children[0].children[1].innerText.toLowerCase().replaceAll('"',"");
             const name_b = b.children[0].children[0].children[1].innerText.toLowerCase().replaceAll('"',"");
@@ -3417,12 +3464,12 @@ function start_activity_display(current_activity) {
         if(activities[current_activity.activity_name].type !== "GATHERING") {
             const time_needed = Math.ceil((needed_xp-curr_xp)/(current_activity.skill_xp_per_tick*get_skill_xp_gain(skills[activities[current_activity.activity_name].base_skills_names].skill_id)));
             if(!isNaN(time_needed)) {
-                action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
+                action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)} (${format_time({time: {minutes: time_needed/60}, long_names: true})}realtime)`;
             }
         } else {
             const time_needed = Math.ceil(current_activity.gathering_time_needed * (needed_xp-curr_xp)/(current_activity.skill_xp_per_tick*get_skill_xp_gain(skills[activities[current_activity.activity_name].base_skills_names].skill_id)));
             if(!isNaN(time_needed)) {
-                action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
+                action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)} (${format_time({time: {minutes: time_needed/60}, long_names: true})}realtime)`;
             }
         }
             
@@ -3520,12 +3567,12 @@ function update_displayed_ongoing_activity(current_activity, is_job){
     if(activities[current_activity.activity_name].type !== "GATHERING") {
         const time_needed = Math.ceil((needed_xp-curr_xp)/(current_activity.skill_xp_per_tick*get_skill_xp_gain(skills[activities[current_activity.activity_name].base_skills_names].skill_id)));
         if(!isNaN(time_needed)) {
-            action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
+            action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)} (${format_time({time: {minutes: time_needed/60}, long_names: true})}realtime)`;
         }
     } else {
         const time_needed = Math.ceil(current_activity.gathering_time_needed * (needed_xp-curr_xp)/(current_activity.skill_xp_per_tick*get_skill_xp_gain(skills[activities[current_activity.activity_name].base_skills_names].skill_id)));
         if(!isNaN(time_needed)) {
-            action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)}`;
+            action_xp_div.innerHTML += `<br>Next level in ${format_reading_time(time_needed)} (${format_time({time: {minutes: time_needed/60}, long_names: true})}realtime)`;
         }
     }
 
@@ -3852,10 +3899,16 @@ function sort_displayed_skills({sort_by="name", change_direction=false}) {
         [...skill_list.children[i].querySelector("[data-skill_category_skills").children].sort((a,b) => {
             let elem_a;
             let elem_b;
-            if(sort_by === "level") {
+            if (sort_by === "level") {
                 skill_sorting = sort_by;
                 elem_a = skills[a.getAttribute("data-skill")].current_level;
                 elem_b = skills[b.getAttribute("data-skill")].current_level;
+            } else if (sort_by === "progress") {
+                if (isNaN(skills[a.getAttribute("data-skill")].current_xp)) return 1;
+                if (isNaN(skills[b.getAttribute("data-skill")].current_xp)) return -1;
+
+                elem_a = -skills[a.getAttribute("data-skill")].current_xp / skills[a.getAttribute("data-skill")].xp_to_next_lvl;
+                elem_b = -skills[b.getAttribute("data-skill")].current_xp / skills[b.getAttribute("data-skill")].xp_to_next_lvl ;
             } else {
                 elem_a = skills[a.getAttribute("data-skill")].name();
                 elem_b = skills[b.getAttribute("data-skill")].name();
