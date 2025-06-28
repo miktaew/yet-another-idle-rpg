@@ -1107,9 +1107,14 @@ i {
 	cursor: pointer;
 }
 
+.activable_buttons {
+	display: flex;
+	flex-wrap: wrap;
+}
+
 .character_sorting_button {
-    float: left;
-	width: 198px;
+	float: left;
+	flex-grow: 1;
 	text-align: center;
 	outline: 1px solid white;
 	cursor: pointer;
@@ -1206,8 +1211,9 @@ i {
 }
 
 .skill_sorting_button {
-	float:left;
-	width: 198px;
+	flex-grow: 1;
+	padding-left: 5px;
+	padding-right: 5px;
 	text-align: center;
 	outline: 1px solid white;
 	cursor: pointer;
@@ -1216,8 +1222,8 @@ i {
 }
 
 #accept_trade_button, #cancel_trade_button, .trader_sorting_button, .storage_sorting_button {
-    float:left;
-	width: 198px;
+	float: left;
+	flex-grow: 1;
 	text-align: center;
 	outline: 1px solid white;
 	margin: -1px 1px;
@@ -1227,6 +1233,7 @@ i {
 
 #accept_trade_button {
 	background-color: green;
+	width: 198px;
 }
 
 #active_effect_count {
@@ -1278,6 +1285,7 @@ i {
 
 #cancel_trade_button {
 	background-color: red;
+	width: 198px;
 }
 
 #location_related_div {

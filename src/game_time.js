@@ -156,7 +156,7 @@ function format_time({time, long_names, round=true}) { //{time, long_names?}
         formatted_time += long_names? `${time.hours} hours ` : `${time.hours}h`;
     }
     if(time.minutes > 0) {
-        formatted_time += long_names? `${time.minutes} minutes ` : `${time.minutes}m`;
+        formatted_time += long_names? `${Math.round(time.minutes)} minutes ` : `${time.minutes}m`;
     }
 
     return formatted_time;

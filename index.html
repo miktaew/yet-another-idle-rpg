@@ -107,6 +107,7 @@
                     <div id = "inventory_sorting_div" class="activable_buttons">
                         <div id = "inventory_sort_by_name" class = "character_sorting_button active_selection_button" onclick='sortCharacterInventory("name")'> Sort by name </div>
                         <div id = "inventory_sort_by_price" class = "character_sorting_button" onclick='sortCharacterInventory("price")'> Sort by value </div>
+                        <div id = "inventory_sort_by_type" class = "character_sorting_button" onclick='sortCharacterInventory("type")'> Sort by type </div>
                     </div>
                     <div id = "inventory_control_div" class="activable_buttons">
                         <div id = "inventory_show_all" class = "inventory_control_button active_selection_button" onclick = "showAllItems()"> All </div>
@@ -545,6 +546,9 @@
                             <div id = "trader_sort_by_price" class = "trader_sorting_button" onclick='sortTraderInventory("price")'>
                                 Sort by value
                             </div>
+                            <div id = "trader_sort_by_type" class = "trader_sorting_button" onclick='sortTraderInventory("type")'>
+                                Sort by type
+                        </div>
                         </div>
                         <div id = "trader_category_buttons" class="activable_buttons">
                             <div id = "trader_category_all" class = "trader_category_button active_selection_button" onclick='showAllTraderItems()'>
@@ -597,6 +601,9 @@
                             <div id = "storage_sort_by_price" class = "storage_sorting_button" onclick='sortStorageInventory("price")'>
                                 Sort by value
                             </div>
+                            <div id = "storage_sort_by_type" class = "storage_sorting_button" onclick='sortStorageInventory("type")'>
+                                Sort by type
+                        </div>
                         </div>
                         <div id = "storage_category_buttons" class="activable_buttons">
                             <div id = "storage_category_all" class = "storage_category_button active_selection_button" onclick='showAllStorageItems()'>
@@ -693,16 +700,19 @@
 
                 <div id="skills_and_stances_div" class="box_div">
                     <div id = "skill_list_div">
-                            <div id = "skill_list">
+                        <div id = "skill_list">
+                        </div>
+                        <div id="skill_sorting_buttons" class="activable_buttons">
+                            <div id="skill_sort_by_name" class="skill_sorting_button active_selection_button" onclick='sortSkills({sort_by:"name"})'>
+                                Sort by name
                             </div>
-                            <div id = "skill_sorting_buttons" class="activable_buttons"> 
-                                <div id = "skill_sort_by_name" class = "skill_sorting_button active_selection_button" onclick='sortSkills({sort_by:"name"})'>
-                                    Sort by name
-                                </div>
-                                <div id = "skill_sort_by_level" class = "skill_sorting_button" onclick='sortSkills({sort_by:"level"})'>
-                                    Sort by level
-                                </div>
+                            <div id="skill_sort_by_level" class="skill_sorting_button" onclick='sortSkills({sort_by:"level"})'>
+                                Sort by level
                             </div>
+                            <div id="skill_sort_by_progress" class="skill_sorting_button" onclick='sortSkills({sort_by:"progress"})'>
+                                Sort by progress
+                            </div>
+                        </div>
                     </div>
                     <div id = "stance_list_div">
                         <table id = "stance_list">
@@ -1137,6 +1147,13 @@
                 }
             }
             
+            function changeTab(target, display = 'block') {
+                for (let btn of target.parent.childNodes) {
+                    document.getElementById(btn.dataset.tab).style.display = "none";
+                }
+                document.getElementById(target.dataset.tab).style.display = display;
+            }
+
             function showData() {
                 document.getElementById("data_box_div").style.display = "block";
                 document.getElementById("quests_box_div").style.display = "none";

@@ -14,6 +14,7 @@ class Activity {
                   action_text,
                   base_skills_names,
                   is_unlocked = false,
+                  getBackgroundNoises,
         }) 
     {
         this.name = name;
@@ -24,6 +25,8 @@ class Activity {
         //originally meant to allow multiple, but with current implementation of stuff, doing that would break a lot of things
         this.tags = [];
         this.is_unlocked = is_unlocked;
+
+        this.getBackgroundNoises = getBackgroundNoises || function(){return [];}
     }
 }
 
@@ -49,8 +52,9 @@ class Gathering extends Training {
         base_skills_names,
         is_unlocked = false,
         required_tool_type,
+        getBackgroundNoises = null
     }) {
-        super({name, description, action_text, base_skills_names, is_unlocked});
+        super({name, description, action_text, base_skills_names, is_unlocked, getBackgroundNoises});
         this.type = "GATHERING";
         this.tags["gathering"] = true;
         this.required_tool_type = required_tool_type;
@@ -129,6 +133,7 @@ class Gathering extends Training {
         base_skills_names: ["Mining"],
         is_unlocked: true,
         required_tool_type: "pickaxe",
+        getBackgroundNoises: () => ["clang clang", "clink clink", "tink tink", "crunch", "*Your pickaxe strikes a the heart of the rock*"]
     });
     activities["woodcutting"] = new Gathering({
         name: "woodcutting",
@@ -137,6 +142,7 @@ class Gathering extends Training {
         base_skills_names: ["Woodcutting"],
         is_unlocked: true,
         required_tool_type: "axe",
+        getBackgroundNoises: () => ["chop", "CHOP chop", "chop CHOP", "chop chop", "creeeak", "Sap oozes from the gash", "*Splinters burst from under your axe*", "*A pinecone falls on you*", "*A squirrel is upset with you*"]
     });
 
     activities["herbalism"] = new Gathering({
@@ -146,6 +152,7 @@ class Gathering extends Training {
         base_skills_names: ["Herbalism"],
         is_unlocked: true,
         required_tool_type: "sickle",
+        getBackgroundNoises: () => ["*rustle*", "A frog is watching you work", "You find a particularly impressive snail under a leaf"]
     });
 
     activities["animal care"] = new Gathering({
