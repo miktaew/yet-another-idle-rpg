@@ -133,6 +133,7 @@ class Hero extends InventoryHaver {
                         axe: null, 
                         pickaxe: null,
                         sickle: null,
+                        fishing: null
                 };
                 this.money = 0;
                 this.xp = {

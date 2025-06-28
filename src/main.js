@@ -81,6 +81,7 @@ import { Verify_Game_Objects } from "./verifier.js";
 import { ReputationManager } from "./reputation.js";
 import { quests, questManager, active_quests } from "./quests.js";
 import { get_current_temperature_smoothed, is_raining } from "./weather.js";
+import { init_travelogue } from "./travelogue_module.js"
 
 const save_key = "save data";
 const dev_save_key = "dev save data";
@@ -3619,6 +3620,8 @@ function load(save_data) {
     if(save_data.is_reading) {
         start_reading(save_data.is_reading);
     }
+
+    init_travelogue();
 
     update_displayed_time();
 } 

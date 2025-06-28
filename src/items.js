@@ -927,6 +927,7 @@ function getItem(item_data) {
                 case "axe":
                 case "pickaxe":
                 case "sickle":
+                case "fishing_rod":
                     return new Tool(item_data);
                 case "cape":
                     return new Cape(item_data);
@@ -1079,6 +1080,12 @@ book_stats["Butchering and you"] = new BookData({
     },
 });
 
+book_stats["Test book for testing"] = new BookData({
+    required_time: 1,
+    literacy_xp_rate: 5,
+});
+
+
 //books
 item_templates["ABC for kids"] = new Book({
     name: "ABC for kids",
@@ -1108,6 +1115,12 @@ item_templates["Butchering and you"] = new Book({
     name: "Butchering and you",
     description: "An introductory book to animal butchering, that goes into further detail on how to make a use of animal parts, especially hides and bones.",
     value: 240,
+});
+
+item_templates["Test book for testing"] = new Book({
+    name: "Test book for testing",
+    description: "Test book for testing.",
+    value: 1,
 });
 
 //miscellaneous and useless loot:
@@ -3082,21 +3095,21 @@ item_templates["Butchering and you"] = new Book({
 //tools:
 (function(){
     item_templates["Old pickaxe"] = new Tool({
-        name: "Old pickaxe",
+        name: "Crude pickaxe",
         description: "An old pickaxe that has seen better times, but is still usable",
         value: 10,
         equip_slot: "pickaxe",
     });
 
     item_templates["Old axe"] = new Tool({
-        name: "Old axe",
+        name: "Crude axe",
         description: "An old axe that has seen better times, but is still usable",
         value: 10,
         equip_slot: "axe",
     });
 
     item_templates["Old sickle"] = new Tool({
-        name: "Old sickle",
+        name: "Crude sickle",
         description: "And old herb sickle that has seen better time, but is still usable",
         value: 10,
         equip_slot: "sickle",
@@ -3129,6 +3142,66 @@ item_templates["Butchering and you"] = new Book({
         equip_slot: "sickle",
         bonus_skill_levels: {
             "Herbalism": 3,
+        }
+    });
+
+    item_templates["Steel pickaxe"] = new Tool({
+        name: "Steel pickaxe",
+        description: "A fine pickaxe made of steel, strong enough for most ores",
+        value: 5000,
+        equip_slot: "pickaxe",
+        bonus_skill_levels: {
+            "Mining": 5,
+        }
+    });
+
+    item_templates["Steel chopping axe"] = new Tool({
+        name: "Steel chopping axe",
+        description: "A fine axe made of steel, hard and sharp enough for most of trees.",
+        value: 5000,
+        equip_slot: "axe",
+        bonus_skill_levels: {
+            "Woodcutting": 5,
+        }
+    });
+
+    item_templates["Steel sickle"] = new Tool({
+        name: "Steel sickle",
+        description: "A fine sickle made of steel, sharp enough for most of plants",
+        value: 5000,
+        equip_slot: "sickle",
+        bonus_skill_levels: {
+            "Herbalism": 5,
+        }
+    });
+
+    item_templates["Crude wooden fishing rod"] = new Tool({
+        name: "Crude wooden fishing rod",
+        description: "Little more than a string tied to a stick, but still usable.",
+        value: 10,
+        equip_slot: "fishing",
+        bonus_skill_levels: {
+            "Fishing": 0,
+        }
+    });
+
+    item_templates["Wooden fishing rod"] = new Tool({
+        name: "Wooden fishing rod",
+        description: "Proper fishing rod made of wood, strong enough to pull most fish.",
+        value: 1000,
+        equip_slot: "fishing",
+        bonus_skill_levels: {
+            "Fishing": 3,
+        }
+    });
+
+    item_templates["Ash wood fishing rod"] = new Tool({
+        name: "Ash wood fishing rod",
+        description: "Fine fishing rod made of ash wood, strong enough to pull most fish.",
+        value: 5000,
+        equip_slot: "fishing",
+        bonus_skill_levels: {
+            "Fishing": 5,
         }
     });
 })();

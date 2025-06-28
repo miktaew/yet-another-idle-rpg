@@ -1113,7 +1113,7 @@ i {
 }
 
 .character_sorting_button {
-	float: left;
+    float: left;
 	flex-grow: 1;
 	text-align: center;
 	outline: 1px solid white;
@@ -1208,6 +1208,11 @@ i {
 
 .coin_gold{
 	color:gold;
+}
+
+.activable_buttons {
+	display: flex;
+	flex-wrap: wrap;
 }
 
 .skill_sorting_button {
@@ -1743,37 +1748,38 @@ i {
 		font-size: 20px;
 	}
 		.journal_control_button{
-			float: left;
-			width: 98px;
 			text-align: center;
 			outline: 1px solid white;
 			cursor: pointer;
 			margin: 1px;
 			font-size: 18px;
+			flex-grow: 1;
+			padding-left: 20px;
+			padding-right: 20px;
 		}
 			#story_box_div {
 				width:100%;
 				height: 255px;
 			}
 
-			#data_box_div, #books_box_div{
+			#quests_box_div, #data_box_div, #books_box_div, #travelogue_box_div {
 				width: 100%;
-				height: 300px;
+				height: 280px;
 				display: none;
 				overflow-y: scroll;
 			}
 
 			#quests_box_div {
 				width: 100%;
-				height: 300px;
+				height: 280px;
 				display: block;
 				overflow-y: scroll;
 			}
 
 			#bestiary_box_div{
 				width: 100%;
-				height: 300px;
-				display: none;
+				height: 280px;
+				display: block;
 				overflow-y: scroll;
 			}
 				.bestiary_entry_div, .data_entry, .anthology_entry_div {
@@ -1791,7 +1797,7 @@ i {
 						text-align: left;
 						padding-left: 5px;
 					}
-					.bestiary_entry_kill_count {
+					.bestiary_entry_kill_count{
 						text-align: right;
 						width:90px;
 						padding-right: 5px;
@@ -1912,43 +1918,55 @@ i {
 	top: 36px;
 	border-top: 0px;
 }
-	#location_description_div {
-		height: 113px;
-		font-style: italic;
-		color: rgb(224, 224, 224);
-		padding: 5px;
-		float: none;
-		display: inline-block;
-	}
-	#location_name_div {
-		padding: 4px;
-		width: var(--location_name_div_width);
-		height: fit-content;
-		float: left;
-		z-index: 2;
-		border-bottom: 1px solid white;
-		font-size: 18px;
-	}
-	#location_icon_span i:not(.location_bed_icon):hover {
-		background-color: var(--active_button_color);
-	}
-	#location_icon_span i:not(.location_bed_icon) {
-		cursor: pointer;
-	}
-	#location_types_div {
-		left: 292px;
-		width: 100px;
-		height: 23px;
-		padding: 2px;
-		position: absolute;
-		text-align: right;
-		font-size: 12px;
-		top: 0px;
-	}
-		.location_type_div {
-			float: left;
-			width: 50px;
+		#location_description_div {
+			height: 113px;
+			font-style: italic;
+			color: rgb(224, 224, 224);
+			padding: 5px;
 		}
+
+#time_and_location {
+	left: 410px;
+	width: 400px;
+	font-size: 18px;
+}
+		#location_name_div {
+			padding: 4px;
+			width: var(--location_name_div_width);
+			height:fit-content;
+			float: left;
+			z-index: 2;
+		}
+		#location_icon_span i:not(.location_bed_icon):hover {
+			background-color: var(--active_button_color);
+		}
+		#location_icon_span i:not(.location_bed_icon) {
+			cursor: pointer;
+		}
+
+#location_types_div {
+	left: 292px;
+	width: 100px;
+	height: 23px;
+	padding: 2px;
+	position: absolute;
+	text-align: right;
+	font-size: 12px;
+}
+
+.location_types_div {
+	float: right;
+	width: 100px;
+	height: 23px;
+	padding: 2px;
+/*	position: absolute;*/
+	text-align: right;
+	font-size: 12px;
+}
+			.location_type_div {
+				float: left;
+				width: 50px;
+			}
 
 			.location_type_tooltip {
 				display: none;

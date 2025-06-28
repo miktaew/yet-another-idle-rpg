@@ -26,7 +26,7 @@ class Stance {
         this.id = id;
         this.related_skill = related_skill;
         this.description = description;
-        if(this.target_count < 1) {
+        if(target_count < 1) {
             throw("Combat stance cannot target less than 1 enemy!");
         }  
         this.target_count = target_count;
