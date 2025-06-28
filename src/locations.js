@@ -381,6 +381,7 @@ class LocationActivity{
                  unlock_text,
                  gained_resources,
                  require_tool = false,
+                 applied_effects = [],
                 })
     {
         this.activity_name = activity_name; //name of activity from activities.js
@@ -403,6 +404,8 @@ class LocationActivity{
         this.skill_xp_per_tick = skill_xp_per_tick; //skill xp gained per game tick (default -> 1 in-game minute)
 
         this.require_tool = require_tool; //if false, can be started without tool equipped
+
+        this.applied_effects = applied_effects;
 
         this.gained_resources = gained_resources; 
         //{scales_with_skill: boolean, resource: [{name, ammount: [[min,max], [min,max]], chance: [min,max]}], time_period: [min,max], skill_required: [min_efficiency, max_efficiency]}
@@ -880,12 +883,11 @@ function get_location_type_penalty(type, stage, stat, category) {
     locations["Village"] = new Location({ 
         getDescription: function() {
             if(locations["Infested field"].enemy_groups_killed >= 5 * locations["Infested field"].enemy_count) { 
-                return "Medium-sized village, built next to a small river at the foot of the mountains. It's surrounded by many fields, a few of them infested by huge rats, which, while an annoyance, don't seem possible to fully eradicate. Other than that, there's nothing interesting around";
-            }
-            else if(locations["Infested field"].enemy_groups_killed >= 2 * locations["Infested field"].enemy_count) {
-                return "Medium-sized village, built next to a small river at the foot of the mountains. It's surrounded by many fields, many of them infested by huge rats. Other than that, there's nothing interesting around";
+                return "Medium-sized village, built next to a small and calm river at the foot of the mountains. It's surrounded by many fields, a few of them infested by huge rats, which, while an annoyance, don't seem possible to fully eradicate. Other than that, there's nothing interesting around";
+            } else if(locations["Infested field"].enemy_groups_killed >= 2 * locations["Infested field"].enemy_count) {
+                return "Medium-sized village, built next to a small and calm river at the foot of the mountains. It's surrounded by many fields, many of them infested by huge rats. Other than that, there's nothing interesting around";
             } else {
-                return "Medium-sized village, built next to a small river at the foot of the mountains. It's surrounded by many fields, most of them infested by huge rats. Other than that, there's nothing interesting around"; 
+                return "Medium-sized village, built next to a small and calm river at the foot of the mountains. It's surrounded by many fields, most of them infested by huge rats. Other than that, there's nothing interesting around"; 
             }
         },
         getBackgroundNoises: function() {
@@ -1628,6 +1630,14 @@ There's another gate on the wall in front of you, but you have a strange feeling
             starting_text: "Try to carry some bags of grain",
             skill_xp_per_tick: 1,
             is_unlocked: false,
+        }),
+        "swimming": new LocationActivity({
+            activity_name: "swimming",
+            infinite: true,
+            starting_text: "Swim in the river",
+            skill_xp_per_tick: 1,
+            is_unlocked: false,
+            applied_effects: [{effect: "Wet", duration: 30}],
         }),
         "balancing": new LocationActivity({
             activity_name: "balancing",

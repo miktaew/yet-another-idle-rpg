@@ -83,7 +83,7 @@ effect_templates["Hypothermia"] = new ActiveEffect({
             agility: {multiplier: 0.3},
             health_regeneration_flat: {multiplier: 0.2},
             health_regeneration_percent: {multiplier: 0.2},
-        }
+        },
     },
     group_tags: {cold: 4},
 });

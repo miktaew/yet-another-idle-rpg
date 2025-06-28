@@ -3961,8 +3961,12 @@ function update() {
                     update_displayed_ongoing_activity(current_activity, false);
                 }
 
-                //if gathering: add drops to inventory
-
+                //if effects: add them
+                if(current_activity.applied_effects) {
+                    for(let i = 0; i < current_activity.applied_effects.length; i++) {
+                        add_active_effect(current_activity.applied_effects[i].effect, current_activity.applied_effects[i].duration);
+                    }
+                }
             } else {
                 //no current activity
 
