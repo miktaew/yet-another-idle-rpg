@@ -70,6 +70,9 @@ effect_templates["Freezing"] = new ActiveEffect({
             agility: {multiplier: 0.6},
             health_regeneration_flat: {multiplier: 0.6},
             health_regeneration_percent: {multiplier: 0.6},
+        },
+        xp_multipliers: {
+            all: 0.6,
         }
     },
     group_tags: {cold: 3},
@@ -84,6 +87,9 @@ effect_templates["Hypothermia"] = new ActiveEffect({
             health_regeneration_flat: {multiplier: 0.2},
             health_regeneration_percent: {multiplier: 0.2},
         },
+        xp_multipliers: {
+            all: 0.3,
+        }
     },
     group_tags: {cold: 4},
 });

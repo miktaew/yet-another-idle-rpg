@@ -119,7 +119,8 @@ class Hero extends InventoryHaver {
                                 levels: {},
                                 skills: {},
                                 //equipment: {},
-                                books: {}
+                                books: {},
+                                active_effects: {},
                         }
                 };
                 this.equipment = {
@@ -323,6 +324,9 @@ character.stats.add_active_effect_bonus = function() {
                 }
                 for(const [key, value] of Object.entries(effects.bonus_skill_levels)) {
                         character.bonus_skill_levels.flat.active_effects[key] = (character.bonus_skill_levels.flat.active_effects[key] || 0) + value;
+                }
+                for(const [key, value] of Object.entries(effects.xp_multipliers)) {
+                        character.xp_bonuses.multiplier.active_effects[key] = (character.xp_bonuses.multiplier.active_effects[key] || 0) + value;
                 }
         });
 }
@@ -536,9 +540,10 @@ character.update_stats = function () {
     character.stats.total_flat.attack_power = character.stats.full.attack_power/character.stats.total_multiplier.attack_power;
     Object.keys(character.xp_bonuses.total_multiplier).forEach(bonus_target => {
         character.xp_bonuses.total_multiplier[bonus_target] = 
-                  (character.xp_bonuses.multiplier.levels[bonus_target] || 1) 
-                * (character.xp_bonuses.multiplier.skills[bonus_target] || 1) 
-                * (character.xp_bonuses.multiplier.books[bonus_target] || 1); 
+                  (character.xp_bonuses.multiplier.levels[bonus_target] || 1)
+                * (character.xp_bonuses.multiplier.skills[bonus_target] || 1)
+                * (character.xp_bonuses.multiplier.books[bonus_target] || 1)
+                * (character.xp_bonuses.multiplier.active_effects[bonus_target] || 1);
 
         const bonus = character.xp_bonuses.total_multiplier[bonus_target];
 
@@ -778,7 +783,6 @@ function update_character_stats() {
 /**
  * updates character stats related to combat, things that are more situational and/or based on other stats, kept separately from them
  */
-
 function get_skill_xp_gain(skill_name) {
         const category = "category_"+skills[skill_name].category;
         return (character.xp_bonuses.total_multiplier.all_skill || 1) 
@@ -815,7 +819,7 @@ function get_effect_with_bonuses(active_effect) {
                 }
         });
 
-        let boosted = {stats: {}, bonus_skill_levels: {...active_effect.effects.bonus_skill_levels}};
+        let boosted = {stats: {}, bonus_skill_levels: {...active_effect.effects.bonus_skill_levels}, xp_multipliers: {...active_effect.effects.xp_multipliers}};
         for(const [key, value] of Object.entries(active_effect.effects.stats)) {
                 boosted.stats[key] = {};
                 if(value.flat) {
