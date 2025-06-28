@@ -203,6 +203,7 @@ const options = {
     log_every_gathering_period: true,
     log_total_gathering_gain: true,
     auto_use_when_longest_runs_out: true,
+    use_uncivilised_temperature_scale: false, //true -> swap Celsius for Fahrenheit
 };
 
 let message_log_filters = {
@@ -248,7 +249,7 @@ function option_uniform_textsize(option) {
         document.documentElement.style.setProperty('--options_action_textsize', '16px');
     }
 
-    if(option) {
+    if(option !== undefined) {
         checkbox.checked = option;
     }
 }
@@ -261,7 +262,7 @@ function option_bed_return(option) {
         options.auto_return_to_bed = false;
     }
 
-    if(option) {
+    if(option !== undefined) {
         checkbox.checked = option;
     }
 }
@@ -274,7 +275,7 @@ function option_remember_filters(option) {
         options.remember_message_log_filters = false;
     }
 
-    if(option) {
+    if(option !== undefined) {
         checkbox.checked = option;
 
         if(message_log_filters.unlocks){
@@ -330,7 +331,7 @@ function option_combat_autoswitch(option) {
         options.disable_combat_autoswitch = false;
     }
 
-    if(option) {
+    if(option !== undefined) {
         checkbox.checked = option;
     }
 }
@@ -343,7 +344,8 @@ function option_log_all_gathering(option) {
     } else {
         options.log_every_gathering_period = false;
     }
-    if(option) {
+
+    if(option !== undefined) {
         checkbox.checked = option;
     }
 }
@@ -357,9 +359,24 @@ function option_log_gathering_result(option) {
         options.log_total_gathering_gain = false;
     }
 
-    if(option) {
+    if(option !== undefined) {
         checkbox.checked = option;
     }
+}
+
+function option_use_uncivilised_temperature_scale(option) {
+    const checkbox = document.getElementById("options_use_uncivilised_temperature_scale");
+    if(checkbox.checked || option) {
+        options.use_uncivilised_temperature_scale = true;
+    } else {
+        options.use_uncivilised_temperature_scale = false;
+    }
+
+    if(option !== undefined) {
+        checkbox.checked = option;
+    }
+
+    update_displayed_temperature();
 }
 
 /**
@@ -2801,9 +2818,13 @@ function load(save_data) {
             message_log_filters[filter] = save_data.message_filters[filter] ?? true;
         })
     }
+
     option_remember_filters(options.remember_message_log_filters);
 
+    options.log_every_gathering_period = save_data.options?.log_every_gathering_period;
     option_log_all_gathering(options.log_every_gathering_period);
+
+    options.log_total_gathering_gain = save_data.options?.log_total_gathering_gain;
     option_log_gathering_result(options.log_total_gathering_gain);
 
     //this can be removed at some point
@@ -3566,6 +3587,10 @@ function load(save_data) {
     create_displayed_crafting_recipes();
     change_location(save_data["current location"]);
 
+    //temperature is location dependent so display setting is loaded after location is set
+    options.use_uncivilised_temperature_scale = save_data.options?.use_uncivilised_temperature_scale;
+    option_use_uncivilised_temperature_scale(options.use_uncivilised_temperature_scale);
+
     //set activity if any saved
     if(save_data.current_activity) {
         //search for it in location from save_data
@@ -4162,6 +4187,7 @@ window.option_combat_autoswitch = option_combat_autoswitch;
 window.option_remember_filters = option_remember_filters;
 window.option_log_all_gathering = option_log_all_gathering;
 window.option_log_gathering_result = option_log_gathering_result;
+window.option_use_uncivilised_temperature_scale = option_use_uncivilised_temperature_scale;
 
 window.getDate = get_date;
 
