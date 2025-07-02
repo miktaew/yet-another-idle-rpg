@@ -1609,7 +1609,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activity_name: "fieldwork",
             starting_text: "Work on the fields",
             get_payment: () => {
-                return 10 + Math.round(15 * get_total_skill_level("Farming")/skills["Farming"].max_level);
+                return 15 + Math.round(25 * get_total_skill_level("Farming")/skills["Farming"].max_level);
             },
             is_unlocked: false,
             working_period: 60*2,
@@ -1657,7 +1657,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         "patrolling": new LocationActivity({
             activity_name: "patrolling",
             starting_text: "Go on a patrol around the village.",
-            get_payment: () => {return 30},
+            get_payment: () => {return 50},
             is_unlocked: false,
             infinite: true,
             working_period: 60*2,
@@ -1804,7 +1804,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activity_name: "fieldwork",
             starting_text: "Work on the fields",
             get_payment: () => {
-                return 20 + Math.round(20 * get_total_skill_level("Farming")/skills["Farming"].max_level);
+                return 30 + Math.round(30 * get_total_skill_level("Farming")/skills["Farming"].max_level);
             },
             is_unlocked: false,
             working_period: 60*2,

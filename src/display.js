@@ -4417,12 +4417,12 @@ function add_quest_to_display(quest_id) {
 }
 
 /**
- * 
+ * updates name, description and task list
  * @param {*} quest_id 
  * @returns 
  */
 function update_displayed_quest(quest_id) {
-    if(quest_entry_divs[quest_id]) {
+    if(!quest_entry_divs[quest_id]) {
         console.warn(`Tried to update display of quest "${quest_id}", but it's not in display!`);
         return;
     } else if(quests[quest_id].is_hidden) {
@@ -4430,8 +4430,20 @@ function update_displayed_quest(quest_id) {
         return;
     }
 
-    //todo: update tasks, update name and update description
+    const quest = quests[quest_id];
 
+    const quest_div = document.querySelector(`[data-quest_id="${quest_id}"]`);
+    const quest_name_div = quest_div.querySelector(".quest_name_div");
+    quest_name_div.innerHTML = quest.getQuestName();
+
+    const quest_description_div = quest_div.querySelector(".quest_description_div");
+    quest_description_div.innerHTML = quest.getQuestDescription();
+
+    if(quest.is_finished) {
+        quest_div.classList.add("quest_finished");
+    }
+    
+    update_displayed_quest_tasks(quest_id);
 }
 
 /**
@@ -4444,42 +4456,22 @@ function create_displayed_quest_content(quest_id) {
     const quest = quests[quest_id];
 
     const quest_div = document.createElement("div");
-    const quest_description = document.createElement("div");
-    const quest_name = document.createElement("div");
+    quest_div.dataset.quest_id = quest_id;
+    const quest_description_div = document.createElement("div");
+    const quest_name_div = document.createElement("div");
     quest_div.classList.add("quest_div");
     //add an icon to show whether finished or active
     //add a dropdown icon
 
-    quest_name.innerHTML = quest.getQuestName();
-    quest_name.classList.add("quest_name_div");
+    quest_name_div.innerHTML = quest.getQuestName();
+    quest_name_div.classList.add("quest_name_div");
 
-    quest_description.innerHTML = quest.getQuestDescription(quest_id);
-    quest_description.classList.add("quest_description_div");
-    
-    const quest_tasks_div = document.createElement("div");
-    quest_tasks_div.classList.add("quest_task_list_div");
-    //put task description and tasks into it
-    //set color based on completion status
+    quest_description_div.innerHTML = quest.getQuestDescription();
+    quest_description_div.classList.add("quest_description_div");
 
-    let unfinished_index = quest.is_finished?quest.quest_tasks.length:quest.quest_tasks.findIndex(x => !x.is_finished);
-    //quest finished - no unfinished tasks, need to go through all for display; quest not finished - do a normal search
-
-    for(let i = 0; i < unfinished_index; i++) {
-        if(!quest.quest_tasks[i].is_hidden) {
-            quest_tasks_div.appendChild(create_displayed_quest_task(quest_id, i));
-        }
-    }
-
-    if(!quest.is_finished) {
-        //there should still be an unfinished task left, add it do display as well
-        if(!quest.quest_tasks[unfinished_index].is_hidden) {
-            quest_tasks_div.appendChild(create_displayed_quest_task(quest_id, unfinished_index));
-        }
-    }
-
-    quest_div.appendChild(quest_name);
-    quest_div.appendChild(quest_description);
-    quest_div.appendChild(quest_tasks_div);
+    quest_div.appendChild(quest_name_div);
+    quest_div.appendChild(quest_description_div);
+    quest_div.appendChild(create_displayed_quest_tasks_content(quest_id));
 
     quest_div.addEventListener("click", (event) => {
         if(event.target.classList.contains("quest_name_div")) {
@@ -4488,6 +4480,32 @@ function create_displayed_quest_content(quest_id) {
     });
 
     return quest_div;
+}
+
+function create_displayed_quest_tasks_content(quest_id) {
+    const quest = quests[quest_id];
+    const quest_tasks_div = document.createElement("div");
+    quest_tasks_div.classList.add("quest_task_list_div");
+    //put task description and tasks into it
+    //set color based on completion status
+
+    let unfinished_index = quest.quest_tasks.findIndex(x => !x.is_finished);
+    unfinished_index = unfinished_index==-1?quest.quest_tasks.length:unfinished_index;
+
+    for(let i = 0; i < unfinished_index; i++) {
+        if(!quest.quest_tasks[i].is_hidden) {
+            quest_tasks_div.appendChild(create_displayed_quest_task(quest_id, i));
+        }
+    }
+
+    if(unfinished_index !== quest.quest_tasks.length) {
+        //there should still be an unfinished task left, add it do display as well
+        if(!quest.quest_tasks[unfinished_index].is_hidden) {
+            quest_tasks_div.appendChild(create_displayed_quest_task(quest_id, unfinished_index));
+        }
+    }
+
+    return quest_tasks_div;
 }
 
 function create_displayed_quest_task(quest_id, task_index) {
@@ -4557,8 +4575,20 @@ function create_displayed_quest_task(quest_id, task_index) {
     return task_div;
 }
 
+function update_displayed_quest_task(quest_id, task_index) {
+    const quest_div = document.querySelector(`[data-quest_id="${quest_id}"]`);
+    const quest_task_list_div = quest_div.querySelector(".quest_task_list_div");
+    const task_div = quest_task_list_div.children.item(task_index);
+
+    task_div.replaceWith(create_displayed_quest_task(quest_id, task_index));
+}
+
 function update_displayed_quest_tasks(quest_id) {
-    //todo: just update whole thing
+    const quest_div = document.querySelector(`[data-quest_id="${quest_id}"]`);
+    const tasks_div = quest_div.querySelector(".quest_task_list_div");
+    tasks_div.replaceWith(create_displayed_quest_tasks_content(quest_id)); //replace task list
+    tasks_div.remove();
+    //might need to go deeper with tasks if their content becomes foldable
 }
 
 function update_backup_load_button(date_string){
@@ -4688,27 +4718,20 @@ export {
     update_stance_tooltip,
     update_gathering_tooltip,
     update_displayed_location_types,
-    open_crafting_window,
-    close_crafting_window,
-    switch_crafting_recipes_page,
-    switch_crafting_recipes_subpage,
-    create_displayed_crafting_recipes,
-    update_displayed_component_choice,
-    update_displayed_material_choice,
-    update_recipe_tooltip,
-    update_displayed_crafting_recipes,
-    update_item_recipe_visibility,
-    update_item_recipe_tooltips,
+    open_crafting_window, close_crafting_window,
+    switch_crafting_recipes_page, switch_crafting_recipes_subpage,
+    create_displayed_crafting_recipes, 
+    update_displayed_component_choice, update_displayed_material_choice, 
+    update_recipe_tooltip, update_displayed_crafting_recipes,
+    update_item_recipe_visibility, update_item_recipe_tooltips,
     update_displayed_book,
     update_backup_load_button, update_other_save_load_button,
     start_location_action_display,
     set_location_action_finish_text,
-    update_location_action_progress_bar,
-    update_location_action_finish_button,
-    update_displayed_storage, exit_displayed_storage,
-    update_displayed_storage_inventory,
+    update_location_action_progress_bar, update_location_action_finish_button,
+    update_displayed_storage, exit_displayed_storage, update_displayed_storage_inventory,
     update_location_icon,
     skill_list,
     update_booklist_entry,
-    add_quest_to_display
+    add_quest_to_display, update_displayed_quest, update_displayed_quest_task,
 }

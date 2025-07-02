@@ -92,10 +92,6 @@ function getLootPriceModifier(value, how_many_sold) {
 function getLootPriceModifierMultiple(value, start_count, how_many_to_sell) {
     let sum = 0;
     for(let i = start_count; i < start_count+how_many_to_sell; i++) {
-        /*
-        rounding is necessary to make it be a proper fraction of the value
-        otherwise, there might be cases where trading too much of an item results in small deviation from what it should be
-        */
         sum += getLootPriceModifier(value, i);
     }
     return sum;

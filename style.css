@@ -1714,6 +1714,12 @@ i {
 			.quest_div_expanded :not(.quest_name_div) {
 				display: block;
 			}
+			.quest_finished {
+				color: silver;
+			}
+			.quest_finished .quest_name_div{
+				text-decoration: line-through;
+			}
 		.quest_name_div {
 			font-weight: bold;
 			padding-left: 2px;

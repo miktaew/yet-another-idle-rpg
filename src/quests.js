@@ -1,6 +1,6 @@
 "use strict";
 
-import { add_quest_to_display } from "./display.js";
+import { add_quest_to_display, update_displayed_quest, update_displayed_quest_task } from "./display.js";
 
 const quests = {};
 const active_quests = {};
@@ -108,7 +108,9 @@ const questManager = {
                 quest.is_finished = true;
             }
             delete active_quests[quest_id];
-            //todo: update display if quest is not hidden
+            if(!quests[quest_id].is_hidden) {
+                update_displayed_quest(quest_id);
+            }
         } else {
             console.warn(`Cannot finish quest "${quest_id}", as it's not a currently active quest!`)
         }
@@ -118,7 +120,10 @@ const questManager = {
         if(this.isQuestActive(quest_id)) {
             let quest = quests[quest_id];
             quest.quest_tasks[task_index].is_finished = true;
-            //todo: update display if quest is not hidden
+            if(!quests[quest_id].is_hidden) {
+                update_displayed_quest_task(quest_id, task_index);
+                update_displayed_quest(quest_id);
+            }
         } else {
             console.warn(`Cannot finish task at index ${task_index} for quest "${quest_id}", as it's not a currently active quest!`)
         }
@@ -194,7 +199,9 @@ const questManager = {
             });
 
             if(is_any_met && is_all_met) { //completed
-                this.finishQuestTask(active_quests[active_quest_id].quest_id, current_task_index);
+                this.finishQuestTask(active_quest_id, current_task_index);
+            } else {
+                update_displayed_quest_task(active_quest_id, current_task_index);
             }
 
             const remaining_tasks = active_quests[active_quest_id].quest_tasks.filter(task => !task.is_finished);
@@ -229,6 +236,8 @@ quests["Lost memory"] = new Quest({
     quest_tasks: [
         new QuestTask({task_description: "Find out what happened"}),
         new QuestTask({task_description: "Help with the wolf rat infestation"}),
+        new QuestTask({task_description: "Continue your search"}), //talk to suspicious guy
+        new QuestTask({task_description: "Get into the town"}),
     ]
 });
 
@@ -243,6 +252,20 @@ quests["Test quest"] = new Quest({
                 any: {
                     kill: {
                         "Wolf rat": {target: 10}
+                    }
+                }
+            }
+        }),
+        new QuestTask({
+            task_description: "task 2 blah blah",
+            is_hidden: true,
+        }),
+        new QuestTask({
+            task_description: "task 3 blah blah",
+            task_condition: {
+                any: {
+                    kill: {
+                        "Wolf rat": {target: 20}
                     }
                 }
             }

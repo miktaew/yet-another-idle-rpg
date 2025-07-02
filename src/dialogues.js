@@ -575,6 +575,7 @@ class Textline {
 
     dialogues["cute little rat"] = new Dialogue({
         name: "cute little rat",
+        description: "You see a cute little rat. It appears completely harmless. It has a cute litle crown on its cute little head and is sitting on a cute little comfortable pillow.",
         textlines: {
             "hello": new Textline({ 
                 name: "Uhm, hi?",
@@ -586,7 +587,7 @@ class Textline {
             }),
             "what": new Textline({ 
                 name: "What... are you?",
-                text: "Me name be Ratzor Rathai, the Rat Prince Who Be Promised!",
+                text: "My name be Ratzor Rathai, the Rat Prince Who Be Promised!",
                 rewards: {
                     textlines: [{dialogue: "cute little rat", lines: ["walls"]}],
                 },
@@ -594,7 +595,7 @@ class Textline {
             }),
             "who": new Textline({ 
                 name: "Promised by who?",
-                text: "By my papa, the great Rat God, of course! The He who bring infite rat blessings uppon this dimension!",
+                text: "By my papa, the great Rat God, of course! The He Who Bring Infite Rat Blessings uppon this dimension!",
                 rewards: {
                     textlines: [{dialogue: "cute little rat", lines: ["monsters"]}],
                 },
@@ -609,13 +610,13 @@ class Textline {
                 locks_lines: ["monsters"],
             }),
             "mind": new Textline({ 
-                name: "And you don't mind that I slaughtered them?",
+                name: "And you don't mind that I slaughtered so many rats on my way here?",
                 text: "Why? It's the rule of the world that the strong kill the weak and papa believe it too! Besides, maybe you be join us one day? Embrace the truth of your inner rat and reject the human shell!",
                 locks_lines: ["mind"],
             }),
             "walls": new Textline({ 
                 name: "So some of those wall-like things could have once been human?",
-                text: "Only in soul. They once be acolytes of papa, but not be worthy so be cast down to guard the path.",
+                text: "Only in soul. They be given the blessing of papa, but they try to reject but be too weak to really reject so they end up looking funny.",
                 rewards: {
                     textlines: [{dialogue: "cute little rat", lines: ["walls"]}],
                 },
@@ -630,7 +631,6 @@ class Textline {
                 locks_lines: ["kill"],
             }),
         },
-        description: "You see a cute little rat. It appears completely harmless. It has a cute litle crown on its cute little head and is sitting on a cute little comfortable pillow."
     });
 })();
 

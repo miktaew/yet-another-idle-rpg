@@ -1926,6 +1926,21 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         }
     }
 
+    if(rewards.quests) {
+        for(let i = 0; i < rewards.quests.length; i++) {
+            if(!questManager.isQuestActive(rewards.quests[i])) {
+                questManager.startQuest(rewards.quests[i]);
+            }
+            if(inform_overall) {
+                log_message(`Received a new quest: ${quests(rewards.quests[i]).getQuestName()}`);
+            }
+        }
+    }
+    
+    if(rewards.quest_progress) {
+        //todo: finish a specified quest task
+    }
+
     if(rewards.locks) {
         if(rewards.locks.textlines) {
             Object.keys(rewards.locks.textlines).forEach(dialogue_key => {
@@ -4306,8 +4321,14 @@ sort_displayed_inventory({sort_by: "name", target: "character"});
 //add_active_effect("Hypothermia", 6000);
 
 run();
-
+/*
 questManager.startQuest("Test quest");
+questManager.catchQuestEvent({quest_event_type: "kill", quest_event_target: "Wolf rat", quest_event_count: 1});
+
+setTimeout(()=>{
+    questManager.catchQuestEvent({quest_event_type: "kill", quest_event_target: "Wolf rat", quest_event_count: 9});
+}, 2000);
+*/
 
 //Verify_Game_Objects();
 window.Verify_Game_Objects = Verify_Game_Objects;
