@@ -1,6 +1,7 @@
 "use strict";
 
-import { add_quest_to_display, update_displayed_quest, update_displayed_quest_task } from "./display.js";
+import { add_quest_to_display, log_message, update_displayed_quest, update_displayed_quest_task } from "./display.js";
+import { process_rewards } from "./main.js";
 
 const quests = {};
 const active_quests = {};
@@ -57,21 +58,13 @@ class Quest {
         this.questline = questline;
         this.quest_tasks = quest_tasks;
         this.quest_description = quest_description;
-        this.quest_reward = quest_rewards || {};
+        this.quest_rewards = quest_rewards || {};
         this.is_hidden = is_hidden;
         this.is_finished = is_finished;
         this.is_repeatable = is_repeatable;
         this.quest_condition = quest_condition;
         this.getQuestName = getQuestName;
         this.getQuestDescription = getQuestDescription;
-    }
-
-    getCompletedUniqueTaskCount(){
-        if(this.quest_tasks.length == 0) {
-            return 0;
-        } else {
-            return this.quest_tasks.filter(task => task.is_finished).length;
-        }
     }
 
     getCompletedTaskCount(){
@@ -84,7 +77,7 @@ class Quest {
 }
 
 const questManager = {
-    startQuest(quest_id) {
+    startQuest(quest_id, should_inform = true) {
         const quest = quests[quest_id];
         if((!quest.is_finished || quest.is_repeatable) && !this.isQuestActive(quest_id)) {
             active_quests[quest_id] = new Quest(quests[quest_id]);
@@ -94,6 +87,9 @@ const questManager = {
 
         if(!quest.is_hidden) {
             add_quest_to_display(quest_id);
+            if(should_inform) {
+                log_message(`Started a new quest: ${quests[quest_id].getQuestName()}`);
+            }
         }
     },
 
@@ -101,7 +97,7 @@ const questManager = {
         return active_quests[quest_id];
     },
 
-    finishQuest(quest_id) {
+    finishQuest(quest_id, only_unlocks = false) {
         if(this.isQuestActive(quest_id)) {
             let quest = quests[quest_id];
             if(!quest.is_repeatable) {
@@ -111,12 +107,14 @@ const questManager = {
             if(!quests[quest_id].is_hidden) {
                 update_displayed_quest(quest_id);
             }
+
+            process_rewards({rewards: quests[quest_id].quest_rewards, source_type: "Quest", source_name: quests[quest_id].getQuestName(), only_unlocks: only_unlocks});
         } else {
             console.warn(`Cannot finish quest "${quest_id}", as it's not a currently active quest!`)
         }
     },
 
-    finishQuestTask(quest_id, task_index) {
+    finishQuestTask({quest_id, task_index, only_unlocks, skip_warning = false}) {
         if(this.isQuestActive(quest_id)) {
             let quest = quests[quest_id];
             quest.quest_tasks[task_index].is_finished = true;
@@ -124,8 +122,13 @@ const questManager = {
                 update_displayed_quest_task(quest_id, task_index);
                 update_displayed_quest(quest_id);
             }
+
+            process_rewards({rewards: quest.quest_tasks[task_index].task_rewards, source_type: "Quest", source_name: quests[quest_id].getQuestName(), only_unlocks: only_unlocks});
+
         } else {
-            console.warn(`Cannot finish task at index ${task_index} for quest "${quest_id}", as it's not a currently active quest!`)
+            if(!skip_warning) {
+                console.warn(`Cannot finish task at index ${task_index} for quest "${quest_id}", as it's not a currently active quest!`);
+            }
         }
     },
 
@@ -199,7 +202,7 @@ const questManager = {
             });
 
             if(is_any_met && is_all_met) { //completed
-                this.finishQuestTask(active_quest_id, current_task_index);
+                this.finishQuestTask({quest_id: active_quest_id, task_index: current_task_index});
             } else {
                 update_displayed_quest_task(active_quest_id, current_task_index);
             }
@@ -213,34 +216,43 @@ const questManager = {
 };
 
 quests["Lost memory"] = new Quest({
-    quest_name: "???",
-    getQuestName: ()=>{
-        const completed_tasks = questManager.getCompletedtaskCount();
-        if(completed_tasks == 0) {
-            return "???";
-        } else {
-            return "The Search";
-        }
-    },
+    quest_name: "Lost memory",
+    id: "Lost memory",
     getQuestDescription: ()=>{
-        const completed_tasks = questManager.getCompletedtaskCount();
+        const completed_tasks =  quests["Lost memory"].getCompletedTaskCount(); 
         if(completed_tasks == 0) {
             return "You woke up in some village and you have no idea how you got here or who you are. Just what could have happened?";
         } else if(completed_tasks == 1) {
-            return "You lost your memories after being attacked by unknown assailants and were rescued by local villagers.";
-        } else {
             return "You lost your memories after being attacked by unknown assailants and were rescued by local villagers. You need to find out who, why, and if possible, how to recover them.";
         }
     },
     questline: "Lost memory",
     quest_tasks: [
-        new QuestTask({task_description: "Find out what happened"}),
-        new QuestTask({task_description: "Help with the wolf rat infestation"}),
+        new QuestTask({task_description: "Find out what happened"}), //talk to elder
+        new QuestTask({is_hidden: true}), //so that the 1st task is completed but the next is not yet displayed
+        new QuestTask({task_description: "Help with the wolf rat infestation"}), //talk to elder after dealing with them
         new QuestTask({task_description: "Continue your search"}), //talk to suspicious guy
-        new QuestTask({task_description: "Get into the town"}),
+        new QuestTask({task_description: "Get into the town (tbc)"}), //not yet possible
     ]
 });
 
+quests["The Infinite Rat Saga"] = new Quest({
+    quest_name: "The Infinite Rat Saga",
+    id: "The Infinite Rat Saga",
+    getQuestDescription: ()=>{
+        "You found more rats in the caves. You might as well try getting to the bottom of that issue.";
+    },
+    questline: "The Infinite Rat Saga",
+    quest_tasks: [
+        new QuestTask({task_description: "Go deeper"}), //reach the 'Mysterious gate'
+        new QuestTask({task_description: "Open the mysterious gate"}),
+        new QuestTask({task_description: "Get through the corrupted tunnel"}), 
+        new QuestTask({task_description: "Go even deeper (tbc)"}), //not yet possible to open 2nd gate
+    ]
+});
+
+
+/*
 quests["Test quest"] = new Quest({
     quest_name: "Test quest",
     id: "Test quest",
@@ -270,17 +282,6 @@ quests["Test quest"] = new Quest({
                 }
             }
         }),
-    ]
-})
-
-/*
-quests["Infinite rat saga"] = new Quest({
-    quest_name: "???",
-    id: "Infinite rat saga",
-    quest_description: "",
-    quest_tasks: [
-        new QuestTask({}),
-        
     ]
 });
 */

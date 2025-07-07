@@ -66,6 +66,17 @@
             "region": Number //flat value of rep gained
         }
 
+        quests: [
+            quest_id: String //just an id for unlock
+        ]
+
+        quest_progress: [ 
+            {
+                quest_id: String,
+                task_index: Number,
+            }
+        ]
+
         locks: {
             locations: [String] //an array with location keys
             textlines: {

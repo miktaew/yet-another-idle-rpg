@@ -99,6 +99,10 @@ body {
     }
 }
 
+input[type=checkbox], input[type=radio] {
+	accent-color: rgb(0, 127, 255);
+}
+
 #loading_screen {
 	visibility: visible;
 	width: 100%;
@@ -1705,8 +1709,9 @@ i {
 		margin-bottom: 5px;
 	}
 		.quest_div {
-			border: 1px solid gray;
+			border: 1px solid white;
 			margin-left: 1px;
+			margin-bottom: 3px;
 		}
 		.quest_div :not(.quest_name_div) {
 			display: none;
@@ -1727,7 +1732,8 @@ i {
 		.quest_description_div {
 			font-size: 14px;
 			padding-left: 2px;
-			border-bottom: 1px solid white;
+			border-bottom: 1px solid gray;
+			padding-bottom: 5px;
 		}
 		.task_status_icon {
 			float: left;

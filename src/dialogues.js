@@ -110,6 +110,9 @@ class Textline {
                 locks_lines: ["what happened", "where am i", "dont remember"],
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 1"]}],
+                    quest_progress: [
+                        {quest_id: "Lost memory", task_index: 0},
+                    ]
                 },
             }),
             "where am i": new Textline({
@@ -120,6 +123,9 @@ class Textline {
                 locks_lines: ["what happened", "where am i", "dont remember"],
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 1"]}],
+                    quest_progress: [
+                        {quest_id: "Lost memory", task_index: 0},
+                    ]
                 },
             }),
             "dont remember": new Textline({
@@ -130,6 +136,9 @@ class Textline {
                 locks_lines: ["what happened", "where am i", "dont remember"],
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 1"]}],
+                    quest_progress: [
+                        {quest_id: "Lost memory", task_index: 0},
+                    ]
                 },
             }),
             "about": new Textline({
@@ -156,6 +165,9 @@ class Textline {
                     textlines: [{dialogue: "village elder", lines: ["rats", "ask to leave 2", "equipment"]}],
                     locations: [{location: "Infested field"}],
                     activities: [{location:"Village", activity:"weightlifting"}, {location:"Village",activity:"running"}, {location:"Village",activity:"swimming"}],
+                    quest_progress: [
+                        {quest_id: "Lost memory", task_index: 1},
+                    ]
                 },
                 locks_lines: ["need to"],
             }),
@@ -225,6 +237,9 @@ class Textline {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 4"]}],
                     locations: [{location: "Forest road"}, {location: "Infested field"}, {location: "Nearby cave"}],
                     dialogues: ["village guard"],
+                    quest_progress: [
+                        {quest_id: "Lost memory", task_index: 2},
+                    ]
                 },
                 locks_lines: ["ask to leave 3", "rats", "cleared cave"],
             }),
@@ -245,7 +260,7 @@ class Textline {
                 locks_lines: ["new tunnel"],
             }),
         },
-        description: "You see an older man who, despite his white hair, still has a strong posture. He eyes you curiously."
+        description: "You see an older man who, despite his white hair, still has a strong posture. He eyes you with curiosty."
     });
 
     dialogues["old craftsman"] = new Dialogue({
@@ -431,6 +446,9 @@ class Textline {
                 locks_lines: ["defeated"],
                 rewards: {
                     textlines: [{dialogue: "suspicious man", lines: ["behave", "situation"]}],
+                    quest_progress: [
+                        {quest_id: "Lost memory", task_index: 3},
+                    ]
                 },
             }), 
             "behave": new Textline({ 

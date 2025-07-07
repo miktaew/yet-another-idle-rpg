@@ -46,6 +46,7 @@ effect_templates["Cold"] = new ActiveEffect({
     effects: {
         stats: {
             stamina_efficiency: {multiplier: 0.8},
+            strength: {multiplier: 0.9},
         }
     },
     group_tags: {cold: 1},
@@ -57,6 +58,7 @@ effect_templates["Very cold"] = new ActiveEffect({
             stamina_efficiency: {multiplier: 0.6},
             dexterity: {multiplier: 0.8},
             agility: {multiplier: 0.8},
+            strength: {multiplier: 0.8},
         }
     },
     group_tags: {cold: 2},
@@ -68,6 +70,7 @@ effect_templates["Freezing"] = new ActiveEffect({
             stamina_efficiency: {multiplier: 0.3},
             dexterity: {multiplier: 0.6},
             agility: {multiplier: 0.6},
+            strength: {multiplier: 0.6},
             health_regeneration_flat: {multiplier: 0.6},
             health_regeneration_percent: {multiplier: 0.6},
         },
@@ -84,6 +87,7 @@ effect_templates["Hypothermia"] = new ActiveEffect({
             stamina_efficiency: {multiplier: 0.1},
             dexterity: {multiplier: 0.3},
             agility: {multiplier: 0.3},
+            strength: {multiplier: 0.4},
             health_regeneration_flat: {multiplier: 0.2},
             health_regeneration_percent: {multiplier: 0.2},
         },

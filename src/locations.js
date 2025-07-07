@@ -1141,7 +1141,10 @@ function get_location_type_penalty(type, stage, stat, category) {
         repeatable_reward: {
             xp: 250,
             activities: [{location:"Nearby cave", activity:"meditating"}, {location:"Nearby cave", activity:"mining3"}],
-            actions: [{action: "open the gate", location:"Nearby cave"}]
+            actions: [{action: "open the gate", location:"Nearby cave"}],
+            quest_progress: [
+                {quest_id: "The Infinite Rat Saga", task_index: 1},
+            ]
         },
         is_temperature_static: true,
         static_temperature: 20,
@@ -1172,7 +1175,10 @@ function get_location_type_penalty(type, stage, stat, category) {
         },
         repeatable_reward: {
             xp: 1250,
-            locations: [{location: "Mysterious depths"}]
+            locations: [{location: "Mysterious depths"}],
+            quest_progress: [
+                {quest_id: "The Infinite Rat Saga", task_index: 3},
+            ]
         },
         is_temperature_static: true,
         static_temperature: 20,
@@ -1555,6 +1561,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             locations: [{location: "Hidden tunnel"}],
             textlines: [{dialogue: "village elder", lines: ["new tunnel"]}],
             xp: 20,
+            quests: ["The Infinite Rat Saga"],
         },
         unlock_text: "At some point, one of wolf rats tries to escape through a previously unnoticed hole in a nearby wall. There might be another tunnel behind it!",
         is_under_roof: true,
@@ -1894,6 +1901,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_chances: [1],
             rewards: {
                 locations: [{location: "Writhing tunnel"}],
+                quest_progress: [
+                    {quest_id: "The Infinite Rat Saga", task_index: 2},
+                ]
             },
         }),
         "climb the mountain": new LocationAction({

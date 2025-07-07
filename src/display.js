@@ -4576,6 +4576,10 @@ function create_displayed_quest_task(quest_id, task_index) {
 }
 
 function update_displayed_quest_task(quest_id, task_index) {
+    const quest = quests[quest_id];
+    if(quest.quest_tasks[task_index].is_hidden) {
+        return;
+    }
     const quest_div = document.querySelector(`[data-quest_id="${quest_id}"]`);
     const quest_task_list_div = quest_div.querySelector(".quest_task_list_div");
     const task_div = quest_task_list_div.children.item(task_index);

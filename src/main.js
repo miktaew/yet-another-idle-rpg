@@ -826,6 +826,8 @@ function do_reading() {
         log_message(`Finished the book "${is_reading}"`);
         update_booklist_entry(is_reading, true);
         end_reading();
+
+        character.stats.add_book_bonus(book.bonuses);
         update_character_stats();
         process_rewards({rewards: book.rewards});
     }
@@ -1714,10 +1716,11 @@ function add_xp_to_character(xp_to_add, should_info = true, use_bonus) {
 function get_location_rewards(location) {
 
     let should_return = false;
-    if(location.enemy_groups_killed == location.enemy_count) { //first clear
+
+    if(location.enemy_groups_killed == location.enemy_count || location.is_challenge) { //first clear
 
         if(location.is_challenge) {
-            lock_location({location});
+            lock_location({location, challenge_self_lock: true});
         }
         should_return = true;
         
@@ -1936,9 +1939,21 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
             }
         }
     }
-    
+
     if(rewards.quest_progress) {
-        //todo: finish a specified quest task
+        for(let i = 0; i < rewards.quest_progress.length; i++) {
+            const quest_id = rewards.quest_progress[i].quest_id;
+            const task_index = rewards.quest_progress[i].task_index;
+
+            if(task_index == quests[quest_id].getCompletedTaskCount()) {
+                console.log(quests[quest_id])
+                if(quests[quest_id]?.quest_tasks[task_index]) {
+                    questManager.finishQuestTask({quest_id: quest_id, task_index: task_index, skip_warning: true});
+                } else {
+                    console.warn(`Tried to complete ${task_index}'th task for quest '${quest_id}', but either quest or index does not exist!`);
+                }
+            }
+        }
     }
 
     if(rewards.locks) {
@@ -2008,10 +2023,12 @@ function unlock_location({location, skip_message}) {
     }
 }
 
-function lock_location({location}) {
+function lock_location({location, challenge_self_lock = false}) {
     if(favourite_locations[location.id]) {
         delete favourite_locations[location.id];
-        remove_fast_travel_choice({location_id: location.id});
+        if(!challenge_self_lock) {
+            remove_fast_travel_choice({location_id: location.id});
+        }
     }
 
     location.is_finished = true;
@@ -4251,11 +4268,12 @@ document.getElementById("loading_screen").style.visibility = "hidden";
 
 
 function add_stuff_for_testing() {
-    add_to_character_inventory([
-        {item: getItem({...item_templates["Iron spear"], quality: 1}), count: 100},
-        {item: getItem({...item_templates["Iron spear"], quality: 2}), count: 100},
-        {item: getItem({...item_templates["Iron spear"], quality: 1}), count: 1},
-    ]);
+    const items = [];
+    for(let i = 1; i < 250; i++) {
+        items.push({item_id: "Iron sword", quality:i});
+        items.push({item_id: "Cheap iron sword", quality:i});
+    }
+    add_to_character_inventory(items);
 }
 
 function add_all_stuff_to_inventory(count = 10){
@@ -4306,8 +4324,7 @@ function add_active_effect(effect_key, duration){
     update_character_stats();
 }
 
-
-//add_to_character_inventory([{item_id: "Healing powder", count: 1000}]);
+//add_to_character_inventory([{item_id: "ABC for kids", count: 1000}]);
 //add_to_character_inventory([{item_id: "Medicine for dummies", count: 10}]);
 
 //add_stuff_for_testing();
@@ -4318,9 +4335,12 @@ function add_active_effect(effect_key, duration){
 update_displayed_equipment();
 sort_displayed_inventory({sort_by: "name", target: "character"});
 
-//add_active_effect("Hypothermia", 6000);
+//add_active_effect("Hypothermia", 60);
 
 run();
+
+questManager.startQuest("Lost memory");
+
 /*
 questManager.startQuest("Test quest");
 questManager.catchQuestEvent({quest_event_type: "kill", quest_event_target: "Wolf rat", quest_event_count: 1});
@@ -4373,5 +4393,6 @@ export { current_enemies, can_work,
         character_equip_item,
         unlocked_beds,
         favourite_consumables,
-        remove_consumable_from_favourites
+        remove_consumable_from_favourites,
+        process_rewards
 };
