@@ -119,6 +119,15 @@ input[type=checkbox], input[type=radio] {
 	align-items: center;
 }
 
+#background_canvas {
+	position: absolute;
+	pointer-events: none;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+}
+
 .box_div {
 	background-image: var(--background_gradient);
 	border: 3px solid #797691;

@@ -1143,7 +1143,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             activities: [{location:"Nearby cave", activity:"meditating"}, {location:"Nearby cave", activity:"mining3"}],
             actions: [{action: "open the gate", location:"Nearby cave"}],
             quest_progress: [
-                {quest_id: "The Infinite Rat Saga", task_index: 1},
+                {quest_id: "The Infinite Rat Saga", task_index: 0},
             ]
         },
         is_temperature_static: true,
@@ -1177,7 +1177,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             xp: 1250,
             locations: [{location: "Mysterious depths"}],
             quest_progress: [
-                {quest_id: "The Infinite Rat Saga", task_index: 3},
+                {quest_id: "The Infinite Rat Saga", task_index: 2},
             ]
         },
         is_temperature_static: true,
@@ -1902,7 +1902,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             rewards: {
                 locations: [{location: "Writhing tunnel"}],
                 quest_progress: [
-                    {quest_id: "The Infinite Rat Saga", task_index: 2},
+                    {quest_id: "The Infinite Rat Saga", task_index: 1},
                 ]
             },
         }),

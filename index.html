@@ -1020,12 +1020,21 @@
                     <input type="checkbox" id="options_use_uncivilised_temperature_scale" name="options_use_uncivilised_temperature_scale" value="options_use_uncivilised_temperature_scale" onclick = "option_use_uncivilised_temperature_scale()">
                     <label for="options_use_uncivilised_temperature_scale">Use Fahrenheit instead of Celsius</label>
                 </div>
+                <div class="options_choice">
+                    <input type="checkbox" id="options_do_background_animations" name="options_do_background_animations" value="options_do_background_animations" onclick = "option_do_background_animations()">
+                    <label for="options_do_background_animations">Enable rain/snow animations</label>
+                </div>
+
             </div>
             <div id="close_options" onclick="closeOptions()"> X </div>
             <div id = "backup_load_button" class="options_button" onclick = "loadTheBackup()">Load the backup autosave</div>
             <div id = "import_other_save_button" class="options_button" onclick = "importOtherSave()"> Import save from </div>
             <div id = "hard_reset_button" class="options_button" onclick = "hardReset()"> Hard reset the game <i class="material-icons"> warning_amber </i> </div>
         </div>
+
+        <canvas id="background_canvas">
+
+        </canvas>
 
         <script>
             function openOptions() {

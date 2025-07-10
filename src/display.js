@@ -15,7 +15,7 @@ import { current_enemies, options,
     favourite_consumables} from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
-import { format_time, current_game_time, is_night, seasons } from "./game_time.js";
+import { format_time, current_game_time, seasons } from "./game_time.js";
 import { book_stats, item_templates, Weapon, Armor, Shield, rarity_multipliers, getItemRarity, getItemFromKey } from "./items.js";
 import { favourite_locations, get_location_type_penalty, location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
@@ -24,8 +24,9 @@ import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { effect_templates } from "./active_effects.js";
 import { player_storage } from "./storage.js";
-import { questManager, quests } from "./quests.js";
+import { quests } from "./quests.js";
 import { get_current_temperature_smoothed, is_raining } from "./weather.js";
+import { BackgroundParticle } from "./particles.js";
 
 let activity_anim; //for the activity and locationAction animation interval
 
@@ -38,6 +39,13 @@ const location_name_span = document.getElementById("location_name_span");
 const location_icon_span = document.getElementById("location_icon_span");
 const location_types_div = document.getElementById("location_types_div");
 const location_tooltip = document.getElementById("location_name_tooltip");
+
+//for visual effects
+let canvas;
+let context;
+let background_animation;
+let background_animation_timeout;
+let background_animation_particles = [];
 
 //inventory display
 const inventory_div = document.getElementById("inventory_content_div");
@@ -466,8 +474,9 @@ function create_effect_tooltip({effect_name, duration, add_bonus=false}) {
             const sign = stat_value.flat > 0? "+":"";
             tooltip.innerHTML += `: ${sign}${Math.round(100*stat_value.flat)/100}`;
             flat = true;
-        }
 
+            
+        }
         if(stat_value.multiplier) {
             if(flat) {
                 tooltip.innerHTML += `, x${Math.round(100*stat_value.multiplier)/100}`;
@@ -4411,9 +4420,15 @@ function add_quest_to_display(quest_id) {
         return;
     }
 
+    const quest = quests[quest_id];
+
     const quest_div = create_displayed_quest_content(quest_id);
     quest_entry_divs[quest_id] = quest_div;
     quest_list.appendChild(quest_div);
+
+    if(quest.is_finished) {
+        quest_div.classList.add("quest_finished");
+    }
 }
 
 /**
@@ -4580,9 +4595,10 @@ function update_displayed_quest_task(quest_id, task_index) {
     if(quest.quest_tasks[task_index].is_hidden) {
         return;
     }
+
     const quest_div = document.querySelector(`[data-quest_id="${quest_id}"]`);
     const quest_task_list_div = quest_div.querySelector(".quest_task_list_div");
-    const task_div = quest_task_list_div.children.item(task_index);
+    const task_div = quest_task_list_div.children.item(task_index) || quest_task_list_div.children.item(task_index-1);
 
     task_div.replaceWith(create_displayed_quest_task(quest_id, task_index));
 }
@@ -4593,6 +4609,47 @@ function update_displayed_quest_tasks(quest_id) {
     tasks_div.replaceWith(create_displayed_quest_tasks_content(quest_id)); //replace task list
     tasks_div.remove();
     //might need to go deeper with tasks if their content becomes foldable
+}
+
+function start_rain_animation() {
+    start_background_animation("rain");
+}
+
+function start_snow_animation() {
+    start_background_animation("snow");
+}
+
+function start_background_animation(type) {
+    canvas = document.getElementById("background_canvas");
+    context = canvas.getContext("2d");
+    canvas.width = context.canvas.clientWidth;
+    stop_background_animation();
+    
+    canvas.height = context.canvas.clientHeight;
+    background_animation_particles = [];
+    for(let i = 0; i < Math.ceil((canvas.width*canvas.height)/5000); i++) {
+        background_animation_particles.push(new BackgroundParticle({type, canvas, context}));
+    }
+
+    do_background_animation();
+}
+
+function stop_background_animation() {
+    canvas = canvas || document.getElementById("background_canvas");
+    context = context || canvas.getContext("2d");
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    cancelAnimationFrame(background_animation);
+    clearTimeout(background_animation_timeout);
+}
+
+function do_background_animation() {
+    background_animation_timeout = setTimeout(() => {
+        background_animation = requestAnimationFrame(do_background_animation);
+        context.clearRect(0,0,canvas.width, canvas.height);
+        for(let i = 0; i < background_animation_particles.length; i++) {
+            background_animation_particles[i].draw();
+        }
+    }, 1000/60);
 }
 
 function update_backup_load_button(date_string){
@@ -4737,5 +4794,6 @@ export {
     update_location_icon,
     skill_list,
     update_booklist_entry,
-    add_quest_to_display, update_displayed_quest, update_displayed_quest_task,
+    add_quest_to_display, update_displayed_quest, update_displayed_quest_task, 
+    start_rain_animation, start_snow_animation, stop_background_animation
 }

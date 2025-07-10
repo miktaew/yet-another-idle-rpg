@@ -240,11 +240,11 @@ quests["The Infinite Rat Saga"] = new Quest({
     quest_name: "The Infinite Rat Saga",
     id: "The Infinite Rat Saga",
     getQuestDescription: ()=>{
-        "You found more rats in the caves. You might as well try getting to the bottom of that issue.";
+        return "You found more rats in the caves. You might as well try getting to the bottom of that issue.";
     },
     questline: "The Infinite Rat Saga",
     quest_tasks: [
-        new QuestTask({task_description: "Go deeper"}), //reach the 'Mysterious gate'
+        new QuestTask({task_description: "Go deeper"}), //beat the 'Mysterious gate'
         new QuestTask({task_description: "Open the mysterious gate"}),
         new QuestTask({task_description: "Get through the corrupted tunnel"}), 
         new QuestTask({task_description: "Go even deeper (tbc)"}), //not yet possible to open 2nd gate
