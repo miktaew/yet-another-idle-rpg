@@ -116,6 +116,12 @@ let total_hits_taken = 0;
 let strongest_hit = 0;
 let gathered_materials = {};
 
+//
+const trade_price_recovery_flat = 5;//
+const trade_price_recovery_ratio = 1/360; //
+//larger of two (sold count * ratio or flat value)
+
+
 //temperature
 let current_temperature = 20;
 
@@ -3980,7 +3986,7 @@ function update() {
 
         const curr_day = current_game_time.day;
         if(curr_day > prev_day) {
-            recoverItemPrices();
+            recoverItemPrices(trade_price_recovery_flat, trade_price_recovery_ratio);
             update_displayed_character_inventory();
         }
 

@@ -20,6 +20,7 @@ class Location {
                 is_finished = false,
                 dialogues = [], 
                 traders = [],
+                market_region = null,
                 types = [], //{type, xp per tick}
                 housing = {},
                 light_level = "normal",
@@ -49,6 +50,7 @@ class Location {
         this.is_finished = is_finished; //for when it's in any way or form "completed" and player shouldn't be allowed back
         this.dialogues = dialogues;
         this.traders = traders;
+        this.market_region = market_region; //for separate regions for market saturation
         this.activities = {};
         this.actions = {};
         this.types = types;
@@ -910,6 +912,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         },
         dialogues: ["village elder", "village guard", "old craftsman"],
         traders: ["village trader"],
+        market_region: "Village",
         name: "Village", 
         crafting: {
             is_unlocked: true, 
@@ -1334,6 +1337,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         is_unlocked: true,
         dialogues: ["suspicious man"],
         traders: ["suspicious trader", "suspicious trader 2"],
+        market_region: "Slums",
         temperature_range_modifier: 0.9,
         getBackgroundNoises: function() {
             let noises = ["Cough cough", "*You hear someone sobbing*", "*You see someone sleeping in an alleyway.*"];

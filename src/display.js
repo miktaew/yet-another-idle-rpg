@@ -425,9 +425,9 @@ function create_item_tooltip_content({item, options={}}) {
     }
 
     if(!options.skip_quality && options?.quality?.length == 2) { 
-        item_tooltip += `<br>Value: ${format_money(round_item_price(item.getValue(options.quality[0])))} - ${format_money(round_item_price(item.getValue(options.quality[1])))}`;
+        item_tooltip += `<br>Value: ${format_money(round_item_price(item.getBaseValue(options.quality[0])))} - ${format_money(round_item_price(item.getBaseValue(options.quality[1])))}`;
     } else {
-        item_tooltip += `<br>Value: ${format_money(round_item_price(item.getValue(quality) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}`;
+        item_tooltip += `<br>Value: ${format_money(round_item_price(item.getBaseValue(quality) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}`;
     }
     if(item.saturates_market) {
         item_tooltip += ` [originally ${format_money(round_item_price(item.getBaseValue(quality) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}]`
@@ -1146,7 +1146,7 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
                 //do it only when opening trader, not on in-trade refreshes
                 if(is_newly_open) {
                     const price_span = trader_item_divs[inventory_key].getElementsByClassName("item_value")[0];
-                    price_span.innerHTML =  `${format_money(round_item_price(trader.inventory[inventory_key].item.getValue()*(traders[current_trader].getProfitMargin() || 1)), true)}`;
+                    price_span.innerHTML =  `${format_money(round_item_price(trader.inventory[inventory_key].item.getValue(current_location.market_region)*(traders[current_trader].getProfitMargin() || 1)), true)}`;
                 }
             }
         });
@@ -1489,7 +1489,7 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
     item_control_div.classList.add(`${item_class}_control`, `${target_class_name}_control`, `${target_class_name}_${target_item.item_type.toLowerCase()}`);
     item_control_div.setAttribute(`data-${target_class_name}`, `${target_item.getInventoryKey()}`)
     item_control_div.setAttribute("data-item_count", `${item_count}`)
-    item_control_div.setAttribute("data-item_value", `${target_item.getValue()}`); //is only used as sorting param
+    item_control_div.setAttribute("data-item_value", `${target_item.getBaseValue()}`); //is only used as sorting param
     item_control_div.appendChild(item_div);
 
     if(target === "character") {
@@ -1533,7 +1533,7 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
     item_additional.appendChild(create_trade_buttons());
 
     let item_value_span = document.createElement("span");
-    item_value_span.innerHTML = `${format_money(round_item_price(target_item.getValue()*price_multiplier), true)}`;
+    item_value_span.innerHTML = `${format_money(round_item_price(target_item.getBaseValue()*price_multiplier), true)}`;
     item_value_span.classList.add("item_value", "item_controls");
     item_additional.appendChild(item_value_span);
     item_control_div.appendChild(item_additional);
@@ -2747,7 +2747,7 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
                     }
                 });
 
-                mats = mats.sort((a,b) => a.item.getValue()-b.item.getValue());
+                mats = mats.sort((a,b) => a.item.getBaseValue()-b.item.getBaseValue());
                 let any_available = false;
                 let mat_list = "";
                 for(let j = 0; j < mats.length; j++) {
