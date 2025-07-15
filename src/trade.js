@@ -5,7 +5,8 @@ import { update_displayed_trader, update_displayed_trader_inventory,
          update_displayed_character_inventory, exit_displayed_trade, update_displayed_money } from "./display.js";
 import { add_to_character_inventory, remove_from_character_inventory } from "./character.js";
 import { skills } from "./skills.js";
-import { getEquipmentValue, item_templates, loot_sold_count } from "./items.js";
+import { getEquipmentValue, getItemFromKey, item_templates } from "./items.js";
+import { add_to_sold, remove_from_sold } from "./market_saturation.js";
 import { character } from "./character.js";
 import { add_xp_to_skill, current_location } from "./main.js";
 import { round_item_price } from "./misc.js";
@@ -13,28 +14,6 @@ import { round_item_price } from "./misc.js";
 let current_trader = null;
 const to_sell = {value: 0, items: []};
 const to_buy = {value: 0, items: []};
-
-//direct connections for resource trickle
-const market_region_mapping = {
-    "Village": ["Slums"],
-};
-
-//for easier management, make it symmetrical
-Object.keys(market_region_mapping).forEach(region =>{
-    for(let i = 0; i < market_region_mapping[region].length; i++) {
-        if(!market_region_mapping[market_region_mapping[region][i]]) {
-            market_region_mapping[market_region_mapping[region][i]] = [region];
-        } else {
-            if(!market_region_mapping[market_region_mapping[region][i]].includes(region)) {
-                market_region_mapping[market_region_mapping[region][i]].push(region);
-            }
-        }
-    }
-});
-
-function getMarketSaturationGroupCount(market_saturation_group) {
-
-}
 
 function set_current_trader(trader_key) {
     current_trader = trader_key;
@@ -85,12 +64,18 @@ function accept_trade() {
             //add to character inventory
             //remove from trader inventory
 
-            const item = to_buy.items.pop();
+            const trade_item = to_buy.items.pop();
             
-            item.item_count = item.count;
-            to_remove.push(item);
+            trade_item.item_count = trade_item.count;
+            to_remove.push(trade_item);
 
-            item_list.push({item_key: item.item_key, count: item.count});
+            item_list.push({item_key: trade_item.item_key, count: trade_item.count});
+
+            const item = getItemFromKey(trade_item.item_key);
+            const {group_key, group_tier} = item.getMarketSaturationGroup();
+            if(item.saturates_market) {
+                remove_from_sold({group_key, group_tier, count: item.count, region: current_location.market_region});
+            }
         }
         
         if(to_remove.length > 0) {
@@ -110,19 +95,17 @@ function accept_trade() {
             //remove from character inventory
             //add to trader inventory
             
-            const item = to_sell.items.pop();
+            const trade_item = to_sell.items.pop();
             
-            item.item_count = item.count;
-            to_remove.push(item);
+            trade_item.item_count = trade_item.count;
+            to_remove.push(trade_item);
 
-            item_list.push({item_key: item.item_key, count: item.count});
+            item_list.push({item_key: trade_item.item_key, count: trade_item.count});
         
-            const {id} = JSON.parse(item.item_key);
-            if(id && item_templates[id]?.saturates_market) {
-                if(!loot_sold_count[id]) {
-                    loot_sold_count[id] = {sold: 0, recovered: 0};
-                }
-                loot_sold_count[id].sold = loot_sold_count[id]?.sold + (item.count || 1);
+            const item = getItemFromKey(trade_item.item_key);
+            const {group_key, group_tier} = item.getMarketSaturationGroup();
+            if(item.saturates_market) {
+                add_to_sold({group_key, group_tier, count: item.count, region: current_location.market_region});
             }
         }
         
@@ -216,9 +199,9 @@ function is_in_trade() {
 }
 
 function add_to_selling_list(selected_item) {
-
     const present_item = to_sell.items.find(a => a.item_key === selected_item.item_key);
     //find if item is already present in the sell list
+
     let item_count_in_player = character.inventory[selected_item.item_key].count;
 
     if(present_item) {
