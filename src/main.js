@@ -69,7 +69,11 @@ import { end_activity_animation,
          update_location_icon,
          skill_list,
          update_booklist_entry,
-         update_displayed_temperature
+         update_displayed_temperature,
+         update_displayed_quest,
+         start_rain_animation,
+         start_snow_animation,
+         stop_background_animation
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -112,11 +116,19 @@ let total_hits_taken = 0;
 let strongest_hit = 0;
 let gathered_materials = {};
 
+//
+const trade_price_recovery_flat = 5;//
+const trade_price_recovery_ratio = 1/360; //
+//larger of two (sold count * ratio or flat value)
+
+
 //temperature
 let current_temperature = 20;
 
 let rain_counter = 0;
 const cold_status_counters = [0,0,0,0];
+
+let was_raining = false;
 
 //current enemy
 let current_enemies = null;
@@ -187,6 +199,9 @@ const faved_stances = {};
 const favourite_consumables = {};
 //consumables that are to be used automatically if their effect runs out
 
+//stupid little thing for a stupid easter egg
+const is_rat = () => character.name.match(/rat/i);
+
 const tickrate = 1;
 //how many ticks per second
 //1 is the default value; going too high might make the game unstable
@@ -204,6 +219,7 @@ const options = {
     log_total_gathering_gain: true,
     auto_use_when_longest_runs_out: true,
     use_uncivilised_temperature_scale: false, //true -> swap Celsius for Fahrenheit
+    do_background_animations: true,
 };
 
 let message_log_filters = {
@@ -377,6 +393,20 @@ function option_use_uncivilised_temperature_scale(option) {
     }
 
     update_displayed_temperature();
+}
+
+function option_do_background_animations(option) {
+    const checkbox = document.getElementById("options_do_background_animations");
+    if(checkbox.checked || option) {
+        options.do_background_animations = true;
+    } else {
+        options.do_background_animations = false;
+        stop_background_animation();
+    }
+
+    if(option !== undefined) {
+        checkbox.checked = option;
+    }
 }
 
 /**
@@ -826,6 +856,8 @@ function do_reading() {
         log_message(`Finished the book "${is_reading}"`);
         update_booklist_entry(is_reading, true);
         end_reading();
+
+        character.stats.add_book_bonus(book.bonuses);
         update_character_stats();
         process_rewards({rewards: book.rewards});
     }
@@ -954,7 +986,19 @@ function start_textline(textline_key){
     }
 
     start_dialogue(current_dialogue);
-    update_displayed_textline_answer({text: textline.text});
+    let text = textline.text;
+
+    //a very stupid easter egg that totally won't be annoying - 1% chance to have a random word in dialogue replaced with "rat" if your hero's name contains that word
+    if(is_rat()) {
+        if(Math.random() <= 0.01) {
+            const words = text.split(" ");
+            const index = Math.floor(words.length * Math.random());
+            words[index] = "rat";
+            text = words.join(" ");
+        }
+    }
+
+    update_displayed_textline_answer({text: text});
 }
 
 function unlock_combat_stance(stance_id) {
@@ -1714,10 +1758,11 @@ function add_xp_to_character(xp_to_add, should_info = true, use_bonus) {
 function get_location_rewards(location) {
 
     let should_return = false;
-    if(location.enemy_groups_killed == location.enemy_count) { //first clear
+
+    if(location.enemy_groups_killed == location.enemy_count || location.is_challenge) { //first clear
 
         if(location.is_challenge) {
-            lock_location({location});
+            lock_location({location, challenge_self_lock: true});
         }
         should_return = true;
         
@@ -1926,6 +1971,32 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         }
     }
 
+    if(rewards.quests) {
+        for(let i = 0; i < rewards.quests.length; i++) {
+            if(!questManager.isQuestActive(rewards.quests[i])) {
+                questManager.startQuest(rewards.quests[i]);
+            }
+            if(inform_overall) {
+                log_message(`Received a new quest: ${quests(rewards.quests[i]).getQuestName()}`);
+            }
+        }
+    }
+
+    if(rewards.quest_progress) {
+        for(let i = 0; i < rewards.quest_progress.length; i++) {
+            const quest_id = rewards.quest_progress[i].quest_id;
+            const task_index = rewards.quest_progress[i].task_index;
+
+            if(task_index == quests[quest_id].getCompletedTaskCount()) {
+                if(quests[quest_id]?.quest_tasks[task_index]) {
+                    questManager.finishQuestTask({quest_id: quest_id, task_index: task_index, skip_warning: true});
+                } else {
+                    console.warn(`Tried to complete ${task_index}'th task for quest '${quest_id}', but either quest or index does not exist!`);
+                }
+            }
+        }
+    }
+
     if(rewards.locks) {
         if(rewards.locks.textlines) {
             Object.keys(rewards.locks.textlines).forEach(dialogue_key => {
@@ -1993,10 +2064,12 @@ function unlock_location({location, skip_message}) {
     }
 }
 
-function lock_location({location}) {
+function lock_location({location, challenge_self_lock = false}) {
     if(favourite_locations[location.id]) {
         delete favourite_locations[location.id];
-        remove_fast_travel_choice({location_id: location.id});
+        if(!challenge_self_lock) {
+            remove_fast_travel_choice({location_id: location.id});
+        }
     }
 
     location.is_finished = true;
@@ -2479,6 +2552,40 @@ function change_consumable_favourite_status(item_id) {
     }
 }
 
+function add_active_effect(effect_key, duration){
+    let do_not_apply_because_stronger_is_active = false; //readable names are good, right?
+    Object.keys(active_effects).forEach(effect => {
+        if(do_not_apply_because_stronger_is_active) {
+            return;
+        }
+        Object.keys(effect_templates[effect].group_tags).forEach(group_tag => {
+            if(do_not_apply_because_stronger_is_active) {
+                return;
+            }
+            if(group_tag in effect_templates[effect_key].group_tags) {
+                if(effect_templates[effect].group_tags[group_tag] > effect_templates[effect_key].group_tags[group_tag]) {
+                    //stronger effect is active, skip
+                    do_not_apply_because_stronger_is_active = true; 
+                } else {
+                    //aply the effect normally, remove the weaker
+                    delete active_effects[effect];
+                }
+            }
+        });
+    });
+
+    if(do_not_apply_because_stronger_is_active) {
+        //shouldn't need any recalculations or display updates as nothing was changed
+        return;
+    }
+    active_effects[effect_key] = new ActiveEffect({...effect_templates[effect_key], duration});
+    character.stats.add_active_effect_bonus();
+    update_displayed_effects();
+    update_character_stats();
+}
+
+
+
 function get_date() {
     const date = new Date();
     const year = date.getFullYear();
@@ -2552,7 +2659,7 @@ function create_save() {
        
         //Object.keys(character.equipment).forEach(key =>{
             //save_data["character"].equipment[key] = true;
-            //todo: need to rewrite equipment loading first
+            //need to rewrite equipment loading first
         //});
 
         save_data["favourite_consumables"] = favourite_consumables;
@@ -2690,6 +2797,29 @@ function create_save() {
             }
         });
 
+        save_data["quests"] = {};
+        Object.keys(quests).forEach(quest_id => {
+            //save quest status and their tasks' statuses
+
+            save_data["quests"][quest_id] = {
+                is_active: quest_id in active_quests,
+                is_finished: quests[quest_id].is_finished,
+                task_status: [],
+            };
+
+            for(let i = 0; i < quests[quest_id].quest_tasks.length; i++) {
+                if(quests[quest_id].quest_tasks[i].is_finished) {
+                    save_data["quests"][quest_id].task_status[i] = {is_finished: true};
+                } else {
+                    if(quest_id in active_quests){
+                        //save the progress and return, as only up to the first not-completed needs to be saved, anything after that cannot have  progress
+                        save_data["quests"][quest_id].task_status[i] = {progress: active_quests[quest_id].quest_tasks[i].task_condition};
+                        return;
+                    }
+                }
+            }
+        });
+
         save_data["is_reading"] = is_reading;
 
         save_data["is_sleeping"] = is_sleeping;
@@ -2753,13 +2883,11 @@ function save_to_localStorage({key, is_manual}) {
     const save = create_save();
     if(save) {
         localStorage.setItem(key, save);
+        if(is_manual) {
+            log_message("Saved the game manually");
+            save_counter = 0;
+        }
     }
-    
-    if(is_manual) {
-        log_message("Saved the game manually");
-        save_counter = 0;
-    }
-
     return JSON.parse(save).saved_at;
 }
 
@@ -2826,6 +2954,9 @@ function load(save_data) {
 
     options.log_total_gathering_gain = save_data.options?.log_total_gathering_gain;
     option_log_gathering_result(options.log_total_gathering_gain);
+
+    options.do_background_animations = save_data.options?.do_background_animations;
+    option_do_background_animations(options.do_background_animations);
 
     //this can be removed at some point
     const is_from_before_eco_rework = compare_game_version("v0.3.5", save_data["game version"]) == 1;
@@ -3538,6 +3669,94 @@ function load(save_data) {
         });
     }
 
+    if(save_data["quests"]) {
+        Object.keys(save_data["quests"]).forEach(quest => {
+
+            if(save_data["quests"][quest].is_finished) {
+                //finished => all tasks are also finished, don't care about their specifics
+                for(let i = 0; i < quests[quest].quest_tasks.length; i++) {
+                    quests[quest].quest_tasks[i].is_finished = true;
+                }
+                questManager.startQuest(quest, false);
+                questManager.finishQuest(quest, true);
+
+            } else if(save_data["quests"][quest].is_active) {
+                questManager.startQuest(quest, false);
+                //active => at least 1 task is unfinished and its specifics matter
+                for(let i = 0; i < save_data["quests"][quest].task_status.length-1; i++) {
+                    //set all but last to finished
+                    quests[quest].quest_tasks[i].is_finished = true;
+                }
+
+                //set progress of the first unfinished task
+                const unfinished_index = save_data["quests"][quest].task_status.length-1;
+                const first_unfinished_task = save_data["quests"][quest].task_status[unfinished_index].progress;
+
+
+                Object.keys(first_unfinished_task || {}).forEach(task_group => {
+                    if(!quests[quest].quest_tasks[unfinished_index].task_condition[task_group]) {
+                        console.warn(`Skipped loading progress for quest "${quest}", no such task group as "${task_group}" was present.`);
+                        return;
+                    }
+                    Object.keys(first_unfinished_task[task_group]).forEach(task_type =>{
+                        if(!quests[quest].quest_tasks[unfinished_index].task_condition[task_group][task_type]) {
+                            console.warn(`Skipped loading progress for quest "${quest}", no such task type as "${task_type}" was present.`);
+                            return;
+                        }
+                        Object.keys(first_unfinished_task[task_group][task_type]).forEach(task_target_id => {
+                            if(!quests[quest].quest_tasks[unfinished_index].task_condition[task_group][task_type][task_target_id]) {
+                                console.warn(`Skipped loading progress for quest "${quest}", no such task target as "${task_target_id}" was present.`);
+                                return;
+                            }
+                            quests[quest].quest_tasks[unfinished_index].task_condition[task_group][task_type][task_target_id].current = first_unfinished_task[task_group][task_type][task_target_id].current;
+                        });
+                    });
+                });
+                update_displayed_quest(quest);
+            }
+        });
+    }
+
+    //save from before quests, need to manually setup story quests
+    if(is_a_older_than_b(save_data["game version"], "v0.5.0")){
+        
+        //memory
+        questManager.startQuest("Lost memory", false);
+        if(dialogues["village elder"].textlines["what happened"].is_finished) {
+            questManager.finishQuestTask({quest_id: "Lost memory", task_index: 0});
+
+            if(dialogues["village elder"].textlines["need to"].is_finished) {
+                questManager.finishQuestTask({quest_id: "Lost memory", task_index: 1});
+
+                if(dialogues["village elder"].textlines["cleared cave"].is_finished) {
+                    questManager.finishQuestTask({quest_id: "Lost memory", task_index: 2});
+  
+                    if(dialogues["suspicious man"].textlines["defeated"].is_finished) {
+                        questManager.finishQuestTask({quest_id: "Lost memory", task_index: 3});
+                    }
+                }
+            }
+            
+        }
+
+        //saga
+        if(locations["Suspicious wall"].is_finished) {
+            questManager.startQuest("The Infinite Rat Saga", false);
+
+            if(locations["Mysterious gate"].enemy_groups_killed >= locations["Mysterious gate"].enemy_count) {
+                questManager.finishQuestTask({quest_id: "The Infinite Rat Saga", task_index: 0});
+
+                if(locations["Nearby cave"].actions["open the gate"].is_finished) {
+                    questManager.finishQuestTask({quest_id: "The Infinite Rat Saga", task_index: 1});
+
+                    if(locations["Writhing tunnel"].enemy_groups_killed >= locations["Writhing tunnel"].enemy_count) {
+                        questManager.finishQuestTask({quest_id: "The Infinite Rat Saga", task_index: 2});
+                    }
+                }
+            }
+        }
+
+    }
     
     if(save_data["recipes"]) {
         Object.keys(save_data["recipes"]).forEach(category => {
@@ -3767,7 +3986,7 @@ function update() {
 
         const curr_day = current_game_time.day;
         if(curr_day > prev_day) {
-            recoverItemPrices();
+            recoverItemPrices(trade_price_recovery_flat, trade_price_recovery_ratio);
             update_displayed_character_inventory();
         }
 
@@ -3785,7 +4004,7 @@ function update() {
         update_displayed_effect_durations();
         update_displayed_effects();
 
-        
+        const new_temperature = get_current_temperature_smoothed();
 
         if(is_raining() && !current_location.is_under_roof) {
             //can get wet
@@ -3794,18 +4013,39 @@ function update() {
                 add_active_effect("Wet",30);
             } else {
                 //haven't been in rain long enough, increase the counter
-                rain_counter++;
+
+                if(new_temperature < 0)
+                    //snowing, doesn't soak the player as much the rain
+                    rain_counter += 0.25
+                else 
+                    rain_counter++;
             }
+
+            if(!was_raining && options.do_background_animations) {
+                if(new_temperature >= 0) {
+                    window.addEventListener("resize", start_rain_animation);
+                    window.removeEventListener("resize", start_snow_animation);
+                    start_rain_animation();
+                } else {
+                    window.addEventListener("resize", start_snow_animation);
+                    window.removeEventListener("resize", start_rain_animation);
+                    start_snow_animation();
+                }
+            }
+            was_raining = true && options.do_background_animations;
         } else {
+            if(was_raining) {
+                stop_background_animation();
+                window.removeEventListener("resize", start_snow_animation);
+                window.removeEventListener("resize", start_rain_animation);
+            }
             if(rain_counter > 0) {
                 //not in rain, reduce rain counter
                 rain_counter--;
             }
+            was_raining = false;
         }
-
-        const new_temperature = get_current_temperature_smoothed();
-        //temp lower than first in array plus tolerance
-
+        
         //temperature changed => update stats if needed
         if(current_temperature !== new_temperature) {
             if(!were_stats_updated) {
@@ -4198,6 +4438,7 @@ window.option_remember_filters = option_remember_filters;
 window.option_log_all_gathering = option_log_all_gathering;
 window.option_log_gathering_result = option_log_gathering_result;
 window.option_use_uncivilised_temperature_scale = option_use_uncivilised_temperature_scale;
+window.option_do_background_animations = option_do_background_animations;
 
 window.getDate = get_date;
 
@@ -4230,17 +4471,19 @@ if(save_key in localStorage || (is_on_dev() && dev_save_key in localStorage)) {
     change_stance("normal");
     create_displayed_crafting_recipes();
     change_location("Village");
+    questManager.startQuest("Lost memory");
 } //checks if there's an existing save file, otherwise just sets up some initial equipment
 
 document.getElementById("loading_screen").style.visibility = "hidden";
 
 
 function add_stuff_for_testing() {
-    add_to_character_inventory([
-        {item: getItem({...item_templates["Iron spear"], quality: 1}), count: 100},
-        {item: getItem({...item_templates["Iron spear"], quality: 2}), count: 100},
-        {item: getItem({...item_templates["Iron spear"], quality: 1}), count: 1},
-    ]);
+    const items = [];
+    for(let i = 1; i < 250; i++) {
+        items.push({item_id: "Iron sword", quality:i});
+        items.push({item_id: "Cheap iron sword", quality:i});
+    }
+    add_to_character_inventory(items);
 }
 
 function add_all_stuff_to_inventory(count = 10){
@@ -4259,40 +4502,7 @@ function add_all_active_effects(duration){
     update_displayed_effects();
 }
 
-function add_active_effect(effect_key, duration){
-    let do_not_apply_because_stronger_is_active = false; //readable names are good, right?
-    Object.keys(active_effects).forEach(effect => {
-        if(do_not_apply_because_stronger_is_active) {
-            return;
-        }
-        Object.keys(effect_templates[effect].group_tags).forEach(group_tag => {
-            if(do_not_apply_because_stronger_is_active) {
-                return;
-            }
-            if(group_tag in effect_templates[effect_key].group_tags) {
-                if(effect_templates[effect].group_tags[group_tag] > effect_templates[effect_key].group_tags[group_tag]) {
-                    //stronger effect is active, skip
-                    do_not_apply_because_stronger_is_active = true; 
-                } else {
-                    //aply the effect normally, remove the weaker
-                    delete active_effects[effect];
-                }
-            }
-        });
-    });
-
-    if(do_not_apply_because_stronger_is_active) {
-        //shouldn't need any recalculations or display updates as nothing was changed
-        return;
-    }
-    active_effects[effect_key] = new ActiveEffect({...effect_templates[effect_key], duration});
-    character.stats.add_active_effect_bonus();
-    update_displayed_effects();
-    update_character_stats();
-}
-
-
-//add_to_character_inventory([{item_id: "Healing powder", count: 1000}]);
+//add_to_character_inventory([{item_id: "ABC for kids", count: 1000}]);
 //add_to_character_inventory([{item_id: "Medicine for dummies", count: 10}]);
 
 //add_stuff_for_testing();
@@ -4303,11 +4513,18 @@ function add_active_effect(effect_key, duration){
 update_displayed_equipment();
 sort_displayed_inventory({sort_by: "name", target: "character"});
 
-//add_active_effect("Hypothermia", 6000);
+//add_active_effect("Hypothermia", 60);
 
 run();
 
+/*
 questManager.startQuest("Test quest");
+questManager.catchQuestEvent({quest_event_type: "kill", quest_event_target: "Wolf rat", quest_event_count: 1});
+
+setTimeout(()=>{
+    questManager.catchQuestEvent({quest_event_type: "kill", quest_event_target: "Wolf rat", quest_event_count: 9});
+}, 2000);
+*/
 
 //Verify_Game_Objects();
 window.Verify_Game_Objects = Verify_Game_Objects;
@@ -4352,5 +4569,6 @@ export { current_enemies, can_work,
         character_equip_item,
         unlocked_beds,
         favourite_consumables,
-        remove_consumable_from_favourites
+        remove_consumable_from_favourites,
+        process_rewards
 };

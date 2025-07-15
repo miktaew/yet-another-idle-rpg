@@ -66,33 +66,40 @@
 
 <button type="button" class="collapsible">v0.5 - Quests </button>
 <div class="content"><pre>
-v0.5.0??
-    - 
-    - implemented a simple weather system (temperature and rain), effects are mostly some penalties of varying degree if you get too cold
+v0.5.0
+    - implemented a Quest system
+    - implemented a simple weather system (temperature and rain), effects are mostly some penalties of varying degree if you get too cold; clothing now provides cold protection
     - added new equipment category, capes; they are rather expensive in terms of material cost, but provide the most cold protection out of all item types and allow you to feel fancy
-    - added skill <span class="spoiler">'Regeneration' which increases effectiveness of passive healing (sleeping/resting)</span>
-    - added skill <span class="spoiler">'Gluttony'  to complement 'medicine' by increasing the effects of the food items (unlike medicine, this one doesn't get xp from crafting)</span>
     - added a new combat zone available from <span class="spoiler">'Forest road'</span>
     - added another stance, available from <span class="spoiler">'Suspicious man' after helping out in the 'Slums' (it technically existed before, but was impossible to unlock);
         as usual with new unlocks, if you already used the textline that's supposed to unlock it then you can get it from the repeatable one instead</span>
+    - added a new skill <span class="spoiler">'Regeneration' which increases effectiveness of passive healing (sleeping/resting)</span>
+    - added a new skill <span class="spoiler">'Gluttony'  to complement 'medicine' by increasing the effects of the food items (unlike medicine, this one doesn't get xp from crafting)</span>
     - added a new skill and training: <span class="spoiler">'Swimming'</span>, available at <span class="spoiler">'Village', after talking to 'Villag Elder' (unlocked by same eraly textline as running/weightlifting trainings; otherwise just ask him about leaving)</span>
     - added a new spot for training 'Equilibrium' at <span class="spoiler">'Mountain path' and 'Mountain camp'</span>
     - added a new spot for training 'Climbing' at <span class="spoiler">'Mountain camp'</span>
+    - added another book <span class="spoiler">'Ode to Whimsy, and other poems', available at any trader but with a low chance to appear</span>
+
     - 'Persistence' xp gains are now doubled when under 20% hp (you still need to be out of stamina); they are also increased when under any cold effect, the stronger the more, up to x2 at 'Hypothermia'
-    
     - reduced defense on some wool items
     - for multi-target attacks, skill xp gains are now divided by target count to provide similar xp gains as with single-target attacks; character xp is unchanged
     - for multi-target attacks, loot drop chances are now divided by target count ^ (2/3) (killing 8 enemies with 1 attack should only give 2x loot instead of 8x)
     - updated 'Sleeping' skill tooltip so that it mentions the increase to sleeping health restoration (mechanic already existed, but was missing from tooltip)
     - 'Unarmed' skill now provides additional +0.1 base dmg to unarmed attacks (original base was 1, this means by lvl 10 dmg will be doubled)
     - added very simple click effects to some buttons
+    - work payments have been increased
+    - trader profit margins were increased
+    - increased trade price recovery per day (it's still very low and shouldn't be relied on)
 
     - updated enemy lineup creation code to allow for using predefined groups in their order (instead of choosing one randomly),
-     and to allow for using a predefined group every N clears with other fights using random enemies
+        and to allow for using a predefined group every N clears with other fights using random enemies
     - made it possible for activities to apply effects
     - made it possible for active effects to affect xp gains
+    - changed color of checkboxes to blue, from using browser default colors
     
-     - fixed an issue with incorrect display of some of game settings after reloading
+    - fixed an issue with incorrect display of some of game settings after reloading
+    - fixed a minor bug where book bonuses needed save+reload to be properly applied
+    - fixed an error on beating a challenge zone that was in favourites
 
 courtesy of OnonokiNonon:
     - fixed display issues with inventory and fast travel on Firefox

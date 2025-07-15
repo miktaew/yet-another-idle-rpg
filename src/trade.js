@@ -1,18 +1,40 @@
 "use strict";
 
 import { traders } from "./traders.js";
-import { 
-    update_displayed_trader, update_displayed_trader_inventory, update_displayed_character_inventory, exit_displayed_trade, update_displayed_money } from "./display.js";
+import { update_displayed_trader, update_displayed_trader_inventory, 
+         update_displayed_character_inventory, exit_displayed_trade, update_displayed_money } from "./display.js";
 import { add_to_character_inventory, remove_from_character_inventory } from "./character.js";
 import { skills } from "./skills.js";
 import { getEquipmentValue, item_templates, loot_sold_count } from "./items.js";
 import { character } from "./character.js";
-import { add_xp_to_skill } from "./main.js";
+import { add_xp_to_skill, current_location } from "./main.js";
 import { round_item_price } from "./misc.js";
 
 let current_trader = null;
 const to_sell = {value: 0, items: []};
 const to_buy = {value: 0, items: []};
+
+//direct connections for resource trickle
+const market_region_mapping = {
+    "Village": ["Slums"],
+};
+
+//for easier management, make it symmetrical
+Object.keys(market_region_mapping).forEach(region =>{
+    for(let i = 0; i < market_region_mapping[region].length; i++) {
+        if(!market_region_mapping[market_region_mapping[region][i]]) {
+            market_region_mapping[market_region_mapping[region][i]] = [region];
+        } else {
+            if(!market_region_mapping[market_region_mapping[region][i]].includes(region)) {
+                market_region_mapping[market_region_mapping[region][i]].push(region);
+            }
+        }
+    }
+});
+
+function getMarketSaturationGroupCount(market_saturation_group) {
+
+}
 
 function set_current_trader(trader_key) {
     current_trader = trader_key;
@@ -162,6 +184,8 @@ function add_to_buying_list(selected_item) {
         to_buy.items.push(selected_item);
     }
 
+    //todo: take saturation into account, increasing prices (up to original) the more is bought
+
     const value = get_item_value(selected_item, true);
     to_buy.value += value;
     return -value;
@@ -221,11 +245,11 @@ function add_to_selling_list(selected_item) {
     let value;
 
     if(id && item_templates[id].saturates_market) {
-        value = item_templates[id].getValueOfMultiple({additional_count_of_sold: (present_item?.count - selected_item.count || 0), count: selected_item.count});
+        value = item_templates[id].getValueOfMultiple({additional_count_of_sold: (present_item?.count - selected_item.count || 0), count: selected_item.count, region: current_location.market_region});
     } else if(id && !item_templates[id].saturates_market) { 
-        value = item_templates[id].getValue(quality) * selected_item.count;
+        value = item_templates[id].getValue(quality, current_location.market_region) * selected_item.count;
     } else {
-        value = getEquipmentValue(components, quality) * selected_item.count;
+        value = getEquipmentValue({components, quality, region: current_location.market_region}) * selected_item.count;
     }
     
     to_sell.value += value;
@@ -248,11 +272,11 @@ function remove_from_selling_list(selected_item) {
     let value;
 
     if(id && item_templates[id].saturates_market) {
-        value = item_templates[id].getValueOfMultiple({additional_count_of_sold: (present_item?.count || 0), count: actual_number_to_remove});
+        value = item_templates[id].getValueOfMultiple({additional_count_of_sold: (present_item?.count || 0), count: actual_number_to_remove, region: current_location.market_region});
     } else if(id && !item_templates[id].saturates_market) { 
-        value = item_templates[id].getValue(quality) * actual_number_to_remove;
+        value = item_templates[id].getValue(quality, current_location.market_region) * actual_number_to_remove;
     } else {
-        value = getEquipmentValue(components, quality) * actual_number_to_remove;
+        value = getEquipmentValue({components, quality, region: current_location.market_region}) * actual_number_to_remove;
     }
     
     to_sell.value -= value;
@@ -277,7 +301,7 @@ function remove_from_trader_inventory(trader_key, items) {
 }
 
 /**
- * @description for buying only
+ * @description calculates item value based on current trader, does not take makret saturation into account
  * @param {*} selected_item {item, count}
  * @param {Boolean} is_stackable
  * @returns total value of items, including character haggling skill and trader profit margin
@@ -287,9 +311,9 @@ function get_item_value(selected_item) {
     const {id, components, quality} = JSON.parse(selected_item.item_key);
 
     if(id) {
-        return round_item_price(profit_margin * item_templates[id].getValue(quality)) * selected_item.count;
+        return round_item_price(profit_margin * item_templates[id].getValue(quality, current_location.market_region)) * selected_item.count;
     } else {
-        return round_item_price(profit_margin * getEquipmentValue(components, quality));
+        return round_item_price(profit_margin * getEquipmentValue({components, quality, region: current_location.market_region}));
     }
 }
 

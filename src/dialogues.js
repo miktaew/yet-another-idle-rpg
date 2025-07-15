@@ -110,6 +110,9 @@ class Textline {
                 locks_lines: ["what happened", "where am i", "dont remember"],
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 1"]}],
+                    quest_progress: [
+                        {quest_id: "Lost memory", task_index: 0},
+                    ]
                 },
             }),
             "where am i": new Textline({
@@ -120,6 +123,9 @@ class Textline {
                 locks_lines: ["what happened", "where am i", "dont remember"],
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 1"]}],
+                    quest_progress: [
+                        {quest_id: "Lost memory", task_index: 0},
+                    ]
                 },
             }),
             "dont remember": new Textline({
@@ -130,6 +136,9 @@ class Textline {
                 locks_lines: ["what happened", "where am i", "dont remember"],
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 1"]}],
+                    quest_progress: [
+                        {quest_id: "Lost memory", task_index: 0},
+                    ]
                 },
             }),
             "about": new Textline({
@@ -156,6 +165,9 @@ class Textline {
                     textlines: [{dialogue: "village elder", lines: ["rats", "ask to leave 2", "equipment"]}],
                     locations: [{location: "Infested field"}],
                     activities: [{location:"Village", activity:"weightlifting"}, {location:"Village",activity:"running"}, {location:"Village",activity:"swimming"}],
+                    quest_progress: [
+                        {quest_id: "Lost memory", task_index: 1},
+                    ]
                 },
                 locks_lines: ["need to"],
             }),
@@ -225,6 +237,9 @@ class Textline {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 4"]}],
                     locations: [{location: "Forest road"}, {location: "Infested field"}, {location: "Nearby cave"}],
                     dialogues: ["village guard"],
+                    quest_progress: [
+                        {quest_id: "Lost memory", task_index: 2},
+                    ]
                 },
                 locks_lines: ["ask to leave 3", "rats", "cleared cave"],
             }),
@@ -245,7 +260,7 @@ class Textline {
                 locks_lines: ["new tunnel"],
             }),
         },
-        description: "You see an older man who, despite his white hair, still has a strong posture. He eyes you curiously."
+        description: "You see an older man who, despite his white hair, still has a strong posture. He eyes you with curiosty."
     });
 
     dialogues["old craftsman"] = new Dialogue({
@@ -431,6 +446,9 @@ class Textline {
                 locks_lines: ["defeated"],
                 rewards: {
                     textlines: [{dialogue: "suspicious man", lines: ["behave", "situation"]}],
+                    quest_progress: [
+                        {quest_id: "Lost memory", task_index: 3},
+                    ]
                 },
             }), 
             "behave": new Textline({ 
@@ -575,6 +593,7 @@ class Textline {
 
     dialogues["cute little rat"] = new Dialogue({
         name: "cute little rat",
+        description: "You see a cute little rat. It appears completely harmless. It has a cute litle crown on its cute little head and is sitting on a cute little comfortable pillow.",
         textlines: {
             "hello": new Textline({ 
                 name: "Uhm, hi?",
@@ -586,7 +605,7 @@ class Textline {
             }),
             "what": new Textline({ 
                 name: "What... are you?",
-                text: "Me name be Ratzor Rathai, the Rat Prince Who Be Promised!",
+                text: "My name be Ratzor Rathai, the Rat Prince Who Be Promised!",
                 rewards: {
                     textlines: [{dialogue: "cute little rat", lines: ["walls"]}],
                 },
@@ -594,7 +613,7 @@ class Textline {
             }),
             "who": new Textline({ 
                 name: "Promised by who?",
-                text: "By my papa, the great Rat God, of course! The He who bring infite rat blessings uppon this dimension!",
+                text: "By my papa, the great Rat God, of course! The He Who Bring Infite Rat Blessings uppon this dimension!",
                 rewards: {
                     textlines: [{dialogue: "cute little rat", lines: ["monsters"]}],
                 },
@@ -609,13 +628,13 @@ class Textline {
                 locks_lines: ["monsters"],
             }),
             "mind": new Textline({ 
-                name: "And you don't mind that I slaughtered them?",
+                name: "And you don't mind that I slaughtered so many rats on my way here?",
                 text: "Why? It's the rule of the world that the strong kill the weak and papa believe it too! Besides, maybe you be join us one day? Embrace the truth of your inner rat and reject the human shell!",
                 locks_lines: ["mind"],
             }),
             "walls": new Textline({ 
                 name: "So some of those wall-like things could have once been human?",
-                text: "Only in soul. They once be acolytes of papa, but not be worthy so be cast down to guard the path.",
+                text: "Only in soul. They be given the blessing of papa, but they try to reject but be too weak to really reject so they end up looking funny.",
                 rewards: {
                     textlines: [{dialogue: "cute little rat", lines: ["walls"]}],
                 },
@@ -630,7 +649,6 @@ class Textline {
                 locks_lines: ["kill"],
             }),
         },
-        description: "You see a cute little rat. It appears completely harmless. It has a cute litle crown on its cute little head and is sitting on a cute little comfortable pillow."
     });
 })();
 

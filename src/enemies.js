@@ -208,7 +208,7 @@ class Enemy {
         xp_value: 20,
         rank: 7,
         tags: ["living", "beast"],
-        stats: {health: 1000, attack: 160, agility: 160, dexterity: 70, intuition: 70, magic: 0, attack_speed: 1.3, defense: 20},
+        stats: {health: 1000, attack: 160, agility: 160, dexterity: 70, intuition: 70, magic: 0, attack_speed: 1.4, defense: 20},
         loot_list: [
             {item_name: "Wolf fang", chance: 0.08},
             {item_name: "Wolf pelt", chance: 0.04},
@@ -224,11 +224,11 @@ class Enemy {
         xp_value: 30,
         rank: 8,
         tags: ["living", "beast"],
-        stats: {health: 2000, attack: 240, agility: 130, dexterity: 80, intuition: 90, magic: 0, attack_speed: 1, defense: 20},
+        stats: {health: 2000, attack: 240, agility: 130, dexterity: 80, intuition: 90, magic: 0, attack_speed: 1.1, defense: 20},
         loot_list: [
             {item_name: "Wolf fang", chance: 0.12},
             {item_name: "Wolf pelt", chance: 0.06},
-            {item_name: "Weak monster bone", chance: 0.03},
+            {item_name: "Weak monster bone", chance: 0.02},
             {item_name: "High quality wolf fang", chance: 0.0015}
         ],
         size: "medium"

@@ -18,7 +18,7 @@ class Trader extends InventoryHaver {
                 refresh_time = 4,
                 refresh_shift = 0,
                 inventory_template,
-                profit_margin = 2,
+                profit_margin = 3,
                 is_unlocked = true,
             }) 
     {
@@ -152,7 +152,7 @@ class TradeItem {
         inventory_template: "Basic plus",
         is_unlocked: true,
         location_name: "Slums",
-        profit_margin: 3,
+        profit_margin: 5,
     });
     traders["suspicious trader 2"] = new Trader({
         name: "suspicious trader 2",
@@ -160,7 +160,7 @@ class TradeItem {
         inventory_template: "Intermediate",
         is_unlocked: false,
         location_name: "Slums",
-        profit_margin: 2.8, //rise back to 3 once reputation is implemented
+        profit_margin: 4, //rise back to 5 once reputation is implemented
     });
 })();
 
@@ -213,6 +213,7 @@ class TradeItem {
             new TradeItem({item_name: "Old combat manual", count: [1], chance: 0.5}),
             new TradeItem({item_name: "Butchering and you", count: [1], chance: 0.2}),
             new TradeItem({item_name: "Medicine for dummies", count: [1], chance: 0.2}),
+            new TradeItem({item_name: "Ode to Whimsy, and other poems", count: [1], chance: 0.2}),
             
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
 
@@ -283,6 +284,7 @@ class TradeItem {
             new TradeItem({item_name: "Twist liek a snek", count: [1], chance: 0.8}),
             new TradeItem({item_name: "Butchering and you", count: [1], chance: 0.6}),
             new TradeItem({item_name: "Medicine for dummies", count: [1], chance: 0.6}),
+            new TradeItem({item_name: "Ode to Whimsy, and other poems", count: [1], chance: 0.4}),
 
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
 
@@ -362,6 +364,7 @@ class TradeItem {
         new TradeItem({item_name: "Twist liek a snek", count: [1], chance: 1}),
         new TradeItem({item_name: "Butchering and you", count: [1], chance: 1}),
         new TradeItem({item_name: "Medicine for dummies", count: [1], chance: 1}),
+        new TradeItem({item_name: "Ode to Whimsy, and other poems", count: [1], chance: 0.4}),
 
         new TradeItem({item_name: "Glass phial", count: [10,16], chance: 1}),
 

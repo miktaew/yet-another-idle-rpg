@@ -99,6 +99,10 @@ body {
     }
 }
 
+input[type=checkbox], input[type=radio] {
+	accent-color: rgb(0, 127, 255);
+}
+
 #loading_screen {
 	visibility: visible;
 	width: 100%;
@@ -113,6 +117,15 @@ body {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+
+#background_canvas {
+	position: absolute;
+	pointer-events: none;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
 }
 
 .box_div {
@@ -1705,14 +1718,21 @@ i {
 		margin-bottom: 5px;
 	}
 		.quest_div {
-			border: 1px solid gray;
+			border: 1px solid white;
 			margin-left: 1px;
+			margin-bottom: 3px;
 		}
 		.quest_div :not(.quest_name_div) {
 			display: none;
 		}
 			.quest_div_expanded :not(.quest_name_div) {
 				display: block;
+			}
+			.quest_finished {
+				color: silver;
+			}
+			.quest_finished .quest_name_div{
+				text-decoration: line-through;
 			}
 		.quest_name_div {
 			font-weight: bold;
@@ -1721,7 +1741,8 @@ i {
 		.quest_description_div {
 			font-size: 14px;
 			padding-left: 2px;
-			border-bottom: 1px solid white;
+			border-bottom: 1px solid gray;
+			padding-bottom: 5px;
 		}
 		.task_status_icon {
 			float: left;

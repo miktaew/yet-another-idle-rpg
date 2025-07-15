@@ -20,6 +20,7 @@ class Location {
                 is_finished = false,
                 dialogues = [], 
                 traders = [],
+                market_region = null,
                 types = [], //{type, xp per tick}
                 housing = {},
                 light_level = "normal",
@@ -49,6 +50,7 @@ class Location {
         this.is_finished = is_finished; //for when it's in any way or form "completed" and player shouldn't be allowed back
         this.dialogues = dialogues;
         this.traders = traders;
+        this.market_region = market_region; //for separate regions for market saturation
         this.activities = {};
         this.actions = {};
         this.types = types;
@@ -910,6 +912,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         },
         dialogues: ["village elder", "village guard", "old craftsman"],
         traders: ["village trader"],
+        market_region: "Village",
         name: "Village", 
         crafting: {
             is_unlocked: true, 
@@ -1141,7 +1144,10 @@ function get_location_type_penalty(type, stage, stat, category) {
         repeatable_reward: {
             xp: 250,
             activities: [{location:"Nearby cave", activity:"meditating"}, {location:"Nearby cave", activity:"mining3"}],
-            actions: [{action: "open the gate", location:"Nearby cave"}]
+            actions: [{action: "open the gate", location:"Nearby cave"}],
+            quest_progress: [
+                {quest_id: "The Infinite Rat Saga", task_index: 0},
+            ]
         },
         is_temperature_static: true,
         static_temperature: 20,
@@ -1172,7 +1178,10 @@ function get_location_type_penalty(type, stage, stat, category) {
         },
         repeatable_reward: {
             xp: 1250,
-            locations: [{location: "Mysterious depths"}]
+            locations: [{location: "Mysterious depths"}],
+            quest_progress: [
+                {quest_id: "The Infinite Rat Saga", task_index: 2},
+            ]
         },
         is_temperature_static: true,
         static_temperature: 20,
@@ -1328,6 +1337,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         is_unlocked: true,
         dialogues: ["suspicious man"],
         traders: ["suspicious trader", "suspicious trader 2"],
+        market_region: "Slums",
         temperature_range_modifier: 0.9,
         getBackgroundNoises: function() {
             let noises = ["Cough cough", "*You hear someone sobbing*", "*You see someone sleeping in an alleyway.*"];
@@ -1555,6 +1565,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             locations: [{location: "Hidden tunnel"}],
             textlines: [{dialogue: "village elder", lines: ["new tunnel"]}],
             xp: 20,
+            quests: ["The Infinite Rat Saga"],
         },
         unlock_text: "At some point, one of wolf rats tries to escape through a previously unnoticed hole in a nearby wall. There might be another tunnel behind it!",
         is_under_roof: true,
@@ -1609,7 +1620,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activity_name: "fieldwork",
             starting_text: "Work on the fields",
             get_payment: () => {
-                return 10 + Math.round(15 * get_total_skill_level("Farming")/skills["Farming"].max_level);
+                return 15 + Math.round(25 * get_total_skill_level("Farming")/skills["Farming"].max_level);
             },
             is_unlocked: false,
             working_period: 60*2,
@@ -1657,7 +1668,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         "patrolling": new LocationActivity({
             activity_name: "patrolling",
             starting_text: "Go on a patrol around the village.",
-            get_payment: () => {return 30},
+            get_payment: () => {return 50},
             is_unlocked: false,
             infinite: true,
             working_period: 60*2,
@@ -1804,7 +1815,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activity_name: "fieldwork",
             starting_text: "Work on the fields",
             get_payment: () => {
-                return 20 + Math.round(20 * get_total_skill_level("Farming")/skills["Farming"].max_level);
+                return 30 + Math.round(30 * get_total_skill_level("Farming")/skills["Farming"].max_level);
             },
             is_unlocked: false,
             working_period: 60*2,
@@ -1894,6 +1905,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_chances: [1],
             rewards: {
                 locations: [{location: "Writhing tunnel"}],
+                quest_progress: [
+                    {quest_id: "The Infinite Rat Saga", task_index: 1},
+                ]
             },
         }),
         "climb the mountain": new LocationAction({

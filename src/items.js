@@ -49,25 +49,34 @@ const rarity_multipliers = {
     mythical: 2.5
 };
 
+const group_key_prefix = "type_";
+
 const item_templates = {};
 
 let loot_sold_count = {};
 
 function setLootSoldCount(data) {
-    loot_sold_count = data;
+    Object.keys(data).forEach(market_region_key => {
+        loot_sold_count[market_region_key] = data[market_region_key];
+    });
 }
 
-function recoverItemPrices(count=1) {
-    Object.keys(loot_sold_count).forEach(item_name => {
+function recoverItemPrices(flat_recovery=1, ratio_recovery = 0) {
+    Object.keys(loot_sold_count).forEach(item_group_key => {
 
-        if(!item_templates[item_name].price_recovers) {
-            return;
+        if(!item_group_key.startsWith(group_key_prefix)) {
+            //doesn't start with prefix => it's an item id
+            if(!item_templates[item_group_key].price_recovers) {
+                //doesn't recover => can't recover (wow!)
+                return;
+            }
         }
 
-        loot_sold_count[item_name].recovered += count;
+        //recovered stored as a separate value that cannot be larger than sold count;
+        loot_sold_count[item_group_key].recovered += Math.max(ratio_recovery*(loot_sold_count[item_group_key].sold-loot_sold_count[item_group_key].recovered), flat_recovery);
         
-        if(loot_sold_count[item_name].recovered > loot_sold_count[item_name].sold) {
-            loot_sold_count[item_name].recovered = loot_sold_count[item_name].sold;
+        if(loot_sold_count[item_group_key].recovered > loot_sold_count[item_group_key].sold) {
+            loot_sold_count[item_group_key].recovered = loot_sold_count[item_group_key].sold;
         }
     })
 }
@@ -92,10 +101,6 @@ function getLootPriceModifier(value, how_many_sold) {
 function getLootPriceModifierMultiple(value, start_count, how_many_to_sell) {
     let sum = 0;
     for(let i = start_count; i < start_count+how_many_to_sell; i++) {
-        /*
-        rounding is necessary to make it be a proper fraction of the value
-        otherwise, there might be cases where trading too much of an item results in small deviation from what it should be
-        */
         sum += getLootPriceModifier(value, i);
     }
     return sum;
@@ -133,7 +138,7 @@ function getItemRarity(quality) {
     return rarity;
 }
 
-function getEquipmentValue(components, quality) {
+function getEquipmentValue({components, quality}) {
     let value = 0;
     Object.values(components).forEach(component => {
         value += item_templates[component].value;
@@ -147,18 +152,31 @@ class Item {
                 value = 0, 
                 tags = {},
                 id = null,
+                market_saturation_group,
+                saturates_market,
+                quality = 100,
+                components = null,
                 })
     {
         this.name = name; 
         this.description = description;
-        this.saturates_market = false;
+        this.saturates_market = saturates_market ?? true;
         this.id = id;
+
+        this.quality = quality;
+        this.components = components; //meaningless unless it's an equippable that's /meant/ to have components
+
         /**
          * Use .getValue() instead of this
          */
         this.value = value;
         this.tags = tags;
         this.tags["item"] = true;
+        this.market_saturation_group = market_saturation_group;
+    }
+
+    getMarketSaturationGroup() {
+        return this.market_saturation_group || {group_key: this.id, group_tier: 1};
     }
 
     getInventoryKey() {
@@ -185,25 +203,47 @@ class Item {
         return JSON.stringify(key);
     }
 
-    getValue() {
+    getBaseValue(quality) {
+        if(quality === undefined) {
+            quality = this.quality;
+        }
+        if(this.components) {
+            return getEquipmentValue({components: this.components, quality});
+        } else {
+            return round_item_price(this.value * (quality/100) * rarity_multipliers[getItemRarity(quality)]);
+        }
+    }
+
+    getValue(quality, region) {
         if(!this.saturates_market) {
-            return round_item_price(this.value);
+            return round_item_price(this.getBaseValue(quality ?? this.quality));
         } else {  
-            return Math.max(1, round_item_price(Math.ceil(this.value * getLootPriceModifier(this.value,(Math.max(loot_sold_count[this.id]?.sold - loot_sold_count[this.id]?.recovered,0)||0)))));
+            return this.getValueWithSaturation(region);
         }
     }
 
-    getBaseValue() {
-        return this.value;
+    getValueWithSaturation(region) {
+        return Math.max(
+            1, round_item_price(
+                Math.ceil(
+                    this.getBaseValue() * getLootPriceModifier(
+                        this.getBaseValue(),
+                        (Math.max(
+                            loot_sold_count[region][this.getMarketSaturationGroup().group_key]?.sold - loot_sold_count[region][this.getMarketSaturationGroup().group_key]?.recovered,0)||0
+                        )
+                    )
+                )
+            )
+        );
     }
 
-    getValueOfMultiple({additional_count_of_sold = 0, count}) {
+    getValueOfMultiple({additional_count_of_sold = 0, count, region}) {
         if(!this.saturates_market) {
-            return round_item_price(this.value) * count;
-        }
-        else {
-            const modifier = getLootPriceModifierMultiple(this.value, (Math.max(loot_sold_count[this.id]?.sold - loot_sold_count[this.id]?.recovered,0)||0)+additional_count_of_sold, count);
-            return Math.max(count, Math.ceil(round_item_price(this.value) * Math.round(this.value*modifier)/this.value));
+            return round_item_price(this.getBaseValue()) * count;
+        } else {
+            const val = this.getBaseValue();
+            const modifier = getLootPriceModifierMultiple(val, (Math.max(loot_sold_count[region][this.getMarketSaturationGroup().group_key]?.sold - loot_sold_count[region][this.getMarketSaturationGroup().group_key]?.recovered,0)||0)+additional_count_of_sold, count);
+            return Math.max(count, Math.ceil(round_item_price(val) * Math.round(val*modifier)/val));
         }
     }
 
@@ -221,7 +261,6 @@ class OtherItem extends Item {
         super(item_data);
         this.item_type = "OTHER";
         this.stackable = true;
-        this.saturates_market = item_data.saturates_market;
         this.price_recovers = item_data.price_recovers;
     }
 }
@@ -230,7 +269,6 @@ class Material extends OtherItem {
     constructor(item_data) {
         super(item_data);
         this.item_type = "MATERIAL";
-        this.saturates_market = true;
         this.price_recovers = true;
         this.material_type = item_data.material_type;
         this.tags["material"] = true;
@@ -247,6 +285,7 @@ class ItemComponent extends Item {
         this.tags["component"] = true;
         this.quality = Math.round(item_data.quality) || 100;
     }
+
     getRarity(quality){
         if(!quality) {
             if(!this.rarity) {
@@ -274,10 +313,6 @@ class ItemComponent extends Item {
     getStats() {
         return this.component_stats;
     }
-
-    getValue(quality) {
-        return round_item_price(this.value * (quality/100 || this.quality/100));
-    } 
 }
 
 class WeaponComponent extends ItemComponent {
@@ -292,15 +327,20 @@ class WeaponComponent extends ItemComponent {
         this.component_type = item_data.component_type;
         //"short blade", "long blade", "axe blade", "hammer blade" for heads; "short handle", "medium handle", "long handle" for handles
 
+
         this.attack_value = item_data.attack_value || 0; //can skip this for weapon handles
         if(item_data.component_type === "short handle"){
             this.attack_multiplier = 1;
+            this.market_saturation_group = {group_key: group_key_prefix+"handle", group_tier: this.component_tier};
         } else if(item_data.component_type === "medium handle"){
             this.attack_multiplier = 1;
+            this.market_saturation_group = {group_key: group_key_prefix+"handle", group_tier: this.component_tier};
         } else if(item_data.component_type === "long handle"){
             this.attack_multiplier = 1.5;
+            this.market_saturation_group = {group_key: group_key_prefix+"handle", group_tier: this.component_tier};
         } else {
             this.attack_multiplier = 1;
+            this.market_saturation_group = {group_key: group_key_prefix+"weapon", group_tier: this.component_tier};
         }
 
         this.name_prefix = item_data.name_prefix; //to create a name of an item, e.g. "Sharp iron" used to create spear results in "Sharp iron spear"
@@ -318,6 +358,11 @@ class ShieldComponent extends ItemComponent {
         }
         this.component_type = item_data.component_type;
 
+        if(item_data.component_type === "shield base") {
+            this.market_saturation_group = {group_key: group_key_prefix+"shield", group_tier: this.component_tier};
+        } else {
+            this.market_saturation_group = {group_key: group_key_prefix+"handle", group_tier: this.component_tier};
+        }
         //properties below only matter for shield type component
         this.shield_strength = item_data.shield_strength; 
         this.shield_name = item_data.shield_name || item_data.name;
@@ -357,6 +402,8 @@ class ArmorComponent extends ItemComponent {
 
         this.tags["armor component"] = true;
         this.tags["component"] = true;
+
+        this.market_saturation_group = {group_key: group_key_prefix+"armor", group_tier: this.component_tier};
     }
 }
 
@@ -367,6 +414,7 @@ class UsableItem extends Item {
         this.stackable = true;
         this.effects = item_data.effects || {};
         this.recovery_chances = item_data.recovery_chances || {};
+        this.saturates_market = false;
 
         this.tags["usable"] = true;
     }
@@ -377,17 +425,28 @@ class Equippable extends Item {
         super(item_data);
         this.item_type = "EQUIPPABLE";
         this.stackable = false;
-        this.components = {};
         this.bonus_skill_levels = item_data.bonus_skill_levels || {};
 
-        this.quality = Math.round(Number(item_data.quality)) || 100;
+        this.quality = Math.round(Number(item_data.quality)) ?? 100;
 
         this.tags["equippable"] = true;
     }
 
-    getValue(quality) {
-        return round_item_price(this.value * (quality || this.quality));
-    } 
+    getItemTier() {
+        if(this.components) {
+            let tier = 1;
+            Object.values(this.components).forEach(component_key => {
+                if(item_templates[component_key].component_tier > tier) {
+                    tier = item_templates[component_key].component_tier;
+                }
+            });
+            return tier;
+        } else if(this.component_tier) {
+            return this.component_tier;
+        } else {
+            return 1;
+        }
+    }
 
     getRarity(quality){
         if(!quality) {
@@ -489,7 +548,6 @@ class Equippable extends Item {
 class Artifact extends Equippable {
     constructor(item_data) {
         super(item_data);
-        this.components = undefined;
         this.equip_slot = "artifact";
         this.stats = item_data.stats;
 
@@ -498,10 +556,6 @@ class Artifact extends Equippable {
             this.id = this.getName();
         }
     }
-
-    getValue() {
-        return this.value;
-    } 
 
     getStats(){
         return this.stats;
@@ -512,10 +566,8 @@ class Tool extends Equippable {
     constructor(item_data) {
         super(item_data);
         this.equip_slot = item_data.equip_slot; //tool type is same as equip slot (axe/pickaxe/herb sickle)
-        this.components = undefined;
         this.tags["tool"] = true;
         this.tags[this.equip_slot] = true;
-        this.quality = 100;
         if(!this.id) {
             this.id = this.getName();
         }
@@ -523,10 +575,6 @@ class Tool extends Equippable {
     getStats() {
         return {};
     }
-
-    getValue() {
-        return this.value;
-    } 
 }
 
 class Shield extends Equippable {
@@ -548,6 +596,8 @@ class Shield extends Equippable {
         if(!this.id) {
             this.id = this.getName();
         }
+
+        this.market_saturation_group = {group_key: group_key_prefix+"shield", group_tier: this.getItemTier()};
     }
 
     getShieldStrength(quality) {
@@ -571,13 +621,6 @@ class Shield extends Equippable {
     getName() {
         return item_templates[this.components.shield_base].shield_name;
     }
-
-    getValue(quality) {
-        if(!this.value) {
-            this.value = getEquipmentValue(this.components,quality);
-        }
-        return this.value;
-    } 
 }
 
 class Armor extends Equippable {
@@ -620,8 +663,11 @@ class Armor extends Equippable {
             if(item_data.external && !item_templates[item_data.external]) {
                 throw new Error(`No such external armor element as: ${item_data.components.external}`);
             }
+
+            this.market_saturation_group = {group_key: group_key_prefix+"armor", group_tier: this.getItemTier()};
             
         } else { 
+            //no components, assumed to be the internal part (clothing)
             this.tags["component"] = true;
             this.tags["armor component"] = true;
             this.tags["clothing"] = true;
@@ -640,6 +686,8 @@ class Armor extends Equippable {
             this.value = item_data.value;
             this.component_tier = item_data.component_tier || 1;
             this.base_defense = item_data.base_defense;
+
+            this.market_saturation_group = {group_key: group_key_prefix+"clothing", group_tier: this.getItemTier()};
 
             if(item_data.component_type === "helmet interior") {
                 this.equip_slot = "head";
@@ -682,17 +730,6 @@ class Armor extends Equippable {
             return Math.ceil((this.base_defense || 0)  * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality || this.quality)]);
         }
     }
-
-    getValue(quality) { 
-        if(this.components) {
-            if(!this.value) {
-                this.value = getEquipmentValue(this.components,quality);
-            }
-            return this.value;
-        } else {
-            return round_item_price(item_templates[this.id].value * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)]);
-        }
-    } 
 
     getName() {
         /*
@@ -761,6 +798,8 @@ class Weapon extends Equippable {
         if(!this.id) {
             this.id = this.getName();
         }
+
+        this.market_saturation_group = {group_key: group_key_prefix+"weapon", group_tier: this.getItemTier()};
     }
 
     getAttack(quality){
@@ -783,13 +822,6 @@ class Weapon extends Equippable {
             * (quality/100) * rarity_multipliers[this.getRarity(quality)]
         );
     }
-
-    getValue(quality) {
-        if(!this.value) {
-            this.value = getEquipmentValue(this.components,quality);
-        }
-        return round_item_price(this.value);
-    } 
 
     getName() {
         return `${item_templates[this.components.head].name_prefix} ${this.weapon_type === "hammer" ? "battle hammer" : this.weapon_type}`;
@@ -820,6 +852,8 @@ class Cape extends Equippable {
         if(!this.id) {
             this.id = this.getName();
         }
+
+        this.market_saturation_group = {group_key: group_key_prefix+"cape", group_tier: this.getItemTier()};
     }
     
 
@@ -837,8 +871,12 @@ class Cape extends Equippable {
         return Math.ceil((this.base_defense || 0)  * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality || this.quality)]);
     }
 
-    getValue(quality) { 
-        return round_item_price(item_templates[this.id].value * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality)]);
+    getValue(quality, region) {
+        if(!this.saturates_market) {
+            return round_item_price(this.getBaseValue(quality));
+        } else {  
+            return this.getValueWithSaturation(region);
+        }
     }
 }
 
@@ -875,6 +913,8 @@ class Book extends Item {
         this.name = item_data.name;
 
         this.tags["book"] = true;
+
+        this.saturates_market = false; //uncraftable and limit, no point
     }
 
     /**
@@ -1079,6 +1119,16 @@ book_stats["Butchering and you"] = new BookData({
     },
 });
 
+book_stats["Ode to Whimsy, and other poems"] = new BookData({
+    required_time: 120,
+    literacy_xp_rate: 4,
+    bonuses: {
+        xp_multipliers: {
+            all: 1.1,
+        }
+    },
+});
+
 //books
 item_templates["ABC for kids"] = new Book({
     name: "ABC for kids",
@@ -1108,6 +1158,12 @@ item_templates["Butchering and you"] = new Book({
     name: "Butchering and you",
     description: "An introductory book to animal butchering, that goes into further detail on how to make a use of animal parts, especially hides and bones.",
     value: 240,
+});
+
+item_templates["Ode to Whimsy, and other poems"] = new Book({
+    name: "Ode to Whimsy, and other poems",
+    description: "A short and wonderful book of poetry that fills one with appreciation for life",
+    value: 200,
 });
 
 //miscellaneous and useless loot:

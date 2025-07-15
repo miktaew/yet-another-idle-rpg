@@ -144,6 +144,15 @@ function get_hit_chance(attack_points, evasion_points) {
 function compare_game_version(version_a, version_b) {
     let a = version_a.replace("v","").split(".");
     let b = version_b.replace("v","").split(".");
+
+    //if length differs, fill shorter with additional zeroes; could just do additional condition in comparison, but this is more fancy
+    if(a.length > b.length) {
+        b.push(...Array(a.length-b.length).fill("0"));
+    } else if(b.length > a.length) {
+        a.push(...Array(b.length-a.length).fill("0"));
+    }
+
+    //go through the entire length, comparing values until they differ (or until reaching the end, in which case it will return a 0 after the loop)
     for(let i = 0; i < a.length; i++) {
         let temp;
         if(Number.parseInt(a[i]) && Number.parseInt(b[i])) {

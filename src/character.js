@@ -19,7 +19,7 @@ const base_xp_cost = 10;
 
 
 //6 things below: for weather; why here? because it's related to the hero, I guess
-const time_until_wet = 10;
+const time_until_wet = 10; //snowing accumulates it at a slower rate
 const time_until_cold = 60;
 const time_until_cold_when_wet = 20;
 
@@ -28,7 +28,6 @@ const cold_status_temperatures = [14,8,2,-4];
 const lowest_tolerable_temperature = cold_status_temperatures[0];
 //array for matching the names of aforementioned effects
 const cold_status_effects = ["Cold","Very cold","Freezing","Hypothermia"];
-
 
 class Hero extends InventoryHaver {
         constructor() {
@@ -811,6 +810,10 @@ function get_total_skill_coefficient({scaling_type, skill_id}) {
         return skills[skill_id].get_coefficient({scaling_type, skill_level: get_total_skill_level(skill_id)});
 }
 
+/**
+ * @param {*} active_effect 
+ * @returns effects modified by relevant skill bonuses 
+ */
 function get_effect_with_bonuses(active_effect) {
         let multiplier = 1;
         Object.keys(skill_consumable_tags).forEach(skill_id => {
@@ -825,12 +828,12 @@ function get_effect_with_bonuses(active_effect) {
                 if(value.flat) {
                         if(key.includes("_percent")) {
                                 //this exclusively means percent based regeneration and is therefore treated as multiplicative effect
-                                boosted.stats[key].flat = value.flat*multiplier;
+                                boosted.stats[key].flat = value.flat*(multiplier>0?multiplier:1);
                         } else {
-                                boosted.stats[key].flat = value.flat*multiplier**2;
+                                boosted.stats[key].flat = value.flat*(multiplier>0?multiplier:1)**2;
                         }
                 } else if(value.multiplier) {
-                        boosted.stats[key].multiplier = value.multiplier*multiplier;
+                        boosted.stats[key].multiplier = value.multiplier*(multiplier>1?multiplier:1);
                 }      
         }
         return boosted;
