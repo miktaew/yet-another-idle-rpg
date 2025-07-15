@@ -1119,6 +1119,16 @@ book_stats["Butchering and you"] = new BookData({
     },
 });
 
+book_stats["Ode to Whimsy, and other poems"] = new BookData({
+    required_time: 120,
+    literacy_xp_rate: 4,
+    bonuses: {
+        xp_multipliers: {
+            all: 1.1,
+        }
+    },
+});
+
 //books
 item_templates["ABC for kids"] = new Book({
     name: "ABC for kids",
@@ -1148,6 +1158,12 @@ item_templates["Butchering and you"] = new Book({
     name: "Butchering and you",
     description: "An introductory book to animal butchering, that goes into further detail on how to make a use of animal parts, especially hides and bones.",
     value: 240,
+});
+
+item_templates["Ode to Whimsy, and other poems"] = new Book({
+    name: "Ode to Whimsy, and other poems",
+    description: "A short and wonderful book of poetry that fills one with appreciation for life",
+    value: 200,
 });
 
 //miscellaneous and useless loot:
