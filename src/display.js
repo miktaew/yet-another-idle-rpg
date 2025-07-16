@@ -26,7 +26,7 @@ import { effect_templates } from "./active_effects.js";
 import { player_storage } from "./storage.js";
 import { quests } from "./quests.js";
 import { get_current_temperature_smoothed, is_raining } from "./weather.js";
-import { BackgroundParticle } from "./particles.js";
+import { RainParticle, SnowParticle, StarParticle } from "./particles.js";
 
 let activity_anim; //for the activity and locationAction animation interval
 
@@ -4620,22 +4620,43 @@ function start_snow_animation() {
 }
 
 function start_background_animation(type) {
-    canvas = document.getElementById("background_canvas");
+    
+    
+    stop_background_animation();
+
+    let particle_class;
+    switch(type) {
+        case "snow":
+            particle_class = SnowParticle;
+            canvas = document.getElementById("foreground_canvas");
+            break;
+        case "rain":
+            particle_class = RainParticle;
+            canvas = document.getElementById("foreground_canvas");
+            break;
+        case "stars":
+            particle_class = StarParticle;
+            canvas = document.getElementById("background_canvas");
+            break;
+        default:
+            break;
+    }
+
+    
     context = canvas.getContext("2d");
     canvas.width = context.canvas.clientWidth;
-    stop_background_animation();
     
     canvas.height = context.canvas.clientHeight;
     background_animation_particles = [];
     for(let i = 0; i < Math.ceil((canvas.width*canvas.height)/5000); i++) {
-        background_animation_particles.push(new BackgroundParticle({type, canvas, context}));
+        background_animation_particles.push(new particle_class({canvas}));
     }
 
     do_background_animation();
 }
 
 function stop_background_animation() {
-    canvas = canvas || document.getElementById("background_canvas");
+    canvas = canvas || document.getElementById("foreground_canvas");
     context = context || canvas.getContext("2d");
     context.clearRect(0, 0, canvas.width, canvas.height);
     cancelAnimationFrame(background_animation);

@@ -403,6 +403,9 @@ function option_do_background_animations(option) {
     } else {
         options.do_background_animations = false;
         stop_background_animation();
+        
+        window.removeEventListener("resize", start_snow_animation);
+        window.removeEventListener("resize", start_rain_animation);
     }
 
     if(option !== undefined) {
@@ -4593,5 +4596,6 @@ export { current_enemies, can_work,
         unlocked_beds,
         favourite_consumables,
         remove_consumable_from_favourites,
-        process_rewards
+        process_rewards,
+        is_rat
 };
