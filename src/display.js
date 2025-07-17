@@ -1126,7 +1126,7 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
             }
 
             if(!trader_item_divs[inventory_key]) {
-                trader_item_divs[inventory_key] = create_inventory_item_div({key: inventory_key, item_count, target: "trader"});
+                trader_item_divs[inventory_key] = create_inventory_item_div({key: inventory_key, item_count, target: "trader", is_trade: true});
                 trader_inventory_div.appendChild(trader_item_divs[inventory_key]);
                 was_anything_new_added = true;
             } else {
@@ -1146,7 +1146,7 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
                 //do it only when opening trader, not on in-trade refreshes
                 if(is_newly_open) {
                     const price_span = trader_item_divs[inventory_key].getElementsByClassName("item_value")[0];
-                    price_span.innerHTML =  `${format_money(round_item_price(trader.inventory[inventory_key].item.getValue(current_location.market_region)*(traders[current_trader].getProfitMargin() || 1)), true)}`;
+                    price_span.innerHTML =  `${format_money(round_item_price(trader.inventory[inventory_key].item.getValueWithSaturation(current_location.market_region)*(traders[current_trader].getProfitMargin() || 1)), true)}`;
                 }
             }
         });
@@ -1154,7 +1154,7 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
         for(let i = 0; i < to_sell.items.length; i++) {
             const key = to_sell.items[i].item_key;
             if(!item_selling_divs[key]) {
-                item_selling_divs[key] = create_inventory_item_div({target: "trader", trade_index: i});
+                item_selling_divs[key] = create_inventory_item_div({target: "trader", trade_index: i, is_trade: true});
                 trader_inventory_div.appendChild(item_selling_divs[key]);
             } else {
                 //verify and update count
@@ -1374,7 +1374,7 @@ function exit_displayed_storage() {
  * @param {Number} params.trade_index index in to_buy/to_sell
  * @returns 
  */
-function create_inventory_item_div({key, item_count, target, is_equipped, trade_index}) {
+function create_inventory_item_div({key, item_count, target, is_equipped, trade_index, is_trade = false}) {
 
     const item_control_div = document.createElement("div");
     const item_div = document.createElement("div");
@@ -1432,6 +1432,7 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
         item_control_div.dataset.item_quality = target_item.quality;
     }
 
+
     if(target_item.tags?.equippable) {
         if(target_item.tags.tool) {
             item_name_div.innerHTML = `<span class = "item_slot" >[tool]</span> <span>${target_item.getName()}</span>`;
@@ -1450,7 +1451,9 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
             item_div.classList.add(`${item_class}`, `${target_class_name}`, `item_equippable`);
         }
         item_control_div.dataset.item_slot = target_item.equip_slot;
+        //
     } else if(target_item.tags.component) {
+        //
         item_name_div.innerHTML = `<span class = "item_category">[Comp]</span> <span class="item_name">${target_item.getName()}</span>`;
         item_name_div.classList.add(`${item_class}_name`);
         item_div.appendChild(item_name_div);
@@ -1459,7 +1462,9 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
         item_control_div.appendChild(item_div);
 
         item_div.classList.add(`${item_class}`, `${target_class_name}`, "item_component");
+        //
     } else if(target_item.tags.book) {
+        //
         item_name_div.innerHTML = '<span class = "item_category">[Book]</span>';
         item_name_div.classList.add(`${item_class}`);
         item_name_div.innerHTML += ` <span class = "book_name item_name">"${target_item.name}"</span>`;
@@ -1469,7 +1474,9 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
         } else if(get_current_book() === target_item.name) {
             item_control_div.classList.add("book_active");
         }
+        //
     } else {
+        //
         item_name_div.innerHTML = `<span class = "item_category"></span> <span class = "item_name">${target_item.getName()}</span>`;
     }
     
@@ -1533,7 +1540,8 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
     item_additional.appendChild(create_trade_buttons());
 
     let item_value_span = document.createElement("span");
-    item_value_span.innerHTML = `${format_money(round_item_price(target_item.getBaseValue()*price_multiplier), true)}`;
+    item_value_span.innerHTML = `${format_money(round_item_price(target_item.getValue({region: current_location?.market_region})*price_multiplier), true)}`;
+
     item_value_span.classList.add("item_value", "item_controls");
     item_additional.appendChild(item_value_span);
     item_control_div.appendChild(item_additional);

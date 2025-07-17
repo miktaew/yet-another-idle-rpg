@@ -84,7 +84,7 @@ function getItemRarity(quality) {
     return rarity;
 }
 
-function getEquipmentValue({components, quality}) {
+function getEquipmentValue({components, quality = 100}) {
     let value = 0;
     Object.values(components).forEach(component => {
         value += item_templates[component].value;
@@ -149,20 +149,17 @@ class Item {
         return JSON.stringify(key);
     }
 
-    getBaseValue(quality) {
-        if(quality == undefined) {
-            quality = this.quality;
-        }
+    getBaseValue(quality = this.quality || 100) {
         if(this.components) {
             return getEquipmentValue({components: this.components, quality});
         } else {
-            return round_item_price(this.value * ((quality ?? 100)/100) * rarity_multipliers[getItemRarity(quality ?? 100)]);
+            return round_item_price(this.value * ((quality)/100) * rarity_multipliers[getItemRarity(quality)]);
         }
     }
 
-    getValue(quality, region) {
-        if(!this.saturates_market) {
-            return round_item_price(this.getBaseValue(quality ?? this.quality ?? 100));
+    getValue({quality = this.quality, region}) {
+        if(!this.saturates_market || !region) {
+            return round_item_price(this.getBaseValue(quality || 100));
         } else {  
             return this.getValueWithSaturation(region);
         }
@@ -171,7 +168,7 @@ class Item {
     getValueWithSaturation(region) {
         const {group_key, group_tier} = this.getMarketSaturationGroup();
 
-        return get_item_value_with_market_saturation(this.getBaseValue(), group_key, group_tier, region);
+        return get_item_value_with_market_saturation({item: this, base_value: this.getBaseValue(), group_key, group_tier, region});
     }
 
     /**

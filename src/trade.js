@@ -230,7 +230,7 @@ function add_to_selling_list(selected_item) {
     if(id && item_templates[id].saturates_market) {
         value = item_templates[id].getValueOfMultiple({additional_count_of_sold: (present_item?.count - selected_item.count || 0), count: selected_item.count, region: current_location.market_region});
     } else if(id && !item_templates[id].saturates_market) { 
-        value = item_templates[id].getValue(quality, current_location.market_region) * selected_item.count;
+        value = item_templates[id].getValue({quality, region: current_location.market_region}) * selected_item.count;
     } else {
         value = getEquipmentValue({components, quality, region: current_location.market_region}) * selected_item.count;
     }
@@ -257,7 +257,7 @@ function remove_from_selling_list(selected_item) {
     if(id && item_templates[id].saturates_market) {
         value = item_templates[id].getValueOfMultiple({additional_count_of_sold: (present_item?.count || 0), count: actual_number_to_remove, region: current_location.market_region});
     } else if(id && !item_templates[id].saturates_market) { 
-        value = item_templates[id].getValue(quality, current_location.market_region) * actual_number_to_remove;
+        value = item_templates[id].getValue({quality, region: current_location.market_region}) * actual_number_to_remove;
     } else {
         value = getEquipmentValue({components, quality, region: current_location.market_region}) * actual_number_to_remove;
     }
@@ -291,13 +291,10 @@ function remove_from_trader_inventory(trader_key, items) {
  */
 function get_item_value(selected_item) {
     const profit_margin = traders[current_trader].getProfitMargin();
-    const {id, components, quality} = JSON.parse(selected_item.item_key);
 
-    if(id) {
-        return round_item_price(profit_margin * item_templates[id].getValue(quality, current_location.market_region)) * selected_item.count;
-    } else {
-        return round_item_price(profit_margin * getEquipmentValue({components, quality, region: current_location.market_region}));
-    }
+    const item = getItemFromKey(selected_item.item_key);
+
+    return round_item_price(profit_margin * item.getValue({quality: item.quality, region: current_location.market_region})) * selected_item.count;
 }
 
 export {to_buy, to_sell, set_current_trader, current_trader, 

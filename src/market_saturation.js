@@ -52,7 +52,7 @@ function recover_item_prices(flat_recovery=1, ratio_recovery = 0) {
 
 /**
  * To be called with sold count already calculated elsewhere and just passed as an argument
- * @param {*} value 
+ * @param {*} value only for rounding
  * @param {*} how_many_sold 
  * @returns 
  */
@@ -81,12 +81,12 @@ function get_loot_price_modifier_multiple(value, start_count, how_many_to_sell) 
     return sum;
 }
 
-function get_item_value_with_market_saturation(base_value, group_key, group_tier, region) {
+function get_item_value_with_market_saturation({base_value, group_key, group_tier, region}) {
     return Math.max(
             1, round_item_price(
                 Math.ceil(
-                    this.getBaseValue() * get_loot_price_modifier(
-                        this.getBaseValue(),
+                    base_value * get_loot_price_modifier(
+                        base_value,
                         (Math.max(
                             loot_sold_count[region][group_key]?.[group_tier]?.sold - loot_sold_count[region][group_key]?.[group_tier]?.recovered,0)||0
                         )
