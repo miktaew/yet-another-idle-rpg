@@ -1,7 +1,8 @@
 "use strict";
 
 import { current_game_time, is_night } from "./game_time.js";
-import { item_templates, getItem, book_stats, setLootSoldCount, loot_sold_count, recoverItemPrices, rarity_multipliers, getArmorSlot, getItemFromKey, getItemRarity} from "./items.js";
+import { item_templates, getItem, book_stats, rarity_multipliers, getArmorSlot, getItemFromKey, getItemRarity} from "./items.js";
+import { loot_sold_count, market_region_mapping, recover_item_prices, set_loot_sold_count } from "./market_saturation.js";
 import { locations, favourite_locations } from "./locations.js";
 import { skill_categories, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
@@ -402,6 +403,9 @@ function option_do_background_animations(option) {
     } else {
         options.do_background_animations = false;
         stop_background_animation();
+        
+        window.removeEventListener("resize", start_snow_animation);
+        window.removeEventListener("resize", start_rain_animation);
     }
 
     if(option !== undefined) {
@@ -2960,7 +2964,6 @@ function load(save_data) {
 
     //this can be removed at some point
     const is_from_before_eco_rework = compare_game_version("v0.3.5", save_data["game version"]) == 1;
-    setLootSoldCount(save_data.loot_sold_count || {});
 
     character.money = (save_data.character.money || 0) * ((is_from_before_eco_rework == 1)*10 || 1);
     update_displayed_money();
@@ -3639,7 +3642,28 @@ function load(save_data) {
         }
     });
 
-    setLootSoldCount(save_data.loot_sold_count || {});
+    if(is_a_older_than_b(save_data["game version"], "v0.5")) {
+        //save from before v0.5: split sold count equally between traders
+        const loot_count = {};
+        const divisor = Object.keys(market_region_mapping).length;
+        Object.keys(save_data.loot_sold_count).forEach(loot_key => {
+            const count = save_data.loot_sold_count[loot_key];
+            Object.keys(market_region_mapping).forEach(region_key => {
+                if(!loot_count[region_key]) {
+                    loot_count[region_key] = {};
+                }
+                
+                loot_count[region_key][loot_key] = [{sold: 0, recovered: 0}];
+                loot_count[region_key][loot_key][0].sold = Math.floor(count.sold/divisor);
+                loot_count[region_key][loot_key][0].recovered = Math.floor(count.recovered/divisor);
+            });
+        });
+        set_loot_sold_count(loot_count);
+    } else {
+        //set it normally
+        set_loot_sold_count(save_data.loot_sold_count || {});
+    }
+
 
     //load active effects if save is not from before their rework
     if(compare_game_version(save_data["game version"], "v0.4.4") >= 0){
@@ -3648,11 +3672,13 @@ function load(save_data) {
         });
         character.stats.add_active_effect_bonus();
     }
+
     if(save_data.character.hp_to_full == null || save_data.character.hp_to_full >= character.stats.full.max_health) {
         character.stats.full.health = 1;
     } else {
         character.stats.full.health = character.stats.full.max_health - save_data.character.hp_to_full;
     }
+    
     //if missing hp is null (save got corrupted) or its more than max_health, set health to minimum allowed (which is 1)
     //otherwise just do simple substraction
     //then same with stamina below
@@ -3986,8 +4012,12 @@ function update() {
 
         const curr_day = current_game_time.day;
         if(curr_day > prev_day) {
-            recoverItemPrices(trade_price_recovery_flat, trade_price_recovery_ratio);
-            update_displayed_character_inventory();
+            recover_item_prices(trade_price_recovery_flat, trade_price_recovery_ratio);
+            if(is_in_trade()) {
+                //update displayed prices due to recovery
+                update_displayed_character_inventory({is_trade: true});
+                update_displayed_trader_inventory();
+            }
         }
 
         //update effect durations and displays;
@@ -4502,7 +4532,7 @@ function add_all_active_effects(duration){
     update_displayed_effects();
 }
 
-//add_to_character_inventory([{item_id: "ABC for kids", count: 1000}]);
+//add_to_character_inventory([{item_id: "Iron sword", count: 1000}]);
 //add_to_character_inventory([{item_id: "Medicine for dummies", count: 10}]);
 
 //add_stuff_for_testing();
@@ -4570,5 +4600,6 @@ export { current_enemies, can_work,
         unlocked_beds,
         favourite_consumables,
         remove_consumable_from_favourites,
-        process_rewards
+        process_rewards,
+        is_rat
 };

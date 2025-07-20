@@ -38,6 +38,7 @@
 //leaving it on armor seems fine on the other hand, as it makes much more sense for worn clothing to impact such a situation
 
 import { round_item_price } from "./misc.js";
+import { group_key_prefix, get_item_value_with_market_saturation, get_loot_price_modifier_multiple, get_total_tier_saturation} from "./market_saturation.js";
 
 const rarity_multipliers = {
     trash: 1, //low quality alone makes these so bad that no additional nerf should be needed
@@ -49,62 +50,7 @@ const rarity_multipliers = {
     mythical: 2.5
 };
 
-const group_key_prefix = "type_";
-
 const item_templates = {};
-
-let loot_sold_count = {};
-
-function setLootSoldCount(data) {
-    Object.keys(data).forEach(market_region_key => {
-        loot_sold_count[market_region_key] = data[market_region_key];
-    });
-}
-
-function recoverItemPrices(flat_recovery=1, ratio_recovery = 0) {
-    Object.keys(loot_sold_count).forEach(item_group_key => {
-
-        if(!item_group_key.startsWith(group_key_prefix)) {
-            //doesn't start with prefix => it's an item id
-            if(!item_templates[item_group_key].price_recovers) {
-                //doesn't recover => can't recover (wow!)
-                return;
-            }
-        }
-
-        //recovered stored as a separate value that cannot be larger than sold count;
-        loot_sold_count[item_group_key].recovered += Math.max(ratio_recovery*(loot_sold_count[item_group_key].sold-loot_sold_count[item_group_key].recovered), flat_recovery);
-        
-        if(loot_sold_count[item_group_key].recovered > loot_sold_count[item_group_key].sold) {
-            loot_sold_count[item_group_key].recovered = loot_sold_count[item_group_key].sold;
-        }
-    })
-}
-
-function getLootPriceModifier(value, how_many_sold) {
-    let modifier = 1;
-    if(how_many_sold >= 999) {
-        modifier = 0.1;
-    } else if(how_many_sold) {
-        modifier = modifier * 111/(111+how_many_sold);
-    }
-    return Math.round(value*modifier)/value;
-}
-
-/**
- * 
- * @param {Number} value
- * @param {Number} start_count 
- * @param {Number} how_many_to_sell 
- * @returns 
- */
-function getLootPriceModifierMultiple(value, start_count, how_many_to_sell) {
-    let sum = 0;
-    for(let i = start_count; i < start_count+how_many_to_sell; i++) {
-        sum += getLootPriceModifier(value, i);
-    }
-    return sum;
-}
 
 function getArmorSlot(internal) {
     let equip_slot;
@@ -138,7 +84,7 @@ function getItemRarity(quality) {
     return rarity;
 }
 
-function getEquipmentValue({components, quality}) {
+function getEquipmentValue({components, quality = 100}) {
     let value = 0;
     Object.values(components).forEach(component => {
         value += item_templates[component].value;
@@ -154,7 +100,7 @@ class Item {
                 id = null,
                 market_saturation_group,
                 saturates_market,
-                quality = 100,
+                quality = null,
                 components = null,
                 })
     {
@@ -176,7 +122,7 @@ class Item {
     }
 
     getMarketSaturationGroup() {
-        return this.market_saturation_group || {group_key: this.id, group_tier: 1};
+        return this.market_saturation_group || {group_key: this.id, group_tier: 0};
     }
 
     getInventoryKey() {
@@ -203,46 +149,43 @@ class Item {
         return JSON.stringify(key);
     }
 
-    getBaseValue(quality) {
-        if(quality === undefined) {
-            quality = this.quality;
-        }
+    getBaseValue({quality}={}) {
+        quality = quality || this.quality || 100;
         if(this.components) {
             return getEquipmentValue({components: this.components, quality});
         } else {
-            return round_item_price(this.value * (quality/100) * rarity_multipliers[getItemRarity(quality)]);
+            return round_item_price(this.value * ((quality)/100) * rarity_multipliers[getItemRarity(quality)]);
         }
     }
 
-    getValue(quality, region) {
-        if(!this.saturates_market) {
-            return round_item_price(this.getBaseValue(quality ?? this.quality));
+    getValue({quality, region}) {
+        quality = quality || this.quality || 100;
+        if(!this.saturates_market || !region) {
+            return round_item_price(this.getBaseValue({quality}));
         } else {  
             return this.getValueWithSaturation(region);
         }
     }
 
     getValueWithSaturation(region) {
-        return Math.max(
-            1, round_item_price(
-                Math.ceil(
-                    this.getBaseValue() * getLootPriceModifier(
-                        this.getBaseValue(),
-                        (Math.max(
-                            loot_sold_count[region][this.getMarketSaturationGroup().group_key]?.sold - loot_sold_count[region][this.getMarketSaturationGroup().group_key]?.recovered,0)||0
-                        )
-                    )
-                )
-            )
-        );
+        const {group_key, group_tier} = this.getMarketSaturationGroup();
+
+        return get_item_value_with_market_saturation({item: this, base_value: this.getBaseValue(), group_key, group_tier, region});
     }
 
+    /**
+     * calculates total value for when trading multiple at once
+     * @param {Object} param0
+     * @param {Number} param0.additional_count_of_sold
+     * @returns 
+     */
     getValueOfMultiple({additional_count_of_sold = 0, count, region}) {
         if(!this.saturates_market) {
             return round_item_price(this.getBaseValue()) * count;
         } else {
+            const {group_key, group_tier} = this.getMarketSaturationGroup();
             const val = this.getBaseValue();
-            const modifier = getLootPriceModifierMultiple(val, (Math.max(loot_sold_count[region][this.getMarketSaturationGroup().group_key]?.sold - loot_sold_count[region][this.getMarketSaturationGroup().group_key]?.recovered,0)||0)+additional_count_of_sold, count);
+            const modifier = get_loot_price_modifier_multiple(val, get_total_tier_saturation({region, group_key, group_tier}) + additional_count_of_sold, count);
             return Math.max(count, Math.ceil(round_item_price(val) * Math.round(val*modifier)/val));
         }
     }
@@ -261,7 +204,6 @@ class OtherItem extends Item {
         super(item_data);
         this.item_type = "OTHER";
         this.stackable = true;
-        this.price_recovers = item_data.price_recovers;
     }
 }
 
@@ -269,7 +211,6 @@ class Material extends OtherItem {
     constructor(item_data) {
         super(item_data);
         this.item_type = "MATERIAL";
-        this.price_recovers = true;
         this.material_type = item_data.material_type;
         this.tags["material"] = true;
     }
@@ -331,16 +272,16 @@ class WeaponComponent extends ItemComponent {
         this.attack_value = item_data.attack_value || 0; //can skip this for weapon handles
         if(item_data.component_type === "short handle"){
             this.attack_multiplier = 1;
-            this.market_saturation_group = {group_key: group_key_prefix+"handle", group_tier: this.component_tier};
+            this.market_saturation_group = {group_key: group_key_prefix+"handle", group_tier: this.component_tier-1};
         } else if(item_data.component_type === "medium handle"){
             this.attack_multiplier = 1;
-            this.market_saturation_group = {group_key: group_key_prefix+"handle", group_tier: this.component_tier};
+            this.market_saturation_group = {group_key: group_key_prefix+"handle", group_tier: this.component_tier-1};
         } else if(item_data.component_type === "long handle"){
             this.attack_multiplier = 1.5;
-            this.market_saturation_group = {group_key: group_key_prefix+"handle", group_tier: this.component_tier};
+            this.market_saturation_group = {group_key: group_key_prefix+"handle", group_tier: this.component_tier-1};
         } else {
             this.attack_multiplier = 1;
-            this.market_saturation_group = {group_key: group_key_prefix+"weapon", group_tier: this.component_tier};
+            this.market_saturation_group = {group_key: group_key_prefix+"weapon", group_tier: this.component_tier-1};
         }
 
         this.name_prefix = item_data.name_prefix; //to create a name of an item, e.g. "Sharp iron" used to create spear results in "Sharp iron spear"
@@ -359,9 +300,9 @@ class ShieldComponent extends ItemComponent {
         this.component_type = item_data.component_type;
 
         if(item_data.component_type === "shield base") {
-            this.market_saturation_group = {group_key: group_key_prefix+"shield", group_tier: this.component_tier};
+            this.market_saturation_group = {group_key: group_key_prefix+"shield", group_tier: this.component_tier-1};
         } else {
-            this.market_saturation_group = {group_key: group_key_prefix+"handle", group_tier: this.component_tier};
+            this.market_saturation_group = {group_key: group_key_prefix+"handle", group_tier: this.component_tier-1};
         }
         //properties below only matter for shield type component
         this.shield_strength = item_data.shield_strength; 
@@ -403,7 +344,7 @@ class ArmorComponent extends ItemComponent {
         this.tags["armor component"] = true;
         this.tags["component"] = true;
 
-        this.market_saturation_group = {group_key: group_key_prefix+"armor", group_tier: this.component_tier};
+        this.market_saturation_group = {group_key: group_key_prefix+"armor", group_tier: this.component_tier-1};
     }
 }
 
@@ -427,7 +368,7 @@ class Equippable extends Item {
         this.stackable = false;
         this.bonus_skill_levels = item_data.bonus_skill_levels || {};
 
-        this.quality = Math.round(Number(item_data.quality)) ?? 100;
+        this.quality = Math.round(Number(item_data.quality)) || 100;
 
         this.tags["equippable"] = true;
     }
@@ -597,7 +538,7 @@ class Shield extends Equippable {
             this.id = this.getName();
         }
 
-        this.market_saturation_group = {group_key: group_key_prefix+"shield", group_tier: this.getItemTier()};
+        this.market_saturation_group = {group_key: group_key_prefix+"shield", group_tier: this.getItemTier()-1};
     }
 
     getShieldStrength(quality) {
@@ -664,7 +605,7 @@ class Armor extends Equippable {
                 throw new Error(`No such external armor element as: ${item_data.components.external}`);
             }
 
-            this.market_saturation_group = {group_key: group_key_prefix+"armor", group_tier: this.getItemTier()};
+            this.market_saturation_group = {group_key: group_key_prefix+"armor", group_tier: this.getItemTier()-1};
             
         } else { 
             //no components, assumed to be the internal part (clothing)
@@ -687,7 +628,7 @@ class Armor extends Equippable {
             this.component_tier = item_data.component_tier || 1;
             this.base_defense = item_data.base_defense;
 
-            this.market_saturation_group = {group_key: group_key_prefix+"clothing", group_tier: this.getItemTier()};
+            this.market_saturation_group = {group_key: group_key_prefix+"clothing", group_tier: this.getItemTier()-1};
 
             if(item_data.component_type === "helmet interior") {
                 this.equip_slot = "head";
@@ -799,7 +740,7 @@ class Weapon extends Equippable {
             this.id = this.getName();
         }
 
-        this.market_saturation_group = {group_key: group_key_prefix+"weapon", group_tier: this.getItemTier()};
+        this.market_saturation_group = {group_key: group_key_prefix+"weapon", group_tier: this.getItemTier()-1};
     }
 
     getAttack(quality){
@@ -853,7 +794,7 @@ class Cape extends Equippable {
             this.id = this.getName();
         }
 
-        this.market_saturation_group = {group_key: group_key_prefix+"cape", group_tier: this.getItemTier()};
+        this.market_saturation_group = {group_key: group_key_prefix+"cape", group_tier: this.getItemTier()-1};
     }
     
 
@@ -869,14 +810,6 @@ class Cape extends Equippable {
     }
     calculateDefense(quality) {
         return Math.ceil((this.base_defense || 0)  * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality || this.quality)]);
-    }
-
-    getValue(quality, region) {
-        if(!this.saturates_market) {
-            return round_item_price(this.getBaseValue(quality));
-        } else {  
-            return this.getValueWithSaturation(region);
-        }
     }
 }
 
@@ -914,7 +847,7 @@ class Book extends Item {
 
         this.tags["book"] = true;
 
-        this.saturates_market = false; //uncraftable and limit, no point
+        this.saturates_market = false; //uncraftable and limited, no point
     }
 
     /**
@@ -1172,60 +1105,47 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Rat fang", 
         description: "Fang of a huge rat, not very sharp, but can still pierce a human skin if enough force is applied", 
         value: 8,
-        saturates_market: true,
-        price_recovers: true,
     });
 
     item_templates["Wolf fang"] = new OtherItem({
         name: "Wolf fang", 
         description: "Fang of a wild wolf. Somewhat sharp, still not very useful. Maybe if it had a bit better quality...", 
         value: 12,
-        saturates_market: true,
-        price_recovers: true,
     });
 
     item_templates["Boar tusk"] = new Material({
         name: "Boar tusk", 
         description: "Tusk of a wild boar. Visibly used.",
         value: 20,
-        price_recovers: true,
-        material_type: "miscellaneous",
     });
 
     item_templates["Rat meat chunks"] = new OtherItem({
         name: "Rat meat chunks", 
         description: "Eww", 
         value: 8,
-        saturates_market: true,
-        price_recovers: true,
     });
 
     item_templates["Glass phial"] = new OtherItem({
         name: "Glass phial", 
         description: "Small glass phial, a perfect container for a potion", 
         value: 10,
-        saturates_market: false,
     });
 
     item_templates["Camping supplies"] = new OtherItem({
         name: "Camping supplies", 
         description: "Bedroll, tent, small chest, and generally just anything that could be needed to establish a camp", 
         value: 2000,
-        saturates_market: false,
     });
     item_templates["Coil of rope"] = new OtherItem({
         name: "Coil of rope", 
         description: "A nice, long coil of rope, for whatever use you might find",
         value: 400,
-        saturates_market: false,
     });
 
     item_templates["Mountain goat horn"] = new OtherItem({
         name: "Mountain goat horn", 
         description: "A curved and sturdy horn of a mountain goat. While not very useful in itself, it makes for a nice decoration.", 
         value: 30,
-        saturates_market: true,
-        price_recovers: true,
     });
 })();
 
@@ -1235,28 +1155,23 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Rat tail", 
         description: "Tail of a huge rat. Doesn't seem very useful, but maybe some meat could be recovered from it", 
         value: 4,
-        price_recovers: true,
-
     });
     item_templates["Rat pelt"] = new Material({
         name: "Rat pelt", 
         description: "Pelt of a huge rat. Fur has terrible quality, but maybe leather could be used for something if you gather more?", 
         value: 10,
-        price_recovers: true,
         material_type: "pelt",
     });
     item_templates["High quality wolf fang"] = new Material({
         name: "High quality wolf fang", 
         description: "Fang of a wild wolf. Very sharp, undamaged and surprisingly clean.", 
         value: 15,
-        price_recovers: true,
         material_type: "miscellaneous",
     });
     item_templates["Wolf pelt"] = new Material({
         name: "Wolf pelt", 
         description: "Pelt of a wild wolf. It's a bit damaged so it won't fetch a great price, but the leather itself could be useful.", 
         value: 20,
-        price_recovers: true,
         material_type: "pelt",
     });
 
@@ -1264,20 +1179,17 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Boar hide", 
         description: "Thick hide of a wild boar. Too stiff for clothing, but might be useful for an armor",
         value: 30,
-        price_recovers: true,
         material_type: "pelt",
     });
     item_templates["Boar meat"] = new Material({
         name: "Boar meat",
         description: "Fatty meat of a wild boar, all it needs is to be cooked.",
         value: 20,
-        price_recovers: true,
     });
     item_templates["High quality boar tusk"] = new Material({
         name: "High quality boar tusk", 
         description: "Tusk of a wild boar. Sharp and long enough to easily kill an adult human", 
         value: 25,
-        price_recovers: true,
         material_type: "miscellaneous",
     });
 
@@ -1285,7 +1197,6 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Weak monster bone", 
         description: "Mutated and dark bone of a monster. While on the weaker side, it's still very strong and should be useful for crafting after some processing",
         value: 30,
-        price_recovers: true,
         material_type: "bone",
     });
 
@@ -1293,20 +1204,17 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Goat meat",
         description: "Lean meat of a goat, it's pretty tough and needs to be cooked for a long time.",
         value: 25,
-        price_recovers: true,
     });
     item_templates["Mountain goat hide"] = new Material({
         name: "Mountain goat hide", 
         description: "Thick hide of a mountain goat hide. Not as strong as boar hide, but this one can actually be turned into clothes after some processing.",
         value: 30,
-        price_recovers: true,
         material_type: "pelt",
     });
     item_templates["Pristine mountain goat horn"] = new Material({
         name: "Pristine mountain goat horn",
         description: "Curved and sturdy horn of a mountain goat. It's noticeably bigger than average and seems to be even sturdier.", 
         value: 70,
-        price_recovers: true,
         material_type: "miscellaneous",
     });
 
@@ -1318,32 +1226,24 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Low quality iron ore",
         description: "Iron content is rather low and there are a lot of problematic components that can't be fully removed, which will affect created materials.", 
         value: 3,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "raw metal",
     });
     item_templates["Iron ore"] = new Material({
         name: "Iron ore", 
         description: "It has a decent iron content and can be smelt into market-quality iron.",
         value: 5,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "raw metal",
     });
     item_templates["Atratan ore"] = new Material({
         name: "Atratan ore",
         description: "A dark-colored ore that's useless by itself but can be mixed with iron to create steel.",
         value: 6,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "raw metal",
     });
     item_templates["Coal"] = new Material({
         name: "Coal",
         description: "A flammable material with extremely high carbon content.",
         value: 7,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "coal",
     });
 
@@ -1351,32 +1251,24 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Charcoal",
         description: "A flammable material with extremely high carbon content, created by strongly heating wood.",
         value: 5,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "coal",
     });
     item_templates["Piece of rough wood"] = new Material({
         name: "Piece of rough wood",
         description: "Cheapest form of wood. There's a lot of bark and malformed pieces.",
         value: 2,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "raw wood",
     });
     item_templates["Piece of wood"] = new Material({
         name: "Piece of wood",
         description: "Average quality wood. There's a lot of bark and malformed pieces.",
         value: 4,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "raw wood",
     });
     item_templates["Piece of ash wood"] = new Material({
         name: "Piece of ash wood",
         description: "Strong yet elastic, it's best wood you can hope to find around. There's a lot of bark and malformed pieces.",
         value: 7,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "raw wood",
     });
 
@@ -1384,8 +1276,6 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Belmart leaf",
         description: "Small, round, dark-green leaves with with very good disinfectant properties",
         value: 8,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "disinfectant herb",
     });
 
@@ -1393,8 +1283,6 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Golmoon leaf",
         description: "Big green-brown leaves that can be applied to wounds to speed up their healing",
         value: 8,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "healing herb",
     });
 
@@ -1402,8 +1290,6 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Oneberry",
         description: "Small blue berries capable of stimulating body's natural healing",
         value: 8,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "healing herb",
     });
 
@@ -1411,8 +1297,6 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Silver thistle",
         description: "Rare herb that usually grows high up in mountains, a potent healing ingredient",
         value: 20,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "healing herb",
     });
 
@@ -1420,8 +1304,6 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Wool",
         description: "A handful of wool, raw and unprocessed",
         value: 8,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "raw fabric",
     });
 })();
@@ -1433,8 +1315,6 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Low quality iron ingot",
         description: "It has a lot of impurities, resulting in it being noticeably below the market standard",
         value: 10,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "metal",
     });
     item_templates["Iron ingot"] = new Material({
@@ -1442,8 +1322,6 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Iron ingot",
         description: "It doesn't suffer from any excessive impurities and can be used without worries.",
         value: 20,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "metal",
     });
     item_templates["Steel ingot"] = new Material({
@@ -1451,120 +1329,90 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Steel ingot",
         description: "Basic alloy of iron, harder and more resistant.",
         value: 40,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "metal",
     });
     item_templates["Piece of wolf rat leather"] = new Material({
         name: "Piece of wolf rat leather",
         description: "It's slightly damaged and seems useless for anything that requires precise work.",
         value: 10,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "piece of leather",
     });
     item_templates["Processed rat pelt"] = new Material({
         name: "Processed rat pelt", 
         description: "Processed pelt of a huge rat. It's of a barely acceptable quality, but it's still a miracle with how terrible the basic material was.", 
         value: 20,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "processed pelt",
     });
     item_templates["Piece of wolf leather"] = new Material({
         name: "Piece of wolf leather",
         description: "Somewhat strong, should offer some protection when turned into armor",
         value: 20,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "piece of leather",
     });
     item_templates["Processed wolf pelt"] = new Material({
         name: "Processed wolf pelt", 
         description: "Processed pelt of a wild wolf. It's a nice, stylish material.",
         value: 40,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "processed pelt",
     });
     item_templates["Piece of boar leather"] = new Material({
         name: "Piece of boar leather",
         description: "Thick and resistant leather, too stiff for clothes but perfect for armor",
         value: 30,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "piece of leather",
     });
     item_templates["Processed boar hide"] = new Material({
         name: "Processed boar hide", 
         description: "Processed hide of a wild boar. It's a rough, heavy material, but it's quite strong.",
         value: 60,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "processed pelt",
     });
     item_templates["Piece of goat leather"] = new Material({
         name: "Piece of goat leather",
         description: "Thick and resistant, just barely elastic enough to be used for clothing",
         value: 40,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "piece of leather"
     }),
     item_templates["Processed goat hide"] = new Material({
         name: "Processed goat hide", 
         description: "Processed hide of a wild goat. It's a rough and resistant material.",
         value: 80,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "processed pelt",
     });
     item_templates["Animal fat"] = new Material({
         name: "Animal fat",
         description: "White, thick, oily substance, rendered from animal tissue.",
         value: 40,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "fat",
     });
     item_templates["Wool cloth"] = new Material({
         name: "Wool cloth",
         description: "Thick and warm, might possibly absorb some punches",
         value: 8,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "fabric",
     });
     item_templates["Iron chainmail"] = new Material({
         name: "Iron chainmail",
         description: "Dozens of tiny iron rings linked together. Nowhere near a wearable form, turning it into armor will still take a lot of effort and focus",
         value: 12,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "chainmail",
     });
     item_templates["Steel chainmail"] = new Material({
         name: "Steel chainmail",
         description: "Dozens of tiny steel rings linked together. Nowhere near a wearable form, turning it into armor will still take a lot of effort and focus",
         value: 18,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "chainmail",
     });
     item_templates["Scraps of wolf rat meat"] = new Material({
         name: "Scraps of wolf rat meat",
         description: "Ignoring where they come from and all the attached diseases, they actually look edible. Just remember to cook it first.",
         value: 8,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "meat",
     });
     item_templates["Processed rough wood"] = new Material({
         name: "Processed rough wood",
         description: "Cheapest form of wood, ready to be used. Despite being rather weak, it still has a lot of uses.",
         value: 6,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "wood",
     });
 
@@ -1572,8 +1420,6 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Processed wood",
         description: "Average quality wood, ready to be used.",
         value: 11,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "wood",
     });
 
@@ -1581,8 +1427,6 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Processed ash wood",
         description: "High quality wood, just waiting to be turned into a piece of equipment.",
         value: 20,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "wood",
     });
 
@@ -1590,8 +1434,6 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Processed weak monster bone",
         description: "Polished and cleaned bones of a weak monster, just waiting to be turned into a piece of equipment.",
         value: 40,
-        saturates_market: true,
-        price_recovers: true,
         material_type: "bone",
     });
 
@@ -3318,8 +3160,8 @@ export {
     Armor, Shield, Weapon, Cape, Artifact, Book, 
     WeaponComponent, ArmorComponent, ShieldComponent,
     getItem, getItemFromKey,
-    setLootSoldCount, recoverItemPrices, round_item_price, getArmorSlot, getEquipmentValue,
-    book_stats, loot_sold_count,
+    round_item_price, getArmorSlot, getEquipmentValue,
+    book_stats,
     rarity_multipliers,
     getItemRarity
 };

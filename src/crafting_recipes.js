@@ -100,7 +100,7 @@ class ItemRecipe extends Recipe {
                     return 0;
                 }
 
-                mats = mats.sort((a,b) => a.item.getValue()-b.item.getValue());
+                mats = mats.sort((a,b) => a.item.getBaseValue()-b.item.getBaseValue());
                 ammount = Math.floor(Math.min(mats[0].count / this.materials[i].count, ammount));
                 materials.push(mats[0].item.id);
             }

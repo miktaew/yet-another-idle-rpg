@@ -1022,7 +1022,7 @@
                 </div>
                 <div class="options_choice">
                     <input type="checkbox" id="options_do_background_animations" name="options_do_background_animations" value="options_do_background_animations" onclick = "option_do_background_animations()">
-                    <label for="options_do_background_animations">Enable rain/snow animations</label>
+                    <label for="options_do_background_animations">Enable rain/snow/stars animations</label>
                 </div>
 
             </div>
@@ -1031,6 +1031,10 @@
             <div id = "import_other_save_button" class="options_button" onclick = "importOtherSave()"> Import save from </div>
             <div id = "hard_reset_button" class="options_button" onclick = "hardReset()"> Hard reset the game <i class="material-icons"> warning_amber </i> </div>
         </div>
+
+        <canvas id="foreground_canvas">
+
+        </canvas>
 
         <canvas id="background_canvas">
 
@@ -1936,7 +1940,7 @@
                     }
 
                     update_displayed_trader_inventory();
-                    update_displayed_character_inventory();
+                    update_displayed_character_inventory({is_trade: true});
 
                     trade_price_value.innerHTML = format_money(total_price);
                     check_trade_cost();

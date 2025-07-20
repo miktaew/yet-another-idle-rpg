@@ -153,7 +153,7 @@ class Enemy {
         rank: 6,
         size: "large",
         tags: ["living", "beast", "wolf rat", "monster", "eldritch"],
-        stats: {health: 1000, attack: 70, agility: 20, dexterity: 90, intuition: 90, magic: 0, attack_speed: 2, attack_count: 3, defense: 20},
+        stats: {health: 1000, attack: 70, agility: 2, dexterity: 90, intuition: 90, magic: 0, attack_speed: 2, attack_count: 3, defense: 20},
         loot_list: [
             {item_name: "Rat tail", chance: 0.08},
             {item_name: "Rat fang", chance: 0.08},

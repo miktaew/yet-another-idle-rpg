@@ -5,6 +5,7 @@ import { skills } from "./skills.js";
 import { current_game_time } from "./game_time.js";
 import { activities } from "./activities.js";
 import { get_total_skill_level } from "./character.js";
+import { is_rat } from "./main.js";
 const locations = {}; //contains all the created locations
 const location_types = {};
 
@@ -898,7 +899,16 @@ function get_location_type_penalty(type, stage, stat, category) {
                 noises.push("Anyone seen my cow?", "Mooooo!", "Tomorrow I'm gonna fix the roof", "Look, a bird!");
 
                 if(locations["Infested field"].enemy_groups_killed <= 3) {
-                    noises.push("These nasty rats almost ate my cat!");
+                    if(!is_rat()) {
+                        noises.push("These nasty rats almost ate my cat!");
+                    } else {
+                        //you can blame Mercurius for this line
+                        //pasted 3 times for increased chance
+                        noises.push("These nasty rats almost ate my rat!","These nasty rats almost ate my rat!","These nasty rats almost ate my rat!");
+                    }
+                } else if(is_rat()) {
+                    //also possible after clear condition is done
+                    noises.push("These nasty rats almost ate my rat!");
                 }
             }
 
