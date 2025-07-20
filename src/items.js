@@ -38,7 +38,7 @@
 //leaving it on armor seems fine on the other hand, as it makes much more sense for worn clothing to impact such a situation
 
 import { round_item_price } from "./misc.js";
-import { loot_sold_count, group_key_prefix, get_item_value_with_market_saturation, get_loot_price_modifier_multiple} from "./market_saturation.js";
+import { group_key_prefix, get_item_value_with_market_saturation, get_loot_price_modifier_multiple, get_total_tier_saturation} from "./market_saturation.js";
 
 const rarity_multipliers = {
     trash: 1, //low quality alone makes these so bad that no additional nerf should be needed
@@ -174,7 +174,7 @@ class Item {
     }
 
     /**
-     * 
+     * calculates total value for when trading multiple at once
      * @param {Object} param0
      * @param {Number} param0.additional_count_of_sold
      * @returns 
@@ -185,7 +185,7 @@ class Item {
         } else {
             const {group_key, group_tier} = this.getMarketSaturationGroup();
             const val = this.getBaseValue();
-            const modifier = get_loot_price_modifier_multiple(val, (Math.max(loot_sold_count[region][group_key]?.[group_tier]?.sold - loot_sold_count[region][group_key]?.[group_tier]?.recovered,0)||0)+additional_count_of_sold, count);
+            const modifier = get_loot_price_modifier_multiple(val, get_total_tier_saturation({region, group_key, group_tier}) + additional_count_of_sold, count);
             return Math.max(count, Math.ceil(round_item_price(val) * Math.round(val*modifier)/val));
         }
     }

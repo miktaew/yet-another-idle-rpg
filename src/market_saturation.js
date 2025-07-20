@@ -56,7 +56,7 @@ function recover_item_prices(flat_recovery=1, ratio_recovery = 0) {
  * @param {*} how_many_sold 
  * @returns 
  */
-function get_loot_price_modifier({value, how_many_sold, group_key, group_tier}) {
+function get_loot_price_modifier({value, how_many_sold}) {
     let modifier = 1;
     if(how_many_sold >= 999) {
         modifier = 0.1;
@@ -67,30 +67,60 @@ function get_loot_price_modifier({value, how_many_sold, group_key, group_tier}) 
 }
 
 /**
+ * calculates total saturation, including items of both lower and higher tier
+ * @param {*} param0 
+ * @returns 
+ */
+function get_total_tier_saturation({region, group_key, group_tier}) {
+    const sold_by_tier = [];
+    for(let i = 0; i < loot_sold_count[region][group_key].length; i++) {
+        sold_by_tier[i] = loot_sold_count[region][group_key][i].sold - loot_sold_count[region][group_key][i].recovered;
+    }
+    return calculate_total_saturation({sold_by_tier, group_tier});
+}
+
+/**
+ * calculates saturation for provided sold counts
+ * @param {} param0 
+ * @returns 
+ */
+function calculate_total_saturation({sold_by_tier, target_tier}) {
+    let count = 0;
+    for(let i = target_tier - 1; i >= 0; i--) {
+        //x0.25 for each tier going down
+        count += Math.max(sold_by_tier[i])*0.25**(target_tier-i);
+    }
+    count += Math.max(sold_by_tier[target_tier]);
+    for(let i = target_tier + 1 ; i < sold_by_tier.length; i++) {
+        //x1 for each tier going down
+        count += Math.max(sold_by_tier[i]);
+    }                    
+    return count;
+}
+
+/**
  * 
  * @param {Number} value
  * @param {Number} start_count 
  * @param {Number} how_many_to_sell 
  * @returns 
  */
-function get_loot_price_modifier_multiple(value, start_count, how_many_to_sell) {
+function get_loot_price_modifier_multiple(value, start_count, how_many_to_sell, region) {
     let sum = 0;
     for(let i = start_count; i < start_count+how_many_to_sell; i++) {
-        sum += get_loot_price_modifier({value, how_many_sold: i});
+        sum += get_loot_price_modifier({value, how_many_sold: i, region});
     }
     return sum;
 }
 
 function get_item_value_with_market_saturation({base_value, group_key, group_tier, region}) {
+
+    const how_many_sold = get_total_tier_saturation({region, group_key, group_tier});
+
     return Math.max(
             1, round_item_price(
                 Math.ceil(
-                    base_value * get_loot_price_modifier({
-                        value: base_value,
-                        how_many_sold: (Math.max(
-                            loot_sold_count[region][group_key]?.[group_tier]?.sold - loot_sold_count[region][group_key]?.[group_tier]?.recovered,0)||0
-                        )
-                    })
+                    base_value * get_loot_price_modifier({value: base_value, how_many_sold})
                 )
             )
         );
@@ -124,5 +154,6 @@ export {
     recover_item_prices, set_loot_sold_count, 
     get_loot_price_modifier, get_item_value_with_market_saturation,
     get_loot_price_modifier_multiple, market_region_mapping,
-    add_to_sold, remove_from_sold
+    add_to_sold, remove_from_sold, 
+    get_total_tier_saturation, calculate_total_saturation
 };
