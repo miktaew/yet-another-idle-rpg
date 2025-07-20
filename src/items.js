@@ -149,7 +149,8 @@ class Item {
         return JSON.stringify(key);
     }
 
-    getBaseValue(quality = this.quality || 100) {
+    getBaseValue({quality}={}) {
+        quality = quality || this.quality || 100;
         if(this.components) {
             return getEquipmentValue({components: this.components, quality});
         } else {
@@ -157,9 +158,10 @@ class Item {
         }
     }
 
-    getValue({quality = this.quality, region}) {
+    getValue({quality, region}) {
+        quality = quality || this.quality || 100;
         if(!this.saturates_market || !region) {
-            return round_item_price(this.getBaseValue(quality || 100));
+            return round_item_price(this.getBaseValue({quality}));
         } else {  
             return this.getValueWithSaturation(region);
         }
@@ -366,7 +368,7 @@ class Equippable extends Item {
         this.stackable = false;
         this.bonus_skill_levels = item_data.bonus_skill_levels || {};
 
-        this.quality = Math.round(Number(item_data.quality)) ?? 100;
+        this.quality = Math.round(Number(item_data.quality)) || 100;
 
         this.tags["equippable"] = true;
     }

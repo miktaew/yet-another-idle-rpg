@@ -56,7 +56,7 @@ function recover_item_prices(flat_recovery=1, ratio_recovery = 0) {
  * @param {*} how_many_sold 
  * @returns 
  */
-function get_loot_price_modifier(value, how_many_sold) {
+function get_loot_price_modifier({value, how_many_sold, group_key, group_tier}) {
     let modifier = 1;
     if(how_many_sold >= 999) {
         modifier = 0.1;
@@ -101,8 +101,9 @@ function get_item_value_with_market_saturation({base_value, group_key, group_tie
  */
 function add_to_sold({group_key, group_tier, count, region}) {
     if(!loot_sold_count[region][group_key]) {
-        loot_sold_count[region][group_key] = new Array(group_tier).fill({sold: 0, recovered: 0});
+        loot_sold_count[region][group_key] = new Array(group_tier+1).fill({sold: 0, recovered: 0});
     }
+    
     loot_sold_count[region][group_key][group_tier].sold += (count || 1);
 }
 

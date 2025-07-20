@@ -217,10 +217,10 @@ function clear_action_div() {
  * @param {Boolean} options.skip_quality
  * @param {Array} options.quality array with 1 or 2 values (1 - show only it, instead of item's; 2 - show start comparison between the two)
  */
-function create_item_tooltip(item, options = {}) {
+function create_item_tooltip(item, options = {}, is_trade = false) {
     let item_tooltip = document.createElement("span");
     item_tooltip.classList.add(options?.class_name || "item_tooltip");
-    item_tooltip.innerHTML = create_item_tooltip_content({item, options});
+    item_tooltip.innerHTML = create_item_tooltip_content({item, options, is_trade});
     return item_tooltip;
 }
 
@@ -232,8 +232,13 @@ function create_item_tooltip(item, options = {}) {
  * @param {Boolean} params.options.skip_quality
  * @param {Array} params.options.quality array with 1 or 2 values (1 - show only it, instead of item's; 2 - show start comparison between the two)
  */
-function create_item_tooltip_content({item, options={}}) {
+function create_item_tooltip_content({item, options={}, is_trade = false}) {
     let item_tooltip = "";
+
+    //different function used depending if its in trade (oh the horror...)
+    const value_function = is_trade?"getValue":"getBaseValue";
+
+    item_tooltip
     item_tooltip = `<b>${item.getName()}</b>`;
     if(item.description) {
         item_tooltip += `<br>${item.description}`; 
@@ -425,12 +430,16 @@ function create_item_tooltip_content({item, options={}}) {
     }
 
     if(!options.skip_quality && options?.quality?.length == 2) { 
-        item_tooltip += `<br>Value: ${format_money(round_item_price(item.getBaseValue(options.quality[0])))} - ${format_money(round_item_price(item.getBaseValue(options.quality[1])))}`;
+        //ignore quality, instead use quality passed as param
+        item_tooltip += `<br>Value: ${format_money(
+            round_item_price(
+                item[value_function]({quality:options.quality[0], region:current_location?.market_region})))} - ${format_money(round_item_price(item.getBaseValue({quality:options.quality[1]})
+            ))}`;
     } else {
-        item_tooltip += `<br>Value: ${format_money(round_item_price(item.getBaseValue(quality) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}`;
-    }
-    if(item.saturates_market) {
-        item_tooltip += ` [originally ${format_money(round_item_price(item.getBaseValue(quality) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}]`
+        item_tooltip += `<br>Value: ${format_money(round_item_price(item[value_function]({quality, region:current_location?.market_region}) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}`;
+        if(item.saturates_market) {
+            item_tooltip += ` [originally ${format_money(round_item_price(item.getBaseValue({quality, region:current_location?.market_region}) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}]`
+        }
     }
 
     return item_tooltip;
@@ -815,11 +824,11 @@ function start_activity_animation(settings) {
      }, 600);
 }
 
-function update_displayed_trader(is_newly_open) {
+function update_displayed_trader() {
     action_div.style.display = "none";
     trade_div.style.display = "inherit";
     document.getElementById("trader_cost_mult_value").textContent = `${Math.round(100 * (traders[current_trader].getProfitMargin()))}%`
-    update_displayed_trader_inventory({is_newly_open});
+    update_displayed_trader_inventory();
 }
 
 function update_displayed_storage() {
@@ -1075,7 +1084,7 @@ function sort_displayed_inventory({sort_by = "name", target = "character", chang
     }).forEach(node => target.appendChild(node));
 }
 
-function update_displayed_trader_inventory({item_key, trader_sorting="name", sorting_direction="asc", was_anything_new_added=false, is_newly_open=false} = {}) {
+function update_displayed_trader_inventory({item_key, trader_sorting="name", sorting_direction="asc", was_anything_new_added=false} = {}) {
     const trader = traders[current_trader];
 
     //removal of unneeded divs
@@ -1096,14 +1105,19 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
     }
 
     //creation of missing divs and updating of others
+
     if(item_key) {
+        //key passed -> deal only with this singular item
         const item_count = trader.inventory[item_key].count;
         trader_item_divs[item_key].remove();
         delete trader_item_divs[item_key];
-        trader_item_divs[item_key] = create_inventory_item_div({key: item_key, item_count, target: "trader"});
+        trader_item_divs[item_key] = create_inventory_item_div({key: item_key, item_count, target: "trader", is_trade: true});
         trader_inventory_div.appendChild(trader_item_divs[item_key]);
         was_anything_new_added = true;
     } else {
+        //no key passed - go through all items
+
+        //go through inventory items
         Object.keys(trader.inventory).forEach(inventory_key => {
             let item_count = trader.inventory[inventory_key].count;
 
@@ -1126,14 +1140,19 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
             }
 
             if(!trader_item_divs[inventory_key]) {
+                //item is not present in display, create a new one
                 trader_item_divs[inventory_key] = create_inventory_item_div({key: inventory_key, item_count, target: "trader", is_trade: true});
                 trader_inventory_div.appendChild(trader_item_divs[inventory_key]);
                 was_anything_new_added = true;
             } else {
+                //item is present
+
+                //grab the displayed count
                 let div_count = Number.parseInt(trader_item_divs[inventory_key].getElementsByClassName("item_count")[0].innerText.replace("x",""));
                 if(Number.isNaN(div_count)) {
                     div_count = 0;
                 }
+                //compare displayed count with actual count, update display to proper value if they differ
                 if(div_count != item_count) {
                     if(item_count > 1) {
                         trader_item_divs[inventory_key].getElementsByClassName("item_count")[0].innerText = ` x${item_count}`;
@@ -1142,15 +1161,17 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
                     }
                 }
 
-                //grab price div and update it
-                //do it only when opening trader, not on in-trade refreshes
-                if(is_newly_open) {
-                    const price_span = trader_item_divs[inventory_key].getElementsByClassName("item_value")[0];
-                    price_span.innerHTML =  `${format_money(round_item_price(trader.inventory[inventory_key].item.getValueWithSaturation(current_location.market_region)*(traders[current_trader].getProfitMargin() || 1)), true)}`;
-                }
+                //overwrite tooltip (for displayed prices)
+                const tooltip_div = trader_item_divs[inventory_key].querySelector(".item_tooltip");
+                tooltip_div.replaceWith(create_item_tooltip(trader.inventory[inventory_key].item, options));
+
+                //grab and update price div, do it for all as trading can affect prices of multiple items
+                const price_span = trader_item_divs[inventory_key].getElementsByClassName("item_value")[0];
+                price_span.innerHTML =  `${format_money(round_item_price(trader.inventory[inventory_key].item.getValue({region: current_location.market_region})*(traders[current_trader].getProfitMargin() || 1)), true)}`;
             }
         });
 
+        //go through to_sell items
         for(let i = 0; i < to_sell.items.length; i++) {
             const key = to_sell.items[i].item_key;
             if(!item_selling_divs[key]) {
@@ -1184,7 +1205,7 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
  * if item_key/equip_slot is passed, it will instead only update the display of that one item
  * 
  */
-function update_displayed_character_inventory({item_key, equip_slot, character_sorting="name", sorting_direction="asc", was_anything_new_added=false} = {}) {    
+function update_displayed_character_inventory({item_key, equip_slot, character_sorting="name", sorting_direction="asc", was_anything_new_added=false, is_trade=false} = {}) {    
     
     //removal of unneeded divs
     if(!item_key){
@@ -1217,15 +1238,18 @@ function update_displayed_character_inventory({item_key, equip_slot, character_s
 
     //creation of missing divs and updating of others
     if(item_key) {
+        //specific item to be updated
         const item_count = character.inventory[item_key].count;
         was_anything_new_added = item_divs[item_key];
         item_divs[item_key].remove();
         delete item_divs[item_key];
-        item_divs[item_key] = create_inventory_item_div({key: item_key, item_count, target: "character"});
+        item_divs[item_key] = create_inventory_item_div({key: item_key, item_count, target: "character", is_trade});
         inventory_div.appendChild(item_divs[item_key]);
     } else if(equip_slot){
-        item_divs[equip_slot] = create_inventory_item_div({key: equip_slot, target: "character", is_equipped: true});
+        //equipped item
+        item_divs[equip_slot] = create_inventory_item_div({key: equip_slot, target: "character", is_equipped: true, is_trade});
     } else {
+        //inventory items
         Object.keys(character.inventory).forEach(inventory_key => {
             let item_count = character.inventory[inventory_key].count;
 
@@ -1248,10 +1272,12 @@ function update_displayed_character_inventory({item_key, equip_slot, character_s
             }
 
             if(!item_divs[inventory_key]) {
-                item_divs[inventory_key] = create_inventory_item_div({key: inventory_key, item_count, target: "character"});
+                //not in display, add it
+                item_divs[inventory_key] = create_inventory_item_div({key: inventory_key, item_count, target: "character", is_trade});
                 inventory_div.appendChild(item_divs[inventory_key]);
                 was_anything_new_added = true;
             } else {
+                //in display, just update it
                 let div_count = Number.parseInt(item_divs[inventory_key].getElementsByClassName("item_count")[0].innerText.replace("x",""));
                 if(Number.isNaN(div_count)) {
                     div_count = 0;
@@ -1263,6 +1289,19 @@ function update_displayed_character_inventory({item_key, equip_slot, character_s
                         item_divs[inventory_key].getElementsByClassName("item_count")[0].innerText = ``;
                     }
                 }
+
+                //overwrite tooltip (for displayed prices)
+                const tooltip_div = item_divs[inventory_key].querySelector(".item_tooltip");
+                tooltip_div.replaceWith(create_item_tooltip(character.inventory[inventory_key].item, options, is_trade));
+
+                //grab and update price div, do it for all as trading can affect prices of multiple items
+                const price_span = item_divs[inventory_key].getElementsByClassName("item_value")[0];
+                if(is_trade) {
+                    price_span.innerHTML =  `${format_money(round_item_price(character.inventory[inventory_key].item.getValue({region: current_location.market_region})), true)}`;
+                } else {
+                    price_span.innerHTML =  `${format_money(round_item_price(character.inventory[inventory_key].item.getBaseValue()), true)}`;
+                }
+           
             }
         });
 
@@ -1274,7 +1313,7 @@ function update_displayed_character_inventory({item_key, equip_slot, character_s
                         return;
                     }
     
-                    item_divs[eq_slot] = create_inventory_item_div({key: eq_slot, target: "character", is_equipped: true});
+                    item_divs[eq_slot] = create_inventory_item_div({key: eq_slot, target: "character", is_equipped: true,is_trade});
                     inventory_div.appendChild(item_divs[eq_slot]);
                     was_anything_new_added = true;
                 }
@@ -1284,7 +1323,7 @@ function update_displayed_character_inventory({item_key, equip_slot, character_s
         for(let i = 0; i < to_buy.items.length; i++) {
             const key = to_buy.items[i].item_key;
             if(!item_buying_divs[key]) {
-                item_buying_divs[key] = create_inventory_item_div({target: "character", trade_index: i});
+                item_buying_divs[key] = create_inventory_item_div({target: "character", trade_index: i,is_trade});
                 inventory_div.appendChild(item_buying_divs[key]);
             } else {
                 //verify and update count
@@ -1491,7 +1530,7 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
 
     item_div.classList.add(`${item_class}`, `${target_class_name}`, `item_${target_item.item_type.toLowerCase()}`);
 
-    item_div.appendChild(create_item_tooltip(target_item, options));
+    item_div.appendChild(create_item_tooltip(target_item, options, is_trade));
 
     item_control_div.classList.add(`${item_class}_control`, `${target_class_name}_control`, `${target_class_name}_${target_item.item_type.toLowerCase()}`);
     item_control_div.setAttribute(`data-${target_class_name}`, `${target_item.getInventoryKey()}`)

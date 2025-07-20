@@ -4013,7 +4013,11 @@ function update() {
         const curr_day = current_game_time.day;
         if(curr_day > prev_day) {
             recover_item_prices(trade_price_recovery_flat, trade_price_recovery_ratio);
-            update_displayed_character_inventory();
+            if(is_in_trade()) {
+                //update displayed prices due to recovery
+                update_displayed_character_inventory({is_trade: true});
+                update_displayed_trader_inventory();
+            }
         }
 
         //update effect durations and displays;
@@ -4528,7 +4532,7 @@ function add_all_active_effects(duration){
     update_displayed_effects();
 }
 
-//add_to_character_inventory([{item_id: "ABC for kids", count: 1000}]);
+//add_to_character_inventory([{item_id: "Iron sword", count: 1000}]);
 //add_to_character_inventory([{item_id: "Medicine for dummies", count: 10}]);
 
 //add_stuff_for_testing();

@@ -27,7 +27,8 @@ function start_trade(trader_key) {
     traders[trader_key].refresh();
     current_trader = trader_key;
     
-    update_displayed_trader(true);
+    update_displayed_trader();
+    update_displayed_character_inventory({is_trade: true});
 }
 
 function cancel_trade() {
@@ -37,7 +38,7 @@ function cancel_trade() {
     to_sell.items = [];
     to_sell.value = 0;
 
-    update_displayed_character_inventory();
+    update_displayed_character_inventory({is_trade: true});
     update_displayed_trader_inventory();
 }
 
@@ -83,6 +84,7 @@ function accept_trade() {
             remove_from_trader_inventory(current_trader,to_remove);
 
             for(let i = 0; i < item_list.length; i++) {
+                //update (remove) single item from display
                 update_displayed_character_inventory({item_key: item_list[i].item_key});
             }
         }
@@ -105,7 +107,7 @@ function accept_trade() {
             const item = getItemFromKey(trade_item.item_key);
             const {group_key, group_tier} = item.getMarketSaturationGroup();
             if(item.saturates_market) {
-                add_to_sold({group_key, group_tier, count: item.count, region: current_location.market_region});
+                add_to_sold({group_key, group_tier, count: trade_item.count, region: current_location.market_region});
             }
         }
         
@@ -124,7 +126,7 @@ function accept_trade() {
     to_buy.value = 0;
     to_sell.value = 0;
 
-    update_displayed_character_inventory();
+    update_displayed_character_inventory({is_trade: true});
     update_displayed_trader_inventory();
     update_displayed_money();
 }
@@ -224,16 +226,14 @@ function add_to_selling_list(selected_item) {
         to_sell.items.push(selected_item);
     }
 
-    let {id, components, quality} = JSON.parse(selected_item.item_key);
+    const item = getItemFromKey(selected_item.item_key);
     let value;
 
-    if(id && item_templates[id].saturates_market) {
-        value = item_templates[id].getValueOfMultiple({additional_count_of_sold: (present_item?.count - selected_item.count || 0), count: selected_item.count, region: current_location.market_region});
-    } else if(id && !item_templates[id].saturates_market) { 
-        value = item_templates[id].getValue({quality, region: current_location.market_region}) * selected_item.count;
-    } else {
-        value = getEquipmentValue({components, quality, region: current_location.market_region}) * selected_item.count;
-    }
+    if(item.saturates_market) {
+        value = item.getValueOfMultiple({additional_count_of_sold: (present_item?.count - selected_item.count || 0), count: selected_item.count, region: current_location.market_region});
+    } else { 
+        value = item.getValue({region: current_location.market_region}) * selected_item.count;
+    } 
     
     to_sell.value += value;
     return value;
