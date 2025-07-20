@@ -76,7 +76,7 @@ function get_loot_price_modifier({value, how_many_sold, group_key, group_tier}) 
 function get_loot_price_modifier_multiple(value, start_count, how_many_to_sell) {
     let sum = 0;
     for(let i = start_count; i < start_count+how_many_to_sell; i++) {
-        sum += get_loot_price_modifier(value, i);
+        sum += get_loot_price_modifier({value, how_many_sold: i});
     }
     return sum;
 }
@@ -85,12 +85,12 @@ function get_item_value_with_market_saturation({base_value, group_key, group_tie
     return Math.max(
             1, round_item_price(
                 Math.ceil(
-                    base_value * get_loot_price_modifier(
-                        base_value,
-                        (Math.max(
+                    base_value * get_loot_price_modifier({
+                        value: base_value,
+                        how_many_sold: (Math.max(
                             loot_sold_count[region][group_key]?.[group_tier]?.sold - loot_sold_count[region][group_key]?.[group_tier]?.recovered,0)||0
                         )
-                    )
+                    })
                 )
             )
         );
