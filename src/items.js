@@ -39,6 +39,7 @@
 
 import { round_item_price } from "./misc.js";
 import { group_key_prefix, get_item_value_with_market_saturation, get_loot_price_modifier_multiple, get_total_tier_saturation} from "./market_saturation.js";
+import { is_rat } from "./main.js";
 
 const rarity_multipliers = {
     trash: 1, //low quality alone makes these so bad that no additional nerf should be needed
@@ -102,6 +103,7 @@ class Item {
                 saturates_market,
                 quality = null,
                 components = null,
+                getName = ()=>{return this.name},
                 })
     {
         this.name = name; 
@@ -119,6 +121,10 @@ class Item {
         this.tags = tags;
         this.tags["item"] = true;
         this.market_saturation_group = market_saturation_group;
+
+        if(!this.getName) {
+            this.getName = getName;
+        }
     }
 
     getMarketSaturationGroup() {
@@ -188,10 +194,6 @@ class Item {
             const modifier = get_loot_price_modifier_multiple(val, get_total_tier_saturation({region, group_key, group_tier}) + additional_count_of_sold, count);
             return Math.max(count, Math.ceil(round_item_price(val) * Math.round(val*modifier)/val));
         }
-    }
-
-    getName() {
-        return this.name;
     }
 
     getDescription() {
@@ -666,7 +668,7 @@ class Armor extends Equippable {
             return Math.ceil(((item_templates[this.components.internal].defense_value || item_templates[this.components.internal].base_defense ||0) + 
                                         (item_templates[this.components.external]?.defense_value || 0 )) 
                                         * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality || this.quality)]
-            )
+            );
         } else {
             return Math.ceil((this.base_defense || 0)  * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality || this.quality)]);
         }
@@ -1258,6 +1260,10 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         description: "Cheapest form of wood. There's a lot of bark and malformed pieces.",
         value: 2,
         material_type: "raw wood",
+        getName: ()=>{
+            if(is_rat()) return "Piece of rat wood";
+            else return "Piece of rough wood";
+        }
     });
     item_templates["Piece of wood"] = new Material({
         name: "Piece of wood",
@@ -3080,7 +3086,7 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Weak healing powder", 
         description: "Not very potent, but can still make body heal noticeably faster for quite a while", 
         value: 40,
-        effects: [{effect: "Weak healing powder", duration: 120}],
+        effects: [{effect: "Weak healing powder", duration: 240}],
         tags: {"medicine": true},
     });
 
@@ -3088,7 +3094,7 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Healing powder", 
         description: "Not exactly powerful in its effects, but still makes the body heal noticeably faster and for a long time",
         value: 100,
-        effects: [{effect: "Healing powder", duration: 150}],
+        effects: [{effect: "Healing powder", duration: 300}],
         tags: {"medicine": true},
     });
 

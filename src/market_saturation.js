@@ -60,9 +60,10 @@ function get_loot_price_modifier({value, how_many_sold}) {
     let modifier = 1;
     if(how_many_sold >= 999) {
         modifier = 0.1;
-    } else if(how_many_sold) {
+    } else if(how_many_sold > 0) {
         modifier = modifier * 111/(111+how_many_sold);
     }
+    //no case for negatives, prices don't go above the starting values
     return Math.round(value*modifier)/value;
 }
 
@@ -73,7 +74,7 @@ function get_loot_price_modifier({value, how_many_sold}) {
  */
 function get_total_tier_saturation({region, group_key, group_tier}) {
     const sold_by_tier = [];
-    for(let i = 0; i < loot_sold_count[region][group_key].length; i++) {
+    for(let i = 0; i < loot_sold_count[region][group_key]?.length; i++) {
         sold_by_tier[i] = loot_sold_count[region][group_key][i].sold - loot_sold_count[region][group_key][i].recovered;
     }
     return calculate_total_saturation({sold_by_tier, group_tier});
@@ -88,12 +89,12 @@ function calculate_total_saturation({sold_by_tier, target_tier}) {
     let count = 0;
     for(let i = target_tier - 1; i >= 0; i--) {
         //x0.25 for each tier going down
-        count += Math.max(sold_by_tier[i])*0.25**(target_tier-i);
+        count += Math.max(sold_by_tier[i] ?? 0)*0.25**(target_tier-i);
     }
-    count += Math.max(sold_by_tier[target_tier]);
+    count += (sold_by_tier[target_tier] ?? 0);
     for(let i = target_tier + 1 ; i < sold_by_tier.length; i++) {
         //x1 for each tier going down
-        count += Math.max(sold_by_tier[i]);
+        count += Math.max(sold_by_tier[i] ?? 0);
     }                    
     return count;
 }

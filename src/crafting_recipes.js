@@ -16,7 +16,7 @@ const alchemy_recipes = {items: {}};
     non-equipment recipes have a success rate (presented with min-max value, where max should be 1) that shall scale with skill level and with crafting station level
     for equipment recipes, there is no success rate in favor of equipment's "quality" property
 
-    resulting quality of equipment is based on component quality; 100% (with slight variation) with 100% components and required skill, more at higher levels
+    resulting quality of equipment is based on component quality, result tier, crafting station tier and relevant skill level
     
     overal max quality achievable scales with related skills
 */

@@ -24,6 +24,7 @@ const time_until_cold = 60;
 const time_until_cold_when_wet = 20;
 
 //temperatures for effects 'cold','very cold','freezing','hypothermia'
+//not exactly realistic
 const cold_status_temperatures = [14,8,2,-4];
 const lowest_tolerable_temperature = cold_status_temperatures[0];
 //array for matching the names of aforementioned effects

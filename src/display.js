@@ -841,6 +841,10 @@ function update_displayed_money() {
     document.getElementById("money_div").innerHTML = `Your purse contains: ${format_money(character.money)}`;
 }
 
+function update_displayed_total_price(total_price) {
+    document.getElementById("trade_price_value").innerHTML = format_money(total_price);
+}
+
 /**
  * 
  * @returns {HTMLElement}
@@ -3110,7 +3114,8 @@ function create_gathering_tooltip(location_activity) {
 
     gathering_tooltip.innerHTML += `Every ${format_time({time: {minutes: gathering_time_needed}, round: false})}, chance to find:`;
     for(let i = 0; i < gained_resources.length; i++) {
-        gathering_tooltip.innerHTML += `<br>x${gained_resources[i].count[0]===gained_resources[i].count[1]?gained_resources[i].count[0]:`${gained_resources[i].count[0]}-${gained_resources[i].count[1]}`} "${gained_resources[i].name}" at ${Math.round(100*gained_resources[i].chance)}%`;
+        const name = item_templates[gained_resources[i].name].getName();
+        gathering_tooltip.innerHTML += `<br>x${gained_resources[i].count[0]===gained_resources[i].count[1]?gained_resources[i].count[0]:`${gained_resources[i].count[0]}-${gained_resources[i].count[1]}`} "${name}" at ${Math.round(100*gained_resources[i].chance)}%`;
     }
 
     return gathering_tooltip;
@@ -4863,5 +4868,6 @@ export {
     skill_list,
     update_booklist_entry,
     add_quest_to_display, update_displayed_quest, update_displayed_quest_task, 
-    start_rain_animation, start_snow_animation, stop_background_animation
+    start_rain_animation, start_snow_animation, stop_background_animation,
+    update_displayed_total_price
 }

@@ -74,7 +74,8 @@ import { end_activity_animation,
          update_displayed_quest,
          start_rain_animation,
          start_snow_animation,
-         stop_background_animation
+         stop_background_animation,
+         update_displayed_total_price
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -201,7 +202,7 @@ const favourite_consumables = {};
 //consumables that are to be used automatically if their effect runs out
 
 //stupid little thing for a stupid easter egg
-const is_rat = () => character.name.match(/rat/i);
+const is_rat = () => character.name.match(/\b(?<![\w])rat\b/i);
 
 const tickrate = 1;
 //how many ticks per second
@@ -2132,7 +2133,7 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
             const {available_ammount, materials} = selected_recipe.get_availability()
             let ammount_that_can_be_crafted = Math.min(ammount_wanted_to_craft, available_ammount);
             let attempted_crafting_ammount = ammount_that_can_be_crafted; //ammount that will be attempted (e.g. 100)
-            let successful_crafting_ammount; //ammount that will succeed (e.g. 100 * 75.6% success = 75 + 60% for another 1)
+            let successful_crafting_ammount; //ammount that will succeed (e.g. 100 * 75.6% success = 75.6 -> 75 + 60% for another 1)
             if(ammount_that_can_be_crafted > 0) { 
                 const success_chance = selected_recipe.get_success_chance(station_tier);
                 result = selected_recipe.getResult();
@@ -2145,8 +2146,10 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 const needed_crafts = Math.ceil(needed_xp/(estimated_xp_per_craft*get_skill_xp_gain(recipe_skill.skill_id)));
                 
                 attempted_crafting_ammount = Math.min(needed_crafts, ammount_that_can_be_crafted);
-                successful_crafting_ammount = Math.floor((attempted_crafting_ammount-1)*success_chance);
-                const variable_craft = Math.random()<success_chance?1:0;
+                successful_crafting_ammount = Math.floor(attempted_crafting_ammount*success_chance);
+                
+                //chance to get 1 more if it was not an integer
+                const variable_craft = Math.random()<(attempted_crafting_ammount*success_chance - successful_crafting_ammount)?1:0;
                 successful_crafting_ammount += variable_craft;
                 
                 const current_gained_xp = (attempted_crafting_ammount-1)*estimated_xp_per_craft + (variable_craft?xp_per_craft:(xp_per_craft/4));
@@ -4427,6 +4430,7 @@ window.remove_from_selling_list = remove_from_selling_list;
 window.cancel_trade = cancel_trade;
 window.accept_trade = accept_trade;
 window.is_in_trade = is_in_trade;
+window.update_displayed_total_price = update_displayed_total_price;
 
 window.open_storage = open_storage;
 window.exit_storage = close_storage;
