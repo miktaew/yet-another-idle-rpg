@@ -213,7 +213,7 @@ class Hero extends InventoryHaver {
                 character.stats.flat.level.dexterity = (character.stats.flat.level.dexterity || 0) + gained_dex;
         
                 character.xp_bonuses.multiplier.levels.all_skill = (character.xp_bonuses.multiplier.levels.all_skill || 1) * total_skill_xp_multiplier;
-        
+
                 let gains = `<br>HP increased by ${gained_hp}<br>Stamina increased by ${gained_stamina}`;
                 if(gained_str > 0) {
                         gains += `<br>Strength increased by ${gained_str}`;
@@ -289,18 +289,18 @@ character.stats.add_book_bonus = function ({multipliers = {}, xp_multipliers = {
         });
        
         if(xp_multipliers?.hero) {
-                character.xp_bonuses.multiplier.skills.hero = (character.xp_bonuses.multiplier.skills.hero || 1) * xp_multipliers.hero;
+                character.xp_bonuses.multiplier.books.hero = (character.xp_bonuses.multiplier.books.hero || 1) * xp_multipliers.hero;
         }
         if(xp_multipliers?.all) {
-                character.xp_bonuses.multiplier.skills.all = (character.xp_bonuses.multiplier.skills.all || 1) * xp_multipliers.all;
+                character.xp_bonuses.multiplier.books.all = (character.xp_bonuses.multiplier.books.all || 1) * xp_multipliers.all;
         }
         if(xp_multipliers?.all_skill) {
-                character.xp_bonuses.multiplier.skills.all_skill = (character.xp_bonuses.multiplier.skills.all_skill || 1) * xp_multipliers.all_skill;
+                character.xp_bonuses.multiplier.books.all_skill = (character.xp_bonuses.multiplier.books.all_skill || 1) * xp_multipliers.all_skill;
         }
 
         Object.keys(skills).forEach(skill => {
                 if(xp_multipliers[skill]) {
-                        character.xp_bonuses.multiplier.skills[skill] = (character.xp_bonuses.multiplier.skills[skill] || 1) * xp_multipliers[skill];
+                        character.xp_bonuses.multiplier.books[skill] = (character.xp_bonuses.multiplier.books[skill] || 1) * xp_multipliers[skill];
                 }
         });
 }
@@ -308,6 +308,8 @@ character.stats.add_book_bonus = function ({multipliers = {}, xp_multipliers = {
 character.stats.add_active_effect_bonus = function() {
         character.stats.flat.active_effect = {};
         character.stats.multiplier.active_effect = {};
+        character.bonus_skill_levels.flat.active_effects = {};
+        character.xp_bonuses.multiplier.active_effects = {};
 
         Object.keys(active_effects).forEach(effect_key => {
                 let multiplier = 1;
@@ -326,7 +328,7 @@ character.stats.add_active_effect_bonus = function() {
                         character.bonus_skill_levels.flat.active_effects[key] = (character.bonus_skill_levels.flat.active_effects[key] || 0) + value;
                 }
                 for(const [key, value] of Object.entries(effects.xp_multipliers)) {
-                        character.xp_bonuses.multiplier.active_effects[key] = (character.xp_bonuses.multiplier.active_effects[key] || 0) + value;
+                        character.xp_bonuses.multiplier.active_effects[key] = (character.xp_bonuses.multiplier.active_effects[key] || 1) * value;
                 }
         });
 }

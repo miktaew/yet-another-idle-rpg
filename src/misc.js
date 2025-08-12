@@ -49,7 +49,7 @@ const crafting_tags_to_skills = {
 
 function expo(number, precision = 3)
 {
-    let expo_threshold = 10000000;
+    let expo_threshold = 1000000;
 
     if(number == 0) {
         return 0;

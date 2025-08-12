@@ -6,7 +6,7 @@ import { update_displayed_trader, update_displayed_trader_inventory,
 import { add_to_character_inventory, remove_from_character_inventory } from "./character.js";
 import { skills } from "./skills.js";
 import { getItemFromKey } from "./items.js";
-import { add_to_sold, calculate_total_saturation, get_total_tier_saturation, remove_from_sold } from "./market_saturation.js";
+import { add_to_sold, calculate_total_saturation, remove_from_sold } from "./market_saturation.js";
 import { character } from "./character.js";
 import { add_xp_to_skill, current_location } from "./main.js";
 import { round_item_price } from "./misc.js";
@@ -60,8 +60,10 @@ function start_trade(trader_key) {
 function cancel_trade() {
 
     to_buy.items = [];
+    to_buy.groups = {};
     to_buy.value = 0;
     to_sell.items = [];
+    to_sell.groups = {};
     to_sell.value = 0;
 
     update_displayed_character_inventory({is_trade: true});
@@ -149,9 +151,10 @@ function accept_trade() {
     add_xp_to_skill({skill: skills["Haggling"], xp_to_add: (to_sell.value + to_buy.value)/10});
 
     to_buy.value = 0;
+    to_buy.groups = {};
     to_sell.value = 0;
+    to_sell.groups = {};
 
-    traded_groups = {};
 
     update_displayed_character_inventory({is_trade: true});
     update_displayed_trader_inventory();
@@ -161,8 +164,10 @@ function accept_trade() {
 function exit_trade() {
     current_trader = null;
     to_buy.items = [];
+    to_buy.groups = {};
     to_buy.value = 0;
     to_sell.items = [];
+    to_sell.groups = {};
     to_sell.value = 0;
     exit_displayed_trade();
     update_displayed_character_inventory();
@@ -192,8 +197,7 @@ function add_to_buying_list(selected_item) {
 
         to_buy.groups[group_key].count[group_tier] += actual_number_to_add;
         to_buy.groups[group_key].unsorted.find(x => selected_item.item_key === x.item_key).count += actual_number_to_add;
-        to_buy.groups[group_key].sorted.find(x => selected_item.item_key === x.item_key).count += actual_number_to_add;
-
+        //no need to increase value in sorted, it's part of the same object and will be affected
     } else { //it's not yet in to_buy
         if(item_count_in_trader < selected_item.count) { 
             //trader has not enough: buy all available
@@ -242,7 +246,7 @@ function remove_from_buying_list(selected_item) {
     if(present_item?.count > selected_item.count) { //more than to remove, use the provided count
         present_item.count -= actual_number_to_remove;
         to_buy.groups[group_key].unsorted.find(x => selected_item.item_key === x.item_key).count -= actual_number_to_remove;
-        to_buy.groups[group_key].sorted.find(x => selected_item.item_key === x.item_key).count -= actual_number_to_remove;
+        //no need to decrease value in sorted, it's part of the same object and will be affected
     } else { //less than to remove, so just remove all
         actual_number_to_remove = present_item.count;
         present_item.count = 0;
@@ -284,7 +288,7 @@ function add_to_selling_list(selected_item) {
         //increase overall tier count and specific counts in unsorted and sorted
         to_sell.groups[group_key].count[group_tier] += selected_item.count;
         to_sell.groups[group_key].unsorted.find(x => selected_item.item_key === x.item_key).count += selected_item.count;
-        to_sell.groups[group_key].sorted.find(x => selected_item.item_key === x.item_key).count += selected_item.count;
+        //no need to increase value in sorted, it's part of the same object and will be affected
     } else { 
         //item not present in to_sell, add it and do other necessary stuff
 
@@ -329,7 +333,7 @@ function remove_from_selling_list(selected_item) {
     if(present_item?.count > selected_item.count) { //more than to remove, use the provided count
         present_item.count -= actual_number_to_remove;
         to_sell.groups[group_key].unsorted.find(x => selected_item.item_key === x.item_key).count -= actual_number_to_remove;
-        to_sell.groups[group_key].sorted.find(x => selected_item.item_key === x.item_key).count -= actual_number_to_remove;
+        //no need to decrease value in sorted, it's part of the same object and will be affected
     } else { //less than to remove, so just remove all
         actual_number_to_remove = present_item.count;
         present_item.count = 0;
