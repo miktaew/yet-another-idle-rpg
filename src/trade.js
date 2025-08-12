@@ -408,7 +408,8 @@ function calculate_total_values() {
                                     += item.getValueOfMultiple({
                                         additional_count_of_sold: calculate_total_saturation({sold_by_tier: traded_groups.buying[group_key], target_tier: group_tier}),
                                         count: to_buy.groups[group_key].sorted[i].count,
-                                        region: current_location.market_region
+                                        region: current_location.market_region,
+                                        price_multiplier: traders[current_trader].getProfitMargin(),
                                     });
 
             if(traded_groups.buying[group_key].length < group_tier + 1) {
@@ -443,7 +444,7 @@ function calculate_total_values() {
                                     += item.getValueOfMultiple({
                                         additional_count_of_sold: calculate_total_saturation({sold_by_tier: traded_groups.selling[group_key], target_tier: group_tier}) - to_sell.groups[group_key].sorted[i].count,
                                         count: to_sell.groups[group_key].sorted[i].count,
-                                        region: current_location.market_region
+                                        region: current_location.market_region,
                                     });
 
             if(traded_groups.selling[group_key].length < group_tier + 1) {

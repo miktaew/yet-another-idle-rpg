@@ -185,14 +185,14 @@ class Item {
      * @param {Number} param0.additional_count_of_sold
      * @returns 
      */
-    getValueOfMultiple({additional_count_of_sold = 0, count, region}) {
+    getValueOfMultiple({additional_count_of_sold = 0, count, region, price_multiplier = 1}) {
         if(!this.saturates_market) {
             return round_item_price(this.getBaseValue()) * count;
         } else {
             const {group_key, group_tier} = this.getMarketSaturationGroup();
             const val = this.getBaseValue();
             const modifier = get_loot_price_modifier_multiple(val, get_total_tier_saturation({region, group_key, group_tier}) + additional_count_of_sold, count);
-            return Math.max(count, Math.ceil(round_item_price(val) * Math.round(val*modifier)/val));
+            return Math.max(count, Math.ceil(round_item_price(val*price_multiplier) * Math.round(val*modifier)/val));
         }
     }
 
