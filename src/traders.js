@@ -127,7 +127,7 @@ class TradeItem {
     constructor({ item_name,
                   chance = 1,
                   count = [1],
-                  quality = [20, 80]
+                  quality = null,
                 }) 
     {
         this.item_name = item_name;
