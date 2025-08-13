@@ -1328,14 +1328,16 @@ function do_enemy_combat_action(enemy_id) {
     if(!current_enemies) { 
         return;
     }
+
+    const enemy_count_xp_mod = current_enemies.filter(enemy => enemy.is_alive).length**(2/3);
     
     const attacker = current_enemies[enemy_id];
 
     let evasion_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/3); //down to .5 if there's full 8 enemies (multiple attackers make it harder to evade attacks)
     if(attacker.size === "small") {
-        add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: attacker.xp_value});
+        add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: attacker.xp_value/enemy_count_xp_mod});
     } else if(attacker.size === "large") {
-        add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: attacker.xp_value});
+        add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: attacker.xp_value/enemy_count_xp_mod});
         evasion_chance_modifier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Giant slayer"});
     }
 
@@ -1356,7 +1358,7 @@ function do_enemy_combat_action(enemy_id) {
     
     if(character.equipment["off-hand"]?.offhand_type === "shield") { //HAS SHIELD
         if(character.stats.full.block_chance > Math.random()) {//BLOCKED THE ATTACK
-            add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value});
+            add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value/enemy_count_xp_mod});
             const blocked = character.stats.total_multiplier.block_strength * character.equipment["off-hand"].getShieldStrength();
 
             if(blocked > damages_dealt[0]) {
@@ -1367,7 +1369,7 @@ function do_enemy_combat_action(enemy_id) {
                 partially_blocked = true;
             }
          } else {
-            add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value/2});
+            add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value/(2*enemy_count_xp_mod)});
          }
     } else { // HAS NO SHIELD
         const hit_chance = get_hit_chance(attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1), character.stats.full.evasion_points*evasion_chance_modifier);
@@ -1375,11 +1377,11 @@ function do_enemy_combat_action(enemy_id) {
         if(hit_chance < Math.random()) { //EVADED ATTACK
             const xp_to_add = character.wears_armor() ? attacker.xp_value : attacker.xp_value * 1.5; 
             //50% more evasion xp if going without armor
-            add_xp_to_skill({skill: skills["Evasion"], xp_to_add});
+            add_xp_to_skill({skill: skills["Evasion"], xp_to_add: xp_to_add/enemy_count_xp_mod});
             log_message(character.name + " evaded an attack", "enemy_missed");
             return; //damage fully evaded, nothing more can happen
         } else {
-            add_xp_to_skill({skill: skills["Evasion"], xp_to_add: attacker.xp_value/2});
+            add_xp_to_skill({skill: skills["Evasion"], xp_to_add: attacker.xp_value/(2*enemy_count_xp_mod)});
         }
     }
 
@@ -1392,9 +1394,9 @@ function do_enemy_combat_action(enemy_id) {
 
     if(!character.wears_armor()) //no armor so either completely naked or in things with 0 def
     {
-        add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: attacker.xp_value});
+        add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: attacker.xp_value/enemy_count_xp_mod});
     } else {
-        add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: Math.sqrt(attacker.xp_value)/2});
+        add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: Math.sqrt(attacker.xp_value)/(2*enemy_count_xp_mod)});
     }
 
     
@@ -1493,7 +1495,7 @@ function do_character_combat_action({target, attack_power, target_count}) {
 
             //gained xp multiplied by TOTAL size of enemy group raised to 1/3
             let xp_reward = target.xp_value * (current_enemies.length**0.3334);
-            add_xp_to_character(xp_reward, true);
+            add_xp_to_character(xp_reward/target_count, true);
 
             let loot = target.get_loot({drop_chance_modifier: 1/current_enemies.length**0.6667});
             if(loot.length > 0) {
