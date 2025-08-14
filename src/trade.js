@@ -388,50 +388,57 @@ function calculate_total_values() {
     to_buy.value = 0;
     to_sell.value = 0;
 
+
+    //////////////////////////////////////////////////////////////////
+    //go through both categories and count total items for both groups
+
+    Object.keys(to_sell.groups).forEach(group_key => {
+        if(!traded_groups.selling[group_key]) {
+            traded_groups.selling[group_key] = [];
+        }
+        for(let i = 0; i < to_sell.groups[group_key].sorted.length; i++) {
+            const item = getItemFromKey(to_sell.groups[group_key].sorted[i].item_key);
+            const {group_tier} = item.getMarketSaturationGroup();
+
+            //array too short compared to tier: push a spreaded array with the length of how much is missing, filled with zeroes
+            if(traded_groups.selling[group_key].length < group_tier + 1) {
+                traded_groups.selling[group_key].push(...new Array(group_tier + 1 - traded_groups.selling[group_key].length).fill(0));
+            }
+
+            //and then just increase tier count
+            traded_groups.selling[group_key][group_tier] += to_sell.groups[group_key].sorted[i].count;
+        }
+    });
+
     Object.keys(to_buy.groups).forEach(group_key => {
         if(!traded_groups.buying[group_key]) {
             traded_groups.buying[group_key] = [];
-        }
-
-        to_buy.groups[group_key].group_value = 0;
-
-        if(to_buy.groups[group_key].needs_resort) {
-            to_buy.groups[group_key].sorted = to_buy.groups[group_key].unsorted.sort((a,b) => sort_traded_items(a,b));
-            to_buy.groups[group_key].needs_resort = false;
         }
 
         for(let i = 0; i < to_buy.groups[group_key].sorted.length; i++) {
             const item = getItemFromKey(to_buy.groups[group_key].sorted[i].item_key);
             const {group_tier} = item.getMarketSaturationGroup();
 
-            to_buy.groups[group_key].group_value 
-                                    += item.getValueOfMultiple({
-                                        additional_count_of_sold: calculate_total_saturation({sold_by_tier: traded_groups.buying[group_key], target_tier: group_tier}),
-                                        count: to_buy.groups[group_key].sorted[i].count,
-                                        region: current_location.market_region,
-                                        price_multiplier: traders[current_trader].getProfitMargin(),
-                                    });
-
+            //array too short compared to tier: push a spreaded array with the length of how much is missing, filled with zeroes
             if(traded_groups.buying[group_key].length < group_tier + 1) {
                 traded_groups.buying[group_key].push(...new Array(group_tier + 1 - traded_groups.buying[group_key].length).fill(0));
             }
 
+            //and then just increase tier count
             traded_groups.buying[group_key][group_tier] += to_buy.groups[group_key].sorted[i].count;
         }
-
-        to_buy.value += to_buy.groups[group_key].group_value;
     });
 
-    Object.keys(to_sell.groups).forEach(group_key => {
-        if(!traded_groups.selling[group_key]) {
-            traded_groups.selling[group_key] = [];
-        }
+    ///////////////////////////////////////////////////////
+    //go through both categories and calculate their values
 
+
+    Object.keys(to_sell.groups).forEach(group_key => {
         to_sell.groups[group_key].group_value = 0;
 
         if(to_sell.groups[group_key].needs_resort) {
-            to_sell.groups[group_key].sorted = to_sell.groups[group_key].unsorted.sort((a,b) => sort_traded_items(b,a)); 
-            //sorted in reverse order from its equivalent in to_buy, so that first to sell (in other words, most affected by saturation penalty) will be lowest tier and lowest price
+            to_sell.groups[group_key].sorted = to_sell.groups[group_key].unsorted.sort((a,b) => sort_traded_items(a,b)); 
+
             to_sell.groups[group_key].needs_resort = false;
         }
 
@@ -440,21 +447,61 @@ function calculate_total_values() {
             const item = getItemFromKey(to_sell.groups[group_key].sorted[i].item_key);
             const {group_tier} = item.getMarketSaturationGroup();
 
+            //grab both saturations beforehand, to avoid unnecessary recalc
+            const sold_saturation = calculate_total_saturation({sold_by_tier: traded_groups.selling[group_key], target_tier: group_tier});
+            const bought_saturation = calculate_total_saturation({sold_by_tier: traded_groups.buying[group_key], target_tier: group_tier});
+
+            /*
+            increase value by value of however many there is of specific item
+            additional traded count: what's being sold, minus the count of current item (as it was included in initial calculation)
+            stop_multiplier_at: difference in counts, as only count over that difference should be subject to saturation
+            */
             to_sell.groups[group_key].group_value 
                                     += item.getValueOfMultiple({
-                                        additional_count_of_sold: calculate_total_saturation({sold_by_tier: traded_groups.selling[group_key], target_tier: group_tier}) - to_sell.groups[group_key].sorted[i].count,
+                                        additional_traded_count: sold_saturation - to_sell.groups[group_key].sorted[i].count,
+                                        stop_multiplier_at: Math.max(0,sold_saturation-bought_saturation),
                                         count: to_sell.groups[group_key].sorted[i].count,
                                         region: current_location.market_region,
                                     });
-
-            if(traded_groups.selling[group_key].length < group_tier + 1) {
-                traded_groups.selling[group_key].push(...new Array(group_tier + 1 - traded_groups.selling[group_key].length).fill(0));
-            }
-
-            traded_groups.selling[group_key][group_tier] += to_sell.groups[group_key].sorted[i].count;
         }
 
         to_sell.value += to_sell.groups[group_key].group_value;
+    });
+
+    Object.keys(to_buy.groups).forEach(group_key => {
+        to_buy.groups[group_key].group_value = 0;
+
+        if(to_buy.groups[group_key].needs_resort) {
+            to_buy.groups[group_key].sorted = to_buy.groups[group_key].unsorted.sort((a,b) => sort_traded_items(a,b));
+
+            to_buy.groups[group_key].needs_resort = false;
+        }
+
+        for(let i = 0; i < to_buy.groups[group_key].sorted.length; i++) {
+            const item = getItemFromKey(to_buy.groups[group_key].sorted[i].item_key);
+            const {group_tier} = item.getMarketSaturationGroup();
+
+            //grab both saturations beforehand, to avoid unnecessary recalc
+            const sold_saturation = calculate_total_saturation({sold_by_tier: traded_groups.selling[group_key], target_tier: group_tier});
+            const bought_saturation = calculate_total_saturation({sold_by_tier: traded_groups.buying[group_key], target_tier: group_tier});
+
+            /*
+            increase value by value of however many there is of specific item
+            additional traded count: what's being bought, minus the count of current item (as it was included in initial calculation)
+            stop_multiplier_at: difference in counts, as only count over that difference should be subject to saturation
+            */
+            to_buy.groups[group_key].group_value 
+                                    += item.getValueOfMultiple({
+                                        additional_traded_count: bought_saturation - to_buy.groups[group_key].sorted[i].count,
+                                        stop_multiplier_at: Math.max(0,sold_saturation-bought_saturation),
+                                        count: to_buy.groups[group_key].sorted[i].count,
+                                        region: current_location.market_region,
+                                        price_multiplier: traders[current_trader].getProfitMargin(),
+                                        is_selling: false,
+                                    });
+        }
+
+        to_buy.value += to_buy.groups[group_key].group_value;
     });
 
     return to_buy.value - to_sell.value;
@@ -475,7 +522,7 @@ function get_item_value(selected_item) {
 }
 
 /**
- * sorts by tier, then by value
+ * sorts by tier, then by value, in descending order
  * */
 function sort_traded_items(a,b) {
     const item_a = getItemFromKey(a.item_key);
