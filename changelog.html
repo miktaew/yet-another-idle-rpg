@@ -64,11 +64,12 @@
 <div id="header">Click on blocks to unfold their content</div>
 
 
-<button type="button" class="collapsible">v0.5 - Quests </button>
+<button type="button" class="collapsible">v0.5.0 - Quests, Weather, and trade expansion </button>
 <div class="content"><pre>
 v0.5.0
     - implemented a Quest system
     - implemented a simple weather system (temperature and rain), effects are mostly some penalties of varying degree if you get too cold; clothing now provides cold protection
+    - market saturation system now covers everything except consumables; it has a harsher scaling for equipment and components
     - added new equipment category, capes; they are rather expensive in terms of material cost, but provide the most cold protection out of all item types and allow you to feel fancy
     - added a new combat zone available from <span class="spoiler">'Forest road'</span>
     - added another stance, available from <span class="spoiler">'Suspicious man' after helping out in the 'Slums' (it technically existed before, but was impossible to unlock);
@@ -82,7 +83,8 @@ v0.5.0
 
     - 'Persistence' xp gains are now doubled when under 20% hp (you still need to be out of stamina); they are also increased when under any cold effect, the stronger the more, up to x2 at 'Hypothermia'
     - reduced defense on some wool items
-    - for multi-target attacks, skill xp gains are now divided by target count to provide similar xp gains as with single-target attacks; character xp is unchanged
+    - for multi-target attacks, xp gains are now divided by target count to provide similar xp gains as with single-target attacks
+    - for fighting against a group, xp gains for skills that gain xp when enemy attacks are now divided by target count ^ (2/3) (fighting 8 enemies will only give 2x xp of one)
     - for multi-target attacks, loot drop chances are now divided by target count ^ (2/3) (killing 8 enemies with 1 attack should only give 2x loot instead of 8x)
     - updated 'Sleeping' skill tooltip so that it mentions the increase to sleeping health restoration (mechanic already existed, but was missing from tooltip)
     - 'Unarmed' skill now provides additional +0.1 base dmg to unarmed attacks (original base was 1, this means by lvl 10 dmg will be doubled)
@@ -91,7 +93,8 @@ v0.5.0
     - work payments have been increased
     - trader profit margins were increased
     - increased trade price recovery per day (it's still very low and shouldn't be relied on)
-    - reduced Wall Rat agility from 20 to 2 (where are they gonna go? they are stuck in place)
+    - reduced 'Wall Rat' agility from 20 to 2 (where are they gonna go? they are stuck in place)
+    - increased duration of both types of 'Healing Powder'
 
     - updated enemy lineup creation code to allow for using predefined groups in their order (instead of choosing one randomly),
         and to allow for using a predefined group every N clears with other fights using random enemies
@@ -102,6 +105,8 @@ v0.5.0
     - fixed an issue with incorrect display of some of game settings after reloading
     - fixed a minor bug where book bonuses needed save+reload to be properly applied
     - fixed an error on beating a challenge zone that was in favourites
+    - fixed a minor multi-crafting bug where if the result was not an integer, the chance for the fraction to be turned into 1 additional item was calculated incorrectly
+    - fixed a minor display bug where traded items always ended up at the bottom of respective container, even moving the entire stack down if they were already present there
 
 courtesy of OnonokiNonon:
     - fixed display issues with inventory and fast travel on Firefox

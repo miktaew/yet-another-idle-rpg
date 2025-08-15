@@ -77,8 +77,6 @@ class StarParticle extends BackgroundParticle {
 
         this.context = canvas.getContext("2d");
 
-        this.radians = Math.random()*3.14;
-
         this.opacity += 0.3;
 
         this.draw = () => {

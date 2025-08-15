@@ -39,6 +39,7 @@
 
 import { round_item_price } from "./misc.js";
 import { group_key_prefix, get_item_value_with_market_saturation, get_loot_price_modifier_multiple, get_total_tier_saturation} from "./market_saturation.js";
+import { is_rat } from "./main.js";
 
 const rarity_multipliers = {
     trash: 1, //low quality alone makes these so bad that no additional nerf should be needed
@@ -97,17 +98,21 @@ class Item {
                 description,
                 value = 0, 
                 tags = {},
-                id = null,
                 market_saturation_group,
                 saturates_market,
                 quality = null,
+                id = null, //passed only on loading, no need to provide it when creating new item objects as it will be filled automatically in that case
                 components = null,
+                getName = ()=>{return this.name},
                 })
     {
-        this.name = name; 
+        this.name = name;
+        if(this.name?.startsWith(group_key_prefix)) {
+            throw new Error(`Item name of item "${this.name}" starts with a forbidden prefix!`);
+        }
+        this.id = id;
         this.description = description;
         this.saturates_market = saturates_market ?? true;
-        this.id = id;
 
         this.quality = quality;
         this.components = components; //meaningless unless it's an equippable that's /meant/ to have components
@@ -119,6 +124,10 @@ class Item {
         this.tags = tags;
         this.tags["item"] = true;
         this.market_saturation_group = market_saturation_group;
+
+        if(!this.getName) {
+            this.getName = getName;
+        }
     }
 
     getMarketSaturationGroup() {
@@ -176,22 +185,32 @@ class Item {
     /**
      * calculates total value for when trading multiple at once
      * @param {Object} param0
-     * @param {Number} param0.additional_count_of_sold
+     * @param {Number} param0.additional_traded_count
      * @returns 
      */
-    getValueOfMultiple({additional_count_of_sold = 0, count, region}) {
+    getValueOfMultiple({additional_traded_count = 0, count, region, price_multiplier = 1, is_selling = true, stop_multiplier_at = Infinity}) {
         if(!this.saturates_market) {
+            //doesn't saturate market, so it's literally just price * count
             return round_item_price(this.getBaseValue()) * count;
         } else {
             const {group_key, group_tier} = this.getMarketSaturationGroup();
-            const val = this.getBaseValue();
-            const modifier = get_loot_price_modifier_multiple(val, get_total_tier_saturation({region, group_key, group_tier}) + additional_count_of_sold, count);
-            return Math.max(count, Math.ceil(round_item_price(val) * Math.round(val*modifier)/val));
-        }
-    }
 
-    getName() {
-        return this.name;
+            const val = this.getBaseValue();
+
+            //start_count: total existing saturation + however many is artificially added to sold (e.g. got 40 already added to selling, need to calc price of next 1)
+            const modifier = get_loot_price_modifier_multiple({
+                value: val, 
+                start_count: get_total_tier_saturation({region, group_key, group_tier}) + additional_traded_count,
+                how_many_to_trade: count,
+                region,
+                is_group: group_key.startsWith(group_key_prefix),
+                is_selling,
+                stop_multiplier_at,
+            });
+
+            //return with modifier rounded by value
+            return Math.max(count, Math.ceil(round_item_price(val*price_multiplier) * Math.round(val*modifier)/val));
+        }
     }
 
     getDescription() {
@@ -666,7 +685,7 @@ class Armor extends Equippable {
             return Math.ceil(((item_templates[this.components.internal].defense_value || item_templates[this.components.internal].base_defense ||0) + 
                                         (item_templates[this.components.external]?.defense_value || 0 )) 
                                         * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality || this.quality)]
-            )
+            );
         } else {
             return Math.ceil((this.base_defense || 0)  * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality || this.quality)]);
         }
@@ -1137,14 +1156,14 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         value: 2000,
     });
     item_templates["Coil of rope"] = new OtherItem({
-        name: "Coil of rope", 
+        name: "Coil of rope",
         description: "A nice, long coil of rope, for whatever use you might find",
         value: 400,
     });
 
     item_templates["Mountain goat horn"] = new OtherItem({
-        name: "Mountain goat horn", 
-        description: "A curved and sturdy horn of a mountain goat. While not very useful in itself, it makes for a nice decoration.", 
+        name: "Mountain goat horn",
+        description: "A curved and sturdy horn of a mountain goat. While not very useful in itself, it makes for a nice decoration.",
         value: 30,
     });
 })();
@@ -1152,31 +1171,31 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
 //lootable materials
 (function(){
     item_templates["Rat tail"] = new Material({
-        name: "Rat tail", 
-        description: "Tail of a huge rat. Doesn't seem very useful, but maybe some meat could be recovered from it", 
+        name: "Rat tail",
+        description: "Tail of a huge rat. Doesn't seem very useful, but maybe some meat could be recovered from it",
         value: 4,
     });
     item_templates["Rat pelt"] = new Material({
-        name: "Rat pelt", 
-        description: "Pelt of a huge rat. Fur has terrible quality, but maybe leather could be used for something if you gather more?", 
+        name: "Rat pelt",
+        description: "Pelt of a huge rat. Fur has terrible quality, but maybe leather could be used for something if you gather more?",
         value: 10,
         material_type: "pelt",
     });
     item_templates["High quality wolf fang"] = new Material({
-        name: "High quality wolf fang", 
-        description: "Fang of a wild wolf. Very sharp, undamaged and surprisingly clean.", 
+        name: "High quality wolf fang",
+        description: "Fang of a wild wolf. Very sharp, undamaged and surprisingly clean.",
         value: 15,
         material_type: "miscellaneous",
     });
     item_templates["Wolf pelt"] = new Material({
-        name: "Wolf pelt", 
-        description: "Pelt of a wild wolf. It's a bit damaged so it won't fetch a great price, but the leather itself could be useful.", 
+        name: "Wolf pelt",
+        description: "Pelt of a wild wolf. It's a bit damaged so it won't fetch a great price, but the leather itself could be useful.",
         value: 20,
         material_type: "pelt",
     });
 
     item_templates["Boar hide"] = new Material({
-        name: "Boar hide", 
+        name: "Boar hide",
         description: "Thick hide of a wild boar. Too stiff for clothing, but might be useful for an armor",
         value: 30,
         material_type: "pelt",
@@ -1187,14 +1206,14 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         value: 20,
     });
     item_templates["High quality boar tusk"] = new Material({
-        name: "High quality boar tusk", 
-        description: "Tusk of a wild boar. Sharp and long enough to easily kill an adult human", 
+        name: "High quality boar tusk",
+        description: "Tusk of a wild boar. Sharp and long enough to easily kill an adult human",
         value: 25,
         material_type: "miscellaneous",
     });
 
     item_templates["Weak monster bone"] = new Material({
-        name: "Weak monster bone", 
+        name: "Weak monster bone",
         description: "Mutated and dark bone of a monster. While on the weaker side, it's still very strong and should be useful for crafting after some processing",
         value: 30,
         material_type: "bone",
@@ -1258,6 +1277,10 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         description: "Cheapest form of wood. There's a lot of bark and malformed pieces.",
         value: 2,
         material_type: "raw wood",
+        getName: ()=>{
+            if(is_rat()) return "Piece of rat wood";
+            else return "Piece of rough wood";
+        }
     });
     item_templates["Piece of wood"] = new Material({
         name: "Piece of wood",
@@ -3080,7 +3103,7 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Weak healing powder", 
         description: "Not very potent, but can still make body heal noticeably faster for quite a while", 
         value: 40,
-        effects: [{effect: "Weak healing powder", duration: 120}],
+        effects: [{effect: "Weak healing powder", duration: 240}],
         tags: {"medicine": true},
     });
 
@@ -3088,7 +3111,7 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Healing powder", 
         description: "Not exactly powerful in its effects, but still makes the body heal noticeably faster and for a long time",
         value: 100,
-        effects: [{effect: "Healing powder", duration: 150}],
+        effects: [{effect: "Healing powder", duration: 300}],
         tags: {"medicine": true},
     });
 
@@ -3150,9 +3173,10 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
 
 })();
 
+//setup ids
 Object.keys(item_templates).forEach(id => {
     item_templates[id].id = id;
-})
+});
 
 export {
     item_templates, 

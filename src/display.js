@@ -841,6 +841,10 @@ function update_displayed_money() {
     document.getElementById("money_div").innerHTML = `Your purse contains: ${format_money(character.money)}`;
 }
 
+function update_displayed_total_price(total_price) {
+    document.getElementById("trade_price_value").innerHTML = format_money(total_price);
+}
+
 /**
  * 
  * @returns {HTMLElement}
@@ -1109,11 +1113,16 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
     if(item_key) {
         //key passed -> deal only with this singular item
         const item_count = trader.inventory[item_key].count;
-        trader_item_divs[item_key].remove();
-        delete trader_item_divs[item_key];
-        trader_item_divs[item_key] = create_inventory_item_div({key: item_key, item_count, target: "trader", is_trade: true});
-        trader_inventory_div.appendChild(trader_item_divs[item_key]);
-        was_anything_new_added = true;
+
+        was_anything_new_added = trader_item_divs[item_key];
+        const item_div = create_inventory_item_div({key: item_key, item_count, target: "trader", is_trade: true});
+
+        if(trader_item_divs[item_key]) {
+            trader_item_divs[item_key].replaceWith(item_div);
+        } else {
+            trader_item_divs[item_key] = item_div;
+            trader_inventory_div.appendChild(item_div);
+        }
     } else {
         //no key passed - go through all items
 
@@ -1194,7 +1203,7 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
         }
     }
     
-    if(!item_key && was_anything_new_added) {
+    if(was_anything_new_added) {
         sort_displayed_inventory({target: "trader", sort_by: trader_sorting, direction: sorting_direction});
     }
 }
@@ -1240,11 +1249,16 @@ function update_displayed_character_inventory({item_key, equip_slot, character_s
     if(item_key) {
         //specific item to be updated
         const item_count = character.inventory[item_key].count;
-        was_anything_new_added = item_divs[item_key];
-        item_divs[item_key].remove();
-        delete item_divs[item_key];
-        item_divs[item_key] = create_inventory_item_div({key: item_key, item_count, target: "character", is_trade});
-        inventory_div.appendChild(item_divs[item_key]);
+
+        was_anything_new_added = trader_item_divs[item_key];
+        const item_div = create_inventory_item_div({key: item_key, item_count, target: "character", is_trade: true});
+
+        if(item_divs[item_key]) {
+            item_divs[item_key].replaceWith(item_div);
+        } else {
+            item_divs[item_key] = item_div;
+            inventory_div.appendChild(item_div);
+        }
     } else if(equip_slot){
         //equipped item
         item_divs[equip_slot] = create_inventory_item_div({key: equip_slot, target: "character", is_equipped: true, is_trade});
@@ -3110,7 +3124,8 @@ function create_gathering_tooltip(location_activity) {
 
     gathering_tooltip.innerHTML += `Every ${format_time({time: {minutes: gathering_time_needed}, round: false})}, chance to find:`;
     for(let i = 0; i < gained_resources.length; i++) {
-        gathering_tooltip.innerHTML += `<br>x${gained_resources[i].count[0]===gained_resources[i].count[1]?gained_resources[i].count[0]:`${gained_resources[i].count[0]}-${gained_resources[i].count[1]}`} "${gained_resources[i].name}" at ${Math.round(100*gained_resources[i].chance)}%`;
+        const name = item_templates[gained_resources[i].name].getName();
+        gathering_tooltip.innerHTML += `<br>x${gained_resources[i].count[0]===gained_resources[i].count[1]?gained_resources[i].count[0]:`${gained_resources[i].count[0]}-${gained_resources[i].count[1]}`} "${name}" at ${Math.round(100*gained_resources[i].chance)}%`;
     }
 
     return gathering_tooltip;
@@ -4863,5 +4878,6 @@ export {
     skill_list,
     update_booklist_entry,
     add_quest_to_display, update_displayed_quest, update_displayed_quest_task, 
-    start_rain_animation, start_snow_animation, stop_background_animation
+    start_rain_animation, start_snow_animation, stop_background_animation,
+    update_displayed_total_price
 }

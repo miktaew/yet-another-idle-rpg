@@ -74,7 +74,8 @@ import { end_activity_animation,
          update_displayed_quest,
          start_rain_animation,
          start_snow_animation,
-         stop_background_animation
+         stop_background_animation,
+         update_displayed_total_price
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -201,7 +202,7 @@ const favourite_consumables = {};
 //consumables that are to be used automatically if their effect runs out
 
 //stupid little thing for a stupid easter egg
-const is_rat = () => character.name.match(/rat/i);
+const is_rat = () => character.name.match(/\b(?<![\w])rat\b/i);
 
 const tickrate = 1;
 //how many ticks per second
@@ -1327,14 +1328,16 @@ function do_enemy_combat_action(enemy_id) {
     if(!current_enemies) { 
         return;
     }
+
+    const enemy_count_xp_mod = current_enemies.filter(enemy => enemy.is_alive).length**(2/3);
     
     const attacker = current_enemies[enemy_id];
 
     let evasion_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/3); //down to .5 if there's full 8 enemies (multiple attackers make it harder to evade attacks)
     if(attacker.size === "small") {
-        add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: attacker.xp_value});
+        add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: attacker.xp_value/enemy_count_xp_mod});
     } else if(attacker.size === "large") {
-        add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: attacker.xp_value});
+        add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: attacker.xp_value/enemy_count_xp_mod});
         evasion_chance_modifier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Giant slayer"});
     }
 
@@ -1355,7 +1358,7 @@ function do_enemy_combat_action(enemy_id) {
     
     if(character.equipment["off-hand"]?.offhand_type === "shield") { //HAS SHIELD
         if(character.stats.full.block_chance > Math.random()) {//BLOCKED THE ATTACK
-            add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value});
+            add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value/enemy_count_xp_mod});
             const blocked = character.stats.total_multiplier.block_strength * character.equipment["off-hand"].getShieldStrength();
 
             if(blocked > damages_dealt[0]) {
@@ -1366,7 +1369,7 @@ function do_enemy_combat_action(enemy_id) {
                 partially_blocked = true;
             }
          } else {
-            add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value/2});
+            add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value/(2*enemy_count_xp_mod)});
          }
     } else { // HAS NO SHIELD
         const hit_chance = get_hit_chance(attacker.stats.dexterity * Math.sqrt(attacker.stats.intuition ?? 1), character.stats.full.evasion_points*evasion_chance_modifier);
@@ -1374,11 +1377,11 @@ function do_enemy_combat_action(enemy_id) {
         if(hit_chance < Math.random()) { //EVADED ATTACK
             const xp_to_add = character.wears_armor() ? attacker.xp_value : attacker.xp_value * 1.5; 
             //50% more evasion xp if going without armor
-            add_xp_to_skill({skill: skills["Evasion"], xp_to_add});
+            add_xp_to_skill({skill: skills["Evasion"], xp_to_add: xp_to_add/enemy_count_xp_mod});
             log_message(character.name + " evaded an attack", "enemy_missed");
             return; //damage fully evaded, nothing more can happen
         } else {
-            add_xp_to_skill({skill: skills["Evasion"], xp_to_add: attacker.xp_value/2});
+            add_xp_to_skill({skill: skills["Evasion"], xp_to_add: attacker.xp_value/(2*enemy_count_xp_mod)});
         }
     }
 
@@ -1391,9 +1394,9 @@ function do_enemy_combat_action(enemy_id) {
 
     if(!character.wears_armor()) //no armor so either completely naked or in things with 0 def
     {
-        add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: attacker.xp_value});
+        add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: attacker.xp_value/enemy_count_xp_mod});
     } else {
-        add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: Math.sqrt(attacker.xp_value)/2});
+        add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: Math.sqrt(attacker.xp_value)/(2*enemy_count_xp_mod)});
     }
 
     
@@ -1492,7 +1495,7 @@ function do_character_combat_action({target, attack_power, target_count}) {
 
             //gained xp multiplied by TOTAL size of enemy group raised to 1/3
             let xp_reward = target.xp_value * (current_enemies.length**0.3334);
-            add_xp_to_character(xp_reward, true);
+            add_xp_to_character(xp_reward/target_count, true);
 
             let loot = target.get_loot({drop_chance_modifier: 1/current_enemies.length**0.6667});
             if(loot.length > 0) {
@@ -2132,7 +2135,7 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
             const {available_ammount, materials} = selected_recipe.get_availability()
             let ammount_that_can_be_crafted = Math.min(ammount_wanted_to_craft, available_ammount);
             let attempted_crafting_ammount = ammount_that_can_be_crafted; //ammount that will be attempted (e.g. 100)
-            let successful_crafting_ammount; //ammount that will succeed (e.g. 100 * 75.6% success = 75 + 60% for another 1)
+            let successful_crafting_ammount; //ammount that will succeed (e.g. 100 * 75.6% success = 75.6 -> 75 + 60% for another 1)
             if(ammount_that_can_be_crafted > 0) { 
                 const success_chance = selected_recipe.get_success_chance(station_tier);
                 result = selected_recipe.getResult();
@@ -2145,8 +2148,10 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 const needed_crafts = Math.ceil(needed_xp/(estimated_xp_per_craft*get_skill_xp_gain(recipe_skill.skill_id)));
                 
                 attempted_crafting_ammount = Math.min(needed_crafts, ammount_that_can_be_crafted);
-                successful_crafting_ammount = Math.floor((attempted_crafting_ammount-1)*success_chance);
-                const variable_craft = Math.random()<success_chance?1:0;
+                successful_crafting_ammount = Math.floor(attempted_crafting_ammount*success_chance);
+                
+                //chance to get 1 more if it was not an integer
+                const variable_craft = Math.random()<(attempted_crafting_ammount*success_chance - successful_crafting_ammount)?1:0;
                 successful_crafting_ammount += variable_craft;
                 
                 const current_gained_xp = (attempted_crafting_ammount-1)*estimated_xp_per_craft + (variable_craft?xp_per_craft:(xp_per_craft/4));
@@ -4427,6 +4432,7 @@ window.remove_from_selling_list = remove_from_selling_list;
 window.cancel_trade = cancel_trade;
 window.accept_trade = accept_trade;
 window.is_in_trade = is_in_trade;
+window.update_displayed_total_price = update_displayed_total_price;
 
 window.open_storage = open_storage;
 window.exit_storage = close_storage;
