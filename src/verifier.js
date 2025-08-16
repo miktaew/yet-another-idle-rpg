@@ -8,6 +8,9 @@ import { locations } from "./locations.js";
 import { skills, skill_categories } from "./skills.js";
 import { traders } from "./traders.js";
 import { quests } from "./quests.js";
+import { market_region_mapping } from "./market_saturation.js";
+
+const trc = 1000000; //time rounding precision
 
 function Verify_Game_Objects() {
     let results = [0,0];
@@ -64,9 +67,9 @@ function Verify_Game_Objects() {
     }
     let end_time = performance.now();
     if(item_results[1] > 0) {
-        console.log(`Finished verifying items in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nFound issue in ${item_results[1]} out of ${item_results[0]}`);
+        console.log(`Finished verifying items in: ${Math.round(trc*(end_time-start_time))/trc}s\nFound issue in ${item_results[1]} out of ${item_results[0]}`);
     } else {
-        console.log(`Finished verifying items in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nNo issues were found.`);
+        console.log(`Finished verifying items in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
     }
 
     start_time = performance.now();
@@ -145,9 +148,9 @@ function Verify_Game_Objects() {
     }
     end_time = performance.now();
     if(skill_results[1] > 0) {
-        console.log(`Finished verifying skills in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nFound issue in ${skill_results[1]} out of ${skill_results[0]}`);
+        console.log(`Finished verifying skills in: ${Math.round(trc*(end_time-start_time))/trc}s\nFound issue in ${skill_results[1]} out of ${skill_results[0]}`);
     } else {
-        console.log(`Finished verifying skills in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nNo issues were found.`);
+        console.log(`Finished verifying skills in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
     }
 
 
@@ -167,12 +170,24 @@ function Verify_Game_Objects() {
                     has_issue = true;
                 }
             }
-            for(let i = 0; i < location.traders.length; i++) {
-                if(!traders[location.traders[i]]) {
-                    console.error(`Location "${key}" refers to a non-existent trader "${location.traders[i]}"`);
+            if(location.traders?.length > 0) {
+                if(!location.market_region) {
+                    console.error(`Location "${key}" has at least one trader but no trade region assigned!`);
                     has_issue = true;
+                } else {
+                    if(!market_region_mapping[location.market_region]) {
+                        console.error(`Location "${key}" has market region "${location.market_region}" assigned, but no such region is present in region mapping!`);
+                        has_issue = true;
+                    }
+                }
+                for(let i = 0; i < location.traders.length; i++) {
+                    if(!traders[location.traders[i]]) {
+                        console.error(`Location "${key}" refers to a non-existent trader "${location.traders[i]}"`);
+                        has_issue = true;
+                    }
                 }
             }
+            
             for(let i = 0; i < location.connected_locations.length; i++) {
                 if(!location.connected_locations[i].location) {
                     console.error(`Location "${key}" is connected to a non-existent location.`);
@@ -192,7 +207,7 @@ function Verify_Game_Objects() {
                 }   
             });
         } else if(location.tags["Combat zone"]) {
-            //todo: check enemies
+            //todo: check if enemies exist
         }
 
         location_results[0]++;
@@ -202,9 +217,9 @@ function Verify_Game_Objects() {
     }
     end_time = performance.now();
     if(location_results[1] > 0) {
-        console.log(`Finished verifying locations in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nFound issue in ${location_results[1]} out of ${location_results[0]}`);
+        console.log(`Finished verifying locations in: ${Math.round(trc*(end_time-start_time))/trc}s\nFound issue in ${location_results[1]} out of ${location_results[0]}`);
     } else {
-        console.log(`Finished verifying locations in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nNo issues were found.`);
+        console.log(`Finished verifying locations in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
     }
 
     start_time = performance.now();
@@ -230,19 +245,51 @@ function Verify_Game_Objects() {
         results[1]+=has_issue;
     }
     end_time = performance.now();
-    if(location_results[1] > 0) {
-        console.log(`Finished verifying enemies in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nFound issue in ${enemy_results[1]} out of ${enemy_results[0]}`);
+    if(enemy_results[1] > 0) {
+        console.log(`Finished verifying enemies in: ${Math.round(trc*(end_time-start_time))/trc}s\nFound issue in ${enemy_results[1]} out of ${enemy_results[0]}`);
     } else {
-        console.log(`Finished verifying enemies in: ${Math.round(1000000*(end_time-start_time))/1000000}s\nNo issues were found.`);
+        console.log(`Finished verifying enemies in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
     }
 
+    start_time = performance.now();
+    let market_region_results = [0,0];
+    console.log("Began verifying market regions.");
+    for(const [key, connections_array] of Object.entries(market_region_mapping)) {
+        let has_issue = false;
+
+        let is_present = false;
+        Object.values(locations).forEach(location => {
+            if(location.market_region === key) {
+                is_present = true;
+            }
+        });
+
+        if(!is_present) {
+            has_issue = true;
+            console.error(`Market region "${key}" is not used for any location despite being defined in region connections!`);
+        }
+        market_region_results[0]++;
+        market_region_results[1]+=has_issue;
+        results[0]++;
+        results[1]+=has_issue;
+    }
+    end_time = performance.now();
+    if(market_region_results[1] > 0) {
+        console.log(`Finished verifying market regions in: ${Math.round(trc*(end_time-start_time))/trc}s\nFound issue in ${market_region_results[1]} out of ${market_region_results[0]}`);
+    } else {
+        console.log(`Finished verifying market regions in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
+    }
 
     let overall_end_time = performance.now();
     if(results[1] > 0) {
-        console.log(`Finished verifying game objects in: ${Math.round(1000000*(overall_end_time-overall_start_time))/1000000}s\nFound issue in ${results[1]} out of ${results[0]}`);
+        console.log(`Finished verifying game objects in: ${Math.round(trc*(overall_end_time-overall_start_time))/trc}s\nFound issue in ${results[1]} out of ${results[0]}`);
     } else {
-        console.log(`Finished verifying game objects in: ${Math.round(1000000*(overall_end_time-overall_start_time))/1000000}s\nNo issues were found.`);
+        console.log(`Finished verifying game objects in: ${Math.round(trc*(overall_end_time-overall_start_time))/trc}s\nNo issues were found.`);
     }
+}
+
+function verify_rewards(rewards) {
+    
 }
 
 export {
