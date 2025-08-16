@@ -37,7 +37,7 @@ Object.keys(market_region_mapping).forEach(region => {
 });
 
 /**
- * sets the sold count, used for loading
+ * sets the sold count, used for loading and for inter-region trickling
  * @param {*} data 
  */
 function set_loot_sold_count(data) {
@@ -58,6 +58,61 @@ function recover_item_prices(flat_recovery=1, ratio_recovery = 0) {
             }
         }
     });
+}
+
+/**
+ * Goes through all market regions, trickling their saturations at low rate from any region to all that are directly connected to it
+ * @param {*} trickle_rate 
+ */
+function trickle_market_saturations(trickle_rate) {
+    const new_sold_count = {};
+
+    Object.keys(market_region_mapping).forEach(trade_region => {
+        //go through regions
+
+        const connections_count = market_region_mapping[trade_region].length;
+        for(let i = 0; i < connections_count; i++) {
+            //iterate through connected regions
+            const connected_region = market_region_mapping[trade_region][i];
+            new_sold_count[connected_region] = new_sold_count[connected_region] || {};
+            new_sold_count[trade_region] = new_sold_count[trade_region] || {};
+
+            Object.keys(loot_sold_count[trade_region] || {}).forEach(group_key => {
+                //go through saturation groups
+
+                new_sold_count[connected_region][group_key] = new_sold_count[connected_region][group_key] || [];
+                new_sold_count[trade_region][group_key] = new_sold_count[trade_region][group_key] || [];
+                for(let group_tier = 0; group_tier < loot_sold_count[trade_region][group_key].length; group_tier++) {
+                    //go through saturation groups' tier
+        
+                    const saturation_level = loot_sold_count[trade_region][group_key][group_tier].sold - loot_sold_count[trade_region][group_key][group_tier].recovered;
+                    //saturation level, basis for what to move
+
+                    const total_value_to_move = Math.floor(saturation_level * trickle_rate);
+                    loot_sold_count[trade_region][group_key][group_tier].sold -= total_value_to_move;
+
+                    const value_to_move = Math.floor(total_value_to_move / connections_count);
+
+                    if(!new_sold_count[trade_region][group_key][group_tier]) {
+                        new_sold_count[trade_region][group_key][group_tier] = {...loot_sold_count[trade_region][group_key][group_tier]}
+                    }
+
+                    if(!new_sold_count[connected_region][group_key][group_tier]) {
+                        if(loot_sold_count[connected_region]?.[group_key]?.[group_tier]) {
+                            new_sold_count[connected_region][group_key][group_tier] = {...loot_sold_count[connected_region][group_key][group_tier]};
+                        } else {
+                            new_sold_count[connected_region][group_key][group_tier] = {sold: 0, recovered: 0};
+                        }
+                    }
+
+                    new_sold_count[connected_region][group_key][group_tier].sold += value_to_move;
+                }
+            });
+        }
+    });
+
+    set_loot_sold_count(new_sold_count);
+    //actually assign the newly calculated values
 }
 
 /**
@@ -184,9 +239,10 @@ function remove_from_sold({group_key, group_tier, count, region}) {
 
 export {
     loot_sold_count, group_key_prefix,
-    recover_item_prices, set_loot_sold_count, 
-    get_loot_price_modifier, get_item_value_with_market_saturation,
-    get_loot_price_modifier_multiple, market_region_mapping,
-    add_to_sold, remove_from_sold, 
+    recover_item_prices, trickle_market_saturations, market_region_mapping,
+    set_loot_sold_count,
+    get_loot_price_modifier, get_loot_price_modifier_multiple,
+    get_item_value_with_market_saturation,
+    add_to_sold, remove_from_sold,
     get_total_tier_saturation, calculate_total_saturation
 };

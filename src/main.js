@@ -2,7 +2,7 @@
 
 import { current_game_time, is_night } from "./game_time.js";
 import { item_templates, getItem, book_stats, rarity_multipliers, getArmorSlot, getItemFromKey, getItemRarity} from "./items.js";
-import { loot_sold_count, market_region_mapping, recover_item_prices, set_loot_sold_count } from "./market_saturation.js";
+import { loot_sold_count, market_region_mapping, recover_item_prices, trickle_market_saturations, set_loot_sold_count } from "./market_saturation.js";
 import { locations, favourite_locations } from "./locations.js";
 import { skill_categories, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
@@ -122,6 +122,7 @@ let gathered_materials = {};
 const trade_price_recovery_flat = 5;//
 const trade_price_recovery_ratio = 1/360; //
 //larger of two (sold count * ratio or flat value)
+const market_saturation_trickle_rate = 0.05;
 
 
 //temperature
@@ -4018,6 +4019,7 @@ function update() {
         const curr_day = current_game_time.day;
         if(curr_day > prev_day) {
             recover_item_prices(trade_price_recovery_flat, trade_price_recovery_ratio);
+            trickle_market_saturations(market_saturation_trickle_rate);
             if(is_in_trade()) {
                 //update displayed prices due to recovery
                 update_displayed_character_inventory({is_trade: true});
