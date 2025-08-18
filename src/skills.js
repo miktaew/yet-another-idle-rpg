@@ -931,9 +931,9 @@ Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
         names: {0: "Strength of mind"}, 
         description: "Resist and reject the unnatural influence. Turn your psyche into an iron fortress.",
         category: "Environmental",
-        base_xp_cost: 120,
+        base_xp_cost: 400,
         max_level: 40,
-        xp_scaling: 1.9,
+        xp_scaling: 1.7,
         get_effect_description: ()=> {
             return `Reduces eldritch effects by ^${Math.round(100-100*get_total_skill_level("Strength of mind")/skills["Strength of mind"].max_level)/100}`;
         },
@@ -950,6 +950,7 @@ Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
                 xp_multipliers: {
                     "Literacy": 1.05,
                     "Persistence": 1.05,
+                    "Fortitude": 1.05,
                 }
             },
             3: {
@@ -969,6 +970,7 @@ Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
                 xp_multipliers: {
                     "Literacy": 1.05,
                     "Persistence": 1.05,
+                    "Fortitude": 1.05,
                 }
             },
             8: {
@@ -988,6 +990,7 @@ Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
                 xp_multipliers: {
                     "Literacy": 1.05,
                     "Persistence": 1.05,
+                    "Fortitude": 1.05,
                 }
             },
         }
@@ -1394,7 +1397,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                             stats: {
                                                 "max_health": {
                                                     flat: 10,
-                                                    multiplier: 1.05,
+                                                    multiplier: 1.04,
                                                 }
                                             },
                                             xp_multipliers: {
@@ -1405,7 +1408,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                             stats: {
                                                 "max_health": {
                                                     flat: 20,
-                                                    multiplier: 1.05,
+                                                    multiplier: 1.04,
                                                 }
                                             },
                                             xp_multipliers: {
@@ -1423,7 +1426,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                             stats: {
                                                 "max_health": {
                                                     flat: 30,
-                                                    multiplier: 1.05,
+                                                    multiplier: 1.04,
                                                 }
                                             },
                                             xp_multipliers: {
@@ -1434,8 +1437,8 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                         8: {
                                             stats: {
                                                 "max_health": {
-                                                    flat: 40,
-                                                    multiplier: 1.05,
+                                                    flat: 30,
+                                                    multiplier: 1.04,
                                                 }
                                             },
                                             xp_multipliers: {
@@ -1445,7 +1448,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                         10: {
                                             stats: {
                                                 "max_health": {
-                                                    flat: 50,
+                                                    flat: 40,
                                                     multiplier: 1.1,
                                                 }
                                             },
@@ -2008,7 +2011,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     skills["Iron skin"] = new Skill({
         skill_id: "Iron skin",
         category: "Combat",
-        names: {0: "Tough skin", 5: "Wooden skin", 10: "Iron skin"},
+        names: {0: "Tough skin", 10: "Wooden skin", 20: "Stone skin", 30: "Iron skin"},
         description: "As it gets damaged, your skin regenerates to be tougher and tougher",
         base_xp_cost: 400,
         xp_scaling: 1.9,
@@ -2032,12 +2035,64 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             7: {
                 stats: {
                     max_health: {multiplier: 1.02},
+                },
+                xp_multipliers: {
+                    "Fortitude": 1.05,
                 }
             },
             10: {
                 stats: {
                     max_health: {multiplier: 1.02},
                     unarmed_power: {flat: 0.6},
+                }
+            },
+            12: {
+                stats: {
+                    max_health: {multiplier: 1.02},
+                },
+                xp_multipliers: {
+                    "Fortitude": 1.05,
+                }
+            }
+        }
+    }); 
+    skills["Fortitude"] = new Skill({
+        skill_id: "Fortitude",
+        category: "Combat",
+        names: {0: "Fortitude"},
+        description: "Pretend the wounds are not there",
+        base_xp_cost: 200,
+        xp_scaling: 1.6,
+        max_level: 60,
+        max_level_bonus: 4,
+        get_effect_description: ()=> {
+            return `Increases max health by ${Math.round(get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Fortitude"}))}`;
+        },
+        milestones: {
+            3: {
+                stats: {
+                    max_health: {multiplier: 1.01},
+                }
+            },
+            5: {
+                stats: {
+                    defense: {flat: 1},
+                },
+                xp_multipliers: {
+                    "Iron skin": 1.05,
+                }
+            },
+            7: {
+                stats: {
+                    max_health: {multiplier: 1.02},
+                }
+            },
+            10: {
+                stats: {
+                    defense: {flat: 1},
+                },
+                xp_multipliers: {
+                    "Iron skin": 1.05,
                 }
             },
             12: {

@@ -1396,14 +1396,13 @@ function do_enemy_combat_action(enemy_id) {
     if(!character.wears_armor()) //no armor so either completely naked or in things with 0 def
     {
         add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: attacker.xp_value/enemy_count_xp_mod});
-    } else {
-        add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: Math.sqrt(attacker.xp_value)/(2*enemy_count_xp_mod)});
-    }
-
+    } 
     
     let {damage_taken, fainted} = character.take_damage({damage_values: damages_dealt});
 
-    const hit_count_msg = damages_dealt.length > 1?` x${damages_dealt.length}`:""
+    add_xp_to_skill({skill: skills["Fortitude"], xp_to_add: (damage_taken**0.6)/enemy_count_xp_mod});
+
+    const hit_count_msg = damages_dealt.length > 1?` x${damages_dealt.length}`:"";
 
     if(critted) {
         if(partially_blocked) {
@@ -1605,7 +1604,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     }
 
     if(cap_gained_xp) {
-        //for non-crafting skills
+        //cap on singular gains for non-crafting skills
         xp_to_add = Math.min(xp_to_add, skill.xp_to_next_lvl*skill_xp_gains_cap);
     }
     
@@ -1628,6 +1627,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     const is_visible = skill.visibility_treshold <= skill.total_xp;
     
     if(was_hidden && is_visible) {
+        //skill only now became visible, so it needs to be added to display
         create_new_skill_bar(skill);
         update_displayed_skill_bar(skill, false);
         

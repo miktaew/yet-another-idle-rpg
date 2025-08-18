@@ -78,18 +78,22 @@ v0.5.0
     - added a new skill <span class="spoiler">'Regeneration' which increases effectiveness of passive healing (sleeping/resting)</span>
     - added a new skill <span class="spoiler">'Gluttony'  to complement 'medicine' by increasing the effects of the food items (unlike medicine, this one doesn't get xp from crafting)</span>
     - added a new skill and training: <span class="spoiler">'Swimming'</span>, available at <span class="spoiler">'Village', after talking to 'Villag Elder' (unlocked by same eraly textline as running/weightlifting trainings; otherwise just ask him about leaving)</span>
+    - added a new skill <span class="spoiler">'Fortitude' which increases max health and gains xp when you take damage, similarly to 'Tough Skin', however it scales with damage taken and not with enemy xp value</span>
     - added a new spot for training 'Equilibrium' at <span class="spoiler">'Mountain path' and 'Mountain camp'</span>
     - added a new spot for training 'Climbing' at <span class="spoiler">'Mountain camp'</span>
     - added another book <span class="spoiler">'Ode to Whimsy, and other poems', available at any trader but with a low chance to appear</span>
 
-    - 'Persistence' xp gains are now doubled when under 20% hp (you still need to be out of stamina); they are also increased when under any cold effect, the stronger the more, up to x2 at 'Hypothermia'
+    - 'Persistence' skill's xp gains are now doubled when under 20% hp (you still need to be out of stamina); they are also increased when under any cold effect, the stronger the more, up to x2 at 'Hypothermia'
+    - 'Unarmed' skill now provides additional +0.1 base dmg to unarmed attacks (original base was 1, this means by lvl 10 dmg will be doubled)
+    - 'Tough skin' skill is now back to only receiving xp when you wear no armor
+    - 'Tough skin' skill received some changes to when the name changes (duh)
+    - 'Sleeping' skill provides a bit less of hp
     - reduced defense on some wool items
     - for multi-target attacks, xp gains are now divided by target count to provide similar xp gains as with single-target attacks
     - for fighting against a group, xp gains for skills that gain xp when enemy attacks are now divided by target count ^ (2/3) (fighting 8 enemies will only give 2x xp of one)
     - for multi-target attacks, loot drop chances are now divided by target count ^ (2/3) (killing 8 enemies with 1 attack should only give 2x loot instead of 8x)
     - xp gains for skills are now capped at 1/10th of what's required for a level up; this generally won't have much impact on gameplay and will only affect some rare cases of extreme gains connected with very low skill level
-    - updated 'Sleeping' skill tooltip so that it mentions the increase to sleeping health restoration (mechanic already existed, but was missing from tooltip)
-    - 'Unarmed' skill now provides additional +0.1 base dmg to unarmed attacks (original base was 1, this means by lvl 10 dmg will be doubled)
+    - updated 'Sleeping' skill's tooltip so that it mentions the increase to sleeping health restoration (mechanic already existed, but was missing from tooltip)
     - added very simple click effects to some buttons
     - added color change on hover to some elements
     - work payments have been increased
@@ -97,6 +101,7 @@ v0.5.0
     - increased trade price recovery per day (it's still very low and shouldn't be relied on)
     - reduced 'Wall Rat' agility from 20 to 2 (where are they gonna go? they are stuck in place)
     - increased duration of both types of 'Healing Powder'
+    - increased 'Strength of Mind' skill's starting xp cost 120->400, but reduced scaling x1.9->x1.7
 
     - updated enemy lineup creation code to allow using predefined groups in their order (instead of choosing one randomly),
     and to allow using a predefined group every N clears while remaining fights use random enemies
