@@ -87,6 +87,7 @@ v0.5.0
     - for multi-target attacks, xp gains are now divided by target count to provide similar xp gains as with single-target attacks
     - for fighting against a group, xp gains for skills that gain xp when enemy attacks are now divided by target count ^ (2/3) (fighting 8 enemies will only give 2x xp of one)
     - for multi-target attacks, loot drop chances are now divided by target count ^ (2/3) (killing 8 enemies with 1 attack should only give 2x loot instead of 8x)
+    - xp gains for skills are now capped at 1/10th of what's required for a level up; this generally won't have much impact on gameplay and will only affect some rare cases of extreme gains connected with very low skill level
     - updated 'Sleeping' skill tooltip so that it mentions the increase to sleeping health restoration (mechanic already existed, but was missing from tooltip)
     - 'Unarmed' skill now provides additional +0.1 base dmg to unarmed attacks (original base was 1, this means by lvl 10 dmg will be doubled)
     - added very simple click effects to some buttons
@@ -97,9 +98,9 @@ v0.5.0
     - reduced 'Wall Rat' agility from 20 to 2 (where are they gonna go? they are stuck in place)
     - increased duration of both types of 'Healing Powder'
 
-    - updated enemy lineup creation code to allow for using predefined groups in their order (instead of choosing one randomly),
-        and to allow for using a predefined group every N clears with other fights using random enemies
-    - made it possible for activities to apply effects
+    - updated enemy lineup creation code to allow using predefined groups in their order (instead of choosing one randomly),
+    and to allow using a predefined group every N clears while remaining fights use random enemies
+    - made it possible for activities to apply active effects
     - made it possible for active effects to affect xp gains
     - changed color of checkboxes to blue, instead of using browser's default colors
     

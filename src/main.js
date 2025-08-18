@@ -4,7 +4,7 @@ import { current_game_time, is_night } from "./game_time.js";
 import { item_templates, getItem, book_stats, rarity_multipliers, getArmorSlot, getItemFromKey, getItemRarity} from "./items.js";
 import { loot_sold_count, market_region_mapping, recover_item_prices, trickle_market_saturations, set_loot_sold_count } from "./market_saturation.js";
 import { locations, favourite_locations } from "./locations.js";
-import { skill_categories, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
+import { skill_categories, skill_xp_gains_cap, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
 import { enemy_killcount } from "./enemies.js";
 import { traders } from "./traders.js";
@@ -1583,7 +1583,7 @@ function use_stamina(num = 1, use_efficiency = true) {
  * @param {Boolean} should_info 
  * @returns {Boolean}
  */
-function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = true, add_to_parent = true})
+function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = true, add_to_parent = true, cap_gained_xp = true})
 {
     let leveled = false;
     if(xp_to_add == 0) {
@@ -1603,11 +1603,16 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
             xp_to_add *= skill.get_parent_xp_multiplier();
         }
     }
+
+    if(cap_gained_xp) {
+        //for non-crafting skills
+        xp_to_add = Math.min(xp_to_add, skill.xp_to_next_lvl*skill_xp_gains_cap);
+    }
     
     const prev_name = skill.name();
     const was_hidden = skill.visibility_treshold > skill.total_xp;
 
-    let {message, gains, unlocks} = skill.add_xp({xp_to_add: xp_to_add});
+    let {message, gains, unlocks} = skill.add_xp({xp_to_add: xp_to_add, cap_gained_xp});
     const new_name = skill.name();
     if(skill.parent_skill && add_to_parent) {
         if(skill.total_xp > skills[skill.parent_skill].total_xp) {
@@ -2218,11 +2223,11 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                     log_message(msg, "crafting");
                 }
 
-                leveled = add_xp_to_skill({skill: recipe_skill, xp_to_add: xp_to_add});
+                leveled = add_xp_to_skill({skill: recipe_skill, xp_to_add: xp_to_add, cap_gained_xp: false});
                 Object.keys(item_templates[result_id].tags).forEach(tag => {
                     const skill_id = crafting_tags_to_skills[tag];
                     if(skill_id) {
-                        let leveled = add_xp_to_skill({skill: skills[skill_id], xp_to_add: xp_to_add/2});
+                        let leveled = add_xp_to_skill({skill: skills[skill_id], xp_to_add: xp_to_add/2, cap_gained_xp: false});
                         if(leveled) {
                             character.stats.add_active_effect_bonus();
                             update_character_stats();
@@ -3001,7 +3006,7 @@ function load(save_data) {
         if(skills[key] && !skills[key].is_parent){
             if(save_data.skills[key].total_xp > 0) {
                 add_xp_to_skill({skill: skills[key], xp_to_add: save_data.skills[key].total_xp, 
-                                    should_info: false, add_to_parent: true, use_bonus: false
+                                    should_info: false, add_to_parent: true, use_bonus: false, cap_gained_xp: false,
                                 });
             }
         } else if(save_data.skills[key].total_xp > 0) {
@@ -3033,10 +3038,10 @@ function load(save_data) {
             update_booklist_entry(book, save_data.books[book].is_finished);
         });
         if(total_book_xp > literacy_xp) {
-            add_xp_to_skill({skill: skills["Literacy"], should_info: false, xp_to_add: total_book_xp, use_bonus: false});
+            add_xp_to_skill({skill: skills["Literacy"], should_info: false, xp_to_add: total_book_xp, use_bonus: false, cap_gained_xp: false});
             console.warn(`Saved XP for "Literacy skill" was less than it should be based on progress with books (${literacy_xp} vs ${total_book_xp}), so it was adjusted to match it!`);
         } else {
-            add_xp_to_skill({skill: skills["Literacy"], should_info: false, xp_to_add: literacy_xp, use_bonus: false});
+            add_xp_to_skill({skill: skills["Literacy"], should_info: false, xp_to_add: literacy_xp, use_bonus: false, cap_gained_xp: false});
         }
     }
 

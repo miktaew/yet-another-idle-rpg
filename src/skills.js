@@ -17,6 +17,11 @@ const weapon_type_to_skill = {
     "wand": "Wands"
 };
 
+//for display foldering and for different treatment when it comes to xp gain caps
+const skill_category_crafting = "Crafting";
+
+const skill_xp_gains_cap = 0.1; //limits xp per single gain, as a relation of xp needed to next level (0.1 = need to gain it at least 10 times)
+
 let unknown_skill_name = "?????";
 
 const which_skills_affect_skill = {};
@@ -55,6 +60,9 @@ class Skill {
         this.current_xp = 0; // how much of xp_to_next_lvl there is currently
         this.total_xp = 0; // total collected xp, on loading calculate lvl based on this (so to not break skills if scaling ever changes)
         this.base_xp_cost = base_xp_cost; //xp to go from lvl 1 to lvl 2
+        if(base_xp_cost < 1/skill_xp_gains_cap) {
+            console.warn(`Skill "${this.skill_id}" has base xp cost lower than what would be needed due to skill xp gains cap!`);
+        }
         this.visibility_treshold = visibility_treshold < base_xp_cost ? visibility_treshold : base_xp_cost; 
         this.is_unlocked = is_unlocked;
         //xp needed for skill to become visible and to get "unlock" message; try to keep it less than xp needed for lvl
@@ -117,11 +125,11 @@ class Skill {
         //grab name beforehand, in case it changes after levelup (levelup message should appear BEFORE skill name change message, so this is necessary)
 
         this.total_xp = Math.round(100*(this.total_xp + xp_to_add))/100;
-        if (this.current_level < this.max_level) { //not max lvl
-            if (Math.round(100*(xp_to_add + this.current_xp))/100 < this.xp_to_next_lvl) { // no levelup
+        if(this.current_level < this.max_level) { //not max lvl
+
+            if(Math.round(100*(xp_to_add + this.current_xp))/100 < this.xp_to_next_lvl) { // no levelup
                 this.current_xp = Math.round(100*(this.current_xp + xp_to_add))/100;
-            }
-            else { //levelup
+            } else { //levelup
                 
                 let level_after_xp = 0;
                 let unlocks = {skills: [], recipes: []};
@@ -1937,7 +1945,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         skill_id: "Crafting", 
         names: {0: "Crafting"}, 
         description: "Turn smaller pieces into one bigger thing",
-        category: "Crafting",
+        category: skill_category_crafting,
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
@@ -1949,7 +1957,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         skill_id: "Smelting", 
         names: {0: "Smelting"}, 
         description: "Turning raw ore into raw metal",
-        category: "Crafting",
+        category: skill_category_crafting,
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
@@ -1958,7 +1966,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         skill_id: "Forging", 
         names: {0: "Forging"}, 
         description: "Turning raw metal into something useful",
-        category: "Crafting",
+        category: skill_category_crafting,
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
@@ -1979,7 +1987,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         skill_id: "Cooking", 
         names: {0: "Cooking"}, 
         description: "Making the unedible edible",
-        category: "Crafting",
+        category: skill_category_crafting,
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
@@ -1988,7 +1996,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         skill_id: "Alchemy", 
         names: {0: "Alchemy"}, 
         description: "Extracting and enhancing useful properties of the ingredients",
-        category: "Crafting",
+        category: skill_category_crafting,
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
@@ -2462,4 +2470,4 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     
 })();
 
-export {skills, skill_categories, get_unlocked_skill_rewards, get_next_skill_milestone, weapon_type_to_skill, which_skills_affect_skill};
+export {skills, skill_categories, get_unlocked_skill_rewards, get_next_skill_milestone, weapon_type_to_skill, which_skills_affect_skill, skill_xp_gains_cap};
