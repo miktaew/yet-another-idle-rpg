@@ -286,6 +286,8 @@ function Verify_Game_Objects() {
     } else {
         console.log(`Finished verifying game objects in: ${Math.round(trc*(overall_end_time-overall_start_time))/trc}s\nNo issues were found.`);
     }
+
+    return results[1] == 0;
 }
 
 function verify_rewards(rewards) {
