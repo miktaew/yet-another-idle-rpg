@@ -87,6 +87,7 @@ const weather_field = document.getElementById("weather_div");
 
 const skill_bar_divs = {};
 const skill_list = document.getElementById("skill_list");
+const skill_category_order = [];
 
 const stance_bar_divs = {};
 const stance_list = document.getElementById("stance_list");
@@ -156,6 +157,7 @@ const equipment_slots_divs = {head: document.getElementById("head_slot"), torso:
                               pickaxe: document.getElementById("pickaxe_slot"),
                               axe: document.getElementById("axe_slot"),
                               sickle: document.getElementById("sickle_slot"),
+                              fishing: document.getElementById("fishing_slot")
 };
 
 const rarity_colors = {
@@ -168,26 +170,10 @@ const rarity_colors = {
     mythical: "orange"
 }
 
-const crafting_pages = {
-    crafting: {
-        items: document.querySelector(`[data-crafting_category="crafting"] [data-crafting_subcategory="items"]`),
-        components: document.querySelector(`[data-crafting_category="crafting"] [data-crafting_subcategory="components"]`),
-        equipment: document.querySelector(`[data-crafting_category="crafting"] [data-crafting_subcategory="equipment"]`),
-    },
-    cooking: {
-        items: document.querySelector(`[data-crafting_category="cooking"] [data-crafting_subcategory="items"]`),
-    },
-    smelting: {
-        items: document.querySelector(`[data-crafting_category="smelting"] [data-crafting_subcategory="items"]`),
-    },
-    forging: {
-        items: document.querySelector(`[data-crafting_category="forging"] [data-crafting_subcategory="items"]`),
-        components: document.querySelector(`[data-crafting_category="forging"] [data-crafting_subcategory="components"]`),
-    },
-    alchemy: {
-        items: document.querySelector(`[data-crafting_category="alchemy"] [data-crafting_subcategory="items"]`),
-    }
-}
+const crafting_pages = {}
+
+let selected_crafting_category;
+let selected_crafting_subcategory;
 
 const backup_load_button = document.getElementById("backup_load_button");
 const other_save_load_button = document.getElementById("import_other_save_button");
@@ -2377,20 +2363,9 @@ function update_displayed_location_types(current_location){
 function open_crafting_window() {
     action_div.style.display = "none";
     document.getElementById("crafting_window").style.display = "block";
-    document.getElementById("crafting_mainpage_buttons").children[0].click();
-    
-    let elements = document.querySelectorAll(`[data-crafting_subcategory]`);
-    for(let i = 0; i < elements.length; i++) {
-        if(elements[i].dataset.crafting_subcategory !== "items") {
-            elements[i].style.display = "none";
-        } else {
-            elements[i].style.display = "";
-        } 
-    }
 
-    elements = document.getElementsByClassName("crafting_subpage_buttons");
-    for(let i = 0; i < elements.length; i++) {
-        elements[i].children[0].click();
+    if (!selected_crafting_category || !selected_crafting_subcategory) {
+        switch_crafting_recipes_page("crafting");
     }
 
     update_displayed_crafting_recipes();
@@ -2407,17 +2382,15 @@ function close_crafting_window() {
  * @param {String} category 
  */
 function switch_crafting_recipes_page(category) {
-    const elements = document.querySelectorAll('[data-crafting_category]');
-    for(let i = 0; i < elements.length; i++) {
-        
-        if(!elements[i].dataset.crafting_subcategory) {
-            if(elements[i].dataset.crafting_category !== category) {
-                elements[i].style.display = "none";
-            } else {
-                elements[i].style.display = "";
-            }
-        } 
+    selected_crafting_category = category;
+
+    //only show buttons for subcategories that exist
+    const elements = document.getElementById('crafting_subpage_buttons').children;
+    for (let i = 0; i < elements.length; i++) {
+        elements[i].style.display = recipes[category][elements[i].dataset.crafting_subcategory] ? "" : "none";
     }
+
+    elements[0].click();
 
     unexpand_displayed_recipes();
 }
@@ -2427,17 +2400,16 @@ function switch_crafting_recipes_page(category) {
  * @param {String} category 
  * @param {String} subcategory 
  */
-function switch_crafting_recipes_subpage(category, subcategory) {
-    const elements = document.querySelectorAll(`[data-crafting_category='${category}'], [data-crafting_subcategory]`);
-    for(let i = 0; i < elements.length; i++) {
-        if(elements[i].dataset.crafting_subcategory) {
-            if(elements[i].dataset.crafting_category === category) {
-                if(elements[i].dataset.crafting_subcategory !== subcategory) {
-                    elements[i].style.display = "none";
-                } else {
-                    elements[i].style.display = "";
-                } 
-            }
+function switch_crafting_recipes_subpage(subcategory) {
+    selected_crafting_subcategory = subcategory;
+
+    const elements = document.querySelectorAll(`[data-crafting_category][data-crafting_subcategory]`);
+    for (let i = 0; i < elements.length; i++) {
+        if (elements[i].dataset.crafting_category == selected_crafting_category && elements[i].dataset.crafting_subcategory == selected_crafting_subcategory) {
+            elements[i].style.display = "";
+        }
+        else {
+            elements[i].style.display = "none";
         }
     }
 
@@ -2454,11 +2426,32 @@ function unexpand_displayed_recipes() {
     }
 }
 
+function get_recipe_page(category, subcategory) {
+    if (!crafting_pages[category]) {
+        crafting_pages[category] = {};
+    }
+    if (!crafting_pages[category][subcategory]) {
+        crafting_pages[category][subcategory] = document.querySelector(`[data-crafting_category="${category}"][data-crafting_subcategory="${subcategory}"]`);
+    }
+    if (!crafting_pages[category][subcategory]) {
+        let new_category = document.createElement('div');
+        new_category.classList.add("crafting_category");
+        new_category.classList.add("crafting_recipe_list");
+        new_category.dataset.crafting_category = category;
+        new_category.dataset.crafting_subcategory = subcategory;
+
+
+        crafting_pages[category][subcategory] = document.getElementById("recipe_categories").appendChild(new_category);
+    }
+
+    return crafting_pages[category][subcategory];
+}
+
 function create_displayed_crafting_recipes() {
     Object.keys(recipes).forEach(recipe_category => {
         Object.keys(recipes[recipe_category]).forEach(recipe_subcategory => {
-            if(recipe_subcategory === "items") {
-                crafting_pages[recipe_category][recipe_subcategory].innerHTML = "";
+            if (recipe_subcategory === "items") {
+                get_recipe_page(recipe_category, recipe_subcategory).innerHTML = "";
             }
             Object.keys(recipes[recipe_category][recipe_subcategory]).forEach(recipe => {
                 add_crafting_recipe_to_display({category: recipe_category, subcategory: recipe_subcategory, recipe_id: recipe});
@@ -2676,7 +2669,7 @@ function add_crafting_recipe_to_display({category, subcategory, recipe_id}) {
         throw new Error(`No such crafting subcategory as "${subcategory}"`);
     }
 
-    crafting_pages[category][subcategory].appendChild(recipe_div);
+    get_recipe_page(category, subcategory).appendChild(recipe_div);
 }
 
 /**
@@ -3759,9 +3752,36 @@ function create_new_skill_bar(skill) {
         skill_bar_divs[skill.category] = {};
 
         const skill_category_div = document.createElement("div");
+        skill_category_div.draggable = true;
         skill_category_div.innerHTML = `<i class="material-icons icon skill_dropdown_icon"> keyboard_double_arrow_down </i>${skill.category} skills`;
         skill_category_div.dataset.skill_category = skill.category;
         skill_category_div.classList.add("skill_category_div");
+
+        //add reordering buttons
+        const btn_up = document.createElement('a');
+        btn_up.className = "material-icons icon";
+        btn_up.style.float = 'right';
+        btn_up.innerHTML = 'keyboard_arrow_up';
+        btn_up.addEventListener("click", (event) => {
+            let idx = skill_category_order.indexOf(skill.category);
+            if (idx > 0) {
+                [skill_category_order[idx], skill_category_order[idx - 1]] = [skill_category_order[idx - 1], skill_category_order[idx]];
+                sort_displayed_skill_categories();
+            }
+        });
+        const btn_down = document.createElement('a');
+        btn_down.className = "material-icons icon";
+        btn_down.style.float = 'right';
+        btn_down.innerHTML = 'keyboard_arrow_down';
+        btn_down.addEventListener("click", (event) => {
+            let idx = skill_category_order.indexOf(skill.category);
+            if (idx < skill_category_order.length - 1) {
+                [skill_category_order[idx], skill_category_order[idx + 1]] = [skill_category_order[idx + 1], skill_category_order[idx]];
+                sort_displayed_skill_categories();
+            }
+        });
+        skill_category_div.appendChild(btn_up);
+        skill_category_div.appendChild(btn_down);
 
         const skill_category_skills = document.createElement("div");
         skill_category_skills.dataset.skill_category_skills = true;
@@ -3777,6 +3797,9 @@ function create_new_skill_bar(skill) {
             }
         })
 
+        if (skill_category_order.indexOf(skill.category)) {
+            skill_category_order.push(skill.category);
+        }
     }
     if(skill_bar_divs[skill.category][skill.skill_id]) {
         console.trace(`Tried to create a skillbar for skill "${skill.skill_id}", but it already has one!`);
@@ -3949,7 +3972,6 @@ function update_all_displayed_skills_xp_gain(){
 }
 
 function sort_displayed_skills({sort_by="name", change_direction=false}) {
-
     if(change_direction){
         if(sort_by && sort_by === skill_sorting) {
             if(skill_sorting_direction === "asc") {
@@ -4006,13 +4028,25 @@ function sort_displayed_skills({sort_by="name", change_direction=false}) {
  * sorts displayed skill categories alphabeticaly
  */
 function sort_displayed_skill_categories() {
-    [...skill_list.children].sort((a,b) => {
-        if(a.dataset.skill_category > b.dataset.skill_category) {
-            return 1;
-        } else {
-            return -1;
+    [...skill_list.children].sort((a, b) => {
+
+        let pos_a = skill_category_order.indexOf(a.dataset.skill_category);
+        let pos_b = skill_category_order.indexOf(b.dataset.skill_category);
+
+        if (pos_a == -1 || pos_b == -1) {
+            //if it doesn't have a specific position assigned, place it alphabetically
+            return a.dataset.skill_category > b.dataset.skill_category ? 1 : -1;
+        }
+        else {
+            return pos_a > pos_b ? 1 : -1;
         }
     }).forEach(node=>skill_list.appendChild(node));
+}
+
+function update_skill_category_order() {
+    [...skill_list.children].forEach((elem, idx) => {
+        skill_category_order[idx] = elem.dataset.skill_category;
+    });
 }
 
 /**
@@ -4879,5 +4913,6 @@ export {
     update_booklist_entry,
     add_quest_to_display, update_displayed_quest, update_displayed_quest_task, 
     start_rain_animation, start_snow_animation, stop_background_animation,
-    update_displayed_total_price
+    update_displayed_total_price,
+    skill_category_order
 }

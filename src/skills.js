@@ -2525,4 +2525,4 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     
 })();
 
-export {skills, skill_categories, get_unlocked_skill_rewards, get_next_skill_milestone, weapon_type_to_skill, which_skills_affect_skill, skill_xp_gains_cap};
+export {skills, Skill, skill_categories, get_unlocked_skill_rewards, get_next_skill_milestone, weapon_type_to_skill, which_skills_affect_skill, skill_xp_gains_cap};

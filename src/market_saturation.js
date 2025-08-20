@@ -148,7 +148,11 @@ function get_loot_price_modifier({is_group, value, how_many_sold}) {
  * @param {*} param0 
  * @returns 
  */
-function get_total_tier_saturation({region, group_key, group_tier}) {
+function get_total_tier_saturation({ region, group_key, group_tier }) {
+    if(!loot_sold_count[region][group_key]) {
+        return;
+    }
+
     const sold_by_tier = [];
     for(let i = 0; i < loot_sold_count[region][group_key]?.length; i++) {
         sold_by_tier[i] = loot_sold_count[region][group_key][i].sold - loot_sold_count[region][group_key][i].recovered;
