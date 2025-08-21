@@ -418,6 +418,8 @@ character.stats.add_all_skill_level_bonus = function() {
 
         character.stats.flat.skills.max_health = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Fortitude"});
 
+        character.stats.flat.skills.intuition = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Meditation"});
+
         character.stats.flat.skills.unarmed_power = skills["Unarmed"].current_level * 0.1;
 
         character.stats.add_weapon_type_bonuses();

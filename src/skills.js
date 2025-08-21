@@ -1466,6 +1466,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         base_xp_cost: 200,
         category: "Activity",
         max_level: 30, 
+        max_level_coefficient: 2,
         is_unlocked: false,
         visibility_treshold: 0,
         milestones: {
@@ -1487,6 +1488,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 },
                 xp_multipliers: {
                     all: 1.05,
+                    "Strength of mind": 1.05,
                 }
             },
             5: {
@@ -1502,6 +1504,9 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                         flat: 2,
                     }
                 },
+                xp_multipliers: {
+                    "Strength of mind": 1.05,
+                }
             },
             8: {
                 stats: {
@@ -1528,6 +1533,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                     "Sleeping": 1.1,
                     "Breathing": 1.1,
                     "Presence sensing": 1.1,
+                    "Strength of mind": 1.1,
                 }
             },
             12: {
@@ -1541,7 +1547,11 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                     "Presence sensing": 1.1,
                 }
             }
-        }
+        },
+        get_effect_description: ()=> {
+            let value = get_total_skill_coefficient({skill_id:"Medidation",scaling_type:"multiplicative"})
+            return `Multiplies intuition ${Math.round(value*100)/100}`;
+        },
     });                  
     skills["Running"] = new Skill({
         skill_id: "Running",
@@ -1766,8 +1776,8 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             }
         },
         get_effect_description: ()=> {
-        let value = get_total_skill_coefficient({skill_id:"Swimming",scaling_type:"multiplicative"})
-        return `Multiplies agility and stamina by ${Math.round(value*100)/100}`;
+            let value = get_total_skill_coefficient({skill_id:"Swimming",scaling_type:"multiplicative"})
+            return `Multiplies agility and stamina by ${Math.round(value*100)/100}`;
         },
     });
 
