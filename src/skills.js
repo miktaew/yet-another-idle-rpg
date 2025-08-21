@@ -1230,7 +1230,7 @@ Multiplies AP with hammers by ${Math.round((get_total_skill_coefficient({skill_i
                                 parent_skill: "Weapon mastery",
                                 names: {0: "Dagger combat"},
                                 category: "Weapon",
-                                description: "The looked upon art of fighting (and stabbing) with daggers",
+                                description: "The looked down on art of fighting (and stabbing) with daggers",
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with daggers by ${Math.round(get_total_skill_coefficient({skill_id:"Daggers",scaling_type:"multiplicative"})*1000)/1000}.
 Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_id:"Daggers",scaling_type:"multiplicative"})**0.3333)*1000)/1000}`;
