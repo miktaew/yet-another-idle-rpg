@@ -201,7 +201,7 @@ function add_to_buying_list(selected_item) {
     } else { //it's not yet in to_buy
         if(item_count_in_trader < selected_item.count) { 
             //trader has not enough: buy all available
-            actual_number_to_add = item_count_in_trader;
+            selected_item.count = item_count_in_trader;
         }
 
         if(!to_buy.groups[group_key]) {
@@ -214,7 +214,7 @@ function add_to_buying_list(selected_item) {
         to_buy.groups[group_key].unsorted.push({...selected_item});
 
         //increase overall tier count, mark as needing a resorting
-        to_buy.groups[group_key].count[group_tier] += actual_number_to_add;
+        to_buy.groups[group_key].count[group_tier] += selected_item.count;
         to_buy.groups[group_key].needs_resort = true;
     }
 
@@ -521,7 +521,7 @@ function calculate_total_values() {
         to_buy.value += to_buy.groups[group_key].group_value;
     });
 
-    return to_buy.value - to_sell.value;
+    return  to_sell.value - to_buy.value;
 }
 
 /**

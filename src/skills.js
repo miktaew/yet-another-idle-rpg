@@ -1549,7 +1549,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             }
         },
         get_effect_description: ()=> {
-            let value = get_total_skill_coefficient({skill_id:"Medidation",scaling_type:"multiplicative"})
+            let value = get_total_skill_coefficient({skill_id:"Meditation",scaling_type:"multiplicative"})
             return `Multiplies intuition ${Math.round(value*100)/100}`;
         },
     });                  
