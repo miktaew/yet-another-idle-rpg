@@ -2585,10 +2585,10 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
 
     item_templates["Wool shirt"] = new Armor({
         name: "Wool shirt",
-        description: "It's thick enough to weaken a blow, but you shouldn't hope for much. On the plus side, it's light and doesn't block your moves.", 
+        description: "It's not thick enough to provide any physical protection, but on the plus side it's light, it's warm, and it and doesn't block your moves.", 
         value: 300,
         component_type: "chestplate interior",
-        base_defense: 1,
+        base_defense: 0,
         component_tier: 2,
         component_stats: {
             attack_speed: {
@@ -2608,7 +2608,7 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         description: "Nice woollen pants. Slightly itchy.",
         value: 100,
         component_type: "leg armor interior",
-        base_defense: 1,
+        base_defense: 0,
         component_tier: 2,
         component_stats: {
             cold_tolerance: {
@@ -2619,7 +2619,7 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
 
     item_templates["Wool hat"] = new Armor({
         name: "Wool hat", 
-        description: "Simple woollen hat to protect your head.",
+        description: "Simple woollen hat to protect your head from cold.",
         value: 300,
         component_type: "helmet interior",
         base_defense: 0,
