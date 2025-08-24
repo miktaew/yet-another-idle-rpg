@@ -75,6 +75,7 @@ import { end_activity_animation,
          start_rain_animation,
          start_snow_animation,
          stop_background_animation,
+         skill_category_order,
          update_displayed_total_price
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
@@ -87,6 +88,8 @@ import { Verify_Game_Objects } from "./verifier.js";
 import { ReputationManager } from "./reputation.js";
 import { quests, questManager, active_quests } from "./quests.js";
 import { get_current_temperature_smoothed, is_raining } from "./weather.js";
+
+import "./mods/glassmaking.js";
 
 const save_key = "save data";
 const dev_save_key = "dev save data";
@@ -2133,7 +2136,7 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
         throw new Error(`Tried to use a recipe that doesn't exist: ${category} -> ${subcategory} -> ${recipe_id}`);
     } else {
         const selected_recipe = recipes[category][subcategory][recipe_id];
-        const recipe_div = document.querySelector(`[data-crafting_category="${category}"] [data-crafting_subcategory="${subcategory}"] [data-recipe_id="${recipe_id}"]`);
+        const recipe_div = document.querySelector(`[data-crafting_category="${category}"][data-crafting_subcategory="${subcategory}"] [data-recipe_id="${recipe_id}"]`);
         let leveled = false;
         let result;
         let xp_to_add;
@@ -2692,6 +2695,7 @@ function create_save() {
             });
         });
 
+        save_data["skill_category_order"] = skill_category_order;
         save_data["skills"] = {};
         Object.keys(skills).forEach(function(key) {
             if(!skills[key].is_parent)
@@ -2998,6 +3002,12 @@ function load(save_data) {
         }
     });
     //todo: call a function to update display (once rep is added to display)
+
+    if (save_data.skill_category_order) {
+        save_data.skill_category_order.forEach((elem, idx) => {
+            skill_category_order[idx] = elem;
+        });
+    }
 
     Object.keys(save_data.skills).forEach(key => { 
         if(key === "Literacy") {

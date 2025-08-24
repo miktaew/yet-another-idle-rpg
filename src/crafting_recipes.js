@@ -1115,4 +1115,4 @@ const recipes = {
     alchemy: alchemy_recipes
 }
 
-export {recipes, get_recipe_xp_value, get_crafting_quality_caps}
+export { recipes, get_recipe_xp_value, get_crafting_quality_caps, ItemRecipe }

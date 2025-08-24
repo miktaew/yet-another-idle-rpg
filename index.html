@@ -639,59 +639,12 @@
                             <div class="crafting_mainpage_button" onclick="switchCraftingRecipesPage('forging')">Forging</div>
                             <div class="crafting_mainpage_button" onclick="switchCraftingRecipesPage('alchemy')">Alchemy</div>
                         </div>
-                        <div class="crafting_category" data-crafting_category="crafting">
-                            <div class="crafting_subpage_buttons activable_buttons">
-                                <div class="crafting_subpage_button crafting_subpage_button_3 active_selection_button" onclick="switchCraftingRecipesSubpage('crafting', 'items')">Items/trinkets</div>
-                                <div class="crafting_subpage_button crafting_subpage_button_3" onclick="switchCraftingRecipesSubpage('crafting', 'components')">Components</div>
-                                <div class="crafting_subpage_button crafting_subpage_button_3" onclick="switchCraftingRecipesSubpage('crafting', 'equipment')">Equipment</div>
-                            </div>
-                            <div class="crafting_category crafting_recipe_list" data-crafting_category="crafting" data-crafting_subcategory="items">
-                                
-                            </div>
-                            <div class="crafting_category crafting_recipe_list" data-crafting_category="crafting" data-crafting_subcategory="components">
-                                
-                            </div>
-                            <div class="crafting_category crafting_recipe_list" data-crafting_category="crafting" data-crafting_subcategory="equipment">
-                                
-                            </div>
+                        <div id="crafting_subpage_buttons" class="crafting_subpage_buttons activable_buttons">
+                            <div class="crafting_subpage_button active_selection_button" data-crafting_subcategory="items" onclick="switchCraftingRecipesSubpage('items')">Items/trinkets</div>
+                            <div class="crafting_subpage_button" data-crafting_subcategory="components" onclick="switchCraftingRecipesSubpage('components')">Components</div>
+                            <div class="crafting_subpage_button" data-crafting_subcategory="equipment" onclick="switchCraftingRecipesSubpage('equipment')">Equipment</div>
                         </div>
-                        <div class="crafting_category" data-crafting_category="cooking"  style="display:none">
-                            <div class="crafting_subpage_buttons activable_buttons">
-                                <div class="crafting_subpage_button crafting_subpage_button_1 active_selection_button" onclick="switchCraftingRecipesSubpage('cooking', 'items')">Items</div>
-                            </div>
-                            <div class="crafting_category crafting_recipe_list" data-crafting_category="cooking" data-crafting_subcategory="items">
-                                
-                            </div>
-                        </div>
-                        <div class="crafting_category" data-crafting_category="smelting"  style="display:none">
-                            <div class="crafting_subpage_buttons activable_buttons">
-                                <div class="crafting_subpage_button crafting_subpage_button_1 active_selection_button" onclick="switchCraftingRecipesSubpage('smelting', 'items')">Items</div>
-                            </div>
-                            <div class="crafting_category crafting_recipe_list" data-crafting_category="smelting" data-crafting_subcategory="items">
-
-                            </div>
-                        </div>
-                        <div class="crafting_category" data-crafting_category="forging"  style="display:none">
-                            <div class="crafting_subpage_buttons activable_buttons">
-                                <div class="crafting_subpage_button crafting_subpage_button_2 active_selection_button"  onclick="switchCraftingRecipesSubpage('forging', 'items')">Items/trinkets</div>
-                                <div class="crafting_subpage_button crafting_subpage_button_2"  onclick="switchCraftingRecipesSubpage('forging', 'components')">Components</div>
-                            </div>
-
-                            <div class="crafting_category crafting_recipe_list" data-crafting_category="forging" data-crafting_subcategory="items">
-
-                            </div>
-                            <div class="crafting_category crafting_recipe_list" data-crafting_category="forging" data-crafting_subcategory="components">
-                                
-                            </div>
-                        </div>
-                        <div class="crafting_category" data-crafting_category="alchemy"  style="display:none">
-                            <div class="crafting_subpage_buttons activable_buttons">
-                                <div class="crafting_subpage_button crafting_subpage_button_1 active_selection_button" onclick="switchCraftingRecipesSubpage('alchemy', 'items')">Items</div>
-                            </div>
-                            <div class="crafting_category crafting_recipe_list" data-crafting_category="alchemy" data-crafting_subcategory="items">
-
-                            </div>
-                        </div>
+                        <div id="recipe_categories" class="crafting_category"></div>
                         <div id="exit_crafting_button" onclick="closeCraftingWindow()">
                             Exit
                         </div>
