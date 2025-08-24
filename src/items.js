@@ -989,12 +989,12 @@ function getItemFromKey(key) {
                 return getItem({components, quality, equip_slot, item_type: "EQUIPPABLE"});
             }
         } else {
-            throw new Error(`Intentory key "${key}" seems to refer to non-existing item type!`);
+            throw new Error(`Inventory key "${key}" seems to refer to non-existing item type!`);
         }
     } else if(quality) { //no comps but quality (clothing / artifact?)
         return getItem({...item_templates[id], quality});
     } else {
-        throw new Error(`Intentory key "${key}" is incorrect!`);
+        throw new Error(`Inventory key "${key}" is incorrect!`);
     }
 }
 
@@ -3182,10 +3182,10 @@ export {
     item_templates, 
     Item, OtherItem, UsableItem, 
     Armor, Shield, Weapon, Cape, Artifact, Book, 
-    WeaponComponent, ArmorComponent, ShieldComponent,
+    Material, WeaponComponent, ArmorComponent, ShieldComponent,
     getItem, getItemFromKey,
     round_item_price, getArmorSlot, getEquipmentValue,
-    book_stats,
+    book_stats, BookData,
     rarity_multipliers,
     getItemRarity
 };

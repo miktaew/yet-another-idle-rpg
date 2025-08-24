@@ -885,15 +885,7 @@ input[type=checkbox], input[type=radio] {
 			outline: 1px solid white;
 			cursor: pointer;
 			margin-left: 1px;
-		}
-		.crafting_subpage_button_1 {
-			width: 398px;
-		}
-		.crafting_subpage_button_2 {
-			width: 198.5px;
-		}
-		.crafting_subpage_button_3 {
-			width: 132px;
+			flex-grow: 1;
 		}
 
 .crafting_recipe_list {
@@ -1781,13 +1773,14 @@ i {
 		font-size: 20px;
 	}
 		.journal_control_button{
-			float: left;
-			width: 98px;
 			text-align: center;
 			outline: 1px solid white;
 			cursor: pointer;
 			margin: 1px;
 			font-size: 18px;
+			flex-grow: 1;
+			padding-left: 20px;
+			padding-right: 20px;
 		}
 
 		.journal_control_button:hover{

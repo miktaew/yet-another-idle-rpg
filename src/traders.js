@@ -376,4 +376,4 @@ class TradeItem {
         new TradeItem({item_name: "Iron chopping axe", count: [1], chance: 1}),
     ];
 })();
-export {traders};
+export { traders, inventory_templates, TradeItem };

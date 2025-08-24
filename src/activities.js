@@ -172,4 +172,4 @@ class Gathering extends Training {
 })();
 
 
-export {activities};
+export {activities, Gathering};
