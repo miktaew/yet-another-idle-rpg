@@ -156,8 +156,7 @@ const equipment_slots_divs = {head: document.getElementById("head_slot"), torso:
                               cape: document.getElementById("cape_slot"),
                               pickaxe: document.getElementById("pickaxe_slot"),
                               axe: document.getElementById("axe_slot"),
-                              sickle: document.getElementById("sickle_slot"),
-                              fishing: document.getElementById("fishing_slot")
+                              sickle: document.getElementById("sickle_slot")
 };
 
 const rarity_colors = {
@@ -3752,7 +3751,6 @@ function create_new_skill_bar(skill) {
         skill_bar_divs[skill.category] = {};
 
         const skill_category_div = document.createElement("div");
-        skill_category_div.draggable = true;
         skill_category_div.innerHTML = `<i class="material-icons icon skill_dropdown_icon"> keyboard_double_arrow_down </i>${skill.category} skills`;
         skill_category_div.dataset.skill_category = skill.category;
         skill_category_div.classList.add("skill_category_div");
@@ -3767,6 +3765,7 @@ function create_new_skill_bar(skill) {
             if (idx > 0) {
                 [skill_category_order[idx], skill_category_order[idx - 1]] = [skill_category_order[idx - 1], skill_category_order[idx]];
                 sort_displayed_skill_categories();
+                update_skill_category_order();
             }
         });
         const btn_down = document.createElement('a');
@@ -3778,6 +3777,7 @@ function create_new_skill_bar(skill) {
             if (idx < skill_category_order.length - 1) {
                 [skill_category_order[idx], skill_category_order[idx + 1]] = [skill_category_order[idx + 1], skill_category_order[idx]];
                 sort_displayed_skill_categories();
+                update_skill_category_order();
             }
         });
         skill_category_div.appendChild(btn_up);
@@ -3797,7 +3797,7 @@ function create_new_skill_bar(skill) {
             }
         })
 
-        if (skill_category_order.indexOf(skill.category)) {
+        if (skill_category_order.indexOf(skill.category) == -1) {
             skill_category_order.push(skill.category);
         }
     }
@@ -4044,6 +4044,7 @@ function sort_displayed_skill_categories() {
 }
 
 function update_skill_category_order() {
+    skill_category_order.length = 0;
     [...skill_list.children].forEach((elem, idx) => {
         skill_category_order[idx] = elem.dataset.skill_category;
     });
