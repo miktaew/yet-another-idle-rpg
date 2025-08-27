@@ -150,7 +150,7 @@ function get_loot_price_modifier({is_group, value, how_many_sold}) {
  */
 function get_total_tier_saturation({ region, group_key, group_tier }) {
     if(!loot_sold_count[region][group_key]) {
-        return;
+        return 0;
     }
 
     const sold_by_tier = [];

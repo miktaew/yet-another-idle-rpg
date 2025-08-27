@@ -228,7 +228,7 @@ class Combat_zone {
 
         } else {  // PREDEFINED GROUPS DON'T EXIST
 
-            const group_size = this.enemy_group_size[0] + Math.floor(Math.random() * (this.enemy_group_size[1] - this.enemy_group_size[0]));
+            const group_size = this.enemy_group_size[0] + Math.round(Math.random() * (this.enemy_group_size[1] - this.enemy_group_size[0]));
             for(let i = 0; i < group_size; i++) {
                 enemy_group.push(this.enemies_list[Math.floor(Math.random() * this.enemies_list.length)]);
             }
@@ -1756,7 +1756,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activity_name: "mining",
             infinite: true,
             starting_text: "Mine the atratan vein",
-            skill_xp_per_tick: 10,
+            skill_xp_per_tick: 12,
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Atratan ore", ammount: [[1,1], [1,3]], chance: [0.3, 0.7]}],
@@ -1791,7 +1791,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activity_name: "woodcutting",
             infinite: true,
             starting_text: "Gather wood from sturdy trees",
-            skill_xp_per_tick: 10,
+            skill_xp_per_tick: 12,
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Piece of ash wood", ammount: [[1,1], [1,3]], chance: [0.3, 1]}],
