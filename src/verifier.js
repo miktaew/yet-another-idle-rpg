@@ -281,12 +281,14 @@ function Verify_Game_Objects() {
     }
 
     let overall_end_time = performance.now();
+    let result_message;
     if(results[1] > 0) {
-        console.log(`Finished verifying game objects in: ${Math.round(trc*(overall_end_time-overall_start_time))/trc}s\nFound issue in ${results[1]} out of ${results[0]}`);
+        result_message = `Finished verifying game objects in: ${Math.round(trc*(overall_end_time-overall_start_time))/trc}s\nFound issue in ${results[1]} out of ${results[0]}`;
     } else {
-        console.log(`Finished verifying game objects in: ${Math.round(trc*(overall_end_time-overall_start_time))/trc}s\nNo issues were found.`);
+        result_message = `Finished verifying game objects in: ${Math.round(trc*(overall_end_time-overall_start_time))/trc}s\nNo issues were found.`;
     }
 
+    console.log(result_message);
     return results[1] == 0;
 }
 
