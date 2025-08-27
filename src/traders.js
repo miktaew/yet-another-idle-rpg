@@ -214,6 +214,7 @@ class TradeItem {
             new TradeItem({item_name: "Butchering and you", count: [1], chance: 0.2}),
             new TradeItem({item_name: "Medicine for dummies", count: [1], chance: 0.2}),
             new TradeItem({item_name: "Ode to Whimsy, and other poems", count: [1], chance: 0.2}),
+            new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 0.2}),
             
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
 
@@ -285,6 +286,7 @@ class TradeItem {
             new TradeItem({item_name: "Butchering and you", count: [1], chance: 0.6}),
             new TradeItem({item_name: "Medicine for dummies", count: [1], chance: 0.6}),
             new TradeItem({item_name: "Ode to Whimsy, and other poems", count: [1], chance: 0.4}),
+            new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 0.4}),
 
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
 
@@ -294,7 +296,6 @@ class TradeItem {
             new TradeItem({item_name: "Iron sickle", count: [1], chance: 0.8}),
             new TradeItem({item_name: "Iron pickaxe", count: [1], chance: 0.8}),
             new TradeItem({item_name: "Iron chopping axe", count: [1], chance: 0.8}),
-            
     ];
 
     inventory_templates["Intermediate"] = 
@@ -365,6 +366,7 @@ class TradeItem {
         new TradeItem({item_name: "Butchering and you", count: [1], chance: 1}),
         new TradeItem({item_name: "Medicine for dummies", count: [1], chance: 1}),
         new TradeItem({item_name: "Ode to Whimsy, and other poems", count: [1], chance: 0.4}),
+        new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 0.4}),
 
         new TradeItem({item_name: "Glass phial", count: [10,16], chance: 1}),
 

@@ -89,8 +89,6 @@ import { ReputationManager } from "./reputation.js";
 import { quests, questManager, active_quests } from "./quests.js";
 import { get_current_temperature_smoothed, is_raining } from "./weather.js";
 
-import "./mods/glassmaking.js";
-
 const save_key = "save data";
 const dev_save_key = "dev save data";
 const backup_key = "backup save";
@@ -3664,7 +3662,9 @@ function load(save_data) {
     });
 
     if(is_a_older_than_b(save_data["game version"], "v0.5")) {
-        //save from before v0.5: split sold count equally between traders
+        //save from before v0.5: 
+        // - split sold count equally between traders
+        // - add an "Old shovel"
         const loot_count = {};
         const divisor = Object.keys(market_region_mapping).length;
         Object.keys(save_data.loot_sold_count).forEach(loot_key => {
@@ -3680,6 +3680,10 @@ function load(save_data) {
             });
         });
         set_loot_sold_count(loot_count);
+        
+        if(dialogues["old craftsman"].textlines["learn"].is_finished) {
+            add_to_character_inventory([{item_id: "Old shovel"}]);
+        }
     } else {
         //set it normally
         set_loot_sold_count(save_data.loot_sold_count || {});

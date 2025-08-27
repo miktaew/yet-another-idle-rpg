@@ -919,6 +919,7 @@ function getItem(item_data) {
                 case "axe":
                 case "pickaxe":
                 case "sickle":
+                case "shovel":
                     return new Tool(item_data);
                 case "cape":
                     return new Cape(item_data);
@@ -1081,42 +1082,64 @@ book_stats["Ode to Whimsy, and other poems"] = new BookData({
     },
 });
 
+book_stats["A Glint On The Sand"] = new BookData({
+    required_time: 420,
+    literacy_xp_rate: 4,
+    rewards: {
+        recipes: [
+            {category: "alchemy", subcategory: "items", recipe_id: "Potash"},
+            {category: "smelting", subcategory: "items", recipe_id: "Raw Glass"},
+            {category: "crafting", subcategory: "items", recipe_id: "Glass phial"},
+        ],
+        activities: [{location: "Village", activity: "sand"}]
+    }
+});
+
 //books
-item_templates["ABC for kids"] = new Book({
-    name: "ABC for kids",
-    description: "The simplest book on the market",
-    value: 100,
-});
+(()=>{
+    item_templates["ABC for kids"] = new Book({
+        name: "ABC for kids",
+        description: "The simplest book on the market",
+        value: 100,
+    });
 
-item_templates["Old combat manual"] = new Book({
-    name: "Old combat manual",
-    description: "Old book about combat, worn and outdated, but might still contain something useful",
-    value: 200,
-});
+    item_templates["Old combat manual"] = new Book({
+        name: "Old combat manual",
+        description: "Old book about combat, worn and outdated, but might still contain something useful",
+        value: 200,
+    });
 
-item_templates["Twist liek a snek"] = new Book({
-    name: "Twist liek a snek",
-    description: "This book has a terrible grammar, seemingly written by some uneducated bandit, but despite that it quite well details how to properly evade attacks.",
-    value: 200,
-});
+    item_templates["Twist liek a snek"] = new Book({
+        name: "Twist liek a snek",
+        description: "This book has a terrible grammar, seemingly written by some uneducated bandit, but despite that it quite well details how to properly evade attacks.",
+        value: 200,
+    });
 
-item_templates["Medicine for dummies"] = new Book({
-    name: "Medicine for dummies",
-    description: "A simple book about healing, describing how to create some basic medicines.",
-    value: 320,
-});
+    item_templates["Medicine for dummies"] = new Book({
+        name: "Medicine for dummies",
+        description: "A simple book about healing, describing how to create some basic medicines.",
+        value: 320,
+    });
 
-item_templates["Butchering and you"] = new Book({
-    name: "Butchering and you",
-    description: "An introductory book to animal butchering, that goes into further detail on how to make a use of animal parts, especially hides and bones.",
-    value: 240,
-});
+    item_templates["Butchering and you"] = new Book({
+        name: "Butchering and you",
+        description: "An introductory book to animal butchering, that goes into further detail on how to make a use of animal parts, especially hides and bones.",
+        value: 240,
+    });
 
-item_templates["Ode to Whimsy, and other poems"] = new Book({
-    name: "Ode to Whimsy, and other poems",
-    description: "A short and wonderful book of poetry that fills one with appreciation for life",
-    value: 200,
-});
+    item_templates["Ode to Whimsy, and other poems"] = new Book({
+        name: "Ode to Whimsy, and other poems",
+        description: "A short and wonderful book of poetry that fills one with appreciation for life",
+        value: 200,
+    });
+
+    item_templates["A Glint On The Sand"] = new Book({
+        id: "A Glint On The Sand",
+        name: "A Glint On The Sand",
+        description: "This books recounts a tale of shipwrecked crew accidentally discovering glassmaking while cooking on a beach. More importantly, it details the processees and materials necessary to manufacture glass.",
+        value: 300
+    });
+})();
 
 //miscellaneous and useless loot:
 (function(){
@@ -1329,6 +1352,12 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         value: 8,
         material_type: "raw fabric",
     });
+    
+    item_templates["Silica Sand"] = new Material({
+        name: "Silica Sand",
+        description: "Sand made potent by the remains of countless generations of creatures that lived and died in the body of water it was taken from.",
+        value: 1
+    });
 })();
 
 //processed materials
@@ -1458,6 +1487,18 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         description: "Polished and cleaned bones of a weak monster, just waiting to be turned into a piece of equipment.",
         value: 40,
         material_type: "bone",
+    });
+
+    item_templates["Potash"] = new Material({
+        name: "Potash",
+        description: "An alchemical substance derived from plant ash, sought after for production of bleach, soap and glass.",
+        value: 25
+    });
+
+    item_templates["Raw Glass"] = new Material({
+        name: "Raw Glass",
+        description: "Molten piece of glass, yet to be shaped into something useful.",
+        value: 100
     });
 
 })();
@@ -3018,9 +3059,16 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
 
     item_templates["Old sickle"] = new Tool({
         name: "Old sickle",
-        description: "And old herb sickle that has seen better time, but is still usable",
+        description: "And old herb sickle that has seen better times, but is still usable",
         value: 10,
         equip_slot: "sickle",
+    });
+
+    item_templates["Old shovel"] = new Tool({
+        name: "Old shovel",
+        description: "And old shovel that has seen better times, but can still be used to dig something up",
+        value: 10,
+        equip_slot: "shovel",
     });
 
     item_templates["Iron pickaxe"] = new Tool({
@@ -3050,6 +3098,16 @@ item_templates["Ode to Whimsy, and other poems"] = new Book({
         equip_slot: "sickle",
         bonus_skill_levels: {
             "Herbalism": 3,
+        }
+    });
+
+    item_templates["Iron shovel"] = new Tool({
+        name: "Iron shovel",
+        description: "A decent shovel made of iron, solid enough for most of your digging needs",
+        value: 1000,
+        equip_slot: "shovel",
+        bonus_skill_levels: {
+            "Digging": 3,
         }
     });
 })();

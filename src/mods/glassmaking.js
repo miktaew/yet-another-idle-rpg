@@ -1,16 +1,23 @@
 "use strict";
 
-import { locations, Location, LocationActivity } from "../locations.js"
-import { skills, Skill } from "../skills.js"
+import { locations, LocationActivity } from "../locations.js"
 import { Material, Book, BookData, item_templates, book_stats } from "../items.js"
 import { inventory_templates, TradeItem } from "../traders.js"
 import { recipes, ItemRecipe } from "../crafting_recipes.js"
 
 console.log("Glassmaking mod loaded");
 
+/*
+
+    Originally created by OnonokiNonon
+
+    Incorporated into the code, left as a proof of concept
+    
+*/
+
 locations["Village"].activities["sand"] = new LocationActivity({
     activity_id: "sand",
-    activity_name: "mining",
+    activity_name: "digging",
     infinite: true,
     starting_text: "Dredge up some sand from the riverbed",
     skill_xp_per_tick: 1,
@@ -58,7 +65,6 @@ item_templates["A Glint On The Sand"] = new Book({
 
 
 
-
 book_stats["A Glint On The Sand"] = new BookData({
     required_time: 420,
     literacy_xp_rate: 4,
@@ -73,9 +79,9 @@ book_stats["A Glint On The Sand"] = new BookData({
 });
 
 
-inventory_templates["Basic"].push(new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 1.4}));
-inventory_templates["Basic plus"].push(new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 1.4}));
-inventory_templates["Intermediate"].push(new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 1.4}));
+inventory_templates["Basic"].push(new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 0.4}));
+inventory_templates["Basic plus"].push(new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 0.4}));
+inventory_templates["Intermediate"].push(new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 0.4}));
 
 
 // recipes

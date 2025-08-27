@@ -142,6 +142,15 @@ class Gathering extends Training {
         required_tool_type: "pickaxe",
         getBackgroundNoises: () => ["clang clang", "clink clink", "tink tink", "crunch", "*Your pickaxe strikes the heart of the rock*"]
     });
+    activities["digging"] = new Gathering({
+        name: "digging",
+        action_text: "Swinging the shovel",
+        description: "Dig up useful materials with a shovel",
+        base_skills_names: ["Digging"],
+        is_unlocked: true,
+        required_tool_type: "Shovel",
+        getBackgroundNoises: () => ["plap plap", "plop plop", "crunch", "thwack", "scrape", "squelch"]
+    });
     activities["woodcutting"] = new Gathering({
         name: "woodcutting",
         action_text: "Gathering wood",

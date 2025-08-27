@@ -827,6 +827,17 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_skill: "Crafting",
         recipe_level: [5,15],
     });
+    crafting_recipes.items["Glass phial"] = new ItemRecipe({
+        name: "Glass phial",
+        is_unlocked: false,
+        recipe_type: "material",
+        materials: [{ material_id: "Raw Glass", count: 1}], 
+        result: {result_id: "Glass phial", count: 1},
+        success_chance: [0.1,1],
+        recipe_level: [15,25],
+        recipe_skill: "Crafting",
+    });
+
     forging_recipes.items["Iron chainmail"] = new ItemRecipe({
         name: "Iron chainmail",
         recipe_type: "material",
@@ -883,6 +894,18 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [10,20],
         recipe_skill: "Smelting",
         is_unlocked: false,
+    });
+
+    smelting_recipes.items["Raw Glass"] = new ItemRecipe({
+        name: "Raw Glass",
+        is_unlocked: false,
+        recipe_type: "material",
+        materials: [{ material_id: "Silica Sand", count: 2},
+                    { material_id: "Potash", count: 1}], 
+        result: {result_id: "Raw Glass", count: 1},
+        success_chance: [0.2,1],
+        recipe_level: [10,20],
+        recipe_skill: "Smelting",
     });
 
     crafting_recipes.items["Processed rough wood"] = new ItemRecipe({
@@ -972,6 +995,17 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [10,17],
         recipe_skill: "Crafting",
     }); 
+
+    alchemy_recipes.items["Potash"] = new ItemRecipe({
+        name: "Potash",
+        is_unlocked: false,
+        recipe_type: "material",
+        materials: [{ material_id: "Charcoal", count: 10}], 
+        result: {result_id: "Potash", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [10,20],
+        recipe_skill: "Alchemy",
+    });
 })();
 
 //consumables

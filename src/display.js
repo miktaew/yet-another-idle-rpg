@@ -156,7 +156,8 @@ const equipment_slots_divs = {head: document.getElementById("head_slot"), torso:
                               cape: document.getElementById("cape_slot"),
                               pickaxe: document.getElementById("pickaxe_slot"),
                               axe: document.getElementById("axe_slot"),
-                              sickle: document.getElementById("sickle_slot")
+                              sickle: document.getElementById("sickle_slot"),
+                              shovel: document.getElementById("shovel_slot")
 };
 
 const rarity_colors = {

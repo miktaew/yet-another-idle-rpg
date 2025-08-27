@@ -283,7 +283,7 @@ class Textline {
                 "Ahh, and before I forget, here, take these. They will be helpful for gathering necessary materials.",
                 rewards: {
                     textlines: [{dialogue: "old craftsman", lines: ["remind1", "remind2", "remind3", "remind4"]}],
-                    items: ["Old pickaxe" ,"Old axe", "Old sickle"],
+                    items: ["Old pickaxe" ,"Old axe", "Old sickle", "Old shovel"],
                     flags: ["is_gathering_unlocked", "is_crafting_unlocked"],
                 },
                 locks_lines: ["learn","leave"],

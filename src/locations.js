@@ -1698,6 +1698,22 @@ There's another gate on the wall in front of you, but you have a strange feeling
             },
             require_tool: true,
         }),
+        "sand": new LocationActivity({
+            activity_id: "sand",
+            activity_name: "digging",
+            infinite: true,
+            starting_text: "Dredge up some sand from the riverbed",
+            skill_xp_per_tick: 1,
+            is_unlocked: false,
+            gained_resources: {
+                resources: [{ name: "Silica Sand", ammount: [[1, 1], [1, 3]], chance: [0.4, 1.0] }],
+                time_period: [120, 60],
+                skill_required: [0, 10],
+                scales_with_skill: true,
+            },
+            require_tool: true,
+            unlock_text: "You realize that the river near the village might contain the type of sand you need",
+        }),
     };
     locations["Nearby cave"].activities = {
         "weightlifting": new LocationActivity({
