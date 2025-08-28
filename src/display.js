@@ -2045,7 +2045,19 @@ function create_location_choices({location, category, is_combat = false}) {
             activity_div.classList.add("activity_div", "start_activity", "location_choice");
             activity_div.setAttribute("data-activity", key);
             activity_div.setAttribute("onclick", "start_activity(this.getAttribute('data-activity'));");
-    
+
+            if(location.activities[key].availability_seasons) {
+                const activity_tooltip = document.createElement("div");
+                activity_tooltip.classList.add("job_tooltip");
+                if(location.activities[key].availability_seasons.length === 3) {
+                    const unavailable_seasons = seasons.filter(x => !location.activities[key].availability_seasons.includes(x));
+                    activity_tooltip.innerHTML = `Not available during ${unavailable_seasons.toString().replaceAll(",",", ")} <br>`;
+                } else {
+                    activity_tooltip.innerHTML = `Available during ${location.activities[key].availability_seasons.toString().replaceAll(",",", ")} <br>`;
+                }
+                activity_div.appendChild(activity_tooltip);
+            }
+
             activity_div.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + location.activities[key].starting_text;
             choice_list.push(activity_div);
         });

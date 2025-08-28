@@ -513,6 +513,10 @@ function start_activity(selected_activity) {
         current_activity.working_time = 0;
 
     } else if(activities[current_activity.activity_name].type === "TRAINING") {
+        if(!can_work(current_activity)) {
+            current_activity = null;
+            return;
+        }
         //
     } else if(activities[current_activity.activity_name].type === "GATHERING") { 
         
@@ -876,36 +880,47 @@ function get_current_book() {
 
 /**
  * 
- * @param {*} selected_job location job property
+ * @param {*} selected_activity location activity property (job or training)
  * @returns if current time is within working hours
  */
-function can_work(selected_job) {
+function can_work(selected_activity) {
     //if can start at all
-    if(!selected_job.infinite) {
-        if(selected_job.availability_time.end > selected_job.availability_time.start) {
-            //ends on the same day
-            if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.end*60
-                ||  //too late
-                current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
-                ) {  //too early
-                
-                return false;
+    if(!selected_activity.infinite) {
+        if(selected_activity.availability_time){
+            if(selected_activity.availability_time.end > selected_activity.availability_time.start) {
+                //ends on the same day
+                if(current_game_time.hour * 60 + current_game_time.minute > selected_activity.availability_time.end*60
+                    ||  //too late
+                    current_game_time.hour * 60 + current_game_time.minute < selected_activity.availability_time.start*60
+                    ) {  //too early
+                    
+                    return false;
+                }
+                if(!selected_activity.availability_seasons?.includes(current_game_time.getSeason(current_game_time.day))) {
+                    //can't be done in current season
+                    return false;
+                }  
+            } else { //ends on the next day (i.e. working through the night)
+                if(!selected_activity.availability_seasons?.includes(current_game_time.getSeason(current_game_time.day+1))) {
+                    //ends on new season during which it's not available
+                    return false;
+                }  
+
+                if(current_game_time.hour * 60 + current_game_time.minute > selected_activity.availability_time.start*60
+                    //too late
+                    ||
+                    current_game_time.hour * 60 + current_game_time.minute < selected_activity.availability_time.end*60
+                    //too early
+
+                ) {  
+                    return false;
+                }
             }
-        } else { //ends on the next day (i.e. working through the night)
-            if(!selected_job.availability_time.includes(current_game_time.getSeason(current_game_time.day+1))) {
-                //ends on new season during which it's not available
+        } else {
+            if(!selected_activity.availability_seasons?.includes(current_game_time.getSeason(current_game_time.day))) {
+                //can't be done in current season
                 return false;
             }  
-
-            if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.start*60
-                //too late
-                ||
-                current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.end*60
-                //too early
-
-            ) {  
-                return false;
-            }
         }
     }
 
@@ -4190,6 +4205,10 @@ function update() {
 
                 if(activities[current_activity.activity_name].type === "TRAINING") {
                     add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.5});
+                    if(!can_work(current_activity)) {
+                        end_activity();
+                        update_displayed_ongoing_activity(current_activity, false);
+                    }
                 } else {
                     add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.1});
                 }
@@ -4271,7 +4290,7 @@ function update() {
                 for(let i = 0; i < divs.length; i++) {
                     const activity = current_location.activities[divs[i].getAttribute("data-activity")];
 
-                    if(activities[activity.activity_name].type === "JOB") {
+                    if(activities[activity.activity_name].type === "JOB" || activities[activity.activity_name].type === "TRAINING") {
                         if(can_work(activity)) {
                             divs[i].classList.remove("activity_unavailable");
                             divs[i].classList.add("start_activity");

@@ -395,14 +395,14 @@ class LocationActivity{
         this.unlock_text = unlock_text;
         this.working_period = working_period; //if exists -> time that needs to be worked to earn anything; only for jobs
         this.infinite = infinite; //if true -> can be done 24/7, otherwise requires availability time
-        if(this.infinite && availability_time) {
+        if(this.infinite && (availability_time || availability_seasons)) {
             console.error("Activity is set to be available all the time, so availability_time value will be ignored!");
         }
-        if(!this.infinite && !availability_time) {
+        if(!this.infinite && !(availability_time || availability_seasons)) {
             throw new Error("LocationActivities that are not infinitely available, require a specified time of availability!");
         }
-        this.availability_time = availability_time; //if not infinite -> hours between which it's available
-        this.availability_seasons = availability_seasons; //if not infinite -> seasons when it's available
+        this.availability_time = availability_time; //if not infinite -> hours between which it's available; used only for work and for training
+        this.availability_seasons = availability_seasons; //if not infinite -> seasons when it's available; used for work and for training
         
         this.skill_xp_per_tick = skill_xp_per_tick; //skill xp gained per game tick (default -> 1 in-game minute)
 
@@ -1654,10 +1654,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "swimming": new LocationActivity({
             activity_name: "swimming",
-            infinite: true,
             starting_text: "Swim in the river",
+            availability_seasons: ["Spring", "Summer", "Autumn"],
             skill_xp_per_tick: 1,
-            is_unlocked: false,
+            is_unlocked: true,
             applied_effects: [{effect: "Wet", duration: 30}],
         }),
         "balancing": new LocationActivity({
