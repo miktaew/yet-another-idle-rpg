@@ -45,6 +45,9 @@
 	--stat_tooltip_top: 0px;
 	--stat_tooltip_left: 0px;
 
+	--bar_tooltip_top: 0px;
+	--bar_tooltip_left: 0px;
+
 	--location_type_tooltip_top: 0px;
 	--location_type_tooltip_left: 0px;
 
@@ -123,6 +126,7 @@ input[type=checkbox], input[type=radio] {
 	position: absolute;
 	pointer-events: none;
 	top: 0px;
+	left: 0px;
 	width: 100%;
 	height: 100%;
 	z-index: -1;
@@ -132,6 +136,7 @@ input[type=checkbox], input[type=radio] {
 	position: absolute;
 	pointer-events: none;
 	top: 0px;
+	left: 0px;
 	width: 100%;
 	height: 100%;
 	z-index: 1;
@@ -481,8 +486,26 @@ input[type=checkbox], input[type=radio] {
 		text-align: left;
 	}
 
-.stat_slot_div:hover .stat_tooltip {
-	 display: block;
+.stat_slot_div:hover .stat_tooltip{
+	display: block;
+}
+
+#character_health_tooltip, #character_stamina_tooltip {
+	display: none;
+	background-color: var(--tooltip_background_color);
+	border-radius: 10px;
+	padding: 5px;
+	position: absolute;
+	z-index: 10;
+	width: 300px;
+	pointer-events: none;
+	top: var(--bar_tooltip_top);
+	left: var(--bar_tooltip_left);
+	border: 1px solid white;
+}
+
+#character_health_div:hover #character_health_tooltip, #character_stamina_div:hover #character_stamina_tooltip {
+	display: block;
 }
 
 .skill_tooltip {
@@ -1357,11 +1380,17 @@ i {
 	left: 140px;
 }
 
+#character_health_div, #character_stamina_div, #character_mana_div, #character_xp_div {
+	width: 340px;
+	margin: auto;
+	margin-top: 10px;
+}
+
 #character_healthbar_max {
 	outline: 2px solid rgb(199, 0, 0);
 	background-color: rgba(255, 46, 46, 0.3);
 	margin: auto;
-	width: 85%;
+	width: 100%;
 	height: 16px;
 	margin-top: 10px;
 }
@@ -1370,22 +1399,16 @@ i {
 	height: 100%;
 }
 
-#character_health_value, #character_health_text, #character_xp_value, #character_level_div {
+#character_health_value, #character_health_text, #character_xp_value, #character_mana_value, #character_stamina_value {
 	color: white;
-	width: 100%;
-}
-#character_health_value, #character_health_text {
+	width: 340px;
 	text-align: center;
+	position: absolute;
 }
 
 #character_health_value {
-	position: absolute;
-	width: 400px;
 	top: 102px;
 	font-size: 18px;
-}
-#character_health_text {
-	text-align: left; margin-left: 28px;
 }
 
 #character_level_div {
@@ -1400,8 +1423,6 @@ i {
 #character_mana_bar_max {
 	outline: 2px solid rgb(0, 0, 127);
 	margin: auto;
-	width: 85%;
-	margin-top: 9px;
 	height: 15px;
 	background-color: rgba(0, 0, 255, 0.3);
 }
@@ -1413,18 +1434,13 @@ i {
 }
 
 #character_mana_value {
-	position: absolute;
 	font-size: 15px;
-	width: 400px;
 	top: 77px;
-	text-align: center;
 }
 
 #character_stamina_bar_max {
 	outline: 2px solid rgb(0, 127, 0);
 	margin: auto;
-	width: 85%;
-	margin-top: 9px;
 	height: 15px;
 	background-color: rgba(0, 255, 0, 0.3);
 }
@@ -1435,10 +1451,7 @@ i {
 }
 
 #character_stamina_value {
-	position: absolute;
-	width: 400px;
 	top: 53px;
-	text-align: center;
 	font-size: 15px;
 }
 
@@ -1446,7 +1459,6 @@ i {
 	outline: 2px solid rgb(255, 126, 0);
 	margin: auto;
 	margin-top: 30px;
-	width: 85%;
 	height: 15px;
 	background-color: rgba(255, 165, 0, 0.3);
 }
@@ -1457,11 +1469,8 @@ i {
 }
 
 #character_xp_value {
-	position: absolute;
 	font-size: 15px;
-	width: 400px;
 	top: 29px;
-	text-align: center;
 }
 
 #character_equipment_div { 

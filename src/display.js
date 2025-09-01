@@ -69,10 +69,12 @@ const enemy_count_div = document.getElementById("enemy_count_div");
 //character health display
 const current_health_value_div = document.getElementById("character_health_value");
 const current_health_bar = document.getElementById("character_healthbar_current");
+const health_tooltip_div = document.getElementById("character_health_tooltip");
 
 //character stamina display
 const current_stamina_value_div = document.getElementById("character_stamina_value");
 const current_stamina_bar = document.getElementById("character_stamina_bar_current");
+const stamina_tooltip_div = document.getElementById("character_stamina_tooltip");
 
 //character xp display
 const character_xp_div = document.getElementById("character_xp_div");
@@ -107,7 +109,7 @@ const quest_list = document.getElementById("quest_list");
 const data_entry_divs = {
                             character: document.getElementById("character_xp_multiplier"),
                             skills: document.getElementById("skills_xp_multiplier"),
-                            stamina: document.getElementById("stamina_efficiency_multiplier")
+                            //stamina: document.getElementById("stamina_efficiency_multiplier")
                         };
 
 let skill_sorting = "name";
@@ -3179,8 +3181,10 @@ function update_displayed_stamina() { //call it when eating, resting or fighting
     current_stamina_bar.style.width = (character.stats.full.stamina*100/character.stats.full.max_stamina).toString() +"%";
 }
 
-function update_displayed_stats() { //updates displayed stats
-
+/**
+ * updates displayed stats and their breakdowns (including health and stamina)
+ */
+function update_displayed_stats() {
     Object.keys(stats_divs).forEach(function(key){
         if(key === "crit_rate" || key === "crit_multiplier") {
             stats_divs[key].innerHTML = `${(character.stats.full[key]*100).toFixed(1)}%`;
@@ -3222,6 +3226,7 @@ function update_displayed_stats() { //updates displayed stats
 
     update_stat_description("defensive_points");
     update_stat_description("attack_points");
+    update_bar_tooltips();
 
     let atk = character.get_attack_power();
     if(atk > 100) {
@@ -3249,6 +3254,36 @@ function update_stat_description(stat) {
     target.innerHTML = create_stat_breakdown(stat);
     
     return;
+}
+
+function update_bar_tooltips(){
+    update_health_bar_tooltip();
+    update_stamina_bar_tooltip();
+    update_xp_bar_tooltip();
+}
+
+/**
+ * health bar tooltip, max health only
+ */
+function update_health_bar_tooltip() {
+    health_tooltip_div.innerHTML = "Max health: " + Math.round(character.stats.full.max_health) + "<br>";
+    health_tooltip_div.innerHTML += create_stat_breakdown("max_health");
+}
+
+
+/**
+ * stamina bar tooltip, max and efficiency only
+ */
+function update_stamina_bar_tooltip() {
+    stamina_tooltip_div.innerHTML = "Max stamina: " + Math.round(character.stats.full.max_stamina) + "<br>";
+    stamina_tooltip_div.innerHTML += create_stat_breakdown("max_stamina");
+
+    stamina_tooltip_div.innerHTML += "<br>------------------------<br>Stamina efficiency: " + Math.round(100*character.stats.full.stamina_efficiency)/100 + "<br>";
+    stamina_tooltip_div.innerHTML += create_stat_breakdown("stamina_efficiency");
+}
+
+function update_xp_bar_tooltip() {
+
 }
 
 function create_stat_breakdown(stat) {
@@ -3444,7 +3479,7 @@ function update_displayed_xp_bonuses() {
 }
 
 function update_displayed_stamina_efficiency() {
-    data_entry_divs.stamina.innerHTML = `<span class="data_entry_name">Stamina efficiency:</span><span class="data_entry_value">${Math.round(100*character.stats.full.stamina_efficiency)/100 || 1}</span>`;
+    update_stamina_bar_tooltip();
 }
 
 function update_displayed_dialogue(dialogue_key) {

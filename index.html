@@ -69,6 +69,8 @@
                         <div id = "character_stamina_value">
                             
                         </div>
+                        <div id="character_stamina_tooltip" class="character_bar_tooltip">
+                        </div>
                     </div>
                     <div id = "character_mana_div">
                         <div id ="character_mana_bar_max">
@@ -78,6 +80,8 @@
                         <div id = "character_mana_value">
                             0/0 mana
                         </div>
+                        <div id="character_mana_tooltip" class="character_bar_tooltip">
+                        </div>
                     </div>
 
                     <div id = "character_health_div"> 
@@ -86,6 +90,8 @@
                             </div>
                         </div>
                         <div id = "character_health_value">
+                        </div>
+                        <div id="character_health_tooltip" class="character_bar_tooltip">
                         </div>
                     </div>
                 </div>
@@ -1584,6 +1590,16 @@
                     if(Date.now() >= tooltip_wait) {
                         document.documentElement.style.setProperty('--stat_tooltip_top', `${event.pageY - 140}px`);
                         document.documentElement.style.setProperty('--stat_tooltip_left', `${event.pageX}px`);
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
+                    }
+                }
+
+                let bar_divs = document.getElementsByClassName("character_bar_tooltip");
+                Array.from(bar_divs).forEach(bar_div => bar_div.parentNode.addEventListener('mousemove', move_bar_tooltip, false));
+                function move_bar_tooltip(event) {
+                    if(Date.now() >= tooltip_wait) {
+                        document.documentElement.style.setProperty('--bar_tooltip_top', `${event.pageY}px`);
+                        document.documentElement.style.setProperty('--bar_tooltip_left', `${event.pageX}px`);
                         tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
                 }

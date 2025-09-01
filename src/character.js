@@ -307,8 +307,8 @@ character.stats.add_book_bonus = function ({multipliers = {}, xp_multipliers = {
 }
 
 character.stats.add_active_effect_bonus = function() {
-        character.stats.flat.active_effect = {};
-        character.stats.multiplier.active_effect = {};
+        character.stats.flat.active_effects = {};
+        character.stats.multiplier.active_effects = {};
         character.bonus_skill_levels.flat.active_effects = {};
         character.xp_bonuses.multiplier.active_effects = {};
 
@@ -318,11 +318,11 @@ character.stats.add_active_effect_bonus = function() {
                 let effects = get_effect_with_bonuses(active_effects[effect_key]);
                 for(const [key, value] of Object.entries(effects.stats)) {
                         if(value.flat) {
-                                character.stats.flat.active_effect[key] = (character.stats.flat.active_effect[key] || 0) + value.flat*multiplier;
+                                character.stats.flat.active_effects[key] = (character.stats.flat.active_effects[key] || 0) + value.flat*multiplier;
                         }
 
                         if(value.multiplier) {
-                                character.stats.multiplier.active_effect[key] = (character.stats.multiplier.active_effect[key] || 1) * value.multiplier*multiplier;
+                                character.stats.multiplier.active_effects[key] = (character.stats.multiplier.active_effects[key] || 1) * value.multiplier*multiplier;
                         }
                 }
                 for(const [key, value] of Object.entries(effects.bonus_skill_levels)) {
@@ -417,7 +417,7 @@ character.stats.add_all_skill_level_bonus = function() {
         character.stats.multiplier.skills.max_stamina = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Breathing"})
                                                                 * get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Swimming"});
 
-        character.stats.flat.skills.max_health = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Fortitude"});
+        character.stats.multiplier.skills.max_health = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Fortitude"});
 
         character.stats.flat.skills.intuition = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Meditation"});
 
