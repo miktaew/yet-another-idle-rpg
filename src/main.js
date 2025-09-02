@@ -76,7 +76,8 @@ import { end_activity_animation,
          start_snow_animation,
          stop_background_animation,
          skill_category_order,
-         update_displayed_total_price
+         update_displayed_total_price,
+         start_stars_animation
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -133,6 +134,7 @@ let rain_counter = 0;
 const cold_status_counters = [0,0,0,0];
 
 let was_raining = false;
+let was_night = false;
 
 //current enemy
 let current_enemies = null;
@@ -409,6 +411,7 @@ function option_do_background_animations(option) {
         
         window.removeEventListener("resize", start_snow_animation);
         window.removeEventListener("resize", start_rain_animation);
+        window.removeEventListener("resize", start_stars_animation);
     }
 
     if(option !== undefined) {
@@ -4096,10 +4099,12 @@ function update() {
                 if(new_temperature >= 0) {
                     window.addEventListener("resize", start_rain_animation);
                     window.removeEventListener("resize", start_snow_animation);
+                    window.removeEventListener("resize", start_stars_animation);
                     start_rain_animation();
                 } else {
                     window.addEventListener("resize", start_snow_animation);
                     window.removeEventListener("resize", start_rain_animation);
+                    window.removeEventListener("resize", start_stars_animation);
                     start_snow_animation();
                 }
             }
@@ -4117,6 +4122,16 @@ function update() {
             was_raining = false;
         }
         
+        if(options.do_background_animations) {
+            //night started or it's night and rain stopped => stars
+            if(!is_raining() && !current_location.is_under_roof && is_night() && (was_raining || !was_night)) {
+                window.addEventListener("resize", start_stars_animation);
+                window.removeEventListener("resize", start_snow_animation);
+                window.removeEventListener("resize", start_rain_animation);
+            }
+        }
+        
+
         //temperature changed => update stats if needed
         if(current_temperature !== new_temperature) {
             if(!were_stats_updated) {
@@ -4316,7 +4331,6 @@ function update() {
                 }
             }
         }
-
 
         let health_to_add = 0;
         let health_to_subtract = 0

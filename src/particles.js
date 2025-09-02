@@ -97,4 +97,38 @@ class StarParticle extends BackgroundParticle {
     }
 }
 
-export {RainParticle, SnowParticle, StarParticle};
+class PointyStarParticle extends BackgroundParticle {
+    constructor({canvas}) {
+        const size = Math.random()*6 + 6;
+
+        super({canvas, size});
+
+        this.size = size;
+
+        this.context = canvas.getContext("2d");
+
+        let degrees = 45;
+
+        this.draw = () => {
+            this.radians += 0.01;
+
+            this.tempSize = Math.max(4,this.size * Math.abs(Math.sin(this.radians)));
+            this.tempX = this.x - this.tempSize/2;
+            this.tempY = this.y - this.tempSize/2;
+
+            this.context.save();
+
+            this.context.fillStyle = `rgba(255,255,100,${this.opacity})`;
+            this.context.fillRect(this.tempX, this.tempY, this.tempSize, this.tempSize);
+            
+            this.context.translate(this.tempX+this.tempSize/2, this.tempY+this.tempSize/2);
+            this.context.rotate(degrees * Math.PI/180);
+            this.context.fillStyle = `rgba(255,255,100,${this.opacity})`;
+            this.context.fillRect(-this.tempSize/2, -this.tempSize/2, this.tempSize, this.tempSize);
+
+            this.context.restore();
+        }
+    }
+}
+
+export {RainParticle, SnowParticle, StarParticle, PointyStarParticle};

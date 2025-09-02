@@ -26,7 +26,7 @@ import { effect_templates } from "./active_effects.js";
 import { player_storage } from "./storage.js";
 import { quests } from "./quests.js";
 import { get_current_temperature_smoothed, is_raining } from "./weather.js";
-import { RainParticle, SnowParticle, StarParticle } from "./particles.js";
+import { PointyStarParticle, RainParticle, SnowParticle, StarParticle } from "./particles.js";
 
 let activity_anim; //for the activity and locationAction animation interval
 
@@ -4812,6 +4812,11 @@ function start_snow_animation() {
     start_background_animation("snow");
 }
 
+
+function start_stars_animation() {
+    start_background_animation("stars");
+}
+
 function start_background_animation(type) {
     
     
@@ -4828,7 +4833,7 @@ function start_background_animation(type) {
             canvas = document.getElementById("foreground_canvas");
             break;
         case "stars":
-            particle_class = StarParticle;
+            particle_class = PointyStarParticle;
             canvas = document.getElementById("background_canvas");
             break;
         default:
@@ -5009,7 +5014,7 @@ export {
     skill_list,
     update_booklist_entry,
     add_quest_to_display, update_displayed_quest, update_displayed_quest_task, 
-    start_rain_animation, start_snow_animation, stop_background_animation,
+    start_rain_animation, start_snow_animation, start_stars_animation, stop_background_animation,
     update_displayed_total_price,
     skill_category_order
 }
