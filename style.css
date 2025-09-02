@@ -490,7 +490,7 @@ input[type=checkbox], input[type=radio] {
 	display: block;
 }
 
-#character_health_tooltip, #character_stamina_tooltip {
+#character_health_tooltip, #character_stamina_tooltip, #character_xp_tooltip {
 	display: none;
 	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
@@ -504,7 +504,7 @@ input[type=checkbox], input[type=radio] {
 	border: 1px solid white;
 }
 
-#character_health_div:hover #character_health_tooltip, #character_stamina_div:hover #character_stamina_tooltip {
+#character_health_div:hover #character_health_tooltip, #character_stamina_div:hover #character_stamina_tooltip, #character_xp_div:hover #character_xp_tooltip {
 	display: block;
 }
 

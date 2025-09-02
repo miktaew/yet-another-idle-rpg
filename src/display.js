@@ -3,7 +3,7 @@
 import { traders } from "./traders.js";
 import { current_trader, to_buy, to_sell } from "./trade.js";
 import { skills, get_unlocked_skill_rewards, get_next_skill_milestone } from "./skills.js";
-import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, get_total_skill_coefficient, get_total_skill_level, get_effect_with_bonuses, cold_status_effects, cold_status_temperatures, get_character_cold_tolerance, lowest_tolerable_temperature } from "./character.js";
+import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, get_total_skill_coefficient, get_total_skill_level, get_effect_with_bonuses, cold_status_effects, cold_status_temperatures, get_character_cold_tolerance, lowest_tolerable_temperature, get_skill_xp_gain_bonus } from "./character.js";
 import { current_enemies, options, 
     can_work, current_location, 
     active_effects, enough_time_for_earnings, 
@@ -79,6 +79,7 @@ const stamina_tooltip_div = document.getElementById("character_stamina_tooltip")
 //character xp display
 const character_xp_div = document.getElementById("character_xp_div");
 const character_level_div = document.getElementById("character_level_div");
+const xp_bar_tooltip_div = document.getElementById("character_xp_tooltip");
 
 //active effects display
 const active_effects_tooltip = document.getElementById("effects_tooltip");
@@ -3284,8 +3285,24 @@ function update_stamina_bar_tooltip() {
 
 function update_xp_bar_tooltip() {
 
+    xp_bar_tooltip_div.innerHTML = "Global xp multiplier: " + Math.round(100*character.xp_bonuses.total_multiplier.all)/100 + "<br>";
+    xp_bar_tooltip_div.innerHTML += create_xp_bonus_breakdown("all", false);
+
+    xp_bar_tooltip_div.innerHTML += "<br>------------------------<br>Hero xp multiplier: " + Math.round(100*character.xp_bonuses.total_multiplier.hero)/100 
+                                    + " (with global: " + Math.round(get_hero_xp_gain()*100)/100 +")<br>";
+    xp_bar_tooltip_div.innerHTML += create_xp_bonus_breakdown("hero", false);
+
+    xp_bar_tooltip_div.innerHTML += "<br>------------------------<br>Skill xp multiplier: " + Math.round(100*character.xp_bonuses.total_multiplier.all_skill)/100
+                                    + " (with global: " + Math.round(get_skills_overall_xp_gain()*100)/100 +")<br>";
+    xp_bar_tooltip_div.innerHTML += create_xp_bonus_breakdown("all_skill", false);
+
 }
 
+/**
+ * creates full breakdown for provided stat
+ * @param {} stat 
+ * @returns 
+ */
 function create_stat_breakdown(stat) {
     let html_string = "";
 
@@ -3322,6 +3339,38 @@ function create_stat_breakdown(stat) {
     Object.keys(character.stats.multiplier).forEach(stat_type => {
         if(character.stats.multiplier[stat_type][stat] && character.stats.multiplier[stat_type][stat] !== 1) {
             html_string +=  `<br>${capitalize_first_letter(stat_type.replace("_"," "))}: x${Math.round(100*character.stats.multiplier[stat_type][stat])/100}`;
+        }
+    });
+
+    return html_string;
+}
+
+/**
+ * creates full breakdown for provided bonus category (skill id, skill category, all, all skill, hero)
+ * @param {*} bonus 
+ * @param {*} include_multipliers 
+ * @returns 
+ */
+function create_xp_bonus_breakdown(bonus, include_multipliers) {
+    let html_string = "";
+    let xp_bonus_value = 1;
+
+    if(include_multipliers) {
+        if(bonus !== "all") {
+            if(bonus !== "all_skill" && bonus !== "hero") {
+                xp_bonus_value = get_skill_xp_gain_bonus(bonus);
+            } else {
+                xp_bonus_value *= (character.xp_bonuses.total_multiplier.all || 1);
+            }
+        }
+    }
+
+    html_string += `<br>Breakdown:
+        <br>Base value: ${Math.round(100*xp_bonus_value)/100}`;
+    
+    Object.keys(character.xp_bonuses.multiplier).forEach(bonus_type => {
+        if(character.xp_bonuses.multiplier[bonus_type]?.[bonus] && character.xp_bonuses.multiplier[bonus_type]?.[bonus] !== 1) {
+            html_string +=  `<br>${capitalize_first_letter(bonus_type.replace("_"," "))}: x${Math.round(100*character.xp_bonuses.multiplier[bonus_type][bonus])/100}`;
         }
     });
 
@@ -3474,8 +3523,7 @@ function update_displayed_character_xp(did_level = false) {
 }
 
 function update_displayed_xp_bonuses() {
-    data_entry_divs.character.innerHTML = `<span class="data_entry_name">Base hero xp gain:</span><span class="data_entry_value">x${Math.round(100*get_hero_xp_gain())/100}</span>`;
-    data_entry_divs.skills.innerHTML = `<span class="data_entry_name">Base skill xp gain:</span><span class="data_entry_value">x${Math.round(100*get_skills_overall_xp_gain())/100}</span>`;
+    update_xp_bar_tooltip();
 }
 
 function update_displayed_stamina_efficiency() {

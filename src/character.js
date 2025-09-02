@@ -788,22 +788,33 @@ function update_character_stats() {
 }
 
 /**
- * updates character stats related to combat, things that are more situational and/or based on other stats, kept separately from them
+ * 
+ * @param {*} skill_name 
+ * @returns total xp gains for provided skill 
  */
 function get_skill_xp_gain(skill_name) {
         const category = "category_"+skills[skill_name].category;
+        return (character.xp_bonuses.total_multiplier.all || 1) * get_skill_xp_gain_bonus(skill_name);
+}
+
+/**
+ * 
+ * @param {*} skill_name 
+ * @returns total non-direct multiplier to xp gains of provided skill
+ */
+function get_skill_xp_gain_bonus(skill_name) {
+        const category = "category_"+skills[skill_name].category;
         return (character.xp_bonuses.total_multiplier.all_skill || 1) 
               * (character.xp_bonuses.total_multiplier.all || 1) 
-              * (character.xp_bonuses.total_multiplier[skill_name] || 1)
               * (character.xp_bonuses.total_multiplier[category] || 1);
 }
 
 function get_skills_overall_xp_gain() {
-        return (character.xp_bonuses.total_multiplier.all_skill || 1) * (character.xp_bonuses.total_multiplier.all || 1)
+        return (character.xp_bonuses.total_multiplier.all_skill || 1) * (character.xp_bonuses.total_multiplier.all || 1);
 }
 
 function get_hero_xp_gain() {
-        return (character.xp_bonuses.total_multiplier.hero || 1) * (character.xp_bonuses.total_multiplier.all || 1)
+        return (character.xp_bonuses.total_multiplier.hero || 1) * (character.xp_bonuses.total_multiplier.all || 1);
 }
 
 function get_total_skill_level(skill_id) {
@@ -848,7 +859,7 @@ function get_effect_with_bonuses(active_effect) {
 }
 
 export {character, add_to_character_inventory, remove_from_character_inventory, equip_item_from_inventory, equip_item, 
-        unequip_item, update_character_stats, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, add_location_penalties,
+        unequip_item, update_character_stats, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, get_skill_xp_gain_bonus, add_location_penalties,
         get_total_skill_level, get_total_level_bonus, get_total_skill_coefficient, get_effect_with_bonuses,
         time_until_wet, time_until_cold, time_until_cold_when_wet, 
         cold_status_temperatures, cold_status_effects,
