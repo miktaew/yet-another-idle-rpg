@@ -210,6 +210,29 @@ input[type=checkbox], input[type=radio] {
 	text-align: left;
  }
 
+ .message_export_reward {
+	font-size: 12px;
+	color: yellow;
+ }
+ @keyframes export_reward {
+  0% {
+		color: white;
+	}
+  50% {
+		color: orange;
+	}
+  100% {
+		color: greenyellow;
+  	}
+ }
+ .export_button_with_reward {
+	animation-name: export_reward;
+  	animation-duration: 4s;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+	font-weight: bold;
+ }
+
  .message_background {
 	font-style: italic;
 	color: rgb(171, 171, 255);

@@ -632,6 +632,11 @@ function end_activity_animation(remove) {
             group_to_add = "message_events";
             message_count.message_events += 1;
             break;
+        case "export_reward":
+            class_to_add = "message_export_reward";
+            group_to_add = "message_events";
+            message_count.message_events += 1;
+            break;
         case "activity_finished":
             group_to_add = "message_events";
             message_count.message_events += 1;

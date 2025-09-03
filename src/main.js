@@ -126,6 +126,9 @@ const trade_price_recovery_ratio = 1/360; //
 //larger of two (sold count * ratio or flat value)
 const market_saturation_trickle_rate = 0.05;
 
+//keeping the time to use it for export bonus
+let last_rewarded_export = 0;
+const time_between_export_rewards = 1000*60*60*20; //1000 miliseconds -> 1s, x60 -> 1m, x60 -> 1h, x20 -> 20h
 
 //temperature
 let current_temperature = 20;
@@ -2618,7 +2621,13 @@ function add_active_effect(effect_key, duration){
     update_character_stats();
 }
 
-
+/**
+ * 
+ */
+function give_export_reward() {
+    add_active_effect("Spark of Inspiration", 1800);
+    log_message("Gained a Spark of Inspiration!", "export_reward");
+}
 
 function get_date() {
     const date = new Date();
@@ -2666,6 +2675,7 @@ function create_save() {
         save_data.strongest_hit = strongest_hit;
         save_data.gathered_materials = gathered_materials;
         save_data.global_flags = global_flags;
+        save_data.last_rewarded_export = last_rewarded_export || 0;
         save_data["character"] = {
                                 name: character.name, titles: character.titles, 
                                 inventory: {}, equipment: character.equipment,
@@ -2907,6 +2917,10 @@ function create_save() {
  * @returns save string encoded to base64
  */
 function save_to_file() {
+    if(Date.now() - last_rewarded_export > time_between_export_rewards) {
+        last_rewarded_export = Date.now();
+        give_export_reward();
+    }
     return btoa(create_save());
 }
 
@@ -2947,6 +2961,8 @@ function load(save_data) {
     Object.keys(save_data.global_flags||{}).forEach(flag => {
         global_flags[flag] = save_data.global_flags[flag];
     });
+
+    last_rewarded_export = save_data.last_rewarded_export || last_rewarded_export;
 
     total_playtime = save_data.total_playtime || 0;
     total_deaths = save_data.total_deaths || 0;
@@ -4052,6 +4068,12 @@ function update() {
         let were_stats_updated = false;
         const prev_day = current_game_time.day;
         update_timer();
+
+        if(start_date - last_rewarded_export > time_between_export_rewards) {
+            document.getElementById("save_to_file_button").classList.add("export_button_with_reward");
+        } else {
+            document.getElementById("save_to_file_button").classList.remove("export_button_with_reward");
+        }
 
         const curr_day = current_game_time.day;
         if(curr_day > prev_day) {
