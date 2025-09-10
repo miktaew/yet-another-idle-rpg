@@ -26,8 +26,7 @@ import { effect_templates } from "./active_effects.js";
 import { player_storage } from "./storage.js";
 import { quests } from "./quests.js";
 import { get_current_temperature_smoothed, is_raining } from "./weather.js";
-import { PointyStarParticle, RainParticle, SnowParticle, StarParticle } from "./particles.js";
-
+import { PointyStarParticle, RainParticle, SnowParticle } from "./particles.js";
 let activity_anim; //for the activity and locationAction animation interval
 
 let location_choice_divs = {}; //for dropdowns
@@ -180,6 +179,8 @@ let selected_crafting_subcategory;
 
 const backup_load_button = document.getElementById("backup_load_button");
 const other_save_load_button = document.getElementById("import_other_save_button");
+
+const export_button_tooltip = document.getElementById("export_button_tooltip");
 
 
 function capitalize_first_letter(some_string) {
@@ -4876,6 +4877,24 @@ function do_background_animation() {
     }, 1000/60);
 }
 
+function update_export_button_tooltip(time_passed, time_until_reward) {
+    if(time_passed > time_until_reward) {
+        //just say reward is available
+        export_button_tooltip.innerHTML = "Reward available!";
+    } else {
+        //calculate irl time needed until reward
+        let time_needed = time_until_reward - time_passed;
+        time_needed /= 1000;
+        const seconds = Math.floor(time_needed%60);
+        time_needed = Math.floor(time_needed/60);
+        const minutes = Math.floor(time_needed%60);
+        time_needed = Math.floor(time_needed/60);
+        const hours = time_needed;
+
+        export_button_tooltip.innerHTML = `Reward available in: ${hours}:${minutes}:${seconds} real time`;
+    }
+}
+
 function update_backup_load_button(date_string){
     if(date_string) {
         backup_load_button.innerText = `Load the backup autosave [${date_string.replaceAll("_",":")}]`;
@@ -5021,5 +5040,6 @@ export {
     add_quest_to_display, update_displayed_quest, update_displayed_quest_task, 
     start_rain_animation, start_snow_animation, start_stars_animation, stop_background_animation,
     update_displayed_total_price,
-    skill_category_order
+    skill_category_order,
+    update_export_button_tooltip
 }

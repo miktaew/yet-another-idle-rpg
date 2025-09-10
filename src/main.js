@@ -77,7 +77,8 @@ import { end_activity_animation,
          stop_background_animation,
          skill_category_order,
          update_displayed_total_price,
-         start_stars_animation
+         start_stars_animation,
+         update_export_button_tooltip
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -4074,6 +4075,8 @@ function update() {
         } else {
             document.getElementById("save_to_file_button").classList.remove("export_button_with_reward");
         }
+
+        update_export_button_tooltip(start_date - last_rewarded_export, time_between_export_rewards);
 
         const curr_day = current_game_time.day;
         if(curr_day > prev_day) {

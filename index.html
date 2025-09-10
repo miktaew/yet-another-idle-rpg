@@ -942,7 +942,7 @@
 
         <div id = "bottom_panel_div" data-nosnippet>
             <div id = "save_button" class = "sl_button" onclick = "saveProgress()"> Save </div>
-            <div id = "save_to_file_button" class = "sl_button" onclick = "saveToFile()"> Export </div>
+            <div id = "save_to_file_button" class = "sl_button" onclick = "saveToFile()"> Export <div id= "export_button_tooltip"></div></div>
             <label id = "load_from_file_button" class = "sl_button" for = "saved_file_input"> Import </label> 
             <input id = "saved_file_input" type='file' accept = 'text/plain' onchange = 'loadProgress(event)'>	
 
@@ -1853,6 +1853,12 @@
                         tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
                 }
+
+                //export button tooltip (reward timer)
+                save_to_file_button.addEventListener('mousemove', (event) => {
+                    document.documentElement.style.setProperty('--export_button_tooltip_top', `${event.pageY-930}px`);
+                    document.documentElement.style.setProperty('--export_button_tooltip_left', `${event.pageX}px`);
+                }); 
 
                 //move clicked items to proper list
                 inventory_div.addEventListener('click', (event)=>move_trade_item(event, "character"), false);

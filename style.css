@@ -72,6 +72,9 @@
 	--actions_div_top_combat: 640px;
 	--actions_div_top: var(--actions_div_top_default);
 
+	--export_button_tooltip_top: 0px;
+	--export_button_tooltip_left: 0px;
+
 	--options_action_textsize: 16px;
 	--location_name_div_width: 270px;
 
@@ -231,6 +234,17 @@ input[type=checkbox], input[type=radio] {
 	animation-iteration-count: infinite;
 	animation-direction: alternate;
 	font-weight: bold;
+ }
+
+ #export_button_tooltip {
+	display: none;
+	position: absolute;
+ }
+
+ #save_to_file_button:hover #export_button_tooltip{
+	display: block;
+	top: var(--export_button_tooltip_top);
+	left: var(--export_button_tooltip_left);
  }
 
  .message_background {
@@ -428,7 +442,7 @@ input[type=checkbox], input[type=radio] {
 	width: fit-content;
 }
 
-.item_tooltip, .job_tooltip, .location_tooltip, .recipe_tooltip {
+.item_tooltip, .job_tooltip, .location_tooltip, .recipe_tooltip, #export_button_tooltip {
 	display: none;
 	text-align: left;
 	color: white;
