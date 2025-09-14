@@ -78,7 +78,8 @@ import { end_activity_animation,
          skill_category_order,
          update_displayed_total_price,
          start_stars_animation,
-         update_export_button_tooltip
+         update_export_button_tooltip,
+         update_displayed_reputation
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -2065,6 +2066,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         Object.keys(rewards.reputation).forEach(region => {
             ReputationManager.add_reputation({region, reputation: rewards.reputation[region]});
         });
+        update_displayed_reputation();
     }
 
     if(rewards.move_to && !only_unlocks) {
@@ -3034,8 +3036,8 @@ function load(save_data) {
             console.warn(`Skipped reputation, no such region as "${rep_region}"`);
         }
     });
-    //todo: call a function to update display (once rep is added to display)
-
+    update_displayed_reputation();
+    
     if (save_data.skill_category_order) {
         save_data.skill_category_order.forEach((elem, idx) => {
             skill_category_order[idx] = elem;

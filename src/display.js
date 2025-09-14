@@ -107,9 +107,7 @@ const quest_entry_divs = {};
 const quest_list = document.getElementById("quest_list");
 
 const data_entry_divs = {
-                            character: document.getElementById("character_xp_multiplier"),
-                            skills: document.getElementById("skills_xp_multiplier"),
-                            //stamina: document.getElementById("stamina_efficiency_multiplier")
+                            reputation: document.getElementById("data_tab_reputation_div"),
                         };
 
 let skill_sorting = "name";
@@ -3536,6 +3534,32 @@ function update_displayed_stamina_efficiency() {
     update_stamina_bar_tooltip();
 }
 
+/**
+ * updates displayed reputation, only showing regions where value is > 0
+ */
+function update_displayed_reputation() {
+    data_entry_divs.reputation.innerHTML = "";
+
+    Object.keys(character.reputation).forEach(reputation_region => {
+        if(character.reputation[reputation_region] > 0) {
+            const rep_div = document.createElement("div");
+            const rep_name_span = document.createElement("span");
+            const rep_value_span = document.createElement("span");
+            rep_div.classList.add("data_entry");
+            rep_name_span.classList.add("data_entry_name");
+            rep_value_span.classList.add("data_entry_value");
+
+            rep_name_span.innerHTML = capitalize_first_letter(reputation_region) + " reputation";
+            rep_value_span.innerHTML = character.reputation[reputation_region];
+
+            rep_div.appendChild(rep_name_span);
+            rep_div.appendChild(rep_value_span);
+
+            data_entry_divs.reputation.appendChild(rep_div);
+        }
+    });
+}
+
 function update_displayed_dialogue(dialogue_key) {
     const dialogue = dialogues[dialogue_key];
     
@@ -5041,5 +5065,6 @@ export {
     start_rain_animation, start_snow_animation, start_stars_animation, stop_background_animation,
     update_displayed_total_price,
     skill_category_order,
-    update_export_button_tooltip
+    update_export_button_tooltip,
+    update_displayed_reputation
 }
