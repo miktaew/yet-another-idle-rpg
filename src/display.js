@@ -681,9 +681,13 @@ function end_activity_animation(remove) {
     message.innerHTML = message_to_add + "<div class='message_border'> </>";
 
     message_log.appendChild(message);
-    
-    message_log.scrollTop = message_log.scrollHeight;
 
+
+    const button_id = group_to_add.replace("_","_show_"); //not the best way but likelihood of the ids being changed is quite low
+    if(document.getElementById(button_id).classList.contains("active_selection_button")) {
+        //scroll the message log but only if added message is in a not hidden category
+        message_log.scrollTop = message_log.scrollHeight;
+    }
 }
 
 function format_book_bonuses(bonuses) {
