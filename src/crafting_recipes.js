@@ -318,12 +318,26 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     } else if (subcategory === "components" || selected_recipe.recipe_type === "component" || selected_recipe.recipe_type === "componentless") {
         const result_level = 8*result_tier;
         exp_value = Math.max(exp_value**1.2,((result_tier * 4)**1.2) * material_count);
-        exp_value = Math.max(0.5*material_count,exp_value*(rarity_multiplier**0.5 - (skill_level/result_level))*rarity_multiplier);
+
+        if(result_level > skill_level*rarity_multiplier**0.5) {
+            //full value
+            exp_value = Math.max(0.5*material_count,exp_value*rarity_multiplier);
+        } else {
+            //scaled value
+            exp_value = Math.max(0.5*material_count,exp_value*rarity_multiplier*Math.max(0,Math.min(5,result_level*rarity_multiplier**0.5+5-skill_level))/5);
+        }
         //penalty kicks in when skill level is more than 8*item_tier, but is delayed by sqrt of rarity multiplier
     } else {
         const result_level = 8*Math.max(selected_components[0].component_tier,selected_components[1].component_tier);
         exp_value = Math.max(exp_value,(selected_components[0].component_tier+selected_components[1].component_tier) * 4)**1.2;
-        exp_value = Math.max(1,exp_value*(rarity_multiplier**0.5 - (skill_level/result_level))*rarity_multiplier);
+
+        if(result_level > skill_level*rarity_multiplier**0.5) {
+            //full value
+            exp_value = Math.max(1,exp_value*rarity_multiplier);
+        } else {
+            //scaled value
+            exp_value = Math.max(1,exp_value*rarity_multiplier*Math.max(0,Math.min(5,result_level*rarity_multiplier**0.5+5-skill_level))/5);
+        }
         //penalty kicks in when skill level is more than 8*item_tier, but is delayed by sqrt of rarity multiplier
     }
     return Math.round(10*exp_value)/10;
