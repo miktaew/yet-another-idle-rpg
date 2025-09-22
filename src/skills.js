@@ -2003,6 +2003,29 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         xp_scaling: 1.5,
         max_level: 60,
     });
+    skills["Butchering"] = new Skill({
+        skill_id: "Butchering", 
+        names: {0: "Butchering"}, 
+        description: "Making the most of what you kill",
+        category: skill_category_crafting,
+        base_xp_cost: 40,
+        xp_scaling: 1.5,
+        max_level_coefficient: 2,
+        max_level: 60,
+        is_unlocked: false,
+        get_effect_description: () => {
+            let value = get_total_skill_coefficient({skill_id:"Butchering",scaling_type:"multiplicative"});
+            return `Multiplies drop chances from Beasts by ${Math.round(value*100)/100}`;},
+    });
+    skills["Woodworking"] = new Skill({
+        skill_id: "Woodworking", 
+        names: {0: "Woodworking"}, 
+        description: "Turning wood logs into something useful",
+        category: skill_category_crafting,
+        base_xp_cost: 40,
+        xp_scaling: 1.5,
+        max_level: 60,
+    });
 })();
 
 //defensive skills

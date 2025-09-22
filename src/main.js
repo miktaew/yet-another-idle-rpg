@@ -3044,21 +3044,6 @@ function load(save_data) {
         });
     }
 
-    Object.keys(save_data.skills).forEach(key => { 
-        if(key === "Literacy") {
-            return; //done separately, for compatibility with older saves (can be eventually removed)
-        }
-        if(skills[key] && !skills[key].is_parent){
-            if(save_data.skills[key].total_xp > 0) {
-                add_xp_to_skill({skill: skills[key], xp_to_add: save_data.skills[key].total_xp, 
-                                    should_info: false, add_to_parent: true, use_bonus: false, cap_gained_xp: false,
-                                });
-            }
-        } else if(save_data.skills[key].total_xp > 0) {
-                console.warn(`Skill "${key}" couldn't be found!`);
-        }
-    }); //add xp to skills
-
     if(save_data.books) {
         let total_book_xp = 0;
         const literacy_xp = save_data.skills["Literacy"].total_xp;
@@ -3089,6 +3074,21 @@ function load(save_data) {
             add_xp_to_skill({skill: skills["Literacy"], should_info: false, xp_to_add: literacy_xp, use_bonus: false, cap_gained_xp: false});
         }
     }
+    
+    Object.keys(save_data.skills).forEach(key => { 
+        if(key === "Literacy") {
+            return; //done separately, for compatibility with older saves (can be eventually removed)
+        }
+        if(skills[key] && !skills[key].is_parent){
+            if(save_data.skills[key].total_xp > 0) {
+                add_xp_to_skill({skill: skills[key], xp_to_add: save_data.skills[key].total_xp, 
+                                    should_info: false, add_to_parent: true, use_bonus: false, cap_gained_xp: false,
+                                });
+            }
+        } else if(save_data.skills[key].total_xp > 0) {
+                console.warn(`Skill "${key}" couldn't be found!`);
+        }
+    }); //add xp to skills
 
     if(save_data["stances"]) {
         Object.keys(save_data["stances"]).forEach(stance => {

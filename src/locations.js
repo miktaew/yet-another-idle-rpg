@@ -78,6 +78,8 @@ class Location {
                 smelting: Number,
                 cooking: Number,
                 alchemy: Number,
+                butchering: Number,
+                woodworking: Number,
             }
         },
          */
@@ -939,6 +941,8 @@ function get_location_type_penalty(type, stage, stat, category) {
                 smelting: 1,
                 cooking: 1,
                 alchemy: 1,
+                butchering: 1,
+                woodworking: 1,
             }
         },
     });

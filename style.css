@@ -927,12 +927,11 @@ input[type=checkbox], input[type=radio] {
 			padding: 3px;
 			padding-left: 2.4px;
 			padding-right: 2.4px;
-			min-width: 63px;
-			max-width: fit-content;
 			text-align: center;
 			outline: 1px solid white;
 			margin: 1px;
 			cursor: pointer;
+			flex-grow: 1;
 		}
 
 	.crafting_subpage_buttons {
@@ -949,7 +948,7 @@ input[type=checkbox], input[type=radio] {
 		}
 
 .crafting_recipe_list {
-	height: 333px;
+	height: 305px;
 	width:100%;
 	top: 60px;
 	overflow-y: scroll;
