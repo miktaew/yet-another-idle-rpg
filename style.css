@@ -921,6 +921,7 @@ input[type=checkbox], input[type=radio] {
 	#crafting_mainpage_buttons {
 		font-size: 20px;
 		top: 0px;
+		outline: 2px dashed silver;
 	}
 		.crafting_mainpage_button {
 			float:left;
@@ -928,23 +929,22 @@ input[type=checkbox], input[type=radio] {
 			padding-left: 2.4px;
 			padding-right: 2.4px;
 			text-align: center;
-			outline: 1px solid white;
-			margin: 1px;
+			border: 1px solid white;
 			cursor: pointer;
 			flex-grow: 1;
 		}
 
 	.crafting_subpage_buttons {
 		font-size: 18px;
+		outline: 2px dashed silver;
 	}
 		.crafting_subpage_button {
 			padding: 3px 0px 3px 0px;
 			float:left;
 			text-align: center;
-			outline: 1px solid white;
 			cursor: pointer;
-			margin-left: 1px;
 			flex-grow: 1;
+			border: 1px solid white;
 		}
 
 .crafting_recipe_list {
@@ -952,6 +952,7 @@ input[type=checkbox], input[type=radio] {
 	width:100%;
 	top: 60px;
 	overflow-y: scroll;
+	border-top: 2px solid gray;
 }
 
 .crafting_mainpage_button:hover, .crafting_subpage_button:hover {
