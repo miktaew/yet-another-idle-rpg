@@ -1,5 +1,8 @@
 "use strict";
 
+import { skills } from "./skills.js"
+import { get_total_skill_coefficient } from "./character.js";
+
 let enemy_templates = {};
 let enemy_killcount = {};
 //enemy templates; locations create new enemies based on them
@@ -72,8 +75,13 @@ class Enemy {
      * @param {*} drop_chance_modifier 
      * @returns 
      */
-    get_droprate_modifier(drop_chance_modifier) {
+    get_droprate_modifier(drop_chance_modifier = 1) {
         let droprate_modifier = 1 * drop_chance_modifier;
+
+        if (this.tags["beast"]) {
+            droprate_modifier *= get_total_skill_coefficient({ skill_id: "Butchering", scaling_type: "multiplicative" });
+        }
+
         return droprate_modifier;
     }
 }

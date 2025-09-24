@@ -222,7 +222,6 @@ class OtherItem extends Item {
     constructor(item_data) {
         super(item_data);
         this.item_type = "OTHER";
-        this.stackable = true;
     }
 }
 
@@ -239,7 +238,6 @@ class ItemComponent extends Item {
     constructor(item_data) {
         super(item_data);
         this.item_type = "COMPONENT";
-        this.stackable = false;
         this.component_tier = item_data.component_tier || 1;
         this.component_stats = item_data.component_stats || {};
         this.tags["component"] = true;
@@ -371,7 +369,6 @@ class UsableItem extends Item {
     constructor(item_data) {
         super(item_data);
         this.item_type = "USABLE";
-        this.stackable = true;
         this.effects = item_data.effects || {};
         this.recovery_chances = item_data.recovery_chances || {};
         this.saturates_market = false;
@@ -384,7 +381,6 @@ class Equippable extends Item {
     constructor(item_data) {
         super(item_data);
         this.item_type = "EQUIPPABLE";
-        this.stackable = false;
         this.bonus_skill_levels = item_data.bonus_skill_levels || {};
 
         this.quality = Math.round(Number(item_data.quality)) || 100;
@@ -680,6 +676,7 @@ class Armor extends Equippable {
             return this.calculateDefense(quality);
         }
     }
+
     calculateDefense(quality) {
         if(this.components) {
             return Math.ceil(((item_templates[this.components.internal].defense_value || item_templates[this.components.internal].base_defense ||0) + 
@@ -860,7 +857,6 @@ const book_stats = {};
 class Book extends Item {
     constructor(item_data) {
         super(item_data);
-        this.stackable = true;
         this.item_type = "BOOK";
         this.name = item_data.name;
 
@@ -1056,18 +1052,9 @@ book_stats["Butchering and you"] = new BookData({
     required_time: 240,
     literacy_xp_rate: 2,
     rewards: {
+        skills: ["Butchering"],
         recipes: [
-            {category: "crafting", subcategory: "items", recipe_id: "Piece of wolf leather"},
-            {category: "crafting", subcategory: "items", recipe_id: "Piece of boar leather"},
-            {category: "crafting", subcategory: "items", recipe_id: "Piece of goat leather"},
-            {category: "crafting", subcategory: "items", recipe_id: "Processed wolf pelt"},
-            {category: "crafting", subcategory: "items", recipe_id: "Processed boar hide"},
-            {category: "crafting", subcategory: "items", recipe_id: "Processed goat hide"},
-            {category: "cooking", subcategory: "items", recipe_id: "Animal fat"},
-            {category: "crafting", subcategory: "items", recipe_id: "High quality wolf fang"},
-            {category: "crafting", subcategory: "items", recipe_id: "High quality boar tusk"},
-            {category: "crafting", subcategory: "items", recipe_id: "Pristine mountain goat horn"},
-            {category: "crafting", subcategory: "items", recipe_id: "Processed weak monster bone"},
+            {category: "cooking", subcategory: "items", recipe_id: "Animal fat"}
         ],
     },
 });
