@@ -411,6 +411,14 @@ input[type=checkbox], input[type=radio] {
 		font-size: var(--options_action_textsize);
 		padding: 10px;
 	}
+	#dialogue_name_div {
+		border-bottom: 1px solid white;
+		text-align: center;
+		background-color: #15152d;
+		font-size: 14px;
+		padding: 2px;
+		font-weight: bold;
+	}
 
 .inventory_item, .trader_item {
 	 font-size: 13px;

@@ -3568,7 +3568,11 @@ function update_displayed_dialogue(dialogue_key) {
     const dialogue = dialogues[dialogue_key];
     
     clear_action_div();
-    
+    const dialogue_name_div = document.createElement("div");
+    dialogue_name_div.innerHTML = capitalize_first_letter(dialogues[dialogue_key].name);
+    dialogue_name_div.id = "dialogue_name_div";
+    action_div.appendChild(dialogue_name_div);
+
     const dialogue_answer_div = document.createElement("div");
     dialogue_answer_div.id = "dialogue_answer_div";
     action_div.appendChild(dialogue_answer_div);
