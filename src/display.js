@@ -12,7 +12,8 @@ import { current_enemies, options,
     selected_stance, 
     global_flags,
     unlocked_beds,
-    favourite_consumables} from "./main.js";
+    favourite_consumables,
+    travel_times} from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time, seasons } from "./game_time.js";
@@ -2108,20 +2109,22 @@ function create_location_choices({location, category, is_combat = false}) {
 
                 const action = document.createElement("div");
                 
+                const travel_time = format_time({time: {minutes: travel_times[location.id][location.connected_locations[i].location.id]}});
+
                 if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
                     action.classList.add("travel_normal");
                     if("custom_text" in location.connected_locations[i]) {
-                        action.innerHTML = `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + location.connected_locations[i].custom_text;
+                        action.innerHTML = `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + location.connected_locations[i].custom_text + " [" + travel_time + "]";
                     }
                     else {
-                        action.innerHTML = `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + "Go to [" + location.connected_locations[i].location.name+"]";
+                        action.innerHTML = `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + "Go to [" + location.connected_locations[i].location.name+"]"+" [" + travel_time + "]";
                     }
                 } else {
                     action.classList.add("travel_combat");
                     if("custom_text" in location.connected_locations[i]) {
-                        action.innerHTML = `<i class="material-icons">warning_amber</i> ` + location.connected_locations[i].custom_text;
+                        action.innerHTML = `<i class="material-icons">warning_amber</i> ` + location.connected_locations[i].custom_text + " [" + travel_time + "]";
                     } else {
-                        action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + "Enter the [" + location.connected_locations[i].location.name+"]";
+                        action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + "Enter the [" + location.connected_locations[i].location.name+"] [" + travel_time + "]";
                     }
                 }
             
@@ -2134,10 +2137,13 @@ function create_location_choices({location, category, is_combat = false}) {
         } else {
             const action = document.createElement("div");
             action.classList.add("travel_normal", "action_travel", "location_choice");
+
+            const travel_time = format_time({time: {minutes: travel_times[location.id][location.parent_location.id]}});
+
             if(location.leave_text) {
-                action.innerHTML = location.leave_text;
+                action.innerHTML = location.leave_text + " [" + travel_time + "]";
             } else {
-                action.innerHTML = "Go back to [" + location.parent_location.name + "]";
+                action.innerHTML = "Go back to [" + location.parent_location.name + "] [" + travel_time + "]";
             }
             action.setAttribute("data-travel", location.parent_location.id);
             action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
@@ -2150,11 +2156,13 @@ function create_location_choices({location, category, is_combat = false}) {
 
             const action = document.createElement("div");
             action.classList.add("action_travel", "travel_normal", "location_choice");
+
+            const travel_time = format_time({time: {minutes: travel_times[location.id][last_bed.id]}});
             
             if(!is_combat) {
                 action.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> `
             }
-            action.innerHTML += `Quick return to [${last_bed.name}]`;
+            action.innerHTML += `Quick return to [${last_bed.name}]` +" [" + travel_time + "]";
 
             action.setAttribute("data-travel", last_bed.name);
             action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
@@ -2243,15 +2251,16 @@ function create_fast_travel_choices() {
         }
 
         const action = document.createElement("div");
+        const travel_time = format_time({time: {minutes: travel_times[current_location.id][available_fast_travel[i]]}});
 
         if(locations[available_fast_travel[i]].tags.safe_zone) {
         
             action.classList.add("travel_normal");
 
             if(locations[available_fast_travel[i]].housing?.is_unlocked) {
-                action.innerHTML = `<i class="material-icons">bed</i> <span class="fast_travel_name">` + "Travel to [" + locations[available_fast_travel[i]].name+"]</span>";
+                action.innerHTML = `<i class="material-icons">bed</i> <span class="fast_travel_name">` + "Travel to [" + locations[available_fast_travel[i]].name+"] [" + travel_time + "]</span>";
             } else {
-                action.innerHTML = `<i class="material-icons location_choice_icon">check_box_outline_blank</i> <span class="fast_travel_name">` + "Travel to [" + locations[available_fast_travel[i]].name+"]</span>";
+                action.innerHTML = `<i class="material-icons location_choice_icon">check_box_outline_blank</i> <span class="fast_travel_name">` + "Travel to [" + locations[available_fast_travel[i]].name+"] [" + travel_time + "]</span>";
             }
             
             action.classList.add("action_travel", "location_choice");
@@ -2260,7 +2269,7 @@ function create_fast_travel_choices() {
         } else {            
             action.classList.add("travel_combat");
             
-            action.innerHTML = `<i class="material-icons">warning_amber</i> <span class="fast_travel_name">Travel to [${locations[available_fast_travel[i]].name}]</span>`;
+            action.innerHTML = `<i class="material-icons">warning_amber</i> <span class="fast_travel_name">Travel to [${locations[available_fast_travel[i]].name}] [${travel_time}] </span>`;
             
             action.classList.add("action_travel", "location_choice");
             action.setAttribute("data-travel", locations[available_fast_travel[i]].name);

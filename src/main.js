@@ -91,6 +91,7 @@ import { Verify_Game_Objects } from "./verifier.js";
 import { ReputationManager } from "./reputation.js";
 import { quests, questManager, active_quests } from "./quests.js";
 import { get_current_temperature_smoothed, is_raining } from "./weather.js";
+import { Pathfinder } from "./pathfinding.js";
 
 const save_key = "save data";
 const dev_save_key = "dev save data";
@@ -168,6 +169,7 @@ let current_location_action;
 
 //time needed to travel from A to B
 const travel_times = {};
+let pathfinder;
 
 //locations for fast travel
 let unlocked_beds = {};
@@ -433,6 +435,7 @@ function change_location(location_name, event) {
         return;
     }
 
+    const previous_location = current_location;
     let location = locations[location_name] || current_location;
 
     if(location_name !== current_location?.name && location.is_finished) {
@@ -450,20 +453,7 @@ function change_location(location_name, event) {
 
     if(typeof current_location !== "undefined" && current_location.id !== location.id){
         //so it's not called when initializing the location on page load or on reloading current location due to new unlocks
-        log_message(`[ Entering ${location.id} ]`, "message_travel");
-    
-        //search if it's connected, if so check time
-        const connection = current_location.connected_locations?.filter(conn => conn.location.id === location_name)[0];
-        if(connection) {
-            //update_timer(connection.time_needed);
-        } else {
-        //otherwise, search for it in fast travel data, which still needs to be filled with pathfinded times
-            if(travel_times[current_location?.id]?.[location_name]) {
-                //?
-                //update_timer(travel_times[current_location.name][location_name]);
-            }
-        //otherwise, just don't increase timer?
-        }
+        log_message(`[ Entering ${location.id} ]`, "message_travel");    
     }
 
     if(location.crafting) {
@@ -471,6 +461,19 @@ function change_location(location_name, event) {
     }
     
     current_location = location;
+
+    if(!pathfinder) {
+        pathfinder = new Pathfinder();
+        pathfinder.fill_connections(locations);
+    }
+
+    if(!travel_times[current_location.id]) {
+        travel_times[current_location.id] = pathfinder.find_shortest_paths(current_location.id);
+    }
+
+    if(previous_location) {
+        progress_time({value: travel_times[previous_location.id][current_location.id], source: "travel"});
+    }
 
     update_displayed_temperature();
     update_character_stats();
@@ -4052,6 +4055,36 @@ function update_timer(time_in_minutes) {
     update_displayed_time();
 }
 
+function progress_time({value = 0, source}) {
+    update_timer(value);
+
+    update_effect_durations({time_in_minutes: value, is_sleep: is_sleeping, is_travel: source==="travel"});
+}
+
+/**
+ * 
+ * @param {Object} param0
+ * @param {String} param0.source skipped -> assume it's normal game ticks
+ */
+function update_effect_durations({time_in_minutes = 1, is_travel}) {
+    let were_stats_updated = false;
+    Object.keys(active_effects).forEach(key => {
+        if(!is_travel || is_travel && active_effects[key].affected_by_travel) {
+
+            active_effects[key].duration-= time_in_minutes;
+            if(active_effects[key].duration <= 0) {
+                //duration ended - remove effect
+                delete active_effects[key];
+                character.stats.add_active_effect_bonus();
+                update_character_stats();
+                were_stats_updated = true; //only for use later, as skipping update in here would be bad
+            }
+        }
+    });
+
+    return were_stats_updated;
+}
+
 function update() {
     setTimeout(() => {
         end_date = Date.now(); 
@@ -4092,16 +4125,7 @@ function update() {
         }
 
         //update effect durations and displays;
-        Object.keys(active_effects).forEach(key => {
-            active_effects[key].duration--;
-            if(active_effects[key].duration <= 0) {
-                //duration ended - remove effect
-                delete active_effects[key];
-                character.stats.add_active_effect_bonus();
-                update_character_stats();
-                were_stats_updated = true; //only for use later, as skipping update in here would be bad
-            }
-        });
+        were_stats_updated = were_stats_updated || update_effect_durations({time_in_minutes: 1});
         update_displayed_effect_durations();
         update_displayed_effects();
 
@@ -4569,6 +4593,9 @@ window.importOtherReleaseSave = load_other_release_save;
 window.hardReset = hard_reset;
 window.get_game_version = get_game_version;
 
+//Verify_Game_Objects();
+window.Verify_Game_Objects = Verify_Game_Objects;
+
 if(save_key in localStorage || (is_on_dev() && dev_save_key in localStorage)) {
     load_from_localstorage();
     update_character_stats();
@@ -4643,9 +4670,6 @@ setTimeout(()=>{
 }, 2000);
 */
 
-//Verify_Game_Objects();
-window.Verify_Game_Objects = Verify_Game_Objects;
-
 if(is_on_dev()) {
     log_message("It looks like you are playing on the dev release. It is recommended to keep the developer console open (in Chrome/Firefox/Edge it's at F12 => 'Console' tab) in case of any errors/warnings appearing in there.", "notification");
 
@@ -4674,6 +4698,7 @@ if(is_on_dev()) {
     }
 }
 
+
 export { current_enemies, can_work, 
         current_location, active_effects, 
         enough_time_for_earnings, add_xp_to_skill, 
@@ -4688,5 +4713,6 @@ export { current_enemies, can_work,
         favourite_consumables,
         remove_consumable_from_favourites,
         process_rewards,
+        travel_times,
         is_rat
 };

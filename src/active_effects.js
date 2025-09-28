@@ -11,7 +11,7 @@ class ActiveEffect {
      * @param {Number} effect_data.duration
      * @param {Object} effect_data.effects {stats}
      */
-    constructor({name, id, duration, effects, tags, potency, group_tags}) {
+    constructor({name, id, duration, effects, tags, potency, group_tags, affected_by_travel = true}) {
         this.name = name;
         this.id = id || name;
         this.duration = duration ?? 0;
@@ -22,6 +22,7 @@ class ActiveEffect {
         if(!this.effects.stats) {
             this.effects.stats = {};
         }
+        this.affected_by_travel = affected_by_travel;
         this.tags = tags || {};
         this.group_tags = group_tags || {}; //used for grouping and prioritizing highest in group; instead of simple 'true', values are Numbers with higher = more important
         this.tags["effect"] = true;
@@ -202,6 +203,7 @@ effect_templates["Spark of Inspiration"] = new ActiveEffect({
         }
     },
     tags: {"buff": true},
+    affected_by_travel: false,
 });
 
 

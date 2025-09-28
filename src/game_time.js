@@ -115,7 +115,7 @@ Game_Time.prototype.toString = function() {
 /**
  * 
  * @param {Object} data 
- * @param {Number} data.time {minutes, hours, days, months, years}
+ * @param {Object} data.time {minutes, hours, days, months, years}
  * @param {Boolean} [data.long_names] if it should use "minutes", "hours", etc instead of "m","h"
  * @returns 
  */
