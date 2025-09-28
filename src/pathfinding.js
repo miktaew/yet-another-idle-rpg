@@ -55,7 +55,7 @@ class Pathfinder {
 
     update_time_skill_modifiers() { //probably useless
         Object.keys(speed_modifiers_from_skills).forEach(skill_id => {
-            speed_modifiers_from_skills[skill_id] = 1/(4**(skills[skill_id].current_level/skills[skill_id].max_level));
+            speed_modifiers_from_skills[skill_id] = 1/(max_modifier_from_skill**(skills[skill_id].current_level/skills[skill_id].max_level));
         });
     }
 
@@ -64,7 +64,7 @@ class Pathfinder {
      * @param {*} skill_id 
      */
     update_time_skill_modifier(skill_id) {
-        speed_modifiers_from_skills[skill_id] = 1/(4**(skills[skill_id].current_level/skills[skill_id].max_level));
+        speed_modifiers_from_skills[skill_id] = 1/(max_modifier_from_skill**(skills[skill_id].current_level/skills[skill_id].max_level));
     }
 
     /**
