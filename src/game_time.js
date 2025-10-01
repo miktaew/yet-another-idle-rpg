@@ -23,7 +23,7 @@ function Game_Time(new_time) {
             const h = this.hour % 24;
             const d = Math.floor((this.hour-1)/24) + 1;
             this.hour = h;
-            this.day += d; 
+            this.day += d;
             this.day_count += d;
         }
     

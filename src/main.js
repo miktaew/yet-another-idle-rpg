@@ -91,7 +91,7 @@ import { Verify_Game_Objects } from "./verifier.js";
 import { ReputationManager } from "./reputation.js";
 import { quests, questManager, active_quests } from "./quests.js";
 import { get_current_temperature_smoothed, is_raining } from "./weather.js";
-import { Pathfinder } from "./pathfinding.js";
+import { Pathfinder, speed_modifiers_from_skills } from "./pathfinding.js";
 
 const save_key = "save data";
 const dev_save_key = "dev save data";
@@ -430,7 +430,7 @@ function option_do_background_animations(option) {
  * 
  * @param {String} location_name actually a location id
  */
-function change_location(location_name, event) {
+function change_location(location_name, event, skip_travel_time = false) {
     if(event?.target.classList.contains("fast_travel_removal_button")) {
         return;
     }
@@ -471,7 +471,7 @@ function change_location(location_name, event) {
         travel_times[current_location.id] = pathfinder.find_shortest_paths(current_location.id);
     }
 
-    if(previous_location) {
+    if(previous_location && !skip_travel_time) {
         progress_time({value: travel_times[previous_location.id][current_location.id], source: "travel"});
     }
 
@@ -1609,7 +1609,7 @@ function use_stamina(num = 1, use_efficiency = true) {
  * @param {Boolean} should_info 
  * @returns {Boolean}
  */
-function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = true, add_to_parent = true, cap_gained_xp = true})
+function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = true, add_to_parent = true, cap_gained_xp = true, is_from_loading = false})
 {
     let leveled = false;
     if(xp_to_add == 0) {
@@ -1761,6 +1761,14 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 update_displayed_effects();
                 //a bit lazy, but there shouldn't ever be enough to cause a lag
             }
+
+            if(speed_modifiers_from_skills[skill.skill_id] && !is_from_loading) {
+                //check if skill affects any travel times, update pathing if so
+                pathfinder = new Pathfinder();
+                pathfinder.fill_connections(locations);
+                pathfinder.find_shortest_paths(current_location);
+                //shouldn't need any display updates
+            }
         } else {
             update_displayed_skill_bar(skill, false);
         }
@@ -1844,7 +1852,9 @@ function get_location_rewards(location) {
  * @param {Boolean} rewards_data.inform_textline //if textline unlock is to be logged
  * @param {String} rewards_data.source_name //in case it's needed for logging a message
  */
-function process_rewards({rewards = {}, source_type, source_name, is_first_clear, inform_overall = true, inform_textline = true, only_unlocks = false}) {
+function process_rewards({rewards = {}, source_type, source_name, is_first_clear, inform_overall = true, inform_textline = true, only_unlocks = false, is_from_loading = false}) {
+    let was_any_location_availability_changed = false;
+
     if(rewards.money && typeof rewards.money === "number" && !only_unlocks) {
         if(inform_overall) {
             log_message(`${character.name} earned ${format_money(rewards.money)}`);
@@ -1881,13 +1891,10 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
     if(rewards.locations) {
         //if(source_type === "location") {
             for(let i = 0; i < rewards.locations.length; i++) {
-                unlock_location({location: locations[rewards.locations[i].location], skip_message: (inform_overall && rewards.locations[i].skip_message)});
+               was_any_location_availability_changed = 
+                    unlock_location({location: locations[rewards.locations[i].location], skip_message: (inform_overall && rewards.locations[i].skip_message)}) 
+                    || was_any_location_availability_changed;
             }
-        /*} else {
-            for(let i = 0; i < rewards.locations.length; i++) {
-                unlock_location(locations[rewards.locations[i].location], rewards.locations[i].skip_message);
-            }
-        }*/
     }
 
     if(rewards.flags) {
@@ -2047,7 +2054,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         }
         if(rewards.locks.locations) {
             for(let i = 0; i < rewards.locks.locations.length; i++) {
-                lock_location({location: locations[rewards.locks.locations[i]]});
+                was_any_location_availability_changed = lock_location({location: locations[rewards.locks.locations[i]]}) || was_any_location_availability_changed;
             }
         }
         if(rewards.locks.traders) {
@@ -2072,6 +2079,14 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         update_displayed_reputation();
     }
 
+    if(was_any_location_availability_changed && !is_from_loading) {
+        //pathing update
+        pathfinder = new Pathfinder();
+        pathfinder.fill_connections(locations);
+        pathfinder.find_shortest_paths(current_location);
+        //shouldn't need any display updates
+    }
+
     if(rewards.move_to && !only_unlocks) {
         if(source_type !== "action") {
             change_location[rewards.move_to.location];
@@ -2084,10 +2099,13 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
 /**
  * 
  * @param location game location object 
+ * @returns whether it was actually unlocked (false meaning it was already available before)
  */
 function unlock_location({location, skip_message}) {
+    let was_unlocked = false;
     if(!location.is_unlocked){
         location.is_unlocked = true;
+        was_unlocked = true;
         if(!skip_message) {
             const message = location.unlock_text || `Unlocked location ${location.name}`;
             log_message(message, "location_unlocked");
@@ -2103,9 +2121,17 @@ function unlock_location({location, skip_message}) {
     if(location.housing?.is_unlocked) {
         unlocked_beds[location.id] = true;
     }
+
+    return was_unlocked;
 }
 
+/**
+ * 
+ * @param {*} param0 
+ * @returns whether it was actually locked (false meaning it was already locked before)
+ */
 function lock_location({location, challenge_self_lock = false}) {
+    let was_locked = false;
     if(favourite_locations[location.id]) {
         delete favourite_locations[location.id];
         if(!challenge_self_lock) {
@@ -2113,10 +2139,15 @@ function lock_location({location, challenge_self_lock = false}) {
         }
     }
 
-    location.is_finished = true;
+    if(!location.is_finished) {
+        was_locked = true;
+        location.is_finished = true;
+    }
     if(last_combat_location === location.id) {
         last_combat_location = null;
     }
+
+    return was_locked;
 }
 
 function add_location_to_favourites({location_id}) {
@@ -3059,7 +3090,7 @@ function load(save_data) {
                 if(save_data.books[book].is_finished) {
                     item_templates[book].setAsFinished();
                     character.stats.add_book_bonus(book_stats[book].bonuses);
-                    process_rewards({rewards: book_stats[book].rewards, only_unlocks: true, inform_overall: false});
+                    process_rewards({rewards: book_stats[book].rewards, only_unlocks: true, inform_overall: false, is_from_loading: true});
 
                     total_book_xp += book_stats[book].required_time * book_stats[book].literacy_xp_rate;
                 } else {
@@ -3071,10 +3102,10 @@ function load(save_data) {
             update_booklist_entry(book, save_data.books[book].is_finished);
         });
         if(total_book_xp > literacy_xp) {
-            add_xp_to_skill({skill: skills["Literacy"], should_info: false, xp_to_add: total_book_xp, use_bonus: false, cap_gained_xp: false});
+            add_xp_to_skill({skill: skills["Literacy"], should_info: false, xp_to_add: total_book_xp, use_bonus: false, cap_gained_xp: false, is_from_loading: true});
             console.warn(`Saved XP for "Literacy skill" was less than it should be based on progress with books (${literacy_xp} vs ${total_book_xp}), so it was adjusted to match it!`);
         } else {
-            add_xp_to_skill({skill: skills["Literacy"], should_info: false, xp_to_add: literacy_xp, use_bonus: false, cap_gained_xp: false});
+            add_xp_to_skill({skill: skills["Literacy"], should_info: false, xp_to_add: literacy_xp, use_bonus: false, cap_gained_xp: false, is_from_loading: true});
         }
     }
     
@@ -3084,8 +3115,10 @@ function load(save_data) {
         }
         if(skills[key] && !skills[key].is_parent){
             if(save_data.skills[key].total_xp > 0) {
-                add_xp_to_skill({skill: skills[key], xp_to_add: save_data.skills[key].total_xp, 
+                add_xp_to_skill({
+                                    skill: skills[key], xp_to_add: save_data.skills[key].total_xp, 
                                     should_info: false, add_to_parent: true, use_bonus: false, cap_gained_xp: false,
+                                    is_from_loading: true
                                 });
             }
         } else if(save_data.skills[key].total_xp > 0) {
@@ -3608,7 +3641,7 @@ function load(save_data) {
                     if(locations[key].enemy_groups_killed / locations[key].enemy_count >= 1) {
                         const {rep_rew} = locations[key].first_reward;
                         if(rep_rew) {
-                            process_rewards({reputation: rep_rew});
+                            process_rewards({reputation: rep_rew, is_from_loading: true});
                         }
                     }
 
@@ -3617,7 +3650,11 @@ function load(save_data) {
                             if(locations[key].enemy_groups_killed == locations[key].enemy_count * locations[key].rewards_with_clear_requirement[i].required_clear_count)
                             {
                                 //always do it if there was enough or more than enough clears
-                                process_rewards({rewards: locations[key].rewards_with_clear_requirement[i], source_type: "location", source_name: locations[key].name, is_first_clear: false, source_id: locations[key].id});
+                                process_rewards({
+                                                    rewards: locations[key].rewards_with_clear_requirement[i], source_type: "location", 
+                                                    source_name: locations[key].name, is_first_clear: false, source_id: locations[key].id,
+                                                    is_from_loading: true
+                                                });
                             }
                         }
                     }
@@ -3627,7 +3664,11 @@ function load(save_data) {
                             if(locations[key].enemy_groups_killed == locations[key].enemy_count * locations[key].rewards_with_clear_requirement[i].required_clear_count)
                             {
                                 //always do it if there was enough or more than enough clears
-                                process_rewards({rewards: locations[key].rewards_with_clear_requirement[i], source_type: "location", source_name: locations[key].name, is_first_clear: false, source_id: locations[key].id, only_unlocks: true});
+                                process_rewards({
+                                                    rewards: locations[key].rewards_with_clear_requirement[i], source_type: "location", 
+                                                    source_name: locations[key].name, is_first_clear: false, source_id: locations[key].id, 
+                                                    only_unlocks: true, is_from_loading: true
+                                                });
                             }
                         }
                     }

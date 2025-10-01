@@ -1,6 +1,5 @@
 "use strict";
 
-import { locations } from "./locations.js";
 import { skills } from "./skills.js";
 
 
@@ -144,4 +143,4 @@ class Pathfinder {
     } 
 }
 
-export {Pathfinder};
+export {Pathfinder, speed_modifiers_from_skills};

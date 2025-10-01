@@ -1479,7 +1479,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Nearby cave"].connected_locations.push({location: locations["Mountain path"], custom_text: "Climb up to [Mountain path]", travel_time: 60, travel_time_skills: ["Climbing"]});
 
     locations["Small flat area in mountains"] = new Location({
-        connected_locations: [{location: locations["Mountain path"], travel_time: 60}],
+        connected_locations: [{location: locations["Mountain path"], travel_time: 120}],
         description: "A piece of flatland somewhere in the mountains, very high above the village. It's not that big, but more than enough for a camp.",
         name: "Small flat area in mountains",
         is_unlocked: false,
@@ -1490,10 +1490,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         temperature_modifier: -2,
         unlock_text: "You finally got to a place where a camp can be established",
     });
-    locations["Mountain path"].connected_locations.push({location: locations["Small flat area in mountains"], travel_time: 60});
+    locations["Mountain path"].connected_locations.push({location: locations["Small flat area in mountains"], travel_time: 120});
     
     locations["Mountain camp"] = new Location({
-        connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb down to [Nearby cave]", travel_time: 80, travel_time_skills: ["Climbing", "Running"]}],
+        connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb down to [Nearby cave]", travel_time: 140, travel_time_skills: ["Climbing", "Running"]}],
         description: "A nice safe camp with a crackling fire, created by you to be a perfect base for further exploration.",
         name: "Mountain camp",
         housing: {
@@ -1508,8 +1508,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
         temperature_range_modifier: 0.5,
     });
-    locations["Nearby cave"].connected_locations.push({location: locations["Mountain camp"], travel_time: 120, travel_time_skills: ["Climbing", "Running"]});
-    locations["Mountain path"].connected_locations.push({location: locations["Mountain camp"], travel_time: 60});
+    locations["Nearby cave"].connected_locations.push({location: locations["Mountain camp"], travel_time: 140, travel_time_skills: ["Climbing", "Running"]});
+    locations["Mountain path"].connected_locations.push({location: locations["Mountain camp"], travel_time: 120});
 
     locations["Gentle mountain slope"] = new Combat_zone({
         description: "A surprisingly gentle clearing, with a herd of angry goats protecting it.",
@@ -1529,7 +1529,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
         temperature_modifier: -2,
     });
-    locations["Mountain camp"].connected_locations.push({location: locations["Gentle mountain slope"], travel_time: 60});
+    locations["Mountain camp"].connected_locations.push({location: locations["Gentle mountain slope"], travel_time: 90});
 })();
 
 //challenge zones
