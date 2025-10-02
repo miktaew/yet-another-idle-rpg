@@ -4,12 +4,13 @@
 
 ### Still in development.
 
-Official repo: https://github.com/miktaew/yet-another-idle-rpg 
-Official release: https://miktaew.github.io/yet-another-idle-rpg/ 
+Official repo: https://github.com/miktaew/yet-another-idle-rpg  
+Official release: https://miktaew.github.io/yet-another-idle-rpg/  
   
+  
+Dev repo: https://github.com/miktaew/yet-another-idle-rpg-dev  
+Dev release: https://miktaew.github.io/yet-another-idle-rpg-dev/  
 
-Dev repo: https://github.com/miktaew/yet-another-idle-rpg-dev 
-Dev release: https://miktaew.github.io/yet-another-idle-rpg-dev/ 
 
 ---
 Be warned, the game balance remains a WIP
