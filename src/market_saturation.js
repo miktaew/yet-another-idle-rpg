@@ -158,7 +158,8 @@ function get_total_tier_saturation({ region, group_key, group_tier }) {
         sold_by_tier[i] = loot_sold_count[region][group_key][i].sold - loot_sold_count[region][group_key][i].recovered;
     }
 
-    return calculate_total_saturation({sold_by_tier, target_tier:group_tier});
+    const cap = group_key.startsWith(group_key_prefix)?equipment_capped_at:capped_at;
+    return calculate_total_saturation({sold_by_tier, target_tier:group_tier, cap});
 }
 
 /**
@@ -166,7 +167,7 @@ function get_total_tier_saturation({ region, group_key, group_tier }) {
  * @param {} param0 
  * @returns 
  */
-function calculate_total_saturation({sold_by_tier, target_tier}) {
+function calculate_total_saturation({sold_by_tier, target_tier, cap}) {
     if(!sold_by_tier) {
         return 0;
     }
@@ -175,6 +176,8 @@ function calculate_total_saturation({sold_by_tier, target_tier}) {
         //x0.25 for each tier going down
         count += Math.max(sold_by_tier[i] ?? 0)*0.25**(target_tier-i);
     }
+    //lower tier impact capped at half of the cap
+    count = Math.min(cap/2, count);
     count += (sold_by_tier[target_tier] ?? 0);
 
     for(let i = target_tier + 1 ; i < sold_by_tier.length; i++) {
