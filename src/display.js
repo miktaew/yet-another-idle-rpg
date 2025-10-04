@@ -359,16 +359,16 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
             }
             if(book_stats[item.name].rewards?.skills) {
                 if(book_stats[item.name].rewards.skills.length == 1) {
-                    item_tooltip += `<br>- a new skill.`;
+                    item_tooltip += `<br>- a new skill`;
                 } else {
-                    item_tooltip += `<br>- new skills.`;
+                    item_tooltip += `<br>- new skills`;
                 }
             }
             if(book_stats[item.name].rewards?.recipes) {
                 if(book_stats[item.name].rewards.recipes.length == 1) {
-                    item_tooltip += `<br>- a new recipe.`;
+                    item_tooltip += `<br>- a new recipe`;
                 } else {
-                    item_tooltip += `<br>- new recipes.`;
+                    item_tooltip += `<br>- new recipes`;
                 }
             }
         }
