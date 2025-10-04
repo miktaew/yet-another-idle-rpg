@@ -45,11 +45,11 @@ class Hero extends InventoryHaver {
                         stamina_regeneration_flat: 0, //in combat
                         stamina_regeneration_percent: 0, //in combat
                         stamina_efficiency: 1,
-                        max_mana: 0,
-                        mana: 0,
-                        mana_regeneration_flat: 0, //in combat
-                        mana_regeneration_percent: 0, //in combat
-                        mana_efficiency: 1,
+                        max_mana: 0, //currently useless
+                        mana: 0, //currently useless
+                        mana_regeneration_flat: 0, //in combat //currently useless
+                        mana_regeneration_percent: 0, //in combat //currently useless
+                        mana_efficiency: 1, //currently useless
                         strength: 10, 
                         agility: 10, 
                         dexterity: 10, 
@@ -64,7 +64,7 @@ class Hero extends InventoryHaver {
                         block_chance: 0,
                         evasion_points: 0, //EP
                         attack_points: 0, //AP
-                        heat_tolerance: 0,
+                        heat_tolerance: 0, //currently useless
                         cold_tolerance: 0,
                         unarmed_power: 1, //base damage for unarmed, as it has no weapon dmg to scale with
                 };
