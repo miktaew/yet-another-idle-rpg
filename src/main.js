@@ -1647,12 +1647,13 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 calc xp ammount so that it's no more than the difference between child and parent
             */
             let xp_for_parent = Math.min(skill.total_xp - skills[skill.parent_skill].total_xp, xp_to_add);
-            add_xp_to_skill({skill: skills[skill.parent_skill], xp_to_add: xp_for_parent, should_info, use_bonus: false, add_to_parent});
+            add_xp_to_skill({skill: skills[skill.parent_skill], xp_to_add: xp_for_parent, should_info, use_bonus: false, add_to_parent, cap_gained_xp: false});
         }
     }
 
     const is_visible = skill.visibility_treshold <= skill.total_xp;
-    
+
+
     if(was_hidden && is_visible) {
         //skill only now became visible, so it needs to be added to display
         create_new_skill_bar(skill);

@@ -21,6 +21,7 @@ const weapon_type_to_skill = {
 const skill_category_crafting = "Crafting";
 
 const skill_xp_gains_cap = 0.1; //limits xp per single gain, as a relation of xp needed to next level (0.1 = need to gain it at least 10 times)
+const crafting_skill_xp_gains_cap = 0.25; //same but for crafting skills
 
 let unknown_skill_name = "?????";
 
@@ -1948,10 +1949,65 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
 
 //crafting skills
 (function(){
+    skills["Crafting mastery"] = new Skill({
+        skill_id: "Crafting mastery", 
+        names: {0: "Crafting mastery"}, 
+        description: "A mastery of the minor crafting branches like tinkering, woodworking, or butchering",
+        category: skill_category_crafting,
+        base_xp_cost: 40,
+        xp_scaling: 1.5,
+        max_level: 60,
+        milestones: {
+            5: {
+                stats: {
+                    dexterity: {
+                        multiplier: 1.05,
+                    },
+                }
+            },
+            10: {
+                stats: {
+                    dexterity: {
+                        multiplier: 1.05,
+                    },
+                }
+            },
+            15: {
+                stats: {
+                    dexterity: {
+                        multiplier: 1.05,
+                    },
+                }
+            },
+            20: {
+                stats: {
+                    dexterity: {
+                        multiplier: 1.05,
+                    },
+                }
+            },
+            25: {
+                stats: {
+                    dexterity: {
+                        multiplier: 1.05,
+                    },
+                }
+            },
+            30: {
+                stats: {
+                    dexterity: {
+                        multiplier: 1.05,
+                    },
+                }
+            }
+        }
+    });
+
     skills["Crafting"] = new Skill({
-        names: {0: "Crafting"}, 
+        names: {0: "Tinkering"}, 
         description: "Turn smaller pieces into one bigger thing",
         category: skill_category_crafting,
+        parent_skill: "Crafting mastery",
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
@@ -1989,7 +2045,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     });
     skills["Cooking"] = new Skill({
         names: {0: "Cooking"}, 
-        description: "Making the unedible edible",
+        description: "Making the inedible edible",
         category: skill_category_crafting,
         base_xp_cost: 40,
         xp_scaling: 1.5,
@@ -2008,11 +2064,13 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         names: {0: "Butchering"}, 
         description: "Making the most of what you kill",
         category: skill_category_crafting,
+        parent_skill: "Crafting mastery",
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level_coefficient: 2,
         max_level: 60,
         is_unlocked: false,
+        visibility_treshold: 0,
         get_effect_description: () => {
             let value = get_total_skill_coefficient({skill_id:"Butchering",scaling_type:"multiplicative"});
             return `Multiplies drop chances from Beasts by ${Math.round(value*100)/100}`;},
@@ -2022,6 +2080,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         names: {0: "Woodworking"}, 
         description: "Turning wood logs into something useful",
         category: skill_category_crafting,
+        parent_skill: "Crafting mastery",
         base_xp_cost: 40,
         xp_scaling: 1.5,
         max_level: 60,
@@ -2541,4 +2600,9 @@ Object.keys(skills).forEach(id => {
     skills[id].skill_id = id;
 });
 
-export {skills, Skill, skill_categories, get_unlocked_skill_rewards, get_next_skill_milestone, weapon_type_to_skill, which_skills_affect_skill, skill_xp_gains_cap};
+export {
+    skills, Skill, skill_categories, 
+    get_unlocked_skill_rewards, get_next_skill_milestone, 
+    weapon_type_to_skill, which_skills_affect_skill, 
+    skill_xp_gains_cap, crafting_skill_xp_gains_cap
+};
