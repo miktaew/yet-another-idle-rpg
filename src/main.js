@@ -4,7 +4,7 @@ import { current_game_time, is_night } from "./game_time.js";
 import { item_templates, getItem, book_stats, rarity_multipliers, getArmorSlot, getItemFromKey, getItemRarity} from "./items.js";
 import { loot_sold_count, market_region_mapping, recover_item_prices, trickle_market_saturations, set_loot_sold_count } from "./market_saturation.js";
 import { locations, favourite_locations } from "./locations.js";
-import { skill_categories, skill_xp_gains_cap, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
+import { crafting_skill_xp_gains_cap, skill_categories, skill_xp_gains_cap, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
 import { enemy_killcount } from "./enemies.js";
 import { traders } from "./traders.js";
@@ -2209,9 +2209,10 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
 
                 const recipe_skill = skills[selected_recipe.recipe_skill];
                 const needed_xp = recipe_skill.total_xp_to_next_lvl - recipe_skill.total_xp;
-                const xp_per_craft = get_recipe_xp_value({category, subcategory, recipe_id});
+                //const xp_per_craft = get_recipe_xp_value({category, subcategory, recipe_id});
+                const xp_per_craft = Math.min(recipe_skill.xp_to_next_lvl*crafting_skill_xp_gains_cap, get_recipe_xp_value({category, subcategory, recipe_id})*get_skill_xp_gain(recipe_skill.skill_id));
                 const estimated_xp_per_craft = xp_per_craft * success_chance;
-                const needed_crafts = Math.ceil(needed_xp/(estimated_xp_per_craft*get_skill_xp_gain(recipe_skill.skill_id)));
+                const needed_crafts = Math.ceil(needed_xp/(estimated_xp_per_craft));
                 
                 attempted_crafting_ammount = Math.min(needed_crafts, ammount_that_can_be_crafted);
                 successful_crafting_ammount = Math.floor(attempted_crafting_ammount*success_chance);
@@ -2220,13 +2221,13 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 const variable_craft = Math.random()<(attempted_crafting_ammount*success_chance - successful_crafting_ammount)?1:0;
                 successful_crafting_ammount += variable_craft;
                 
-                const current_gained_xp = (attempted_crafting_ammount-1)*estimated_xp_per_craft + (variable_craft?xp_per_craft:(xp_per_craft/4));
-
+                //const current_gained_xp = (attempted_crafting_ammount-1)*estimated_xp_per_craft + (variable_craft?xp_per_craft:(xp_per_craft/4));
+                const current_gained_xp = (successful_crafting_ammount + (attempted_crafting_ammount-successful_crafting_ammount)/4)*xp_per_craft;
                 let success = 0;
                 let fail = 0;
                 
-                if(attempted_crafting_ammount < ammount_that_can_be_crafted && current_gained_xp*get_skill_xp_gain(recipe_skill.skill_id) < needed_xp) {
-                    //if more can be crafted and failed to get enough for a levelup, try to make up to 3 more (since it's 1/4th per fail and there's 1 fail)
+                if(attempted_crafting_ammount < ammount_that_can_be_crafted && current_gained_xp < needed_xp) {
+                    //if more can be crafted and failed to get enough for a levelup, try to make up to 3 more (since it's 1/4th per fail and there's already 1 fail)
                     for(let i = 0; i < 2 && attempted_crafting_ammount+success+fail < ammount_that_can_be_crafted; i++) {
                         
                         if(Math.random()<success_chance) {
@@ -2235,7 +2236,7 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                             fail++;
                         }
                         
-                        if((current_gained_xp + xp_per_craft*(success+fail/4))*get_skill_xp_gain(recipe_skill.skill_id) >= needed_xp) {
+                        if((current_gained_xp + xp_per_craft*(success+fail/4)) >= needed_xp) {
                             break;
                         }
                     }
@@ -2243,7 +2244,7 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                     successful_crafting_ammount += success;
                 }
 
-                xp_to_add = current_gained_xp + success*xp_per_craft + fail*xp_per_craft/4;
+                xp_to_add = current_gained_xp + xp_per_craft*(success+fail/4);
 
                 total_crafting_attempts += attempted_crafting_ammount;
                 total_crafting_successes += successful_crafting_ammount;
@@ -2283,11 +2284,13 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                     log_message(msg, "crafting");
                 }
 
-                leveled = add_xp_to_skill({skill: recipe_skill, xp_to_add: xp_to_add, cap_gained_xp: false});
+                leveled = add_xp_to_skill({skill: recipe_skill, xp_to_add: xp_to_add, cap_gained_xp: false, use_bonus: false}); 
+                //no cap, as it was already capped; skip bonus as it was already added
                 Object.keys(item_templates[result_id].tags).forEach(tag => {
                     const skill_id = crafting_tags_to_skills[tag];
                     if(skill_id) {
-                        let leveled = add_xp_to_skill({skill: skills[skill_id], xp_to_add: xp_to_add/2, cap_gained_xp: false});
+                        let leveled = add_xp_to_skill({skill: skills[skill_id], xp_to_add: xp_to_add/2, cap_gained_xp: true, use_bonus: false});
+                        //cap, as it's assumed to not be a crafting skill; skip bonus as it was already added
                         if(leveled) {
                             character.stats.add_active_effect_bonus();
                             update_character_stats();
@@ -2342,6 +2345,7 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                     let quality;
 
                     for(let i = 0; i < ammount_that_can_be_crafted; i++) {
+                        //loop for every item to be crafted, as they differ in quality and resultingly in xp too
                         const result_tier = result.component_tier ?? result.item_tier;
                         quality = selected_recipe.get_quality(station_tier - result_tier);
 
@@ -2349,18 +2353,21 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                         all_crafted[quality] = (all_crafted[quality]+1 || 1);
                         crafted_count++;
 
-                        accumulated_xp += get_recipe_xp_value({category, subcategory, recipe_id, material_count:recipe_material.count, result_tier: result_tier, rarity_multiplier: rarity_multipliers[getItemRarity(quality)]});
-                        if(accumulated_xp * get_skill_xp_gain(recipe_skill.skill_id) >= needed_xp) {
+                        accumulated_xp += Math.min(
+                            recipe_skill.xp_to_next_lvl*crafting_skill_xp_gains_cap, 
+                            get_recipe_xp_value({category, subcategory, recipe_id, material_count:recipe_material.count, result_tier: result_tier, rarity_multiplier: rarity_multipliers[getItemRarity(quality)]})* get_skill_xp_gain(recipe_skill.skill_id)
+                        );
+                        if(accumulated_xp  >= needed_xp) {
                             const qualities = Object.keys(crafted_items).map(x => Number(x)).sort((a,b)=>b-a);
                             const highest_qual = qualities[0];
 
                             if(crafted_count > 1) {
-                                log_message(`Created ${result.getName()} x${crafted_count} [highest quality: ${highest_qual}% x${crafted_items[highest_qual]}] (+${Math.floor(accumulated_xp*get_skill_xp_gain(recipe_skill.skill_id))} xp)`, "crafting");
+                                log_message(`Created ${result.getName()} x${crafted_count} [highest quality: ${highest_qual}% x${crafted_items[highest_qual]}] (+${Math.floor(accumulated_xp)} xp)`, "crafting");
                             } else {
-                                log_message(`Created ${result.getName()} [${highest_qual}% quality] x1 (+${Math.floor(accumulated_xp*get_skill_xp_gain(recipe_skill.skill_id))} xp)`, "crafting");
+                                log_message(`Created ${result.getName()} [${highest_qual}% quality] x1 (+${Math.floor(accumulated_xp)} xp)`, "crafting");
                             }
 
-                            add_xp_to_skill({skill: recipe_skill, xp_to_add: accumulated_xp});
+                            add_xp_to_skill({skill: recipe_skill, xp_to_add: accumulated_xp, cap_gained_xp: false, use_bonus: false});
 
                             crafted_items = {};
                             crafted_count = 0;
@@ -2376,12 +2383,12 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                         const highest_qual = qualities[0];
 
                         if(crafted_count > 1) {
-                            log_message(`Created ${result.getName()} x${crafted_count} [highest quality: ${highest_qual}% x${crafted_items[highest_qual]}] (+${Math.floor(accumulated_xp*get_skill_xp_gain(recipe_skill.skill_id))} xp)`, "crafting");
+                            log_message(`Created ${result.getName()} x${crafted_count} [highest quality: ${highest_qual}% x${crafted_items[highest_qual]}] (+${Math.floor(accumulated_xp)} xp)`, "crafting");
 
                         } else {
-                            log_message(`Created ${result.getName()} [${highest_qual}% quality] x1 (+${Math.floor(accumulated_xp*get_skill_xp_gain(recipe_skill.skill_id))} xp)`, "crafting");
+                            log_message(`Created ${result.getName()} [${highest_qual}% quality] x1 (+${Math.floor(accumulated_xp)} xp)`, "crafting");
                         }
-                        add_xp_to_skill({skill: recipe_skill, xp_to_add: accumulated_xp});
+                        add_xp_to_skill({skill: recipe_skill, xp_to_add: accumulated_xp, cap_gained_xp: false, use_bonus: false});
                     }
 
                     //grab key, modify it with proper quality value, add (together with count) to list for adding to inv
@@ -2455,19 +2462,22 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                             all_crafted[quality] = (all_crafted[quality]+1 || 1);
                             crafted_count++;
 
-                            accumulated_xp += get_recipe_xp_value({category, subcategory, recipe_id, selected_components: [comp_1, comp_2], rarity_multiplier: rarity_multipliers[getItemRarity(quality)]});
+                            accumulated_xp += Math.min(
+                                    recipe_skill.xp_to_next_lvl, 
+                                    get_recipe_xp_value({category, subcategory, recipe_id, selected_components: [comp_1, comp_2], rarity_multiplier: rarity_multipliers[getItemRarity(quality)]})*get_skill_xp_gain(recipe_skill.skill_id)
+                            );
                             
-                            if(accumulated_xp * get_skill_xp_gain(recipe_skill.skill_id) >= needed_xp) {
+                            if(accumulated_xp >= needed_xp) {
                                 const qualities = Object.keys(crafted_items).map(x => Number(x)).sort((a,b)=>b-a);
                                 const highest_qual = qualities[0];
 
                                 if(crafted_count > 1) {
-                                    log_message(`Created ${result.getName()} x${crafted_count} [highest quality: ${highest_qual}% x${crafted_items[highest_qual]}] (+${Math.floor(accumulated_xp*get_skill_xp_gain(recipe_skill.skill_id))} xp)`, "crafting");
+                                    log_message(`Created ${result.getName()} x${crafted_count} [highest quality: ${highest_qual}% x${crafted_items[highest_qual]}] (+${Math.floor(accumulated_xp)} xp)`, "crafting");
                                 } else {
-                                    log_message(`Created ${result.getName()} [${highest_qual}% quality] x1 (+${Math.floor(accumulated_xp*get_skill_xp_gain(recipe_skill.skill_id))} xp)`, "crafting");
+                                    log_message(`Created ${result.getName()} [${highest_qual}% quality] x1 (+${Math.floor(accumulated_xp)} xp)`, "crafting");
                                 }
 
-                                add_xp_to_skill({skill: recipe_skill, xp_to_add: accumulated_xp});
+                                add_xp_to_skill({skill: recipe_skill, xp_to_add: accumulated_xp, use_bonus: false, cap_gained_xp: false});
 
                                 crafted_items = {};
                                 crafted_count = 0;
@@ -2484,12 +2494,12 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                             const highest_qual = qualities[0];
 
                             if(crafted_count > 1) {
-                                log_message(`Created ${result.getName()} x${crafted_count} [highest quality: ${highest_qual}% x${crafted_items[highest_qual]}] (+${Math.floor(accumulated_xp*get_skill_xp_gain(recipe_skill.skill_id))} xp)`, "crafting");
+                                log_message(`Created ${result.getName()} x${crafted_count} [highest quality: ${highest_qual}% x${crafted_items[highest_qual]}] (+${Math.floor(accumulated_xp)} xp)`, "crafting");
 
                             } else {
-                                log_message(`Created ${result.getName()} [${highest_qual}% quality] x1 (+${Math.floor(accumulated_xp*get_skill_xp_gain(recipe_skill.skill_id))} xp)`, "crafting");
+                                log_message(`Created ${result.getName()} [${highest_qual}% quality] x1 (+${Math.floor(accumulated_xp)} xp)`, "crafting");
                             }
-                            add_xp_to_skill({skill: recipe_skill, xp_to_add: accumulated_xp});
+                            add_xp_to_skill({skill: recipe_skill, xp_to_add: accumulated_xp, use_bonus: false, cap_gained_xp: false});
                         }
 
                         //grab key, modify it with proper quality value, add (together with count) to list for adding to inv
