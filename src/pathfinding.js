@@ -5,7 +5,7 @@ import { skills } from "./skills.js";
 
 const speed_modifiers_from_skills = {};
 const default_travel_skill = "Running";
-const default_travel_time = 60;
+const default_travel_time = 60; //realistically shouldn't be relied upon, try to define travel times for every connection
 const max_modifier_from_skill = 4;
 
 class PriorityQueue {
@@ -89,22 +89,26 @@ class Pathfinder {
      */
     fill_connections(locations) {
         Object.values(locations).forEach(location => {
-            if(location.parent_location) {
-                const travel_time_to_here = location.parent_location.connected_locations.find(x => x.location === location).travel_time ?? default_travel_time;
+            if(location.is_unlocked && !location.is_finished) { //don't bother if it's unavailable
+                if(location.parent_location) {
+                    
+                    const travel_time_to_here = location.parent_location.connected_locations.find(x => x.location === location).travel_time ?? default_travel_time;
 
-                const used_skills = location.parent_location.connected_locations.find(x => x.location === location).travel_time_skills || [default_travel_skill];
+                    const used_skills = location.parent_location.connected_locations.find(x => x.location === location).travel_time_skills || [default_travel_skill];
 
-                const skill_modifier = this.get_total_skills_modifier(used_skills);
+                    const skill_modifier = this.get_total_skills_modifier(used_skills);
 
-                this.add_connection(location.id, location.parent_location.id, travel_time_to_here*skill_modifier);
-            } else {
-                for(let i = 0; i < location.connected_locations.length; i++) {
-                    if(location.connected_locations[i].location.is_unlocked && !location.connected_locations[i].location.is_finished) { //check if it's available
-                        const used_skills = location.connected_locations[i].travel_time_skills || [default_travel_skill];
-                        
-                        const skill_modifier = this.get_total_skills_modifier(used_skills);
+                    this.add_connection(location.id, location.parent_location.id, travel_time_to_here*skill_modifier);
+                } else {
+                    for(let i = 0; i < location.connected_locations.length; i++) {
+                        if(location.connected_locations[i].location.is_unlocked && !location.connected_locations[i].location.is_finished) { //check if the connected one is available
 
-                        this.add_connection(location.id, location.connected_locations[i].location.id, (location.connected_locations[i].travel_time ?? default_travel_time)*skill_modifier);
+                            const used_skills = location.connected_locations[i].travel_time_skills || [default_travel_skill];
+                            
+                            const skill_modifier = this.get_total_skills_modifier(used_skills);
+
+                            this.add_connection(location.id, location.connected_locations[i].location.id, (location.connected_locations[i].travel_time ?? default_travel_time)*skill_modifier);
+                        }
                     }
                 }
             }
@@ -125,13 +129,13 @@ class Pathfinder {
 
         while(!priority_queue.is_queue_empty()) {
             const [, loc1] = priority_queue.shift_from_queue();
-            for(const [loc2, weight] of this.adjacent[loc1]) {
-                if(!distance[loc2]) distance[loc2] = Infinity;
-                if(distance[loc1] == undefined) distance[loc1] = Infinity;
-                
-                if(distance[loc2] > distance[loc1] + weight) {
-                    distance[loc2] = distance[loc1] + weight;
-                    priority_queue.add_to_queue([distance[loc2], loc2]);
+            if(this.adjacent[loc1]) { //a minor check for that singular case of having only 1 location, therefore no adjacents, which would throw an error in next line
+                for(const [loc2, weight] of this.adjacent[loc1]) {
+                    
+                    if(distance[loc2] > distance[loc1] + weight) {
+                        distance[loc2] = distance[loc1] + weight;
+                        priority_queue.add_to_queue([distance[loc2], loc2]);
+                    }
                 }
             }
         }
