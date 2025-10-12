@@ -41,7 +41,7 @@ class QuestTask {
 class Quest {
     constructor({
                 quest_name, //for display, can be skipped if getQuestName covers all possibilites
-                quest_id, 
+                quest_id, //can be skipped, will be set by a short script at the end of the file
                 quest_description, // -||-
                 questline, //questline for grouping or something, skippable
                 quest_tasks = [], //an array of tasks that need to be completed one by one
@@ -54,7 +54,7 @@ class Quest {
                 getQuestDescription = ()=>{return this.quest_description;},
     }) {
         this.quest_name = quest_name;
-        this.quest_id = quest_id || quest_name;
+        this.quest_id = quest_id;
         this.questline = questline;
         this.quest_tasks = quest_tasks;
         this.quest_description = quest_description;
@@ -77,7 +77,7 @@ class Quest {
 }
 
 const questManager = {
-    startQuest(quest_id, should_inform = true) {
+    startQuest({quest_id, should_inform = true}) {
         const quest = quests[quest_id];
         if((!quest.is_finished || quest.is_repeatable) && !this.isQuestActive(quest_id)) {
             active_quests[quest_id] = new Quest(quests[quest_id]);
@@ -85,19 +85,20 @@ const questManager = {
             console.error(`Cannot start quest "${quest_id}"; it's either finished and not repeatable, or already active`);
         }
 
-        if(!quest.is_hidden) {
+        //if(!quest.is_hidden) {
             add_quest_to_display(quest_id);
             if(should_inform) {
                 log_message(`Started a new quest: ${quests[quest_id].getQuestName()}`);
             }
-        }
+        //}
     },
 
     isQuestActive(quest_id) {
         return active_quests[quest_id];
     },
 
-    finishQuest(quest_id, only_unlocks = false) {
+    finishQuest({quest_id, only_unlocks = false, skip_rewards = false}) {
+        console.log(quest_id);
         if(this.isQuestActive(quest_id)) {
             let quest = quests[quest_id];
             if(!quest.is_repeatable) {
@@ -108,7 +109,9 @@ const questManager = {
                 update_displayed_quest(quest_id);
             }
 
-            process_rewards({rewards: quests[quest_id].quest_rewards, source_type: "Quest", source_name: quests[quest_id].getQuestName(), only_unlocks: only_unlocks});
+            if(!skip_rewards) {
+                process_rewards({rewards: quests[quest_id].quest_rewards, source_type: "Quest", source_name: quests[quest_id].getQuestName(), only_unlocks: only_unlocks});
+            }
         } else {
             console.warn(`Cannot finish quest "${quest_id}", as it's not a currently active quest!`)
         }
@@ -132,7 +135,7 @@ const questManager = {
         }
     },
 
-    catchQuestEvent({quest_event_type, quest_event_target, quest_event_count, additional_quest_triggers = []}) {
+    catchQuestEvent({quest_event_type, quest_event_target, quest_event_count, additional_quest_tags = {}}) {
         Object.keys(active_quests).forEach(active_quest_id => {
             const current_task_index = active_quests[active_quest_id].quest_tasks.findIndex(task => !task.is_finished); //just get the first unfinished
             const current_task = active_quests[active_quest_id].quest_tasks[current_task_index];
@@ -141,31 +144,32 @@ const questManager = {
             let is_all_met = true;
 
             Object.keys(current_task.task_condition).forEach(task_group => {
-                /*
-                        task_group (any/all): {
-                            task_type (kill/kill_any/clear/something_else?): { <- quest_event_type
-                                task_target_id (some related id): { <- quest_event_target
-                                    target: Number,
-                                    current: Number,
-                                    requirements: [], //additional triggers needed, like "weapon_unarmed"
-                                }
-                            }
+            /*
+                task_group (any/all): {
+                    task_type (kill/kill_any/clear/reach_skill/enter_location/something_else?): { <- quest_event_type
+                        task_target_id (some related id): { <- quest_event_target
+                            target: Number,   //for enter_location, best put it at 1; for reach_skill, value is set to quest_event_count instead of being incremented by it
+                            current: Number,
+                            requirements: {}, //additional tags needed, like "weapon: unarmed" making it required to use unarmed
+                            restrictions: {} //opposite of requirements, like "weapon: unarmed" making it required to NOT use unarmed
                         }
+                    }
+                }
 
-                        //
+                //
 
-                        any: {
-                            kill: { //by id
-                                    "Wolf rat": { target: 10, current: 0, requirements: [],}, 
-                                    "Wolf": {target: 5, current: 0, requirements: [],}
-                            },
-                            kill_any: {"Pest": {requirements: [], target: , current: ,}}}, //by tags
-                            clear: {"Infested field": {}} //by id
-                        }
-                        all:{
-                            //same
-                        } 
-                */
+                any: {
+                    kill: { //by id
+                            "Wolf rat": { target: 10, current: 0, requirements: [],}, 
+                            "Wolf": {target: 5, current: 0, requirements: [],}
+                    },
+                    kill_any: {"Pest": {requirements: [], target: , current: ,}}}, //by tags
+                    clear: {"Infested field": {}} //by id
+                }
+                all:{
+                    //same
+                }
+            */
 
                 
                 Object.keys(current_task.task_condition[task_group]).forEach(task_type => {
@@ -178,17 +182,35 @@ const questManager = {
                     //if event is of proper type, check further conditions, increase the count and check if it's completed
                     if(quest_event_type in current_task.task_condition[task_group] && quest_event_target in current_task.task_condition[task_group][quest_event_type]) {
 
-                        //let requirements_met = true;
+                        let requirements_met = true;
 
-                        //return if additional requirements are not met (not present in additional triggers)
-                        for(let i = 0; i < current_task.task_condition[task_group][quest_event_type][quest_event_target].requirements?.length; i++) {
-                            if(!additional_quest_triggers.includes(current_task.task_condition[task_group][quest_event_type][quest_event_target].requirements[i])) {
-                                //requirements_met = false;
-                                return;
+                        //check if additional requirements are not met (present in additional tags)
+                        const requirements = current_task.task_condition[task_group][quest_event_type][quest_event_target].requirements;
+                        Object.keys(requirements || {}).forEach(requirement => {
+                            if(!additional_quest_tags[requirement] || additional_quest_tags[requirement] != requirements[requirement]) {
+                                requirements_met = false;
                             }
+                        });
+
+                        if(requirements_met) {
+                            const restrictions = current_task.task_condition[task_group][quest_event_type][quest_event_target].restrictions;
+                            Object.keys(restrictions || {}).forEach(restriction => {
+                                if(additional_quest_tags[restriction] && additional_quest_tags[restriction] === restrictions[restriction]) {
+                                    requirements_met = false;
+                                }
+                            });
                         }
 
-                        current_task.task_condition[task_group][quest_event_type][quest_event_target].current += quest_event_count;
+                        //if they are not met, return without changing .current
+                        if(!requirements_met) {
+                            return;
+                        }
+
+                        if(quest_event_type === "reach_skill") {
+                            current_task.task_condition[task_group][quest_event_type][quest_event_target].current = quest_event_count;
+                        } else {
+                            current_task.task_condition[task_group][quest_event_type][quest_event_target].current += quest_event_count;
+                        }
 
                         //any => set to true after first met, as only one is needed
                         //all => set to false after first not met, as all are needed
@@ -209,48 +231,107 @@ const questManager = {
 
             const remaining_tasks = active_quests[active_quest_id].quest_tasks.filter(task => !task.is_finished);
             if(remaining_tasks.length == 0) { //no more tasks
-                this.finishQuest(active_quest_id);
+                this.finishQuest({quest_id: active_quest_id});
             }
         });
     },
 };
 
-quests["Lost memory"] = new Quest({
-    quest_name: "Lost memory",
-    id: "Lost memory",
-    getQuestDescription: ()=>{
-        const completed_tasks =  quests["Lost memory"].getCompletedTaskCount(); 
-        if(completed_tasks == 0) {
-            return "You woke up in some village and you have no idea how you got here or who you are. Just what could have happened?";
-        } else if(completed_tasks == 1) {
-            return "You lost your memories after being attacked by unknown assailants and were rescued by local villagers. You need to find out who, why, and if possible, how to recover them.";
+
+//Main story quests
+(()=>{
+    quests["Lost memory"] = new Quest({
+        quest_name: "Lost memory",
+        getQuestDescription: ()=>{
+            const completed_tasks =  quests["Lost memory"].getCompletedTaskCount(); 
+            if(completed_tasks == 0) {
+                return "You woke up in some village and you have no idea how you got here or who you are. Just what could have happened?";
+            } else if(completed_tasks == 1) {
+                return "You lost your memories after being attacked by unknown assailants and were rescued by local villagers. You need to find out who, why, and if possible, how to recover them.";
+            }
+        },
+        questline: "Lost memory",
+        quest_tasks: [
+            new QuestTask({task_description: "Find out what happened"}), //talk to elder
+            new QuestTask({is_hidden: true}), //so that the 1st task is completed but the next is not yet displayed
+            new QuestTask({task_description: "Help with the wolf rat infestation"}), //talk to elder after dealing with them
+            new QuestTask({task_description: "Continue your search"}), //talk to suspicious guy
+            new QuestTask({task_description: "Get into the town (tbc)"}), //not yet possible
+        ]
+    });
+
+    quests["The Infinite Rat Saga"] = new Quest({
+        quest_name: "The Infinite Rat Saga",
+        getQuestDescription: ()=>{
+            return "You found more rats in the caves. You might as well try getting to the bottom of that issue.";
+        },
+        questline: "The Infinite Rat Saga",
+        quest_tasks: [
+            new QuestTask({task_description: "Go deeper"}), //beat the 'Mysterious gate'
+            new QuestTask({task_description: "Open the mysterious gate"}),
+            new QuestTask({task_description: "Get through the corrupted tunnel"}), 
+            new QuestTask({task_description: "Go even deeper (tbc)"}), //not yet possible to open 2nd gate
+        ]
+    });
+})();
+
+//Hidden quests for unlocks
+(()=>{
+    quests["Swimming/climbing unlock"] = new Quest({
+        //climbing can still be unlocked via fights in the cave
+        is_hidden: true,
+        quest_tasks: [
+            new QuestTask({
+                task_condition: {
+                    all: {
+                        reach_skill: {
+                            "Running": {target: 12},
+                            "Weightlifting": {target: 12},
+                        }
+                    }
+                }
+            })
+        ],
+        quest_rewards: {
+            textlines: [{dialogue: "Village elder", textline: "more training"}],
+            locks: {
+                quests: ["Swimming alternative unlock"],
+            }
         }
-    },
-    questline: "Lost memory",
-    quest_tasks: [
-        new QuestTask({task_description: "Find out what happened"}), //talk to elder
-        new QuestTask({is_hidden: true}), //so that the 1st task is completed but the next is not yet displayed
-        new QuestTask({task_description: "Help with the wolf rat infestation"}), //talk to elder after dealing with them
-        new QuestTask({task_description: "Continue your search"}), //talk to suspicious guy
-        new QuestTask({task_description: "Get into the town (tbc)"}), //not yet possible
-    ]
-});
-
-quests["The Infinite Rat Saga"] = new Quest({
-    quest_name: "The Infinite Rat Saga",
-    id: "The Infinite Rat Saga",
-    getQuestDescription: ()=>{
-        return "You found more rats in the caves. You might as well try getting to the bottom of that issue.";
-    },
-    questline: "The Infinite Rat Saga",
-    quest_tasks: [
-        new QuestTask({task_description: "Go deeper"}), //beat the 'Mysterious gate'
-        new QuestTask({task_description: "Open the mysterious gate"}),
-        new QuestTask({task_description: "Get through the corrupted tunnel"}), 
-        new QuestTask({task_description: "Go even deeper (tbc)"}), //not yet possible to open 2nd gate
-    ]
-});
-
+    });
+    quests["Swimming alternative unlock"] = new Quest({
+        //climbing can still be unlocked via fights in the cave
+        is_hidden: true,
+        quest_rewards: {
+            activities: [{location:"Village", activity:"swimming"}],
+            messages: ["With all the training you have done so far, the idea of submerging yourself in the river passing by the village is really tempting"]
+        },
+        quest_tasks: [
+            new QuestTask({
+                task_condition: {
+                    all: {
+                        reach_skill: {
+                            "Running": {target: 15},
+                            "Weightlifting": {target: 15},
+                        }
+                    }
+                }
+            }),
+            new QuestTask({
+                task_condition: {
+                    all: {
+                        enter_location: {
+                            "Village": {
+                                target: 1,
+                                restrictions: {season: "Winter"}, //won't trigger in winter
+                            },
+                        }
+                    }
+                }
+            }) 
+        ],
+    });
+})();
 
 /*
 quests["Test quest"] = new Quest({
@@ -285,5 +366,9 @@ quests["Test quest"] = new Quest({
     ]
 });
 */
+
+Object.keys(quests).forEach(quest => {
+    quests[quest].id = quest;
+});
 
 export { quests, active_quests, questManager};
