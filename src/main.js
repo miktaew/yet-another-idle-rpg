@@ -428,17 +428,17 @@ function option_do_background_animations(option) {
 
 /**
  * 
- * @param {String} location_name actually a location id
+ * @param {String} location_id
  */
-function change_location(location_name, event, skip_travel_time = false) {
+function change_location({location_id, event, skip_travel_time = false, do_quest_events = true}) {
     if(event?.target.classList.contains("fast_travel_removal_button")) {
         return;
     }
 
     const previous_location = current_location;
-    let location = locations[location_name] || current_location;
+    let location = locations[location_id] || current_location;
 
-    if(location_name !== current_location?.name && location.is_finished) {
+    if(location_id !== current_location?.name && location.is_finished) {
         //refuse to change location if it's finished and it's not the current one
         return;
     }
@@ -448,8 +448,16 @@ function change_location(location_name, event, skip_travel_time = false) {
     clear_enemies();
 
     if(!location) {
-        throw `No such location as "${location_name}"`;
+        throw `No such location as "${location_id}"`;
     }
+
+    if(do_quest_events) {
+        do_quest_event({
+            quest_event_type: "enter_location",
+            quest_event_target: location.id,
+            quest_event_count: 1,
+        });
+    } 
 
     if(typeof current_location !== "undefined" && current_location.id !== location.id){
         //so it's not called when initializing the location on page load or on reloading current location due to new unlocks
@@ -569,7 +577,7 @@ function end_activity() {
     }
     end_activity_animation(); //clears the "animation"
     current_activity = null;
-    change_location(current_location.id);
+    change_location({location_id: current_location.id, skip_travel_time: true});
 }
 
 /**
@@ -680,7 +688,7 @@ function end_location_action() {
     end_activity_animation();
     clearInterval(location_action_interval);
     current_location_action = null;
-    change_location(current_location.id);
+    change_location({location_id: current_location.id, skip_travel_time: true});
 }
 
 /**
@@ -820,7 +828,7 @@ function start_sleeping() {
 
 function end_sleeping() {
     is_sleeping = false;
-    change_location(current_location.id);
+    change_location({location_id: current_location.id, skip_travel_time: true});
     end_activity_animation();
 }
 
@@ -858,7 +866,7 @@ function start_reading(book_key) {
 }
 
 function end_reading() {
-    change_location(current_location.id);
+    change_location({location_id: current_location.id, skip_travel_time: true});
     end_activity_animation();
     
     const book_id = is_reading;
@@ -1261,7 +1269,7 @@ function set_character_attack_loop({base_cooldown}) {
  * @param {String} attack_power 
  * @param {String} attack_type 
  */
-function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets, count = 0, is_new = true, target_count = 1}) {
+function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power, targets, count = 0, is_new = true, target_count = 1, do_quest_events = true}) {
     update_character_attack_bar(count/60);
 
     if(is_new) {
@@ -1300,6 +1308,14 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
                 current_location.enemy_groups_killed += 1;
                 if(current_location.enemy_groups_killed > 0 && current_location.enemy_groups_killed % current_location.enemy_count == 0) {
                     get_location_rewards(current_location);
+
+                    if(do_quest_events) {
+                        do_quest_event({
+                            quest_event_type: "clear",
+                            quest_event_target: current_location.id,
+                            quest_event_count: 1,
+                        });
+                    }
                 }
                 document.getElementById("enemy_count_div").children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemy_groups_killed % current_location.enemy_count;
         
@@ -1545,7 +1561,7 @@ function do_character_combat_action({target, attack_power, target_count}) {
  * @param {Enemy} enemy 
  * @return {Boolean} if that was the last of an enemy group
  */
-function kill_enemy(target) {
+function kill_enemy(target, do_quest_events = true) {
     target.is_alive = false;
     if(target.add_to_bestiary) {
         if(enemy_killcount[target.name]) {
@@ -1558,6 +1574,22 @@ function kill_enemy(target) {
     }
     const enemy_id = current_enemies.findIndex(enemy => enemy===target);
     clear_enemy_attack_loop(enemy_id);
+
+    if(do_quest_events) {
+        do_quest_event({
+            quest_event_type: "kill",
+            quest_event_target: target.id,
+            quest_event_count: 1,
+        });
+
+        Object.keys(target.tags || {}).forEach(tag => {
+            do_quest_event({
+                quest_event_type: "kill_any",
+                quest_event_target: tag,
+                quest_event_count: 1,
+            });
+        })
+    }
 }
 
 function kill_player({is_combat = true} = {}) {
@@ -1567,10 +1599,10 @@ function kill_player({is_combat = true} = {}) {
 
         update_displayed_health();
         if(options.auto_return_to_bed && last_location_with_bed) {
-            change_location(last_location_with_bed);
+            change_location({location_id: last_location_with_bed});
             start_sleeping();
         } else {
-            change_location(current_location.parent_location.id);
+            change_location({location_id: current_location.parent_location.id});
         }
     }
 }
@@ -1609,7 +1641,7 @@ function use_stamina(num = 1, use_efficiency = true) {
  * @param {Boolean} should_info 
  * @returns {Boolean}
  */
-function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = true, add_to_parent = true, cap_gained_xp = true, is_from_loading = false})
+function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = true, add_to_parent = true, cap_gained_xp = true, is_from_loading = false, do_quest_events = true})
 {
     let leveled = false;
     if(xp_to_add == 0) {
@@ -1770,6 +1802,14 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 pathfinder.find_shortest_paths(current_location);
                 //shouldn't need any display updates
             }
+
+            if(do_quest_events) {
+                do_quest_event({
+                    quest_event_type: "reach_skill",
+                    quest_event_target: skill.skill_id,
+                    quest_event_count: skill.current_level,
+                });
+            }
         } else {
             update_displayed_skill_bar(skill, false);
         }
@@ -1840,7 +1880,7 @@ function get_location_rewards(location) {
     location.otherUnlocks();
 
     if(should_return) {
-        change_location(current_location.parent_location.id); //go back to parent location, only on first clear
+        change_location({location_id: current_location.parent_location.id}); //go back to parent location, only on first clear
     }
 }
 
@@ -1855,6 +1895,12 @@ function get_location_rewards(location) {
  */
 function process_rewards({rewards = {}, source_type, source_name, is_first_clear, inform_overall = true, inform_textline = true, only_unlocks = false, is_from_loading = false}) {
     let was_any_location_availability_changed = false;
+
+    if(rewards.messages && !is_from_loading) {
+        for(let i = 0; i < rewards.messages.length; i++) {
+            log_message(rewards.messages[i]);
+        }
+    }
 
     if(rewards.money && typeof rewards.money === "number" && !only_unlocks) {
         if(inform_overall) {
@@ -1917,7 +1963,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
                     dialogues[rewards.textlines[i].dialogue].textlines[rewards.textlines[i].lines[j]].is_unlocked = true;
                 }
             }
-            if(any_unlocked && inform_textline && inform_overall) {
+            if(any_unlocked && inform_textline && inform_overall && !rewards.textlines[i].skip_message) {
                 log_message(`You should talk to ${rewards.textlines[i].dialogue}`, "dialogue_unlocked");
                 //maybe do this only when there's just 1 dialogue with changes?
             }
@@ -2022,10 +2068,10 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
     if(rewards.quests) {
         for(let i = 0; i < rewards.quests.length; i++) {
             if(!questManager.isQuestActive(rewards.quests[i])) {
-                questManager.startQuest(rewards.quests[i]);
-            }
-            if(inform_overall) {
-                log_message(`Received a new quest: ${quests(rewards.quests[i]).getQuestName()}`);
+                questManager.startQuest({quest_id: rewards.quests[i]});
+                if(inform_overall) {
+                    log_message(`Received a new quest: ${quests(rewards.quests[i]).getQuestName()}`);
+                }
             }
         }
     }
@@ -2063,6 +2109,11 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
                 traders[rewards.locks.traders[i]].is_finished = true;
             }
         }
+        if(rewards.locks.quests) {
+            for(let i = 0; i < rewards.locks.quests.length; i++) {
+                questManager.finishQuest({quest_id: rewards.locks.quests[i], skip_rewards: true})
+            }
+        }
     }
 
     if(rewards.items && !only_unlocks) {
@@ -2090,7 +2141,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
 
     if(rewards.move_to && !only_unlocks) {
         if(source_type !== "action") {
-            change_location[rewards.move_to.location];
+            change_location({location_id: rewards.move_to.location});
         } else {
             current_location = locations[rewards.move_to.location];
         }
@@ -2115,7 +2166,7 @@ function unlock_location({location, skip_message}) {
         //reloads the current location just in case it needs the new unlock to be added to current display
         //current action check most probably unnecessary
         if(current_location && !current_dialogue && !current_location_action) {
-            change_location(current_location.id);
+            change_location({location_id: current_location.id, skip_travel_time: true});
         }
     }
 
@@ -2670,6 +2721,24 @@ function add_active_effect(effect_key, duration){
 }
 
 /**
+ * Handles preliminary management of quest events, simplifying work by automatically providing all the additional data
+ * @param {Object} quest_event_data 
+ */
+function do_quest_event({quest_event_type, quest_event_target, quest_event_count}) {
+
+    questManager.catchQuestEvent({
+        quest_event_type,
+        quest_event_target,
+        quest_event_count,
+        additional_quest_triggers: {
+            location: current_location?.id || "",
+            season: current_game_time.getSeason() || "",
+            //just whatever might be possibly needed, to be updated as things expand
+        }
+    })
+}
+
+/**
  * 
  */
 function give_export_reward() {
@@ -3073,6 +3142,13 @@ function load(save_data) {
     Object.keys(save_data.favourite_consumables || {}).forEach(key => {
         favourite_consumables[key] = true;
     });
+
+    if(is_a_older_than_b(save_data["game version"], "v0.5")) { //compatibility patch for pre-quests
+
+        questManager.startQuest({quest_id: "Swimming/climbing unlock", should_warn: false});
+        questManager.startQuest({quest_id: "Swimming alternative unlock", should_warn: false});
+
+    }
 
     Object.keys(save_data.character.reputation || {}).forEach(rep_region => {
         if(rep_region in character.reputation) {
@@ -3820,11 +3896,11 @@ function load(save_data) {
                 for(let i = 0; i < quests[quest].quest_tasks.length; i++) {
                     quests[quest].quest_tasks[i].is_finished = true;
                 }
-                questManager.startQuest(quest, false);
-                questManager.finishQuest(quest, true);
+                questManager.startQuest({quest_id: quest, should_inform: false});
+                questManager.finishQuest({quest_id: quest, only_unlocks: true});
 
             } else if(save_data["quests"][quest].is_active) {
-                questManager.startQuest(quest, false);
+                questManager.startQuest({quest_id: quest, should_inform: false});
                 //active => at least 1 task is unfinished and its specifics matter
                 for(let i = 0; i < save_data["quests"][quest].task_status.length-1; i++) {
                     //set all but last to finished
@@ -3864,7 +3940,7 @@ function load(save_data) {
     if(is_a_older_than_b(save_data["game version"], "v0.5.0")){
         
         //memory
-        questManager.startQuest("Lost memory", false);
+        questManager.startQuest({quest_id: "Lost memory", should_inform: false});
         if(dialogues["village elder"].textlines["what happened"].is_finished) {
             questManager.finishQuestTask({quest_id: "Lost memory", task_index: 0});
 
@@ -3884,7 +3960,7 @@ function load(save_data) {
 
         //saga
         if(locations["Suspicious wall"].is_finished) {
-            questManager.startQuest("The Infinite Rat Saga", false);
+            questManager.startQuest({quest_id: "The Infinite Rat Saga", should_inform: false});
 
             if(locations["Mysterious gate"].enemy_groups_killed >= locations["Mysterious gate"].enemy_count) {
                 questManager.finishQuestTask({quest_id: "The Infinite Rat Saga", task_index: 0});
@@ -3906,6 +3982,21 @@ function load(save_data) {
             Object.keys(save_data["recipes"][category]).forEach(subcategory => {
                 Object.keys(save_data["recipes"][category][subcategory]).forEach(recipe_id => {
                     if(!recipes[category][subcategory][recipe_id]) {
+                        if(is_a_older_than_b(save_data["game version"], "v0.5.0")){
+                            if(
+                                (
+                                    category === "crafting" 
+                                    && subcategory === "items" 
+                                    && (recipes["butchering"]["items"][recipe_id] || recipes["woodworking"]["items"][recipe_id])
+                                )
+                                || recipe_id === "Shield base" 
+                                || recipe_id === "Shield handle"
+                            ) {
+                                //don't warn as they were moved to different category
+                                return;
+                            }
+                        }
+
                         console.warn(`Could not find recipe "${category}"->"${subcategory}"->"${recipe_id}". It might have been removed.`);
                         return;
                     }
@@ -3930,7 +4021,7 @@ function load(save_data) {
         });
     }
 
-    if (save_data.skill_list_state) {
+    if(save_data.skill_list_state) {
         Object.keys(save_data.skill_list_state).forEach(index => {
             if (skill_list.childElementCount > 0 && save_data.skill_list_state[index]) {
                 skill_list.children[index].classList.add("skill_category_expanded");
@@ -3947,7 +4038,7 @@ function load(save_data) {
     update_displayed_effects();
     
     create_displayed_crafting_recipes();
-    change_location(save_data["current location"]);
+    change_location({location_id: save_data["current location"], skip_travel_time: true, do_quest_events: false});
 
     //temperature is location dependent so display setting is loaded after location is set
     options.use_uncivilised_temperature_scale = save_data.options?.use_uncivilised_temperature_scale;
@@ -4545,7 +4636,7 @@ function update() {
 
 function run() {
     if(typeof current_location === "undefined") {
-        change_location("Village");
+        change_location({location_id: "Village", skip_travel_time: true});
     } 
     
     update_displayed_health();
@@ -4666,8 +4757,11 @@ if(save_key in localStorage || (is_on_dev() && dev_save_key in localStorage)) {
     update_displayed_stance_list(stances, current_stance, faved_stances);
     change_stance("normal");
     create_displayed_crafting_recipes();
-    change_location("Village");
-    questManager.startQuest("Lost memory");
+    change_location({location_id: "Village", skip_travel_time: true});
+    questManager.startQuest({quest_id: "Lost memory"});
+    questManager.startQuest({quest_id: "Swimming/climbing unlock", should_warn: false});
+    questManager.startQuest({quest_id: "Swimming alternative unlock", should_warn: false});
+
 } //checks if there's an existing save file, otherwise just sets up some initial equipment
 
 document.getElementById("loading_screen").style.visibility = "hidden";

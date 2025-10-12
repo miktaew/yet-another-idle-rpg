@@ -4,6 +4,8 @@
 
 /*  REWARDS:
     {
+        messages: [String] //array of messages to be logged together with rewards
+
         money: Number //flat value that will be given to player
 
         xp: Number //flat value that will be given to player

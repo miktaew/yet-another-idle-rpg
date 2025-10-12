@@ -111,9 +111,9 @@ class Gathering extends Training {
     activities["swimming"] = new Training({
         name: "swimming",
         action_text: "Splish, splash, splosh",
-        description: "One of the most basic exercises",
+        description: "A rather basic, although somewhat risky exercise",
         base_skills_names: ["Swimming"],
-        is_unlocked: true,
+        is_unlocked: false,
     });
     activities["meditating"] = new Training({
         name: "meditating",

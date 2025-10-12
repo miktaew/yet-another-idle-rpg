@@ -2130,7 +2130,7 @@ function create_location_choices({location, category, is_combat = false}) {
             
                 action.classList.add("action_travel", "location_choice");
                 action.setAttribute("data-travel", location.connected_locations[i].location.id);
-                action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
+                action.setAttribute("onclick", "change_location({location_id: this.getAttribute('data-travel')});");
         
                 choice_list.push(action);
             } 
@@ -2146,7 +2146,7 @@ function create_location_choices({location, category, is_combat = false}) {
                 action.innerHTML = "Go back to [" + location.parent_location.name + "] [" + travel_time + "]";
             }
             action.setAttribute("data-travel", location.parent_location.id);
-            action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
+            action.setAttribute("onclick", "{location_id: change_location(this.getAttribute('data-travel')});");
 
             choice_list.push(action);
         }
@@ -2162,10 +2162,14 @@ function create_location_choices({location, category, is_combat = false}) {
             if(!is_combat) {
                 action.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> `
             }
-            action.innerHTML += `Quick return to [${last_bed.name}]` +" [" + travel_time + "]";
+            if(travel_time > 0) {
+                action.innerHTML += `Quick return to [${last_bed.name}]` +" [" + travel_time + "]";
+            } else {
+                action.innerHTML += `Quick return to [${last_bed.name}]`;
+            }
 
             action.setAttribute("data-travel", last_bed.name);
-            action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
+            action.setAttribute("onclick", "{location_id: change_location(this.getAttribute('data-travel')});");
     
             choice_list.push(action);
         }
@@ -2187,7 +2191,7 @@ function create_location_choices({location, category, is_combat = false}) {
             
             action.classList.add("action_travel");
             action.setAttribute("data-travel", available_challenges[i].location.id);
-            action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'));");
+            action.setAttribute("onclick", "{location_id: change_location(this.getAttribute('data-travel')});");
     
             choice_list.push(action);
         }
@@ -2265,7 +2269,7 @@ function create_fast_travel_choices() {
             
             action.classList.add("action_travel", "location_choice");
             action.setAttribute("data-travel", locations[available_fast_travel[i]].name);
-            action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'), event);");
+            action.setAttribute("onclick", "{location_id: change_location(this.getAttribute('data-travel'), event});");
         } else {            
             action.classList.add("travel_combat");
             
@@ -2273,7 +2277,7 @@ function create_fast_travel_choices() {
             
             action.classList.add("action_travel", "location_choice");
             action.setAttribute("data-travel", locations[available_fast_travel[i]].name);
-            action.setAttribute("onclick", "change_location(this.getAttribute('data-travel'), event);");
+            action.setAttribute("onclick", "change_location({location_id: this.getAttribute('data-travel'), event});");
         }
 
         if(!locations[available_fast_travel[i]].housing?.is_unlocked && locations[available_fast_travel[i]].id !== last_combat_location) {

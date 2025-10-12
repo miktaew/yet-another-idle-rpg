@@ -164,7 +164,7 @@ class Textline {
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["rats", "ask to leave 2", "equipment"]}],
                     locations: [{location: "Infested field"}],
-                    activities: [{location:"Village", activity:"weightlifting"}, {location:"Village",activity:"running"}, {location:"Village",activity:"swimming"}],
+                    activities: [{location:"Village", activity:"weightlifting"}, {location:"Village",activity:"running"}],
                     quest_progress: [
                         {quest_id: "Lost memory", task_index: 1},
                     ]
@@ -196,7 +196,6 @@ class Textline {
                 text: "We talked about this, you are still too weak",
                 is_unlocked: false,
                 rewards: {
-                    activities: [{location:"Village",activity:"swimming"}],
                 },
             }),
             "rats": new Textline({
@@ -225,7 +224,6 @@ class Textline {
                 rewards: {
                     locations: [{location: "Nearby cave"}, {location: "Infested field"}],
                     dialogues: ["old craftsman"],
-                    activities: [{location:"Village",activity:"swimming"}],
                 },
                 is_unlocked: false,
             }),
@@ -250,7 +248,6 @@ class Textline {
                 rewards: {
                     locations: [{location: "Forest road"}, {location: "Infested field"}, {location: "Nearby cave"}],
                     dialogues: ["village guard", "old craftsman"],
-                    activities: [{location:"Village",activity:"swimming"}],
                 },
             }),
             "new tunnel": new Textline({
@@ -259,8 +256,19 @@ class Textline {
                 is_unlocked: false,
                 locks_lines: ["new tunnel"],
             }),
+
+            "more training": new Textline({
+                name: "I think I went far enough with basic training, do you have any other suggestions?",
+                text: "You did? Well, let me think... You could try swimming in the river nearby if you haven't done that yet, just remember not to do it in cold weather. Or you could try some wall climbing, but be sure to start with low heights to be safe.",
+                is_unlocked: false,
+                locks_lines: ["more training"],
+                rewards: {
+                    activities: [{location:"Village", activity:"swimming"}, {location:"Nearby cave",activity:"climbing"}],
+                    actions: [{location: "Nearby cave", action: "climb the mountain"}],
+                }
+            })
         },
-        description: "You see an older man who, despite his white hair, still has a strong posture. He eyes you with curiosty."
+        description: "You see an older man who, despite his white hair, still has a strong posture. He eyes you with curiosity."
     });
 
     dialogues["old craftsman"] = new Dialogue({

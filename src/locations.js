@@ -1130,6 +1130,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         parent_location: locations["Nearby cave"],
         first_reward: {
             xp: 200,
+            messages: ["As you descend deeper and deeper, a sudden thought strikes you - what if you instead tried going up?"],
         },
         repeatable_reward: {
             xp: 100,
@@ -1745,7 +1746,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
             starting_text: "Attempt climbing the mountain walls outside",
             skill_xp_per_tick: 1,
             is_unlocked: false,
-            unlock_text: "As you descend deeper and deeper, a sudden thought strikes you - what if you instead tried going up?",
         }),
         "meditating": new LocationActivity({
             activity_name: "meditating",

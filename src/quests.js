@@ -18,12 +18,6 @@ class QuestTask {
     {
         this.task_description = task_description;
         this.task_condition = task_condition;
-        if(!this.task_condition.any) {
-            this.task_condition.any = {};
-        }
-        if(!this.task_condition.all) {
-            this.task_condition.all = {};
-        }
         this.task_rewards = task_rewards;
         this.is_hidden = is_hidden;
         this.is_finished = is_finished;
@@ -85,12 +79,12 @@ const questManager = {
             console.error(`Cannot start quest "${quest_id}"; it's either finished and not repeatable, or already active`);
         }
 
-        //if(!quest.is_hidden) {
+        if(!quest.is_hidden) {
             add_quest_to_display(quest_id);
             if(should_inform) {
                 log_message(`Started a new quest: ${quests[quest_id].getQuestName()}`);
             }
-        //}
+        }
     },
 
     isQuestActive(quest_id) {
@@ -98,7 +92,6 @@ const questManager = {
     },
 
     finishQuest({quest_id, only_unlocks = false, skip_rewards = false}) {
-        console.log(quest_id);
         if(this.isQuestActive(quest_id)) {
             let quest = quests[quest_id];
             if(!quest.is_repeatable) {
@@ -137,11 +130,12 @@ const questManager = {
 
     catchQuestEvent({quest_event_type, quest_event_target, quest_event_count, additional_quest_tags = {}}) {
         Object.keys(active_quests).forEach(active_quest_id => {
+
             const current_task_index = active_quests[active_quest_id].quest_tasks.findIndex(task => !task.is_finished); //just get the first unfinished
             const current_task = active_quests[active_quest_id].quest_tasks[current_task_index];
 
-            let is_any_met = false;
-            let is_all_met = true;
+            let is_any_met = "any" in current_task.task_condition?false:true;
+            let is_all_met = "all" in current_task.task_condition?true:false;
 
             Object.keys(current_task.task_condition).forEach(task_group => {
             /*
@@ -222,7 +216,6 @@ const questManager = {
                     }
                 });
             });
-
             if(is_any_met && is_all_met) { //completed
                 this.finishQuestTask({quest_id: active_quest_id, task_index: current_task_index});
             } else {
@@ -293,10 +286,7 @@ const questManager = {
             })
         ],
         quest_rewards: {
-            textlines: [{dialogue: "Village elder", textline: "more training"}],
-            locks: {
-                quests: ["Swimming alternative unlock"],
-            }
+            textlines: [{dialogue: "village elder", lines: ["more training"], skip_message: true}],
         }
     });
     quests["Swimming alternative unlock"] = new Quest({
