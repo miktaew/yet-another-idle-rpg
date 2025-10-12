@@ -710,6 +710,22 @@ function get_location_action_result(selected_action, conditions_status) {
 }
 
 /**
+ * @description Globally unlocks an activity and adds a proper message to the message log, local children might still need to be unlocked separately. NOT called on loading a save.
+ * @param {String} activity_id
+ */
+function unlock_global_activity({activity_id}) {
+    if(!activities[activity_id].is_unlocked){
+        activities[activity_id].is_unlocked = true;
+        
+        let message = "";
+        if(activities[activity_id].unlock_text) {
+           message = activities[activity_id].unlock_text+":<br>";
+        }
+        log_message(message + `Gained the ability of "${activities[activity_id].name}"`, "activity_unlocked");
+    }
+}
+
+/**
  * @description Unlocks an activity and adds a proper message to the message log. NOT called on loading a save.
  * @param {Object} activity_data {activity, location_name}
  */
@@ -2006,6 +2022,12 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         });
     }
 
+    if(rewards.global_activities) {
+        for(let i = 0; i < rewards.global_activities?.length; i++) {
+                unlock_global_activity({activity_id: rewards.global_activities[i]});
+        }
+    }
+
     if(rewards.activities) {
         for(let i = 0; i < rewards.activities?.length; i++) {
             if(!locations[rewards.activities[i].location].activities[rewards.activities[i].activity].tags?.gathering || global_flags.is_gathering_unlocked) {
@@ -3151,13 +3173,6 @@ function load(save_data) {
         favourite_consumables[key] = true;
     });
 
-    if(is_a_older_than_b(save_data["game version"], "v0.5")) { //compatibility patch for pre-quests
-
-        questManager.startQuest({quest_id: "Swimming/climbing unlock", should_warn: false});
-        questManager.startQuest({quest_id: "Swimming alternative unlock", should_warn: false});
-
-    }
-
     Object.keys(save_data.character.reputation || {}).forEach(rep_region => {
         if(rep_region in character.reputation) {
             character.reputation[rep_region] = save_data.character.reputation[rep_region];
@@ -3817,6 +3832,14 @@ function load(save_data) {
             return;
         }
     }); //load for locations their unlocked status and their killcounts
+
+    if(is_a_older_than_b(save_data["game version"], "v0.5")) {
+        //unlock status was swapped from local activity to global activity, so a need for this
+        if(locations["Nearby cave"].activities["climbing"].is_unlocked) {
+            activities["climbing"].is_unlocked = true;
+        }
+    }
+
 
     if(is_a_older_than_b(save_data["game version"], "v0.4.6.7")) {
         locations["Town square"].is_unlocked = false;
@@ -4767,8 +4790,6 @@ if(save_key in localStorage || (is_on_dev() && dev_save_key in localStorage)) {
     create_displayed_crafting_recipes();
     change_location({location_id: "Village", skip_travel_time: true});
     questManager.startQuest({quest_id: "Lost memory"});
-    questManager.startQuest({quest_id: "Swimming/climbing unlock", should_warn: false});
-    questManager.startQuest({quest_id: "Swimming alternative unlock", should_warn: false});
 
 } //checks if there's an existing save file, otherwise just sets up some initial equipment
 
@@ -4811,18 +4832,7 @@ function add_all_active_effects(duration){
 update_displayed_equipment();
 sort_displayed_inventory({sort_by: "name", target: "character"});
 
-//add_active_effect("Hypothermia", 60);
-
 run();
-
-/*
-questManager.startQuest("Test quest");
-questManager.catchQuestEvent({quest_event_type: "kill", quest_event_target: "Wolf rat", quest_event_count: 1});
-
-setTimeout(()=>{
-    questManager.catchQuestEvent({quest_event_type: "kill", quest_event_target: "Wolf rat", quest_event_count: 9});
-}, 2000);
-*/
 
 if(is_on_dev()) {
     log_message("It looks like you are playing on the dev release. It is recommended to keep the developer console open (in Chrome/Firefox/Edge it's at F12 => 'Console' tab) in case of any errors/warnings appearing in there.", "notification");
@@ -4851,7 +4861,6 @@ if(is_on_dev()) {
         update_other_save_load_button();
     }
 }
-
 
 export { current_enemies, can_work, 
         current_location, active_effects, 

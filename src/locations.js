@@ -1134,7 +1134,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         },
         repeatable_reward: {
             xp: 100,
-            activities: [{location:"Nearby cave", activity: "climbing"}],
+            global_activities: ["climbing"],
             actions: [{location: "Nearby cave", action: "climb the mountain"}],
         },
         rewards_with_clear_requirement: [
@@ -1745,7 +1745,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             infinite: true,
             starting_text: "Attempt climbing the mountain walls outside",
             skill_xp_per_tick: 1,
-            is_unlocked: false,
+            is_unlocked: true,
         }),
         "meditating": new LocationActivity({
             activity_name: "meditating",

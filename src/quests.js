@@ -75,8 +75,6 @@ const questManager = {
         const quest = quests[quest_id];
         if((!quest.is_finished || quest.is_repeatable) && !this.isQuestActive(quest_id)) {
             active_quests[quest_id] = new Quest(quests[quest_id]);
-        } else {
-            console.error(`Cannot start quest "${quest_id}"; it's either finished and not repeatable, or already active`);
         }
 
         if(!quest.is_hidden) {

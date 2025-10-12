@@ -127,7 +127,7 @@ class Gathering extends Training {
         action_text: "Looking for next grip to hold to",
         description: "An advanced exercise that uses majority of muscles in the body",
         base_skills_names: ["Climbing"],
-        is_unlocked: true,
+        is_unlocked: false,
     });
 })();
 

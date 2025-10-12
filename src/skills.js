@@ -133,7 +133,7 @@ class Skill {
             } else { //levelup
                 
                 let level_after_xp = 0;
-                let unlocks = {skills: [], recipes: []};
+                let unlocks = {skills: [], recipes: [], quests: []};
 
                 //its alright if this goes over max level, it will be overwritten in a if-else below that
                 while(this.total_xp >= this.total_xp_to_next_lvl) {
@@ -146,6 +146,9 @@ class Skill {
                     }
                     if(this.milestones[level_after_xp]?.unlocks?.recipes) {
                         unlocks.recipes.push(...this.milestones[level_after_xp].unlocks.recipes);
+                    }
+                    if(this.milestones[level_after_xp]?.unlocks?.quests) {
+                        unlocks.quests.push(...this.milestones[level_after_xp].unlocks.quests);
                     }
                 } //calculates lvl reached after adding xp
                 //probably could be done much more efficiently, but it shouldn't be a problem anyway
@@ -1616,7 +1619,13 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 },
                 xp_multipliers: {
                     "Breathing": 1.05,
-                }
+                },
+                unlocks: {
+                            quests: [
+                                "Swimming/climbing unlock",
+                                "Swimming alternative unlock"
+                            ]
+                        }
             }
         },
         get_effect_description: ()=> {
@@ -1689,7 +1698,13 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                     max_stamina: {
                         flat: 5
                     }
-                }
+                },
+                unlocks: {
+                            quests: [
+                                "Swimming/climbing unlock",
+                                "Swimming alternative unlock"
+                            ]
+                        }
             }
         },
         get_effect_description: ()=> {
@@ -1699,7 +1714,6 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     });
     skills["Swimming"] = new Skill({
         description: "A nice, gentle, and relaxing exercise. Just remember to be careful.",
-        flavour_text: "Do not swim when drunk",
         names: {0: "Swimming"},
         max_level: 50,
         category: "Activity",

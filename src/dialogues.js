@@ -269,7 +269,7 @@ class Textline {
                 is_unlocked: false,
                 locks_lines: ["more training"],
                 rewards: {
-                    activities: [{location:"Village", activity:"swimming"}, {location:"Nearby cave",activity:"climbing"}],
+                    global_activities: ["swimming", "climbing"],
                     actions: [{location: "Nearby cave", action: "climb the mountain"}],
                     locks: {
                         quests: ["Swimming alternative unlock"]
