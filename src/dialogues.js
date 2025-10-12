@@ -259,12 +259,21 @@ class Textline {
 
             "more training": new Textline({
                 name: "I think I went far enough with basic training, do you have any other suggestions?",
-                text: "You did? Well, let me think... You could try swimming in the river nearby if you haven't done that yet, just remember not to do it in cold weather. Or you could try some wall climbing, but be sure to start with low heights to be safe.",
+                getText: (context) => {
+                    if(context.season === "Winter") {
+                        return "You did? Well, let me think... Swimming in the river nearby would be a good exercise, but it's mostly frozen now in winter. You could try some wall climbing though, but be sure to start with low heights to be safe.";
+                    } else {
+                        return "You did? Well, let me think... You could try swimming in the river nearby if you haven't done that yet, just remember not to do it in cold weather. Or you could try some wall climbing, but be sure to start with low heights to be safe.";
+                    }
+                },
                 is_unlocked: false,
                 locks_lines: ["more training"],
                 rewards: {
                     activities: [{location:"Village", activity:"swimming"}, {location:"Nearby cave",activity:"climbing"}],
                     actions: [{location: "Nearby cave", action: "climb the mountain"}],
+                    locks: {
+                        quests: ["Swimming alternative unlock"]
+                    }
                 }
             })
         },

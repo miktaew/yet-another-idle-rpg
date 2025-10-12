@@ -105,8 +105,6 @@ const questManager = {
             if(!skip_rewards) {
                 process_rewards({rewards: quests[quest_id].quest_rewards, source_type: "Quest", source_name: quests[quest_id].getQuestName(), only_unlocks: only_unlocks});
             }
-        } else {
-            console.warn(`Cannot finish quest "${quest_id}", as it's not a currently active quest!`)
         }
     },
 
@@ -130,7 +128,10 @@ const questManager = {
 
     catchQuestEvent({quest_event_type, quest_event_target, quest_event_count, additional_quest_tags = {}}) {
         Object.keys(active_quests).forEach(active_quest_id => {
-
+            if(!(active_quest_id in active_quests)) {
+                //can happen if one quest deletes another
+                return;
+            }
             const current_task_index = active_quests[active_quest_id].quest_tasks.findIndex(task => !task.is_finished); //just get the first unfinished
             const current_task = active_quests[active_quest_id].quest_tasks[current_task_index];
 
@@ -294,7 +295,7 @@ const questManager = {
         is_hidden: true,
         quest_rewards: {
             activities: [{location:"Village", activity:"swimming"}],
-            messages: ["With all the training you have done so far, the idea of submerging yourself in the river passing by the village is really tempting"]
+            messages: ["With all the training you have done so far, the idea of submerging yourself in the river passing by the village is really tempting"],
         },
         quest_tasks: [
             new QuestTask({

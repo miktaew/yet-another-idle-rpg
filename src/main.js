@@ -1027,7 +1027,7 @@ function start_textline(textline_key){
     }
 
     start_dialogue(current_dialogue);
-    let text = textline.text;
+    let text = get_textline_answer(textline);
 
     //a very stupid easter egg that totally won't be annoying - 1% chance to have a random word in dialogue replaced with "rat" if your hero's name contains that word
     if(is_rat()) {
@@ -1040,6 +1040,14 @@ function start_textline(textline_key){
     }
 
     update_displayed_textline_answer({text: text});
+}
+
+
+function get_textline_answer(textline) {
+    return textline.getText({
+            season: current_game_time.getSeason(),
+            //to be expanded with more stuff when needed
+        });
 }
 
 function unlock_combat_stance(stance_id) {
