@@ -2146,7 +2146,7 @@ function create_location_choices({location, category, is_combat = false}) {
                 action.innerHTML = "Go back to [" + location.parent_location.name + "] [" + travel_time + "]";
             }
             action.setAttribute("data-travel", location.parent_location.id);
-            action.setAttribute("onclick", "{location_id: change_location(this.getAttribute('data-travel')});");
+            action.setAttribute("onclick", "change_location({location_id:this.getAttribute('data-travel')});");
 
             choice_list.push(action);
         }
@@ -2169,7 +2169,7 @@ function create_location_choices({location, category, is_combat = false}) {
             }
 
             action.setAttribute("data-travel", last_bed.name);
-            action.setAttribute("onclick", "{location_id: change_location(this.getAttribute('data-travel')});");
+            action.setAttribute("onclick", "change_location({location_id:this.getAttribute('data-travel')});");
     
             choice_list.push(action);
         }
@@ -2191,7 +2191,7 @@ function create_location_choices({location, category, is_combat = false}) {
             
             action.classList.add("action_travel");
             action.setAttribute("data-travel", available_challenges[i].location.id);
-            action.setAttribute("onclick", "{location_id: change_location(this.getAttribute('data-travel')});");
+            action.setAttribute("onclick", "change_location({location_id:this.getAttribute('data-travel')});");
     
             choice_list.push(action);
         }
@@ -2269,7 +2269,7 @@ function create_fast_travel_choices() {
             
             action.classList.add("action_travel", "location_choice");
             action.setAttribute("data-travel", locations[available_fast_travel[i]].name);
-            action.setAttribute("onclick", "{location_id: change_location(this.getAttribute('data-travel'), event});");
+            action.setAttribute("onclick", "change_location({location_id:this.getAttribute('data-travel'), event});");
         } else {            
             action.classList.add("travel_combat");
             
