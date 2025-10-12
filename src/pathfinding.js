@@ -131,7 +131,10 @@ class Pathfinder {
             const [, loc1] = priority_queue.shift_from_queue();
             if(this.adjacent[loc1]) { //a minor check for that singular case of having only 1 location, therefore no adjacents, which would throw an error in next line
                 for(const [loc2, weight] of this.adjacent[loc1]) {
-                    
+
+                    if(distance[loc1] == undefined) distance[loc1] = Infinity;
+                    if(distance[loc2] == undefined) distance[loc2] = Infinity;
+
                     if(distance[loc2] > distance[loc1] + weight) {
                         distance[loc2] = distance[loc1] + weight;
                         priority_queue.add_to_queue([distance[loc2], loc2]);
