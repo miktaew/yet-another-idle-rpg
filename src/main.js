@@ -1058,7 +1058,11 @@ function start_textline(textline_key){
     update_displayed_textline_answer({text: text});
 }
 
-
+/**
+ * Attaches some context to textline's .getText()
+ * @param {Textline} textline 
+ * @returns textline answer
+ */
 function get_textline_answer(textline) {
     return textline.getText({
             season: current_game_time.getSeason(),
