@@ -4836,7 +4836,7 @@ function create_displayed_quest_task(quest_id, task_index) {
 
 function update_displayed_quest_task(quest_id, task_index) {
     const quest = quests[quest_id];
-    if(quest.quest_tasks[task_index].is_hidden) {
+    if(quest.quest_tasks[task_index].is_hidden || quest.is_hidden) {
         return;
     }
 

@@ -218,7 +218,9 @@ const questManager = {
             if(is_any_met && is_all_met) { //completed
                 this.finishQuestTask({quest_id: active_quest_id, task_index: current_task_index});
             } else {
-                update_displayed_quest_task(active_quest_id, current_task_index);
+                if(!active_quests[active_quest_id].is_hidden && !active_quests[active_quest_id].quest_tasks[current_task_index.is_hidden]) {
+                    update_displayed_quest_task(active_quest_id, current_task_index);
+                }
             }
 
             const remaining_tasks = active_quests[active_quest_id].quest_tasks.filter(task => !task.is_finished);
