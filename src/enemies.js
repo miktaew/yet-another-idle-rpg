@@ -1,13 +1,14 @@
 "use strict";
 
-import { skills } from "./skills.js"
 import { get_total_skill_coefficient } from "./character.js";
 
 let enemy_templates = {};
 let enemy_killcount = {};
 //enemy templates; locations create new enemies based on them
 
-const enemy_tags = {};
+const droprate_modifier_skills_for_tags = {
+    "beast": "Butchering",
+}
 
 class Enemy {
     constructor({
@@ -35,7 +36,6 @@ class Enemy {
         this.tags = {};
         for(let i = 0; i <tags.length; i++) {
             this.tags[tags[i]] = true;
-            enemy_tags[tags[i]] = true;
         }
         this.tags[size] = true;
 
@@ -78,9 +78,11 @@ class Enemy {
     get_droprate_modifier(drop_chance_modifier = 1) {
         let droprate_modifier = 1 * drop_chance_modifier;
 
-        if (this.tags["beast"]) {
-            droprate_modifier *= get_total_skill_coefficient({ skill_id: "Butchering", scaling_type: "multiplicative" });
-        }
+        Object.keys(this.tags).forEach(tag => {
+            if(droprate_modifier_skills_for_tags[tag]) {
+                droprate_modifier *= get_total_skill_coefficient({ skill_id: droprate_modifier_skills_for_tags[tag], scaling_type: "multiplicative" });
+            }
+        });
 
         return droprate_modifier;
     }
@@ -342,4 +344,4 @@ class Enemy {
     });
 })()
 
-export {Enemy, enemy_templates, enemy_killcount, enemy_tags};
+export {Enemy, enemy_templates, enemy_killcount};
