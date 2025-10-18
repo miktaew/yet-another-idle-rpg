@@ -40,7 +40,24 @@
     <body onload = "prepareGame()">
 
         <div id = "loading_screen">
-            LOADING
+            <div id = "loading_screen_game_title">
+                Yet Another Idle RPG
+            </div>
+            <div id = "loading_screen_loading_text">
+                LOADING
+            </div>
+            <div id = "loading_screen_loading_progress">
+                
+            </div>
+            <div id ="loading_screen_version_info">
+
+            </div>
+            <div id ="loading_screen_status" class="loading_screen_status_good">
+                No issues in the loading process :)
+            </div>
+            <div id ="loading_screen_play_button" class="none_display">
+                PLAY
+            </div>
         </div>
 
         <div id = "main_content">
@@ -941,7 +958,7 @@
 
         <div id = "bottom_panel_div" data-nosnippet>
             <div id = "save_button" class = "sl_button" onclick = "saveProgress()"> Save </div>
-            <div id = "save_to_file_button" class = "sl_button" onclick = "saveToFile()"> Export <div id= "export_button_tooltip"></div></div>
+            <div id = "save_to_file_button" class = "sl_button" onclick = "saveToFile()"> Export <div id= "export_button_tooltip">Reward not available</div></div>
             <label id = "load_from_file_button" class = "sl_button" for = "saved_file_input"> Import </label> 
             <input id = "saved_file_input" type='file' accept = 'text/plain' onchange = 'loadProgress(event)'>	
 
@@ -984,6 +1001,10 @@
                 <div class="options_choice">
                     <input type="checkbox" id="options_do_background_animations" name="options_do_background_animations" value="options_do_background_animations" onclick = "option_do_background_animations()">
                     <label for="options_do_background_animations">Enable rain/snow/stars animations</label>
+                </div>
+                <div class="options_choice">
+                    <input type="checkbox" id="options_skip_play_button" name="options_skip_play_button" value="options_skip_play_button" onclick = "option_skip_play_button()">
+                    <label for="options_skip_play_button">Automatically continue from the loading screen</label>
                 </div>
 
             </div>

@@ -117,13 +117,96 @@ input[type=checkbox], input[type=radio] {
 	position: absolute;
 	top: 0px;
 	left: 0px;
-	font-size: 150px;
-	background-color: #1c1c4b;
-
+	background-image: linear-gradient(to bottom right,  #641860, #2e154b 50%, #15152d);
 	display: flex;
 	justify-content: center;
-	align-items: center;
 }
+
+	#loading_screen_game_title {
+		width: 100%;
+		font-size:600%;
+		font-family:'Ink Free';
+		font-weight: bold;
+		display: flex;
+		position: absolute;
+		justify-content: center;
+		top: 20%;
+	}
+	#loading_screen_loading_text {
+		width: auto;
+		margin-left: auto;
+		margin-right: auto;
+		font-size: 50px;
+		display: flex;
+		position: absolute;
+		justify-content: center;
+		top: 34%;
+		border-bottom: 1px solid gray;
+	}
+
+	#loading_screen_loading_progress {
+		width: 100%;
+		font-size: 25px;
+		top: 42%;
+		display: inline-block;
+		position: absolute;
+		text-align: center;
+	}
+
+	#loading_screen_version_info {
+		width: fit-content;
+		font-size: 20px;
+		height: 40%;
+		top: 50%;
+		left: 10%;
+		display: inline-block;
+		position: absolute;
+	}
+
+	#loading_screen_play_button {
+		width: 200px;
+		font-size: 60px;
+		height: fit-content;
+		top: 50%;
+		margin-left: auto;
+		margin-right: auto;
+		display: inline-block;
+		position: absolute;
+		text-align: center;
+		border: 1px solid gray;
+	}
+
+	#loading_screen_play_button:hover {
+		background-color: var(--active_button_color);
+	}
+
+	#loading_screen_status {
+		max-width: 500px;
+		width: fit-content;
+		padding: 10px;
+		font-size: 20px;
+		height: fit-content;
+		top: 50%;
+		right: 10%;
+		display: block;
+		position: absolute;
+		border: 3px double gray;
+		font-weight: bold;
+	}
+
+	.loading_screen_status_good {
+		background-color: rgb(0, 128, 0, 0.5);
+	}
+
+	.loading_screen_status_errors {
+		color: rgb(255, 73, 73, 0.5);
+		background-color: black;
+	}
+	
+	.loading_screen_status_warnings {
+		color: rgba(255, 230, 0, 0.555);
+		background-color: black;
+	}
 
 #background_canvas {
 	position: absolute;
@@ -149,6 +232,52 @@ input[type=checkbox], input[type=radio] {
 	background-image: var(--background_gradient);
 	border: 3px solid #797691;
 	position: absolute;
+}
+
+.top_border {
+	border-top: 1px solid gray;
+}
+
+.hidden {
+	visibility: hidden;
+}
+
+.none_display {
+	display: none;
+}
+
+.fade_in {
+	opacity: 1;
+	animation-name: fadeIn;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-out;
+	animation-duration: 1s;
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+.fade {
+	opacity: 0;
+	animation-name: fadeOut;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-out;
+	animation-duration: 1s;
+}
+
+@keyframes fadeOut {
+	0% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
 }
 
 .message_common { 
@@ -462,10 +591,17 @@ input[type=checkbox], input[type=radio] {
 	padding: 5px;
 	position: absolute;
 	z-index: 1000;
-	width: 210px;
 	pointer-events: none;
 	font-size: 14px;
 	border: 1px solid white;
+}
+
+.item_tooltip, .job_tooltip, .location_tooltip, .recipe_tooltip {
+	width: 210px;
+}
+
+#export_button_tooltip {
+	width: fit-content;
 }
 
 .recipe_tooltip {

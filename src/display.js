@@ -20,7 +20,7 @@ import { format_time, current_game_time, seasons } from "./game_time.js";
 import { book_stats, item_templates, Weapon, Armor, Shield, rarity_multipliers, getItemRarity, getItemFromKey } from "./items.js";
 import { favourite_locations, get_location_type_penalty, location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_templates } from "./enemies.js";
-import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price, format_working_time, task_type_names, celsius_to_fahrenheit } from "./misc.js"
+import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price, format_working_time, task_type_names, celsius_to_fahrenheit, is_a_older_than_b } from "./misc.js"
 //import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { effect_templates } from "./active_effects.js";
@@ -28,6 +28,7 @@ import { player_storage } from "./storage.js";
 import { quests } from "./quests.js";
 import { get_current_temperature_smoothed, is_raining } from "./weather.js";
 import { PointyStarParticle, RainParticle, SnowParticle } from "./particles.js";
+import { get_game_version } from "./game_version.js";
 let activity_anim; //for the activity and locationAction animation interval
 
 let location_choice_divs = {}; //for dropdowns
@@ -175,6 +176,8 @@ const crafting_pages = {}
 
 let selected_crafting_category;
 let selected_crafting_subcategory;
+
+const loading_progress_div = document.getElementById("loading_screen_loading_progress");
 
 const backup_load_button = document.getElementById("backup_load_button");
 const other_save_load_button = document.getElementById("import_other_save_button");
@@ -4980,6 +4983,53 @@ function update_other_save_load_button(date_string, is_dev) {
     
 }
 
+function hide_loading_screen() {
+    document.getElementById("loading_screen").style.visibility = "hidden";
+}
+
+function set_loading_screen_versions(save_version) {
+    const loading_screen = document.getElementById("loading_screen_version_info");
+    const current_version = get_game_version();
+    loading_screen.innerHTML = 
+    `Save game version: ${save_version}<br>
+ Current game version: ${current_version}<br>`;
+    if(save_version === current_version) {
+        loading_screen.innerHTML += "<div class='top_border'>No changes since the last time you played~</div>"
+    } else if(is_a_older_than_b(save_version, current_version)) {
+        loading_screen.innerHTML += "<div class='top_border'>Game has been updated since the last time you played, check the changelog for more details</div>";
+    } else {
+        loading_screen.innerHTML += "<div class='top_border'>Your save is from a newer version of the game. Continuing is likely to lead to multiple issues!</div>";
+    }
+}
+
+function set_loading_screen_progress(message) {
+    loading_progress_div.innerHTML = message;
+}
+
+function hide_loading_text() {
+    document.getElementById("loading_screen_loading_text").classList.add("fade");
+}
+
+function set_loading_screen_errors_warning() {
+    const loading_screen_errors_field = document.getElementById("loading_screen_status");
+    loading_screen_errors_field.classList.remove('loading_screen_status_warnings');
+    loading_screen_errors_field.classList.add('loading_screen_status_errors');
+
+    loading_screen_errors_field.innerHTML = 'An error has occured on loading! Please open the browser console to check for details and then let the developer know!';
+}
+
+function set_loading_screen_warnings_warning() {
+    const loading_screen_errors_field = document.getElementById("loading_screen_status");
+    loading_screen_errors_field.classList.add('loading_screen_status_warnings');
+    loading_screen_errors_field.innerHTML = "A potential issue has occured on loading. Please open the browser console to check for details.";
+}
+
+function show_play_button() {
+    const play_button = document.getElementById("loading_screen_play_button");
+    play_button.classList.remove("none_display");
+    play_button.classList.add("fade_in");
+}
+
 /**
  * Toggles a specificed class for target 'element', removing it from any other element that might have had it.
  * If 'siblings_only' is true, class will be removed only from siblings
@@ -5014,36 +5064,22 @@ function is_element_above_x(element, x) {
 }
 
 export {
-    start_activity_animation,
-    end_activity_animation,
-    update_displayed_trader,
-    update_displayed_trader_inventory,
-    update_displayed_character_inventory,
-    sort_displayed_inventory,
+    start_activity_animation, end_activity_animation,
+    update_displayed_trader, update_displayed_trader_inventory, update_displayed_character_inventory, sort_displayed_inventory,
     create_item_tooltip,
     update_displayed_money,
     log_message,
     clear_action_div,
-    update_displayed_enemies,
-    update_displayed_health_of_enemies,
-    update_displayed_normal_location,
-    update_displayed_combat_location,
+    update_displayed_enemies, update_displayed_health_of_enemies, update_displayed_normal_location, update_displayed_combat_location,
     log_loot,
-    update_displayed_equipment,
-    update_displayed_health,
-    update_displayed_stamina,
-    update_displayed_stats,
-    update_displayed_effects,
-    update_displayed_effect_durations,
+    update_displayed_equipment, update_displayed_health, update_displayed_stamina, update_displayed_stats, update_displayed_effects, update_displayed_effect_durations,
     capitalize_first_letter,
     format_money,
     update_displayed_time, update_displayed_temperature,
     update_displayed_character_xp,
-    update_displayed_dialogue,
-    update_displayed_textline_answer,
+    update_displayed_dialogue, update_displayed_textline_answer,
     exit_displayed_trade,
-    start_activity_display,
-    start_sleeping_display,
+    start_activity_display, start_sleeping_display,
     create_new_skill_bar, update_displayed_skill_bar, update_displayed_skill_description, update_displayed_skill_level,
     update_displayed_skill_xp_gain,
     update_all_displayed_skills_xp_gain,
@@ -5059,12 +5095,8 @@ export {
     clear_bestiary,
     start_reading_display,
     sort_displayed_skills,
-    update_displayed_xp_bonuses,
-    update_displayed_stance_list,
-    update_displayed_stamina_efficiency,
-    update_displayed_stance,
-    update_displayed_faved_stances,
-    update_stance_tooltip,
+    update_displayed_xp_bonuses, update_displayed_stance_list, update_displayed_stamina_efficiency, 
+    update_displayed_stance, update_displayed_faved_stances, update_stance_tooltip,
     update_gathering_tooltip,
     update_displayed_location_types,
     open_crafting_window, close_crafting_window,
@@ -5087,5 +5119,6 @@ export {
     update_displayed_total_price,
     skill_category_order,
     update_export_button_tooltip,
-    update_displayed_reputation
+    update_displayed_reputation,
+    hide_loading_screen, set_loading_screen_versions, set_loading_screen_errors_warning, set_loading_screen_progress, hide_loading_text, show_play_button, set_loading_screen_warnings_warning
 }
