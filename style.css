@@ -114,7 +114,7 @@ input[type=checkbox], input[type=radio] {
 	width: 100%;
 	height: 100%;
 	z-index: 10;
-	position: absolute;
+	position: fixed;
 	top: 0px;
 	left: 0px;
 	background-image: linear-gradient(to bottom right,  #641860, #2e154b 50%, #15152d);
@@ -123,55 +123,46 @@ input[type=checkbox], input[type=radio] {
 }
 
 	#loading_screen_game_title {
-		width: 100%;
-		font-size:600%;
+		width: 910px;
+		font-size: 600%;
 		font-family:'Ink Free';
 		font-weight: bold;
-		display: flex;
-		position: absolute;
+		position: fixed;
 		justify-content: center;
-		top: 20%;
+		top: 200px;
 	}
 	#loading_screen_loading_text {
-		width: auto;
-		margin-left: auto;
-		margin-right: auto;
+		width: fit-content;
+		height: fit-content;
 		font-size: 50px;
-		display: flex;
-		position: absolute;
-		justify-content: center;
-		top: 34%;
+		position: fixed;
+		top: 320px;
 		border-bottom: 1px solid gray;
 	}
 
 	#loading_screen_loading_progress {
 		width: 100%;
 		font-size: 25px;
-		top: 42%;
-		display: inline-block;
-		position: absolute;
+		top: 390px;
+		position: fixed;
 		text-align: center;
 	}
 
 	#loading_screen_version_info {
 		width: fit-content;
+		max-width: 420px;
 		font-size: 20px;
-		height: 40%;
-		top: 50%;
-		left: 10%;
-		display: inline-block;
-		position: absolute;
+		top: 470px;
+		left: -170px;
+		position: relative;
 	}
 
 	#loading_screen_play_button {
 		width: 200px;
 		font-size: 60px;
 		height: fit-content;
-		top: 50%;
-		margin-left: auto;
-		margin-right: auto;
-		display: inline-block;
-		position: absolute;
+		top: 470px;;
+		position: fixed;
 		text-align: center;
 		border: 1px solid gray;
 	}
@@ -182,14 +173,13 @@ input[type=checkbox], input[type=radio] {
 
 	#loading_screen_status {
 		max-width: 500px;
-		width: fit-content;
+		min-width: fit-content;
 		padding: 10px;
 		font-size: 20px;
 		height: fit-content;
-		top: 50%;
-		right: 10%;
-		display: block;
-		position: absolute;
+		top: 470px;
+		left: 100px;
+		position: relative;
 		border: 3px double gray;
 		font-weight: bold;
 	}
