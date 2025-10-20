@@ -4887,6 +4887,8 @@ set_loading_screen_progress("Waking up from a nyap...");
 play_button.addEventListener("click", run);
 play_button.addEventListener("click", hide_loading_screen);
 
+
+//check if there's an existing save file, otherwise just do some initial setup
 if(save_key in localStorage || (is_on_dev() && dev_save_key in localStorage)) {
     load_from_localstorage();
     update_character_stats();
@@ -4909,7 +4911,7 @@ if(save_key in localStorage || (is_on_dev() && dev_save_key in localStorage)) {
     change_location({location_id: "Village", skip_travel_time: true});
     questManager.startQuest({quest_id: "Lost memory"});
 
-} //checks if there's an existing save file, otherwise just sets up some initial equipment
+}
 
 hide_loading_text();
 show_play_button();
