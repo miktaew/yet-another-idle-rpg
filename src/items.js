@@ -1342,6 +1342,13 @@ book_stats["A Glint On The Sand"] = new BookData({
         material_type: "healing herb",
     });
 
+    item_templates["Cooking herbs"] = new Material({
+        name: "Parsley, Sage, Rosemary and Thyme",
+        description: "A collection of various herbs commonly used to enhance the flavour and nutrition of dishes.",
+        value: 10,
+        material_type: "culinary herb",
+    });
+
     item_templates["Wool"] = new Material({
         name: "Wool",
         description: "A handful of wool, raw and unprocessed",
@@ -3233,6 +3240,23 @@ book_stats["A Glint On The Sand"] = new BookData({
         description: "It has a nice aroma, but is a bit too tough. Perhaps a stew would have been a better choice?",
         value: 40,
         effects: [{effect: "Simple meat meal", duration: 90}],
+        tags: {"food": true},
+    });
+
+    item_templates["Pork roast"] = new UsableItem({
+        name: "Pork roast",
+        description: "A generous amount of herbs has been rubbed into the meat, resulting in a hearty meal with a mouthwatering aroma.",
+        value: 100,
+        effects: [{effect: "Decent meat meal", duration: 120}],
+        tags: {"food": true},
+    });
+
+    item_templates["Goat stew"] = new UsableItem({
+        name: "Goat stew",
+        description: "Goat meat boiled to tenderness in a herbal broth. Perfect to warm yourself up for the road.",
+        value: 100,
+        effects: [{ effect: "Decent meat meal", duration: 120 },
+                  { effect: "Hot meal", duration: 60 }],
         tags: {"food": true},
     });
 

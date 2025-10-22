@@ -511,6 +511,7 @@ class Textline {
                 locks_lines: ["defeated gang"],
                 rewards: {
                     textlines: [{dialogue: "suspicious man", lines: ["tricks"]}],
+                    dialogues: ["old woman of the slums"]
                 }
             }),
             "behave 2": new Textline({ 
@@ -524,6 +525,7 @@ class Textline {
                 text: "Of course boss!",
                 rewards: {
                     textlines: [{dialogue: "suspicious man", lines: ["tricks"]}],
+                    dialogues: ["old woman of the slums"]
                 }
             }),
             "tricks": new Textline({ 
@@ -531,12 +533,47 @@ class Textline {
                 is_unlocked: false,
                 text: "Sure, boss! So, it's really about focusing on your legs to either jump away faster or to better brace the shield, and... <strong>He continues explaining for a while</strong>",
                 rewards: {
-                    stances: ["defensive"],
+                    stances: ["defensive"]
                 }
             }),
         }, 
         description: "You see a man in shabby clothes and with messy hair, who keeps looking around. He appears to have multiple nervous ticks."
     });
+
+    dialogues["old woman of the slums"] = new Dialogue({
+        name: "old woman of the slums",
+        is_unlocked: false,
+        textlines: {
+            "hello": new Textline({
+                name: "[Let her approach you.]",
+                text: "Hello young warrior. I understand it is you who we have to thank for freeing us from those thugs. Few these days have the gumption, and even fewer the strength to take them on. Well done! Such heroism deserves a reward, and while none of us have much to offer as you can see, but the least I can do is make sure our hero doesn't go hungry. Would you care to join me for dinner?",
+                locks_lines: ["hello"],
+                rewards: {
+                    textlines: [{dialogue: "old woman of the slums", lines: ["dinner"]}],
+                }
+            }),
+            "dinner": new Textline({
+                name: "[Accept the offer.]",
+                is_unlocked: false,
+                text: "[You join the woman in her shack for a humble, yet satisfying meal. While the main ingredients are simple, they are well flavoured and garnished with herbs.]",
+                locks_lines: ["dinner"],
+                rewards: {
+                    textlines: [{dialogue: "old woman of the slums", lines: ["ingredients"]}],
+                }
+            }),
+            "ingredients": new Textline({
+                name: "[Compliment the food and ask where she gets ingredients.]",
+                is_unlocked: false,
+                text: "Surprised? Live here long enough, and you learn how to get by without a lot of pricey things. No, I'm not talking about stealing - I may be poor, but I still have my pride! No, I'm talking about the plants that grow all around. Most people pass them by, without realizing how useful they can be. Ha! Maybe there IS another way I can reward you! I can teach you what to look for, if you're interested.",
+                locks_lines: ["ingredients"],
+                rewards: {
+                    activities: [{location: "Town outskirts", activity: "herbalism"}],
+                }
+            }),
+        },
+        description: "With some safety returned to the area, more folk are now out on the streets. One of them, an elderly woman, is looking at you."
+    });
+
     dialogues["farm supervisor"] = new Dialogue({
         name: "farm supervisor",
         textlines: {
