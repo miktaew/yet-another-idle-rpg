@@ -100,6 +100,7 @@ class Item {
                 tags = {},
                 market_saturation_group,
                 saturates_market,
+                material_type = null,
                 quality = null,
                 id = null, //passed only on loading, no need to provide it when creating new item objects as it will be filled automatically in that case
                 components = null,
@@ -113,6 +114,8 @@ class Item {
         this.id = id;
         this.description = description;
         this.saturates_market = saturates_market ?? true;
+
+        this.material_type = material_type;
 
         this.quality = quality;
         this.components = components; //meaningless unless it's an equippable that's /meant/ to have components
@@ -229,7 +232,6 @@ class Material extends OtherItem {
     constructor(item_data) {
         super(item_data);
         this.item_type = "MATERIAL";
-        this.material_type = item_data.material_type;
         this.tags["material"] = true;
     }
 }
@@ -1077,6 +1079,7 @@ book_stats["A Glint On The Sand"] = new BookData({
             {category: "alchemy", subcategory: "items", recipe_id: "Potash"},
             {category: "smelting", subcategory: "items", recipe_id: "Raw Glass"},
             {category: "crafting", subcategory: "items", recipe_id: "Glass phial"},
+            {category: "crafting", subcategory: "items", recipe_id: "Glass bottle"},
         ],
         activities: [{location: "Village", activity: "sand"}]
     }
@@ -1158,6 +1161,12 @@ book_stats["A Glint On The Sand"] = new BookData({
         name: "Glass phial", 
         description: "Small glass phial, a perfect container for a potion", 
         value: 10,
+    });
+
+    item_templates["Glass bottle"] = new OtherItem({
+        name: "Glass bottle", 
+        description: "A glass bottle, perfect for carrying a drink around", 
+        value: 20,
     });
 
     item_templates["Camping supplies"] = new OtherItem({
@@ -3106,6 +3115,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         value: 20,
         effects: [{effect: "Basic meal", duration: 60}],
         tags: {"food": true},
+        material_type: "bread",
     });
 
     item_templates["Fresh bread"] = new UsableItem({
@@ -3114,6 +3124,16 @@ book_stats["A Glint On The Sand"] = new BookData({
         value: 40,
         effects: [{effect: "Basic meal", duration: 150}],
         tags: {"food": true},
+        material_type: "bread",
+    });
+
+    item_templates["Bread kwas"] = new UsableItem({
+        name: "Bread kwas", 
+        description: "Tastes like bread", 
+        value: 40,
+        effects: [{effect: "Well hydrated", duration: 60}],
+        recovery_chances: {"Glass bottle": 0.6},
+        tags: {"drink": true},
     });
 
     item_templates["Carrot"] = new UsableItem({

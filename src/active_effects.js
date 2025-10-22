@@ -114,6 +114,16 @@ class ActiveEffect {
         tags: {"buff": true},
     });
 
+    effect_templates["Well hydrated"] = new ActiveEffect({
+        name: "Well hydrated",
+        effects: {
+            stats: {
+                stamina_regeneration_flat: {flat: 1},
+            }
+        },
+        tags: {"buff": true},
+    });
+
     effect_templates["Weak healing powder"] = new ActiveEffect({
         name: "Weak healing powder",
         effects: {

@@ -206,6 +206,7 @@ class TradeItem {
             new TradeItem({item_name: "Rat pelt cape", count: [1,3], chance: 1, quality: [70, 120]}),
 
             new TradeItem({item_name: "Stale bread", count: [4,10]}),
+            new TradeItem({item_name: "Bread kwas", count: [1], chance: 0.6}),
             new TradeItem({item_name: "Fresh bread", count: [2,5]}),
             new TradeItem({item_name: "Weak healing powder", count: [2,5]}),
 
@@ -217,6 +218,7 @@ class TradeItem {
             new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 0.2}),
             
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
+            new TradeItem({item_name: "Glass bottle", count: [4,8], chance: 1}),
 
             new TradeItem({item_name: "Camping supplies", count: [1], chance: 1}),
             new TradeItem({item_name: "Coil of rope", count: [1], chance: 1}),
@@ -279,6 +281,7 @@ class TradeItem {
             
             new TradeItem({item_name: "Stale bread", count: [4,10]}),
             new TradeItem({item_name: "Fresh bread", count: [2,5]}),
+            new TradeItem({item_name: "Bread kwas", count: [1,3]}),
             new TradeItem({item_name: "Weak healing powder", count: [2,5]}),
             new TradeItem({item_name: "Oneberry juice", count: [2,5]}),
 
@@ -289,6 +292,7 @@ class TradeItem {
             new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 0.4}),
 
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
+            new TradeItem({item_name: "Glass bottle", count: [4,8], chance: 1}),
 
             new TradeItem({item_name: "Camping supplies", count: [1], chance: 1}),
             new TradeItem({item_name: "Coil of rope", count: [1], chance: 1}),
@@ -357,6 +361,7 @@ class TradeItem {
         
         
         new TradeItem({item_name: "Fresh bread", count: [4,10]}),
+        new TradeItem({item_name: "Bread kwas", count: [2,5]}),
         new TradeItem({item_name: "Weak healing powder", count: [2,5]}),
         new TradeItem({item_name: "Oneberry juice", count: [2,5]}),
         new TradeItem({item_name: "Healing powder", count: [2,5]}),
@@ -369,6 +374,7 @@ class TradeItem {
         new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 0.4}),
 
         new TradeItem({item_name: "Glass phial", count: [10,16], chance: 1}),
+        new TradeItem({item_name: "Glass bottle", count: [6,12], chance: 1}),
 
         new TradeItem({item_name: "Camping supplies", count: [1], chance: 1}),
         new TradeItem({item_name: "Coil of rope", count: [1], chance: 1}),

@@ -870,6 +870,17 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_skill: "Crafting",
     });
 
+    crafting_recipes.items["Glass bottle"] = new ItemRecipe({
+        name: "Glass bottle",
+        is_unlocked: false,
+        recipe_type: "material",
+        materials: [{ material_id: "Raw Glass", count: 3}], 
+        result: {result_id: "Glass bottle", count: 1},
+        success_chance: [0.1,1],
+        recipe_level: [15,25],
+        recipe_skill: "Crafting",
+    });
+
     forging_recipes.items["Iron chainmail"] = new ItemRecipe({
         name: "Iron chainmail",
         recipe_type: "material",
@@ -1077,6 +1088,18 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [10,15],
         recipe_skill: "Cooking",
     });
+    cooking_recipes.items["Bread kwas"] = new ItemRecipe({
+        name: "Bread kwas",
+        recipe_type: "usable",
+        materials: [{material_type: "bread", count: 2}, 
+                    {material_id: "Glass bottle", count: 1}
+                ], 
+        result: {result_id: "Bread kwas", count: 1},
+        success_chance: [0.3,1],
+        recipe_level: [10,15],
+        recipe_skill: "Cooking",
+    });
+    
     alchemy_recipes.items["Weak healing powder"] = new ItemRecipe({
         name: "Weak healing powder",
         recipe_type: "usable",
