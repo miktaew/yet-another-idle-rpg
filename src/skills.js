@@ -724,7 +724,7 @@ Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
                                             names: {0: "Spatial awareness"}, 
                                             description: "Understanding where you are in relation to other creatures and objects", 
                                             get_effect_description: ()=> {
-                                                return `Reduces environmental penalty in open areas by ^${Math.round(100-100*get_total_skill_level("Spatial awareness")/skills["Spatial awareness"].max_level)/100}`;
+                                                return `Reduces environmental penalty in open areas.`;
                                             },
                                             category: "Environmental",
                                             milestones: {
@@ -769,7 +769,7 @@ Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
                                         description: "Learn how to fight in narrow environment, where there's not much space for dodging attacks", 
                                         category: "Environmental",
                                         get_effect_description: ()=> {
-                                            return `Reduces environmental penalty in narrow areas by ^${Math.round(100-100*get_total_skill_level("Tight maneuvers")/skills["Tight maneuvers"].max_level)/100}`;
+                                            return `Reduces environmental penalty in narrow areas.`;
                                         },
                                         milestones: {
                                             3: {
@@ -806,7 +806,7 @@ Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
                                     max_level: 10,
                                     category: "Environmental",
                                     get_effect_description: () => {
-                                        return `Reduces darkness penalty (except for 'pure darkness') by ^${Math.round(100-100*get_total_skill_level("Night vision")/skills["Night vision"].max_level)/100}`;
+                                        return `Reduces environmental penalty in dark areas (except for 'pure darkness').`;
                                     },
                                     milestones: {
                                         2: {
@@ -863,7 +863,7 @@ Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
                 max_level: 20,
                 category: "Environmental",
                 get_effect_description: () => {
-                    return `Reduces extreme darkness penalty by ^${Math.round(100-100*get_total_skill_level("Presence sensing")/skills["Presence sensing"].max_level)/100}`;
+                    return `Reduces environmental penalty in extremly dark areas.`;
                 },
                 milestones: {
                     1: {
@@ -934,7 +934,7 @@ Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
         max_level: 40,
         xp_scaling: 1.7,
         get_effect_description: ()=> {
-            return `Reduces eldritch effects by ^${Math.round(100-100*get_total_skill_level("Strength of mind")/skills["Strength of mind"].max_level)/100}`;
+            return `Reduces eldritch effects`;
         },
         milestones: {
             1: {
@@ -1001,9 +1001,6 @@ Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
         base_xp_cost: 100,
         max_level: 40,
         category: "Environmental",
-        get_effect_description: () => {
-            return `Reduces penalty from hot locations`;
-        }
     });
     skills["Cold resistance"] = new Skill({
         names: {0: "Cold resistance"},
@@ -1011,9 +1008,6 @@ Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
         base_xp_cost: 100,
         max_level: 40,
         category: "Environmental",
-        get_effect_description: () => {
-            return `Reduces penalty from cold locations`;
-        }
     });
 
     skills["Dazzle resistance"] = new Skill({
@@ -2478,7 +2472,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         },
         get_effect_description: ()=> {
             let value = get_total_skill_coefficient({skill_id:"Breathing",scaling_type:"multiplicative"});
-            return `Multiplies strength, agility and stamina by ${Math.round(value*100)/100}. Reduces thin air effects by ^${Math.round(100-100*get_total_skill_level("Breathing")/skills["Breathing"].max_level)/100}`;
+            return `Multiplies strength, agility and stamina by ${Math.round(value*100)/100}. Reduces thin air effects.`;
           },
     });  
     skills["Regeneration"] = new Skill({

@@ -639,8 +639,9 @@ class LocationAction{
 }
 
 class LocationType{
-    constructor({name, related_skill, stages = {}}) {
+    constructor({name, related_skill, scaling_lvl, stages = {}}) {
         this.name = name;
+        this.scaling_lvl = scaling_lvl;
 
         if(related_skill) {
             if(!skills[related_skill]) {
@@ -668,14 +669,16 @@ function get_location_type_penalty(type, stage, stat, category) {
 
     //maybe give all stages a range of skill lvls where they start scaling and where they get fully nullified?
 
+    const scaling_lvl = location_types[type].stages[stage].scaling_lvl || skill.max_level;
+
     if(category === "multiplier") {
         const base = location_types[type].stages[stage].effects[stat].multiplier;
     
-        return base**(1- get_total_skill_level(skill.skill_id)/skill.max_level);
+        return base**(1- get_total_skill_level(skill.skill_id)/scaling_lvl);
     } else if(category === "flat") {
         const base = location_types[type].stages[stage].effects[stat].flat;
 
-        return base*(1-get_total_skill_level(skill.skill_id)/skill.max_level)**0.66667;
+        return base*(1-get_total_skill_level(skill.skill_id)/scaling_lvl)**0.66667;
     } else {
         throw new Error(`Unsupported category of stat effects "${category}", should be either "flat" or "multiplier"!`);
     }
@@ -741,6 +744,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             1: {
                 description: "A narrow area where there's not much place for maneuvering",
                 related_skill: "Tight maneuvers",
+                scaling_lvl: 30,
                 effects: {
                     evasion_points: {multiplier: 0.5},
                 }
@@ -760,6 +764,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             1: {
                 description: "A completely open area where attacks can come from any direction",
                 related_skill: "Spatial awareness",
+                scaling_lvl: 30,
                 effects: {
                     evasion_points: {multiplier:  0.75},
                 }
@@ -773,74 +778,13 @@ function get_location_type_penalty(type, stage, stat, category) {
             }
         }
     });
-    location_types["hot"] = new LocationType({
-        name: "hot",
-        stages: {
-            1: {
-                description: "High temperature makes it hard to breath",
-                related_skill: "Heat resistance",
-                effects: {
-                    attack_points: {multiplier: 0.5},
-                    evasion_points: {multiplier: 0.5},
-                    stamina: {multiplier: 0.8},
-                }
-            },
-            2: {
-                description: "It's so hot that just being here is painful",
-                related_skill: "Heat resistance",
-                effects: {
-                    attack_points: {multiplier: 0.3},
-                    evasion_points: {multiplier: 0.3},
-                    stamina: {multiplier: 0.5},
-                }
-            },
-            3: {
-                description: "Temperature so high that wood ignites by itself",
-                related_skill: "Heat resistance",
-                effects: {
-                    attack_points: {multiplier: 0.1},
-                    evasion_points: {multiplier: 0.1},
-                    stamina: {multiplier: 0.3},
-                }
-            }
-        }
-    });
-    location_types["cold"] = new LocationType({
-        name: "cold",
-        stages: {
-            1: {
-                description: "Cold makes your energy seep out...",
-                related_skill: "Cold resistance",
-                effects: {
-                    stamina: {multiplier: 0.5},
-                }
-            },
-            2: {
-                description: "So cold...",
-                related_skill: "Cold resistance",
-                effects: {
-                    attack_points: {multiplier: 0.7},
-                    evasion_points: {multiplier: 0.7},
-                    stamina: {multiplier: 0.2},
-                }
-            },
-            3: {
-                description: "This place is so cold, lesser beings would freeze in less than a minute...",
-                related_skill: "Cold resistance",
-                effects: {
-                    attack_points: {multiplier: 0.5},
-                    evasion_points: {multiplier: 0.5},
-                    stamina: {multiplier: 0.1},
-                }
-            }
-        }
-    });
     location_types["thin air"] = new LocationType({
         name: "thin air",
         stages: {
             1: {
                 description: "Place with thinner air, which negatively impacts your body",
                 related_skill: "Breathing",
+                scaling_lvl: 25,
                 effects: {
                     stamina_efficiency: {multiplier: 0.5},
                     agility: {multiplier: 0.8},
@@ -868,6 +812,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             1: {
                 description: "This place brings a strong sense of unease",
                 related_skill: "Strength of mind",
+                scaling_lvl: 30, //up to max for now, as there are no locations with second stage yet
                 effects: {
                     agility: {multiplier: 0.8},
                     dexterity: {multiplier: 0.8},
