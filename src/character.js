@@ -424,6 +424,8 @@ character.stats.add_all_skill_level_bonus = function() {
         character.stats.flat.skills.unarmed_power = skills["Unarmed"].current_level * 0.1;
 
         character.stats.add_weapon_type_bonuses();
+
+        character.stats.flat.skills.cold_tolerance = 0.5 * get_total_level_bonus("Cold resistance");
 }
 
 /**

@@ -4485,6 +4485,8 @@ function update() {
                 } else {
                     cold_status_counters[i]++;
                 }
+
+                add_xp_to_skill({skill: skills["Cold resistance"], xp_to_add: 0.2});
             } else {
                 if(cold_status_counters[i] > 0) {
                     cold_status_counters[i]--;

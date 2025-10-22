@@ -1005,9 +1005,13 @@ Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
     skills["Cold resistance"] = new Skill({
         names: {0: "Cold resistance"},
         description: "Ability to survive and function in low temperatures",
-        base_xp_cost: 100,
+        base_xp_cost: 200,
+        xp_scaling: 1.8,
         max_level: 40,
         category: "Environmental",
+        get_effect_description: ()=>{
+            return `Increases cold tolerance by ${this.current_level*0.5}`;
+        }
     });
 
     skills["Dazzle resistance"] = new Skill({
