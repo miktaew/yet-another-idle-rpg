@@ -1302,7 +1302,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
         name: "Slums",
         is_unlocked: true,
-        dialogues: ["suspicious man"],
+        dialogues: ["suspicious man", "old woman of the slums"],
         traders: ["suspicious trader", "suspicious trader 2"],
         market_region: "Slums",
         temperature_range_modifier: 0.9,
@@ -1367,7 +1367,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             locks: {
                 traders: ["suspicious trader"],
                 locations: ["Gang hideout"],
-                textlines: {"suspicious man": ["behave 2"]},
+                textlines: { "suspicious man": ["behave 2"] }
             }, 
             move_to: {location: "Slums"},
         },
@@ -1794,6 +1794,25 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 scales_with_skill: true,
             },
             require_tool: true,
+        }),
+    };
+    locations["Town outskirts"].activities = {
+        "herbalism": new LocationActivity({
+            activity_name: "herbalism",
+            infinite: true,
+            starting_text: "Search for useful herbs by the roadside",
+            skill_xp_per_tick: 4,
+            is_unlocked: false,
+            gained_resources: {
+                resources: [
+                    {name: "Cooking herbs", ammount: [[1,1], [1,3]], chance: [0.1, 0.8]},
+                ], 
+                time_period: [120, 50],
+                skill_required: [5, 15],
+                scales_with_skill: true,
+            },
+            require_tool: true,
+            unlock_text: "You learned that some useful herbs can be found right under your nose."
         }),
     };
     locations["Town farms"].activities = {

@@ -192,6 +192,25 @@ class ActiveEffect {
         },
         tags: {"buff": true},
     });
+    effect_templates["Decent meat meal"] = new ActiveEffect({
+        name: "Decent meat meal",
+        effects: {
+            stats: {
+                stamina_regeneration_flat: {flat: 4},
+                health_regeneration_flat: {flat: 2},
+            }
+        },
+        tags: {"buff": true},
+    });
+    effect_templates["Hot meal"] = new ActiveEffect({
+        name: "Hot meal",
+        effects: {
+            stats: {
+                cold_tolerance: {flat: 3},
+            }
+        },
+        tags: {"buff": true},
+    });
     effect_templates["Slight food poisoning"] = new ActiveEffect({
         name: "Slight food poisoning",
         effects: {

@@ -1088,6 +1088,26 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [10,15],
         recipe_skill: "Cooking",
     });
+    cooking_recipes.items["Pork roast"] = new ItemRecipe({
+        name: "Pork roast",
+        recipe_type: "usable",
+        materials: [{ material_id: "Boar meat", count: 2},
+                    { material_id: "Cooking herbs", count: 3}], 
+        result: {result_id: "Pork roast", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [10,20],
+        recipe_skill: "Cooking",
+    });
+    cooking_recipes.items["Goat stew"] = new ItemRecipe({
+        name: "Goat stew",
+        recipe_type: "usable",
+        materials: [{ material_id: "Goat meat", count: 2},
+                    { material_id: "Cooking herbs", count: 2}], 
+        result: {result_id: "Goat stew", count: 1},
+        success_chance: [0.4,1],
+        recipe_level: [15,25],
+        recipe_skill: "Cooking",
+    });
     cooking_recipes.items["Bread kwas"] = new ItemRecipe({
         name: "Bread kwas",
         recipe_type: "usable",
