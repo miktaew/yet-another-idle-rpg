@@ -29,7 +29,7 @@ import { quests } from "./quests.js";
 import { get_current_temperature_smoothed, is_raining } from "./weather.js";
 import { PointyStarParticle, RainParticle, SnowParticle } from "./particles.js";
 import { get_game_version } from "./game_version.js";
-let activity_anim; //for the activity and locationAction animation interval
+let activity_anim; //for the activity and gameAction animation interval
 
 let location_choice_divs = {}; //for dropdowns
 const action_div = document.getElementById("location_actions_div");
@@ -184,6 +184,7 @@ const other_save_load_button = document.getElementById("import_other_save_button
 
 const export_button_tooltip = document.getElementById("export_button_tooltip");
 
+const default_dialogue_return_text = "Nevermind";
 
 function capitalize_first_letter(some_string) {
     return some_string.charAt(0).toUpperCase() + some_string.slice(1);
@@ -3580,8 +3581,15 @@ function update_displayed_reputation() {
     });
 }
 
-function update_displayed_dialogue(dialogue_key) {
+/**
+ * 
+ * @param {String} dialogue_key 
+ * @param {Object} textlines that still belong to the dialogue, but are to be displayed alone for some reason (i.e. because they are from dialogue branching)
+ * @param {String} origin - the key of textline that created a dialogue branch, ignored if textlines is not passed
+ */
+function update_displayed_dialogue({dialogue_key, textlines, origin}) {
     const dialogue = dialogues[dialogue_key];
+    console.log(dialogue_key);
     
     clear_action_div();
     const dialogue_name_div = document.createElement("div");
@@ -3592,8 +3600,9 @@ function update_displayed_dialogue(dialogue_key) {
     const dialogue_answer_div = document.createElement("div");
     dialogue_answer_div.id = "dialogue_answer_div";
     action_div.appendChild(dialogue_answer_div);
-    Object.keys(dialogue.textlines).forEach(function(key) { //add buttons for textlines
-            if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished) { //do only if text_line is not unavailable
+    if(!textlines) {
+        Object.keys(dialogue.textlines).forEach(function(key) { //add buttons for textlines
+            if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished && !dialogue.textlines[key].is_branch_only) { //do only if text_line is not unavailable and not a branch
                 if(dialogue.textlines[key].required_flags) {
                     if(dialogue.textlines[key].required_flags.yes && !Array.isArray(dialogue.textlines[key].required_flags.yes) || dialogue.textlines[key].required_flags.no && !Array.isArray(dialogue.textlines[key].required_flags.no)) {
                         console.error(`Textline "${key}" in dialogue "${dialogue_key}" has required flag passed as a single value but it should be an array!`)
@@ -3622,24 +3631,67 @@ function update_displayed_dialogue(dialogue_key) {
                 textline_div.setAttribute("onclick", `start_textline(this.getAttribute('data-textline'))`);
                 action_div.appendChild(textline_div);
             }
-    });
+        });
 
-    if(dialogue.trader) {
-        const trade_div = document.createElement("div");
-        trade_div.innerHTML = `<i class="material-icons">storefront</i>  ` + traders[dialogue.trader].trade_text;
-        trade_div.classList.add("dialogue_trade")
-        trade_div.setAttribute("data-trader", dialogue.trader);
-        trade_div.setAttribute("onclick", "startTrade(this.getAttribute('data-trader'))")
-        action_div.appendChild(trade_div);
+        if(dialogue.trader) {
+            const trade_div = document.createElement("div");
+            trade_div.innerHTML = `<i class="material-icons">storefront</i>  ` + traders[dialogue.trader].trade_text;
+            trade_div.classList.add("dialogue_trade")
+            trade_div.setAttribute("data-trader", dialogue.trader);
+            trade_div.setAttribute("onclick", "startTrade(this.getAttribute('data-trader'))")
+            action_div.appendChild(trade_div);
+        }
+
+        const end_dialogue_div = document.createElement("div");
+
+        end_dialogue_div.innerHTML = "<i class='material-icons'>arrow_back</i> " + dialogue.ending_text;
+        end_dialogue_div.classList.add("end_dialogue_button");
+        end_dialogue_div.setAttribute("onclick", "end_dialogue()");
+
+        action_div.appendChild(end_dialogue_div);
+    } else {
+        //textlines are passed, use only them instead of all the dialogue has (minus branches)
+        Object.keys(textlines).forEach(key => { //add buttons for textlines
+            //get keys from textlines but then just grab it from dialogues because copy-paste and frankly it doesn't matter, textlines param is supposed to be directly from dialogue, just filtered
+            if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished) { //do only if text_line is not unavailable
+                if(dialogue.textlines[key].required_flags) {
+                    if(dialogue.textlines[key].required_flags.yes && !Array.isArray(dialogue.textlines[key].required_flags.yes) || dialogue.textlines[key].required_flags.no && !Array.isArray(dialogue.textlines[key].required_flags.no)) {
+                        console.error(`Textline "${key}" in dialogue "${dialogue_key}" has required flag passed as a single value but it should be an array!`)
+                    }
+                    if(dialogue.textlines[key].required_flags.yes) {
+                        for(let i = 0; i < dialogue.textlines[key].required_flags.yes.length; i++) {
+                            
+                            if(!global_flags[dialogue.textlines[key].required_flags.yes[i]]) {
+                                return;
+                            }
+                        }
+                    }
+                    if(dialogue.textlines[key].required_flags.no) {
+                        for(let i = 0; i < dialogue.textlines[key].required_flags.no.length; i++) {
+                            if(global_flags[dialogue.textlines[key].required_flags.no[i]]) {
+                                return;
+                            }
+                        }
+                    }
+                }
+                
+                const textline_div = document.createElement("div");
+                textline_div.innerHTML = `"${dialogue.textlines[key].name}"`;
+                textline_div.classList.add("dialogue_textline");
+                textline_div.setAttribute("data-textline", key);
+                textline_div.setAttribute("onclick", `start_textline(this.getAttribute('data-textline'), ${origin})`); //additional param compared to when there's no textlines passed
+                action_div.appendChild(textline_div);
+            }
+        });
+
+        const backstep_dialogue_div = document.createElement("div");
+
+        backstep_dialogue_div.innerHTML = "<i class='material-icons'>arrow_back</i> " + default_dialogue_return_text;
+        backstep_dialogue_div.classList.add("backstep_dialogue_button");
+        backstep_dialogue_div.setAttribute("onclick", `start_dialogue("${dialogue_key}")`);
+
+        action_div.appendChild(backstep_dialogue_div);
     }
-
-    const end_dialogue_div = document.createElement("div");
-
-    end_dialogue_div.innerHTML = "<i class='material-icons'>arrow_back</i> " + dialogue.ending_text;
-    end_dialogue_div.classList.add("end_dialogue_button");
-    end_dialogue_div.setAttribute("onclick", "end_dialogue()");
-
-    action_div.appendChild(end_dialogue_div);
 }
 
 function update_displayed_textline_answer({text, is_description}) {
@@ -3843,6 +3895,37 @@ function set_location_action_finish_text(text) {
 
 function update_location_action_finish_button() {
     document.getElementById("action_end_div").innerHTML = "Finish";
+}
+
+/**
+ * Pseudo-generalized function for updating displayed content
+ * @param {*} param0 
+ */
+function fill_action_box({content_type, data}) {
+
+    if(content_type === "dialogue") {
+        update_displayed_dialogue({dialogue_key: data.dialogue_key});
+        if(!document.getElementById("dialogue_answer_div").innerHTML) { //probably pointless to check?
+            update_displayed_textline_answer({text: dialogues[data.dialogue_key].getDescription(), is_description: true});
+        }
+    } else if(content_type === "dialogue_answer") {
+        update_displayed_dialogue({dialogue_key: data.dialogue_key});
+        update_displayed_textline_answer({text: data.text});
+    } else if(content_type === "dialogue_branch") {
+        update_displayed_dialogue({dialogue_key: data.dialogue_key, textlines: data.textlines});
+        update_displayed_textline_answer({text: data.text});
+    } else if(content_type === "action") {
+        
+    } else if(content_type === "activity") {
+        
+    } else {
+        throw new Error(`Error on filling action box content: no such content type as "${content_type}"`);
+    }
+
+    //call stack addition in starting dialogues / textlines / actions / activities
+    //pass proper data as param
+    //do whatever is needed, like setting 'current_x' values
+    //then call fill_action_box with proper data
 }
 
 function start_sleeping_display(){
@@ -5064,6 +5147,7 @@ function is_element_above_x(element, x) {
 }
 
 export {
+    fill_action_box,
     start_activity_animation, end_activity_animation,
     update_displayed_trader, update_displayed_trader_inventory, update_displayed_character_inventory, sort_displayed_inventory,
     create_item_tooltip,

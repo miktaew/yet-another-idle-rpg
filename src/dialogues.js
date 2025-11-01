@@ -1,16 +1,19 @@
 "use strict";
 
+import { GameAction } from "./actions";
+
 const dialogues = {};
 
 class Dialogue {
     constructor({ 
-        name, 
+        name,
         id,
-        starting_text = `Talk to the ${name}`, 
-        ending_text = `Go back`, 
-        is_unlocked = true, 
-        is_finished = false, 
-        textlines = {}, 
+        starting_text = `Talk to the ${name}`,
+        ending_text = `Go back`,
+        is_unlocked = true,
+        is_finished = false,
+        textlines = {},
+        actions = {},
         description = "",
         getDescription = ()=>{return this.description;},
         location_name
@@ -22,11 +25,13 @@ class Dialogue {
         this.is_unlocked = is_unlocked;
         this.is_finished = is_finished; //separate bool to remove dialogue option if it's finished
         this.textlines = textlines; //all the lines in dialogue
+        this.actions = actions;
         this.description = description;
         this.getDescription = getDescription;
 
         this.location_name = location_name; //this is purely informative and wrong value shouldn't cause any actual issues
 
+        //definitions use .locks_lines property instead of doing it through rewards because it's just simpler, but it's actually handled through rewards so it gets moved there
         Object.keys(this.textlines).forEach(textline_key => {
             const textline = this.textlines[textline_key];
             if(textline.locks_lines) {
@@ -45,6 +50,7 @@ class Textline {
                  getText,
                  is_unlocked = true,
                  is_finished = false,
+                 is_branch_only = false,
                  rewards = {textlines: [],
                             locations: [],
                             dialogues: [],
@@ -65,6 +71,7 @@ class Textline {
         this.otherUnlocks = otherUnlocks || function(){return;};
         this.is_unlocked = is_unlocked;
         this.is_finished = is_finished;
+        this.is_branch_only = is_branch_only; //if true, textline won't be displayed in overall view and instead will only be available as a branch dialogue
         this.rewards = rewards || {};
         
         this.rewards.textlines = rewards.textlines || [];
@@ -101,6 +108,10 @@ class Textline {
                     textlines: [{dialogue: "village elder", lines: ["what happened", "where am i", "dont remember", "about"]}],
                 },
                 locks_lines: ["hello"],
+            }),
+            "why": new Textline({
+                name: "Why?",
+                text: "Hello. Glad to see you got better",
             }),
             "what happened": new Textline({
                 name: "My head hurts.. What happened?",
@@ -581,7 +592,7 @@ class Textline {
                 name: "Hello",
                 text: "Hello stranger",
                 rewards: {
-                    textlines: [{dialogue: "farm supervisor", lines: ["things", "work", "animals", "fight", "fight0"]}],
+                    textlines: [{dialogue: "farm supervisor", lines: ["things", "work", "animals", "fight", "fight0", "anything"]}],
                 },
                 locks_lines: ["hello"],
             }),
@@ -593,6 +604,15 @@ class Textline {
                     activities: [{location: "Town farms", activity: "fieldwork"}],
                 },
                 locks_lines: ["work"],
+            }),
+            "anything": new Textline({
+                name: "Is there anything I can help you with?",
+                is_unlocked: false,
+                text: "I don't think so, nothing aside from normal work... Oh wait, actually there is one thing. We're in need of 50 bags of bonemeal and our supplier is being late. Due to circumstances, I can pay you twice the normal price, we really need it. However it unfortunately needs to be delivered as a single bulk delivery of all 50 units, for administrative reasons.",
+                rewards: {
+                    actions: [{dialogue: "farm supervisor", action: "bonemeal1"}],
+                },
+                locks_lines: ["anything"],
             }),
             "animals": new Textline({
                 name: "Do you sell anything?",
@@ -629,7 +649,7 @@ class Textline {
                 name: "How are things around here?",
                 text: "Nothing to complain about. Trouble is rare, pay is good, and the soil is as fertile as my wife!",
                 rewards: {
-                    textlines: [{dialogue: "farm supervisor", lines: ["animals", "fight", "fight0"]}],
+                    textlines: [{dialogue: "farm supervisor", lines: ["animals", "fight", "fight0", "anything"]}],
                 }
             }), 
             "defeated boars": new Textline({
@@ -641,6 +661,26 @@ class Textline {
                     money: 4000,
                 }
             }), 
+        },
+        actions: {
+            "bonemeal1": new GameAction({
+                action_id: "bonemeal1",
+                starting_text: "[Deliver the bonemeal]",
+                description: "",
+                action_text: "",
+                success_text: "Thank you very much, here's your money! If you ever want to make more deliveries of this size, we will gladly take them, although the pay will only be half of what it was this time.",
+                failure_texts: {
+                    unable_to_begin: ["I'm sorry, but that's not enough"],
+                },
+                required: {
+                    items_by_id: {"Bonemeal": {count: 50, remove_on_success: true}},
+                },
+                attempt_duration: 0,
+                success_chances: [1],
+                rewards: {
+                    
+                },
+            }),
         },
         description: "You see a well dressed man with a notebook on his belt. Despite seeming more like a scribe, he's buff and tanned."
     });

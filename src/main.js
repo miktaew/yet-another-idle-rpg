@@ -34,7 +34,6 @@ import { end_activity_animation,
          format_money, update_displayed_stats,
          update_displayed_effects, update_displayed_effect_durations,
          update_displayed_time, update_displayed_character_xp, 
-         update_displayed_dialogue, update_displayed_textline_answer,
          start_activity_display, start_sleeping_display,
          create_new_skill_bar, update_displayed_skill_bar, update_displayed_skill_description,
          update_displayed_ongoing_activity, 
@@ -86,7 +85,8 @@ import { end_activity_animation,
          set_loading_screen_progress,
          hide_loading_text,
          show_play_button,
-         set_loading_screen_warnings_warning
+         set_loading_screen_warnings_warning,
+         fill_action_box
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -108,7 +108,7 @@ const dev_backup_key = "dev backup save";
 const global_flags = {
     is_gathering_unlocked: false,
     is_crafting_unlocked: false,
-    is_deep_forest_beaten: false, //this role could be fulfilled by a quest, but it was added before that mechanic
+    is_deep_forest_beaten: false, //this role could be fulfilled by a quest, but it was added before that mechanic; besides, flags are cool and elegant
 };
 const flag_unlock_texts = {
     is_gathering_unlocked: "You have gained the ability to gather new materials! Remember to equip your tools first <br>[Note: equipped tools do not appear in inventory as you will be swapping them very rarely]",
@@ -257,6 +257,10 @@ let message_log_filters = {
 //enemy crit stats
 const enemy_crit_chance = 0.1;
 const enemy_crit_damage = 2; //multiplier, not a flat bonus
+
+//holds the stack of dialogues/textlines and actions/activities
+const content_stack = [];
+const content_stack_removal_options = {TOP: "top", ALL: "all"};
 
 //character name
 const name_field = document.getElementById("character_name_field");
@@ -604,7 +608,7 @@ function end_activity() {
     }
     end_activity_animation(); //clears the "animation"
     current_activity = null;
-    change_location({location_id: current_location.id, skip_travel_time: true});
+    remove_from_content_stack(content_stack_removal_options.TOP);
 }
 
 /**
@@ -715,7 +719,7 @@ function end_location_action() {
     end_activity_animation();
     clearInterval(location_action_interval);
     current_location_action = null;
-    change_location({location_id: current_location.id, skip_travel_time: true});
+    remove_from_content_stack(content_stack_removal_options.TOP);
 }
 
 /**
@@ -769,14 +773,21 @@ function unlock_activity(activity_data) {
 }
 
 function unlock_action(action_data) {
-    if(!action_data.action.is_unlocked){
+    if(!action_data.action.is_unlocked) {
         action_data.action.is_unlocked = true;
         
         let message = "";
-        if(locations[action_data.location].actions[action_data.action.action_id].unlock_text) {
-           message = locations[action_data.location].actions[action_data.action.action_id].unlock_text+":<br>";
+        if(action_data.location) {
+            if(locations[action_data.location].actions[action_data.action.action_id].unlock_text) {
+                message = locations[action_data.location].actions[action_data.action.action_id].unlock_text+":<br>";
+                log_message(message + `Unlocked action "${action_data.action.action_name}" in location "${action_data.location}"`, "activity_unlocked");
+            }
+        } else if(action_data.dialogue) {
+            if(dialogues[action_data.dialogue].actions[action_data.action.action_id].unlock_text) {
+                message = dialogues[action_data.dialogue].actions[action_data.action.action_id].unlock_text+":<br>";
+                log_message(message + `Unlocked action "${action_data.action.action_name}" wit "${action_data.dialogue}"`, "activity_unlocked");
+            }
         }
-        log_message(message + `Unlocked action "${action_data.action.action_name}" in location "${action_data.location}"`, "activity_unlocked");
     }
 }
 
@@ -1039,18 +1050,14 @@ function enough_time_for_earnings(selected_job) {
  * @param {String} dialogue_key 
  */
 function start_dialogue(dialogue_key) {
-    current_dialogue = dialogue_key;
-
-    update_displayed_dialogue(dialogue_key);
-    if(!document.getElementById("dialogue_answer_div").innerHTML) {
-        update_displayed_textline_answer({text: dialogues[dialogue_key].getDescription(), is_description: true});
-    }
+    add_to_content_stack({content_type: "dialogue", data: {dialogue_key: dialogue_key}});
 }
 
 function end_dialogue() {
     current_dialogue = null;
-    reload_normal_location();
+    remove_from_content_stack(content_stack_removal_options.TOP);
 }
+
 function reload_normal_location() {
     update_displayed_normal_location(current_location);
 }
@@ -1069,7 +1076,8 @@ function start_textline(textline_key){
         textline.otherUnlocks();
     }
 
-    start_dialogue(current_dialogue);
+    
+    //start_dialogue(current_dialogue);
     let text = get_textline_answer(textline);
 
     //a very stupid easter egg that totally won't be annoying - 1% chance to have a random word in dialogue replaced with "rat" if your hero's name contains that word
@@ -1082,7 +1090,7 @@ function start_textline(textline_key){
         }
     }
 
-    update_displayed_textline_answer({text: text});
+    fill_action_box({content_type: "dialogue_answer", data: {text: text, dialogue_key: current_dialogue}});
 }
 
 /**
@@ -1943,7 +1951,7 @@ function get_location_rewards(location) {
  * processes rewards and logs all necessary messages
  * @param {Object} rewards_data
  * @param {Object} rewards_data.rewards //the standard object with rewards
- * @param {String} rewards_data.source_type //location, locationAction, textline
+ * @param {String} rewards_data.source_type //location, gameAction, textline
  * @param {Boolean} rewards_data.is_first_clear //exclusively for location rewards (and only for a single message to be logged)
  * @param {Boolean} rewards_data.inform_textline //if textline unlock is to be logged
  * @param {String} rewards_data.source_name //in case it's needed for logging a message
@@ -2073,8 +2081,9 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
     if(rewards.actions) {
         for(let i = 0; i < rewards.actions?.length; i++) {
             unlock_action({
-                location: locations[rewards.actions[i].location].name, 
-                action: locations[rewards.actions[i].location].actions[rewards.actions[i].action]
+                dialogue: dialogues[rewards.actions[i].dialogue]?.name,
+                location: locations[rewards.actions[i].location]?.name,
+                action: locations[rewards.actions[i].location].actions[rewards.actions[i].action],
             });
         }
     }
@@ -2636,6 +2645,81 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
             }
             //update_displayed_crafting_recipes();
         }  
+    }
+}
+
+function add_to_content_stack({content_type, data, what_to_remove = content_stack_removal_options.TOP}) {
+    content_stack.push({content_type, data, what_to_remove});
+
+    switch_action_box_content();
+}
+
+function remove_from_content_stack() {
+    const content = content_stack.pop();
+    const what_to_remove = content.what_to_remove || content_stack_removal_options.TOP;
+
+    if(what_to_remove === content_stack_removal_options.TOP) {
+        //nothing - already done
+    } else if(what_to_remove === content_stack_removal_options.ALL) {
+        //clear it completely, which will default to location display
+        while(content_stack[0]) {
+            content_stack.pop();
+        }
+    } else {
+        throw new Error(`No such content stack removal option as "${what_to_remove}"`);
+    }
+
+    switch_action_box_content();
+}
+
+function switch_action_box_content() {
+    //cancel everything when switching
+    if(current_dialogue) {
+        current_dialogue = null;
+    } else if(current_activity) {
+        current_activity = null;
+        end_activity_animation();
+    } else if(current_location_action) {
+        current_location_action = null;
+        end_activity_animation();
+        clearInterval(location_action_interval);
+    }
+
+    if(content_stack.length) {
+        let {content_type, data} = content_stack[content_stack.length - 1];
+
+        if(content_type.startsWith("dialogue")) {
+            current_dialogue = data.dialogue_key;
+        }
+        if(content_type === "dialogue") {
+
+            //todo, generally it's mostly just copy-pastes from relevant functions...
+        } else if(content_type === "dialogue_answer") {
+            //no need to handle this one (and it's expected to not appear here), as there's no need to put the answer to the stack, just remember to not reset current_dialogue for this case
+        } else if(content_type === "dialogue_branch") {
+            //but there's a need to handle this one, to allow infinite depth branching
+            //similar but read textlines to be displayed and answer from .data (place there in end_textline or whatever it's called) and show only it
+        } else if(content_type === "action") {
+            current_location_action = data.action_key;
+            //start action, set current, set timer, set display
+        } else if(content_type === "activity") {
+            current_activity = data.activity_key;
+            //again no need as nothing should be stackable on top of it, but still make sure to setup display the normal way
+        } else {
+            throw new Error(`Error on switching action box content: no such content type as "${content_type}"`);
+        }
+
+        if(content_type) {
+            //something -> pass it forward
+            fill_action_box({content_type, data});
+        } else {
+            //nothing -> shouldn't be possible
+        }
+        
+    } else {
+        //stak is empty, just display the current location
+
+        change_location({location_id: current_location.id, skip_travel_time: true});
     }
 }
 
@@ -4856,6 +4940,8 @@ window.useRecipe = use_recipe;
 window.updateDisplayedComponentChoice = update_displayed_component_choice;
 window.updateDisplayedMaterialChoice = update_displayed_material_choice;
 window.updateRecipeTooltip = update_recipe_tooltip;
+
+window.remove_from_content_stack = remove_from_content_stack;
 
 window.option_uniform_textsize = option_uniform_textsize;
 window.option_bed_return = option_bed_return;
