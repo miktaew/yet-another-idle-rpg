@@ -1,6 +1,6 @@
 "use strict";
 
-import { GameAction } from "./actions";
+import { GameAction } from "./actions.js";
 
 const dialogues = {};
 
@@ -63,6 +63,7 @@ class Textline {
                 locks_lines = [], //for lines to be locked in same dialogue
                 otherUnlocks,
                 required_flags,
+                display_conditions = [],
             }) 
     {
         this.name = name; // displayed option to click, don't make it too long
@@ -82,6 +83,7 @@ class Textline {
         this.rewards.flags = rewards.flags || [];
         this.rewards.items = rewards.items || [];
         
+        this.display_conditions = display_conditions;
         this.required_flags = required_flags;
 
         this.locks_lines = locks_lines;

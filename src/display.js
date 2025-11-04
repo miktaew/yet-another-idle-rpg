@@ -29,6 +29,7 @@ import { quests } from "./quests.js";
 import { get_current_temperature_smoothed, is_raining } from "./weather.js";
 import { PointyStarParticle, RainParticle, SnowParticle } from "./particles.js";
 import { get_game_version } from "./game_version.js";
+import { process_conditions } from "./conditions.js";
 let activity_anim; //for the activity and gameAction animation interval
 
 let location_choice_divs = {}; //for dropdowns
@@ -3602,7 +3603,8 @@ function update_displayed_dialogue({dialogue_key, textlines, origin}) {
     action_div.appendChild(dialogue_answer_div);
     if(!textlines) {
         Object.keys(dialogue.textlines).forEach(function(key) { //add buttons for textlines
-            if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished && !dialogue.textlines[key].is_branch_only) { //do only if text_line is not unavailable and not a branch
+            if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished && !dialogue.textlines[key].is_branch_only && process_conditions(dialogue.textlines[key].display_conditions, character)) { 
+                //do only if text_line is not unavailable and not a branch
                 if(dialogue.textlines[key].required_flags) {
                     if(dialogue.textlines[key].required_flags.yes && !Array.isArray(dialogue.textlines[key].required_flags.yes) || dialogue.textlines[key].required_flags.no && !Array.isArray(dialogue.textlines[key].required_flags.no)) {
                         console.error(`Textline "${key}" in dialogue "${dialogue_key}" has required flag passed as a single value but it should be an array!`)
@@ -3653,7 +3655,7 @@ function update_displayed_dialogue({dialogue_key, textlines, origin}) {
         //textlines are passed, use only them instead of all the dialogue has (minus branches)
         Object.keys(textlines).forEach(key => { //add buttons for textlines
             //get keys from textlines but then just grab it from dialogues because copy-paste and frankly it doesn't matter, textlines param is supposed to be directly from dialogue, just filtered
-            if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished) { //do only if text_line is not unavailable
+            if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished && process_conditions(dialogue.textlines[key].display_conditions, character)) { //do only if text_line is not unavailable
                 if(dialogue.textlines[key].required_flags) {
                     if(dialogue.textlines[key].required_flags.yes && !Array.isArray(dialogue.textlines[key].required_flags.yes) || dialogue.textlines[key].required_flags.no && !Array.isArray(dialogue.textlines[key].required_flags.no)) {
                         console.error(`Textline "${key}" in dialogue "${dialogue_key}" has required flag passed as a single value but it should be an array!`)
