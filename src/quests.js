@@ -269,6 +269,20 @@ const questManager = {
     });
 })();
 
+//Side quests
+(()=>{
+    quests["Bonemeal delivery"] = new Quest({
+        quest_name: "Bonemeal delivery",
+        quest_description: "The farm supervisor is in a dire need of 50 bags of bonemeal, and he needs the entire order delivered in one go.",
+        quest_tasks: [
+            new QuestTask({task_description: "Bring 50 bags of bonemeal"}),
+        ],
+        quest_rewards: {
+            //todo
+        }
+    })
+})();
+
 //Hidden quests for unlocks
 (()=>{
     quests["Swimming/climbing unlock"] = new Quest({
