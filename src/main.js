@@ -2080,11 +2080,17 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
 
     if(rewards.actions) {
         for(let i = 0; i < rewards.actions?.length; i++) {
-            unlock_action({
-                dialogue: dialogues[rewards.actions[i].dialogue]?.name,
-                location: locations[rewards.actions[i].location]?.name,
-                action: locations[rewards.actions[i].location].actions[rewards.actions[i].action],
-            });
+            if(rewards.actions[i].dialogue) {
+                unlock_action({
+                                dialogue: dialogues[rewards.actions[i].dialogue]?.name,
+                                action: dialogues[rewards.actions[i].dialogue].actions[rewards.actions[i].action],
+                            });
+            } else if(rewards.actions[i].location){
+                unlock_action({
+                                location: locations[rewards.actions[i].location]?.name,
+                                action: locations[rewards.actions[i].location].actions[rewards.actions[i].action],
+                            });
+            }  
         }
     }
 
@@ -2140,7 +2146,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
             if(!questManager.isQuestActive(rewards.quests[i])) {
                 questManager.startQuest({quest_id: rewards.quests[i]});
                 if(inform_overall) {
-                    log_message(`Received a new quest: ${quests(rewards.quests[i]).getQuestName()}`);
+                    log_message(`Received a new quest: ${quests[rewards.quests[i]].getQuestName()}`);
                 }
             }
         }
@@ -2717,7 +2723,7 @@ function switch_action_box_content() {
         }
         
     } else {
-        //stak is empty, just display the current location
+        //stack is empty, just display the current location
 
         change_location({location_id: current_location.id, skip_travel_time: true});
     }
