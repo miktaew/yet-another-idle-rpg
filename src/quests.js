@@ -273,9 +273,9 @@ const questManager = {
 (()=>{
     quests["Bonemeal delivery"] = new Quest({
         quest_name: "Bonemeal delivery",
-        quest_description: "The farm supervisor is in a dire need of 50 bags of bonemeal, and he needs the entire order delivered in one go.",
+        quest_description: "The farm supervisor is in a dire need of 50 packs of bonemeal, and he needs the entire order delivered in one go.",
         quest_tasks: [
-            new QuestTask({task_description: "Bring 50 bags of bonemeal"}),
+            new QuestTask({task_description: "Bring 50 packs of bonemeal"}),
         ],
         quest_rewards: {
             //todo
