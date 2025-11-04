@@ -610,9 +610,10 @@ class Textline {
             "anything": new Textline({
                 name: "Is there anything I can help you with?",
                 is_unlocked: false,
-                text: "I don't think so, nothing aside from normal work... Oh wait, actually there is one thing. We're in need of 50 bags of bonemeal and our supplier is being late. Due to circumstances, I can pay you twice the normal price, we really need it. However it unfortunately needs to be delivered as a single bulk delivery of all 50 units, for administrative reasons.",
+                text: "I don't think so, nothing aside from normal work... Oh wait, actually there is one thing. We're in need of 50 packs of bonemeal and lost our supplier. Because of this, I can pay you twice the normal price, we really need this stuff for the farm. Bad news is, you will have to bring all 50 in a single delivery.",
                 rewards: {
                     actions: [{dialogue: "farm supervisor", action: "bonemeal1"}],
+                    quests: ["Bonemeal delivery"],
                 },
                 locks_lines: ["anything"],
             }),
