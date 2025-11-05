@@ -61,7 +61,7 @@ import { end_activity_animation,
          update_displayed_book,
          update_backup_load_button,
          update_other_save_load_button,
-         start_location_action_display,
+         start_game_action_display,
          set_location_action_finish_text,
          update_location_action_progress_bar,
          update_location_action_finish_button,
@@ -136,7 +136,7 @@ let gathered_materials = {};
 const trade_price_recovery_flat = 5;//
 const trade_price_recovery_ratio = 1/360; //
 //larger of two (sold count * ratio or flat value)
-const market_saturation_trickle_rate = 0.05;
+const market_saturation_trickle_rate = 0.2;
 
 //keeping the time to use it for export bonus
 let last_rewarded_export = 0;
@@ -173,8 +173,8 @@ let current_location;
 
 let current_activity;
 
-let location_action_interval;
-let current_location_action;
+let game_action_interval;
+let current_game_action;
 
 //time needed to travel from A to B
 const travel_times = {};
@@ -613,61 +613,78 @@ function end_activity() {
 
 /**
  * Starts selected action, checks conditions if applicable, launches action animations
- * @param {*} selected_action 
+ * @param {String} action_key
+ * @param {String} source either "location" or "dialogue"
  * @returns 
  */
-function start_location_action(selected_action) {
-    current_location_action = selected_action;
-    const location_action = current_location.actions[selected_action];
+function start_game_action(action_key) {
+    current_game_action = action_key;
+    let game_action;
+    if(current_dialogue) {
+        game_action = dialogues[current_dialogue].actions[action_key];
+    } else{
+        game_action = current_location.actions[action_key];
+    }
     let conditions_status; //[0,...,1]
 
-    start_location_action_display(selected_action);
+    add_to_content_stack({content_type:"action", data: {dialogue_key: current_dialogue, action_key: action_key}});
+    //start_game_action_display(selected_action);
 
-    if(!location_action.can_be_started(character)) {
-        finish_location_action(selected_action, -1);
+    if(!game_action.can_be_started(character)) {
+        finish_game_action({action_key, conditions_status: -1, dialogue_key: current_dialogue});
         return;
     }
     
-    if(!location_action.check_conditions_on_finish) {
-        conditions_status = location_action.get_conditions_status(character);
+    if(!game_action.check_conditions_on_finish) {
+        conditions_status = game_action.get_conditions_status(character);
 
         if(conditions_status == 0) {
-            finish_location_action(selected_action, 0);
+            finish_game_action({action_key, conditions_status: 0, dialogue_key: current_dialogue});
             return;
         }
     }
 
-    if(location_action.attempt_duration > 0) {
+    if(game_action.attempt_duration > 0) {
         let current_iterations = 0;
-        const total_iterations = location_action.attempt_duration/0.1;
+        const total_iterations = game_action.attempt_duration/0.1;
 
-        location_action_interval = setInterval(()=>{
+        game_action_interval = setInterval(()=>{
             if(current_iterations >= total_iterations - 1) {
-                clearInterval(location_action_interval);
-                finish_location_action(selected_action, conditions_status);
+                clearInterval(game_action_interval);
+                finish_game_action({action_key, conditions_status, dialogue_key: current_dialogue});
             }
 
             current_iterations++;
             update_location_action_progress_bar(current_iterations/total_iterations);
         }, 1000*0.1/tickrate);
     } else {
-        finish_location_action(selected_action, conditions_status);
+        finish_game_action({action_key, conditions_status});
         update_location_action_progress_bar(1);
     }
 }
 
 /**
- * Handles the finish, successful or not, of a location action. Not to be mistaken for end_location_action
- * @param {String} selected_action 
+ * Handles the finish, successful or not, of a game action. Not to be mistaken for end_game_action
+ * @param {String} action_key 
  * @param {Number} conditions_status
+ * @param {String} dialogue_key optional, only passed if action is from dialogue instead of from location
  */
-function finish_location_action(selected_action, conditions_status){
+function finish_game_action({action_key, conditions_status, dialogue_key}){
     end_activity_animation(true);
 
-    const action = current_location.actions[selected_action];
+    let action;
+    if(dialogue_key) {
+        action = dialogues[dialogue_key].actions[action_key];
+    } else {
+        action = current_location.actions[action_key];
+    }
 
     if(typeof conditions_status === 'undefined') {
-        conditions_status = current_location.actions[selected_action].get_conditions_status(character);
+        if(dialogue_key) {
+            conditions_status = current_location.actions[action_key].get_conditions_status(character);
+        } else {
+            conditions_status = dialogues[dialogue_key].actions[action_key].get_conditions_status(character);
+        }
     }
     
     let result_message = 'If you see this, Miktaew screwed something up. Whoops!';
@@ -679,7 +696,7 @@ function finish_location_action(selected_action, conditions_status){
         //lost by failing to meet conditions, nothing to check, deal with it
         result_message = action.failure_texts.conditional_loss[Math.floor(action.failure_texts.conditional_loss.length * Math.random())];
     } else {
-        const action_result = get_location_action_result(selected_action, conditions_status);
+        const action_result = get_game_action_result({action_key, conditions_status, dialogue_key});
         let is_won = false;
         if(action_result > Math.random()) {
             //win
@@ -713,24 +730,29 @@ function finish_location_action(selected_action, conditions_status){
 }
 
 /**
- * Handles giving up / leaving after success from a location action. Not to be mistaken for finish_location_action
+ * Handles giving up on a game action. Not to be mistaken for finish_game_action
  */
-function end_location_action() {
+function end_game_action() {
     end_activity_animation();
-    clearInterval(location_action_interval);
-    current_location_action = null;
+    clearInterval(game_action_interval);
+    current_game_action = null;
     remove_from_content_stack(content_stack_removal_options.TOP);
 }
 
 /**
  * 
- * @param {String} selected_action 
+ * @param {String} action_key 
  * @param {Number} conditions_status assumed to be more than 0
+ * @param {String} dialogue_key
  * @returns {Boolean} did_succeed
  */
-function get_location_action_result(selected_action, conditions_status) {
-    const action = current_location.actions[selected_action];
-
+function get_game_action_result({action_key, conditions_status, dialogue_key}) {
+    let action;
+    if(dialogue_key) {
+        action = dialogues[dialogue_key].actions[action_key];
+    } else {
+        action = current_location.actions[action_key];
+    }
     if(action.success_chances.length == 1) {
         return action.success_chances[0];
     } else if(conditions_status == 1 && action.success_chances[1]) {
@@ -2241,7 +2263,7 @@ function unlock_location({location, skip_message}) {
 
         //reloads the current location just in case it needs the new unlock to be added to current display
         //current action check most probably unnecessary
-        if(current_location && !current_dialogue && !current_location_action) {
+        if(current_location && !current_dialogue && !current_game_action) {
             change_location({location_id: current_location.id, skip_travel_time: true});
         }
     }
@@ -2685,10 +2707,10 @@ function switch_action_box_content() {
     } else if(current_activity) {
         current_activity = null;
         end_activity_animation();
-    } else if(current_location_action) {
-        current_location_action = null;
+    } else if(current_game_action) {
+        current_game_action = null;
         end_activity_animation();
-        clearInterval(location_action_interval);
+        clearInterval(game_action_interval);
     }
 
     if(content_stack.length) {
@@ -2701,13 +2723,15 @@ function switch_action_box_content() {
 
             //todo, generally it's mostly just copy-pastes from relevant functions...
         } else if(content_type === "dialogue_answer") {
-            //no need to handle this one (and it's expected to not appear here), as there's no need to put the answer to the stack, just remember to not reset current_dialogue for this case
+            //no need to handle this one? (and it's expected to not appear here), as there's no need to put the answer to the stack
         } else if(content_type === "dialogue_branch") {
             //but there's a need to handle this one, to allow infinite depth branching
             //similar but read textlines to be displayed and answer from .data (place there in end_textline or whatever it's called) and show only it
         } else if(content_type === "action") {
-            current_location_action = data.action_key;
-            //start action, set current, set timer, set display
+            current_dialogue = data.dialogue_key;
+            current_game_action = data.action_key;
+
+            //start action, set current, set timer
         } else if(content_type === "activity") {
             current_activity = data.activity_key;
             //again no need as nothing should be stackable on top of it, but still make sure to setup display the normal way
@@ -3064,11 +3088,17 @@ function create_save() {
         
         save_data["dialogues"] = {};
         Object.keys(dialogues).forEach(function(dialogue) {
-            save_data["dialogues"][dialogue] = {is_unlocked: dialogues[dialogue].is_unlocked, is_finished: dialogues[dialogue].is_finished, textlines: {}};
+            save_data["dialogues"][dialogue] = {is_unlocked: dialogues[dialogue].is_unlocked, is_finished: dialogues[dialogue].is_finished, textlines: {}, actions: {}};
             if(dialogues[dialogue].textlines) {
-                Object.keys(dialogues[dialogue].textlines).forEach(function(textline) {
-                    save_data["dialogues"][dialogue].textlines[textline] = {is_unlocked: dialogues[dialogue].textlines[textline].is_unlocked,
-                                                                is_finished: dialogues[dialogue].textlines[textline].is_finished};
+                Object.keys(dialogues[dialogue].textlines).forEach(textline_key => {
+                    save_data["dialogues"][dialogue].textlines[textline_key] = {is_unlocked: dialogues[dialogue].textlines[textline_key].is_unlocked,
+                                                                is_finished: dialogues[dialogue].textlines[textline_key].is_finished};
+                });
+            }
+            if(dialogues[dialogue].actions) {
+                Object.keys(dialogues[dialogue].actions).forEach(action_key => {
+                    save_data["dialogues"][dialogue].actions[action_key] = {is_unlocked: dialogues[dialogue].actions[action_key].is_unlocked,
+                                                                is_finished: dialogues[dialogue].actions[action_key].is_finished};
                 });
             }
         }); //save dialogues' and their textlines' unlocked/finished statuses
@@ -3716,10 +3746,10 @@ function load(save_data) {
             return;
         }
         if(save_data.dialogues[dialogue].textlines) {  
-            Object.keys(save_data.dialogues[dialogue].textlines).forEach(function(textline){
-                if(dialogues[dialogue].textlines[textline]) {
-                    dialogues[dialogue].textlines[textline].is_unlocked = save_data.dialogues[dialogue].textlines[textline].is_unlocked;
-                    dialogues[dialogue].textlines[textline].is_finished = save_data.dialogues[dialogue].textlines[textline].is_finished;
+            Object.keys(save_data.dialogues[dialogue].textlines).forEach(textline_key => {
+                if(dialogues[dialogue].textlines[textline_key]) {
+                    dialogues[dialogue].textlines[textline_key].is_unlocked = save_data.dialogues[dialogue].textlines[textline_key].is_unlocked;
+                    dialogues[dialogue].textlines[textline_key].is_finished = save_data.dialogues[dialogue].textlines[textline_key].is_finished;
                 } else {
                     console.warn(`Textline "${textline}" in dialogue "${dialogue}" couldn't be found!`);
                     any_warnings = true;
@@ -3727,7 +3757,19 @@ function load(save_data) {
                 }
             }); 
         }
-    }); //load for dialogues and their textlines their unlocked/finished status
+        if(save_data.dialogues[dialogue].actions) {  
+            Object.keys(save_data.dialogues[dialogue].actions).forEach(action_key => {
+                if(dialogues[dialogue].actions[action_key]) {
+                    dialogues[dialogue].actions[action_key].is_unlocked = save_data.dialogues[dialogue].actions[action_key].is_unlocked;
+                    dialogues[dialogue].actions[action_key].is_finished = save_data.dialogues[dialogue].actions[action_key].is_finished;
+                } else {
+                    console.warn(`Textline "${action_key}" in dialogue "${dialogue}" couldn't be found!`);
+                    any_warnings = true;
+                    return;
+                }
+            }); 
+        }
+    }); //load for dialogues and their textlines and actions their unlocked/finished status
 
     Object.keys(save_data.traders).forEach(function(trader) { 
         let trader_item_list = [];
@@ -4894,8 +4936,8 @@ window.remove_fast_travel_choice = remove_fast_travel_choice;
 window.start_activity = start_activity;
 window.end_activity = end_activity;
 
-window.start_location_action = start_location_action;
-window.end_location_action = end_location_action;
+window.start_game_action = start_game_action;
+window.end_game_action = end_game_action;
 
 window.start_sleeping = start_sleeping;
 window.end_sleeping = end_sleeping;
@@ -5080,8 +5122,9 @@ if(is_on_dev()) {
     }
 }
 
-export { current_enemies, can_work, 
-        current_location, active_effects, 
+export { current_enemies, 
+        current_location, 
+        can_work, active_effects, 
         enough_time_for_earnings, add_xp_to_skill, 
         get_current_book, 
         last_location_with_bed, 

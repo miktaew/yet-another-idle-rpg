@@ -13,7 +13,7 @@ import { current_enemies, options,
     global_flags,
     unlocked_beds,
     favourite_consumables,
-    travel_times} from "./main.js";
+    travel_times } from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time, seasons } from "./game_time.js";
@@ -2209,9 +2209,9 @@ function create_location_choices({location, category, is_combat = false}) {
             const location_action_div = document.createElement("div");
 
             //location_action_div.innerHTML = `<i class="material-icons">circle</i>  `;
-            location_action_div.classList.add("location_action_div", "start_location_action", "location_choice");
+            location_action_div.classList.add("location_action_div", "start_game_action", "location_choice");
             location_action_div.setAttribute("data-location_action", key);
-            location_action_div.setAttribute("onclick", "start_location_action(this.getAttribute('data-location_action'));");
+            location_action_div.setAttribute("onclick", "start_game_action(this.getAttribute('data-location_action'));");
 
             location_action_div.appendChild(create_location_action_tooltip(location.actions[key]));
     
@@ -3590,7 +3590,6 @@ function update_displayed_reputation() {
  */
 function update_displayed_dialogue({dialogue_key, textlines, origin}) {
     const dialogue = dialogues[dialogue_key];
-    console.log(dialogue_key);
     
     clear_action_div();
     const dialogue_name_div = document.createElement("div");
@@ -3602,7 +3601,7 @@ function update_displayed_dialogue({dialogue_key, textlines, origin}) {
     dialogue_answer_div.id = "dialogue_answer_div";
     action_div.appendChild(dialogue_answer_div);
     if(!textlines) {
-        Object.keys(dialogue.textlines).forEach(function(key) { //add buttons for textlines
+        Object.keys(dialogue.textlines).forEach(key => { //add buttons for textlines
             if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished && !dialogue.textlines[key].is_branch_only && process_conditions(dialogue.textlines[key].display_conditions, character)) { 
                 //do only if text_line is not unavailable and not a branch
                 if(dialogue.textlines[key].required_flags) {
@@ -3632,6 +3631,17 @@ function update_displayed_dialogue({dialogue_key, textlines, origin}) {
                 textline_div.setAttribute("data-textline", key);
                 textline_div.setAttribute("onclick", `start_textline(this.getAttribute('data-textline'))`);
                 action_div.appendChild(textline_div);
+            }
+        });
+
+        Object.keys(dialogue.actions).forEach(key => { //add buttons for actions
+            if(dialogue.actions[key].is_unlocked && !dialogue.actions[key].is_finished) { 
+                const dialogue_action_div = document.createElement("div");
+                dialogue_action_div.innerHTML = `${dialogue.actions[key].starting_text}`;
+                dialogue_action_div.classList.add("dialogue_textline");
+                dialogue_action_div.setAttribute("data-location_action", key);
+                dialogue_action_div.setAttribute("onclick", `start_game_action(this.getAttribute('data-location_action'))`);
+                action_div.appendChild(dialogue_action_div);
             }
         });
 
@@ -3853,10 +3863,16 @@ function update_displayed_ongoing_activity(current_activity, is_job){
     }
 }
 
-function start_location_action_display(selected_action) {
+function start_game_action_display(dialogue_key, action_key) {
     clear_action_div();
 
-    const action = current_location.actions[selected_action]
+    let action;
+    if(dialogue_key) {
+        action = dialogues[dialogue_key].actions[action_key];
+    } else {
+        action = current_location.actions[action_key];
+        
+    }
     const action_status_div = document.createElement("div");
     action_status_div.innerText = action.action_text;
     action_status_div.id = "action_status_div";
@@ -3871,7 +3887,7 @@ function start_location_action_display(selected_action) {
     action_div.appendChild(action_progress_bar_max);
 
     const action_end_div = document.createElement("div");
-    action_end_div.setAttribute("onclick", "end_location_action()");
+    action_end_div.setAttribute("onclick", "end_game_action()");
     action_end_div.id = "action_end_div";
 
 
@@ -3917,7 +3933,7 @@ function fill_action_box({content_type, data}) {
         update_displayed_dialogue({dialogue_key: data.dialogue_key, textlines: data.textlines});
         update_displayed_textline_answer({text: data.text});
     } else if(content_type === "action") {
-        
+        start_game_action_display(data.dialogue_key, data.action_key);
     } else if(content_type === "activity") {
         
     } else {
@@ -5193,7 +5209,7 @@ export {
     update_item_recipe_visibility, update_item_recipe_tooltips,
     update_displayed_book,
     update_backup_load_button, update_other_save_load_button,
-    start_location_action_display,
+    start_game_action_display,
     set_location_action_finish_text,
     update_location_action_progress_bar, update_location_action_finish_button,
     update_displayed_storage, exit_displayed_storage, update_displayed_storage_inventory,
