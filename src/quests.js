@@ -106,7 +106,7 @@ const questManager = {
         }
     },
 
-    finishQuestTask({quest_id, task_index, only_unlocks, skip_warning = false}) {
+    finishQuestTask({quest_id, task_index, only_unlocks, skip_warning = false, allowed_to_finish_quest = true}) {
         if(this.isQuestActive(quest_id)) {
             let quest = quests[quest_id];
             quest.quest_tasks[task_index].is_finished = true;
@@ -116,6 +116,11 @@ const questManager = {
             }
 
             process_rewards({rewards: quest.quest_tasks[task_index].task_rewards, source_type: "Quest", source_name: quests[quest_id].getQuestName(), only_unlocks: only_unlocks});
+
+            const remaining_tasks = active_quests[quest_id].quest_tasks.filter(task => !task.is_finished);
+            if(allowed_to_finish_quest && remaining_tasks.length == 0) { //no more tasks
+                this.finishQuest({quest_id: quest_id});
+            }
 
         } else {
             if(!skip_warning) {
@@ -216,7 +221,7 @@ const questManager = {
                 });
             });
             if(is_any_met && is_all_met) { //completed
-                this.finishQuestTask({quest_id: active_quest_id, task_index: current_task_index});
+                this.finishQuestTask({quest_id: active_quest_id, task_index: current_task_index, allowed_to_finish_quest: false});
             } else {
                 if(!active_quests[active_quest_id].is_hidden && !active_quests[active_quest_id].quest_tasks[current_task_index.is_hidden]) {
                     update_displayed_quest_task(active_quest_id, current_task_index);
@@ -278,7 +283,7 @@ const questManager = {
             new QuestTask({task_description: "Bring 50 packs of bonemeal"}),
         ],
         quest_rewards: {
-            //todo
+            //todo money, some town rep
         }
     })
 })();

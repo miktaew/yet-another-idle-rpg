@@ -62,9 +62,9 @@ import { end_activity_animation,
          update_backup_load_button,
          update_other_save_load_button,
          start_game_action_display,
-         set_location_action_finish_text,
-         update_location_action_progress_bar,
-         update_location_action_finish_button,
+         set_game_action_finish_text,
+         update_game_action_progress_bar,
+         update_game_action_finish_button,
          update_displayed_storage_inventory,
          update_location_icon,
          skill_list,
@@ -655,11 +655,11 @@ function start_game_action(action_key) {
             }
 
             current_iterations++;
-            update_location_action_progress_bar(current_iterations/total_iterations);
+            update_game_action_progress_bar(current_iterations/total_iterations);
         }, 1000*0.1/tickrate);
     } else {
+        update_game_action_progress_bar(1);
         finish_game_action({action_key, conditions_status,dialogue_key: current_dialogue});
-        update_location_action_progress_bar(1);
     }
 }
 
@@ -725,12 +725,21 @@ function finish_game_action({action_key, conditions_status, dialogue_key}){
         });
     }
 
-    set_location_action_finish_text(result_message);
-    update_location_action_finish_button();
+    update_game_action_finish_button();
+
+    if(!dialogue_key) {
+        set_game_action_finish_text(result_message);
+    } else {
+        pass_data_down_the_content_stack({data: {upstack_result_message: result_message}});
+
+        if(action.attempt_duration == 0) { //if action is instant, just jump back to dialogue without bothering with display of results, leave that stuff to dialogue answer
+            remove_from_content_stack(content_stack_removal_options.TOP);
+        }
+    }
 }
 
 /**
- * Handles quitting a game action by a button click, no matter the results. Not to be mistaken for finish_game_action which deals with what happens on timer finish (and with the results)
+ * Handles quitting a game action, no matter the results. Not to be mistaken for finish_game_action which deals with what happens on timer finish (and with the results)
  */
 function end_game_action() {
     end_activity_animation();
@@ -2178,7 +2187,6 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         for(let i = 0; i < rewards.quest_progress.length; i++) {
             const quest_id = rewards.quest_progress[i].quest_id;
             const task_index = rewards.quest_progress[i].task_index;
-
             if(task_index == quests[quest_id].getCompletedTaskCount()) {
                 if(quests[quest_id]?.quest_tasks[task_index]) {
                     questManager.finishQuestTask({quest_id: quest_id, task_index: task_index, skip_warning: true});
@@ -2698,6 +2706,12 @@ function remove_from_content_stack() {
     }
 
     switch_action_box_content();
+}
+
+function pass_data_down_the_content_stack({data}) {
+    if(content_stack.length > 1) {
+        content_stack[content_stack.length - 2].data.special = data;
+    }
 }
 
 function switch_action_box_content() {

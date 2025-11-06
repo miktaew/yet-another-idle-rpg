@@ -99,6 +99,13 @@ class Textline {
     }
 }
 
+class DialogueAction extends GameAction {
+    constructor(data) {
+        super(data);
+        this.giveup_text = data.giveup_text;
+    }
+}
+
 (function(){
     dialogues["village elder"] = new Dialogue({
         name: "village elder",
@@ -666,7 +673,7 @@ class Textline {
             }), 
         },
         actions: {
-            "bonemeal1": new GameAction({
+            "bonemeal1": new DialogueAction({
                 action_id: "bonemeal1",
                 starting_text: "[Deliver the bonemeal]",
                 description: "",
@@ -681,6 +688,12 @@ class Textline {
                 attempt_duration: 0,
                 success_chances: [1],
                 rewards: {
+                    quest_progress: [
+                        {
+                            quest_id: "Bonemeal delivery",
+                            task_index: 0
+                        }
+                    ]
                     
                 },
             }),

@@ -3903,15 +3903,15 @@ function start_game_action_display(dialogue_key, action_key) {
     start_activity_animation();
 }
 
-function update_location_action_progress_bar(percent) {
-        document.getElementById("action_progress_bar").style.width = 385*percent+"px";
+function update_game_action_progress_bar(percent) {
+    document.getElementById("action_progress_bar").style.width = 385*percent+"px";
 }
 
-function set_location_action_finish_text(text) {
+function set_game_action_finish_text(text) {
     document.getElementById("action_status_div").innerHTML = text;
 }
 
-function update_location_action_finish_button() {
+function update_game_action_finish_button() {
     document.getElementById("action_end_div").innerHTML = "Finish";
 }
 
@@ -3921,17 +3921,31 @@ function update_location_action_finish_button() {
  */
 function fill_action_box({content_type, data}) {
 
+    let text = '';
+    if(data.special?.upstack_result_message) {
+        text = data.special.upstack_result_message;
+    }
+
     if(content_type === "dialogue") {
         update_displayed_dialogue({dialogue_key: data.dialogue_key});
-        if(!document.getElementById("dialogue_answer_div").innerHTML) { //probably pointless to check?
-            update_displayed_textline_answer({text: dialogues[data.dialogue_key].getDescription(), is_description: true});
+        if(!text) {
+            text = dialogues[data.dialogue_key].getDescription();
         }
+        //if(!document.getElementById("dialogue_answer_div").innerHTML) { //probably pointless to check?
+        update_displayed_textline_answer({text, is_description: true});
+        //}
     } else if(content_type === "dialogue_answer") {
         update_displayed_dialogue({dialogue_key: data.dialogue_key});
-        update_displayed_textline_answer({text: data.text});
+        if(!text) {
+            text = data.text;
+        }
+        update_displayed_textline_answer({text});
     } else if(content_type === "dialogue_branch") {
         update_displayed_dialogue({dialogue_key: data.dialogue_key, textlines: data.textlines});
-        update_displayed_textline_answer({text: data.text});
+        if(!text) {
+            text = data.text;
+        }
+        update_displayed_textline_answer({text});
     } else if(content_type === "action") {
         start_game_action_display(data.dialogue_key, data.action_key);
     } else if(content_type === "activity") {
@@ -5210,8 +5224,8 @@ export {
     update_displayed_book,
     update_backup_load_button, update_other_save_load_button,
     start_game_action_display,
-    set_location_action_finish_text,
-    update_location_action_progress_bar, update_location_action_finish_button,
+    set_game_action_finish_text,
+    update_game_action_progress_bar, update_game_action_finish_button,
     update_displayed_storage, exit_displayed_storage, update_displayed_storage_inventory,
     update_location_icon,
     skill_list,
