@@ -1137,17 +1137,19 @@ book_stats["A Glint On The Sand"] = new BookData({
         name: "Rat fang", 
         description: "Fang of a huge rat, not very sharp, but can still pierce a human skin if enough force is applied", 
         value: 8,
+        material_type: "animal tooth",
     });
 
     item_templates["Wolf fang"] = new OtherItem({
         name: "Wolf fang", 
         description: "Fang of a wild wolf. Somewhat sharp, still not very useful. Maybe if it had a bit better quality...", 
         value: 12,
+        material_type: "animal tooth",
     });
 
     item_templates["Boar tusk"] = new Material({
         name: "Boar tusk", 
-        description: "Tusk of a wild boar. Visibly used.",
+        description: "Tusk of a wild boar. Visibly worn and not very sharp.",
         value: 20,
     });
 
