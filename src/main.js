@@ -658,7 +658,7 @@ function start_game_action(action_key) {
             update_location_action_progress_bar(current_iterations/total_iterations);
         }, 1000*0.1/tickrate);
     } else {
-        finish_game_action({action_key, conditions_status});
+        finish_game_action({action_key, conditions_status,dialogue_key: current_dialogue});
         update_location_action_progress_bar(1);
     }
 }
@@ -681,9 +681,9 @@ function finish_game_action({action_key, conditions_status, dialogue_key}){
 
     if(typeof conditions_status === 'undefined') {
         if(dialogue_key) {
-            conditions_status = current_location.actions[action_key].get_conditions_status(character);
-        } else {
             conditions_status = dialogues[dialogue_key].actions[action_key].get_conditions_status(character);
+        } else {
+            conditions_status = current_location.actions[action_key].get_conditions_status(character);
         }
     }
     
@@ -730,7 +730,7 @@ function finish_game_action({action_key, conditions_status, dialogue_key}){
 }
 
 /**
- * Handles giving up on a game action. Not to be mistaken for finish_game_action
+ * Handles quitting a game action by a button click, no matter the results. Not to be mistaken for finish_game_action which deals with what happens on timer finish (and with the results)
  */
 function end_game_action() {
     end_activity_animation();

@@ -671,7 +671,7 @@ class Textline {
                 starting_text: "[Deliver the bonemeal]",
                 description: "",
                 action_text: "",
-                success_text: "Thank you very much, here's your money! If you ever want to make more deliveries of this size, we will gladly take them, although the pay will only be half of what it was this time.",
+                success_text: "Thank you very much, here's your money! If you ever want to make more deliveries of this size, we will gladly take them, although it will have to be for the regular price",
                 failure_texts: {
                     unable_to_begin: ["I'm sorry, but that's not enough"],
                 },
