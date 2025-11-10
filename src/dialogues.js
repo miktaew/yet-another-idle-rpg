@@ -118,10 +118,6 @@ class DialogueAction extends GameAction {
                 },
                 locks_lines: ["hello"],
             }),
-            "why": new Textline({
-                name: "Why?",
-                text: "Hello. Glad to see you got better",
-            }),
             "what happened": new Textline({
                 name: "My head hurts.. What happened?",
                 text: `Some of our people found you unconscious in the forest, wounded and with nothing but pants and an old sword, so they brought you to our village. `
