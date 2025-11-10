@@ -60,6 +60,7 @@ class Textline {
                             items: [],
                             locks: {textlines: {}}, //for lines to be locked in diferent dialogues and possibly for other stuff
                             },
+                branches_into = [],
                 locks_lines = [], //for lines to be locked in same dialogue
                 otherUnlocks,
                 required_flags,
@@ -74,6 +75,7 @@ class Textline {
         this.is_finished = is_finished;
         this.is_branch_only = is_branch_only; //if true, textline won't be displayed in overall view and instead will only be available as a branch dialogue
         this.rewards = rewards || {};
+        this.branches_into = branches_into;
         
         this.rewards.textlines = rewards.textlines || [];
         this.rewards.locations = rewards.locations || [];

@@ -1121,7 +1121,11 @@ function start_textline(textline_key){
         }
     }
 
-    fill_action_box({content_type: "dialogue_answer", data: {text: text, dialogue_key: current_dialogue}});
+    if(textline.branches_into?.length) {
+        fill_action_box({content_type: "dialogue_branch", data: {text: text, textlines: textline.branches_into}});
+    } else {
+        fill_action_box({content_type: "dialogue_answer", data: {text: text, dialogue_key: current_dialogue}});
+    }
 }
 
 /**
@@ -2735,20 +2739,18 @@ function switch_action_box_content() {
         }
         if(content_type === "dialogue") {
 
-            //todo, generally it's mostly just copy-pastes from relevant functions...
+            //nothing?
         } else if(content_type === "dialogue_answer") {
             //no need to handle this one? (and it's expected to not appear here), as there's no need to put the answer to the stack
         } else if(content_type === "dialogue_branch") {
-            //but there's a need to handle this one, to allow infinite depth branching
-            //similar but read textlines to be displayed and answer from .data (place there in end_textline or whatever it's called) and show only it
+            //need to handle this one, to allow infinite depth branching?
         } else if(content_type === "action") {
+            //everything else is handled in action code
             current_dialogue = data.dialogue_key;
             current_game_action = data.action_key;
-
-            //start action, set current, set timer
         } else if(content_type === "activity") {
             current_activity = data.activity_key;
-            //again no need as nothing should be stackable on top of it, but still make sure to setup display the normal way
+            //no need to do much as nothing should be stackable on top of it
         } else {
             throw new Error(`Error on switching action box content: no such content type as "${content_type}"`);
         }
@@ -3765,7 +3767,7 @@ function load(save_data) {
                     dialogues[dialogue].textlines[textline_key].is_unlocked = save_data.dialogues[dialogue].textlines[textline_key].is_unlocked;
                     dialogues[dialogue].textlines[textline_key].is_finished = save_data.dialogues[dialogue].textlines[textline_key].is_finished;
                 } else {
-                    console.warn(`Textline "${textline}" in dialogue "${dialogue}" couldn't be found!`);
+                    console.warn(`Textline "${textline_key}" in dialogue "${dialogue}" couldn't be found!`);
                     any_warnings = true;
                     return;
                 }

@@ -3663,8 +3663,9 @@ function update_displayed_dialogue({dialogue_key, textlines, origin}) {
         action_div.appendChild(end_dialogue_div);
     } else {
         //textlines are passed, use only them instead of all the dialogue has (minus branches)
-        Object.keys(textlines).forEach(key => { //add buttons for textlines
-            //get keys from textlines but then just grab it from dialogues because copy-paste and frankly it doesn't matter, textlines param is supposed to be directly from dialogue, just filtered
+        for(let i = 0; i < textlines.length; i++) {
+            const key = textlines[i];
+            //get key from passed array, read relevant entry from dialogue
             if(dialogue.textlines[key].is_unlocked && !dialogue.textlines[key].is_finished && process_conditions(dialogue.textlines[key].display_conditions, character)) { //do only if text_line is not unavailable
                 if(dialogue.textlines[key].required_flags) {
                     if(dialogue.textlines[key].required_flags.yes && !Array.isArray(dialogue.textlines[key].required_flags.yes) || dialogue.textlines[key].required_flags.no && !Array.isArray(dialogue.textlines[key].required_flags.no)) {
@@ -3694,7 +3695,7 @@ function update_displayed_dialogue({dialogue_key, textlines, origin}) {
                 textline_div.setAttribute("onclick", `start_textline(this.getAttribute('data-textline'), ${origin})`); //additional param compared to when there's no textlines passed
                 action_div.appendChild(textline_div);
             }
-        });
+        }
 
         const backstep_dialogue_div = document.createElement("div");
 
