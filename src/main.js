@@ -3800,7 +3800,6 @@ function load(save_data) {
             if(save_data.traders[trader].inventory) {
                 Object.keys(save_data.traders[trader].inventory).forEach(function(key){
                     if(is_JSON(key)) {
-                        //case where this is False is left as compatibility for saves before v0.4.4
                         let {id, components, quality} = JSON.parse(key);
                         if(id && !quality) { 
                             //id is just a key of item_templates
@@ -3864,7 +3863,7 @@ function load(save_data) {
                             console.error(`Intentory key "${key}" from save on version "${save_data["game version"]} is incorrect!`);
                         }
                         
-                    } else { //older save
+                    } else { //compatibility for saves before v0.4.4
                         if(Array.isArray(save_data.traders[trader].inventory[key])) { //is a list of unstackable (equippable or book) item, needs to be added 1 by 1
                             for(let i = 0; i < save_data.traders[trader].inventory[key].length; i++) {
                                 if(save_data.traders[trader].inventory[key][i].item_type === "EQUIPPABLE"){
