@@ -877,7 +877,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             xp: 50,
             activities: [{location:"Nearby cave", activity:"mining2"}],
         },
-        is_temperature_static: true,
+        is_temperature_static: false,
         temperature_range_modifier: 0.5,
         is_under_roof: true,
         unlock_text: "As the wall falls apart, you find yourself in front of a new tunnel, leading even deeper. And of course, it's full of wolf rats."

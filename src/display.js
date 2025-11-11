@@ -1895,7 +1895,7 @@ function update_displayed_normal_location(location) {
     const available_fast_travel = 
     [
         ...Object.keys(favourite_locations).filter(key => (key !== current_location.id)), 
-        ...Object.keys(unlocked_beds).filter(key => (key !== location.id && locations[key].is_unlocked && !locations[key].is_finished))
+        ...Object.keys(unlocked_beds).filter(key => (key !== current_location.id && locations[key].is_unlocked && !locations[key].is_finished))
     ];
 
     if((available_fast_travel.length + (last_combat_location?1:0)) > 0) {
@@ -2231,7 +2231,7 @@ function create_fast_travel_choices() {
     let available_fast_travel = 
     [
         ...Object.keys(favourite_locations).filter(key => (key !== current_location.id)),
-        ...Object.keys(unlocked_beds).filter(key => (key !== location.id && locations[key].is_unlocked && !locations[key].is_finished))
+        ...Object.keys(unlocked_beds).filter(key => (key !== current_location.id && locations[key].is_unlocked && !locations[key].is_finished))
     ];
 
     if(last_combat_location && !available_fast_travel.includes(last_combat_location)) {
@@ -2256,6 +2256,9 @@ function create_fast_travel_choices() {
 
     for(let i = 0; i < available_fast_travel.length; i++) { 
         if(!locations[available_fast_travel[i]].is_unlocked || locations[available_fast_travel[i]].is_finished) { //skip if not unlocked or if finished
+            continue;
+        }
+        if(available_fast_travel[i] === current_location.id) { //do not show current location as a valid destination
             continue;
         }
 
