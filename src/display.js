@@ -4800,11 +4800,13 @@ function add_quest_to_display(quest_id) {
  * @returns 
  */
 function update_displayed_quest(quest_id) {
-    if(!quest_entry_divs[quest_id]) {
-        console.warn(`Tried to update display of quest "${quest_id}", but it's not in display!`);
-        return;
-    } else if(quests[quest_id].is_hidden) {
+    
+    if(quests[quest_id].is_hidden) {
         console.warn(`Tried to update display of quest "${quest_id}", but it's a hidden quest!`);
+        console.trace()
+        return;
+    } else if(!quest_entry_divs[quest_id]) {
+        console.warn(`Tried to update display of quest "${quest_id}", but it's not in display!`);
         return;
     }
 

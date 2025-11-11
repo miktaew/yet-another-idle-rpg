@@ -1777,7 +1777,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 calc xp ammount so that it's no more than the difference between child and parent
             */
             let xp_for_parent = Math.min(skill.total_xp - skills[skill.parent_skill].total_xp, xp_to_add);
-            add_xp_to_skill({skill: skills[skill.parent_skill], xp_to_add: xp_for_parent, should_info, use_bonus: false, add_to_parent, cap_gained_xp: false});
+            add_xp_to_skill({skill: skills[skill.parent_skill], xp_to_add: xp_for_parent, should_info, use_bonus: false, add_to_parent, cap_gained_xp: false, is_from_loading});
         }
     }
 
@@ -2921,7 +2921,7 @@ function do_quest_event({quest_event_type, quest_event_target, quest_event_count
         quest_event_type,
         quest_event_target,
         quest_event_count,
-        additional_quest_triggers: {
+        additional_quest_tags: {
             location: current_location?.id || "",
             season: current_game_time.getSeason() || "",
             //just whatever might be possibly needed, to be updated as things expand
@@ -4164,7 +4164,7 @@ function load(save_data) {
                     quests[quest].quest_tasks[i].is_finished = true;
                 }
                 questManager.startQuest({quest_id: quest, should_inform: false});
-                questManager.finishQuest({quest_id: quest, only_unlocks: true});
+                questManager.finishQuest({quest_id: quest, should_inform: false, only_unlocks: true, is_from_loading: true});
 
             } else if(save_data["quests"][quest].is_active) {
                 questManager.startQuest({quest_id: quest, should_inform: false});
@@ -4201,7 +4201,9 @@ function load(save_data) {
                         });
                     });
                 });
-                update_displayed_quest(quest);
+                if(!quests[quest].is_hidden) {
+                    update_displayed_quest(quest);
+                }
             }
         });
     }
@@ -4209,7 +4211,7 @@ function load(save_data) {
     //save from before quests, need to manually setup story quests
     if(is_a_older_than_b(save_data["game version"], "v0.5.0")){
         
-        //memory
+        //memory line
         questManager.startQuest({quest_id: "Lost memory", should_inform: false});
         if(dialogues["village elder"].textlines["what happened"].is_finished) {
             questManager.finishQuestTask({quest_id: "Lost memory", task_index: 0});
@@ -4228,7 +4230,7 @@ function load(save_data) {
             
         }
 
-        //saga
+        //rat saga line
         if(locations["Suspicious wall"].is_finished) {
             questManager.startQuest({quest_id: "The Infinite Rat Saga", should_inform: false});
 

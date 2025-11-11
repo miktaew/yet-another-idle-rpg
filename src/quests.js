@@ -86,10 +86,11 @@ const questManager = {
     },
 
     isQuestActive(quest_id) {
-        return active_quests[quest_id];
+        return quest_id in active_quests;
     },
 
-    finishQuest({quest_id, only_unlocks = false, skip_rewards = false}) {
+    finishQuest({quest_id, only_unlocks, is_from_loading, skip_rewards}) {
+
         if(this.isQuestActive(quest_id)) {
             let quest = quests[quest_id];
             if(!quest.is_repeatable) {
@@ -101,7 +102,8 @@ const questManager = {
             }
 
             if(!skip_rewards) {
-                process_rewards({rewards: quests[quest_id].quest_rewards, source_type: "Quest", source_name: quests[quest_id].getQuestName(), only_unlocks: only_unlocks});
+                
+                process_rewards({rewards: quests[quest_id].quest_rewards, source_type: "Quest", source_name: quests[quest_id].getQuestName(), only_unlocks: only_unlocks, is_from_loading});
             }
         }
     },
@@ -111,7 +113,7 @@ const questManager = {
             let quest = quests[quest_id];
             quest.quest_tasks[task_index].is_finished = true;
             if(!quests[quest_id].is_hidden) {
-                update_displayed_quest_task(quest_id, task_index);
+                //update_displayed_quest_task(quest_id, task_index);
                 update_displayed_quest(quest_id);
             }
 
@@ -120,6 +122,7 @@ const questManager = {
             const remaining_tasks = active_quests[quest_id].quest_tasks.filter(task => !task.is_finished);
             if(allowed_to_finish_quest && remaining_tasks.length == 0) { //no more tasks
                 this.finishQuest({quest_id: quest_id});
+                
             }
 
         } else {
@@ -135,13 +138,18 @@ const questManager = {
                 //can happen if one quest deletes another
                 return;
             }
-            const current_task_index = active_quests[active_quest_id].quest_tasks.findIndex(task => !task.is_finished); //just get the first unfinished
+
+            const current_task_index = active_quests[active_quest_id].quest_tasks.findIndex(task => !task.is_finished); //get the first unfinished
             const current_task = active_quests[active_quest_id].quest_tasks[current_task_index];
 
-            let is_any_met = "any" in current_task.task_condition?false:true;
-            let is_all_met = "all" in current_task.task_condition?true:false;
+            if(!("any" in current_task.task_condition) && !("all" in current_task.task_condition)) {
+                //no conditions (meaning it's progressed via rewards), nothing to check
+                return;
+            }
 
-            Object.keys(current_task.task_condition).forEach(task_group => {
+            let is_any_met = false;//"any" in current_task.task_condition?false:true;
+            let is_all_met = true;//"all" in current_task.task_condition?true:false;
+            Object.keys(current_task.task_condition).forEach(task_group => { //any/all
             /*
                 task_group (any/all): {
                     task_type (kill/kill_any/clear/reach_skill/enter_location/something_else?): { <- quest_event_type
@@ -170,57 +178,63 @@ const questManager = {
             */
 
                 
-                Object.keys(current_task.task_condition[task_group]).forEach(task_type => {
-                    Object.keys(current_task.task_condition[task_group][task_type]).forEach(task_target_id => {
+                Object.keys(current_task.task_condition[task_group]).forEach(task_type => { //kill/kill_any/reach_skill/etc
+                    Object.keys(current_task.task_condition[task_group][task_type]).forEach(task_target_id => { //"Village", "Wolf", etc
                         if(!current_task.task_condition[task_group][task_type][task_target_id].current) {
                             current_task.task_condition[task_group][task_type][task_target_id].current = 0;
                         }
-                    });
 
-                    //if event is of proper type, check further conditions, increase the count and check if it's completed
-                    if(quest_event_type in current_task.task_condition[task_group] && quest_event_target in current_task.task_condition[task_group][quest_event_type]) {
+                        //if event is of proper type, check further conditions, increase the count and check if it's completed
+                        if(quest_event_type === task_type && quest_event_target === task_target_id) {
 
-                        let requirements_met = true;
+                            let requirements_met = true;
 
-                        //check if additional requirements are not met (present in additional tags)
-                        const requirements = current_task.task_condition[task_group][quest_event_type][quest_event_target].requirements;
-                        Object.keys(requirements || {}).forEach(requirement => {
-                            if(!additional_quest_tags[requirement] || additional_quest_tags[requirement] != requirements[requirement]) {
-                                requirements_met = false;
-                            }
-                        });
-
-                        if(requirements_met) {
-                            const restrictions = current_task.task_condition[task_group][quest_event_type][quest_event_target].restrictions;
-                            Object.keys(restrictions || {}).forEach(restriction => {
-                                if(additional_quest_tags[restriction] && additional_quest_tags[restriction] === restrictions[restriction]) {
+                            //check if additional requirements are not met (present in additional tags)
+                            const requirements = current_task.task_condition[task_group][task_type][task_target_id].requirements;
+                            Object.keys(requirements || {}).forEach(requirement => {
+                                if(!additional_quest_tags[requirement] || additional_quest_tags[requirement] != requirements[requirement]) {
                                     requirements_met = false;
                                 }
                             });
-                        }
 
-                        //if they are not met, return without changing .current
-                        if(!requirements_met) {
-                            return;
-                        }
+                            if(requirements_met) {
+                                const restrictions = current_task.task_condition[task_group][task_type][task_target_id].restrictions;
+                                Object.keys(restrictions || {}).forEach(restriction => {
+                                    
+                                    if(additional_quest_tags[restriction] && additional_quest_tags[restriction] === restrictions[restriction]) {
+                                        requirements_met = false;
+                                    }
+                                });
+                            }
 
-                        if(quest_event_type === "reach_skill") {
-                            current_task.task_condition[task_group][quest_event_type][quest_event_target].current = quest_event_count;
-                        } else {
-                            current_task.task_condition[task_group][quest_event_type][quest_event_target].current += quest_event_count;
+                            //if they are not met, return without changing .current
+                            if(!requirements_met) {
+                                is_all_met = false; //set to false as current task_target cannot be possibly fulfilled in this action but the other check wouldn't be reached
+                                return;
+                            }
+
+                            if(task_type === "reach_skill") {
+                                current_task.task_condition[task_group][task_type][task_target_id].current = quest_event_count;
+                            } else {
+                                current_task.task_condition[task_group][task_type][task_target_id].current += quest_event_count;
+                            }
                         }
 
                         //any => set to true after first met, as only one is needed
                         //all => set to false after first not met, as all are needed
-                        if(task_group === "any" && current_task.task_condition[task_group][quest_event_type][quest_event_target].current >= current_task.task_condition[task_group][quest_event_type][quest_event_target].target) {
+                        //check if conditions are met, do it irrespectible of quest_event_type/target as is_all_met needs to consider all (duh), instead of just the one type that was passed
+                        if(task_group === "any" && current_task.task_condition[task_group][task_type][task_target_id].current >= current_task.task_condition[task_group][task_type][task_target_id].target) {
                             is_any_met = true;
-                        } else if(task_group === "all" && current_task.task_condition[task_group][quest_event_type][quest_event_target].current < current_task.task_condition[task_group][quest_event_type][quest_event_target].target) {
+                        } else if(task_group === "all" && current_task.task_condition[task_group][task_type][task_target_id].current < current_task.task_condition[task_group][task_type][task_target_id].target) {
                             is_all_met = false;
                         }
-                    }
+                    });
                 });
             });
-            if(is_any_met && is_all_met) { //completed
+
+            
+            
+            if((is_any_met || !("any" in current_task.task_condition)) && (is_all_met || !("all" in current_task.task_condition))) { //completed
                 this.finishQuestTask({quest_id: active_quest_id, task_index: current_task_index, allowed_to_finish_quest: false});
             } else {
                 if(!active_quests[active_quest_id].is_hidden && !active_quests[active_quest_id].quest_tasks[current_task_index.is_hidden]) {
@@ -313,7 +327,7 @@ const questManager = {
         //climbing can still be unlocked via fights in the cave
         is_hidden: true,
         quest_rewards: {
-            activities: [{location:"Village", activity:"swimming"}],
+            global_activities: ["swimming"],
             messages: ["With all the training you have done so far, the idea of submerging yourself in the river passing by the village is really tempting"],
         },
         quest_tasks: [
@@ -338,7 +352,7 @@ const questManager = {
                         }
                     }
                 }
-            }) 
+            }),
         ],
     });
 })();
@@ -378,7 +392,7 @@ quests["Test quest"] = new Quest({
 */
 
 Object.keys(quests).forEach(quest => {
-    quests[quest].id = quest;
+    quests[quest].quest_id = quest;
 });
 
 export { quests, active_quests, questManager};
