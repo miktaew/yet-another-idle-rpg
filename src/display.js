@@ -3953,7 +3953,7 @@ function fill_action_box({content_type, data}) {
     } else if(content_type === "action") {
         start_game_action_display(data.dialogue_key, data.action_key);
     } else if(content_type === "activity") {
-        
+        start_activity_display(data.activity);
     } else {
         throw new Error(`Error on filling action box content: no such content type as "${content_type}"`);
     }

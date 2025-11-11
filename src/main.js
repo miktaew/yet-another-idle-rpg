@@ -586,7 +586,9 @@ function start_activity(selected_activity) {
         current_activity.gathering_time_needed = current_activity.getActivityEfficiency().gathering_time_needed;
     }
 
-    start_activity_display(current_activity);
+    add_to_content_stack({content_type: "activity", data: {activity: current_activity}});
+
+    //start_activity_display(current_activity);
 }
 
 function end_activity() {
@@ -2749,7 +2751,7 @@ function switch_action_box_content() {
             current_dialogue = data.dialogue_key;
             current_game_action = data.action_key;
         } else if(content_type === "activity") {
-            current_activity = data.activity_key;
+            current_activity = data.activity;
             //no need to do much as nothing should be stackable on top of it
         } else {
             throw new Error(`Error on switching action box content: no such content type as "${content_type}"`);
