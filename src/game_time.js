@@ -63,10 +63,10 @@ function Game_Time(new_time) {
             month = this.month;
         }
 
-        if(month > 9) return "Winter";
-        else if(month > 6) return "Autumn";
-        else if(month > 3) return "Summer";
-        else return "Spring";
+        if(month > 9) return seasons[3];
+        else if(month > 6) return seasons[2];
+        else if(month > 3) return seasons[1];
+        else return seasons[0];
     }
 
     this.getTimeOfDay = function() {
