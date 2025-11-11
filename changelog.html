@@ -74,6 +74,8 @@ v0.5.0
     - added foreground animations for rain and for snow, and a background animation of stars for clear sky night; they are disabled by default and can be enabled in the options panel
     - market saturation system now covers everything except consumables; it has a harsher scaling for equipment and components
     - market saturation has been split into regions (currently: Village and Slums), with saturation slowly trickling between all regions until it balances out; for existing saves, saturations were equally split between the regions
+    - made it possible to start actions from dialogue level
+    - implemented dialogue branching (clicking a textline can show more textlines that are a continuation of the topic), not yet in use
     - added new equipment category, capes; they are rather expensive in terms of material cost, but provide the most cold protection out of all item types and allow you to feel fancy
     - added a new combat zone available from <span class="spoiler">'Forest road'</span>
     - added another stance, available from <span class="spoiler">'Suspicious man' after helping out in the 'Slums' (it technically existed before, but was impossible to unlock);
@@ -100,6 +102,7 @@ v0.5.0
     - 'Meditation' skill now provides a small intuition multiplier
     - 'Strength of Mind' skill now requires 120->400 xp for first level, but cost scaling was reduced x1.9->x1.7
     - 'Breathing' skill now requires 300->400xp for first level
+    - slightly nerfed active effects from food, as more of them are now available
     - some location type penalties now scale up to certain level instead of up to skill max level; scaling information was removed from skill descriptions
     - fieldwork in Village / Town Farms is now unavailable during winters
     - removed defense on wool items
@@ -121,6 +124,9 @@ v0.5.0
     - slightly buffed xp gains for gathering tier 3 wood/metal
     - in dialogues, name of the one being talked to is now displayed above the answers
 
+    - implemented content stack that holds information on what's currently shown and what it originated from, 
+        realistically serves just for aforementioned starting actions from dialogue level and for branching,
+        but handles everything that's not a location display (which is the default state for when stack is empty)
     - updated enemy lineup creation code to allow using predefined groups in their order (instead of choosing one randomly),
     and to allow using a predefined group every N clears while remaining fights use random enemies
     - jobs can now be made available only in selected seasons; overall time-based limitation was extended to cover training actions as well
