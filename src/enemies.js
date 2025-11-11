@@ -9,6 +9,10 @@ let enemy_killcount = {};
 const droprate_modifier_skills_for_tags = {
     "beast": "Butchering",
 }
+const tags_for_droprate_modifier_skills = {};
+Object.keys(droprate_modifier_skills_for_tags).forEach(tag => {
+    tags_for_droprate_modifier_skills[droprate_modifier_skills_for_tags[tag]] = tag;
+});
 
 class Enemy {
     constructor({
@@ -344,4 +348,4 @@ class Enemy {
     });
 })()
 
-export {Enemy, enemy_templates, enemy_killcount};
+export {Enemy, enemy_templates, enemy_killcount, tags_for_droprate_modifier_skills};

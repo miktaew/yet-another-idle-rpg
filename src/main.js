@@ -6,7 +6,7 @@ import { loot_sold_count, market_region_mapping, recover_item_prices, trickle_ma
 import { locations, favourite_locations } from "./locations.js";
 import { crafting_skill_xp_gains_cap, skill_categories, skill_xp_gains_cap, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
-import { enemy_killcount } from "./enemies.js";
+import { enemy_killcount, enemy_templates, tags_for_droprate_modifier_skills } from "./enemies.js";
 import { traders } from "./traders.js";
 import { is_in_trade, start_trade, cancel_trade, accept_trade, exit_trade, add_to_trader_inventory,
          add_to_buying_list, remove_from_buying_list, add_to_selling_list, remove_from_selling_list} from "./trade.js";
@@ -1901,6 +1901,17 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 pathfinder.fill_connections(locations);
                 pathfinder.find_shortest_paths(current_location);
                 //shouldn't need any display updates
+            }
+
+            if(tags_for_droprate_modifier_skills[skill.skill_id]) { 
+                //this skill affects some droprates, so bestiary update is required
+                
+                //go through enemy types that were killed, check if relevant tag is present, update related display if so
+                Object.keys(enemy_killcount).forEach(enemy_id => {
+                    if(enemy_templates[enemy_id].tags[tags_for_droprate_modifier_skills[skill.skill_id]]) {
+                        update_bestiary_entry(enemy_id);
+                    }
+                });
             }
 
             if(do_quest_events) {
@@ -5065,7 +5076,6 @@ if(save_key in localStorage || (is_on_dev() && dev_save_key in localStorage)) {
     create_displayed_crafting_recipes();
     change_location({location_id: "Village", skip_travel_time: true});
     questManager.startQuest({quest_id: "Lost memory"});
-
 }
 
 hide_loading_text();

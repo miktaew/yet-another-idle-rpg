@@ -4503,9 +4503,24 @@ function update_displayed_faved_stances(stances) {
  * @param {String} enemy_name 
  */
 function create_new_bestiary_entry(enemy_name) {
+    const enemy = enemy_templates[enemy_name];
     bestiary_entry_divs[enemy_name] = document.createElement("div");
     
+    bestiary_entry_divs[enemy_name].innerHTML = create_bestiary_entry_content(enemy_name);
+
+    bestiary_entry_divs[enemy_name].setAttribute("data-bestiary_rank", enemy.rank);
+    bestiary_entry_divs[enemy_name].classList.add("bestiary_entry_div");
+    bestiary_list.appendChild(bestiary_entry_divs[enemy_name]);
+
+    //sorts bestiary_list div by enemy rank
+    [...bestiary_list.children].sort((a,b)=>parseInt(a.getAttribute("data-bestiary_rank")) - parseInt(b.getAttribute("data-bestiary_rank")))
+                                .forEach(node=>bestiary_list.appendChild(node));
+}
+
+function create_bestiary_entry_content(enemy_name) {
     const enemy = enemy_templates[enemy_name];
+
+    const entry_div = document.createElement("div");
 
     const name_div = document.createElement("div");
     name_div.innerHTML = enemy_name;
@@ -4533,94 +4548,15 @@ function create_new_bestiary_entry(enemy_name) {
 
     const stat_line_0 = document.createElement("div");
     stat_line_0.classList.add("grid_container");
-
-    const stat_0 = document.createElement("div");
-    const stat_0_name = document.createElement("div");
-    const stat_0_value = document.createElement("div");
-
-    stat_0.classList.add("stat_slot_div");
-    stat_0_name.classList.add("stat_name");
-    stat_0_value.classList.add("stat_value");
-
-    stat_0_name.innerHTML = "Health:";
-    stat_0_value.innerHTML = `${enemy.stats.health}`;
-    stat_0.append(stat_0_name, stat_0_value);
-
-    const stat_1 = document.createElement("div");
-    const stat_1_name = document.createElement("div");
-    const stat_1_value = document.createElement("div");
-
-    stat_1.classList.add("stat_slot_div");
-    stat_1_name.classList.add("stat_name");
-    stat_1_value.classList.add("stat_value");
-
-    stat_1_name.innerHTML = `Defense:`;
-    stat_1_value.innerHTML = `${enemy.stats.defense}`;
-    stat_1.append(stat_1_name, stat_1_value);
-
-    stat_line_0.append(stat_0, stat_1);
-
+    stat_line_0.append(create_bestiary_stat_entry(enemy, "Health"), create_bestiary_stat_entry(enemy, "Defense"));
 
     const stat_line_2 = document.createElement("div");
     stat_line_2.classList.add("grid_container");
-
-    const stat_2 = document.createElement("div");
-    const stat_2_name = document.createElement("div");
-    const stat_2_value = document.createElement("div");
-
-    stat_2.classList.add("stat_slot_div");
-    stat_2_name.classList.add("stat_name");
-    stat_2_value.classList.add("stat_value");
-
-    stat_2_name.innerHTML = "Attack power:";
-    stat_2_value.innerHTML = `${enemy.stats.attack}`;
-    if(enemy.stats.attack_count > 1) {
-        stat_2_value.innerHTML += `x${enemy.stats.attack_count}`;
-    }
-    stat_2.append(stat_2_name, stat_2_value);
-
-    const stat_3 = document.createElement("div");
-    const stat_3_name = document.createElement("div");
-    const stat_3_value = document.createElement("div");
-
-    stat_3.classList.add("stat_slot_div");
-    stat_3_name.classList.add("stat_name");
-    stat_3_value.classList.add("stat_value");
-
-    stat_3_name.innerHTML = `Attack speed:`;
-    stat_3_value.innerHTML = `${enemy.stats.attack_speed}`;
-    stat_3.append(stat_3_name, stat_3_value);
-
-    stat_line_2.append(stat_2, stat_3);
+    stat_line_2.append(create_bestiary_stat_entry(enemy, "Attack power"), create_bestiary_stat_entry(enemy, "Attack speed"));
 
     const stat_line_4 = document.createElement("div");
     stat_line_4.classList.add("grid_container");
-
-    const stat_4 = document.createElement("div");
-    const stat_4_name = document.createElement("div");
-    const stat_4_value = document.createElement("div");
-
-    stat_4.classList.add("stat_slot_div");
-    stat_4_name.classList.add("stat_name");
-    stat_4_value.classList.add("stat_value");
-
-    stat_4_name.innerHTML = "AP:";
-    stat_4_value.innerHTML = `${Math.round(enemy.stats.dexterity * Math.sqrt(enemy.stats.intuition || 1))}`;
-    stat_4.append(stat_4_name, stat_4_value);
-
-    const stat_5 = document.createElement("div");
-    const stat_5_name = document.createElement("div");
-    const stat_5_value = document.createElement("div");
-
-    stat_5.classList.add("stat_slot_div");
-    stat_5_name.classList.add("stat_name");
-    stat_5_value.classList.add("stat_value");
-
-    stat_5_name.innerHTML = "EP:";
-    stat_5_value.innerHTML = `${Math.round(enemy.stats.agility * Math.sqrt(enemy.stats.intuition || 1))}`;
-    stat_5.append(stat_5_name, stat_5_value);
-    stat_line_4.append(stat_4, stat_5);
-
+    stat_line_4.append(create_bestiary_stat_entry(enemy, "AP"), create_bestiary_stat_entry(enemy, "EP"));
     
     tooltip_stats.appendChild(stat_line_0);
     tooltip_stats.appendChild(stat_line_2);
@@ -4628,48 +4564,11 @@ function create_new_bestiary_entry(enemy_name) {
 
     const tooltip_drops = document.createElement("div"); //enemy drops
     if(enemy.loot_list.length > 0) {
-        tooltip_drops.innerHTML = "<br>Loot list:";
-        const loot_line = document.createElement("div");
-        const loot_name = document.createElement("div");
-        const loot_chance = document.createElement("div");
-        const loot_chance_base = document.createElement("div");
-        const loot_chance_current = document.createElement("div");
-
-        loot_line.classList.add("loot_slot_div");
-        loot_name.classList.add("loot_name");
-        loot_chance.classList.add("loot_chance");
-        loot_chance_base.classList.add("loot_chance_base");
-        loot_chance_current.classList.add("loot_chance_current");
-
-        loot_name.innerHTML = `Item name`;
-        loot_chance_base.innerHTML = `base %`;
-        loot_chance_current.innerHTML = `current %`;
-        loot_chance.append(loot_chance_current, loot_chance_base);
-        loot_line.append(loot_name, loot_chance);
-
-        tooltip_drops.appendChild(loot_line);
+        tooltip_drops.appendChild(create_bestiary_loot_line());
     }
 
     for(let i = 0; i < enemy.loot_list.length; i++) {
-        const loot_line = document.createElement("div");
-        const loot_name = document.createElement("div");
-        const loot_chance = document.createElement("div");
-        const loot_chance_base = document.createElement("div");
-        const loot_chance_current = document.createElement("div");
-
-        loot_line.classList.add("loot_slot_div");
-        loot_name.classList.add("loot_name");
-        loot_chance.classList.add("loot_chance");
-        loot_chance_base.classList.add("loot_chance_base");
-        loot_chance_current.classList.add("loot_chance_current");
-
-        loot_name.innerHTML = `${enemy.loot_list[i].item_name}`;
-        loot_chance_base.innerHTML = `[${enemy.loot_list[i].chance*100}%]`;
-        loot_chance_current.innerHTML = `${Math.round(10000*enemy.loot_list[i].chance*enemy.get_droprate_modifier())/100}%`;
-        loot_chance.append(loot_chance_current, loot_chance_base);
-        loot_line.append(loot_name, loot_chance);
-
-        tooltip_drops.appendChild(loot_line);
+        tooltip_drops.appendChild(create_bestiary_loot_line(enemy, enemy.loot_list[i]));
     }
 
     bestiary_tooltip.classList.add("bestiary_entry_tooltip");
@@ -4680,17 +4579,10 @@ function create_new_bestiary_entry(enemy_name) {
     bestiary_tooltip.appendChild(tooltip_stats);
     bestiary_tooltip.appendChild(tooltip_drops);
 
-    bestiary_entry_divs[enemy_name].appendChild(name_div);
-    bestiary_entry_divs[enemy_name].appendChild(kill_counter);
-    bestiary_entry_divs[enemy_name].appendChild(bestiary_tooltip);
-
-    bestiary_entry_divs[enemy_name].setAttribute("data-bestiary_rank", enemy.rank);
-    bestiary_entry_divs[enemy_name].classList.add("bestiary_entry_div");
-    bestiary_list.appendChild(bestiary_entry_divs[enemy_name]);
-
-    //sorts bestiary_list div by enemy rank
-    [...bestiary_list.children].sort((a,b)=>parseInt(a.getAttribute("data-bestiary_rank")) - parseInt(b.getAttribute("data-bestiary_rank")))
-                                .forEach(node=>bestiary_list.appendChild(node));
+    entry_div.appendChild(name_div);
+    entry_div.appendChild(kill_counter);
+    entry_div.appendChild(bestiary_tooltip);
+    return entry_div.innerHTML;
 }
 
 /**
@@ -4698,7 +4590,89 @@ function create_new_bestiary_entry(enemy_name) {
  * @param {String} enemy_name 
  */
 function update_bestiary_entry(enemy_name) {
-    bestiary_entry_divs[enemy_name].children[1].innerHTML = enemy_killcount[enemy_name];
+    //bestiary_entry_divs[enemy_name].children[1].innerHTML = enemy_killcount[enemy_name];
+    bestiary_entry_divs[enemy_name].innerHTML = create_bestiary_entry_content(enemy_name);
+}
+
+function create_bestiary_loot_line(enemy, loot) {
+    const loot_line = document.createElement("div");
+    const loot_name = document.createElement("div");
+    const loot_chance = document.createElement("div");
+    const loot_chance_base = document.createElement("div");
+    const loot_chance_current = document.createElement("div");
+
+    loot_line.classList.add("loot_slot_div");
+    loot_name.classList.add("loot_name");
+    loot_chance.classList.add("loot_chance");
+    loot_chance_base.classList.add("loot_chance_base");
+    loot_chance_current.classList.add("loot_chance_current");
+
+    if(enemy) {
+        //create based on data passed
+        loot_name.innerHTML = `${loot.item_name}`;
+        loot_chance_base.innerHTML = `[${loot.chance*100}%]`;
+        loot_chance_current.innerHTML = `${Math.round(10000*loot.chance*enemy.get_droprate_modifier())/100}%`;
+        loot_chance.append(loot_chance_current, loot_chance_base);
+        loot_line.append(loot_name, loot_chance);
+    } else {
+        //create a header line
+        loot_name.innerHTML = `Item name`;
+        loot_chance_base.innerHTML = `base %`;
+        loot_chance_current.innerHTML = `current %`;
+        loot_chance.append(loot_chance_current, loot_chance_base);
+        loot_line.append(loot_name, loot_chance);
+    }
+
+    return loot_line;
+}
+
+function create_bestiary_stat_entry(enemy, stat_name) {
+    const stat_entry = document.createElement("div");
+    const stat_name_div = document.createElement("div");
+    const stat_value_div = document.createElement("div");
+
+    stat_entry.classList.add("stat_slot_div");
+    stat_name_div.classList.add("stat_name");
+    stat_value_div.classList.add("stat_value");
+
+
+    switch(stat_name) {
+        case "Health": 
+            stat_name_div.innerHTML = "Health:";
+            stat_value_div.innerHTML = `${enemy.stats.health}`;
+            stat_entry.append(stat_name_div, stat_value_div);
+        break;
+        case "Defense":
+            stat_name_div.innerHTML = `Defense:`;
+            stat_value_div.innerHTML = `${enemy.stats.defense}`;
+            stat_entry.append(stat_name_div, stat_value_div);
+        break;
+        case "Attack power":
+            stat_name_div.innerHTML = "Attack power:";
+            stat_value_div.innerHTML = `${enemy.stats.attack}`;
+            if(enemy.stats.attack_count > 1) {
+                stat_value_div.innerHTML += `x${enemy.stats.attack_count}`;
+            }
+            stat_entry.append(stat_name_div, stat_value_div);
+        break;
+        case "Attack speed":
+            stat_name_div.innerHTML = `Attack speed:`;
+            stat_value_div.innerHTML = `${enemy.stats.attack_speed}`;
+            stat_entry.append(stat_name_div, stat_value_div);
+        break;
+        case "AP":
+            stat_name_div.innerHTML = "AP:";
+            stat_value_div.innerHTML = `${Math.round(enemy.stats.dexterity * Math.sqrt(enemy.stats.intuition || 1))}`;
+            stat_entry.append(stat_name_div, stat_value_div);
+        break;
+        case "EP":
+            stat_name_div.innerHTML = "EP:";
+            stat_value_div.innerHTML = `${Math.round(enemy.stats.agility * Math.sqrt(enemy.stats.intuition || 1))}`;
+            stat_entry.append(stat_name_div, stat_value_div);
+        break;
+    }
+
+    return stat_entry;
 }
 
 function clear_bestiary() {
