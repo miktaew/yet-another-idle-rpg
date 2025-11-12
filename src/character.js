@@ -67,6 +67,7 @@ class Hero extends InventoryHaver {
                         heat_tolerance: 0, //currently useless
                         cold_tolerance: 0,
                         unarmed_power: 1, //base damage for unarmed, as it has no weapon dmg to scale with
+                        armor_penetration: 0,
                 };
                 this.name = "Hero";
                 this.titles = {};

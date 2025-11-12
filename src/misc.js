@@ -28,6 +28,7 @@ const stat_names = {
     "heat_tolerance": "heat resistance",
     "cold_tolerance": "cold resistance",
     "unarmed_power": "unarmed base dmg",
+    "armor_penetration": "armor pen",
 };
 
 const task_type_names = {
