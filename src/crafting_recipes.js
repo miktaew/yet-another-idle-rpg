@@ -1056,8 +1056,8 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_type: "material",
         materials: [{material_type: "animal tooth", count: 20}],
         result: {result_id: "Bonemeal", count: 1},
-        success_chance: [0.4,1],
-        recipe_level: [1,10],
+        success_chance: [0.1,1],
+        recipe_level: [1,12],
         recipe_skill: "Crafting",
     });
 })();
