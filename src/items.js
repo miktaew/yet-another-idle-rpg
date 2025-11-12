@@ -1131,7 +1131,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
 })();
 
-//miscellaneous and useless loot:
+//miscellaneous, and useless loot:
 (function(){
     item_templates["Rat fang"] = new OtherItem({
         name: "Rat fang", 
@@ -1367,6 +1367,11 @@ book_stats["A Glint On The Sand"] = new BookData({
 
 //processed materials
 (function(){
+    item_templates["Bonemeal"] = new Material({
+        name: "Bonemeal",
+        description: "Powdered bones and teeth, that can be used as an organic fertilizer.",
+        value: 100,
+    }),
     item_templates["Low quality iron ingot"] = new Material({
         id: "Low quality iron ingot",
         name: "Low quality iron ingot",

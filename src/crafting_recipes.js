@@ -1048,6 +1048,20 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     });
 })();
 
+//misc
+(function(){
+    crafting_recipes.items["Bonemeal"] = new ItemRecipe({
+        name: "Bonemeal",
+        is_unlocked: true,
+        recipe_type: "material",
+        materials: [{material_type: "animal tooth", count: 20}],
+        result: {result_id: "Bonemeal", count: 1},
+        success_chance: [0.4,1],
+        recipe_level: [1,10],
+        recipe_skill: "Crafting",
+    });
+})();
+
 //consumables
 (function(){
     cooking_recipes.items["Roasted rat meat"] = new ItemRecipe({
