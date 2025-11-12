@@ -297,8 +297,19 @@ const questManager = {
             new QuestTask({task_description: "Bring 50 packs of bonemeal"}),
         ],
         quest_rewards: {
-            //todo money, some town rep
+            //todo: money, some town rep
         }
+    });
+    quests["Light in the darkness"] = new Quest({
+        quest_name: "Light in the darkness",
+        getQuestDescription: ()=>{
+            return "People of the slums live in suffering and fear. Maybe you could improve their situation at least a bit?";
+        },
+        quest_tasks: [
+            new QuestTask({is_hidden: true}), //gained on entry
+            new QuestTask({task_description: "Deal with the gang"}), //gained on talking with sus guy
+            new QuestTask({task_description: "[To be continued]"}), //next update maybe
+        ]
     })
 })();
 

@@ -530,6 +530,8 @@ function change_location({location_id, event, skip_travel_time = false, do_quest
             last_combat_location = current_location.id;
         }
     }
+
+    process_rewards({rewards: current_location.entrance_rewards});
 }
 
 function handle_location_icon_click() {
@@ -2197,7 +2199,8 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
             if(!questManager.isQuestActive(rewards.quests[i])) {
                 questManager.startQuest({quest_id: rewards.quests[i]});
                 if(inform_overall) {
-                    log_message(`Received a new quest: ${quests[rewards.quests[i]].getQuestName()}`);
+                    //log_message(`Received a new quest: ${quests[rewards.quests[i]].getQuestName()}`);
+                    //already done in quests
                 }
             }
         }
@@ -4260,6 +4263,16 @@ function load(save_data) {
                         questManager.finishQuestTask({quest_id: "The Infinite Rat Saga", task_index: 2});
                     }
                 }
+            }
+        }
+
+        //slums line
+        if(dialogues["suspicious man"].textlines["gang"].is_finished) {
+            questManager.startQuest({quest_id: "Light in the darkness", should_inform: false});
+            questManager.finishQuestTask({quest_id: "Light in the darkness", task_index: 0});
+
+            if(locations["Gang hideout"].is_finished) {
+                questManager.finishQuestTask({quest_id: "Light in the darkness", task_index: 1});
             }
         }
 

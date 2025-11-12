@@ -513,13 +513,14 @@ class DialogueAction extends GameAction {
             "gang": new Textline({
                 name: "What gang?",
                 is_unlocked: false,
-                text: "It's j-just a gang, they don't have any name, boss. Their hideout is over t-there, you should stay away from them.",
+                text: "It's j-just a gang, they don't have any name, boss. Their hideout is over t-there, you should stay away from them. Almost every k-killer and thug around t-the slum is a part of it.",
                 locks_lines: ["gang", "behave"],
                 rewards: {
                     textlines: [{dialogue: "suspicious man", lines: ["gang", "behave 2"]}],
                     locations: [
                         {location: "Gang hideout"},
                     ],
+                    quest_progress: [{quest_id: "Light in the darkness", task_index: 0}],
                 },
             }),
             "defeated gang": new Textline({

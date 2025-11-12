@@ -37,6 +37,7 @@ class Location {
                 temperature_range_modifier = 1,
                 temperature_modifier = 0,
                 is_under_roof = false,
+                entrance_rewards, //rewards gained on entering it, to be used for unlocks
             }) {
         // always a safe zone
 
@@ -71,6 +72,7 @@ class Location {
         this.crafting = crafting;
         this.tags = tags;
         this.tags["safe_zone"] = true;
+        this.entrance_rewards = entrance_rewards;
         /* 
         crafting: {
             is_unlocked: Boolean, 
@@ -1125,6 +1127,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
         dialogues: ["suspicious man", "old woman of the slums"],
         traders: ["suspicious trader", "suspicious trader 2"],
         market_region: "Slums",
+        entrance_rewards: {
+            quests: ["Light in the darkness"],
+        },
         temperature_range_modifier: 0.9,
         getBackgroundNoises: function() {
             let noises = ["Cough cough", "Cough cough cough", "*You hear someone sobbing*", "*You see someone sleeping in an alleyway.*", "I'm so hungry...", "Even rotten food is better than nothing"];
@@ -1190,6 +1195,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 textlines: { "suspicious man": ["behave 2"] }
             }, 
             move_to: {location: "Slums"},
+            quest_progress: [{quest_id: "Light in the darkness", task_index: 1}],
         },
         temperature_range_modifier: 0.6,
         is_under_roof: true,
