@@ -4518,8 +4518,6 @@ function create_new_bestiary_entry(enemy_name) {
 }
 
 function create_bestiary_entry_content(enemy_name) {
-    const enemy = enemy_templates[enemy_name];
-
     const entry_div = document.createElement("div");
 
     const name_div = document.createElement("div");
@@ -4529,8 +4527,17 @@ function create_bestiary_entry_content(enemy_name) {
     kill_counter.innerHTML = enemy_killcount[enemy_name];
     kill_counter.classList.add("bestiary_entry_kill_count");
     
+    entry_div.appendChild(name_div);
+    entry_div.appendChild(kill_counter);
+    entry_div.appendChild(create_bestiary_entry_tooltip(enemy_name));
+    return entry_div.innerHTML;
+}
 
+function create_bestiary_entry_tooltip(enemy_name) {
+    const enemy = enemy_templates[enemy_name];
     const bestiary_tooltip = document.createElement("div");
+    bestiary_tooltip.classList.add("bestiary_entry_tooltip");
+
     const tooltip_xp = document.createElement("div"); //base xp enemy gives
     tooltip_xp.innerHTML = `<br>Base xp value: ${enemy.xp_value} <br><br>`;
     const tooltip_desc = document.createElement("div"); //enemy description
@@ -4570,8 +4577,6 @@ function create_bestiary_entry_content(enemy_name) {
     for(let i = 0; i < enemy.loot_list.length; i++) {
         tooltip_drops.appendChild(create_bestiary_loot_line(enemy, enemy.loot_list[i]));
     }
-
-    bestiary_tooltip.classList.add("bestiary_entry_tooltip");
     
     bestiary_tooltip.appendChild(tooltip_desc);
     bestiary_tooltip.appendChild(tooltip_xp);
@@ -4579,19 +4584,28 @@ function create_bestiary_entry_content(enemy_name) {
     bestiary_tooltip.appendChild(tooltip_stats);
     bestiary_tooltip.appendChild(tooltip_drops);
 
-    entry_div.appendChild(name_div);
-    entry_div.appendChild(kill_counter);
-    entry_div.appendChild(bestiary_tooltip);
-    return entry_div.innerHTML;
+    return bestiary_tooltip;
 }
 
+function update_bestiary_entry_tooltip(enemy_name) {
+    const tooltip = bestiary_entry_divs[enemy_name].querySelector(".bestiary_entry_tooltip");
+    tooltip.replaceWith(create_bestiary_entry_tooltip(enemy_name));
+}
+
+
 /**
- * updates the bestiary entry of an enemy, that is killcount and on-hover droprates
+ * updates the entire bestiary entry of an enemy
  * @param {String} enemy_name 
  */
 function update_bestiary_entry(enemy_name) {
-    //bestiary_entry_divs[enemy_name].children[1].innerHTML = enemy_killcount[enemy_name];
     bestiary_entry_divs[enemy_name].innerHTML = create_bestiary_entry_content(enemy_name);
+}
+
+/**
+ * @param {String} enemy_name 
+ */
+function update_bestiary_entry_killcount(enemy_name) {
+    bestiary_entry_divs[enemy_name].children[1].innerHTML = enemy_killcount[enemy_name];
 }
 
 function create_bestiary_loot_line(enemy, loot) {
@@ -5186,9 +5200,7 @@ export {
     clear_message_log,
     update_enemy_attack_bar,
     remove_fast_travel_choice,
-    create_new_bestiary_entry,
-    update_bestiary_entry,
-    clear_bestiary,
+    create_new_bestiary_entry, update_bestiary_entry, update_bestiary_entry_killcount, clear_bestiary, update_bestiary_entry_tooltip,
     start_reading_display,
     sort_displayed_skills,
     update_displayed_xp_bonuses, update_displayed_stance_list, update_displayed_stamina_efficiency, 

@@ -86,7 +86,9 @@ import { end_activity_animation,
          hide_loading_text,
          show_play_button,
          set_loading_screen_warnings_warning,
-         fill_action_box
+         fill_action_box,
+         update_bestiary_entry_killcount,
+         update_bestiary_entry_tooltip
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -1666,7 +1668,7 @@ function kill_enemy(target, do_quest_events = true) {
     if(target.add_to_bestiary) {
         if(enemy_killcount[target.name]) {
             enemy_killcount[target.name] += 1;
-            update_bestiary_entry(target.name);
+            update_bestiary_entry_killcount(target.name);
         } else {
             enemy_killcount[target.name] = 1;
             create_new_bestiary_entry(target.name);
@@ -1909,7 +1911,8 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 //go through enemy types that were killed, check if relevant tag is present, update related display if so
                 Object.keys(enemy_killcount).forEach(enemy_id => {
                     if(enemy_templates[enemy_id].tags[tags_for_droprate_modifier_skills[skill.skill_id]]) {
-                        update_bestiary_entry(enemy_id);
+                        //update_bestiary_entry(enemy_id);
+                        update_bestiary_entry_tooltip(enemy_id);
                     }
                 });
             }
@@ -5081,7 +5084,6 @@ if(save_key in localStorage || (is_on_dev() && dev_save_key in localStorage)) {
 hide_loading_text();
 show_play_button();
 set_loading_screen_progress("Waiting for you to click 'PLAY'");
-
 
 function add_stuff_for_testing() {
     const items = [];
