@@ -6,6 +6,12 @@ let enemy_templates = {};
 let enemy_killcount = {};
 //enemy templates; locations create new enemies based on them
 
+const enemy_sizes = {
+    SMALL: "small",
+    MEDIUM: "medium",
+    LARGE: "large",
+}
+
 const droprate_modifier_skills_for_tags = {
     "beast": "Butchering",
 }
@@ -45,7 +51,7 @@ class Enemy {
 
         this.add_to_bestiary = add_to_bestiary; //generally set it false only for SOME of challenges and keep true for everything else
 
-        if(size !== "small" && size !== "medium" && size !== "large") {
+        if(size !== enemy_sizes.SMALL && size !== enemy_sizes.MEDIUM && size !== enemy_sizes.LARGE) {
             throw new Error(`No such enemy size option as "${size}"!`);
         } else {
             this.size = size;
@@ -136,7 +142,7 @@ class Enemy {
         description: "Rat with size of a dog, much more ferocious than its relatives",
         xp_value: 4,
         rank: 1,
-        size: "small",
+        size: enemy_sizes.SMALL,
         tags: ["living", "beast", "wolf rat"],
         stats: {health: 80, attack: 32, agility: 30, dexterity: 24, intuition: 24, magic: 0, attack_speed: 1.5, defense: 8},
         loot_list: [
@@ -150,7 +156,7 @@ class Enemy {
         description: "It's no longer dog-sized, but rather around the size of an average wolf, with thicker skin, longer claws and pure insanity in the eyes",
         xp_value: 10,
         rank: 4,
-        size: "medium",
+        size: enemy_sizes.MEDIUM,
         tags: ["living", "beast", "wolf rat", "monster"],
         stats: {health: 250, attack: 50, agility: 40, dexterity: 40, intuition: 50, magic: 0, attack_speed: 1.2, defense: 30},
         loot_list: [
@@ -165,7 +171,7 @@ class Enemy {
         description: "They don't live in the walls, they ARE the walls. Insane writhing masses of teeth, fangs, and tails, that make no logical sense. An abomination that cannot exist, and yet it does.",
         xp_value: 20,
         rank: 6,
-        size: "large",
+        size: enemy_sizes.LARGE,
         tags: ["living", "beast", "wolf rat", "monster", "eldritch"],
         stats: {health: 1000, attack: 70, agility: 2, dexterity: 90, intuition: 90, magic: 0, attack_speed: 2, attack_count: 3, defense: 20},
         loot_list: [
@@ -184,7 +190,7 @@ class Enemy {
             {item_name: "Wolf fang", chance: 0.03},
             {item_name: "Wolf pelt", chance: 0.01},
         ],
-        size: "medium",
+        size: enemy_sizes.MEDIUM,
     });
 
     enemy_templates["Young wolf"] = new Enemy({
@@ -198,7 +204,7 @@ class Enemy {
             {item_name: "Wolf fang", chance: 0.03},
             {item_name: "Wolf pelt", chance: 0.01},
         ],
-        size: "small",
+        size: enemy_sizes.SMALL,
     });
 
     enemy_templates["Wolf"] = new Enemy({
@@ -213,7 +219,7 @@ class Enemy {
             {item_name: "Wolf pelt", chance: 0.02},
             {item_name: "High quality wolf fang", chance: 0.0005}
         ],
-        size: "medium"
+        size: enemy_sizes.MEDIUM,
     });
 
     enemy_templates["Direwolf"] = new Enemy({
@@ -222,14 +228,14 @@ class Enemy {
         xp_value: 20,
         rank: 7,
         tags: ["living", "beast"],
-        stats: {health: 1000, attack: 160, agility: 160, dexterity: 70, intuition: 70, magic: 0, attack_speed: 1.4, defense: 20},
+        stats: {health: 1000, attack: 160, agility: 160, dexterity: 70, intuition: 70, magic: 0, attack_speed: 1.4, defense: 30},
         loot_list: [
             {item_name: "Wolf fang", chance: 0.08},
             {item_name: "Wolf pelt", chance: 0.04},
             {item_name: "High quality wolf fang", chance: 0.001},
             {item_name: "Weak monster bone", chance: 0.02}
         ],
-        size: "medium"
+        size: enemy_sizes.MEDIUM,
     });
 
     enemy_templates["Direwolf hunter"] = new Enemy({
@@ -238,14 +244,29 @@ class Enemy {
         xp_value: 30,
         rank: 8,
         tags: ["living", "beast"],
-        stats: {health: 2000, attack: 240, agility: 130, dexterity: 80, intuition: 90, magic: 0, attack_speed: 1.1, defense: 20},
+        stats: {health: 2000, attack: 240, agility: 130, dexterity: 80, intuition: 90, magic: 0, attack_speed: 1.1, defense: 40},
         loot_list: [
             {item_name: "Wolf fang", chance: 0.12},
             {item_name: "Wolf pelt", chance: 0.06},
             {item_name: "Weak monster bone", chance: 0.02},
             {item_name: "High quality wolf fang", chance: 0.0015}
         ],
-        size: "medium"
+        size: enemy_sizes.MEDIUM,
+    });
+
+    enemy_templates["Forest bear"] = new Enemy({
+        name: "Forest bear",
+        description: "A mighty and dangerous predator with thick skin, sharp teeth, and dangerous claws",
+        xp_value: 50,
+        rank: 9,
+        tags: ["living", "beast"],
+        stats: {health: 3000, attack: 300, agility: 160, dexterity: 200, intuition: 100, magic: 0, attack_speed: 0.7, defense: 400},
+        loot_list: [
+            {item_name: "Bear hide", chance: 0.05},
+            {item_name: "Bear claw", chance: 0.1},
+            {item_name: "High quality bear claw", chance: 0.002},
+        ],
+        size: enemy_sizes.LARGE,
     });
 
     enemy_templates["Boar"] = new Enemy({
@@ -254,14 +275,14 @@ class Enemy {
         xp_value: 8,
         rank: 4,
         tags: ["living", "beast"],
-        stats: {health: 300, attack: 50, agility: 30, dexterity: 40, intuition: 40, magic: 0, attack_speed: 1, defense: 25},
+        stats: {health: 300, attack: 50, agility: 30, dexterity: 40, intuition: 40, magic: 0, attack_speed: 1, defense: 35},
         loot_list: [
             {item_name: "Boar hide", chance: 0.04},
             {item_name: "Boar meat", chance: 0.02},
             {item_name: "Boar tusk", chance: 0.02},
             {item_name: "High quality boar tusk", chance: 0.0005},
         ],
-        size: "medium"
+        size: enemy_sizes.MEDIUM,
     });
 
     enemy_templates["Angry mountain goat"] = new Enemy({
@@ -270,8 +291,8 @@ class Enemy {
         xp_value: 15,
         rank: 6,
         tags: ["living", "beast"],
-        size: "medium",
-        stats: {health: 600, attack: 120, agility: 100, dexterity: 60, magic: 0, intuition: 60, attack_speed: 0.5, defense: 30},
+        size: enemy_sizes.MEDIUM,
+        stats: {health: 600, attack: 120, agility: 100, dexterity: 60, magic: 0, intuition: 60, attack_speed: 0.5, defense: 50},
         loot_list: [
             {item_name: "Mountain goat hide", chance: 0.04},
             {item_name: "Goat meat", chance: 0.02},
@@ -286,8 +307,8 @@ class Enemy {
         xp_value: 10,
         rank: 5,
         tags: ["living", "human"],
-        size: "medium",
-        stats: {health: 500, attack: 60, agility: 60, dexterity: 60, magic: 0, intuition: 60, attack_speed: 1.7, defense: 25},
+        size: enemy_sizes.MEDIUM,
+        stats: {health: 500, attack: 60, agility: 60, dexterity: 60, magic: 0, intuition: 60, attack_speed: 1.7, defense: 45},
     });
 })();
 
@@ -301,7 +322,7 @@ class Enemy {
         xp_value: 1,
         rank: 4,
         tags: ["living", "human"],
-        size: "medium",
+        size: enemy_sizes.MEDIUM,
         stats: {health: 300, attack: 50, agility: 20, dexterity: 80, magic: 0, intuition: 20, attack_speed: 0.2, defense: 30},
     });
     enemy_templates["Village guard (quick)"] = new Enemy({
@@ -311,7 +332,7 @@ class Enemy {
         xp_value: 1,
         rank: 4,
         tags: ["living", "human"],
-        size: "medium",
+        size: enemy_sizes.MEDIUM,
         stats: {health: 300, attack: 20, agility: 20, dexterity: 50, magic: 0, intuition: 20, attack_speed: 2, defense: 10},
     });
     enemy_templates["Suspicious wall"] = new Enemy({
@@ -320,8 +341,8 @@ class Enemy {
         add_to_bestiary: false,
         xp_value: 1,
         rank: 1,
-        tags: ["unanimate"],
-        size: "large",
+        tags: ["inanimate"],
+        size: enemy_sizes.LARGE,
         stats: {health: 10000, attack: 0, agility: 0, dexterity: 0, magic: 0, intuition: 0, attack_speed: 0.000001, defense: 100},
     });
 
@@ -332,7 +353,7 @@ class Enemy {
         xp_value: 1,
         rank: 5,
         tags: ["living", "human"],
-        size: "medium",
+        size: enemy_sizes.MEDIUM,
         stats: {health: 400, attack: 60, agility: 60, dexterity: 60, magic: 0, intuition: 60, attack_speed: 2, defense: 30},
     });
 
@@ -343,8 +364,8 @@ class Enemy {
         xp_value: 1,
         rank: 6,
         tags: ["living", "beast"],
-        size: "medium",
-        stats: {health: 1200, attack: 150, agility: 100, dexterity: 70, magic: 0, intuition: 60, attack_speed: 0.5, defense: 30},
+        size: enemy_sizes.MEDIUM,
+        stats: {health: 1200, attack: 150, agility: 100, dexterity: 70, magic: 0, intuition: 60, attack_speed: 0.5, defense: 60},
     });
 })()
 

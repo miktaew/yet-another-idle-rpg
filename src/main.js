@@ -1621,7 +1621,7 @@ function do_character_combat_action({target, attack_power, target_count}) {
             critted = false;
         }
         
-        damage_dealt = Math.ceil(10*Math.max(damage_dealt - target.stats.defense, damage_dealt*0.1, 1))/10;
+        damage_dealt = Math.ceil(10*Math.max(damage_dealt - Math.min(0,target.stats.defense-character.stats.full.armor_penetration), damage_dealt*0.1, 1))/10;
 
         target.stats.health -= damage_dealt;
         if(damage_dealt > strongest_hit) {
@@ -2248,8 +2248,10 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
     if(rewards.items && !only_unlocks) {
         for(let i = 0; i < rewards.items.length; i++) {
             const item = item_templates[rewards.items[i]];
-            log_message(`${character.name} obtained "${item.getName()} x${rewards.items[i].count||1}"`);
-            add_to_character_inventory([{item_key: item.getInventoryKey(), count: rewards.items[i].count}]);
+            //log_message(`${character.name} obtained "${item.getName()} x${rewards.items[i].count||1}"`);
+            //add_to_character_inventory([{item_key: item.getInventoryKey(), count: rewards.items[i].count}]);
+            log_message(`${character.name} obtained "${item.getName()} x1"`);
+            add_to_character_inventory([{item_key: item.getInventoryKey(), count: 1}]);
         }
     }
 
@@ -3656,7 +3658,7 @@ function load(save_data) {
                                 const item = getItem({item_type: "EQUIPPABLE", equip_slot: "off-hand", components});
                                 item_list.push({item_key: item.getInventoryKey(), count: 1, quality: quality*100});
                             }
-                        } else if(save_data.character.inventory[key][i].equip_slot === "artifact") {
+                        } else if(save_data.character.inventory[key][i].equip_slot === "artifact" || save_data.character.inventory[key][i].equip_slot === "amulet") {
                             item_list.push({item_key: key, count: 1});
                         } else { //armor    
                             if(save_data.character.inventory[key][i].components && save_data.character.inventory[key][i].components.internal.includes(" [component]")) {

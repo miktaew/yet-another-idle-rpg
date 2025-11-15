@@ -75,7 +75,6 @@ v0.5.0
     - market saturation system now covers everything except consumables; it has a harsher scaling for equipment and components
     - market saturation has been split into regions (currently: Village and Slums), with saturation slowly trickling between all regions until it balances out; for existing saves, saturations were equally split between the regions
     - added some (one, to be precise) actions started from dialogue level
-    - implemented dialogue branching (clicking a textline can show more textlines that are a continuation of the topic), not yet in use
     - added new equipment category, capes; they are rather expensive in terms of material cost, but provide the most cold protection out of all item types and allow you to feel fancy
     - added a new combat zone available from <span class="spoiler">'Forest road'</span>
     - added another stance, available from <span class="spoiler">'Suspicious man' after helping out in the 'Slums' (it technically existed before, but was impossible to unlock);
@@ -92,6 +91,7 @@ v0.5.0
     - added another book <span class="spoiler">'Ode to Whimsy, and other poems', available at any trader but with a low chance to appear</span>
     - added a new consumable <span class="spoiler">'Bread kwas', made from 2 pieces of any bread and a glass bottle (made from 3 pieces of glass), which gives additional stamina regeneration; while not higher than on bread, it's a different effect meaning it can stack</span>
     - added reputation to display in 'Data' tab (it still does nothing)
+    - added an amulet so that you can finally fill that one equipment slot, obtained <span class="spoiler">as a drop for first clear of one of new combat zones</span>
 
     - 'Persistence' skill's xp gains are now doubled when under 20% hp (you still need to be out of stamina); they are also increased when under any cold effect, the stronger the more, up to x2 at 'Hypothermia'
     - 'Unarmed' skill now provides additional +0.1 base dmg to unarmed attacks (original base was 1, this means by lvl 10 dmg will be doubled)
@@ -102,6 +102,9 @@ v0.5.0
     - 'Meditation' skill now provides a small intuition multiplier
     - 'Strength of Mind' skill now requires 120->400 xp for first level, but cost scaling was reduced x1.9->x1.7
     - 'Breathing' skill now requires 300->400xp for first level
+    - "Wolf trophy" now gives flat armor penetration instead of damage multiplier
+    - equippables unaffected by quality will no longer display it (trinkets, tools, artifacts)
+    - increased defense on a bunch of enemies
     - slightly nerfed active effects from food, as more of them are now available
     - some location type penalties now scale up to certain level instead of up to skill max level; scaling information was removed from skill descriptions
     - fieldwork in Village / Town Farms is now unavailable during winters
@@ -124,6 +127,7 @@ v0.5.0
     - slightly buffed xp gains for gathering tier 3 wood/metal
     - in dialogues, name of the one being talked to is now displayed above the answers
 
+    - implemented dialogue branching (clicking a textline can show more textlines that are a continuation of the topic), not yet in use
     - implemented content stack that holds information on what's currently shown and what it originated from, 
         realistically serves just for aforementioned starting actions from dialogue level and for branching,
         but handles everything that's not a location display (which is the default state for when stack is empty)

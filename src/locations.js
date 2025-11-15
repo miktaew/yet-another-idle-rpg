@@ -1095,6 +1095,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         parent_location: locations["Forest road"],
         first_reward: {
             xp: 2000,
+            items: ["Warrior's necklace"],
         },
         repeatable_reward: {
             xp: 1000,

@@ -508,6 +508,7 @@ class Artifact extends Equippable {
         super(item_data);
         this.equip_slot = "artifact";
         this.stats = item_data.stats;
+        this.ignore_quality = true;
 
         this.tags["artifact"] = true;
         if(!this.id) {
@@ -524,6 +525,7 @@ class Tool extends Equippable {
     constructor(item_data) {
         super(item_data);
         this.equip_slot = item_data.equip_slot; //tool type is same as equip slot (axe/pickaxe/herb sickle)
+        this.ignore_quality = true;
         this.tags["tool"] = true;
         this.tags[this.equip_slot] = true;
         if(!this.id) {
@@ -831,6 +833,25 @@ class Cape extends Equippable {
     }
 }
 
+class Amulet extends Equippable {
+    constructor(item_data) {
+        super(item_data);
+        this.equip_slot = "amulet";
+        this.stats = item_data.stats;
+
+        this.ignore_quality = true;
+
+        this.tags["amulet"] = true;
+        if(!this.id) {
+            this.id = this.getName();
+        }
+    }
+
+    getStats(){
+        return this.stats;
+    }
+}
+
 //////////////////////////////
 //////////////////////////////
 //////////////////////////////
@@ -921,6 +942,8 @@ function getItem(item_data) {
                     return new Tool(item_data);
                 case "cape":
                     return new Cape(item_data);
+                case "amulet":
+                    return new Amulet(item_data);
                 default:
                     return new Armor(item_data);
             }
@@ -3014,8 +3037,8 @@ book_stats["A Glint On The Sand"] = new BookData({
         name: "Wolf trophy",
         value: 50,
         stats: {
-            attack_speed: {
-                multiplier: 1.1,
+            armor_penetration: {
+                flat: 50,
             },
             crit_rate: {
                 flat: 0.02,
@@ -3048,6 +3071,22 @@ book_stats["A Glint On The Sand"] = new BookData({
                 multiplier: 1.05,
             },
         }
+    });
+})();
+
+//amulets:
+(function(){
+    item_templates["Warrior's necklace"] = new Amulet({
+        name: "Warrior's necklace",
+        value: 1000,
+        stats: {
+            attack_power: {
+                multiplier: 1.1,
+            },
+            attack_speed: {
+                multiplier: 1.1,
+            },
+        },
     });
 })();
 
