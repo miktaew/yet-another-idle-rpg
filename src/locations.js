@@ -4,8 +4,7 @@ import { enemy_templates, Enemy } from "./enemies.js";
 import { skills } from "./skills.js";
 import { current_game_time } from "./game_time.js";
 import { activities } from "./activities.js";
-import { get_total_skill_level } from "./character.js";
-import { is_rat } from "./main.js";
+import { get_total_skill_level, is_rat } from "./character.js";
 import { GameAction } from "./actions.js";
 const locations = {}; //contains all the created locations
 const location_types = {};
@@ -108,7 +107,7 @@ class Combat_zone {
                  types = [], //{type, xp_gain}
                  enemy_groups_list = [],
                  is_enemy_groups_list_random = true,
-                 predefined_lineup_on_nth_group = 0,
+                 predefined_lineup_on_nth_group = 1,
                  enemies_list = [], 
                  enemy_group_size = [1,1],
                  enemy_count = 30,
@@ -220,7 +219,7 @@ class Combat_zone {
         const enemies = [];
         let enemy_group = [];
 
-        if(this.enemy_groups_list.length > 0 || this.enemy_groups_killed%this.predefined_lineup_on_nth_group == 0) { // PREDEFINED GROUPS EXIST
+        if(this.enemy_groups_list.length > 0 && this.enemy_groups_killed%this.predefined_lineup_on_nth_group == 0) { // PREDEFINED GROUPS EXIST
 
             if(this.is_enemy_groups_list_random) { 
                 //choose randomly
@@ -1086,7 +1085,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         enemy_count: 50,
         enemy_group_size: [2,3],
         enemy_groups_list: [{enemies: ["Direwolf hunter"]}],
-        is_enemy_groups_list_random: true,
         predefined_lineup_on_nth_group: 4,
         is_unlocked: false,
         enemy_stat_variation: 0.2,
@@ -1100,10 +1098,36 @@ There's another gate on the wall in front of you, but you have a strange feeling
         repeatable_reward: {
             xp: 1000,
         },
+        rewards_with_clear_requirement: [
+            {
+                required_clear_count: 2,
+                actions: [{action: "search predator", location:"Forest road"}]
+            }
+        ],
         temperature_range_modifier: 0.8,
         is_under_roof: true,
     });
     locations["Forest road"].connected_locations.push({location: locations["Forest den"], custom_text: "Enter the [Forest den]", travel_time: 90});
+
+    locations["Bears' den"] = new Combat_zone({
+        description: "A relatively large cave in the depths of the forest, filled with hordes of direwolves.",
+        enemies_list: ["Forest bear"],
+        enemy_count: 20,
+        enemy_group_size: [1,1],
+        is_unlocked: false,
+        enemy_stat_variation: 0.2,
+        name: "Bears' den", 
+        types: [{type: "narrow", stage: 2, xp_gain: 10}, {type: "dark", stage: 2, xp_gain: 10}],
+        parent_location: locations["Forest road"],
+        first_reward: {
+            xp: 4000,
+        },
+        repeatable_reward: {
+            xp: 2000,
+        },
+        temperature_range_modifier: 0.8,
+        is_under_roof: true,
+    });
 
     locations["Town outskirts"] = new Location({ 
         connected_locations: [{location: locations["Forest road"], custom_text: "Return to the [Forest road]", travel_time: 180}],
@@ -1933,6 +1957,24 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 locations: [{location: "Forest den"}],
             },
             unlock_text: "At some point during your fights, you notice a path trodden by animals. There's a lot of footprints that look like wolf's, except much larger..."
+        }),
+        "search predator": new GameAction({
+            action_id: "search predator",
+            starting_text: "Search for the predator that hunts direwolves",
+            description: "It's a terrible idea",
+            action_text: "Searching for the predator",
+            success_text: "You end up finding another large cave. There's a lot of bones around the entrance, some belonging to direwolves and boars",
+            failure_texts: {
+                random_loss: [
+                    "At some point you got distracted and lost your way",
+                ],
+            },
+            attempt_duration: 180,
+            success_chances: [0.4],
+            rewards: {
+                locations: [{location: "Bears' den"}],
+            },
+            unlock_text: "At some point during your fights you notice a direwolf with terrible scars, clearly inflicted by an even larger predator. What could have it been?",
         }),
     };
 })();

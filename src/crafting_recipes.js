@@ -523,6 +523,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [
             {material_id: "Piece of wolf leather", count: 3, result_id: "Wolf leather helmet armor"}, 
             {material_id: "Piece of boar leather", count: 3, result_id: "Boar leather helmet armor"},
+            {material_id: "Piece of bear leather", count: 3, result_id: "Bear leather helmet armor"},
         ],
         item_type: "Component",
         recipe_skill: "Crafting",
@@ -545,6 +546,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [
             {material_id: "Piece of wolf leather", count: 5, result_id: "Wolf leather chestplate armor"}, 
             {material_id: "Piece of boar leather", count: 5, result_id: "Boar leather chestplate armor"},
+            {material_id: "Piece of bear leather", count: 5, result_id: "Bear leather chestplate armor"},
         ],
         item_type: "Component",
         recipe_skill: "Crafting",
@@ -567,6 +569,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [
             {material_id: "Piece of wolf leather", count: 4, result_id: "Wolf leather greaves"}, 
             {material_id: "Piece of boar leather", count: 4, result_id: "Boar leather greaves"},
+            {material_id: "Piece of bear leather", count: 4, result_id: "Bear leather greaves"},
         ],
         item_type: "Component",
         recipe_skill: "Crafting",
@@ -589,6 +592,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [
             {material_id: "Piece of wolf leather", count: 3, result_id: "Wolf leather glove armor"}, 
             {material_id: "Piece of boar leather", count: 3, result_id: "Boar leather glove armor"},
+            {material_id: "Piece of bear leather", count: 3, result_id: "Bear leather glove armor"},
         ],
         item_type: "Component",
         recipe_skill: "Crafting",
@@ -611,6 +615,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [
             {material_id: "Piece of wolf leather", count: 3, result_id: "Wolf leather shoe armor"}, 
             {material_id: "Piece of boar leather", count: 3, result_id: "Boar leather shoe armor"},
+            {material_id: "Piece of bear leather", count: 3, result_id: "Bear leather shoe armor"},
         ],
         item_type: "Component",
         recipe_skill: "Crafting",
@@ -814,6 +819,15 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_skill: "Butchering",
         recipe_level: [5,15],
     });
+    butchering_recipes.items["Piece of bear leather"] = new ItemRecipe({
+        name: "Piece of bear leather",
+        recipe_type: "material",
+        materials: [{material_id: "Bear hide", count: 6}],
+        result: {result_id: "Piece of bear leather", count: 1},
+        success_chance: [0.2,1],
+        recipe_skill: "Butchering",
+        recipe_level: [12,25],
+    });
     butchering_recipes.items["Processed rat pelt"] = new ItemRecipe({
         name: "Processed rat pelt",
         recipe_type: "material",
@@ -848,6 +862,15 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Processed goat hide", count: 1},
         success_chance: [0.2,1],
         recipe_level: [5,15],
+        recipe_skill: "Butchering",
+    });
+    butchering_recipes.items["Processed bear hide"] = new ItemRecipe({
+        name: "Processed bear hide",
+        recipe_type: "material",
+        materials: [{material_id: "Bear hide", count: 6}],
+        result: {result_id: "Processed bear hide", count: 1},
+        success_chance: [0.2,1],
+        recipe_level: [12,22],
         recipe_skill: "Butchering",
     });
     crafting_recipes.items["Wool cloth"] = new ItemRecipe({
@@ -1034,6 +1057,15 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         success_chance: [0.5,1],
         recipe_level: [10,17],
         recipe_skill: "Butchering",
+    });
+    butchering_recipes.items["Sharp bear claw"] = new ItemRecipe({
+        name: "Sharp bear claw",
+        recipe_type: "material",
+        materials: [{material_id: "Bear claw", count: 50}], 
+        result: {result_id: "Sharp bear claw", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [13,20],
+        recipe_skill: "Butchering",
     }); 
 
     alchemy_recipes.items["Potash"] = new ItemRecipe({
@@ -1198,7 +1230,6 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
 (function(){
     crafting_recipes.items["Wolf trophy"] = new ItemRecipe({
         name: "Wolf trophy",
-        id: "Wolf trophy",
         recipe_type: "equipment",
         materials: [{material_id: "High quality wolf fang", count: 4}],
         result: {result_id: "Wolf trophy", count: 1},
@@ -1208,7 +1239,6 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     });
     crafting_recipes.items["Boar trophy"] = new ItemRecipe({
         name: "Boar trophy",
-        id: "Boar trophy",
         recipe_type: "equipment",
         materials: [{material_id: "High quality boar tusk", count: 4}],
         result: {result_id: "Boar trophy", count: 1},
@@ -1223,6 +1253,15 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Mountain goat trophy", count: 1},
         success_chance: [0.5,1],
         recipe_level: [10,20],
+        recipe_skill: "Crafting",
+    });
+    crafting_recipes.items["Bear trophy"] = new ItemRecipe({
+        name: "Bear trophy",
+        recipe_type: "equipment",
+        materials: [{material_id: "Sharp bear claw", count: 4}],
+        result: {result_id: "Bear trophy", count: 1},
+        success_chance: [0.3,1],
+        recipe_level: [15,25],
         recipe_skill: "Crafting",
     });
 })();

@@ -18,6 +18,10 @@ const base_block_chance = 0.75; //+20 from the skill
 const base_xp_cost = 10;
 
 
+//stupid little thing for a stupid easter egg
+const is_rat = () => character.name.match(/\b(?<![\w])rat\b/i);
+
+
 //6 things below: for weather; why here? because it's related to the hero, I guess
 const time_until_wet = 10; //snowing accumulates it at a slower rate
 const time_until_cold = 60;
@@ -866,5 +870,5 @@ export {character, add_to_character_inventory, remove_from_character_inventory, 
         get_total_skill_level, get_total_level_bonus, get_total_skill_coefficient, get_effect_with_bonuses,
         time_until_wet, time_until_cold, time_until_cold_when_wet, 
         cold_status_temperatures, cold_status_effects,
-        get_character_cold_tolerance, lowest_tolerable_temperature
+        get_character_cold_tolerance, lowest_tolerable_temperature, is_rat
 };

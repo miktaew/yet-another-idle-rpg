@@ -22,7 +22,8 @@ import { character,
          time_until_cold,
          time_until_cold_when_wet,
          cold_status_effects,
-         get_character_cold_tolerance} from "./character.js";
+         get_character_cold_tolerance,
+         is_rat} from "./character.js";
 import { activities } from "./activities.js";
 import { end_activity_animation, 
          update_displayed_character_inventory, update_displayed_trader_inventory, sort_displayed_inventory, sort_displayed_skills,
@@ -222,9 +223,6 @@ const faved_stances = {};
 
 const favourite_consumables = {};
 //consumables that are to be used automatically if their effect runs out
-
-//stupid little thing for a stupid easter egg
-const is_rat = () => character.name.match(/\b(?<![\w])rat\b/i);
 
 const tickrate = 1;
 //how many ticks per second
@@ -5184,5 +5182,4 @@ export { current_enemies,
         remove_consumable_from_favourites,
         process_rewards,
         travel_times,
-        is_rat
 };

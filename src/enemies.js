@@ -254,21 +254,6 @@ class Enemy {
         size: enemy_sizes.MEDIUM,
     });
 
-    enemy_templates["Forest bear"] = new Enemy({
-        name: "Forest bear",
-        description: "A mighty and dangerous predator with thick skin, sharp teeth, and dangerous claws",
-        xp_value: 50,
-        rank: 9,
-        tags: ["living", "beast"],
-        stats: {health: 3000, attack: 300, agility: 160, dexterity: 200, intuition: 100, magic: 0, attack_speed: 0.7, defense: 400},
-        loot_list: [
-            {item_name: "Bear hide", chance: 0.05},
-            {item_name: "Bear claw", chance: 0.1},
-            {item_name: "High quality bear claw", chance: 0.002},
-        ],
-        size: enemy_sizes.LARGE,
-    });
-
     enemy_templates["Boar"] = new Enemy({
         name: "Boar",
         description: "A big wild creature, with thick skin and large tusks",
@@ -299,6 +284,21 @@ class Enemy {
             {item_name: "Mountain goat horn", chance: 0.02},
             {item_name: "Pristine mountain goat horn", chance: 0.0005},
         ],
+    });
+
+    enemy_templates["Forest bear"] = new Enemy({
+        name: "Forest bear",
+        description: "A mighty and dangerous predator with thick skin, sharp teeth, and dangerous claws",
+        xp_value: 50,
+        rank: 9,
+        tags: ["living", "beast"],
+        stats: {health: 3000, attack: 300, agility: 160, dexterity: 200, intuition: 100, magic: 0, attack_speed: 0.7, defense: 400},
+        loot_list: [
+            {item_name: "Bear hide", chance: 0.05},
+            {item_name: "Bear claw", chance: 0.1},
+            {item_name: "Sharp bear claw", chance: 0.002},
+        ],
+        size: enemy_sizes.LARGE,
     });
 
     enemy_templates["Slums thug"] = new Enemy({
