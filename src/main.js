@@ -35,13 +35,12 @@ import { end_activity_animation,
          format_money, update_displayed_stats,
          update_displayed_effects, update_displayed_effect_durations,
          update_displayed_time, update_displayed_character_xp, 
-         start_activity_display, start_sleeping_display,
+         start_sleeping_display,
          create_new_skill_bar, update_displayed_skill_bar, update_displayed_skill_description,
          update_displayed_ongoing_activity, 
          update_enemy_attack_bar, update_character_attack_bar,
          remove_fast_travel_choice,
          create_new_bestiary_entry,
-         update_bestiary_entry,
          start_reading_display,
          update_displayed_xp_bonuses, 
          update_displayed_skill_xp_gain, update_all_displayed_skills_xp_gain, update_displayed_stance_list, 
@@ -62,7 +61,6 @@ import { end_activity_animation,
          update_displayed_book,
          update_backup_load_button,
          update_other_save_load_button,
-         start_game_action_display,
          set_game_action_finish_text,
          update_game_action_progress_bar,
          update_game_action_finish_button,
@@ -111,7 +109,7 @@ const dev_backup_key = "dev backup save";
 const global_flags = {
     is_gathering_unlocked: false,
     is_crafting_unlocked: false,
-    is_deep_forest_beaten: false, //this role could be fulfilled by a quest, but it was added before that mechanic; besides, flags are cool and elegant
+    is_strength_proved: false, //this role could be fulfilled by a quest, but it was originally added before that mechanic; besides, flags are cool and elegant
 };
 const flag_unlock_texts = {
     is_gathering_unlocked: "You have gained the ability to gather new materials! Remember to equip your tools first <br>[Note: equipped tools do not appear in inventory as you will be swapping them very rarely]",
@@ -2034,6 +2032,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
             }
         } else {
             //other sources
+            log_message(`Gained ${rewards.xp}xp`, "location_reward");
         }
         add_xp_to_character(rewards.xp);
     }
@@ -3294,7 +3293,12 @@ function load(save_data) {
     //set game time
 
     Object.keys(save_data.global_flags||{}).forEach(flag => {
-        global_flags[flag] = save_data.global_flags[flag];
+        
+        if(flag === "is_deep_forest_beaten") { //compatibility for pre-0.5
+            global_flags["is_strength_proved"] = save_data.global_flags[flag];
+        } else {
+            global_flags[flag] = save_data.global_flags[flag];
+        }
     });
 
     last_rewarded_export = save_data.last_rewarded_export || last_rewarded_export;

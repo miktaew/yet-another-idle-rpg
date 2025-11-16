@@ -98,7 +98,7 @@ class Hero extends InventoryHaver {
                                 environment: {},
                         }
                 };
-                this.reputation = { //effects go up to 1000?
+                this.reputation = { //effects would go up to 1000?
                         village: 0,
                         slums: 0,
                         town: 0,
@@ -144,7 +144,7 @@ class Hero extends InventoryHaver {
                 this.money = 0;
                 this.xp = {
                         current_level: 0, total_xp: 0, current_xp: 0, xp_to_next_lvl: base_xp_cost, 
-                        total_xp_to_next_lvl: base_xp_cost, base_xp_cost: base_xp_cost, xp_scaling: 1.7,
+                        total_xp_to_next_lvl: base_xp_cost, base_xp_cost: base_xp_cost, xp_scaling: 1.6,
                 }
         }
         add_xp({xp_to_add, use_bonus = true}) {

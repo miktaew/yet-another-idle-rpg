@@ -297,7 +297,11 @@ const questManager = {
             new QuestTask({task_description: "Bring 50 packs of bonemeal"}),
         ],
         quest_rewards: {
-            //todo: money, some town rep
+            money: 6000,
+            xp: 5000,
+            reputation: {
+                town: 40,
+            }
         }
     });
     quests["Light in the darkness"] = new Quest({
@@ -310,6 +314,27 @@ const questManager = {
             new QuestTask({task_description: "Deal with the gang"}), //gained on talking with sus guy
             new QuestTask({task_description: "[To be continued]"}), //next update maybe
         ]
+    });
+    quests["Ploughs to swords"] = new Quest({
+        quest_name: "Ploughs to swords",
+        getQuestDescription: ()=>{
+            return "Supervisor of the town's farms seems to have some interesting task, but first requires you to be strong enough for it.";
+        },
+        quest_tasks: [
+            new QuestTask({task_description: "Prove your strength"}), //gained on asking about work
+            new QuestTask({task_description: "Deal with the boars"}),
+            new QuestTask({is_hidden: true}), //completed by asking for more work when it's not winter
+            new QuestTask({task_description: "Exterminate the red ants"}),
+        ],
+        quest_rewards: {
+            quest_rewards: {
+                money: 5000,
+                xp: 100000, //100k, probably almost worthless by that point
+                reputation: {
+                    town: 60,
+                }
+            }
+        }
     })
 })();
 

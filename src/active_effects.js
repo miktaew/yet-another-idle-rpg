@@ -108,7 +108,7 @@ class ActiveEffect {
         name: "Basic meal",
         effects: {
             stats: {
-                stamina_regeneration_flat: {flat: 1},
+                stamina_regeneration_flat: {flat: 0.5},
             }
         },
         tags: {"buff": true},

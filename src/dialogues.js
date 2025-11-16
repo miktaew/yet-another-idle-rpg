@@ -616,12 +616,21 @@ class DialogueAction extends GameAction {
             "anything": new Textline({
                 name: "Is there anything I can help you with?",
                 is_unlocked: false,
-                text: "I don't think so, nothing aside from normal work... Oh wait, actually there is one thing. We're in need of 50 packs of bonemeal and lost our supplier. Because of this, I can pay you twice the normal price, we really need this stuff for the farm. Bad news is, you will have to bring all 50 in a single delivery.",
+                text: "I don't think so, nothing aside from normal work... Oh wait, actually there is one thing. We're in a dire need of 50 packs of bonemeal and lost our supplier on top of that, so I'm willing to pay you a triple price. Bad news is, you will have to bring all 50 in a single delivery.",
                 rewards: {
                     actions: [{dialogue: "farm supervisor", action: "bonemeal1"}],
                     quests: ["Bonemeal delivery"],
                 },
                 locks_lines: ["anything"],
+            }),
+            "more bonemeal": new Textline({
+                name: "More bonemeal, you say?",
+                is_unlocked: false,
+                text: "Absolutely! I know the lower price might not be the most appealing, but at least it's stable, unlike the market, and at times might be a lot better than what any trader would pay you for it.",
+                rewards: {
+                    actions: [{dialogue: "farm supervisor", action: "bonemeal2"}],
+                },
+                locks_lines: ["more bonemeal"],
             }),
             "animals": new Textline({
                 name: "Do you sell anything?",
@@ -637,7 +646,7 @@ class DialogueAction extends GameAction {
                 name: "Do you have any task that requires some good old violence?",
                 is_unlocked: false,
                 text: "I kinda do, but you don't seem strong enough for that. I'm sorry.",
-                required_flags: {no: ["is_deep_forest_beaten"]},
+                required_flags: {no: ["is_strength_proved"]},
             }),
             "fight": new Textline({
                 name: "Do you have any task that requires some good old violence?",
@@ -646,7 +655,7 @@ class DialogueAction extends GameAction {
                 + "They don't do enough damage to cause any serious problems, but I would certainly be calmer if someone took care of them. "
                 + "Go to the forest and search for a clearing in north, that's where they usually roam when they aren't busy eating our crops."
                 + "I can of course pay you for that, but keep in mind it won't be that much. 4 silver coins is most I can offer, I'm running on a strict budget here.",
-                required_flags: {yes: ["is_deep_forest_beaten"]},
+                required_flags: {yes: ["is_strength_proved"]},
                 rewards: {
                     actions: [{location: "Forest road", action: "search for boars"}],
                     //locations: [{location: "Forest clearing"}],
@@ -692,8 +701,26 @@ class DialogueAction extends GameAction {
                             quest_id: "Bonemeal delivery",
                             task_index: 0
                         }
-                    ]
-                    
+                    ], 
+                    textlines: [{dialogue: "farm supervisor", textline: "more bonemeal"}],
+                },
+            }),
+            "bonemeal2": new DialogueAction({
+                action_id: "bonemeal2",
+                starting_text: "[Deliver the bonemeal]",
+                description: "",
+                action_text: "",
+                success_text: "Thank you very much, here's your money! We will gladly take more, whenever you have it!",
+                failure_texts: {
+                    unable_to_begin: ["I'm sorry, but that's not enough"],
+                },
+                required: {
+                    items_by_id: {"Bonemeal": {count: 50, remove_on_success: true}},
+                },
+                attempt_duration: 0,
+                success_chances: [1],
+                rewards: {
+                    money: 2000,
                 },
             }),
         },

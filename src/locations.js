@@ -935,7 +935,8 @@ function get_location_type_penalty(type, stage, stat, category) {
             actions: [{action: "open the gate", location:"Nearby cave"}],
             quest_progress: [
                 {quest_id: "The Infinite Rat Saga", task_index: 0},
-            ]
+            ],
+            flags: ["is_strength_proved"],
         },
         is_temperature_static: true,
         static_temperature: 20,
@@ -1046,7 +1047,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
         repeatable_reward: {
             xp: 35,
-            flags: ["is_deep_forest_beaten"],
+            flags: ["is_strength_proved"],
             activities: [{location:"Forest road", activity: "woodcutting"}],
         },
         rewards_with_clear_requirement: [
@@ -1320,6 +1321,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         parent_location: locations["Mountain camp"],
         first_reward: {
             xp: 2000,
+            flags: ["is_strength_proved"],
         },
         repeatable_reward: {
             xp: 1000,
