@@ -1,6 +1,7 @@
 "use strict";
 
 import { get_total_skill_level } from "./character.js";
+import { current_game_time } from "./game_time.js";
 
 /*
     either single set of values or two sets, one for minimum chance provided and one for maximum
@@ -28,7 +29,11 @@ import { get_total_skill_level } from "./character.js";
                     count: Number,
                     remove: Boolean
             }
-        ]
+        ],
+        season: { //either season that needs to be active or season that CAN'T be active
+            not: String,
+            yes: String,
+        }
     }
 */
 
@@ -103,6 +108,18 @@ const process_conditions = (conditions, character) => {
                 met *= (character.stats.full[stat_key] - conditions[0].stats[stat_key])/(conditions[1].stats[stat_key] - conditions[0].stats[stat_key]);
             }
         });
+    }
+
+    if(conditions[0].season) {
+        if(conditions[0].season.yes) {
+            if(current_game_time.getSeason() !== conditions[0].season.yes) {
+                met = 0;
+            }
+        } else if(conditions[0].season.not) {
+            if(current_game_time.getSeason() === conditions[0].season.not) {
+                met = 0;
+            }
+        }
     }
 
     return met;

@@ -4280,6 +4280,19 @@ function load(save_data) {
             }
         }
 
+        //town farm quest
+        if(dialogues["farm supervisor"].textlines["fight0"].is_finished) {
+            questManager.startQuest({quest_id: "Ploughs to swords", should_inform: false});
+
+            if(dialogues["farm supervisor"].textlines["fight"].is_finished) {
+                questManager.finishQuestTask({quest_id: "Ploughs to swords", task_index: 0});
+                
+                 if(dialogues["farm supervisor"].textlines["defeated boars"].is_finished) {
+                    questManager.finishQuestTask({quest_id: "Ploughs to swords", task_index: 1});
+                 }
+            }
+        }
+
     }
     
     set_loading_screen_progress("Mixing catnip with more catnip");

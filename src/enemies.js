@@ -301,6 +301,26 @@ class Enemy {
         size: enemy_sizes.LARGE,
     });
 
+    enemy_templates["Red ant swarm"] = new Enemy({
+        name: "Red ant swarm",
+        description: "A swarm of large, angry red ants",
+        xp_value: 20,
+        rank: 7,
+        tags: ["living", "insect"],
+        stats: {health: 600, attack: 4, agility: 100, dexterity: 200, intuition: 100, magic: 0, attack_speed: 1.5, attack_count: 30, defense: 10},
+        size: enemy_sizes.SMALL,
+    });
+
+    enemy_templates["Red ant queen"] = new Enemy({
+        name: "Red ant queen",
+        description: "A red ant queen, despite her decent size she's not much of a fighter",
+        xp_value: 10,
+        rank: 5,
+        tags: ["living", "insect"],
+        stats: {health: 200, attack: 20, agility: 50, dexterity: 200, intuition: 100, magic: 0, attack_speed: 0.5, defense: 20},
+        size: enemy_sizes.SMALL,
+    });
+
     enemy_templates["Slums thug"] = new Enemy({
         name: "Slums thug",
         description: "A nasty thug with shabby equipment",

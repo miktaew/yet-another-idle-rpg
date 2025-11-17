@@ -647,6 +647,9 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 text: "I kinda do, but you don't seem strong enough for that. I'm sorry.",
                 required_flags: {no: ["is_strength_proved"]},
+                rewards: {
+                    quests: ["Ploughs to swords"],
+                }
             }),
             "fight": new Textline({
                 name: "Do you have any task that requires some good old violence?",
@@ -654,11 +657,13 @@ class DialogueAction extends GameAction {
                 text: "Actually yes. There's that annoying group of boars that keep destroying our fields. "
                 + "They don't do enough damage to cause any serious problems, but I would certainly be calmer if someone took care of them. "
                 + "Go to the forest and search for a clearing in north, that's where they usually roam when they aren't busy eating our crops."
-                + "I can of course pay you for that, but keep in mind it won't be that much. 4 silver coins is most I can offer, I'm running on a strict budget here.",
+                + "I will of course pay you for that. 4 silver coins is most I can offer, I'm running on a strict budget here.",
                 required_flags: {yes: ["is_strength_proved"]},
                 rewards: {
                     actions: [{location: "Forest road", action: "search for boars"}],
                     //locations: [{location: "Forest clearing"}],
+                    quests: ["Ploughs to swords"],
+                    quest_progress: [{quest_id: "Ploughs to swords", task_index: 0}],
                 },
                 locks_lines: ["fight"],
             }),
@@ -677,8 +682,28 @@ class DialogueAction extends GameAction {
                 locks_lines: ["defeated boars"],
                 rewards: {
                     money: 4000,
+                    quest_progress: [{quest_id: "Ploughs to swords", task_index: 1}],
+                    textlines: [{dialogue: "farm supervisor", lines: ["troubled"]}],
                 }
-            }), 
+            }),
+            "troubled": new Textline({
+                is_unlocked: false,
+                name: "You look troubled",
+                text: "Troubled? I'm fuming, I'm going insane here! Those damn accursed ants, they keep destroying crops by eating their roots over and over again!"
+                    + " If I could, I would drop everything, grab a sword and a shovel and go find their damn nests, and then slaughter every last one of them! Not just soldiers and workers, but queens and larvae too!"
+                    + " Destroy their nests for me and you will have my gratitude, I will even pay you out of my own pocket.",
+                locks_lines: ["troubled"],
+                display_conditions: {
+                    season: {
+                        not: "Winter",
+                    }
+                },
+                rewards: {
+                    money: 4000,
+                    quest_progress: [{quest_id: "Ploughs to swords", task_index: 2}],
+                    actions: [{location: "town farms", action: "dig for ants 1"}],
+                }
+            })
         },
         actions: {
             "bonemeal1": new DialogueAction({
