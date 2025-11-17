@@ -1296,6 +1296,11 @@ input[type=checkbox], input[type=radio] {
 	background-color: #2c3953;
 }
 
+.repo_link {
+	right: 42px;
+	position: fixed;
+	padding: 3px;
+}
 .financial_link {
 	right: 0px;
 	position: fixed;
