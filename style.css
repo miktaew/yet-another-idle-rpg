@@ -443,7 +443,7 @@ input[type=checkbox], input[type=radio] {
 	left: 300px;
  }
 
- @media only screen and (max-height: 857px) {
+ @media only screen and (max-height: 600px) {
 	#options_panel {
 		position: absolute;
 		top: 405px;
