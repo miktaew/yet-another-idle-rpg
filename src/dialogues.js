@@ -699,11 +699,20 @@ class DialogueAction extends GameAction {
                     }
                 },
                 rewards: {
-                    money: 4000,
                     quest_progress: [{quest_id: "Ploughs to swords", task_index: 2}],
                     actions: [{location: "town farms", action: "dig for ants 1"}],
                 }
-            })
+            }),
+            "eliminated ants": new Textline({
+                is_unlocked: false,
+                name: "The ants are gone, though there are some trails leading to the forest",
+                text: "Forest? I don't care. If they are gone from the farm, then just... thank you, thank you so much! Here, take this, you earned it!",
+                locks_lines: ["eliminated ants"],
+                rewards: {
+                    quest_progress: [{quest_id: "Ploughs to swords", task_index: 3}],
+                    //other rewards are from quest itself
+                }
+            }),
         },
         actions: {
             "bonemeal1": new DialogueAction({

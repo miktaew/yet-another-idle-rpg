@@ -324,7 +324,7 @@ const questManager = {
             new QuestTask({task_description: "Prove your strength"}), //gained on asking about work without having is_strength_proved flag, gained AND finished on asking with having the flag
             new QuestTask({task_description: "Deal with the boars and then report back"}),
             new QuestTask({is_hidden: true}), //completed by asking for more work when it's not winter
-            new QuestTask({task_description: "Exterminate the red ants"}),
+            new QuestTask({task_description: "Exterminate the red ants under the farm and then report back"}),
         ],
         quest_rewards: {
             quest_rewards: {

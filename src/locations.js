@@ -1130,6 +1130,30 @@ There's another gate on the wall in front of you, but you have a strange feeling
         is_under_roof: true,
     });
 
+    locations["Forest ant nest"] = new Combat_zone({ 
+        description: "A labyrinthine nest of red ants", 
+        enemies_list: ["Red ant swarm"],
+        enemy_groups_list: [{enemies: ["Red ant queen", "Red ant swarm", "Red ant swarm", "Red ant swarm", "Red ant swarm", "Red ant swarm", "Red ant swarm", "Red ant swarm"]}],
+        predefined_lineup_on_nth_group: 100,
+        types: [{type: "narrow", stage: 2, xp_gain: 7}, {type: "dark", stage: 2, xp_gain: 7}],
+        enemy_count: 100,
+        is_unlocked: false,
+        enemy_group_size: [8,8],
+        enemy_stat_variation: 0.1,
+        id: "Forest ant nest",
+        name: "Red ant nest",
+        parent_location: locations["Forest road"],
+        first_reward: {
+            xp: 2000,
+        },
+        repeatable_reward: {
+            xp: 1000,
+        },
+        temperature_range_modifier: 0.7,
+        is_under_roof: true,
+    });
+    locations["Forest road"].connected_locations.push({location: locations["Forest ant nest"], custom_text: "Enter the [Red ant nest]", travel_time: 120});
+
     locations["Town outskirts"] = new Location({ 
         connected_locations: [{location: locations["Forest road"], custom_text: "Return to the [Forest road]", travel_time: 180}],
         description: "The town is surrounded by a tall stone wall. The only gate seems to be closed, with a lone guard outside. You can see farms to the north and slums to the south.",
@@ -1198,6 +1222,98 @@ There's another gate on the wall in front of you, but you have a strange feeling
             return noises;
         },
     });
+
+    locations["Red ant nest 1"] = new Combat_zone({ 
+        description: "A labyrinthine nest of red ants", 
+        enemies_list: ["Red ant swarm"],
+        enemy_groups_list: [{enemies: ["Red ant queen"]}],
+        predefined_lineup_on_nth_group: 100,
+        types: [{type: "narrow", stage: 2, xp_gain: 7}, {type: "dark", stage: 2, xp_gain: 7}],
+        enemy_count: 100,
+        is_unlocked: false,
+        enemy_group_size: [5,6],
+        enemy_stat_variation: 0.1,
+        id: "Red ant nest 1",
+        name: "Red ant nest",
+        parent_location: locations["Town farms"],
+        first_reward: {
+            xp: 1000,
+        },
+        repeatable_reward: {
+            locks: {
+                locations: ["Red ant nest 1"],
+            }, 
+            move_to: {location: "Town farms"},
+            actions: [
+                {location: "Town farms", action: "dig for ants 2"}
+            ]
+        },
+        temperature_range_modifier: 0.7,
+        is_under_roof: true,
+    });
+    locations["Red ant nest 2"] = new Combat_zone({ 
+        description: "A labyrinthine nest of red ants", 
+        enemies_list: ["Red ant swarm"],
+        enemy_groups_list: [{enemies: ["Red ant queen"]}],
+        predefined_lineup_on_nth_group: 100,
+        types: [{type: "narrow", stage: 2, xp_gain: 7}, {type: "dark", stage: 2, xp_gain: 7}],
+        enemy_count: 100,
+        is_unlocked: false,
+        enemy_group_size: [5,6],
+        enemy_stat_variation: 0.1,
+        id: "Red ant nest 2",
+        name: "Red ant nest",
+        parent_location: locations["Town farms"],
+        first_reward: {
+            xp: 1000,
+        },
+        repeatable_reward: {
+            locks: {
+                locations: ["Red ant nest 2"],
+            }, 
+            move_to: {location: "Town farms"},
+            actions: [
+                {location: "Town farms", action: "dig for ants 3"}
+            ]
+        },
+        temperature_range_modifier: 0.7,
+        is_under_roof: true,
+    });
+    locations["Red ant nest 3"] = new Combat_zone({ 
+        description: "A labyrinthine nest of red ants", 
+        enemies_list: ["Red ant swarm"],
+        enemy_groups_list: [{enemies: ["Red ant queen"]}],
+        predefined_lineup_on_nth_group: 100,
+        types: [{type: "narrow", stage: 2, xp_gain: 7}, {type: "dark", stage: 2, xp_gain: 7}],
+        enemy_count: 100,
+        is_unlocked: false,
+        enemy_group_size: [5,6],
+        enemy_stat_variation: 0.1,
+        id: "Red ant nest 3",
+        name: "Red ant nest",
+        parent_location: locations["Town farms"],
+        first_reward: {
+            xp: 1000,
+        },
+        repeatable_reward: {
+            locks: {
+                locations: ["Red ant nest 3"],
+            }, 
+            move_to: {location: "Town farms"},
+            actions: [
+                {location: "Town farms", action: "follow ant trail"}
+            ]
+        },
+        temperature_range_modifier: 0.7,
+        is_under_roof: true,
+    });
+
+    locations["Town farms"].connected_locations.push(
+        {location: locations["Red ant nest 1"], custom_text: "Enter the ant tunnels", travel_time: 10},
+        {location: locations["Red ant nest 2"], custom_text: "Enter the ant tunnels", travel_time: 10},
+        {location: locations["Red ant nest 3"], custom_text: "Enter the ant tunnels", travel_time: 10},
+    );
+
     locations["Gang hideout"] = new Combat_zone({ 
         description: "Hideout of a local gang. Old building with a labirynth of narrow corridors.", 
         enemies_list: ["Slums thug"],
@@ -1977,6 +2093,69 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 locations: [{location: "Bears' den"}],
             },
             unlock_text: "At some point during your fights you notice a direwolf with terrible scars, clearly inflicted by an even larger predator. What could have it been?",
+        }),
+    };
+    locations["Town farms"].actions = {
+        "dig for ants 1": new GameAction({
+            action_id: "dig for ants 1",
+            action_name: "Search for ant nests",
+            starting_text: "Dig in search of red ant nests",
+            description: "They live somewhere down there",
+            action_text: "Digging",
+            success_text: "You find an ant tunnel, just barely wide enough for you to enter",
+            attempt_duration: 180,
+            success_chances: [1],
+            rewards: {
+                locations: [{location: "Red ant nest 1"}],
+            },
+        }),
+    };
+    locations["Town farms"].actions = {
+        "dig for ants 2": new GameAction({
+            action_id: "dig for ants 2",
+            action_name: "Search for ant nests",
+            starting_text: "Dig in search of red ant nests",
+            description: "They live somewhere down there",
+            action_text: "Digging",
+            success_text: "You find an ant tunnel, just barely wide enough for you to enter",
+            attempt_duration: 240,
+            success_chances: [1],
+            rewards: {
+                locations: [{location: "Red ant nest 2"}],
+            },
+        }),
+    };
+    locations["Town farms"].actions = {
+        "dig for ants 3": new GameAction({
+            action_id: "dig for ants 3",
+            action_name: "Search for ant nests",
+            starting_text: "Dig in search of red ant nests",
+            description: "They live somewhere down there",
+            action_text: "Digging",
+            success_text: "You find an ant tunnel, just barely wide enough for you to enter",
+            attempt_duration: 300,
+            success_chances: [1],
+            rewards: {
+                locations: [{location: "Red ant nest 3"}],
+                textlines: [{dialogue: "Farm supervisor", lines: ["Eliminated ants"]}], 
+            },
+        }),
+    };
+    locations["Town farms"].actions = {
+        "follow ant trail": new GameAction({
+            action_id: "follow ant trail",
+            action_name: "Follow ant trail towards the forest",
+            starting_text: "Follow ant trail towards the forest",
+            description: "There must be other nests out there",
+            action_text: "Searching",
+            success_text: "You find a massive complex of ant tunnels, just barely wide enough for you to enter",
+            attempt_duration: 600,
+            success_chances: [1],
+            rewards: {
+                locations: [{location: "Forest ant nest"}],
+                move_to: {location: "Forest road"},
+            },
+            unlock_text: "While your task is finished, it seems that you might be able to find more ants away from the farms",
         }),
     };
 })();
