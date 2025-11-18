@@ -240,7 +240,7 @@ const options = {
     auto_use_when_longest_runs_out: true,
     use_uncivilised_temperature_scale: false, //true -> swap Celsius for Fahrenheit
     do_background_animations: true,
-    skip_play_button: true, //not really skips, just automatically clicks it right after loading
+    skip_play_button: false, //not really skips, just automatically clicks it right after loading
 };
 
 let message_log_filters = {
