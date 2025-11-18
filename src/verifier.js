@@ -254,7 +254,7 @@ function Verify_Game_Objects() {
     start_time = performance.now();
     let market_region_results = [0,0];
     console.log("Began verifying market regions.");
-    for(const [key, connections_array] of Object.entries(market_region_mapping)) {
+    for(const [key, ] of Object.entries(market_region_mapping)) {
         let has_issue = false;
 
         let is_present = false;
