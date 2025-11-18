@@ -2043,7 +2043,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
                 if(inform_overall) {
                     log_message(`${character.name} gained ${rewards.skill_xp[skill_key]}xp to ${skills[skill_key].name()}`);
                 }
-                add_xp_to_skill({skill: skills[skill_key], xp_to_add: rewards.skill_xp[skill_key]});
+                add_xp_to_skill({skill: skills[skill_key], xp_to_add: rewards.skill_xp[skill_key], cap_gained_xp: false});
             }
         });
     }

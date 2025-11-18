@@ -691,7 +691,7 @@ class DialogueAction extends GameAction {
                 name: "You look troubled",
                 text: "Troubled? I'm fuming, I'm going insane here! Those damn accursed ants, they keep destroying crops by eating their roots over and over again!"
                     + " If I could, I would drop everything, grab a sword and a shovel and go find their damn nests, and then slaughter every last one of them! Not just soldiers and workers, but queens and larvae too!"
-                    + " Destroy their nests for me and you will have my gratitude, I will even pay you out of my own pocket.",
+                    + " Destroy their nests for me and you will have my gratitude, I will even pay you out of my own pocket. You can borrow a shovel from the farm if you don't have your own.",
                 locks_lines: ["troubled"],
                 display_conditions: {
                     season: {

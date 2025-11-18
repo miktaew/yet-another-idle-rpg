@@ -2107,10 +2107,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_chances: [1],
             rewards: {
                 locations: [{location: "Red ant nest 1"}],
+                skill_xp: {Digging: 20},
             },
         }),
-    };
-    locations["Town farms"].actions = {
         "dig for ants 2": new GameAction({
             action_id: "dig for ants 2",
             action_name: "Search for ant nests",
@@ -2122,10 +2121,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_chances: [1],
             rewards: {
                 locations: [{location: "Red ant nest 2"}],
+                skill_xp: {Digging: 30},
             },
         }),
-    };
-    locations["Town farms"].actions = {
         "dig for ants 3": new GameAction({
             action_id: "dig for ants 3",
             action_name: "Search for ant nests",
@@ -2137,11 +2135,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_chances: [1],
             rewards: {
                 locations: [{location: "Red ant nest 3"}],
-                textlines: [{dialogue: "Farm supervisor", lines: ["Eliminated ants"]}], 
+                textlines: [{dialogue: "Farm supervisor", lines: ["Eliminated ants"]}],
+                skill_xp: {Digging: 40},
             },
         }),
-    };
-    locations["Town farms"].actions = {
         "follow ant trail": new GameAction({
             action_id: "follow ant trail",
             action_name: "Follow ant trail towards the forest",
@@ -2154,6 +2151,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             rewards: {
                 locations: [{location: "Forest ant nest"}],
                 move_to: {location: "Forest road"},
+                skill_xp: {Digging: 50},
             },
             unlock_text: "While your task is finished, it seems that you might be able to find more ants away from the farms",
         }),
