@@ -109,6 +109,10 @@ input[type=checkbox], input[type=radio] {
 	accent-color: rgb(0, 127, 255);
 }
 
+.bold {
+	font-weight: bold;
+}
+
 #loading_screen {
 	visibility: visible;
 	width: 100%;
@@ -131,6 +135,25 @@ input[type=checkbox], input[type=radio] {
 		justify-content: center;
 		top: 200px;
 	}
+	#loading_screen_author {
+		width: fit-content;
+		font-size: 30px;
+		font-family:'Ink Free';
+		font-weight: lighter;
+		text-align: right;
+		position: absolute;
+		top: 120px;
+		right: -50px;
+		rotate: -10deg;
+		animation-name: titleSizeAnimation;
+		animation-duration: 2s;
+		animation-iteration-count: infinite;
+		animation-direction: alternate;
+	}
+		@keyframes titleSizeAnimation {
+			from {font-size: 30px;}
+			to {font-size: 40px;}
+		}
 	#loading_screen_loading_text {
 		width: fit-content;
 		height: fit-content;
