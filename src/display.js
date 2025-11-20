@@ -13,7 +13,8 @@ import { current_enemies, options,
     global_flags,
     unlocked_beds,
     favourite_consumables,
-    travel_times } from "./main.js";
+    travel_times, 
+    language} from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time, seasons } from "./game_time.js";
@@ -30,6 +31,7 @@ import { get_current_temperature_smoothed, is_raining } from "./weather.js";
 import { PointyStarParticle, RainParticle, SnowParticle } from "./particles.js";
 import { get_game_version } from "./game_version.js";
 import { process_conditions } from "./conditions.js";
+import { translationManager } from "./translation.js";
 let activity_anim; //for the activity and gameAction animation interval
 
 let location_choice_divs = {}; //for dropdowns
@@ -3631,7 +3633,7 @@ function update_displayed_dialogue({dialogue_key, textlines, origin}) {
                 }
                 
                 const textline_div = document.createElement("div");
-                textline_div.innerHTML = `"${dialogue.textlines[key].name}"`;
+                textline_div.innerHTML = `"${translationManager.getText(language,dialogue.textlines[key].name)}"`;
                 textline_div.classList.add("dialogue_textline");
                 textline_div.setAttribute("data-textline", key);
                 textline_div.setAttribute("onclick", `start_textline(this.getAttribute('data-textline'))`);
@@ -3694,7 +3696,7 @@ function update_displayed_dialogue({dialogue_key, textlines, origin}) {
                 }
                 
                 const textline_div = document.createElement("div");
-                textline_div.innerHTML = `"${dialogue.textlines[key].name}"`;
+                textline_div.innerHTML = `"${translationManager.getText(language,dialogue.textlines[key].name)}"`;
                 textline_div.classList.add("dialogue_textline");
                 textline_div.setAttribute("data-textline", key);
                 textline_div.setAttribute("onclick", `start_textline(this.getAttribute('data-textline'), ${origin})`); //additional param compared to when there's no textlines passed
@@ -3713,6 +3715,8 @@ function update_displayed_dialogue({dialogue_key, textlines, origin}) {
 }
 
 function update_displayed_textline_answer({text, is_description}) {
+    text = translationManager.getText(language, text);
+    
     if(is_description) {
         document.getElementById("dialogue_answer_div").innerHTML =  "*"+text+"*";
     } else {

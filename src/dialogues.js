@@ -110,20 +110,20 @@ class DialogueAction extends GameAction {
 
 (function(){
     dialogues["village elder"] = new Dialogue({
+        //ram
         name: "village elder",
         textlines: {
             "hello": new Textline({
-                name: "Hello?",
-                text: "Hello. Glad to see you got better",
+                name: "elder hello",
+                text: "elder hello answ",
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["what happened", "where am i", "dont remember", "about"]}],
                 },
                 locks_lines: ["hello"],
             }),
             "what happened": new Textline({
-                name: "My head hurts.. What happened?",
-                text: `Some of our people found you unconscious in the forest, wounded and with nothing but pants and an old sword, so they brought you to our village. `
-                + `It would seem you were on your way to a nearby town when someone attacked you and hit you really hard in the head.`,
+                name: "elder head hurts",
+                text: "elder head hurts answ",
                 is_unlocked: false,
                 locks_lines: ["what happened", "where am i", "dont remember"],
                 rewards: {
@@ -134,9 +134,8 @@ class DialogueAction extends GameAction {
                 },
             }),
             "where am i": new Textline({
-                name: "Where am I?",
-                text: `Some of our people found you unconscious in the forest, wounded and with nothing but pants and an old sword, so they brought you to our village. `
-                + `It would seem you were on your way to a nearby town when someone attacked you and hit you really hard in the head.`,
+                name: "elder where",
+                text: "elder where answ",
                 is_unlocked: false,
                 locks_lines: ["what happened", "where am i", "dont remember"],
                 rewards: {
@@ -147,9 +146,8 @@ class DialogueAction extends GameAction {
                 },
             }),
             "dont remember": new Textline({
-                name: "I don't remember how I got here, what happened?",
-                text: `Some of our people found you unconscious in the forest, wounded and with nothing but pants and an old sword, so they brought you to our village. `
-                + `It would seem you were on your way to a nearby town when someone attacked you and hit you really hard in the head.`,
+                name: "elder remember",
+                text: "elder remember answ",
                 is_unlocked: false,
                 locks_lines: ["what happened", "where am i", "dont remember"],
                 rewards: {
@@ -160,14 +158,14 @@ class DialogueAction extends GameAction {
                 },
             }),
             "about": new Textline({
-                name: "Who are you?",
-                text: "I'm the unofficial leader of this village. If you have any questions, come to me",
+                name: "elder who",
+                text: "elder who answ",
                 is_unlocked: false,
                 locks_lines: ["about"]
             }),
             "ask to leave 1": new Textline({
-                name: "Great... Thank you for help, but I think I should go there then. Maybe it will help me remember more.",
-                text: "Nearby lands are dangerous and you are still too weak to leave. Do you plan on getting ambushed again?",
+                name: "elder leave 1",
+                text: "elder leave 1 answ",
                 is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["need to"]}],
@@ -175,9 +173,8 @@ class DialogueAction extends GameAction {
                 locks_lines: ["ask to leave 1"],
             }),
             "need to": new Textline({
-                name: "But I want to leave",
-                text: `You first need to recover, to get some rest and maybe also training, as you seem rather frail... Well, you know what? Killing a few wolf rats could be a good exercise. `
-                        +`You could help us clear some field of them, how about that?`,
+                name: "elder need to",
+                text: "elder need to answ",
                 is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["rats", "ask to leave 2", "equipment"]}],
@@ -190,9 +187,8 @@ class DialogueAction extends GameAction {
                 locks_lines: ["need to"],
             }),
             "equipment": new Textline({
-                name: "Is there any way I could get a weapon and proper clothes?",
-                text: `We don't have anything to spare, but you can talk with our trader. He should be somewhere nearby. `
-                        +`If you need money, try selling him some rat remains. Fangs, tails or pelts, he will buy them all. I have no idea what he does with this stuff...`,
+                name: "elder eq",
+                text: "elder eq answ",
                 is_unlocked: false,
                 locks_lines: ["equipment"],
                 rewards: {
@@ -201,8 +197,8 @@ class DialogueAction extends GameAction {
                 }
             }),
             "money": new Textline({
-                name: "Are there other ways to make money?",
-                text: "You could help us with some fieldwork. I'm afraid it won't pay too well.",
+                name: "elder money",
+                text: "elder money answ",
                 is_unlocked: false,
                 locks_lines: ["money"],
                 rewards: {
@@ -210,24 +206,20 @@ class DialogueAction extends GameAction {
                 }
             }),
             "ask to leave 2": new Textline({
-                name: "Can I leave the village?",
-                text: "We talked about this, you are still too weak",
+                name: "elder leave 2",
+                text: "elder leave 2 answ",
                 is_unlocked: false,
                 rewards: {
                 },
             }),
             "rats": new Textline({
-                name: "Are wolf rats a big issue?",
-                text: `Oh yes, quite a big one. Not literally, no, though they are much larger than normal rats... `
-                        +`They are a nasty vermin that's really hard to get rid of. And with their numbers they can be seriously life-threatening. `
-                        +`Only in a group though, single wolf rat is not much of a threat`,
+                name: "elder rats",
+                text: "elder rats answ",
                 is_unlocked: false,
             }),
             "cleared field": new Textline({ //will be unlocked on clearing infested field combat_zone
-                name: "I cleared the field, just as you asked me to",
-                text: `You did? That's good. How about a stronger target? Nearby cave is just full of this vermin. `
-                        +`Before that, maybe get some sleep? Some folks prepared that shack over there for you. It's clean, it's dry, and it will give you some privacy. `
-                        +`Oh, and before I forget, our old craftsman wanted to talk to you.`,
+                name: "elder cleared 1",
+                text: "elder cleared 1 answ",
                 is_unlocked: false,
                 rewards: {
                     locations: [{location: "Nearby cave"}, {location: "Infested field"}, {location: "Shack"}],
@@ -237,8 +229,8 @@ class DialogueAction extends GameAction {
                 locks_lines: ["ask to leave 2", "cleared field"],
             }),
             "ask to leave 3": new Textline({
-                name: "Can I leave the village?",
-                text: "You still need to get stronger.",
+                name: "elder leave 3",
+                text: "elder leave 3 answ",
                 rewards: {
                     locations: [{location: "Nearby cave"}, {location: "Infested field"}],
                     dialogues: ["old craftsman"],
@@ -246,8 +238,8 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
             }),
             "cleared cave": new Textline({
-                name: "I cleared the cave. Most of it, at least",
-                text: `Then I can't call you "too weak" anymore, can I? You are free to leave whenever you want, but still, be careful. You might also want to ask the guard for some tips about the outside. He used to be an adventurer.`,
+                name: "elder cave clear",
+                text: "elder cave clear answ",
                 is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 4"]}],
@@ -260,8 +252,8 @@ class DialogueAction extends GameAction {
                 locks_lines: ["ask to leave 3", "rats", "cleared cave"],
             }),
             "ask to leave 4": new Textline({
-                name: "Can I leave the village?",
-                text: "You are strong enough, you can leave and come whenever you want.",
+                name: "elder leave 4",
+                text: "elder leave 4 answ",
                 is_unlocked: false,
                 rewards: {
                     locations: [{location: "Forest road"}, {location: "Infested field"}, {location: "Nearby cave"}],
@@ -269,19 +261,19 @@ class DialogueAction extends GameAction {
                 },
             }),
             "new tunnel": new Textline({
-                name: "I found an even deeper tunnel in the cave",
-                text: "The what? I have a very bad feeling about this... You better avoid it until you get better equipment and some solid shield, I can bet it's gonna be a lot more dangerous.",
+                name: "elder tunnel",
+                text: "elder tunnel answ",
                 is_unlocked: false,
                 locks_lines: ["new tunnel"],
             }),
 
             "more training": new Textline({
-                name: "I think I went far enough with basic training, do you have any other suggestions?",
+                name: "elder training",
                 getText: (context) => {
                     if(context.season === "Winter") {
-                        return "You did? Well, let me think... Swimming in the river nearby would be a good exercise, but it's mostly frozen now in winter. You could try some wall climbing though, but be sure to start with low heights to be safe.";
+                        return "elder training answ 2";
                     } else {
-                        return "You did? Well, let me think... You could try swimming in the river nearby if you haven't done that yet, just remember not to do it in cold weather. Or you could try some wall climbing, but be sure to start with low heights to be safe.";
+                        return "elder training answ 1";
                     }
                 },
                 is_unlocked: false,
@@ -295,27 +287,25 @@ class DialogueAction extends GameAction {
                 }
             })
         },
-        description: "You see an older man who, despite his white hair, still has a strong posture. He eyes you with curiosity."
+        description: "elder description",
     });
 
     dialogues["old craftsman"] = new Dialogue({
+        //badger
         name: "old craftsman",
         is_unlocked: false,
         textlines: {
             "hello": new Textline({
-                name: "Hello, I heard you wanted to talk to me?",
-                text: "Ahh, good to see you traveler. I just thought of a little something that could be of help for someone like you. See, young people this days "+
-                "don't care about the good old art of crafting and prefer to buy everything from the store, but I have a feeling that you just might be different. "+
-                "Would you like a quick lesson?",
+                name: "craftsman hello",
+                text: "craftsman hello answ",
                 rewards: {
                     textlines: [{dialogue: "old craftsman", lines: ["learn", "leave"]}],
                 },
                 locks_lines: ["hello"],
             }),
             "learn": new Textline({
-                name: "Sure, I'm in no hurry.",
-                text: "Ahh, that's great. Well then... \n*[Old man spends some time explaining all the important basics of crafting and providing you with tips]*\n"+
-                "Ahh, and before I forget, here, take these. They will be helpful for gathering necessary materials.",
+                name: "craftsman learn",
+                text: "craftsman learn answ",
                 rewards: {
                     textlines: [{dialogue: "old craftsman", lines: ["remind1", "remind2", "remind3", "remind4"]}],
                     items: ["Old pickaxe" ,"Old axe", "Old sickle", "Old shovel"],
@@ -325,45 +315,42 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
             }),
             "leave": new Textline({
-                name: "I'm not interested.",
-                text: "Ahh, I see. Maybe some other time then, when you change your mind, hmm?",
+                name: "craftsman leave",
+                text: "craftsman leave answ",
                 is_unlocked: false,
             }),
             
             "remind1": new Textline({
-                name: "Could you remind me how to create equipment for myself?",
-                text: "Ahh, of course. Unless you are talking about something simple like basic clothing, then you will first need to create components that can then be assembled together. "+
-                "For weapons, you generally need a part that you use to hit an enemy and a part that you hold in your hand. For armor, you will need some actual armor and then something softer to wear underneath, "+
-                "which would mostly mean some clothes.",
+                name: "craftsman remind 1",
+                text: "craftsman remind 1 answ",
                 is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "old craftsman", lines: ["remind4"]}],
                 },
             }),
             "remind2": new Textline({
-                name: "Could you remind me how to improve my creations?",
-                text: "Ahh, that's simple, you just need more experience. This alone will be a great boon to your efforts. For equipment, you might also want to start with better components. "+
-                "After all, even with the most perfect assembling you can't turn a bent blade into a legendary sword.",
+                name: "craftsman remind 2",
+                text: "craftsman remind 2 answ",
                 is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "old craftsman", lines: ["remind4"]}],
                 },
             }),
             "remind3": new Textline({
-                name: "Could you remind me how to get crafting materials?",
-                text: "Ahh, there's multiple ways of that. You can gain them from fallen foes, you can gather them around, or you can even buy them if you have some spare coin.",
+                name: "craftsman remind 3",
+                text: "craftsman remind 3 answ",
                 is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "old craftsman", lines: ["remind4"]}],
                 },
             }),
             "remind4": new Textline({
-                name: "How do I get better at crafting?",
-                text: "Ahh, there aren't any secrets, you just need to keep practicing it. Just don't spend your entire life working on same louse materials, try to work on stronger stuff when you feel confident. There's a limit to how much you can learn by working with rat leather, isn't there?",
+                name: "craftsman remind 4",
+                text: "craftsman remind 4 answ",
                 is_unlocked: false,
             }),
         },
-        description: "You see an old man who clearly experienced a lot in life. His wearing some handmade accessories. Despite his age, his fingers seem exceptionally nimble.",
+        description: "craftsman description",
     });
 
     dialogues["village guard"] = new Dialogue({
