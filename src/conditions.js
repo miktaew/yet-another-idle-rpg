@@ -30,6 +30,9 @@ import { current_game_time } from "./game_time.js";
                     remove: Boolean
             }
         ],
+        tools_by_slot: [
+            
+        ]
         season: { //either season that needs to be active or season that CAN'T be active
             not: String,
             yes: String,
@@ -110,6 +113,7 @@ const process_conditions = (conditions, character) => {
         });
     }
 
+    //checks season
     if(conditions[0].season) {
         if(conditions[0].season.yes) {
             if(current_game_time.getSeason() !== conditions[0].season.yes) {
@@ -118,6 +122,16 @@ const process_conditions = (conditions, character) => {
         } else if(conditions[0].season.not) {
             if(current_game_time.getSeason() === conditions[0].season.not) {
                 met = 0;
+            }
+        }
+    }
+
+    //checks tools
+    if(conditions[0].tools_by_slot) {
+        for(let i = 0; i < conditions[0].tools_by_slot.length; i++) {
+            if(!character.equipment[conditions[0].tools_by_slot[i]]) {
+                met = 0;
+                break;
             }
         }
     }

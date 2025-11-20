@@ -2156,6 +2156,12 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_text: "You find a massive complex of ant tunnels, just barely wide enough for you to enter",
             attempt_duration: 600,
             success_chances: [1],
+            failure_texts: {
+                unable_to_begin: ["You can't do that without a shovel!"],
+            },
+            conditions: [{
+                tools_by_slot: ["shovel"],
+            }],
             rewards: {
                 locations: [{location: "Forest ant nest"}],
                 move_to: {location: "Forest road"},
