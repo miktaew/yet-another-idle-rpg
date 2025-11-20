@@ -137,7 +137,7 @@ input[type=checkbox], input[type=radio] {
 	}
 	#loading_screen_author {
 		width: fit-content;
-		font-size: 30px;
+		font-size: 35px;
 		font-family:'Ink Free';
 		font-weight: lighter;
 		text-align: right;
@@ -151,7 +151,7 @@ input[type=checkbox], input[type=radio] {
 		animation-direction: alternate;
 	}
 		@keyframes titleSizeAnimation {
-			from {font-size: 30px;}
+			from {font-size: 35px;}
 			to {font-size: 40px;}
 		}
 	#loading_screen_loading_text {
