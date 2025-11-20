@@ -460,7 +460,7 @@ input[type=checkbox], input[type=radio] {
 	width: 600px;
 	height: fit-content;
 	border: 4px solid blueviolet;
-	z-index: 2;
+	z-index: 20;
 	bottom: 50px;
 	left: 300px;
  }

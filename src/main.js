@@ -124,8 +124,7 @@ const languages = {
     english: "english",
     mofu_english: "mofu_english",
 };
-let language = languages.english_fluff;
-
+let language = languages.mofu_english;
 
 let is_loading_error = false;
 
@@ -468,9 +467,11 @@ function option_mofu_mofu_mode(option) {
     if(checkbox.checked || option) {
         options.mofu_mofu_mode = true;
         global_flags.if_mofu_mofu_enabled = true;
+        language = languages.mofu_english;
     } else {
         options.mofu_mofu_mode = false;
         global_flags.if_mofu_mofu_enabled = false;
+        language = languages.english;
     }
     
     if(option !== undefined) {
@@ -3336,9 +3337,9 @@ function load(save_data) {
             } else {
                 console.warn(`Language ${save_data.language} could not be found.`);
                 if(options.mofu_mofu_mode) {
-                    language = languages.ENGLISH_FLUFF;
+                    language = languages.mofu_english;
                 } else {
-                    language = languages.ENGLISH;
+                    language = languages.english;
                 }
             }
             
@@ -5259,4 +5260,5 @@ export { current_enemies,
         remove_consumable_from_favourites,
         process_rewards,
         travel_times,
+        language
 };
