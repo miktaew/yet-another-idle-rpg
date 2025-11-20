@@ -296,7 +296,7 @@ class Combat_zone {
     }
 
     //calculates total penalty with and without hero skills
-    //launches on every combat action
+    //launches on every combat action (which is probably suboptimal as it could instead be stored and recalculated only on skill change)
     get_total_effect() {
         const effects = {multipliers: {}, flats: {}};
         const hero_effects = {multipliers: {}, flats: {}};
@@ -565,7 +565,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             1: {
                 description: "A narrow area where there's not much place for maneuvering",
                 related_skill: "Tight maneuvers",
-                scaling_lvl: 30,
+                scaling_lvl: 20,
                 effects: {
                     evasion_points: {multiplier: 0.5},
                 }
@@ -575,6 +575,14 @@ function get_location_type_penalty(type, stage, stat, category) {
                 related_skill: "Tight maneuvers",
                 effects: {
                     evasion_points: {multiplier: 0.333},
+                },
+                scaling_lvl: 40,
+            },
+            3: {
+                description: "An area so cramped that it's a miracle you can even move",
+                related_skill: "Tight maneuvers",
+                effects: {
+                    evasion_points: {multiplier: 0.1},
                 }        
             }
         }
@@ -1135,7 +1143,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         enemies_list: ["Red ant swarm"],
         enemy_groups_list: [{enemies: ["Red ant queen", "Red ant swarm", "Red ant swarm", "Red ant swarm", "Red ant swarm", "Red ant swarm", "Red ant swarm", "Red ant swarm"]}],
         predefined_lineup_on_nth_group: 100,
-        types: [{type: "narrow", stage: 2, xp_gain: 7}, {type: "dark", stage: 2, xp_gain: 7}],
+        types: [{type: "narrow", stage: 3, xp_gain: 10}, {type: "dark", stage: 2, xp_gain: 7}],
         enemy_count: 100,
         is_unlocked: false,
         enemy_group_size: [8,8],
@@ -1228,7 +1236,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         enemies_list: ["Red ant swarm"],
         enemy_groups_list: [{enemies: ["Red ant queen"]}],
         predefined_lineup_on_nth_group: 100,
-        types: [{type: "narrow", stage: 2, xp_gain: 7}, {type: "dark", stage: 2, xp_gain: 7}],
+        types: [{type: "narrow", stage: 3, xp_gain: 10}, {type: "dark", stage: 2, xp_gain: 7}],
         enemy_count: 100,
         is_unlocked: false,
         enemy_group_size: [5,6],
@@ -1256,7 +1264,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         enemies_list: ["Red ant swarm"],
         enemy_groups_list: [{enemies: ["Red ant queen"]}],
         predefined_lineup_on_nth_group: 100,
-        types: [{type: "narrow", stage: 2, xp_gain: 7}, {type: "dark", stage: 2, xp_gain: 7}],
+        types: [{type: "narrow", stage: 3, xp_gain: 10}, {type: "dark", stage: 2, xp_gain: 7}],
         enemy_count: 100,
         is_unlocked: false,
         enemy_group_size: [5,6],
@@ -1284,7 +1292,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         enemies_list: ["Red ant swarm"],
         enemy_groups_list: [{enemies: ["Red ant queen"]}],
         predefined_lineup_on_nth_group: 100,
-        types: [{type: "narrow", stage: 2, xp_gain: 7}, {type: "dark", stage: 2, xp_gain: 7}],
+        types: [{type: "narrow", stage: 3, xp_gain: 10}, {type: "dark", stage: 2, xp_gain: 7}],
         enemy_count: 100,
         is_unlocked: false,
         enemy_group_size: [5,6],

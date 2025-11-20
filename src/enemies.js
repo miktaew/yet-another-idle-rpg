@@ -303,7 +303,7 @@ class Enemy {
 
     enemy_templates["Red ant swarm"] = new Enemy({
         name: "Red ant swarm",
-        description: "A swarm of large, angry red ants",
+        description: "A swarm of angry red ants, each the size of a regular rat",
         xp_value: 20,
         rank: 7,
         tags: ["living", "insect"],

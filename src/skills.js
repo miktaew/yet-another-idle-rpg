@@ -634,7 +634,7 @@ Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
                                                 "agility": {flat: 2},
                                             }
                                         },
-                                    }});                                
+                                    }});
 })();
 
 //combat stances
