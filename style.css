@@ -195,13 +195,12 @@ input[type=checkbox], input[type=radio] {
 	}
 
 	#loading_screen_status {
-		max-width: 500px;
-		min-width: fit-content;
+		max-width: 300px;
 		padding: 10px;
 		font-size: 20px;
 		height: fit-content;
 		top: 470px;
-		left: 100px;
+		left: 150px;
 		position: relative;
 		border: 3px double gray;
 		font-weight: bold;

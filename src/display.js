@@ -5141,6 +5141,11 @@ function show_play_button() {
     play_button.classList.add("fade_in");
 }
 
+function set_play_button_text(text) {
+    const play_button = document.getElementById("loading_screen_play_button");
+    play_button.innerText = text;
+}
+
 /**
  * Toggles a specificed class for target 'element', removing it from any other element that might have had it.
  * If 'siblings_only' is true, class will be removed only from siblings
@@ -5230,5 +5235,6 @@ export {
     skill_category_order,
     update_export_button_tooltip,
     update_displayed_reputation,
-    hide_loading_screen, set_loading_screen_versions, set_loading_screen_errors_warning, set_loading_screen_progress, hide_loading_text, show_play_button, set_loading_screen_warnings_warning
+    hide_loading_screen, set_loading_screen_versions, set_loading_screen_errors_warning, 
+    set_loading_screen_progress, hide_loading_text, show_play_button, set_loading_screen_warnings_warning, set_play_button_text
 }
