@@ -102,7 +102,7 @@ const translations = {
 
     },
     mofu_english: {
-        "elder description": "You see an older man with curly white hair and heavy but dull horns, yet with a strong posture, as if still ready to ram any opponent despite the years. He eyes you with curiosity.",
+        "elder description": "You see an older man with curly white hair and dull, heavy horns. Despite his years, he stands with a strong posture, ready to ram any threat to the village. He eyes you with curiosity.",
         "craftsman description": "You see an old man with a medium length white tail, who clearly experienced a lot in life. His hair is composed of a black and a white part, with the former very dulled by age. He's wearing some handmade accessories. Despite his age and his massive hands, his fingers seem exceptionally nimble.",
         "craftsman learn answ": "Ahh, that's great. Well then... \n*[Old man spends some time explaining all the important basics of crafting and providing you with tips, his large fingers proving to be as nimble as they seemed]*\n"+
                 "Ahh, and before I forget, here, take these. They will be helpful for gathering necessary materials.",
