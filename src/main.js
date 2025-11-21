@@ -88,7 +88,9 @@ import { end_activity_animation,
          fill_action_box,
          update_bestiary_entry_killcount,
          update_bestiary_entry_tooltip,
-         set_play_button_text
+         set_play_button_text,
+         do_enemy_onhit_animation,
+         remove_enemy_onhit_animation
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -252,6 +254,7 @@ const options = {
     do_background_animations: true,
     skip_play_button: false, //not really skips, just automatically clicks it right after loading
     mofu_mofu_mode: true,
+    do_enemy_onhit_animations: true,
 };
 
 let message_log_filters = {
@@ -472,6 +475,19 @@ function option_mofu_mofu_mode(option) {
         options.mofu_mofu_mode = false;
         global_flags.if_mofu_mofu_enabled = false;
         language = languages.english;
+    }
+    
+    if(option !== undefined) {
+        checkbox.checked = option;
+    }
+}
+
+function option_do_enemy_onhit_animations(option) {
+    const checkbox = document.getElementById("options_do_enemy_onhit_animations");
+    if(checkbox.checked || option) {
+        options.do_enemy_onhit_animations = true;
+    } else {
+        options.do_enemy_onhit_animations = false;
     }
     
     if(option !== undefined) {
@@ -1226,6 +1242,10 @@ function set_new_combat({enemies} = {}) {
         clear_character_attack_loop();
         return;
     }
+    for(let i = 0; i < current_enemies?.length; i++) {
+        remove_enemy_onhit_animation(i);
+    }
+
     current_enemies = enemies || current_location.get_next_enemies();
     clear_all_enemy_attack_loops();
 
@@ -1256,8 +1276,9 @@ function set_new_combat({enemies} = {}) {
     character_timer_adjustment = 0;
     character_timers = [Date.now(), Date.now()];
 
-    //attach loops
+    //attach loops and remove animations
     for(let i = 0; i < current_enemies.length; i++) {
+        remove_enemy_onhit_animation(i);
         do_enemy_attack_loop(i, 0, true);
     }
 
@@ -1635,11 +1656,16 @@ function do_character_combat_action({target, attack_power, target_count}) {
             add_xp_to_skill({skill: skills['Unarmed'], xp_to_add: target.xp_value/target_count});
         }
         //small randomization by up to 20%, then bonus from skill
-        
+
+        const enemy_id = current_enemies.findIndex(enemy => enemy===target);
+        if(options.do_enemy_onhit_animations) {
+            do_enemy_onhit_animation(enemy_id);
+        }
         if(character.stats.full.crit_rate > Math.random()) {
             damage_dealt = Math.round(10*damage_dealt * character.stats.full.crit_multiplier)/10;
             critted = true;
             total_crits_done++;
+            
         }
         else {
             critted = false;
@@ -3398,6 +3424,9 @@ function load(save_data) {
         options.mofu_mofu_mode = save_data.options?.mofu_mofu_mode;
         option_mofu_mofu_mode(options.mofu_mofu_mode);
 
+        options.do_enemy_onhit_animations = save_data.options?.do_enemy_onhit_animations;
+        option_do_enemy_onhit_animations(options.do_enemy_onhit_animations);
+
         //compatibility for old saves, can be removed at some point
         const is_from_before_eco_rework = compare_game_version("v0.3.5", save_data["game version"]) == 1;
 
@@ -5115,6 +5144,7 @@ window.option_use_uncivilised_temperature_scale = option_use_uncivilised_tempera
 window.option_do_background_animations = option_do_background_animations;
 window.option_skip_play_button = option_skip_play_button;
 window.option_mofu_mofu_mode = option_mofu_mofu_mode;
+window.option_do_enemy_onhit_animations = option_do_enemy_onhit_animations;
 
 window.getDate = get_date;
 

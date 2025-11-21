@@ -2171,7 +2171,7 @@ function create_location_choices({location, category, is_combat = false}) {
             if(!is_combat) {
                 action.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> `
             }
-            if(travel_time > 0) {
+            if(travel_time) {
                 action.innerHTML += `Quick return to [${last_bed.name}]` +" [" + travel_time + "]";
             } else {
                 action.innerHTML += `Quick return to [${last_bed.name}]`;
@@ -4761,6 +4761,24 @@ function update_enemy_attack_bar(enemy_id, num) {
     enemies_div.children[enemy_id].querySelector(".enemy_attack_bar").style.width = `${Math.min(num*100,100)}%`;
 }
 
+function do_enemy_onhit_animation(enemy_id) {
+    const class_to_add = "enemy_hit";
+    const enemy_div = enemies_div.children[enemy_id];
+    if(enemy_div.classList.contains(class_to_add)) {
+        enemy_div.style.webkitAnimation = "none";
+        setTimeout(()=>{
+            enemy_div.style.webkitAnimation = '';
+        });
+    } else {
+        enemies_div.children[enemy_id].classList.add(class_to_add);
+    }
+}
+
+function remove_enemy_onhit_animation(enemy_id) {
+    const class_to_remove = "enemy_hit";
+    enemies_div.children[enemy_id].classList.remove(class_to_remove);
+}
+
 function update_character_attack_bar(num) {
     character_attack_bar.style.width = `${Math.min(num*100,100)}%`;
 }
@@ -5209,7 +5227,7 @@ export {
     clear_skill_list,
     update_character_attack_bar,
     clear_message_log,
-    update_enemy_attack_bar,
+    update_enemy_attack_bar, do_enemy_onhit_animation, remove_enemy_onhit_animation,
     remove_fast_travel_choice,
     create_new_bestiary_entry, update_bestiary_entry, update_bestiary_entry_killcount, clear_bestiary, update_bestiary_entry_tooltip,
     start_reading_display,

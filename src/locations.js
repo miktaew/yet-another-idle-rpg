@@ -582,7 +582,12 @@ function get_location_type_penalty(type, stage, stat, category) {
                 description: "An area so cramped that it's a miracle you can even move",
                 related_skill: "Tight maneuvers",
                 effects: {
-                    evasion_points: {multiplier: 0.1},
+                    evasion_points: {
+                        multiplier: 0.1
+                    },
+                    dexterity: {
+                        multiplier: 0.5,
+                    }
                 }        
             }
         }
@@ -918,7 +923,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             }
         ],
         is_temperature_static: true,
-        static_temperature: 18,
+        static_temperature: 16,
         is_under_roof: true,
         unlock_text: "As you keep going deeper, you barely notice a pitch black hole. Not even a tiniest speck of light reaches it."
     });
@@ -947,7 +952,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             flags: ["is_strength_proved"],
         },
         is_temperature_static: true,
-        static_temperature: 20,
+        static_temperature: 18,
         is_under_roof: true,
         unlock_text: "After a long and ardous fight, you reach a chamber that ends with a massive stone gate. You can see it's guarded by some kind of wolf rats, but much bigger than the ones you fought until now."
     });
