@@ -29,6 +29,7 @@ const stat_names = {
     "cold_tolerance": "cold resistance",
     "unarmed_power": "unarmed base dmg",
     "armor_penetration": "armor pen",
+    "defense": "defense",
 };
 
 const task_type_names = {
