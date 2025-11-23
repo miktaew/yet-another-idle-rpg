@@ -1768,6 +1768,8 @@ function kill_player({is_combat = true} = {}) {
             change_location({location_id: current_location.parent_location.id});
         }
     }
+
+    add_active_effect("Recovering", 5);
 }
 
 function use_stamina(num = 1, use_efficiency = true) {

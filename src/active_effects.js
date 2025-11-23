@@ -222,6 +222,16 @@ class ActiveEffect {
     });
 })();
 
+effect_templates["Recovering"] = new ActiveEffect({
+    name: "Recovering",
+    effects: {
+        xp_multipliers: {
+            all: 0.2,
+        }
+    },
+    tags: {"debuff": true},
+    affected_by_travel: false,
+});
 
 //export reward
 effect_templates["Spark of Inspiration"] = new ActiveEffect({
@@ -234,7 +244,6 @@ effect_templates["Spark of Inspiration"] = new ActiveEffect({
     tags: {"buff": true},
     affected_by_travel: false,
 });
-
 
 
 
