@@ -158,7 +158,7 @@ class Enemy {
         rank: 4,
         size: enemy_sizes.MEDIUM,
         tags: ["living", "beast", "wolf rat", "monster"],
-        stats: {health: 250, attack: 50, agility: 40, dexterity: 40, intuition: 50, magic: 0, attack_speed: 1.2, defense: 30},
+        stats: {health: 400, attack: 50, agility: 40, dexterity: 40, intuition: 50, magic: 0, attack_speed: 1.2, defense: 30},
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
             {item_name: "Rat fang", chance: 0.04},
@@ -173,7 +173,7 @@ class Enemy {
         rank: 6,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "wolf rat", "monster", "eldritch"],
-        stats: {health: 1000, attack: 70, agility: 2, dexterity: 90, intuition: 90, magic: 0, attack_speed: 2, attack_count: 3, defense: 20},
+        stats: {health: 2000, attack: 70, agility: 2, dexterity: 120, intuition: 90, magic: 0, attack_speed: 2, attack_count: 3, defense: 20},
         loot_list: [
             {item_name: "Rat tail", chance: 0.08},
             {item_name: "Rat fang", chance: 0.08},
