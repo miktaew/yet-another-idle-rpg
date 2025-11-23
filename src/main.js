@@ -90,7 +90,8 @@ import { end_activity_animation,
          update_bestiary_entry_tooltip,
          set_play_button_text,
          do_enemy_onhit_animation,
-         remove_enemy_onhit_animation
+         remove_enemy_onhit_animation,
+         create_floating_effect
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -664,7 +665,7 @@ function end_activity() {
  * @param {String} source either "location" or "dialogue"
  * @returns 
  */
-function start_game_action(action_key) {
+function start_game_action(action_key, event) {
     current_game_action = action_key;
     let game_action;
     if(current_dialogue) {
@@ -689,6 +690,11 @@ function start_game_action(action_key) {
             finish_game_action({action_key, conditions_status: 0, dialogue_key: current_dialogue});
             return;
         }
+    }
+
+    if(event && game_action.floating_click_effects) {
+        const random_effect = game_action.floating_click_effects[Math.floor(Math.random()*game_action.floating_click_effects.length)];
+        create_floating_effect(random_effect, {x: event.pageX, y: event.pageY});
     }
 
     if(game_action.attempt_duration > 0) {

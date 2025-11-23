@@ -105,6 +105,7 @@ class DialogueAction extends GameAction {
     constructor(data) {
         super(data);
         this.giveup_text = data.giveup_text;
+        this.floating_click_effects = data.floating_click_effects;
     }
 }
 
@@ -549,6 +550,7 @@ class DialogueAction extends GameAction {
                 is_unlocked: true,
                 repeatable: true,
                 starting_text: "sus headpat",
+                floating_click_effects: ['(* ^ ω ^)	', '<(￣︶￣)>	', '(*≧ω≦*)	', '(ᗒ⩊ᗕ)', '(= ⩊ =)'],
                 description: "",
                 action_text: "",
                 success_text: "sus headpat answ",

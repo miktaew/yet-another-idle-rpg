@@ -275,6 +275,15 @@ input[type=checkbox], input[type=radio] {
 	}
 }
 
+@keyframes fadeInLight {
+	0% {
+		opacity: 0.8;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
 .fade {
 	opacity: 0;
 	animation-name: fadeOut;
@@ -551,7 +560,7 @@ input[type=checkbox], input[type=radio] {
 		background-color: #15152d;
 		font-size: var(--options_action_textsize);
 		padding: 10px;
-		animation: fadeIn;
+		animation: fadeInLight;
 		opacity: 1;
 		animation-duration: 0.2s;
 	}
@@ -1466,6 +1475,14 @@ i {
 .skill_sorting_button:hover {
 	background-color: var(--active_button_color);
 }
+
+.floating_effect {
+	position: absolute;
+	pointer-events: none;
+	font-weight: bold;
+	opacity: 1;
+}
+
 
 #accept_trade_button, #cancel_trade_button, .trader_sorting_button, .storage_sorting_button {
 	float: left;

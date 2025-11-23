@@ -193,6 +193,43 @@ function capitalize_first_letter(some_string) {
     return some_string.charAt(0).toUpperCase() + some_string.slice(1);
 }
 
+function create_floating_effect(text, pos) {
+    const effect_elem = document.createElement("div");
+    effect_elem.style.top = pos.y + "px";
+    effect_elem.style.left = pos.x + "px";
+    effect_elem.classList.add("floating_effect");
+    effect_elem.innerText = text;
+
+    effect_elem.posX = pos.x;
+    effect_elem.posY = pos.y;
+
+    document.body.appendChild(effect_elem);
+    
+    let timer = 0;
+
+    let anim_interval;
+    if(Math.random() > 0.5) {
+        anim_interval = setInterval(()=> {
+            effect_elem.style.top = effect_elem.posY - 2*timer + "px";
+            effect_elem.style.left = effect_elem.posX - Math.sin(timer/10)*20 + "px";
+            effect_elem.style.opacity = (100-timer**.95)/100;
+            timer++;
+        }, 30);
+    } else {
+        anim_interval = setInterval(()=> {
+            effect_elem.style.top = effect_elem.posY - 2*timer + "px";
+            effect_elem.style.left = effect_elem.posX - Math.cos(timer/8)*20 + "px";
+            effect_elem.style.opacity = (100-timer**.95)/100;
+            timer++;
+        }, 30);
+    }
+
+    setTimeout(()=>{
+        clearInterval(anim_interval);
+        effect_elem.remove();
+    }, 4*1000);
+}
+
 function clear_skill_bars() {
     Object.keys(skill_bar_divs).forEach(function(key) {
         delete skill_bar_divs[key];
@@ -3644,10 +3681,10 @@ function update_displayed_dialogue({dialogue_key, textlines, origin}) {
         Object.keys(dialogue.actions).forEach(key => { //add buttons for actions
             if(dialogue.actions[key].is_unlocked && !dialogue.actions[key].is_finished && dialogue.actions[key].can_be_displayed(character)) { 
                 const dialogue_action_div = document.createElement("div");
-                dialogue_action_div.innerHTML = `${dialogue.actions[key].starting_text}`;
+                dialogue_action_div.innerHTML = `${translationManager.getText(language,dialogue.actions[key].starting_text)}`;
                 dialogue_action_div.classList.add("dialogue_textline");
                 dialogue_action_div.setAttribute("data-location_action", key);
-                dialogue_action_div.setAttribute("onclick", `start_game_action(this.getAttribute('data-location_action'))`);
+                dialogue_action_div.setAttribute("onclick", `start_game_action(this.getAttribute('data-location_action'), event)`);
                 action_div.appendChild(dialogue_action_div);
             }
         });
@@ -5258,5 +5295,6 @@ export {
     update_export_button_tooltip,
     update_displayed_reputation,
     hide_loading_screen, set_loading_screen_versions, set_loading_screen_errors_warning, 
-    set_loading_screen_progress, hide_loading_text, show_play_button, set_loading_screen_warnings_warning, set_play_button_text
+    set_loading_screen_progress, hide_loading_text, show_play_button, set_loading_screen_warnings_warning, set_play_button_text,
+    create_floating_effect
 }
