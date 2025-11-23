@@ -292,7 +292,7 @@ class Enemy {
         xp_value: 50,
         rank: 9,
         tags: ["living", "beast"],
-        stats: {health: 3000, attack: 300, agility: 160, dexterity: 200, intuition: 100, magic: 0, attack_speed: 0.7, defense: 400},
+        stats: {health: 3000, attack: 300, agility: 160, dexterity: 200, intuition: 100, magic: 0, attack_speed: 0.7, defense: 300},
         loot_list: [
             {item_name: "Bear hide", chance: 0.05},
             {item_name: "Bear claw", chance: 0.1},
