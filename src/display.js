@@ -195,6 +195,8 @@ function capitalize_first_letter(some_string) {
 
 function create_floating_effect(text, pos) {
     const effect_elem = document.createElement("div");
+    pos.x = pos.x + Math.random()*80-40;
+
     effect_elem.style.top = pos.y + "px";
     effect_elem.style.left = pos.x + "px";
     effect_elem.classList.add("floating_effect");
@@ -210,15 +212,15 @@ function create_floating_effect(text, pos) {
     let anim_interval;
     if(Math.random() > 0.5) {
         anim_interval = setInterval(()=> {
-            effect_elem.style.top = effect_elem.posY - 2*timer + "px";
+            effect_elem.style.top = effect_elem.posY - 2*timer**0.95 + "px";
             effect_elem.style.left = effect_elem.posX - Math.sin(timer/10)*20 + "px";
             effect_elem.style.opacity = (100-timer**.95)/100;
             timer++;
         }, 30);
     } else {
         anim_interval = setInterval(()=> {
-            effect_elem.style.top = effect_elem.posY - 2*timer + "px";
-            effect_elem.style.left = effect_elem.posX - Math.cos(timer/8)*20 + "px";
+            effect_elem.style.top = effect_elem.posY - 2*timer**0.95 + "px";
+            effect_elem.style.left = effect_elem.posX - Math.cos(timer/8)*16 + "px";
             effect_elem.style.opacity = (100-timer**.95)/100;
             timer++;
         }, 30);
