@@ -62,7 +62,7 @@
 <div id="content_blocks">
     <button type="button" class="collapsible">Where does current game content end?</button>
     <div class="content">
-        As of current game version, the final combat areas are the 'Gentle mountain slope', 'Gang hideout' and 'Writhing tunnel', with that last position expected to be a serious challenge. It is not yet possible to enter the town nor to open the second gate.
+        As of current game version, the final combat areas are the 'Gentle mountain slope', 'Writhing tunnel' and 'Bear den', with that last position expected to be a serious challenge. It is not yet possible to enter the town nor to open the second gate.
     </div>
 
     <button type="button" class="collapsible">I think I found a bug, what do I do?</button>
@@ -75,9 +75,9 @@
         Aside from mentioned thread on Arcanum's server, there's also a post on r/incremental_games discord server (game-posts channel), but I check it rarely, so you 100% should tag me (and pray the notification doesn't bug out like they tend to do)
     </div>
 
-    <button type="button" class="collapsible">Are magic and/or quests implemented?</button>
+    <button type="button" class="collapsible">Is magic implemented?</button>
     <div class="content">
-        As you probably guessed, no. They will come in future.
+        As you probably guessed, no. It will come in future, after the town becomes accessible.
     </div>
 
     <button type="button" class="collapsible">Economy</button>
@@ -94,7 +94,7 @@
                 Prices
                 <ul>
                     <li>
-                        Traders sell items for prices a lot higher than what they would pay for same item, usually sell price is 200% of buy price.
+                        Traders sell items for prices a lot higher than what they would pay for same item (they need to make a living, after all).
                         <br>"Haggling" skill slightly reduces price difference, at max level the value above 100% is cut in half (meaning 200% will turn into 150%, 300% will turn into 200%, etc) 
                     </li>
                 </ul>
@@ -105,6 +105,7 @@
                     <li>
                         As you sell more of enemy loot, its price will slowly go down, stopping at 1/10th of initial value. It applies to all traders. 
                         <br>The price will recover over time, but it is a very slow process.
+                        <br><br>Saturation values are separate for different regions. They trickle between them every in-game day, until reaching balance.
                     </li>
                 </ul>
             </li>
@@ -117,7 +118,7 @@
             <li> Crafting subcategories:
                 <ul>
                     <li> 
-                        Items: mostly mundane things, such as consumables and materials for further crafting
+                        Items: mostly mundane things, such as consumables and materials for further crafting, but also includes cool trinkets to wear
                     </li>
                     <li>
                         Components: things that can be assembled into equipment of all kinds.<br>
@@ -212,11 +213,11 @@
         </ul>
     </div>
 
-    <button type="button" class="collapsible">Area types and day-night cycle</button>
+    <button type="button" class="collapsible">Area types, calendar, day-night cycle and temperature</button>
     <div class="content">
         <ul>
             <li>
-                Certain activities (currently only some jobs) are limited by the time of the day.
+                Certain activities are limited by the time of the day or by the season.
             </li>
             <li>
                 During night (20 to 4) in normal areas, and whole time in dark areas (e.g. caves), character receives additional penalties to hit/evasion chance.
@@ -228,6 +229,14 @@
                 Some combat areas have special properties, which result in penalties to certain stats. E.g. some areas might not offer enough movement space to properly dodge or make a good swing with weapon
                 <br>
                 They usually have a corresponding skill that lowers the penalty and is usually leveled by simply being in such place
+            </li>
+            <li>
+                Staying for too long in a low temperature will trigger certain negative effects, remember to bring warm clothes.
+                <br>
+                Temperatures differ between zones - for some they change less, for others they are static. The system is however fully deterministic.
+            </li>
+            <li>
+                The seasons are indeed supposed to start on different dates than they do in our world, don't worry about that~
             </li>
             
         </ul>
@@ -294,6 +303,7 @@
             <li><a href="https://23html.github.io" target="_blank">Proto23</a> by Corc, a source of inspiration and the sole reason this project was started. Go check it out!</li>
             <li><a href="https://github.com/turuslan/HackTimer" target="_blank">HackTimer</a> by Turuslan, used to avoid slowdowns when tab is inactive</li> 
             <li>Material Icons and Symbols by Google</li>
+            <li>OnonokiNonon for contributing to the code</li>
             <li>Big big big thanks to all the wonderful Ko-fi supporters!</li>
     </div>
     <button type="button" class="collapsible separated">Supporting the game</button>
