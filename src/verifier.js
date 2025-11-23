@@ -9,6 +9,7 @@ import { skills, skill_categories } from "./skills.js";
 import { traders } from "./traders.js";
 import { quests } from "./quests.js";
 import { market_region_mapping } from "./market_saturation.js";
+import { translations } from "./translation.js";
 
 const trc = 1000000; //time rounding precision
 
@@ -69,7 +70,7 @@ function Verify_Game_Objects() {
     if(item_results[1] > 0) {
         console.log(`Finished verifying items in: ${Math.round(trc*(end_time-start_time))/trc}s\nFound issue in ${item_results[1]} out of ${item_results[0]}`);
     } else {
-        console.log(`Finished verifying items in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
+        console.log(`Finished verifying ${item_results[0]} items in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
     }
 
     start_time = performance.now();
@@ -150,7 +151,7 @@ function Verify_Game_Objects() {
     if(skill_results[1] > 0) {
         console.log(`Finished verifying skills in: ${Math.round(trc*(end_time-start_time))/trc}s\nFound issue in ${skill_results[1]} out of ${skill_results[0]}`);
     } else {
-        console.log(`Finished verifying skills in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
+        console.log(`Finished verifying ${skill_results[0]} skills in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
     }
 
 
@@ -219,7 +220,7 @@ function Verify_Game_Objects() {
     if(location_results[1] > 0) {
         console.log(`Finished verifying locations in: ${Math.round(trc*(end_time-start_time))/trc}s\nFound issue in ${location_results[1]} out of ${location_results[0]}`);
     } else {
-        console.log(`Finished verifying locations in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
+        console.log(`Finished verifying ${location_results[0]} locations in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
     }
 
     start_time = performance.now();
@@ -248,7 +249,7 @@ function Verify_Game_Objects() {
     if(enemy_results[1] > 0) {
         console.log(`Finished verifying enemies in: ${Math.round(trc*(end_time-start_time))/trc}s\nFound issue in ${enemy_results[1]} out of ${enemy_results[0]}`);
     } else {
-        console.log(`Finished verifying enemies in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
+        console.log(`Finished verifying ${enemy_results[0]} in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
     }
 
     start_time = performance.now();
@@ -277,7 +278,49 @@ function Verify_Game_Objects() {
     if(market_region_results[1] > 0) {
         console.log(`Finished verifying market regions in: ${Math.round(trc*(end_time-start_time))/trc}s\nFound issue in ${market_region_results[1]} out of ${market_region_results[0]}`);
     } else {
-        console.log(`Finished verifying market regions in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
+        console.log(`Finished verifying ${market_region_results[0]} market regions in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
+    }
+
+    start_time = performance.now();
+    let dialogue_results = [0,0];
+    console.log("Began verifying dialogues.");
+    for(const [key, value] of Object.entries(dialogues)) {
+        let has_issue = false;
+
+        for(const [textline_key, textline] of Object.entries(value.textlines)) {
+            if(!translations["english"][textline.name]) {
+                has_issue = true;
+                console.error(`Textline "${textline_key}" in "${key}" has no translation provided for starting text`);
+            }
+            if(!translations["english"][textline.getText()]) {
+                //might miss something if there are multiple options provided
+                has_issue = true;
+                console.error(`Textline "${textline_key}" in "${key}" has no translation provided for answer text`);
+            }
+        }
+
+        for(const [action_key, action] of Object.entries(value.actions)) {
+            if(!translations["english"][action.starting_text]) {
+                has_issue = true;
+                console.error(`Action "${action_key}" in "${key}" has no translation provided for starting text`);
+            }
+            if(!translations["english"][action.success_text]) {
+                //might miss something if there are multiple options provided
+                has_issue = true;
+                console.error(`Textline "${action_key}" in "${key}" has no translation provided for success text`);
+            }
+        }
+
+        dialogue_results[0]++;
+        dialogue_results[1]+=has_issue;
+        results[0]++;
+        results[1]+=has_issue;
+    }
+    end_time = performance.now();
+    if(dialogue_results[1] > 0) {
+        console.log(`Finished verifying dialogues in: ${Math.round(trc*(end_time-start_time))/trc}s\nFound issue in ${dialogue_results[1]} out of ${dialogue_results[0]}`);
+    } else {
+        console.log(`Finished verifying ${dialogue_results[0]} dialogues in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
     }
 
     let overall_end_time = performance.now();
@@ -285,7 +328,7 @@ function Verify_Game_Objects() {
     if(results[1] > 0) {
         result_message = `Finished verifying game objects in: ${Math.round(trc*(overall_end_time-overall_start_time))/trc}s\nFound issue in ${results[1]} out of ${results[0]}`;
     } else {
-        result_message = `Finished verifying game objects in: ${Math.round(trc*(overall_end_time-overall_start_time))/trc}s\nNo issues were found.`;
+        result_message = `Finished verifying ${results[0]} game objects in: ${Math.round(trc*(overall_end_time-overall_start_time))/trc}s\nNo issues were found.`;
     }
 
     console.log(result_message);
