@@ -2,6 +2,7 @@
 
 import { get_total_skill_level } from "./character.js";
 import { current_game_time } from "./game_time.js";
+import { global_flags } from "./main.js";
 
 /*
     either single set of values or two sets, one for minimum chance provided and one for maximum
@@ -22,6 +23,7 @@ import { current_game_time } from "./game_time.js";
         skills: [
             "skill_id": Number //required level
         ],
+
         items_by_id: 
         [
             {
@@ -30,13 +32,17 @@ import { current_game_time } from "./game_time.js";
                     remove: Boolean
             }
         ],
+
         tools_by_slot: [
             
         ]
+
         season: { //either season that needs to be active or season that CAN'T be active
             not: String,
             yes: String,
         }
+
+        flags: [String] //global flags required
     }
 */
 
@@ -130,6 +136,16 @@ const process_conditions = (conditions, character) => {
     if(conditions[0].tools_by_slot) {
         for(let i = 0; i < conditions[0].tools_by_slot.length; i++) {
             if(!character.equipment[conditions[0].tools_by_slot[i]]) {
+                met = 0;
+                break;
+            }
+        }
+    }
+    
+    //check flags
+    if(conditions[0].flags) {
+        for(let i = 0; i < conditions[0].flags.length; i++) {
+            if(!global_flags[conditions[0].flags[i]]) {
                 met = 0;
                 break;
             }

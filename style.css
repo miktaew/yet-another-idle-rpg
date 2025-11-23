@@ -551,6 +551,9 @@ input[type=checkbox], input[type=radio] {
 		background-color: #15152d;
 		font-size: var(--options_action_textsize);
 		padding: 10px;
+		animation: fadeIn;
+		opacity: 1;
+		animation-duration: 0.2s;
 	}
 	#dialogue_name_div {
 		border-bottom: 1px solid white;

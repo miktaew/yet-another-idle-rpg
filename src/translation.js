@@ -99,15 +99,128 @@ const translations = {
         "craftsman remind 4": "How do I get better at crafting?",
         "craftsman remind 4 answ": "Ahh, there aren't any secrets, you just need to keep practicing it. Just don't spend your entire life working on same louse materials, try to work on stronger stuff when you feel confident. There's a limit to how much you can learn by working with rat leather, isn't there?",
         //
-
+        "guard description": "You see a man in light armor, with a spear in his hand and two daggers on his belt.",
+        "guard hello": "Hello?",
+        "guard hello answ": "Hello. I see you are finally leaving, huh?",
+        "guard job": "Do you maybe have any jobs for me?",
+        "guard job answ": "You are somewhat combat capable now, so how about you help me and the boys on patrolling? Not much happens, but it pays better than working on fields",
+        "guard tips": "Can you give me any tips for the journey?",
+        "guard tips answ": `First and foremost, don't rush. It's fine to spend some more time here, to better prepare yourself. `
+                +`There's a lot of dangerous animals out there, much stronger than those damn rats, and in worst case you might even run into some bandits. `
+                +`If you see something that is too dangerous to fight, try to run away.`,
+        "guard teach": "Could you maybe teach me something that would be of use?",
+        "guard teach answ":  `Lemme take a look... Yes, it looks like you know some basics. Do you know any proper techniques? No? I thought so. I could teach you the most standard three. `
+                +`They might be more tiring than fighting the "normal" way, but if used in a proper situation, they will be a lot more effective. Two can be easily presented through `
+                + `some sparring, so let's start with it. The third I'll just have to explain. How about that?`,
+        "guard quick": "So about the quick stance...",
+        "guard quick answ": `It's usually called "quick steps". As you have seen, it's about being quick on your feet. `
+                        +`While power of your attacks will suffer, it's very fast, making it perfect against more fragile enemies`,
+        "guard heavy":  "So about the heavy stance...",
+        "guard heavy answ": `It's usually called "crushing force". As you have seen, it's about putting all your strength in attacks. ` 
+                        +`It will make your attacks noticeably slower, but it's a perfect solution if you face an enemy that's too tough for normal attacks`,
+        "guard wide": "What's the third technique?",
+        "guard wide answ": `It's usually called "broad arc". Instead of focusing on a single target, you make a wide swing to hit as many as possible. ` 
+                +`It might work great against groups of weaker enemies, but it will also significantly reduce the power of your attacks and will be even more tiring than the other two stances.`,
+        //
+        "g guard description": "You see a massive man in a steel chainmail, with a spear in his hand and a sword on his belt.",
+        "g guard hello": "Hello, can I get in?",
+        "g guard hello answ": "The town is currently closed to everyone who isn't a citizen or a merchant guild's member. No exceptions.",
+        //
+        "sus description 1": "You see a young man in shabby clothes and with messy hair, who keeps looking around. He appears to have some nervous ticks, or maybe he's just really stressed. He notices you and stares.",
+        "sus description 2": "You see a young man in shabby clothes and with messy hair, who keeps calmly looking around. The moment he notices you, he appears to get calmer.",
+        "sus hello": "Hello? Why are you looking at me like that?",
+        "sus hello answ": "Y-you! You should be dead! *the man pulls out a dagger*",
+        "sus defeated": "What was that about?",
+        "sus defeated answ": "I... We... It was my group that robbed you. I thought you came back from your grave for revenge... Please, I don't know anything. "
+                +"If you want answers, ask my ex-boss. He's somewhere in the town.",
+        "sus behave": "Are you behaving yourself?",
+        "sus behave answ": "Y-yes, boss! Please don't beat me again!",
+        "sus boss": "Stop calling me 'boss'",
+        "sus boss answ": "Yes, boss! Sorry, boss!",
+        "sus situation": "By the way, how are things in this slum?",
+        "sus situation answ": "A-as you can see and hear boss, it's pretty b-bad, but it can't be helped without taking out the g-gang...",
+        "sus gang": "What gang?",
+        "sus gang answ": "It's j-just a gang, they don't have any name, boss. Their hideout is over t-there, you should stay away from it. Almost every k-killer and thug around t-the slum is a part of their group...",
+        "sus gang defeated": "That gang you mentioned? I dealt with them.",
+        "sus gang defeated answ":  "I know boss, we all heard the commotion! You're the best! I think the local trader already pulled out some gear he was hiding from them, you should check it out! <br><strong>*Pauses for a moment*</strong> I wish I had shown you my defensive tricks before that, it might have made your job easier...",
+        "sus behave 2": "Are you behaving yourself?",
+        "sus behave 2 answ": "Y-yes, I didn't do anything bad since the last time, boss!",
+        "sus behave 3": "Are you behaving yourself?",
+        "sus behave 3 answ": "Of course boss!",
+        "sus tricks": "You said something about defensive tricks? Show me",
+        "sus tricks answ": "Sure, boss! So, it's really about focusing on your legs to either jump away faster or to better brace the shield, and... <strong>*He continues explaining for a while*</strong>",
+        "sus headpat": "[Pat his head]",
+        //line above: not reachable without mofu mofu, but needs to be provided here
+        "sus headpat answ": "[He smiles like a little puppy]",
+        //line above: theoretically reachable if someone disables mofu mofu while in dialogue?
+        //
+        "old description 1": "With some safety returned to the area, more folk are now out on the streets. One of them, an elderly lady, is looking at you.",
+        "old description 2": "You see a gentle elderly lady with warm look in her eyes",
+        "old hello": "[Let her approach you.]",
+        "old hello answ": "Hello young warrior. I understand it is you who we have to thank for freeing us from those thugs. Few these days have the gumption, and even fewer the strength to take them on. Well done! Such heroism deserves a reward, and while none of us have much to offer as you can see, but the least I can do is make sure our hero doesn't go hungry. Would you care to join me for dinner?",
+        "old dinner": "[Accept the offer.]",
+        "old dinner answ": "[You join the woman in her shack for a humble, yet satisfying meal. While the main ingredients are simple, they are well flavoured and garnished with herbs.]",
+        "old ingredients": "[Compliment the food and ask where she gets ingredients.]",
+        "old ingredients answ": "Surprised? Live here long enough, and you learn how to get by without a lot of pricey things. No, I'm not talking about stealing - I may be poor, but I still have my pride! No, I'm talking about the plants that grow all around. Most people pass them by, without realizing how useful they can be. Ha! Maybe there IS another way I can reward you! I can teach you what to look for, if you're interested.",
+        //
+        "sup hello": "Hello",
+        "sup hello answ": "Hello stranger",
+        "sup work":  "Do you have any work with decent pay?",
+        "sup work answ": "We sure could use more hands. Feel free to help my boys on the fields whenever you have time!",
+        "sup anything": "Is there anything I can help you with?",
+        "sup anything answ": "I don't think so, nothing aside from normal work... Actually there is one thing. We're in a dire need of 50 packs of bonemeal and lost our supplier on top of that, so I'm willing to pay you a triple price. Bad news is, you will have to bring all 50 in a single delivery.",
+        "sup bonemeal": "More bonemeal, you say?",
+        "sup bonemeal answ": "Absolutely! I know the lower price might not be the most appealing, but at least it's stable, unlike the market, and at times might be a lot better than what any trader would pay you for it.",
+        "sup animals": "Do you sell anything?",
+        "sup animals answ": "Sorry, I'm not allowed to. However if you were to help us produce something, I could let you take part of it. It just so happens our sheep need shearing, if you're interested in some free wool.",
+        "sup fight0": "Do you have any task that requires some good old violence?",
+        "sup fight0 answ": "I kinda do, but you don't seem strong enough for that. I'm sorry.",
+        "sup fight": "Do you have any task that requires some good old violence?",
+        "sup fight answ": "Actually yes. There's that annoying group of boars that keep destroying our fields. "
+                + "They don't do enough damage to cause any serious problems, but I would certainly be calmer if someone took care of them. "
+                + "Go to the forest and search for a clearing in north, that's where they usually roam when they aren't busy eating our crops."
+                + "I will of course pay you for that. 4 silver coins is most I can offer, I'm running on a strict budget here.",
+        "sup things": "How are things around here?",
+        "sup things answ": "Nothing to complain about. Trouble is rare, pay is good, and the soil is as fertile as my wife!",
+        "sup defeated boars": "I took care of those boars",
+        "sup defeated boars answ": "Really? That's great! Here, this is for you.",
+        "sup troubled": "You look troubled",
+        "sup troubled answ": "Troubled? I'm fuming, I'm going insane here! Those damn accursed ants, they keep destroying crops by eating their roots over and over again!"
+                    + " If I could, I would drop everything, grab a sword and a shovel and go find their damn nests, and then slaughter every last one of them! Not just soldiers and workers, but queens and larvae too!"
+                    + " Destroy their nests for me and you will have my gratitude, I will even pay you out of my own pocket. You can borrow a shovel from the farm if you don't have your own.",
+        "sup eliminated": "The ants are gone, though there are some trails leading to the forest",
+        "sup eliminated answ": "That's just... thank you, thank you so much! Here, take this, you earned it! As for the forest, I don't really care, as long as they don't come back.",
+        "sup deliver": "[Deliver the bonemeal]",
+        "sup deliver answ": "Thank you very much, here's your money! If you ever want to make more deliveries of this size, we will gladly take them, although it will have to be for the regular price",
+        "sup deliver not": "I'm sorry, but that's not enough",
+        "sup deliver 2": "[Deliver the bonemeal]",
+        "sup deliver 2 answ": "Thank you very much, here's your money! We will gladly take more, whenever you have it!",
+        "sup deliver 2 not": "I'm sorry, but that's not enough",
+        "sup description": "You see a well dressed man with a notebook on his belt and a hat on his head. Despite seeming more like a scribe, he's buff and tanned."
     },
     mofu_english: {
         "elder description": "You see an older man with curly white hair and dull, heavy horns. Despite his years, he stands with a strong posture, ready to ram any threat to the village. He eyes you with curiosity.",
+        //
         "craftsman description": "You see an old man with a medium length white tail, who clearly experienced a lot in life. His hair is composed of a black and a white part, with the former very dulled by age. He's wearing some handmade accessories. Despite his age and his massive hands, his fingers seem exceptionally nimble.",
+        //
         "craftsman learn answ": "Ahh, that's great. Well then... \n*[Old man spends some time explaining all the important basics of crafting and providing you with tips, his large fingers proving to be as nimble as they seemed]*\n"+
                 "Ahh, and before I forget, here, take these. They will be helpful for gathering necessary materials.",
+        //
+        "guard description": "You see a man in light armor, with a spear in his hand and two daggers on his belt. His sharp fuzzy ears rotate every now end then towards any new sound.",
+        //
+        "g guard description": "You see a massive, hairy man with round ears and a tiny tail. He's clad in a steel chainmail, with a spear in his hand and a sword on his belt.",
+        //
+        "sus description 1": "You see a young man in shabby clothes and with messy hair, who keeps looking around. He appears to have some nervous ticks, or maybe he's just really stressed. Both his doggy ears and his tail are lowered and not moving. He notices you and stares.",
+        "sus description 2": "You see a young man in shabby clothes and with messy hair, who keeps calmly looking around, with ears straight up and occasionally turning towards new sounds. The moment he notices you, he appears to get calmer and his tail starts slowly wagging.",
+        //
+        "sus headpat answ": "[He smiles like a little puppy, his tail wagging a lot faster]",
+        //
+        "old description 1": "With some safety returned to the area, more folk are now out on the streets. One of them, an elderly tanuki lady, is looking at you.",
+        "old description 2": "You see a gentle elderly tanuki lady with warm look in her eyes",
+        //
+        "sup description": "You see a well dressed man with a notebook on his belt and a hat on his head, awkwardly placed between a pair of antlers. Despite seeming more like a scribe, he's buff and tanned."
     }
 }
 
 
-export { translationManager };
+export { translationManager, translations };

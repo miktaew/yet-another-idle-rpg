@@ -113,7 +113,7 @@ const global_flags = {
     is_gathering_unlocked: false,
     is_crafting_unlocked: false,
     is_strength_proved: false, //this role could be fulfilled by a quest, but it was originally added before that mechanic; besides, flags are cool and elegant
-    if_mofu_mofu_enabled: true,
+    is_mofu_mofu_enabled: true,
 };
 const flag_unlock_texts = {
     is_gathering_unlocked: "You have gained the ability to gather new materials! Remember to equip your tools first <br>[Note: equipped tools do not appear in inventory as you will be swapping them very rarely]",
@@ -467,18 +467,19 @@ function option_skip_play_button(option) {
 
 function option_mofu_mofu_mode(option) {
     const checkbox = document.getElementById("options_mofu_mofu_mode");
-    if(checkbox.checked || option) {
+
+    if(option !== undefined) {
+        checkbox.checked = option;
+    }
+
+    if(checkbox.checked) {
         options.mofu_mofu_mode = true;
-        global_flags.if_mofu_mofu_enabled = true;
+        global_flags.is_mofu_mofu_enabled = true;
         language = languages.mofu_english;
     } else {
         options.mofu_mofu_mode = false;
-        global_flags.if_mofu_mofu_enabled = false;
+        global_flags.is_mofu_mofu_enabled = false;
         language = languages.english;
-    }
-    
-    if(option !== undefined) {
-        checkbox.checked = option;
     }
 }
 
@@ -748,7 +749,9 @@ function finish_game_action({action_key, conditions_status, dialogue_key}){
             //win
 
             result_message = action.success_text;
-            action.is_finished = true;
+            if(!action.repeatable) {
+                action.is_finished = true;
+            }
             process_rewards({rewards: action.rewards, source_type: "action"});
             is_won = true;
         } else {
@@ -3854,6 +3857,9 @@ function load(save_data) {
                 dialogues[dialogue].is_unlocked = save_data.dialogues[dialogue].is_unlocked;
                 dialogues[dialogue].is_finished = save_data.dialogues[dialogue].is_finished;
             } else {
+                if(dialogue === "cute little rat" && is_a_older_than_b(save_data["game version"], "v0.5.0")) {
+                    return;
+                }
                 console.warn(`Dialogue "${dialogue}" couldn't be found!`);
                 any_warnings = true;
                 return;

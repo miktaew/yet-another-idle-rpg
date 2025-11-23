@@ -16,6 +16,7 @@ class GameAction{
         success_text,
         failure_texts = {},
         required = {},
+        display_conditions = {},
         conditions = [],
         rewards = {},
         attempt_duration = 0,
@@ -53,6 +54,8 @@ class GameAction{
         }
         this.conditions = conditions; 
         //things needed to succeed, breakdown in conditions.js
+
+        this.display_conditions = display_conditions;
         
         this.check_conditions_on_finish = check_conditions_on_finish; //means an action with duration can be attempted even if conditions are not met
         this.rewards = rewards; //{unlocks, money, items,move_to}?
@@ -79,6 +82,14 @@ class GameAction{
      */
     can_be_started(character) {
         return process_conditions([this.required], character);
+    }
+
+    /**
+     * 
+     * @returns  {Boolean} if display conditions are met
+     */
+    can_be_displayed(character) {
+        return process_conditions([this.display_conditions], character);
     }
 }
 

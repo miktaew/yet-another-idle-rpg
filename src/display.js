@@ -3642,7 +3642,7 @@ function update_displayed_dialogue({dialogue_key, textlines, origin}) {
         });
 
         Object.keys(dialogue.actions).forEach(key => { //add buttons for actions
-            if(dialogue.actions[key].is_unlocked && !dialogue.actions[key].is_finished) { 
+            if(dialogue.actions[key].is_unlocked && !dialogue.actions[key].is_finished && dialogue.actions[key].can_be_displayed(character)) { 
                 const dialogue_action_div = document.createElement("div");
                 dialogue_action_div.innerHTML = `${dialogue.actions[key].starting_text}`;
                 dialogue_action_div.classList.add("dialogue_textline");

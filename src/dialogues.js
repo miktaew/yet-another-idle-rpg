@@ -270,7 +270,7 @@ class DialogueAction extends GameAction {
             "more training": new Textline({
                 name: "elder training",
                 getText: (context) => {
-                    if(context.season === "Winter") {
+                    if(context?.season === "Winter") {
                         return "elder training answ 2";
                     } else {
                         return "elder training answ 1";
@@ -358,48 +358,43 @@ class DialogueAction extends GameAction {
         is_unlocked: false,
         textlines: {
             "hello": new Textline({
-                name: "Hello?",
-                text: "Hello. I see you are finally leaving, huh?",
+                name: "guard hello",
+                text: "guard hello answ",
                 rewards: {
                     textlines: [{dialogue: "village guard", lines: ["tips", "job"]}],
                 },
                 locks_lines: ["hello"],
             }),
             "job": new Textline({
-                name: "Do you maybe have any jobs for me?",
+                name: "guard job",
                 is_unlocked: false,
-                text: "You are somewhat combat capable now, so how about you help me and the boys on patrolling? Not much happens, but it pays better than working on fields",
+                text: "guard job answ",
                 rewards: {
                     activities: [{location:"Village", activity:"patrolling"}],
                 },
                 locks_lines: ["job"],
             }),
             "tips": new Textline({
-                name: "Can you give me any tips for the journey?",
+                name: "guard tips",
                 is_unlocked: false,
-                text: `First and foremost, don't rush. It's fine to spend some more time here, to better prepare yourself. `
-                +`There's a lot of dangerous animals out there, much stronger than those damn rats, and in worst case you might even run into some bandits. `
-                +`If you see something that is too dangerous to fight, try to run away.`,
+                text: "guard tips answ",
                 rewards: {
                     textlines: [{dialogue: "village guard", lines: ["teach"]}],
                 },
             }),
             "teach": new Textline({
-                name: "Could you maybe teach me something that would be of use?",
+                name: "guard teach",
                 is_unlocked: false,
-                text: `Lemme take a look... Yes, it looks like you know some basics. Do you know any proper techniques? No? I thought so. I could teach you the most standard three. `
-                +`They might be more tiring than fighting the "normal" way, but if used in a proper situation, they will be a lot more effective. Two can be easily presented through `
-                + `some sparring, so let's start with it. The third I'll just have to explain. How about that?`,
+                text: "guard teach answ",
                 rewards: {
                     locations: [{location: "Sparring with the village guard (quick)"}, {location: "Sparring with the village guard (heavy)"}],
                 },
                 locks_lines: ["teach"],
             }),
             "quick": new Textline({
-                name: "So about the quick stance...",
+                name: "guard quick",
                 is_unlocked: false,
-                text: `It's usually called "quick steps". As you have seen, it's about being quick on your feet. `
-                +`While power of your attacks will suffer, it's very fast, making it perfect against more fragile enemies`,
+                text: "guard quick answ",
                 otherUnlocks: () => {
                     if(dialogues["village guard"].textlines["heavy"].is_finished) {
                         dialogues["village guard"].textlines["wide"].is_unlocked = true;
@@ -411,10 +406,9 @@ class DialogueAction extends GameAction {
                 }
             }),
             "heavy": new Textline({
-                name: "So about the heavy stance...",
+                name: "guard heavy",
                 is_unlocked: false,
-                text: `It's usually called "crushing force". As you have seen, it's about putting all your strength in attacks. ` 
-                +`It will make your attacks noticeably slower, but it's a perfect solution if you face an enemy that's too tough for normal attacks`,
+                text: "guard heavy answ",
                 otherUnlocks: () => {
                     if(dialogues["village guard"].textlines["quick"].is_finished) {
                         dialogues["village guard"].textlines["wide"].is_unlocked = true;
@@ -426,45 +420,43 @@ class DialogueAction extends GameAction {
                 }
             }),
             "wide": new Textline({
-                name: "What's the third technique?",
+                name: "guard wide",
                 is_unlocked: false,
-                text: `It's usually called "broad arc". Instead of focusing on a single target, you make a wide swing to hit as many as possible. ` 
-                +`It might work great against groups of weaker enemies, but it will also significantly reduce the power of your attacks and will be even more tiring than the other two stances.`,
+                text: "guard wide answ",
                 locks_lines: ["wide"],
                 rewards: {
                     stances: ["wide"]
                 }
             }),
         },
-        description: "You see a man in light armor, with a spear in his hand and two daggers on his belt. "
+        description: "guard description",
     });
 
     dialogues["gate guard"] = new Dialogue({
         name: "gate guard",
         textlines: {
             "enter": new Textline({
-                name: "Hello, can I get in?",
-                text: "The town is currently closed to everyone who isn't a citizen or a guild member. No exceptions.",
+                name: "g guard hello",
+                text: "g guard hello answ",
             }), 
         },
-        description: "You see a man in steel chainmail, with a spear in his hand and a sword on his belt."
+        description: "g guard description",
     });
     dialogues["suspicious man"] = new Dialogue({
         name: "suspicious man",
         textlines: {
             "hello": new Textline({ 
-                name: "Hello? Why are you looking at me like that?",
-                text: "Y-you! You should be dead! *the man pulls out a dagger*",
+                name: "sus hello",
+                text: "sus hello answ",
                 rewards: {
                     locations: [{location: "Fight off the assailant"}],
                 },
                 locks_lines: ["hello"],
             }), 
             "defeated": new Textline({ 
-                name: "What was that about?",
+                name: "sus defeated",
                 is_unlocked: false,
-                text: "I... We... It was my group that robbed you. I thought you came back from your grave for revenge... Please, I don't know anything. "
-                +"If you want answers, ask my ex-boss. He's somewhere in the town.",
+                text: "sus defeated answ",
                 locks_lines: ["defeated"],
                 rewards: {
                     textlines: [{dialogue: "suspicious man", lines: ["behave", "situation"]}],
@@ -474,33 +466,33 @@ class DialogueAction extends GameAction {
                 },
             }), 
             "behave": new Textline({ 
-                name: "Are you behaving yourself?",
+                name: "sus behave",
                 is_unlocked: false,
-                text: "Y-yes, boss! Please don't beat me again!",
+                text: "sus behave answ",
                 locks_lines: ["defeated"],
                 rewards: {
                     textlines: [{dialogue: "suspicious man", lines: ["situation", "boss"]}],
                 },
             }), 
             "boss": new Textline({ 
-                name: "Stop calling me 'boss'",
+                name: "sus boss",
                 is_unlocked: false,
-                text: "Y-yes, boss! I'm sorry, boss!",
+                text: "sus boss answ",
                 locks_lines: ["boss"],
             }), 
             "situation": new Textline({
-                name: "By the way, how are things in this slum?",
+                name: "sus situation",
                 is_unlocked: false,
-                text: "A-as you can see and hear boss, it's pretty b-bad, but it can't be helped without taking out the g-gang...",
+                text: "sus situation answ",
                 locks_lines: ["situation"],
                 rewards: {
                     textlines: [{dialogue: "suspicious man", lines: ["gang", "boss"]}],
                 },
             }),
             "gang": new Textline({
-                name: "What gang?",
+                name: "sus gang",
                 is_unlocked: false,
-                text: "It's j-just a gang, they don't have any name, boss. Their hideout is over t-there, you should stay away from them. Almost every k-killer and thug around t-the slum is a part of it.",
+                text: "sus gang answ",
                 locks_lines: ["gang", "behave"],
                 rewards: {
                     textlines: [{dialogue: "suspicious man", lines: ["gang", "behave 2"]}],
@@ -511,39 +503,63 @@ class DialogueAction extends GameAction {
                 },
             }),
             "defeated gang": new Textline({
-                name: "That gang you mentioned? I dealt with them.",
+                name: "sus gang defeated",
                 is_unlocked: false,
-                text: "I know boss, we all heard the commotion! You're the best! I think the local trader already pulled out some gear he was hiding from them, you should check it out! <br><strong>*Pauses for a moment*</strong> I wish I had shown you my defensive tricks before that, it might have made your job easier...",
+                text: "sus gang defeated answ",
                 locks_lines: ["defeated gang"],
                 rewards: {
                     textlines: [{dialogue: "suspicious man", lines: ["tricks"]}],
-                    dialogues: ["old woman of the slums"]
+                    dialogues: ["old woman of the slums"],
                 }
             }),
             "behave 2": new Textline({ 
-                name: "Are you behaving yourself?",
+                name: "sus behave 2",
                 is_unlocked: false,
-                text: "Y-yes, I didn't do anything bad since the last time, boss!",
+                text: "sus behave 2 answ",
             }),
             "behave 3": new Textline({ 
-                name: "Are you behaving yourself?",
+                name: "sus behave 3",
                 is_unlocked: false,
-                text: "Of course boss!",
+                text: "sus behave 3 answ",
                 rewards: {
                     textlines: [{dialogue: "suspicious man", lines: ["tricks"]}],
-                    dialogues: ["old woman of the slums"]
+                    dialogues: ["old woman of the slums"],
+                    actions: [{dialogue: "suspicious man", action: "headpat"}],
                 }
             }),
             "tricks": new Textline({ 
-                name: "You said something about defensive tricks? Show me",
+                name: "sus tricks",
                 is_unlocked: false,
-                text: "Sure, boss! So, it's really about focusing on your legs to either jump away faster or to better brace the shield, and... <strong>He continues explaining for a while</strong>",
+                text: "sus tricks answ",
                 rewards: {
-                    stances: ["defensive"]
+                    stances: ["defensive"],
                 }
             }),
         }, 
-        description: "You see a man in shabby clothes and with messy hair, who keeps looking around. He appears to have multiple nervous ticks."
+        getDescription: ()=>{
+            if(dialogues["suspicious man"].textlines["defeated gang"].is_finished) {
+                return "sus description 2";
+            } else {
+                return "sus description 1";
+            }
+        },
+        actions: {
+            "headpat": new DialogueAction({
+                action_id: "headpat",
+                is_unlocked: true,
+                repeatable: true,
+                starting_text: "sus headpat",
+                description: "",
+                action_text: "",
+                success_text: "sus headpat answ",
+                display_conditions: {
+                    flags: ["is_mofu_mofu_enabled"],
+                },
+                attempt_duration: 0,
+                success_chances: [1],
+            }),
+        }
+        
     });
 
     dialogues["old woman of the slums"] = new Dialogue({
@@ -551,59 +567,65 @@ class DialogueAction extends GameAction {
         is_unlocked: false,
         textlines: {
             "hello": new Textline({
-                name: "[Let her approach you.]",
-                text: "Hello young warrior. I understand it is you who we have to thank for freeing us from those thugs. Few these days have the gumption, and even fewer the strength to take them on. Well done! Such heroism deserves a reward, and while none of us have much to offer as you can see, but the least I can do is make sure our hero doesn't go hungry. Would you care to join me for dinner?",
+                name: "old hello",
+                text: "old hello answ",
                 locks_lines: ["hello"],
                 rewards: {
                     textlines: [{dialogue: "old woman of the slums", lines: ["dinner"]}],
                 }
             }),
             "dinner": new Textline({
-                name: "[Accept the offer.]",
+                name: "old dinner",
                 is_unlocked: false,
-                text: "[You join the woman in her shack for a humble, yet satisfying meal. While the main ingredients are simple, they are well flavoured and garnished with herbs.]",
+                text: "old dinner answ",
                 locks_lines: ["dinner"],
                 rewards: {
                     textlines: [{dialogue: "old woman of the slums", lines: ["ingredients"]}],
                 }
             }),
             "ingredients": new Textline({
-                name: "[Compliment the food and ask where she gets ingredients.]",
+                name: "old ingredients",
                 is_unlocked: false,
-                text: "Surprised? Live here long enough, and you learn how to get by without a lot of pricey things. No, I'm not talking about stealing - I may be poor, but I still have my pride! No, I'm talking about the plants that grow all around. Most people pass them by, without realizing how useful they can be. Ha! Maybe there IS another way I can reward you! I can teach you what to look for, if you're interested.",
+                text: "old ingredients answ",
                 locks_lines: ["ingredients"],
                 rewards: {
                     activities: [{location: "Town outskirts", activity: "herbalism"}],
                 }
             }),
         },
-        description: "With some safety returned to the area, more folk are now out on the streets. One of them, an elderly woman, is looking at you."
+        getDescription: ()=>{
+            if(dialogues["old woman of the slums"].textlines["hello"].is_finished) {
+                return "old description 2";
+            } else {
+                return "old description 1";
+            }
+        }
     });
 
     dialogues["farm supervisor"] = new Dialogue({
         name: "farm supervisor",
         textlines: {
             "hello": new Textline({ 
-                name: "Hello",
-                text: "Hello stranger",
+                name: "sup hello",
+                text: "sup hello answ",
                 rewards: {
                     textlines: [{dialogue: "farm supervisor", lines: ["things", "work", "animals", "fight", "fight0", "anything"]}],
                 },
                 locks_lines: ["hello"],
             }),
             "work": new Textline({
-                name: "Do you have any work with decent pay?",
+                name:"sup work",
                 is_unlocked: false,
-                text: "We sure could use more hands. Feel free to help my boys on the fields whenever you have time!",
+                text: "sup work answ",
                 rewards: {
                     activities: [{location: "Town farms", activity: "fieldwork"}],
                 },
                 locks_lines: ["work"],
             }),
             "anything": new Textline({
-                name: "Is there anything I can help you with?",
+                name: "sup anything",
                 is_unlocked: false,
-                text: "I don't think so, nothing aside from normal work... Oh wait, actually there is one thing. We're in a dire need of 50 packs of bonemeal and lost our supplier on top of that, so I'm willing to pay you a triple price. Bad news is, you will have to bring all 50 in a single delivery.",
+                text: "sup anything answ",
                 rewards: {
                     actions: [{dialogue: "farm supervisor", action: "bonemeal1"}],
                     quests: ["Bonemeal delivery"],
@@ -611,18 +633,18 @@ class DialogueAction extends GameAction {
                 locks_lines: ["anything"],
             }),
             "more bonemeal": new Textline({
-                name: "More bonemeal, you say?",
+                name: "sup bonemeal",
                 is_unlocked: false,
-                text: "Absolutely! I know the lower price might not be the most appealing, but at least it's stable, unlike the market, and at times might be a lot better than what any trader would pay you for it.",
+                text: "sup bonemeal answ",
                 rewards: {
                     actions: [{dialogue: "farm supervisor", action: "bonemeal2"}],
                 },
                 locks_lines: ["more bonemeal"],
             }),
             "animals": new Textline({
-                name: "Do you sell anything?",
+                name: "sup animals",
                 is_unlocked: false,
-                text: "Sorry, I'm not allowed to. I could however let you take some stuff in exchange for physical work, and it just so happens our sheep need shearing.",
+                text: "sup animals answ",
                 required_flags: {yes: ["is_gathering_unlocked"]},
                 rewards: {
                     activities: [{location: "Town farms", activity: "animal care"}],
@@ -630,21 +652,18 @@ class DialogueAction extends GameAction {
                 locks_lines: ["animals"],
             }),
             "fight0": new Textline({
-                name: "Do you have any task that requires some good old violence?",
+                name: "sup fight0",
                 is_unlocked: false,
-                text: "I kinda do, but you don't seem strong enough for that. I'm sorry.",
+                text: "sup fight0 answ",
                 required_flags: {no: ["is_strength_proved"]},
                 rewards: {
                     quests: ["Ploughs to swords"],
                 }
             }),
             "fight": new Textline({
-                name: "Do you have any task that requires some good old violence?",
+                name: "sup fight",
                 is_unlocked: false,
-                text: "Actually yes. There's that annoying group of boars that keep destroying our fields. "
-                + "They don't do enough damage to cause any serious problems, but I would certainly be calmer if someone took care of them. "
-                + "Go to the forest and search for a clearing in north, that's where they usually roam when they aren't busy eating our crops."
-                + "I will of course pay you for that. 4 silver coins is most I can offer, I'm running on a strict budget here.",
+                text: "sup fight answ",
                 required_flags: {yes: ["is_strength_proved"]},
                 rewards: {
                     actions: [{location: "Forest road", action: "search for boars"}],
@@ -656,16 +675,16 @@ class DialogueAction extends GameAction {
             }),
             "things": new Textline({
                 is_unlocked: false,
-                name: "How are things around here?",
-                text: "Nothing to complain about. Trouble is rare, pay is good, and the soil is as fertile as my wife!",
+                name: "sup things",
+                text: "sup things answ",
                 rewards: {
                     textlines: [{dialogue: "farm supervisor", lines: ["animals", "fight", "fight0", "anything"]}],
                 }
             }), 
             "defeated boars": new Textline({
                 is_unlocked: false,
-                name: "I took care of those boars",
-                text: "Really? That's great! Here, this is for you.",
+                name: "sup defeated boars",
+                text: "sup defeated boars answ",
                 locks_lines: ["defeated boars"],
                 rewards: {
                     money: 4000,
@@ -675,10 +694,8 @@ class DialogueAction extends GameAction {
             }),
             "troubled": new Textline({
                 is_unlocked: false,
-                name: "You look troubled",
-                text: "Troubled? I'm fuming, I'm going insane here! Those damn accursed ants, they keep destroying crops by eating their roots over and over again!"
-                    + " If I could, I would drop everything, grab a sword and a shovel and go find their damn nests, and then slaughter every last one of them! Not just soldiers and workers, but queens and larvae too!"
-                    + " Destroy their nests for me and you will have my gratitude, I will even pay you out of my own pocket. You can borrow a shovel from the farm if you don't have your own.",
+                name: "sup troubled",
+                text: "sup troubled answ",
                 locks_lines: ["troubled"],
                 display_conditions: {
                     season: {
@@ -692,8 +709,8 @@ class DialogueAction extends GameAction {
             }),
             "eliminated ants": new Textline({
                 is_unlocked: false,
-                name: "The ants are gone, though there are some trails leading to the forest",
-                text: "Forest? I don't care. If they are gone from the farm, then just... thank you, thank you so much! Here, take this, you earned it!",
+                name: "sup eliminated",
+                text: "sup eliminated answ",
                 locks_lines: ["eliminated ants"],
                 rewards: {
                     quest_progress: [{quest_id: "Ploughs to swords", task_index: 3}],
@@ -704,12 +721,12 @@ class DialogueAction extends GameAction {
         actions: {
             "bonemeal1": new DialogueAction({
                 action_id: "bonemeal1",
-                starting_text: "[Deliver the bonemeal]",
+                starting_text: "sup deliver",
                 description: "",
                 action_text: "",
-                success_text: "Thank you very much, here's your money! If you ever want to make more deliveries of this size, we will gladly take them, although it will have to be for the regular price",
+                success_text: "sup deliver answ",
                 failure_texts: {
-                    unable_to_begin: ["I'm sorry, but that's not enough"],
+                    unable_to_begin: ["sup deliver not"],
                 },
                 required: {
                     items_by_id: {"Bonemeal": {count: 50, remove_on_success: true}},
@@ -728,12 +745,12 @@ class DialogueAction extends GameAction {
             }),
             "bonemeal2": new DialogueAction({
                 action_id: "bonemeal2",
-                starting_text: "[Deliver the bonemeal]",
+                starting_text: "sup deliver 2",
                 description: "",
                 action_text: "",
-                success_text: "Thank you very much, here's your money! We will gladly take more, whenever you have it!",
+                success_text: "sup deliver 2 answ",
                 failure_texts: {
-                    unable_to_begin: ["I'm sorry, but that's not enough"],
+                    unable_to_begin: ["sup deliver 2 not"],
                 },
                 required: {
                     items_by_id: {"Bonemeal": {count: 50, remove_on_success: true}},
@@ -745,9 +762,9 @@ class DialogueAction extends GameAction {
                 },
             }),
         },
-        description: "You see a well dressed man with a notebook on his belt. Despite seeming more like a scribe, he's buff and tanned."
+        description: "sup description",
     });
-
+    /*
     dialogues["cute little rat"] = new Dialogue({
         name: "cute little rat",
         description: "You see a cute little rat. It appears completely harmless. It has a cute litle crown on its cute little head and is sitting on a cute little comfortable pillow.",
@@ -807,6 +824,7 @@ class DialogueAction extends GameAction {
             }),
         },
     });
+    */
 })();
 
 export {dialogues};

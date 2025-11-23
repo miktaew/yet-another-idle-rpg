@@ -69,13 +69,14 @@
 v0.5.0
     - implemented a Quest system
     - implemented a simple weather system (temperature and rain), effects are mostly some penalties of varying degree if you get too cold; clothing now provides cold protection
+    - the game is now slightly more fluffy; if you dislike kemonomimi, you can disable it in options
     - added a small reward (xp-increasing active effect) for exporting the game; when it's available, the export button will be visually marked by bold text and changing colors
     - travelling now moves the in-game timer forward, affecting durations of all active effects except the one from export reward; travel times scale with skills (mostly 'running')
-    - added foreground animations for rain and for snow, and a background animation of stars for clear sky night; they are disabled by default and can be enabled in the options panel
+    - added foreground animations for rain and for snow, and a background animation of stars for clear sky night; <b>they are disabled by default and can be enabled in the options panel</b>
     - market saturation system now covers everything except consumables; it has a harsher scaling for equipment and components
     - market saturation has been split into regions (currently: Village and Slums), with saturation slowly trickling between all regions until it balances out; for existing saves, saturations were equally split between the regions
     - added some (one, to be precise) actions started from dialogue level
-    - added new equipment category, capes; they are rather expensive in terms of material cost, but provide the most cold protection out of all item types and allow you to feel fancy
+    - added a new equipment category, capes; they are rather expensive in terms of material cost, but provide the most cold protection out of all item types and allow you to feel fancy
     - added two new combat zones available from <span class="spoiler">'Forest road'</span>, offering new enemies and a new armor crafting material 
     - added some actions and related combat zones in <span class="spoiler">'Town farms', after you deal with the boars, completing it unlocks another combat zone from 'Forest road'; enemies in these don't have any drops yet</span>
     - added another stance, available from <span class="spoiler">'Suspicious man' after helping out in the 'Slums' (it technically existed before, but was impossible to unlock);
@@ -103,10 +104,10 @@ v0.5.0
     - 'Meditation' skill now provides a small intuition multiplier
     - 'Strength of Mind' skill now requires 120->400 xp for first level, but cost scaling was reduced x1.9->x1.7
     - 'Breathing' skill now requires 300->400xp for first level
-    - "Wolf trophy" now gives flat armor penetration instead of damage multiplier
+    - "Wolf trophy" now gives flat armor penetration instead of attack speed
     - hero level xp cost scaling was reduced x1.7->x1.6
-    - condition to unlock first combat task in 'Town farms' was changed from clearing a specific location to clearing one of three (each in different region)
-    - equippables unaffected by quality will no longer display it (trinkets, tools, artifacts)
+    - condition to unlock first combat task in 'Town farms' was changed from clearing a specific location to clearing one of a three (each in a different region)
+    - equippables unaffected by quality will no longer display it (trinkets, tools, artifacts, etc)
     - increased defense on a bunch of enemies
     - increased value of trinkets
     - slightly nerfed active effects from food, as more of them are now available
@@ -121,9 +122,6 @@ v0.5.0
     - hp bar, stamina bar, and xp bar, now have basic tooltips with breakdows (max health, max stamina and stamina efficiency, global/hero/all_skill xp multiplier)
     - updated 'Sleeping' skill's tooltip so that it mentions the increase to sleeping health restoration (mechanic already existed, but was missing from tooltip)
     - message log will now only scroll down for messages that belong to displayed categories, stuff that is hidden will not cause a scrolling to happen
-    - added very simple click effects to some buttons
-    - added simple animations to enemies when hit
-    - added color change on hover to some elements
     - work payments have been increased
     - trader profit margins were increased
     - increased trade price recovery per day (it's still very low and shouldn't be relied on)
@@ -131,6 +129,10 @@ v0.5.0
     - increased duration of both types of 'Healing Powder'
     - slightly buffed xp gains for gathering tier 3 wood/metal
     - in dialogues, name of the one being talked to is now displayed above the answers
+    - added very simple click effects to some buttons
+    - added simple animations to enemies when hit
+    - added color change on hover to some elements
+    - dialogue descriptions and textline answers now have a basic fade-in animation
 
     - implemented dialogue branching (clicking a textline can show more textlines that are a continuation of the topic), not yet in use
     - implemented content stack that holds information on what's currently shown and what it originated from, 
@@ -139,7 +141,9 @@ v0.5.0
     - updated enemy lineup creation code to allow using predefined groups in their order (instead of choosing one randomly),
     and to allow using a predefined group every N clears while remaining fights use random enemies
     - jobs can now be made available only in selected seasons; overall time-based limitation was extended to cover training actions as well
-    - textlines can now have conditions for being displayed, using same template as actions use for their results
+    - actions can now have conditions for being displayed
+    - textlines can now have conditions for being displayed, using same template as actions do
+    - conditions can now include global flags and equipped tools
     - locations can now include rewards provided for simply entering them (obviously meant for unlocks only)
     - item names can now be skipped in item creation, which will default them to same as item's id
     - made it possible for activities to apply active effects
