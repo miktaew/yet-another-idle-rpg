@@ -14,6 +14,7 @@ class QuestTask {
         task_rewards = {}, //generally skipped in favour of quest reward but could sometimes have something?
         is_hidden = false, //keep it false most of the time, but could be used as a fake way of making quests with no visible requirement for progress
         is_finished = false,
+        
     })
     {
         this.task_description = task_description;
@@ -41,6 +42,7 @@ class Quest {
                 quest_tasks = [], //an array of tasks that need to be completed one by one
                 quest_condition, //conditions for task to be completed; can be skipped if it's meant to be achieved via some rewards object; works the same as in QuestTask
                 quest_rewards, //may include a new quest to automatically start
+                display_priority = Infinity, //the lower, the higher up it will show
                 is_hidden = false, //hidden quests are not visible and are meant to function as additional unlock mechanism; name and description are skipped
                 is_finished = false,
                 is_repeatable = false, //true => doesn't get locked after completion and can be gained again
@@ -53,6 +55,7 @@ class Quest {
         this.quest_tasks = quest_tasks;
         this.quest_description = quest_description;
         this.quest_rewards = quest_rewards || {};
+        this.display_priority = display_priority; 
         this.is_hidden = is_hidden;
         this.is_finished = is_finished;
         this.is_repeatable = is_repeatable;
@@ -255,6 +258,7 @@ const questManager = {
 (()=>{
     quests["Lost memory"] = new Quest({
         quest_name: "Lost memory",
+        display_priority: 0,
         getQuestDescription: ()=>{
             const completed_tasks =  quests["Lost memory"].getCompletedTaskCount(); 
             if(completed_tasks == 0) {
@@ -275,6 +279,7 @@ const questManager = {
 
     quests["The Infinite Rat Saga"] = new Quest({
         quest_name: "The Infinite Rat Saga",
+        display_priority: 0,
         getQuestDescription: ()=>{
             return "You found more rats in the caves. You might as well try getting to the bottom of that issue.";
         },
@@ -306,6 +311,7 @@ const questManager = {
     });
     quests["Light in the darkness"] = new Quest({
         quest_name: "Light in the darkness",
+        display_priority: 1,
         getQuestDescription: ()=>{
             return "People of the slums live in suffering and fear. Maybe you could improve their situation at least a bit?";
         },
@@ -317,6 +323,7 @@ const questManager = {
     });
     quests["Ploughs to swords"] = new Quest({
         quest_name: "Ploughs to swords",
+        display_priority: 1,
         getQuestDescription: ()=>{
             return "Supervisor of the town's farms seems to have some interesting task, but first requires you to be strong enough for it.";
         },

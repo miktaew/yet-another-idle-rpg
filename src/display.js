@@ -4308,7 +4308,7 @@ function sort_displayed_skills({sort_by="name", change_direction=false}) {
     let minus = skill_sorting_direction==="asc"?-1:1;
     for(let i = 0; i < skill_list.children.length; i++) {
         
-        [...skill_list.children[i].querySelector("[data-skill_category_skills").children].sort((a,b) => {
+        [...skill_list.children[i].querySelector("[data-skill_category_skills]").children].sort((a,b) => {
             let elem_a;
             let elem_b;
             if (sort_by === "level") {
@@ -4846,6 +4846,8 @@ function add_quest_to_display(quest_id) {
     if(quest.is_finished) {
         quest_div.classList.add("quest_finished");
     }
+
+    sort_displayed_quests();
 }
 
 /**
@@ -4878,6 +4880,32 @@ function update_displayed_quest(quest_id) {
     }
     
     update_displayed_quest_tasks(quest_id);
+
+    sort_displayed_quests();
+}
+
+function sort_displayed_quests() {
+        [...quest_list.children].sort((a,b) => {
+            let quest_a = quests[a.getAttribute("data-quest_id")];
+            let quest_b = quests[b.getAttribute("data-quest_id")];
+            if(quest_a.is_finished && !quest_b.is_finished) {
+                return 1;
+            } else if(!quest_a.is_finished && quest_b.is_finished) {
+                return -1;
+            } else {
+                if(quest_a.display_priority !== quest_b.display_priority) {
+                    return quest_a.display_priority - quest_b.display_priority;
+                } else {
+                    if(quest_a.getQuestName() > quest_b.getQuestName()) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                }
+            }
+    
+        }).forEach(node=>quest_list.appendChild(node));
+    
 }
 
 /**
