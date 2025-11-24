@@ -1964,7 +1964,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 //check if skill affects any travel times, update pathing if so
                 pathfinder = new Pathfinder();
                 pathfinder.fill_connections(locations);
-                pathfinder.find_shortest_paths(current_location);
+                travel_times[current_location.id] = pathfinder.find_shortest_paths(current_location.id);
                 //shouldn't need any display updates
             }
 
@@ -2324,11 +2324,12 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         update_displayed_reputation();
     }
 
-    if(was_any_location_availability_changed && !is_from_loading) {
+    if(was_any_location_availability_changed) {
         //pathing update
         pathfinder = new Pathfinder();
         pathfinder.fill_connections(locations);
-        pathfinder.find_shortest_paths(current_location);
+        travel_times[current_location.id] = pathfinder.find_shortest_paths(current_location.id);
+
         //shouldn't need any display updates
     }
 
@@ -5189,7 +5190,7 @@ if(save_key in localStorage || (is_on_dev() && dev_save_key in localStorage)) {
     update_character_stats();
     update_displayed_xp_bonuses();
 } else {
-    set_loading_screen_versions(get_game_version());
+    set_loading_screen_versions();
     add_to_character_inventory([{item_id: "Cheap iron sword", quality: 40}, 
                                 {item_id: "Cheap leather pants", quality: 40},
                                 {item_id: "Stale bread", count: 5},

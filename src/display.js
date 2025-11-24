@@ -5163,14 +5163,16 @@ function set_loading_screen_versions(save_version) {
     const loading_screen = document.getElementById("loading_screen_version_info");
     const current_version = get_game_version();
     loading_screen.innerHTML = 
-    `Save game version: ${save_version}<br>
+    `Save game version: ${save_version || "none"}<br>
  Current game version: ${current_version}<br>`;
-    if(save_version === current_version) {
+    if(save_version) {
+      if(save_version === current_version) {
         loading_screen.innerHTML += "<div class='top_border'>No changes since the last time you played~</div>"
-    } else if(is_a_older_than_b(save_version, current_version)) {
-        loading_screen.innerHTML += "<div class='top_border'>Game has been updated since the last time you played, check the changelog for more details</div>";
-    } else {
-        loading_screen.innerHTML += "<div class='top_border'>Your save is from a newer version of the game. Continuing is likely to lead to multiple issues!</div>";
+        } else if(is_a_older_than_b(save_version, current_version)) {
+            loading_screen.innerHTML += "<div class='top_border'>Game has been updated since the last time you played, check the changelog for more details</div>";
+        } else {
+            loading_screen.innerHTML += "<div class='top_border'>Your save is from a newer version of the game. Continuing is likely to lead to multiple issues!</div>";
+        }
     }
 }
 
