@@ -310,7 +310,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         throw new Error(`Tried to use a recipe that doesn't exist: ${category} -> ${subcategory} -> ${recipe_id}`);
     }
     if(subcategory === "items") {
-        exp_value = Math.max(exp_value,1.5*selected_recipe.recipe_level[1])**1.2;
+        exp_value = Math.max(exp_value,1.5*selected_recipe.recipe_level[1])**1.1;
         //maybe scale with materials needed?
         
         if(selected_recipe.recipe_level[1] < skill_level) {
@@ -319,7 +319,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         }
     } else if (subcategory === "components" || selected_recipe.recipe_type === "component" || selected_recipe.recipe_type === "componentless") {
         const result_level = 8*result_tier;
-        exp_value = Math.max(exp_value**1.2,((result_tier * 4)**1.2) * material_count);
+        exp_value = Math.max(exp_value**1.2,((result_tier * 4)**1.1) * material_count);
 
         if(result_level > skill_level*rarity_multiplier**0.5) {
             //full value
@@ -331,7 +331,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         //penalty kicks in when skill level is more than 8*item_tier, but is delayed by sqrt of rarity multiplier
     } else {
         const result_level = 8*Math.max(selected_components[0].component_tier,selected_components[1].component_tier);
-        exp_value = Math.max(exp_value,(selected_components[0].component_tier+selected_components[1].component_tier) * 4)**1.2;
+        exp_value = Math.max(exp_value,(selected_components[0].component_tier+selected_components[1].component_tier) * 4)**1.1;
 
         if(result_level > skill_level*rarity_multiplier**0.5) {
             //full value
