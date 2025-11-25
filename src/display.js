@@ -1261,7 +1261,6 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
  * 
  */
 function update_displayed_character_inventory({item_key, equip_slot, character_sorting="name", sorting_direction="asc", was_anything_new_added=false, is_trade=false} = {}) {    
-    
     //removal of unneeded divs
     if(!item_key){
         Object.keys(item_divs).forEach(div_key => {
@@ -1282,6 +1281,7 @@ function update_displayed_character_inventory({item_key, equip_slot, character_s
                 }
             }
         });
+
         Object.keys(item_buying_divs).forEach(div_key => {
             if(to_buy.items.filter(x => x.item_key === div_key).length === 0){
                 //not in trade list - remove
@@ -2162,17 +2162,17 @@ function create_location_choices({location, category, is_combat = false}) {
                 if("connected_locations" in location.connected_locations[i].location) {// check again if connected location is normal or combat
                     action.classList.add("travel_normal");
                     if("custom_text" in location.connected_locations[i]) {
-                        action.innerHTML = `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + location.connected_locations[i].custom_text + " [" + travel_time + "]";
+                        action.innerHTML = `<div class='location_choice_icon_box'><i class="material-icons location_choice_icon">check_box_outline_blank</i></div> ` + location.connected_locations[i].custom_text + " [" + travel_time + "]";
                     }
                     else {
-                        action.innerHTML = `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + "Go to [" + location.connected_locations[i].location.name+"]"+" [" + travel_time + "]";
+                        action.innerHTML = `<div class='location_choice_icon_box'><i class="material-icons location_choice_icon">check_box_outline_blank</i></div> ` + "Go to [" + location.connected_locations[i].location.name+"]"+" [" + travel_time + "]";
                     }
                 } else {
                     action.classList.add("travel_combat");
                     if("custom_text" in location.connected_locations[i]) {
-                        action.innerHTML = `<i class="material-icons">warning_amber</i> ` + location.connected_locations[i].custom_text + " [" + travel_time + "]";
+                        action.innerHTML = `<div class='location_choice_icon_box'><i class="material-icons">warning_amber</i></div> ` + location.connected_locations[i].custom_text + " [" + travel_time + "]";
                     } else {
-                        action.innerHTML = `<i class="material-icons">warning_amber</i>  ` + "Enter the [" + location.connected_locations[i].location.name+"] [" + travel_time + "]";
+                        action.innerHTML = `<div class='location_choice_icon_box'><i class="material-icons">warning_amber</i></div>  ` + "Enter the [" + location.connected_locations[i].location.name+"] [" + travel_time + "]";
                     }
                 }
             
@@ -4873,7 +4873,7 @@ function update_displayed_quest(quest_id) {
     quest_name_div.innerHTML = quest.getQuestName();
 
     const quest_description_div = quest_div.querySelector(".quest_description_div");
-    quest_description_div.innerHTML = quest.getQuestDescription();
+    quest_description_div.innerHTML = quest.getQuestDescription() ?? "";
 
     if(quest.is_finished) {
         quest_div.classList.add("quest_finished");

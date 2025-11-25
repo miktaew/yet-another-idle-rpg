@@ -409,6 +409,9 @@ input[type=checkbox], input[type=radio] {
 	cursor: pointer;
 	padding: 5px;
  }
+ .action_travel {
+	padding-top: 8px;
+ }
  .end_dialogue_button {
 	border-bottom: 1px solid white;
  }
@@ -417,6 +420,13 @@ input[type=checkbox], input[type=radio] {
 	font-size: 16px;
 	padding-left: 5px;
 	margin-top: 2px;
+ }
+ .location_choice_icon_box {
+	float: left;
+	width: auto;
+	height: auto;
+	top: -4px;
+	position: relative;
  }
 
  .location_choice_dropdown, .location_choices, #start_sleeping_div, #open_storage_div, :not(.location_choice_dropdown) > .action_travel {

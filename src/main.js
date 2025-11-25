@@ -191,7 +191,7 @@ let game_action_interval;
 let current_game_action;
 
 //time needed to travel from A to B
-const travel_times = {};
+let travel_times = {};
 let pathfinder;
 
 //locations for fast travel
@@ -252,7 +252,7 @@ const options = {
     log_total_gathering_gain: true,
     auto_use_when_longest_runs_out: true,
     use_uncivilised_temperature_scale: false, //true -> swap Celsius for Fahrenheit
-    do_background_animations: true,
+    do_background_animations: false,
     skip_play_button: false, //not really skips, just automatically clicks it right after loading
     mofu_mofu_mode: true,
     do_enemy_onhit_animations: true,
@@ -1964,6 +1964,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 //check if skill affects any travel times, update pathing if so
                 pathfinder = new Pathfinder();
                 pathfinder.fill_connections(locations);
+                travel_times = {};
                 travel_times[current_location.id] = pathfinder.find_shortest_paths(current_location.id);
                 //shouldn't need any display updates
             }
@@ -2324,10 +2325,11 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         update_displayed_reputation();
     }
 
-    if(was_any_location_availability_changed) {
+    if(was_any_location_availability_changed && !is_from_loading) {
         //pathing update
         pathfinder = new Pathfinder();
         pathfinder.fill_connections(locations);
+        travel_times = {};
         travel_times[current_location.id] = pathfinder.find_shortest_paths(current_location.id);
 
         //shouldn't need any display updates
@@ -3320,6 +3322,9 @@ function save_to_file() {
         last_rewarded_export = Date.now();
         give_export_reward();
     }
+
+    //will create save twice...
+    save_progress();
     return btoa(create_save());
 }
 
@@ -4256,7 +4261,7 @@ function load(save_data) {
             character.stats.full.stamina = character.stats.full.max_stamina - save_data.character.stamina_to_full;
         }
 
-        set_loading_screen_progress("Hiding rats in your walls");
+        set_loading_screen_progress("Hiding rats in your walls (again!)");
 
         if(save_data["enemy_killcount"]) {
             Object.keys(save_data["enemy_killcount"]).forEach(enemy_name => {
@@ -4833,6 +4838,13 @@ function update() {
 
             if(current_activity) { //in activity
 
+                //if effects: add them
+                if(current_activity.applied_effects) {
+                    for(let i = 0; i < current_activity.applied_effects.length; i++) {
+                        add_active_effect(current_activity.applied_effects[i].effect, current_activity.applied_effects[i].duration);
+                    }
+                }
+
                 //add xp to all related skills
                 if(activities[current_activity.activity_name].type !== "GATHERING"){
                     for(let i = 0; i < activities[current_activity.activity_name].base_skills_names?.length; i++) {
@@ -4911,13 +4923,6 @@ function update() {
                     }
                 } else {
                     update_displayed_ongoing_activity(current_activity, false);
-                }
-
-                //if effects: add them
-                if(current_activity.applied_effects) {
-                    for(let i = 0; i < current_activity.applied_effects.length; i++) {
-                        add_active_effect(current_activity.applied_effects[i].effect, current_activity.applied_effects[i].duration);
-                    }
                 }
             } else {
                 //no current activity
