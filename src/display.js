@@ -2189,11 +2189,14 @@ function create_location_choices({location, category, is_combat = false}) {
             action.classList.add("travel_normal", "action_travel", "location_choice");
 
             const travel_time = format_time({time: {minutes: travel_times[location.id][location.parent_location.id]}});
-
+            let travel_time_text = "";
+            if(travel_time) {
+                travel_time_text = " [" + travel_time + "]";
+            }
             if(location.leave_text) {
-                action.innerHTML = location.leave_text + " [" + travel_time + "]";
+                action.innerHTML = location.leave_text + travel_time_text;
             } else {
-                action.innerHTML = "Go back to [" + location.parent_location.name + "] [" + travel_time + "]";
+                action.innerHTML = "Go back to [" + location.parent_location.name + "]" + travel_time_text;
             }
             action.setAttribute("data-travel", location.parent_location.id);
             action.setAttribute("onclick", "change_location({location_id:this.getAttribute('data-travel')});");
