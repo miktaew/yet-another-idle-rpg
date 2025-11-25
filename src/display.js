@@ -2076,9 +2076,9 @@ function create_location_choices({location, category, is_combat = false}) {
                 if(location.activities[key].availability_seasons) {
                     if(location.activities[key].availability_seasons.length === 3) {
                         const unavailable_seasons = seasons.filter(x => !location.activities[key].availability_seasons.includes(x));
-                        job_tooltip.innerHTML = `Not available during ${unavailable_seasons.toString().replaceAll(",",", ")} <br>`;
+                        job_tooltip.innerHTML += `Not available during ${unavailable_seasons.toString().replaceAll(",",", ")} <br>`;
                     } else {
-                        job_tooltip.innerHTML = `Available during ${location.activities[key].availability_seasons.toString().replaceAll(",",", ")} <br>`;
+                        job_tooltip.innerHTML += `Available during ${location.activities[key].availability_seasons.toString().replaceAll(",",", ")} <br>`;
                     }
                 }
             }
