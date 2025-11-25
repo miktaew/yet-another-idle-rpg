@@ -118,6 +118,9 @@ const questManager = {
             if(!quests[quest_id].is_hidden) {
                 //update_displayed_quest_task(quest_id, task_index);
                 update_displayed_quest(quest_id);
+                if(!quests[quest_id].quest_tasks[task_index].is_hidden) {
+                    log_message(`Finished a task for a quest: "${quests[quest_id].getQuestName()}"`);
+                }
             }
 
             process_rewards({rewards: quest.quest_tasks[task_index].task_rewards, source_type: "Quest", source_name: quests[quest_id].getQuestName(), only_unlocks: only_unlocks});
