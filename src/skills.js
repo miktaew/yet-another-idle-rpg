@@ -2155,9 +2155,9 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         base_xp_cost: 200,
         xp_scaling: 1.6,
         max_level: 60,
-        max_level_bonus: 4,
+        max_level_coefficient: 4,
         get_effect_description: ()=> {
-            return `Increases max health by ${Math.round(get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Fortitude"}))}`;
+            return `Increases max health by ${Math.round(100*get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Fortitude"}))/100}`;
         },
         milestones: {
             3: {
