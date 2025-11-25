@@ -1827,7 +1827,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
         }
     }
 
-    if(cap_gained_xp) {
+    if(cap_gained_xp && typeof xp_to_next_lvl === Number) {
         //cap on singular gains for non-crafting skills
         xp_to_add = Math.min(xp_to_add, skill.xp_to_next_lvl*skill_xp_gains_cap);
     }
@@ -3119,8 +3119,7 @@ function create_save() {
         save_data["skill_category_order"] = skill_category_order;
         save_data["skills"] = {};
         Object.keys(skills).forEach(function(key) {
-            if(!skills[key].is_parent)
-            {
+            if(!skills[key].is_parent){
                 save_data["skills"][skills[key].skill_id] = {total_xp: skills[key].total_xp}; 
                 //a bit redundant, but keep it in case key in skills is different than skill_id
             }
