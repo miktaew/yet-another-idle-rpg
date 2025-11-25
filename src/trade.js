@@ -231,8 +231,11 @@ function remove_from_buying_list(selected_item) {
     const {group_key, group_tier} = item.getMarketSaturationGroup();
 
     let actual_number_to_remove = selected_item.count;
-
+    
     const present_item = to_buy.items.find(a => a.item_key === selected_item.item_key);
+    if(present_item?.count < actual_number_to_remove) {
+        actual_number_to_remove = present_item.count;
+    }
 
     //trying to remove something not in list -> error
     if(!to_buy.groups[group_key] || to_buy.groups[group_key].count.length < (group_tier + 1)) {
@@ -320,6 +323,9 @@ function remove_from_selling_list(selected_item) {
     let actual_number_to_remove = selected_item.count;
 
     const present_item = to_sell.items.find(a => a.item_key === selected_item.item_key);
+    if(present_item?.count < actual_number_to_remove) {
+        actual_number_to_remove = present_item.count;
+    }
 
     //trying to remove something not in list -> error
     if(!to_sell.groups[group_key] || to_sell.groups[group_key].count.length < (group_tier + 1)) {
