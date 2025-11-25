@@ -547,7 +547,7 @@ class DialogueAction extends GameAction {
         actions: {
             "headpat": new DialogueAction({
                 action_id: "headpat",
-                is_unlocked: true,
+                is_unlocked: false,
                 repeatable: true,
                 starting_text: "sus headpat",
                 floating_click_effects: ['(* ^ ω ^)	', '<(￣︶￣)>	', '(*≧ω≦*)	', '(ᗒ⩊ᗕ)', '(= ⩊ =)'],
