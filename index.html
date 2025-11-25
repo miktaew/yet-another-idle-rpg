@@ -1932,19 +1932,16 @@
                         if(clicked_element.classList.contains("item_to_trade")) {
                             //remove from to buy
                             total_price = remove_from_buying_list({item_key: selected_item, count: number_to_move});
-                        }
-                        else {
+                        } else {
                             //add to to sell
                             total_price = add_to_selling_list({item_key: selected_item, count: number_to_move})
                         }
-                    } 
-                    else if(target==="trader") {
+                    } else if(target==="trader") {
                         const selected_item = clicked_element.getAttribute("data-trader_item");
                         if(clicked_element.classList.contains("item_to_trade")) {
                             //remove from to_sell
                             total_price = remove_from_selling_list({item_key: selected_item, count: number_to_move});
-                        }
-                        else {
+                        } else {
                             //add to to_buy
                             total_price = add_to_buying_list({item_key: selected_item, count: number_to_move})
                         }
