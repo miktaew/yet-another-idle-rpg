@@ -11,7 +11,7 @@ const market_region_mapping = {
 };
 
 //different caps for normal items and for equipment/components, with the first reaching 1/10th around 1000 sold and latter around 200 sold
-const capped_at = 1000;
+const capped_at = 500;
 const item_saturation_cap = capped_at - 1;
 const item_saturation_param = Math.round(capped_at/9);
 
@@ -176,6 +176,7 @@ function calculate_total_saturation({sold_by_tier, target_tier, cap}) {
         //x0.25 for each tier going down
         count += Math.max(sold_by_tier[i] ?? 0)*0.25**(target_tier-i);
     }
+    
     //lower tier impact capped at half of the cap
     count = Math.min(cap/2, count);
     count += (sold_by_tier[target_tier] ?? 0);
@@ -183,7 +184,7 @@ function calculate_total_saturation({sold_by_tier, target_tier, cap}) {
     for(let i = target_tier + 1 ; i < sold_by_tier.length; i++) {
         //x1 for each tier going down
         count += Math.max(sold_by_tier[i] ?? 0);
-    }                
+    }
     return count;
 }
 
@@ -251,5 +252,6 @@ export {
     get_loot_price_modifier, get_loot_price_modifier_multiple,
     get_item_value_with_market_saturation,
     add_to_sold, remove_from_sold,
-    get_total_tier_saturation, calculate_total_saturation
+    get_total_tier_saturation, calculate_total_saturation,
+    capped_at, equipment_capped_at
 };
