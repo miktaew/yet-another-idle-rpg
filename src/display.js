@@ -1165,6 +1165,7 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
 
         if(trader_item_divs[item_key]) {
             trader_item_divs[item_key].replaceWith(item_div);
+            trader_item_divs[item_key] = item_div;
         } else {
             trader_item_divs[item_key] = item_div;
             trader_inventory_div.appendChild(item_div);
@@ -1301,6 +1302,7 @@ function update_displayed_character_inventory({item_key, equip_slot, character_s
 
         if(item_divs[item_key]) {
             item_divs[item_key].replaceWith(item_div);
+            item_divs[item_key] = item_div;
         } else {
             item_divs[item_key] = item_div;
             inventory_div.appendChild(item_div);
