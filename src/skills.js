@@ -1011,7 +1011,7 @@ Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
         category: "Environmental",
         get_effect_description: ()=>{
             return `Increases cold tolerance by ${skills["Cold resistance"].current_level*0.5}`;
-        }
+        },
     });
 
     skills["Dazzle resistance"] = new Skill({
