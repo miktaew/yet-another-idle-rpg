@@ -148,7 +148,8 @@ function accept_trade() {
         }
     }
 
-    add_xp_to_skill({skill: skills["Haggling"], xp_to_add: (to_sell.value + to_buy.value)/10});
+    add_xp_to_skill({skill: skills["Haggling"], xp_to_add: (to_sell.value + to_buy.value)/10, cap_gained_xp: false});
+    //xp not capped for this one
 
     to_buy.value = 0;
     to_buy.groups = {};
