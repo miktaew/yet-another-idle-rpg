@@ -534,7 +534,8 @@ class DialogueAction extends GameAction {
                 text: "sus tricks answ",
                 rewards: {
                     stances: ["defensive"],
-                }
+                },
+                locks_lines: ["tricks"],
             }),
         }, 
         getDescription: ()=>{

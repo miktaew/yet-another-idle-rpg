@@ -1203,9 +1203,11 @@ function unlock_combat_stance(stance_id) {
         return;
     }
 
+    if(!stances[stance_id].is_unlocked) {
+        log_message(`You have learned a new stance: "${stances[stance_id].name}"`, "location_unlocked");
+    }
     stances[stance_id].is_unlocked = true;
     update_displayed_stance_list(stances, current_stance, faved_stances);
-    log_message(`You have learned a new stance: "${stances[stance_id].name}"`, "location_unlocked") 
 }
 
 function change_stance(stance_id, is_temporary = false) {
@@ -2042,11 +2044,6 @@ function get_location_rewards(location) {
         process_rewards({rewards: {xp: location.repeatable_reward.xp}, source_type: "location", source_name: location.name, is_first_clear: false, source_id: location.id});
     }
 
-
-    //previous two calls give xp, this call omits xp to avoid repeating it
-    //repeatable rewards are indeed intended to be called on first clear as well (with the exception of xp, duh)
-    process_rewards({rewards: {...location.repeatable_reward, xp: null}, source_type: "location", source_name: location.name, is_first_clear: false, source_id: location.id});
-
     if(location.rewards_with_clear_requirement) {
         for(let i = 0; i < location.rewards_with_clear_requirement.length; i++) {
             if(location.enemy_groups_killed == location.enemy_count * location.rewards_with_clear_requirement[i].required_clear_count)
@@ -2057,9 +2054,14 @@ function get_location_rewards(location) {
         }
     }
 
+    //calls in first clear give xp, this call omits xp to avoid repeating it
+    //repeatable rewards are indeed intended to be called on first clear as well (with the exception of xp, duh)
+    process_rewards({rewards: {...location.repeatable_reward, xp: null}, source_type: "location", source_name: location.name, is_first_clear: false, source_id: location.id});
+
     location.otherUnlocks();
 
-    if(should_return) {
+    //return if need be; additional check in case it was already performed by rewards
+    if(should_return && current_location?.parent_location) {
         change_location({location_id: current_location.parent_location.id}); //go back to parent location, only on first clear
     }
 }
