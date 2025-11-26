@@ -120,6 +120,8 @@ const questManager = {
                 update_displayed_quest(quest_id);
                 if(!quests[quest_id].quest_tasks[task_index].is_hidden) {
                     log_message(`Finished a task for a quest: "${quests[quest_id].getQuestName()}"`);
+                } else {
+                    log_message(`Made some progress in quest: "${quests[quest_id].getQuestName()}"`);
                 }
             }
 
