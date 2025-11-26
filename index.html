@@ -1684,9 +1684,8 @@
                         const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
 
                         const bottom_edge_position = 
-                            window.innerHeight - tooltip_height + window.scrollY - 33 - (scrollbar_X_visible?10:0);
-                        
-                        //size of window - size of tooltip + scrolling position - 23 (not sure where it comes from) - 10 (for scrollbar if its visible)
+                            window.innerHeight - tooltip_height + window.scrollY - 44 - (scrollbar_X_visible?10:0);
+                        //size of window - size of tooltip + scrolling position - some-value-not-sure-why - 10 (for scrollbar if its visible)
 
                         document.documentElement.style.setProperty('--skill_tooltip_left', `${event.pageX - 1150}px`);
 
