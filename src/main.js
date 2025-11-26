@@ -854,7 +854,9 @@ function unlock_activity(activity_data) {
         if(locations[activity_data.location].activities[activity_data.activity.activity_id].unlock_text) {
            message = locations[activity_data.location].activities[activity_data.activity.activity_id].unlock_text+":<br>";
         }
-        log_message(message + `Unlocked activity "${activity_data.activity.activity_name}" in location "${activity_data.location}"`, "activity_unlocked");
+        if(activities[activity_data.activity.activity_name].type !== "GATHERING" || global_flags.is_gathering_unlocked) {
+            log_message(message + `Unlocked activity "${activity_data.activity.activity_name}" in location "${activity_data.location}"`, "activity_unlocked");
+        }
     }
 }
 
