@@ -229,7 +229,10 @@ function add_to_sold({group_key, group_tier, count, region}) {
     if(!loot_sold_count[region][group_key]) {
         loot_sold_count[region][group_key] = new Array(group_tier+1).fill({sold: 0, recovered: 0});
     }
-    
+    if(!loot_sold_count[region][group_key][group_tier]) {
+        loot_sold_count[region][group_key].push(...new Array(group_tier+1-loot_sold_count[region][group_key].length).fill({sold: 0, recovered: 0}));
+    }
+
     loot_sold_count[region][group_key][group_tier].sold += (count || 1);
 }
 
@@ -237,7 +240,7 @@ function add_to_sold({group_key, group_tier, count, region}) {
  * i.e. when buying
  */
 function remove_from_sold({group_key, group_tier, count, region}) {
-    if(!loot_sold_count[region][group_key]) {
+    if(!loot_sold_count[region][group_key] || !loot_sold_count[region][group_key][group_tier]) {
         //since prices cannot increase, there's no point in getting negative values
         return;
     }
