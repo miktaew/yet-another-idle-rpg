@@ -55,6 +55,11 @@ function Game_Time(new_time) {
         this.day_count = new_time.day_count;
     }
 
+    /**
+     * 
+     * @param {Number} day_count for how far in future to check, leaving at 0 will just return the current season
+     * @returns 
+     */
     this.getSeason = function(day_count) {
         let month;
         if(day_count) {

@@ -1055,12 +1055,12 @@ function can_work(selected_activity) {
                     
                     return false;
                 }
-                if(!selected_activity.availability_seasons?.includes(current_game_time.getSeason(current_game_time.day))) {
+                if(!selected_activity.availability_seasons?.includes(current_game_time.getSeason())) {
                     //can't be done in current season
                     return false;
                 }  
             } else { //ends on the next day (i.e. working through the night)
-                if(!selected_activity.availability_seasons?.includes(current_game_time.getSeason(current_game_time.day+1))) {
+                if(!selected_activity.availability_seasons?.includes(current_game_time.getSeason(1))) {
                     //ends on new season during which it's not available
                     return false;
                 }  
@@ -1076,7 +1076,7 @@ function can_work(selected_activity) {
                 }
             }
         } else {
-            if(!selected_activity.availability_seasons?.includes(current_game_time.getSeason(current_game_time.day))) {
+            if(!selected_activity.availability_seasons?.includes(current_game_time.getSeason())) {
                 //can't be done in current season
                 return false;
             }  
@@ -1106,7 +1106,7 @@ function enough_time_for_earnings(selected_job) {
         } else {
             //ends on the next day (i.e. working through the night)
   
-            if(!selected_job.availability_time.includes(current_game_time.getSeason(current_game_time.day+1))) {
+            if(!selected_job.availability_time.includes(current_game_time.getSeason(1))) {
                 //ends on new season during which it's not available
                 return false;
             } 
@@ -4853,10 +4853,7 @@ function update() {
 
                 if(activities[current_activity.activity_name].type === "TRAINING") {
                     add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.5});
-                    if(!can_work(current_activity)) {
-                        end_activity();
-                        update_displayed_ongoing_activity(current_activity, false);
-                    }
+                    update_displayed_ongoing_activity(current_activity, false);
                 } else {
                     add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.1});
                 }
@@ -4915,19 +4912,18 @@ function update() {
                         //finished working period, add money
                         current_activity.earnings += current_activity.get_payment();
                     }
-                    update_displayed_ongoing_activity(current_activity, true);
-                    
-                    if(!can_work(current_activity)) {
-                        end_activity();
-                    }
-                } else {
-                    update_displayed_ongoing_activity(current_activity, false);
                 }
+                update_displayed_ongoing_activity(current_activity, false);
+                if(!can_work(current_activity)) {
+                    end_activity();
+                }
+                
             } else {
                 //no current activity
 
                 add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.1});
                 const divs = document.getElementsByClassName("activity_div");
+                //go through all displayed activities, if they are of proper type check if they are available and if there's a change, modify their display
                 for(let i = 0; i < divs.length; i++) {
                     const activity = current_location.activities[divs[i].getAttribute("data-activity")];
 
@@ -5250,7 +5246,6 @@ function add_all_active_effects(duration){
     update_displayed_effects();
 }
 
-//add_to_character_inventory([{item_id: "Iron sword", count: 1000}]);
 //add_to_character_inventory([{item_id: "Medicine for dummies", count: 10}]);
 
 //add_stuff_for_testing();
