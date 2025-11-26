@@ -2076,7 +2076,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             starting_text: "Follow the mysterious trail deeper into the forest...",
             description: "It doesn't seem to be a smart thing to do",
             action_text: "Following the trail",
-            success_text: "The trail leads you to a large cave. There's some broken bones lying around the entrance",
+            success_text: "The trail leads you to a large cave. There are some broken bones lying around the entrance",
             failure_texts: {
                 random_loss: [
                     "At some point you got distracted and lost your way",

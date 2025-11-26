@@ -2425,6 +2425,9 @@ function remove_location_from_favourites({location_id, update_choices = true}) {
 
 function clear_enemies() {
     current_enemies = null;
+    for(let i = 0; i < 7; i++) {
+        remove_enemy_onhit_animation(i);
+    }
 }
 
 function use_recipe(target, ammount_wanted_to_craft = 1) {

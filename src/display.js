@@ -3,7 +3,7 @@
 import { traders } from "./traders.js";
 import { current_trader, to_buy, to_sell } from "./trade.js";
 import { skills, get_unlocked_skill_rewards, get_next_skill_milestone } from "./skills.js";
-import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, get_total_skill_coefficient, get_total_skill_level, get_effect_with_bonuses, cold_status_effects, cold_status_temperatures, get_character_cold_tolerance, lowest_tolerable_temperature, get_skill_xp_gain_bonus } from "./character.js";
+import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, get_total_skill_coefficient, get_total_skill_level, get_effect_with_bonuses, cold_status_effects, cold_status_temperatures, get_character_cold_tolerance, lowest_tolerable_temperature, get_skill_xp_gain_bonus, tool_slots } from "./character.js";
 import { current_enemies, options, 
     can_work, current_location, 
     active_effects, enough_time_for_earnings, 
@@ -1000,12 +1000,14 @@ function sort_displayed_inventory({sort_by = "name", target = "character", chang
             return 1;
         } 
 
+        //traded items on bottom
         if(a.classList.contains("item_to_trade") && !b.classList.contains("item_to_trade")) {
             return 1;
         } else if(!a.classList.contains("item_to_trade") && b.classList.contains("item_to_trade")) {
             return -1;
         }
 
+        //equippables below non-equippables
         if(a.classList.contains("character_item_equippable") && !b.classList.contains("character_item_equippable")) {
             return 1;
         } else if(!a.classList.contains("character_item_equippable") && b.classList.contains("character_item_equippable")){
@@ -1016,35 +1018,42 @@ function sort_displayed_inventory({sort_by = "name", target = "character", chang
         } else if(!a.classList.contains("trader_item_equippable") && b.classList.contains("trader_item_equippable")){
             return -1;
         } 
-
         if(a.classList.contains("storage_item_equippable") && !b.classList.contains("storage_item_equippable")) {
             return 1;
         } else if(!a.classList.contains("storage_item_equippable") && b.classList.contains("storage_item_equippable")){
             return -1;
         } 
 
+        //components below non-components
         if(a.children[0].children[0].children[0].innerText === "[Comp]" && b.children[0].children[0].children[0].innerText !== "[Comp]") {
             return 1;
         } else if(a.children[0].children[0].children[0].innerText !== "[Comp]" && b.children[0].children[0].children[0].innerText === "[Comp]") {
             return -1;
         }
 
+        //books below non-books
         if(a.children[0].children[0].children[0].innerText === "[Book]" && b.children[0].children[0].children[0].innerText !== "[Book]") {
             return 1;
         } else if(a.children[0].children[0].children[0].innerText !== "[Book]" && b.children[0].children[0].children[0].innerText === "[Book]") {
             return -1;
         }
 
-        if(a.getElementsByClassName("item_slot") && !b.getElementsByClassName("item_slot")) {
+
+        const slot_a = a.dataset.item_slot;
+        const slot_b = b.dataset.item_slot;
+        //tools above non-tools
+        if(!tool_slots.includes(slot_a) && tool_slots.includes(slot_b)) {
             return 1;
-        } else if(!a.getElementsByClassName("item_slot") && b.getElementsByClassName("item_slot")) {
+        } else if(tool_slots.includes(slot_a) && !tool_slots.includes(slot_b)){
             return -1;
         }
 
+        
         //other items by properties, name or otherwise by value
         if (sort_by === "type") {
             //slot
-            if (a.dataset.item_slot != b.dataset.item_slot) { 
+            
+            if(slot_a != slot_b) { 
                 return Object.keys(equipment_slots_divs).indexOf(a.dataset.item_slot) - Object.keys(equipment_slots_divs).indexOf(b.dataset.item_slot);
             }
 

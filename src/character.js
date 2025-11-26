@@ -17,6 +17,8 @@ import { skill_consumable_tags } from "./misc.js";
 const base_block_chance = 0.75; //+20 from the skill
 const base_xp_cost = 10;
 
+const tool_slots = ["axe", "pickaxe", "sickle", "shovel"];
+
 
 //stupid little thing for a stupid easter egg
 const is_rat = () => character.name.match(/\b(?<![\w])rat\b/i);
@@ -869,5 +871,5 @@ export {character, add_to_character_inventory, remove_from_character_inventory, 
         get_total_skill_level, get_total_level_bonus, get_total_skill_coefficient, get_effect_with_bonuses,
         time_until_wet, time_until_cold, time_until_cold_when_wet, 
         cold_status_temperatures, cold_status_effects,
-        get_character_cold_tolerance, lowest_tolerable_temperature, is_rat
+        get_character_cold_tolerance, lowest_tolerable_temperature, is_rat, tool_slots
 };
