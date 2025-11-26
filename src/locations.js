@@ -877,7 +877,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         enemy_count: 50, 
         types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 3, xp_gain: 1}],
         enemies_list: ["Elite wolf rat"],
-        enemy_group_size: [2,2],
+        enemy_group_size: [1,2],
         enemy_stat_variation: 0.2,
         is_unlocked: false, 
         name: "Hidden tunnel", 
