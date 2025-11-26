@@ -1381,6 +1381,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                         return `Multiplies health restored when sleeping by ${Math.round(100*(1 + get_total_skill_level("Sleeping")/skills["Sleeping"].max_level))/100}`;
                                     },
                                     base_xp_cost: 1000,
+                                    flavour_text: "One rat, two rats, three rats...",
                                     visibility_treshold: 300,
                                     xp_scaling: 2,
                                     category: "Activity",
@@ -2200,6 +2201,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     skills["Persistence"] = new Skill({
         names: {0: "Persistence"},
         description: "Do not give up, no matter what",
+        flavour_text: "Believe in me that believes in you!",
         base_xp_cost: 60,
         category: "Character",
         max_level: 30,
