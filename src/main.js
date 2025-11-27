@@ -534,7 +534,7 @@ function change_location({location_id, event, skip_travel_time = false, do_quest
 
     if(typeof current_location !== "undefined" && current_location.id !== location.id){
         //so it's not called when initializing the location on page load or on reloading current location due to new unlocks
-        log_message(`[ Entering ${location.id} ]`, "message_travel");    
+        log_message(`[ Entering ${location.name} ]`, "message_travel");
     }
 
     if(location.crafting) {
@@ -4858,7 +4858,7 @@ function update() {
                     }
                 }
 
-                if(activities[current_activity.activity_name].type === "TRAINING") {
+                if (activities[current_activity.activity_name].type === "TRAINING") {
                     add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.5});
                     update_displayed_ongoing_activity(current_activity, false);
                 } else {
@@ -4866,49 +4866,47 @@ function update() {
                 }
 
                 current_activity.gathering_time += 1;
-                if(current_activity.gained_resources) {
-                    if(current_activity.gathering_time >= current_activity.gathering_time_needed) { 
-                        const {gathering_time_needed, gained_resources} = current_activity.getActivityEfficiency();
+                if(current_activity.gained_resources && current_activity.gathering_time >= current_activity.gathering_time_needed) { 
+                    const {gathering_time_needed, gained_resources} = current_activity.getActivityEfficiency();
 
-                        current_activity.gathering_time_needed = gathering_time_needed;
+                    current_activity.gathering_time_needed = gathering_time_needed;
 
-                        const items = [];
+                    const items = [];
 
-                        for(let i = 0; i < gained_resources.length; i++) {
-                            if(Math.random() > (1-gained_resources[i].chance)) {
-                                const count = Math.floor(Math.random()*(gained_resources[i].count[1]-gained_resources[i].count[0]+1))+gained_resources[i].count[0];
+                    for(let i = 0; i < gained_resources.length; i++) {
+                        if(Math.random() > (1-gained_resources[i].chance)) {
+                            const count = Math.floor(Math.random()*(gained_resources[i].count[1]-gained_resources[i].count[0]+1))+gained_resources[i].count[0];
 
-                                items.push({item_key: item_templates[gained_resources[i].name].getInventoryKey(), count: count});
+                            items.push({item_key: item_templates[gained_resources[i].name].getInventoryKey(), count: count});
 
-                                gathered_materials[gained_resources[i].name] = (gathered_materials[gained_resources[i].name] || 0) + count;
-                            }
+                            gathered_materials[gained_resources[i].name] = (gathered_materials[gained_resources[i].name] || 0) + count;
                         }
-
-                        if(items.length > 0) {
-                            if(options.log_every_gathering_period) {
-                                log_loot({loot_list: items});
-                            }
-
-                            for(let i = 0; i < items.length; i++) {
-                                current_activity.gathered_materials[items[i].item_key] = (current_activity.gathered_materials[items[i].item_key] + items[i].count || items[i].count);
-                            }
-                            
-                            add_to_character_inventory(items);
-                        }
-
-                        let leveled = false;
-                        if(activities[current_activity.activity_name].type === "GATHERING"){
-                            for(let i = 0; i < activities[current_activity.activity_name].base_skills_names?.length; i++) {
-                                leveled = add_xp_to_skill({skill: skills[activities[current_activity.activity_name].base_skills_names[i]], xp_to_add: current_activity.skill_xp_per_tick}) || leveled;
-                            }
-                            
-                            //if(leveled) {
-                                update_gathering_tooltip(current_activity);
-                            //}
-                        }
-
-                        current_activity.gathering_time = 0;
                     }
+
+                    if(items.length > 0) {
+                        if(options.log_every_gathering_period) {
+                            log_loot({loot_list: items});
+                        }
+
+                        for(let i = 0; i < items.length; i++) {
+                            current_activity.gathered_materials[items[i].item_key] = (current_activity.gathered_materials[items[i].item_key] + items[i].count || items[i].count);
+                        }
+                        
+                        add_to_character_inventory(items);
+                    }
+
+                    let leveled = false;
+                    if(activities[current_activity.activity_name].type === "GATHERING"){
+                        for(let i = 0; i < activities[current_activity.activity_name].base_skills_names?.length; i++) {
+                            leveled = add_xp_to_skill({skill: skills[activities[current_activity.activity_name].base_skills_names[i]], xp_to_add: current_activity.skill_xp_per_tick}) || leveled;
+                        }
+                        
+                        //if(leveled) {
+                            update_gathering_tooltip(current_activity);
+                        //}
+                    }
+
+                    current_activity.gathering_time = 0;
                 }
 
                 //if job: payment
@@ -5253,7 +5251,7 @@ function add_all_active_effects(duration){
     update_displayed_effects();
 }
 
-//add_to_character_inventory([{item_id: "Medicine for dummies", count: 10}]);
+//add_to_character_inventory([{item_id: "Bonemeal", count: 49}]);
 
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
