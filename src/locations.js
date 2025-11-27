@@ -219,7 +219,7 @@ class Combat_zone {
         const enemies = [];
         let enemy_group = [];
 
-        if(this.enemy_groups_list.length > 0 && this.enemy_groups_killed%this.predefined_lineup_on_nth_group == 0) { // PREDEFINED GROUPS EXIST
+        if(this.enemy_groups_list.length > 0 && this.enemy_groups_killed%this.predefined_lineup_on_nth_group == 0 && (this.enemy_groups_killed > 0 || this.predefined_lineup_on_nth_group == 0)) { // PREDEFINED GROUPS EXIST
 
             if(this.is_enemy_groups_list_random) { 
                 //choose randomly
@@ -1147,7 +1147,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         description: "A labyrinthine nest of red ants", 
         enemies_list: ["Red ant swarm"],
         enemy_groups_list: [{enemies: ["Red ant queen", "Red ant swarm", "Red ant swarm", "Red ant swarm", "Red ant swarm", "Red ant swarm", "Red ant swarm", "Red ant swarm"]}],
-        predefined_lineup_on_nth_group: 100,
+        predefined_lineup_on_nth_group: 99,
         types: [{type: "narrow", stage: 3, xp_gain: 10}, {type: "dark", stage: 2, xp_gain: 7}],
         enemy_count: 100,
         is_unlocked: false,
@@ -1240,7 +1240,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         description: "A labyrinthine nest of red ants", 
         enemies_list: ["Red ant swarm"],
         enemy_groups_list: [{enemies: ["Red ant queen"]}],
-        predefined_lineup_on_nth_group: 100,
+        predefined_lineup_on_nth_group: 99,
         types: [{type: "narrow", stage: 3, xp_gain: 10}, {type: "dark", stage: 2, xp_gain: 7}],
         enemy_count: 100,
         is_unlocked: false,
@@ -1268,7 +1268,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         description: "A labyrinthine nest of red ants", 
         enemies_list: ["Red ant swarm"],
         enemy_groups_list: [{enemies: ["Red ant queen"]}],
-        predefined_lineup_on_nth_group: 100,
+        predefined_lineup_on_nth_group: 99,
         types: [{type: "narrow", stage: 3, xp_gain: 10}, {type: "dark", stage: 2, xp_gain: 7}],
         enemy_count: 100,
         is_unlocked: false,
@@ -1296,7 +1296,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         description: "A labyrinthine nest of red ants", 
         enemies_list: ["Red ant swarm"],
         enemy_groups_list: [{enemies: ["Red ant queen"]}],
-        predefined_lineup_on_nth_group: 100,
+        predefined_lineup_on_nth_group: 99,
         types: [{type: "narrow", stage: 3, xp_gain: 10}, {type: "dark", stage: 2, xp_gain: 7}],
         enemy_count: 100,
         is_unlocked: false,
@@ -1322,9 +1322,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
     });
 
     locations["Town farms"].connected_locations.push(
-        {location: locations["Red ant nest 1"], custom_text: "Enter the ant tunnels", travel_time: 10},
-        {location: locations["Red ant nest 2"], custom_text: "Enter the ant tunnels", travel_time: 10},
-        {location: locations["Red ant nest 3"], custom_text: "Enter the ant tunnels", travel_time: 10},
+        {location: locations["Red ant nest 1"], custom_text: "Enter the [Red ant nest]", travel_time: 10},
+        {location: locations["Red ant nest 2"], custom_text: "Enter the [Red ant nest]", travel_time: 10},
+        {location: locations["Red ant nest 3"], custom_text: "Enter the [Red ant nest]", travel_time: 10},
     );
 
     locations["Gang hideout"] = new Combat_zone({ 
