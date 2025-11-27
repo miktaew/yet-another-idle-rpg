@@ -2333,7 +2333,7 @@ function create_fast_travel_choices() {
             }
             
             action.classList.add("action_travel", "location_choice");
-            action.setAttribute("data-travel", locations[available_fast_travel[i]].name);
+            action.setAttribute("data-travel", locations[available_fast_travel[i]].id);
             action.setAttribute("onclick", "change_location({location_id:this.getAttribute('data-travel'), event});");
         } else {            
             action.classList.add("travel_combat");
@@ -2341,7 +2341,7 @@ function create_fast_travel_choices() {
             action.innerHTML = `<i class="material-icons">warning_amber</i> <span class="fast_travel_name">Travel to [${locations[available_fast_travel[i]].name}] [${travel_time}] </span>`;
             
             action.classList.add("action_travel", "location_choice");
-            action.setAttribute("data-travel", locations[available_fast_travel[i]].name);
+            action.setAttribute("data-travel", locations[available_fast_travel[i]].id);
             action.setAttribute("onclick", "change_location({location_id: this.getAttribute('data-travel'), event});");
         }
 
