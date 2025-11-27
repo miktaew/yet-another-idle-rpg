@@ -178,7 +178,7 @@ const translations = {
         "sup fight": "Do you have any task that requires some good old violence?",
         "sup fight answ": "Actually yes. There's that annoying group of boars that keep destroying our fields. "
                 + "They don't do enough damage to cause any serious problems, but I would certainly be calmer if someone took care of them. "
-                + "Go to the forest and search for a clearing in north, that's where they usually roam when they aren't busy eating our crops."
+                + "Go to the forest and search for a clearing in north, that's where they usually roam when they aren't busy eating our crops. "
                 + "I will of course pay you for that. 4 silver coins is most I can offer, I'm running on a strict budget here.",
         "sup things": "How are things around here?",
         "sup things answ": "Nothing to complain about. Trouble is rare, pay is good, and the soil is as fertile as my wife!",
