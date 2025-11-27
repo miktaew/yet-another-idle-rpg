@@ -1315,7 +1315,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             move_to: {location: "Town farms"},
             actions: [
                 {location: "Town farms", action: "follow ant trail"}
-            ]
+            ],
+            textlines: [{dialogue: "farm supervisor", lines: ["eliminated ants"]}],
         },
         temperature_range_modifier: 0.7,
         is_under_roof: true,
@@ -2148,7 +2149,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_chances: [1],
             rewards: {
                 locations: [{location: "Red ant nest 3"}],
-                textlines: [{dialogue: "Farm supervisor", lines: ["Eliminated ants"]}],
                 skill_xp: {Digging: 40},
             },
         }),

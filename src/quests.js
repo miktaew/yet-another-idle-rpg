@@ -339,12 +339,10 @@ const questManager = {
             new QuestTask({task_description: "Exterminate the red ants under the farm and then report back"}),
         ],
         quest_rewards: {
-            quest_rewards: {
-                money: 5000,
-                xp: 100000, //100k, probably almost worthless by that point
-                reputation: {
-                    town: 60,
-                }
+            money: 5000,
+            xp: 100000, //100k, probably almost worthless by that point
+            reputation: {
+                town: 60,
             }
         }
     })
