@@ -85,7 +85,7 @@ class Textline {
         this.rewards.flags = rewards.flags || [];
         this.rewards.items = rewards.items || [];
         
-        this.display_conditions = display_conditions;
+        this.display_conditions = [display_conditions];
         this.required_flags = required_flags;
 
         this.locks_lines = locks_lines;
@@ -707,7 +707,7 @@ class DialogueAction extends GameAction {
                 },
                 rewards: {
                     quest_progress: [{quest_id: "Ploughs to swords", task_index: 2}],
-                    actions: [{location: "town farms", action: "dig for ants 1"}],
+                    actions: [{location: "Town farms", action: "dig for ants 1"}],
                 }
             }),
             "eliminated ants": new Textline({
@@ -743,7 +743,7 @@ class DialogueAction extends GameAction {
                             task_index: 0
                         }
                     ], 
-                    textlines: [{dialogue: "farm supervisor", textline: "more bonemeal"}],
+                    textlines: [{dialogue: "farm supervisor", lines: ["more bonemeal"]}],
                 },
             }),
             "bonemeal2": new DialogueAction({
@@ -752,6 +752,7 @@ class DialogueAction extends GameAction {
                 description: "",
                 action_text: "",
                 success_text: "sup deliver 2 answ",
+                repeatable: true,
                 failure_texts: {
                     unable_to_begin: ["sup deliver 2 not"],
                 },
