@@ -2361,7 +2361,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             7: {
                 stats: {
                     health_regeneration_flat: {
-                        flat: 0.2,
+                        flat: 0.1,
                     }
                 }
             },
@@ -2379,7 +2379,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             12: {
                 stats: {
                     health_regeneration_flat: {
-                        flat: 0.3,
+                        flat: 0.2,
                     }
                 },
                 xp_multipliers: {
@@ -2511,7 +2511,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                     5: {
                                         stats: {
                                             health_regeneration_flat: {
-                                                flat: 0.3,
+                                                flat: 0.1,
                                             }
                                         }
                                     },
@@ -2528,7 +2528,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                                 flat: 20,
                                             },
                                             health_regeneration_flat: {
-                                                flat: 0.3,
+                                                flat: 0.2,
                                             }
                                         }
                                     },
@@ -2542,7 +2542,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                     15: {
                                         stats: {
                                             health_regeneration_flat: {
-                                                flat: 0.5,
+                                                flat: 0.4,
                                             }
                                         }
                                     },
