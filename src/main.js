@@ -911,7 +911,7 @@ function update_health({ammount_to_restore = 0, ammount_to_loose = 0, add_xp = t
     }
 
     //anything actually healed - add xp
-    if(actual_healing_done && add_xp) {
+    if(actual_healing_done && add_xp && actual_healing_done > 0) {
         add_xp_to_skill({skill: skills["Regeneration"], xp_to_add: actual_healing_done});
     }
 
