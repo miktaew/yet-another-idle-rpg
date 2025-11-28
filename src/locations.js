@@ -1143,6 +1143,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
         is_under_roof: true,
     });
 
+    locations["Forest road"].connected_locations.push({location: locations["Bears' den"], custom_text: "Enter the [Bears' den]", travel_time: 180});
+
     locations["Forest ant nest"] = new Combat_zone({ 
         description: "A labyrinthine nest of red ants", 
         enemies_list: ["Red ant swarm"],
