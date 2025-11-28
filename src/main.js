@@ -850,13 +850,16 @@ function unlock_activity(activity_data) {
     if(!activity_data.activity.is_unlocked){
         activity_data.activity.is_unlocked = true;
         
-        let message = "";
-        if(locations[activity_data.location].activities[activity_data.activity.activity_id].unlock_text) {
-           message = locations[activity_data.location].activities[activity_data.activity.activity_id].unlock_text+":<br>";
+        if(!activity_data.skip_message) {
+            let message = "";
+            if(locations[activity_data.location].activities[activity_data.activity.activity_id].unlock_text) {
+                message = locations[activity_data.location].activities[activity_data.activity.activity_id].unlock_text+":<br>";
+            }
+            if(activities[activity_data.activity.activity_name].type !== "GATHERING" || global_flags.is_gathering_unlocked) {
+                log_message(message + `Unlocked activity "${activity_data.activity.activity_name}" in location "${activity_data.location}"`, "activity_unlocked");
+            }
         }
-        if(activities[activity_data.activity.activity_name].type !== "GATHERING" || global_flags.is_gathering_unlocked) {
-            log_message(message + `Unlocked activity "${activity_data.activity.activity_name}" in location "${activity_data.location}"`, "activity_unlocked");
-        }
+        
     }
 }
 
@@ -864,16 +867,18 @@ function unlock_action(action_data) {
     if(!action_data.action.is_unlocked) {
         action_data.action.is_unlocked = true;
         
-        let message = "";
-        if(action_data.location) {
-            if(locations[action_data.location].actions[action_data.action.action_id].unlock_text) {
-                message = locations[action_data.location].actions[action_data.action.action_id].unlock_text+":<br>";
-                log_message(message + `Unlocked action "${action_data.action.action_name}" in location "${action_data.location}"`, "activity_unlocked");
-            }
-        } else if(action_data.dialogue) {
-            if(dialogues[action_data.dialogue].actions[action_data.action.action_id].unlock_text) {
-                message = dialogues[action_data.dialogue].actions[action_data.action.action_id].unlock_text+":<br>";
-                log_message(message + `Unlocked action "${action_data.action.action_name}" wit "${action_data.dialogue}"`, "activity_unlocked");
+        if(!action_data.skip_message) {
+            let message = "";
+            if(action_data.location) {
+                if(locations[action_data.location].actions[action_data.action.action_id].unlock_text) {
+                    message = locations[action_data.location].actions[action_data.action.action_id].unlock_text+":<br>";
+                    log_message(message + `Unlocked action "${action_data.action.action_name}" in location "${action_data.location}"`, "activity_unlocked");
+                }
+            } else if(action_data.dialogue) {
+                if(dialogues[action_data.dialogue].actions[action_data.action.action_id].unlock_text) {
+                    message = dialogues[action_data.dialogue].actions[action_data.action.action_id].unlock_text+":<br>";
+                    log_message(message + `Unlocked action "${action_data.action.action_name}" wit "${action_data.dialogue}"`, "activity_unlocked");
+                }
             }
         }
     }
@@ -2122,8 +2127,9 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         //if(source_type === "location") {
             for(let i = 0; i < rewards.locations.length; i++) {
                was_any_location_availability_changed = 
-                    unlock_location({location: locations[rewards.locations[i].location], skip_message: (inform_overall && rewards.locations[i].skip_message)}) 
+                    unlock_location({location: locations[rewards.locations[i].location], skip_message: (inform_overall && rewards.locations[i].skip_message || is_from_loading)}) 
                     || was_any_location_availability_changed;
+                    
             }
     }
 
@@ -2187,12 +2193,15 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         }
     }
 
+
     if(rewards.activities) {
         for(let i = 0; i < rewards.activities?.length; i++) {
             if(!locations[rewards.activities[i].location].activities[rewards.activities[i].activity].tags?.gathering || global_flags.is_gathering_unlocked) {
 
                 unlock_activity({location: locations[rewards.activities[i].location].name, 
-                                activity: locations[rewards.activities[i].location].activities[rewards.activities[i].activity]});
+                                activity: locations[rewards.activities[i].location].activities[rewards.activities[i].activity],
+                                skip_message: is_from_loading,
+                            });
 
             }
         }
@@ -2204,11 +2213,13 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
                 unlock_action({
                                 dialogue: dialogues[rewards.actions[i].dialogue]?.name,
                                 action: dialogues[rewards.actions[i].dialogue].actions[rewards.actions[i].action],
+                                skip_message: is_from_loading,
                             });
             } else if(rewards.actions[i].location){
                 unlock_action({
                                 location: locations[rewards.actions[i].location]?.name,
                                 action: locations[rewards.actions[i].location].actions[rewards.actions[i].action],
+                                skip_message: is_from_loading,
                             });
             }  
         }
@@ -4123,7 +4134,7 @@ function load(save_data) {
                     } else {
                         if(locations[key].rewards_with_clear_requirement) {
                             for(let i = 0; i < locations[key].rewards_with_clear_requirement.length; i++) {
-                                if(locations[key].enemy_groups_killed == locations[key].enemy_count * locations[key].rewards_with_clear_requirement[i].required_clear_count)
+                                if(locations[key].enemy_groups_killed >= locations[key].enemy_count * locations[key].rewards_with_clear_requirement[i].required_clear_count)
                                 {
                                     //always do it if there was enough or more than enough clears
                                     process_rewards({
@@ -4186,13 +4197,6 @@ function load(save_data) {
                 return;
             }
         }); //load for locations their unlocked status and their killcounts
-
-
-        if(is_a_older_than_b(save_data["game version"], "v0.5.0.3")) {
-            if(locations["Deep forest"].enemy_groups_killed >= locations["Deep forest"].enemy_count * 4) {
-                process_rewards({actions: [{action: "follow the trail", location:"Forest road"}]});
-            }
-        }
 
         if(is_a_older_than_b(save_data["game version"], "v0.5")) {
             //unlock status was swapped from local activity to global activity, so a need for this
