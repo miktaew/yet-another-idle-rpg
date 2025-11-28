@@ -771,7 +771,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     crafting_recipes.equipment["Cape"] = new ComponentlessEquipRecipe({
         name: "Cape",
         materials: [
-            {material_id: "Processed rat pelt", count: 8, result_id: "Rat pelt cape"},
+            {material_id: "Processed rat pelt", count: 12, result_id: "Rat pelt cape"},
             {material_id: "Processed wolf pelt", count: 8, result_id: "Wolf pelt cape"},
             {material_id: "Processed boar hide", count: 8, result_id: "Boar hide cape"},
             {material_id: "Processed goat hide", count: 8, result_id: "Goat hide cape"},
@@ -870,7 +870,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [{material_id: "Bear hide", count: 6}],
         result: {result_id: "Processed bear hide", count: 1},
         success_chance: [0.2,1],
-        recipe_level: [12,22],
+        recipe_level: [12,25],
         recipe_skill: "Butchering",
     });
     crafting_recipes.items["Wool cloth"] = new ItemRecipe({

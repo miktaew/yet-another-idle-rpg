@@ -495,11 +495,11 @@ function get_location_type_penalty(type, stage, stat, category) {
     if(category === "multiplier") {
         const base = location_types[type].stages[stage].effects[stat].multiplier;
     
-        return base**(1- get_total_skill_level(skill.skill_id)/scaling_lvl);
+        return base**(1- Math.min(scaling_lvl,get_total_skill_level(skill.skill_id))/scaling_lvl);
     } else if(category === "flat") {
         const base = location_types[type].stages[stage].effects[stat].flat;
 
-        return base*(1-get_total_skill_level(skill.skill_id)/scaling_lvl)**0.66667;
+        return base*(1-Math.min(scaling_lvl,get_total_skill_level(skill.skill_id))/scaling_lvl)**0.66667;
     } else {
         throw new Error(`Unsupported category of stat effects "${category}", should be either "flat" or "multiplier"!`);
     }

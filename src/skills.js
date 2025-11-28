@@ -582,7 +582,7 @@ function format_skill_rewards(milestone){
                                     get_effect_description: ()=> {
                                         return `Multiplies damage dealt in unarmed combat by ${Math.round(get_total_skill_coefficient({skill_id:"Unarmed",scaling_type:"multiplicative"})*1000)/1000}. 
 Multiplies attack speed, EP and AP in unarmed combat by ${Math.round((get_total_skill_coefficient({skill_id:"Unarmed",scaling_type:"multiplicative"})**0.3333)*1000)/1000}.
-Adds ${skills["Unarmed"].current_level*0.1} base damage to unarmed attacks.`;
+Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks.`;
                                     },
                                     max_level_coefficient: 64, //even with 8x more it's still gonna be worse than just using a weapon lol
                                     milestones: {
