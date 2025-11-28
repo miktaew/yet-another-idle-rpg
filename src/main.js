@@ -4970,7 +4970,7 @@ function update() {
         }
         //health loss
         if(character.stats.full.health_loss_flat) {
-            health_to_subtract += character.stats.full.health_loss_flat;
+            health_to_subtract -= character.stats.full.health_loss_flat;
         }
         if(character.stats.full.health_loss_percent) {
             health_to_subtract += character.stats.full.max_health * character.stats.full.health_loss_percent/100;
