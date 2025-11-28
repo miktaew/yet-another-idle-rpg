@@ -4187,6 +4187,13 @@ function load(save_data) {
             }
         }); //load for locations their unlocked status and their killcounts
 
+
+        if(is_a_older_than_b(save_data["game version"], "v0.5.0.3")) {
+            if(locations["Deep forest"].enemy_groups_killed >= locations["Deep forest"].enemy_count * 4) {
+                process_rewards({actions: [{action: "follow the trail", location:"Forest road"}]});
+            }
+        }
+
         if(is_a_older_than_b(save_data["game version"], "v0.5")) {
             //unlock status was swapped from local activity to global activity, so a need for this
             if(locations["Nearby cave"].activities["climbing"].is_unlocked) {
