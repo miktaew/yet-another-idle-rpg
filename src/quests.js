@@ -111,17 +111,19 @@ const questManager = {
         }
     },
 
-    finishQuestTask({quest_id, task_index, only_unlocks, skip_warning = false, allowed_to_finish_quest = true}) {
+    finishQuestTask({quest_id, task_index, only_unlocks, skip_warning = false, allowed_to_finish_quest = true, skip_message = false}) {
         if(this.isQuestActive(quest_id)) {
             let quest = quests[quest_id];
             quest.quest_tasks[task_index].is_finished = true;
             if(!quests[quest_id].is_hidden) {
                 //update_displayed_quest_task(quest_id, task_index);
                 update_displayed_quest(quest_id);
-                if(!quests[quest_id].quest_tasks[task_index].is_hidden) {
-                    log_message(`Finished a task for a quest: "${quests[quest_id].getQuestName()}"`);
-                } else {
-                    log_message(`Made some progress in quest: "${quests[quest_id].getQuestName()}"`);
+                if(!skip_message) {
+                    if(!quests[quest_id].quest_tasks[task_index].is_hidden) {
+                        log_message(`Finished a task for a quest: "${quests[quest_id].getQuestName()}"`);
+                    } else {
+                        log_message(`Made some progress in quest: "${quests[quest_id].getQuestName()}"`);
+                    }
                 }
             }
 

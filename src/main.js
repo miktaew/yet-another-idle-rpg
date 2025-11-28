@@ -4337,16 +4337,16 @@ function load(save_data) {
             //memory line
             questManager.startQuest({quest_id: "Lost memory", should_inform: false});
             if(dialogues["village elder"].textlines["what happened"].is_finished) {
-                questManager.finishQuestTask({quest_id: "Lost memory", task_index: 0});
+                questManager.finishQuestTask({quest_id: "Lost memory", task_index: 0, skip_message: true});
 
                 if(dialogues["village elder"].textlines["need to"].is_finished) {
-                    questManager.finishQuestTask({quest_id: "Lost memory", task_index: 1});
+                    questManager.finishQuestTask({quest_id: "Lost memory", task_index: 1, skip_message: true});
 
                     if(dialogues["village elder"].textlines["cleared cave"].is_finished) {
-                        questManager.finishQuestTask({quest_id: "Lost memory", task_index: 2});
+                        questManager.finishQuestTask({quest_id: "Lost memory", task_index: 2, skip_message: true});
     
                         if(dialogues["suspicious man"].textlines["defeated"].is_finished) {
-                            questManager.finishQuestTask({quest_id: "Lost memory", task_index: 3});
+                            questManager.finishQuestTask({quest_id: "Lost memory", task_index: 3, skip_message: true});
                         }
                     }
                 }
@@ -4358,13 +4358,13 @@ function load(save_data) {
                 questManager.startQuest({quest_id: "The Infinite Rat Saga", should_inform: false});
 
                 if(locations["Mysterious gate"].enemy_groups_killed >= locations["Mysterious gate"].enemy_count) {
-                    questManager.finishQuestTask({quest_id: "The Infinite Rat Saga", task_index: 0});
+                    questManager.finishQuestTask({quest_id: "The Infinite Rat Saga", task_index: 0, skip_message: true});
 
                     if(locations["Nearby cave"].actions["open the gate"].is_finished) {
-                        questManager.finishQuestTask({quest_id: "The Infinite Rat Saga", task_index: 1});
+                        questManager.finishQuestTask({quest_id: "The Infinite Rat Saga", task_index: 1, skip_message: true});
 
                         if(locations["Writhing tunnel"].enemy_groups_killed >= locations["Writhing tunnel"].enemy_count) {
-                            questManager.finishQuestTask({quest_id: "The Infinite Rat Saga", task_index: 2});
+                            questManager.finishQuestTask({quest_id: "The Infinite Rat Saga", task_index: 2, skip_message: true});
                         }
                     }
                 }
@@ -4373,10 +4373,10 @@ function load(save_data) {
             //slums line
             if(dialogues["suspicious man"].textlines["gang"].is_finished) {
                 questManager.startQuest({quest_id: "Light in the darkness", should_inform: false});
-                questManager.finishQuestTask({quest_id: "Light in the darkness", task_index: 0});
+                questManager.finishQuestTask({quest_id: "Light in the darkness", task_index: 0, skip_message: true});
 
                 if(locations["Gang hideout"].is_finished) {
-                    questManager.finishQuestTask({quest_id: "Light in the darkness", task_index: 1});
+                    questManager.finishQuestTask({quest_id: "Light in the darkness", task_index: 1, skip_message: true});
                 }
             }
 
@@ -4385,10 +4385,10 @@ function load(save_data) {
                 questManager.startQuest({quest_id: "Ploughs to swords", should_inform: false});
 
                 if(dialogues["farm supervisor"].textlines["fight"].is_finished) {
-                    questManager.finishQuestTask({quest_id: "Ploughs to swords", task_index: 0});
+                    questManager.finishQuestTask({quest_id: "Ploughs to swords", task_index: 0, skip_message: true});
                     
                     if(dialogues["farm supervisor"].textlines["defeated boars"].is_finished) {
-                        questManager.finishQuestTask({quest_id: "Ploughs to swords", task_index: 1});
+                        questManager.finishQuestTask({quest_id: "Ploughs to swords", task_index: 1, skip_message: true});
                     }
                 }
             }
