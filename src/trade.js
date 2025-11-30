@@ -358,8 +358,6 @@ function remove_from_selling_list(selected_item) {
 function add_to_trader_inventory(trader_key, items) {
     traders[trader_key].add_to_inventory(items);
 
-    console.log(items);
-
     if(current_trader === trader_key) {
         update_displayed_trader_inventory();
     }
