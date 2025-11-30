@@ -1639,7 +1639,6 @@ function do_enemy_combat_action(enemy_id) {
 }
 
 function do_character_combat_action({target, attack_power, target_count}) {
-
     const hero_base_damage = attack_power;
 
     let damage_dealt;
@@ -1689,7 +1688,7 @@ function do_character_combat_action({target, attack_power, target_count}) {
             critted = false;
         }
         
-        damage_dealt = Math.ceil(10*Math.max(damage_dealt - Math.min(0,target.stats.defense-character.stats.full.armor_penetration), damage_dealt*0.1, 1))/10;
+        damage_dealt = Math.ceil(10*Math.max(damage_dealt - Math.max(0,target.stats.defense-character.stats.full.armor_penetration), damage_dealt*0.1, 1))/10;
 
         target.stats.health -= damage_dealt;
         if(damage_dealt > strongest_hit) {
@@ -3958,7 +3957,7 @@ function load(save_data) {
                                         any_warnings = true;
                                         return;
                                     } else {
-                                        trader_item_list.push({item_key: key, count: 1, quality});
+                                        trader_item_list.push({item_key: key, count: save_data.traders[trader].inventory[key].count, quality});
                                     }
                                 } else if(shield_base){ //shield
                                     if(!item_templates[shield_base]){
@@ -3971,7 +3970,7 @@ function load(save_data) {
                                         return;
                                     } else {
                                         //const item = getItem({components, quality, equip_slot: "off-hand", item_type: "EQUIPPABLE"});
-                                        trader_item_list.push({item_key: key, count: 1, quality});
+                                        trader_item_list.push({item_key: key, count: save_data.traders[trader].inventory[key].count, quality});
                                     }
                                 } else if(internal) { //armor
                                     if(!item_templates[internal]){
@@ -3986,13 +3985,13 @@ function load(save_data) {
                                         if(!getArmorSlot(internal)) {
                                             return;
                                         }
-                                        trader_item_list.push({item_key: key, count: 1, quality});
+                                        trader_item_list.push({item_key: key, count: save_data.traders[trader].inventory[key].count, quality});
                                     }
                                 } else {
                                     console.error(`Intentory key "${key}" from save on version "${save_data["game version"]} seems to refer to non-existing item type!`);
                                 }
                             } else if(quality) { //no comps but quality (clothing / artifact?)
-                                trader_item_list.push({item_key: key, count: 1, quality});
+                                trader_item_list.push({item_key: key, count: save_data.traders[trader].inventory[key].count, quality});
                             } else {
                                 console.error(`Intentory key "${key}" from save on version "${save_data["game version"]} is incorrect!`);
                             }
@@ -4869,9 +4868,8 @@ function update() {
                     }
                 }
 
-                if (activities[current_activity.activity_name].type === "TRAINING") {
+                if(activities[current_activity.activity_name].type === "TRAINING") {
                     add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.5});
-                    update_displayed_ongoing_activity(current_activity, false);
                 } else {
                     add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.1});
                 }
@@ -4928,8 +4926,13 @@ function update() {
                         //finished working period, add money
                         current_activity.earnings += current_activity.get_payment();
                     }
+
+                    update_displayed_ongoing_activity(current_activity, true);
                 }
-                update_displayed_ongoing_activity(current_activity, false);
+                if(activities[current_activity.activity_name].type !== "JOB") {
+                    update_displayed_ongoing_activity(current_activity, false);
+                }
+    
                 if(!can_work(current_activity)) {
                     end_activity();
                 }
@@ -5262,7 +5265,7 @@ function add_all_active_effects(duration){
     update_displayed_effects();
 }
 
-//add_to_character_inventory([{item_id: "Bonemeal", count: 49}]);
+//add_to_character_inventory([{item_id: "Twist liek a snek", count: 1}]);
 
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();

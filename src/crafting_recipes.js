@@ -1003,7 +1003,6 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     });
     butchering_recipes.items["Processed weak monster bone"] = new ItemRecipe({
         name: "Processed weak monster bone",
-        is_unlocked: false,
         recipe_type: "material",
         materials: [{material_id: "Weak monster bone", count: 5}], 
         result: {result_id: "Processed weak monster bone", count: 1},

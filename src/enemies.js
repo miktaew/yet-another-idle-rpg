@@ -169,11 +169,11 @@ class Enemy {
     enemy_templates["Wall rat"] = new Enemy({
         name: "Wall rat",
         description: "They don't live in the walls, they ARE the walls. Insane writhing masses of teeth, fangs, and tails, that make no logical sense. An abomination that cannot exist, and yet it does.",
-        xp_value: 30,
-        rank: 6,
+        xp_value: 50,
+        rank: 8,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "wolf rat", "monster", "eldritch"],
-        stats: {health: 2000, attack: 70, agility: 2, dexterity: 120, intuition: 90, magic: 0, attack_speed: 2, attack_count: 3, defense: 20},
+        stats: {health: 4000, attack: 100, agility: 2, dexterity: 120, intuition: 200, magic: 0, attack_speed: 2, attack_count: 4, defense: 20},
         loot_list: [
             {item_name: "Rat tail", chance: 0.08},
             {item_name: "Rat fang", chance: 0.08},
@@ -289,10 +289,10 @@ class Enemy {
     enemy_templates["Forest bear"] = new Enemy({
         name: "Forest bear",
         description: "A mighty and dangerous predator with thick skin, sharp teeth, and dangerous claws",
-        xp_value: 50,
+        xp_value: 60,
         rank: 9,
         tags: ["living", "beast"],
-        stats: {health: 3000, attack: 300, agility: 160, dexterity: 200, intuition: 100, magic: 0, attack_speed: 0.7, defense: 300},
+        stats: {health: 6000, attack: 600, agility: 160, dexterity: 200, intuition: 200, magic: 0, attack_speed: 0.8, defense: 500},
         loot_list: [
             {item_name: "Bear hide", chance: 0.05},
             {item_name: "Bear claw", chance: 0.1},

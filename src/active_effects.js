@@ -111,7 +111,7 @@ class ActiveEffect {
                 stamina_regeneration_flat: {flat: 0.5},
             }
         },
-        tags: {"buff": true},
+        tags: {"buff": true, "food": true},
     });
 
     effect_templates["Well hydrated"] = new ActiveEffect({
@@ -180,7 +180,7 @@ class ActiveEffect {
                 stamina_regeneration_flat: {flat: 1},
             }
         },
-        tags: {"buff": true},
+        tags: {"buff": true, "food": true},
     });
     effect_templates["Simple meat meal"] = new ActiveEffect({
         name: "Simple meat meal",
@@ -190,7 +190,7 @@ class ActiveEffect {
                 health_regeneration_flat: {flat: 1},
             }
         },
-        tags: {"buff": true},
+        tags: {"buff": true, "food": true},
     });
     effect_templates["Decent meat meal"] = new ActiveEffect({
         name: "Decent meat meal",
@@ -200,7 +200,7 @@ class ActiveEffect {
                 health_regeneration_flat: {flat: 2},
             }
         },
-        tags: {"buff": true},
+        tags: {"buff": true, "food": true},
     });
     effect_templates["Hot meal"] = new ActiveEffect({
         name: "Hot meal",
@@ -209,7 +209,7 @@ class ActiveEffect {
                 cold_tolerance: {flat: 3},
             }
         },
-        tags: {"buff": true},
+        tags: {"buff": true, "food": true},
     });
     effect_templates["Slight food poisoning"] = new ActiveEffect({
         name: "Slight food poisoning",

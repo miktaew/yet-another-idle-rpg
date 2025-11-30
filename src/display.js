@@ -3524,7 +3524,7 @@ function update_displayed_temperature() {
     }
 
     if(current_location.is_under_roof) {
-        weather_field.innerHTML = temperature +temperature_unit;
+        weather_field.innerHTML = displayed_temperature +temperature_unit;
     } else {
         if(is_raining()) {
             if(temperature > 0) {

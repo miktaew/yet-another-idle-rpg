@@ -189,12 +189,13 @@ class Item {
      * calculates total value for when trading multiple at once
      * @param {Object} param0
      * @param {Number} param0.additional_traded_count
+     * @param {Number} param0.price_multiplier from trader profit margin
      * @returns 
      */
     getValueOfMultiple({additional_traded_count = 0, count, region, price_multiplier = 1, is_selling = true, stop_multiplier_at = Infinity}) {
         if(!this.saturates_market) {
             //doesn't saturate market, so it's literally just price * count
-            return round_item_price(this.getBaseValue()) * count;
+            return round_item_price(this.getBaseValue()*price_multiplier) * count;
         } else {
             const {group_key, group_tier} = this.getMarketSaturationGroup();
 

@@ -179,7 +179,7 @@ function is_a_older_than_b(version1, version2) {
 }
 
 function celsius_to_fahrenheit(num) {
-    return 32 + num*9/5;
+    return 32 + Math.round(10*num*9/5)/10;
 }
 
 export { expo, format_reading_time, format_working_time, 

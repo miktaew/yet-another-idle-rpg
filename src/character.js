@@ -426,7 +426,7 @@ character.stats.add_all_skill_level_bonus = function() {
 
         character.stats.multiplier.skills.max_health = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Fortitude"});
 
-        character.stats.flat.skills.intuition = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Meditation"});
+        character.stats.multiplier.skills.intuition = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Meditation"});
 
         character.stats.flat.skills.unarmed_power = skills["Unarmed"].current_level * 0.1;
 
@@ -801,14 +801,13 @@ function update_character_stats() {
  * @returns total xp gains for provided skill 
  */
 function get_skill_xp_gain(skill_name) {
-        const category = "category_"+skills[skill_name].category;
-        return (character.xp_bonuses.total_multiplier.all || 1) * get_skill_xp_gain_bonus(skill_name);
+        return (character.xp_bonuses.total_multiplier[skill_name] || 1) * get_skill_xp_gain_bonus(skill_name);
 }
 
 /**
  * 
  * @param {*} skill_name 
- * @returns total non-direct multiplier to xp gains of provided skill
+ * @returns almost-total multiplier to xp gains of provided skill (everything except things that apply to it by name)
  */
 function get_skill_xp_gain_bonus(skill_name) {
         const category = "category_"+skills[skill_name].category;

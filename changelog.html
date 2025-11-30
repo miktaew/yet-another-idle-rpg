@@ -136,7 +136,7 @@ v0.5.0
     - dialogue descriptions and textline answers now have a basic fade-in animation
     - notifications for unlocking a gathering activity now only appear if gathering is globally unlocked
     - reduced 'Wall Rat' agility from 20 to 2 (where are they gonna go? they are stuck in place)
-    - increased 'Wall Rat' health 1000->2000 and agility 90->120
+    - increased 'Wall Rat' health 1000->2000 and dexterity 90->120
     - increased 'Elite wolf rat guardian' health 250->400, attack 50->60, agility 40->50, dexterity 40->50, xp value 10->15
     - increased 'Young wolf' health 120->150
     - increased 'Starving wolf' health 150->200
@@ -202,6 +202,21 @@ v0.5.0.4
     - fixed a typo
 v0.5.0.5
     - fixed a bug with "Bears' den" not being connected to its parent location
+v0.5.0.6
+    - fixed a bug with 'Gluttony' skill effect not working due to missing tags on effects
+    - fixed a bug with defense being ignored and with armor penetration sometimes providing more bonus than it should
+    - fixed bugs with skill xp gains formula (global bonus applied twice, skill-specific bonus not applied at all)
+    - fixed a bug where books and non-consumables were unaffected by trader profit margins
+    - fixed a bug with total earnings (and time to reach them) not being displayed while working
+    - fixed display issue when too many quests were expanded
+    - fixed a bug with 'Meditation' intuition bonus being a flat increase instead of a multiplier
+    - fixed a display bug with celsius and cahrenheit temperatures being displayed with same value (celsius) in roofed locations
+    - fixed bug with 'Processed weak monster bone' not being available for crafting
+    - fixed a bug where selling a stack of certain item types and then doing save/load would result in trader only having 1 of it
+
+    - buffed 'Forest bear': health 3000->6000, attack 300->600, intuition 100->200, attack speed 0.7->0.8, defense 300->500, xp 30->50
+    - buffed 'Wall rat': hewalth 2000->4000, attack 70->100, intuition 90->200, attack count 3->4
+    - increased some of the travel times
 </pre></div>
 <button type="button" class="collapsible">v0.4.6 - Actions (and some other things too) [testing release: 01/04/2025 / main release: 18/05/2025] </button>
 <div class="content"><pre>

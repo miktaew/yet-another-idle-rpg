@@ -780,7 +780,7 @@ function get_location_type_penalty(type, stage, stat, category) {
     locations["Village"].connected_locations.push({location: locations["Infested field"], travel_time: 15});
 
     locations["Nearby cave"] = new Location({ 
-        connected_locations: [{location: locations["Village"], custom_text: "Go outside and to the [Village]", travel_time: 45}], 
+        connected_locations: [{location: locations["Village"], custom_text: "Go outside and to the [Village]", travel_time: 60}], 
         getDescription: function() {
             if(locations["Pitch black tunnel"].enemy_groups_killed >= locations["Pitch black tunnel"].enemy_count) { 
                 return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the cave walls, providing a dim light. Your efforts have secured a decent space and many of the tunnels. It seems like you almost reached the deepest part.";
@@ -806,7 +806,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         is_unlocked: false,
         is_under_roof: true,
     });
-    locations["Village"].connected_locations.push({location: locations["Nearby cave"], travel_time: 45});
+    locations["Village"].connected_locations.push({location: locations["Nearby cave"], travel_time: 60});
     //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
 
     locations["Cave room"] = new Combat_zone({
@@ -958,10 +958,10 @@ function get_location_type_penalty(type, stage, stat, category) {
     });
 
     locations["Nearby cave"].connected_locations.push(
-        {location: locations["Cave depths"], travel_time: 10}, 
-        {location: locations["Hidden tunnel"], custom_text: "Enter the [Hidden tunnel]", travel_time: 20}, 
-        {location: locations["Pitch black tunnel"], custom_text: "Go into the [Pitch black tunnel]", travel_time: 35},
-        {location: locations["Mysterious gate"], custom_text: "Go to the [Mysterious gate]", travel_time: 50}
+        {location: locations["Cave depths"], travel_time: 20}, 
+        {location: locations["Hidden tunnel"], custom_text: "Enter the [Hidden tunnel]", travel_time: 40}, 
+        {location: locations["Pitch black tunnel"], custom_text: "Go into the [Pitch black tunnel]", travel_time: 60},
+        {location: locations["Mysterious gate"], custom_text: "Go to the [Mysterious gate]", travel_time: 90}
     );
 
     locations["Writhing tunnel"] = new Combat_zone({
@@ -991,10 +991,10 @@ function get_location_type_penalty(type, stage, stat, category) {
         unlock_text: "You see something. You struggle to comprehend it. When you finally understand, you regret it instantly. It might have been better to be born blind."
     });
 
-    locations["Nearby cave"].connected_locations.push({location: locations["Writhing tunnel"], travel_time: 55});
+    locations["Nearby cave"].connected_locations.push({location: locations["Writhing tunnel"], travel_time: 100});
 
     locations["Mysterious depths"] = new Location({ //not yet unlockable
-        connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb back up to the main level of [Nearby cave]", travel_time: 65}], 
+        connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb back up to the main level of [Nearby cave]", travel_time: 100}], 
         getDescription: function() {
             return  `You find yourself in a large chamber with smooth walls and vaulted ceiling. The floor is covered in square tiles in the center, yet you cannot help but notice that all these squares make a circle, in some impossible to understand way.
 There's another gate on the wall in front of you, but you have a strange feeling that you won't be able to open it with brute strength.`;
@@ -1011,10 +1011,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         is_under_roof: true,
     });
 
-    locations["Nearby cave"].connected_locations.push({location: locations["Mysterious depths"], custom_text: "Climb down to [Mysterious depths]", travel_time: 65});
+    locations["Nearby cave"].connected_locations.push({location: locations["Mysterious depths"], custom_text: "Climb down to [Mysterious depths]", travel_time: 120});
 
     locations["Forest road"] = new Location({ 
-        connected_locations: [{location: locations["Village"], travel_time: 180}],
+        connected_locations: [{location: locations["Village"], travel_time: 240}],
         description: "Old trodden road leading through a dark forest, the only path connecting the village to the town. You can hear some animals from the surrounding woods.",
         name: "Forest road",
         getBackgroundNoises: function() {
@@ -1024,7 +1024,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
         is_unlocked: false,
     });
-    locations["Village"].connected_locations.push({location: locations["Forest road"], custom_text: "Leave the village towards [Forest road]", travel_time: 180});
+    locations["Village"].connected_locations.push({location: locations["Forest road"], custom_text: "Leave the village towards [Forest road]", travel_time: 240});
 
     locations["Forest"] = new Combat_zone({
         description: "Forest surrounding the village, a dangerous place", 
@@ -1043,7 +1043,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activities: [{location:"Forest road", activity: "herbalism"}],
         },
     });
-    locations["Forest road"].connected_locations.push({location: locations["Forest"], custom_text: "Leave the safe path and walk into the [Forest]", travel_time: 20});
+    locations["Forest road"].connected_locations.push({location: locations["Forest"], custom_text: "Leave the safe path and walk into the [Forest]", travel_time: 30});
 
     locations["Deep forest"] = new Combat_zone({
         description: "Deeper part of the forest, a dangerous place", 
@@ -1070,7 +1070,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             }
         ],
     });
-    locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture into the [Deep forest]", travel_time: 40});
+    locations["Forest road"].connected_locations.push({location: locations["Deep forest"], custom_text: "Venture into the [Deep forest]", travel_time: 60});
 
     locations["Forest clearing"] = new Combat_zone({
         description: "A surprisingly big clearing hidden in the northern part of the forest, covered with very tall grass and filled with a mass of wild boars",
@@ -1091,7 +1091,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activities: [{location: "Forest road", activity: "woodcutting2"}],
         }
     });
-    locations["Forest road"].connected_locations.push({location: locations["Forest clearing"], custom_text: "Go towards the [Forest clearing] in the north", travel_time: 40});
+    locations["Forest road"].connected_locations.push({location: locations["Forest clearing"], custom_text: "Go towards the [Forest clearing] in the north", travel_time: 60});
 
     locations["Forest den"] = new Combat_zone({
         description: "A relatively large cave in the depths of the forest, filled with hordes of direwolves.",
@@ -1170,13 +1170,13 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Forest road"].connected_locations.push({location: locations["Forest ant nest"], custom_text: "Enter the [Red ant nest]", travel_time: 120});
 
     locations["Town outskirts"] = new Location({ 
-        connected_locations: [{location: locations["Forest road"], custom_text: "Return to the [Forest road]", travel_time: 180}],
+        connected_locations: [{location: locations["Forest road"], custom_text: "Return to the [Forest road]", travel_time: 240}],
         description: "The town is surrounded by a tall stone wall. The only gate seems to be closed, with a lone guard outside. You can see farms to the north and slums to the south.",
         name: "Town outskirts",
         is_unlocked: true,
         dialogues: ["gate guard"],
     });
-    locations["Forest road"].connected_locations.push({location: locations["Town outskirts"], custom_text: "Go towards the [Town outskirts]", travel_time: 180});
+    locations["Forest road"].connected_locations.push({location: locations["Town outskirts"], custom_text: "Go towards the [Town outskirts]", travel_time: 240});
 
     locations["Slums"] = new Location({ 
         connected_locations: [{location: locations["Town outskirts"], travel_time: 60}],
@@ -1215,7 +1215,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
     });
     locations["Town farms"] = new Location({ 
-        connected_locations: [{location: locations["Town outskirts"], travel_time: 40}],
+        connected_locations: [{location: locations["Town outskirts"], travel_time: 60}],
         description: "Semi-private farms under jurisdiction of the city council. Full of life and sounds of heavy work.",
         name: "Town farms",
         is_unlocked: true,
@@ -1361,7 +1361,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Slums"].connected_locations.push({location: locations["Gang hideout"], travel_time: 10});
 
     locations["Town square"] = new Location({ 
-        connected_locations: [{location: locations["Town outskirts"], travel_time: 20}],
+        connected_locations: [{location: locations["Town outskirts"], travel_time: 40}],
         description: "The town's center of life, connected to all the markets, guilds, and other important places",
         name: "Town square",
         is_unlocked: false,
@@ -1372,9 +1372,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
     });
 
     locations["Town outskirts"].connected_locations.push(
-                                                        {location: locations["Town farms"], travel_time: 40}, 
+                                                        {location: locations["Town farms"], travel_time: 60}, 
                                                         {location: locations["Slums"], travel_time: 60}, 
-                                                        {location: locations["Town square"], travel_time: 20}
+                                                        {location: locations["Town square"], travel_time: 40}
                                                     );
 
     locations["Cat café"] = new Location({ 
@@ -1460,7 +1460,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
         temperature_modifier: -2,
     });
-    locations["Mountain camp"].connected_locations.push({location: locations["Gentle mountain slope"], travel_time: 90});
+    locations["Mountain camp"].connected_locations.push({location: locations["Gentle mountain slope"], travel_time: 120});
 })();
 
 //challenge zones
