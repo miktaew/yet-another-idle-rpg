@@ -4391,7 +4391,7 @@ function load(save_data) {
             }
 
             //town farm quest
-            if(dialogues["farm supervisor"].textlines["fight0"].is_finished) {
+            if(dialogues["farm supervisor"].textlines["fight0"].is_finished || dialogues["farm supervisor"].textlines["fight"].is_finished) {
                 questManager.startQuest({quest_id: "Ploughs to swords", should_inform: false});
 
                 if(dialogues["farm supervisor"].textlines["fight"].is_finished) {
@@ -4402,7 +4402,25 @@ function load(save_data) {
                     }
                 }
             }
+        }
 
+        if(is_a_older_than_b(save_data["game version"], "v0.5.0.7")){ //reposted because "fight" textline was originally not included, causing issues
+             if(dialogues["farm supervisor"].textlines["fight0"].is_finished || dialogues["farm supervisor"].textlines["fight"].is_finished) {
+                questManager.startQuest({quest_id: "Ploughs to swords", should_inform: false});
+
+                if(dialogues["farm supervisor"].textlines["fight"].is_finished) {
+                    questManager.finishQuestTask({quest_id: "Ploughs to swords", task_index: 0, skip_message: true});
+                    
+                    if(dialogues["farm supervisor"].textlines["defeated boars"].is_finished) {
+                        questManager.finishQuestTask({quest_id: "Ploughs to swords", task_index: 1, skip_message: true});
+                    }
+                }
+            }
+        }
+
+        //continuation for compatibility as there was no good place in dialogues to put it it...
+        if(dialogues["farm supervisor"].textlines["defeated boars"].is_finished) {
+            dialogues["farm supervisor"].textlines["troubled"].is_unlocked = true;
         }
         
         set_loading_screen_progress("Mixing catnip with more catnip");

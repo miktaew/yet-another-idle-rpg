@@ -332,7 +332,11 @@ const questManager = {
         quest_name: "Ploughs to swords",
         display_priority: 1,
         getQuestDescription: ()=>{
-            return "Supervisor of the town's farms seems to have some interesting task, but first requires you to be strong enough for it.";
+            if(!quests["Ploughs to swords"].quest_tasks[1].is_finished) {
+                return "Supervisor of the town's farms seems to have some interesting tasks, but first requires you to be strong enough for it.";
+            } else {
+                return "Supervisor of the town's farms has a need for a capable fighter";
+            }
         },
         quest_tasks: [
             new QuestTask({task_description: "Prove your strength"}), //gained on asking about work without having is_strength_proved flag, gained AND finished on asking with having the flag

@@ -116,6 +116,7 @@ stances["wide"] = new Stance({
     related_skill: "Wide swing",
     stat_multipliers: {
         attack_power: 0.4,
+        attack_speed: 0.8,
     },
     target_count: 4,
     stamina_cost: 4,

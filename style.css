@@ -1126,7 +1126,7 @@ input[type=checkbox], input[type=radio] {
 		}
 
 .crafting_recipe_list {
-	height: 305px;
+	height: 300px;
 	width:100%;
 	top: 60px;
 	overflow-y: scroll;
