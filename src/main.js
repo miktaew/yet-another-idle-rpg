@@ -91,7 +91,8 @@ import { end_activity_animation,
          set_play_button_text,
          do_enemy_onhit_animation,
          remove_enemy_onhit_animation,
-         create_floating_effect
+         create_floating_effect,
+         booklist_entry_divs
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -1641,19 +1642,21 @@ function do_enemy_combat_action(enemy_id) {
 function do_character_combat_action({target, attack_power, target_count}) {
     const hero_base_damage = attack_power;
 
+    const groupsize_xp_multiplier = current_enemies.length**0.3334;
+
     let damage_dealt;
     
     let critted = false;
     
     let hit_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/4); // down to ~ 60% if there's full 8 enemies
     
-    add_xp_to_skill({skill: skills["Combat"], xp_to_add: target.xp_value/target_count});
+    add_xp_to_skill({skill: skills["Combat"], xp_to_add: target.xp_value*groupsize_xp_multiplier/target_count});
 
     if(target.size === "small") {
-        add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: target.xp_value/target_count});
+        add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: target.xp_value*groupsize_xp_multiplier/target_count});
         hit_chance_modifier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Pest killer"});
     } else if(target.size === "large") {
-        add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: target.xp_value/target_count});
+        add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: target.xp_value*groupsize_xp_multiplier/target_count});
     }
 
     const hit_chance = get_hit_chance(character.stats.full.attack_points * hit_chance_modifier, target.stats.agility * Math.sqrt(target.stats.intuition ?? 1));
@@ -1665,12 +1668,12 @@ function do_character_combat_action({target, attack_power, target_count}) {
             //if has weapon
             damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) )/10;
 
-            add_xp_to_skill({skill: skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]], xp_to_add: target.xp_value/target_count}); 
+            add_xp_to_skill({skill: skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]], xp_to_add: target.xp_value*groupsize_xp_multiplier/target_count}); 
 
         } else {
             //if has no weapon
             damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) )/10;
-            add_xp_to_skill({skill: skills['Unarmed'], xp_to_add: target.xp_value/target_count});
+            add_xp_to_skill({skill: skills['Unarmed'], xp_to_add: target.xp_value*groupsize_xp_multiplier/target_count});
         }
         //small randomization by up to 20%, then bonus from skill
 
@@ -1708,7 +1711,7 @@ function do_character_combat_action({target, attack_power, target_count}) {
             log_message(target.name + " was defeated", "enemy_defeated");
 
             //gained xp multiplied by TOTAL size of enemy group raised to 1/3
-            let xp_reward = target.xp_value * (current_enemies.length**0.3334);
+            let xp_reward = target.xp_value * groupsize_xp_multiplier;
             add_xp_to_character(xp_reward/target_count, true);
 
             let loot = target.get_loot({drop_chance_modifier: 1/current_enemies.length**0.6667});
@@ -1963,7 +1966,14 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                         }
                     }
                 });
-                
+                Object.keys(booklist_entry_divs).forEach(book_id => {
+                    //update anthology entry
+                    const bonuses = book_stats[book_id]?.bonuses?.xp_multipliers || {};
+                    if(bonuses[skill.skill_id]) {
+                        update_booklist_entry(book_id, true);
+                    }
+                });
+                    
                 update_displayed_effects();
                 //a bit lazy, but there shouldn't ever be enough to cause a lag
             }

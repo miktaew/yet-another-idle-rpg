@@ -820,6 +820,8 @@ function get_location_type_penalty(type, stage, stat, category) {
         name: "Cave room", 
         leave_text: "Go back to entrance",
         parent_location: locations["Nearby cave"],
+        temperature_range_modifier: 0.7,
+        is_under_roof: true,
         first_reward: {
             xp: 20,
         },
@@ -838,8 +840,6 @@ function get_location_type_penalty(type, stage, stat, category) {
                 reputation: {"village": 20},
             },
         ],
-        temperature_range_modifier: 0.7,
-        is_under_roof: true,
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Cave room"], travel_time: 5});
 

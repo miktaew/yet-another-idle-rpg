@@ -1831,12 +1831,14 @@ i {
 						display: inline-block;
 						text-align: left;
 						font-size: 12px;
+						overflow: hidden;
+						white-space: nowrap;
 					}
 					.enemy_stat_short, .attack_stat_short {
-						width: 64px;
+						width: 60px;
 					}
 					.enemy_stat_long, .attack_stat_long {
-						width: 77px;
+						width: 85px;
 					}
 
 				.enemy_health_div {
@@ -1867,19 +1869,6 @@ i {
 					animation-iteration-count: infinite;
 					animation-timing-function: linear;
 					margin-left: auto;
-				}
-
-				.enemy_hit {
-					animation-duration: 0.1s;
-					animation-iteration-count: 2;
-					animation-direction: alternate;
-					animation-name: hit_animation;
-				}
-				@keyframes hit_animation {
-					from {background-color: rgba(0, 0, 0, 0);}
-					to {background-color: rgba(255, 0, 0, 0.2);}
-					from {rotate: 0deg;}
-					to {rotate: 0.3deg;}
 				}
 
 	#character_combat_stats {

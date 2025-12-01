@@ -70,6 +70,26 @@ const enemies_div = document.getElementById("enemies_div");
 
 const enemy_count_div = document.getElementById("enemy_count_div");
 
+
+//enemy onhit animation
+const onhitAnimation = [
+    {
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "rotate": "0deg",
+    },
+    {
+        "backgroundColor": "rgba(255, 0, 0, 0.2)",
+        "rotate": "0.3deg",
+    }
+]
+const onhitAnimationTiming = {
+    duration: 100,
+	iterations: 2,
+    direction: "alternate",
+}
+
+const enemy_animations = {};
+
 //character health display
 const current_health_value_div = document.getElementById("character_health_value");
 const current_health_bar = document.getElementById("character_healthbar_current");
@@ -4789,11 +4809,11 @@ function create_new_booklist_entry(book_name) {
 }
 
 /**
- * updates the bestiary entry of an enemy, that is killcount and on-hover droprates
+ * updates the anthology entry of a book (style and tooltip);
  * @param {String} book_name 
  */
 function update_booklist_entry(book_name, read) {
-    if (!booklist_entry_divs[book_name]) {
+    if(!booklist_entry_divs[book_name]) {
         create_new_booklist_entry(book_name);
     }
 
@@ -4819,21 +4839,12 @@ function update_enemy_attack_bar(enemy_id, num) {
 }
 
 function do_enemy_onhit_animation(enemy_id) {
-    const class_to_add = "enemy_hit";
     const enemy_div = enemies_div.children[enemy_id];
-    if(enemy_div.classList.contains(class_to_add)) {
-        enemy_div.style.webkitAnimation = "none";
-        setTimeout(()=>{
-            enemy_div.style.webkitAnimation = '';
-        });
-    } else {
-        enemies_div.children[enemy_id].classList.add(class_to_add);
-    }
+    enemy_animations[enemy_id] =  enemy_div.animate(onhitAnimation, onhitAnimationTiming);
 }
 
 function remove_enemy_onhit_animation(enemy_id) {
-    const class_to_remove = "enemy_hit";
-    enemies_div.children[enemy_id].classList.remove(class_to_remove);
+    //enemy_animations[enemy_id]?.cancel();
 }
 
 function update_character_attack_bar(num) {
@@ -5337,7 +5348,7 @@ export {
     update_displayed_storage, exit_displayed_storage, update_displayed_storage_inventory,
     update_location_icon,
     skill_list,
-    update_booklist_entry,
+    update_booklist_entry, booklist_entry_divs,
     add_quest_to_display, update_displayed_quest, update_displayed_quest_task, 
     start_rain_animation, start_snow_animation, start_stars_animation, stop_background_animation,
     update_displayed_total_price,
