@@ -5293,7 +5293,7 @@ function add_all_active_effects(duration){
     update_displayed_effects();
 }
 
-//add_to_character_inventory([{item_id: "Twist liek a snek", count: 1}]);
+//add_to_character_inventory([{item_id: "Medicine for dummies", count: 1}]);
 
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();

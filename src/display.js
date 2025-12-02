@@ -2879,13 +2879,16 @@ function update_item_recipe_tooltips() {
 function update_recipe_tooltip({category, subcategory, recipe_id, components}) {
     const recipe = recipes[category][subcategory][recipe_id];
     if(subcategory === "items") {
-            const tooltip = crafting_pages[category][subcategory].querySelector(`[data-recipe_id="${recipe_id}"]`).querySelector(`.${subcategory}_recipe_tooltip`);
+        const tooltip = crafting_pages[category][subcategory].querySelector(`[data-recipe_id="${recipe_id}"]`).querySelector(`.${subcategory}_recipe_tooltip`);
 
         tooltip.innerHTML = create_recipe_tooltip_content({category, subcategory, recipe_id});
     } else if(subcategory === "components" || recipe.recipe_type === "component" || recipe.recipe_type === "componentless") {
         const material_selections_div = crafting_pages[category][subcategory].querySelector(`[data-recipe_id='${recipe_id}']`).children[1];
         for(let i = 0; i < material_selections_div.children.length; i++) {
-            const tooltip = material_selections_div.children[i].querySelector(`[data-recipe_id="${recipe_id}"]`).querySelector(`.${subcategory}_recipe_tooltip`);
+            const tooltip = material_selections_div.children[i].querySelector(`[data-recipe_id="${recipe_id}"]`)?.querySelector(`.${subcategory}_recipe_tooltip`);
+            if(!tooltip) {
+                return;
+            }
             const material_key = material_selections_div.children[i].dataset.item_key;
             const {id} = JSON.parse(material_key);
             const material_recipe = recipe.materials.filter(material => material.material_id === id);
@@ -2893,8 +2896,10 @@ function update_recipe_tooltip({category, subcategory, recipe_id, components}) {
             tooltip.innerHTML = create_recipe_tooltip_content({category, subcategory, recipe_id, material: material_recipe[0]});
         }
     } else if(subcategory === "equipment") {
-            const tooltip = crafting_pages[category][subcategory].querySelector(`[data-recipe_id="${recipe_id}"]`).querySelector(`.${subcategory}_recipe_tooltip`);
-
+            const tooltip = crafting_pages[category][subcategory].querySelector(`[data-recipe_id="${recipe_id}"]`)?.querySelector(`.${subcategory}_recipe_tooltip`);
+            if(!tooltip) {
+                return;
+            }
             tooltip.innerHTML = create_recipe_tooltip_content({category, subcategory, recipe_id, components});
     } else {
         console.error(`No such crafting subcategory as "${subcategory}"`);
@@ -4844,6 +4849,7 @@ function do_enemy_onhit_animation(enemy_id) {
 }
 
 function remove_enemy_onhit_animation(enemy_id) {
+    //for now people say it looks better when they trigger after the final kills of a group too
     //enemy_animations[enemy_id]?.cancel();
 }
 

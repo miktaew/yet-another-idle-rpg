@@ -180,6 +180,12 @@ class TradeItem {
             new TradeItem({item_name: "Cheap iron axe", count: [1], quality: [91, 120], chance: 0.4}),
             new TradeItem({item_name: "Cheap iron battle hammer", count: [1], quality: [91, 120], chance: 0.4}),
 
+            new TradeItem({item_name: "Iron spear", count: [1], quality: [70, 90], chance: 0.4}),
+            new TradeItem({item_name: "Iron dagger", count: [1], quality: [70, 90], chance: 0.4}),
+            new TradeItem({item_name: "Iron sword", count: [1], quality: [70, 90], chance: 0.4}),
+            new TradeItem({item_name: "Iron axe", count: [1], quality: [70, 90], chance: 0.4}),
+            new TradeItem({item_name: "Iron battle hammer", count: [1], quality: [70, 90], chance: 0.4}),
+
             new TradeItem({item_name: "Cheap wooden shield", count: [1], quality: [40, 90]}),
             new TradeItem({item_name: "Cheap wooden shield", count: [1], chance: 0.8, quality: [91, 120]}),
             new TradeItem({item_name: "Crude wooden shield", count: [1], chance: 0.7, quality: [40, 90]}),
@@ -239,11 +245,11 @@ class TradeItem {
             new TradeItem({item_name: "Iron axe", count: [1], quality: [81, 120], chance: 0.8}),
             new TradeItem({item_name: "Iron battle hammer", count: [1], quality: [81, 120], chance: 0.8}),
 
-            new TradeItem({item_name: "Steel spear", count: [1], quality: [70, 100], chance: 0.6}),
-            new TradeItem({item_name: "Steel dagger", count: [1], quality: [70, 100], chance: 0.6}),
-            new TradeItem({item_name: "Steel sword", count: [1], quality: [70, 100], chance: 0.6}),
-            new TradeItem({item_name: "Steel axe", count: [1], quality: [70, 100], chance: 0.6}),
-            new TradeItem({item_name: "Steel battle hammer", count: [1], quality: [70, 100], chance: 0.6}),
+            new TradeItem({item_name: "Steel spear", count: [1], quality: [70, 100], chance: 0.5}),
+            new TradeItem({item_name: "Steel dagger", count: [1], quality: [70, 100], chance: 0.5}),
+            new TradeItem({item_name: "Steel sword", count: [1], quality: [70, 100], chance: 0.5}),
+            new TradeItem({item_name: "Steel axe", count: [1], quality: [70, 100], chance: 0.5}),
+            new TradeItem({item_name: "Steel battle hammer", count: [1], quality: [70, 100], chance: 0.5}),
             
             new TradeItem({item_name: "Steel spear", count: [1], quality: [81, 120], chance: 0.4}),
             new TradeItem({item_name: "Steel dagger", count: [1], quality: [81, 120], chance: 0.4}),
