@@ -2487,9 +2487,9 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                 get_effect_description: ()=>{
                                     return `Multiplies health restored when resting or sleeping by ${Math.round(100*(1 + 3*get_total_skill_level("Regeneration")/skills["Regeneration"].max_level))/100}`;
                                 },
-                                base_xp_cost: 600,
+                                base_xp_cost: 1000,
                                 visibility_treshold: 500,
-                                xp_scaling: 1.4,
+                                xp_scaling: 1.5,
                                 category: "Character",
                                 max_level: 40,
                                 max_level_coefficient: 2.5,    

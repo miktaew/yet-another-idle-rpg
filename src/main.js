@@ -1839,14 +1839,14 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
     }
 
     if(cap_gained_xp && typeof xp_to_next_lvl === Number) {
-        //cap on singular gains for non-crafting skills
+        //cap on singular gains for non-crafting skills; cap for crafting skills handled in crafting code as it's dependent on how many items are made at once
         xp_to_add = Math.min(xp_to_add, skill.xp_to_next_lvl*skill_xp_gains_cap);
     }
     
     const prev_name = skill.name();
     const was_hidden = skill.visibility_treshold > skill.total_xp;
 
-    let {message, gains, unlocks} = skill.add_xp({xp_to_add: xp_to_add, cap_gained_xp});
+    let {message, gains, unlocks} = skill.add_xp({xp_to_add: xp_to_add});
     const new_name = skill.name();
     if(skill.parent_skill && add_to_parent) {
         if(skill.total_xp > skills[skill.parent_skill].total_xp) {
