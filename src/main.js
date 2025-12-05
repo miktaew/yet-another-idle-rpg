@@ -92,7 +92,8 @@ import { end_activity_animation,
          do_enemy_onhit_animation,
          remove_enemy_onhit_animation,
          create_floating_effect,
-         booklist_entry_divs
+         booklist_entry_divs,
+         do_enemy_onstart_animation
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -1261,6 +1262,8 @@ function set_new_combat({enemies} = {}) {
         clear_character_attack_loop();
         return;
     }
+
+    //remove animations
     for(let i = 0; i < current_enemies?.length; i++) {
         remove_enemy_onhit_animation(i);
     }
@@ -1295,9 +1298,9 @@ function set_new_combat({enemies} = {}) {
     character_timer_adjustment = 0;
     character_timers = [Date.now(), Date.now()];
 
-    //attach loops and remove animations
+    //attach loops and animations
     for(let i = 0; i < current_enemies.length; i++) {
-        remove_enemy_onhit_animation(i);
+        do_enemy_onstart_animation(i);
         do_enemy_attack_loop(i, 0, true);
     }
 

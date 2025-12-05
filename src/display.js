@@ -88,6 +88,20 @@ const onhitAnimationTiming = {
     direction: "alternate",
 }
 
+const onstartAnimation = [
+    {
+        "opacity": "0.2",
+        "backgroundColor": "rgba(0, 124, 17, 0.2)",
+    },
+    {
+        "opacity": "1",
+    },
+]
+const onstartAnimationTiming = {
+    duration: 800,
+	iterations: 1,
+}
+
 const enemy_animations = {};
 
 //character health display
@@ -4862,8 +4876,12 @@ function do_enemy_onhit_animation(enemy_id) {
 }
 
 function remove_enemy_onhit_animation(enemy_id) {
-    //for now people say it looks better when they trigger after the final kills of a group too
-    //enemy_animations[enemy_id]?.cancel();
+    enemy_animations[enemy_id]?.cancel();
+}
+
+function do_enemy_onstart_animation(enemy_id) {
+    const enemy_div = enemies_div.children[enemy_id];
+    enemy_animations[enemy_id] =  enemy_div.animate(onstartAnimation, onstartAnimationTiming);
 }
 
 function update_character_attack_bar(num) {
@@ -5344,7 +5362,8 @@ export {
     clear_skill_list,
     update_character_attack_bar,
     clear_message_log,
-    update_enemy_attack_bar, do_enemy_onhit_animation, remove_enemy_onhit_animation,
+    update_enemy_attack_bar, 
+    do_enemy_onhit_animation, remove_enemy_onhit_animation, do_enemy_onstart_animation,
     remove_fast_travel_choice,
     create_new_bestiary_entry, update_bestiary_entry, update_bestiary_entry_killcount, clear_bestiary, update_bestiary_entry_tooltip,
     start_reading_display,
