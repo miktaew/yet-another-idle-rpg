@@ -1343,6 +1343,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         first_reward: {
             xp: 1000,
             reputation: {slums: 200, town: 50},
+            money: 1840,
         },
         repeatable_reward: {
             traders: [{trader: "suspicious trader 2", skip_message: true}],
@@ -1396,7 +1397,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
 
     locations["Mountain path"] = new Location({
         connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb down to [Nearby Cave]", travel_time: 20, travel_time_skills: ["Climbing"]}],
-        description: "A treacherus path high above the village",
+        description: "A treacherous path high above the village",
         name: "Mountain path",
         is_unlocked: false,
         getBackgroundNoises: function() {
@@ -1945,6 +1946,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             rewards: {
                 locations: [{location: "Mountain path"}],
                 move_to: {location: "Mountain path"},
+                skill_xp: {
+                    "Climbing": 1000,
+                }
             },
         }),
     };

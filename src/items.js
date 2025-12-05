@@ -1125,19 +1125,19 @@ book_stats["A Glint On The Sand"] = new BookData({
 
     item_templates["Twist liek a snek"] = new Book({
         name: "Twist liek a snek",
-        description: "This book has a terrible grammar, seemingly written by some uneducated bandit, but despite that it quite well details how to properly evade attacks.",
+        description: "This book has a terrible grammar, seemingly written by some uneducated bandit, but despite that it quite well details how to properly evade attacks",
         value: 200,
     });
 
     item_templates["Medicine for dummies"] = new Book({
         name: "Medicine for dummies",
-        description: "A simple book about healing, describing how to create some basic medicines.",
+        description: "A simple book about healing, describing how to create some basic medicines",
         value: 320,
     });
 
     item_templates["Butchering and you"] = new Book({
         name: "Butchering and you",
-        description: "An introductory book to animal butchering, that goes into further detail on how to make a use of animal parts, especially hides and bones.",
+        description: "An introductory book to animal butchering, that goes into further detail on how to make a use of animal parts, especially hides and bones",
         value: 240,
     });
 
@@ -1150,7 +1150,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     item_templates["A Glint On The Sand"] = new Book({
         id: "A Glint On The Sand",
         name: "A Glint On The Sand",
-        description: "This books recounts a tale of shipwrecked crew accidentally discovering glassmaking while cooking on a beach. More importantly, it details the processees and materials necessary to manufacture glass.",
+        description: "This books recounts a tale of shipwrecked crew accidentally discovering glassmaking while cooking on a beach. More importantly, it details the processees and materials necessary to manufacture glass",
         value: 300
     });
 })();
@@ -1173,7 +1173,7 @@ book_stats["A Glint On The Sand"] = new BookData({
 
     item_templates["Boar tusk"] = new Material({
         name: "Boar tusk", 
-        description: "Tusk of a wild boar. Visibly worn and not very sharp.",
+        description: "Tusk of a wild boar. Visibly worn and not very sharp",
         value: 20,
     });
 
@@ -1208,7 +1208,7 @@ book_stats["A Glint On The Sand"] = new BookData({
 
     item_templates["Mountain goat horn"] = new OtherItem({
         name: "Mountain goat horn",
-        description: "A curved and sturdy horn of a mountain goat. While not very useful in itself, it makes for a nice decoration.",
+        description: "A curved and sturdy horn of a mountain goat. While not very useful in itself, it makes for a nice decoration",
         value: 30,
     });
 })();
@@ -1228,13 +1228,13 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
     item_templates["High quality wolf fang"] = new Material({
         name: "High quality wolf fang",
-        description: "Fang of a wild wolf. Very sharp, undamaged and surprisingly clean.",
+        description: "Fang of a wild wolf. Very sharp, undamaged and surprisingly clean",
         value: 15,
         material_type: "miscellaneous",
     });
     item_templates["Wolf pelt"] = new Material({
         name: "Wolf pelt",
-        description: "Pelt of a wild wolf. It's a bit damaged so it won't fetch a great price, but the leather itself could be useful.",
+        description: "Pelt of a wild wolf. It's a bit damaged so it won't fetch a great price, but the leather itself could be useful",
         value: 20,
         material_type: "pelt",
     });
@@ -1247,7 +1247,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
     item_templates["Boar meat"] = new Material({
         name: "Boar meat",
-        description: "Fatty meat of a wild boar, all it needs is to be cooked.",
+        description: "Fatty meat of a wild boar, all it needs is to be cooked",
         value: 20,
     });
     item_templates["High quality boar tusk"] = new Material({
@@ -1258,12 +1258,12 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
 
     item_templates["Bear hide"] = new Material({
-        description: "A strong hide of a wild bear, so strong that even steel struggles against it.",
+        description: "A strong hide of a wild bear, so strong that even steel struggles against it",
         value: 50,
         material_type: "pelt",
     });
     item_templates["Bear claw"] = new Material({
-        description: "Large and dangerous claw of a wild bear, but it has seen better days.",
+        description: "Large and dangerous claw of a wild bear, but it has seen better days",
         value: 50,
     });
     item_templates["Sharp bear claw"] = new Material({
@@ -1281,18 +1281,18 @@ book_stats["A Glint On The Sand"] = new BookData({
 
     item_templates["Goat meat"] = new Material({
         name: "Goat meat",
-        description: "Lean meat of a goat, it's pretty tough and needs to be cooked for a long time.",
+        description: "Lean meat of a goat, it's pretty tough and needs to be cooked for a long time",
         value: 25,
     });
     item_templates["Mountain goat hide"] = new Material({
         name: "Mountain goat hide", 
-        description: "Thick hide of a mountain goat hide. Not as strong as boar hide, but this one can actually be turned into clothes after some processing.",
+        description: "Thick hide of a mountain goat hide. Not as strong as boar hide, but this one can actually be turned into clothes after some processing",
         value: 30,
         material_type: "pelt",
     });
     item_templates["Pristine mountain goat horn"] = new Material({
         name: "Pristine mountain goat horn",
-        description: "Curved and sturdy horn of a mountain goat. It's noticeably bigger than average and seems to be even sturdier.", 
+        description: "Curved and sturdy horn of a mountain goat. It's noticeably bigger than average and seems to be even sturdier",
         value: 70,
         material_type: "miscellaneous",
     });
@@ -1303,37 +1303,37 @@ book_stats["A Glint On The Sand"] = new BookData({
 (function(){
     item_templates["Low quality iron ore"] = new Material({
         name: "Low quality iron ore",
-        description: "Iron content is rather low and there are a lot of problematic components that can't be fully removed, which will affect created materials.", 
+        description: "Iron content is rather low and there are a lot of problematic components that can't be fully removed, which will affect created materials",
         value: 3,
         material_type: "raw metal",
     });
     item_templates["Iron ore"] = new Material({
         name: "Iron ore", 
-        description: "It has a decent iron content and can be smelt into market-quality iron.",
+        description: "It has a decent iron content and can be smelt into market-quality iron",
         value: 5,
         material_type: "raw metal",
     });
     item_templates["Atratan ore"] = new Material({
         name: "Atratan ore",
-        description: "A dark-colored ore that's useless by itself but can be mixed with iron to create steel.",
+        description: "A dark-colored ore that's useless by itself but can be mixed with iron to create steel",
         value: 6,
         material_type: "raw metal",
     });
     item_templates["Coal"] = new Material({
         name: "Coal",
-        description: "A flammable material with extremely high carbon content.",
+        description: "A flammable material with extremely high carbon content",
         value: 7,
         material_type: "coal",
     });
 
     item_templates["Charcoal"] = new Material({
         name: "Charcoal",
-        description: "A flammable material with extremely high carbon content, created by strongly heating wood.",
+        description: "A flammable material with extremely high carbon content, created by strongly heating wood",
         value: 5,
         material_type: "coal",
     });
     item_templates["Piece of rough wood"] = new Material({
-        description: "Cheapest form of wood. There's a lot of bark and malformed pieces.",
+        description: "Cheapest form of wood. There's a lot of bark and malformed pieces",
         value: 2,
         material_type: "raw wood",
         getName: ()=>{
@@ -1342,12 +1342,12 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Piece of wood"] = new Material({
-        description: "Average quality wood. There's a lot of bark and malformed pieces.",
+        description: "Average quality wood. There's a lot of bark and malformed pieces",
         value: 4,
         material_type: "raw wood",
     });
     item_templates["Piece of ash wood"] = new Material({
-        description: "Strong yet elastic, it's best wood you can hope to find around. There's a lot of bark and malformed pieces.",
+        description: "Strong yet elastic, it's best wood you can hope to find around. There's a lot of bark and malformed pieces",
         value: 7,
         material_type: "raw wood",
     });
@@ -1377,8 +1377,8 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
 
     item_templates["Cooking herbs"] = new Material({
-        name: "Parsley, Sage, Rosemary and Thyme",
-        description: "A collection of various herbs commonly used to enhance the flavour and nutrition of dishes.",
+        name: "Parsley, sage, rosemary and thyme",
+        description: "A collection of various herbs commonly used to enhance the flavour and nutrition of dishes",
         value: 10,
         material_type: "culinary herb",
     });
@@ -1390,7 +1390,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
     
     item_templates["Silica Sand"] = new Material({
-        description: "Sand made potent by the remains of countless generations of creatures that lived and died in the body of water it was taken from.",
+        description: "Sand made potent by the remains of countless generations of creatures that lived and died in the body of water it was taken from",
         value: 1
     });
 })();
@@ -1398,7 +1398,7 @@ book_stats["A Glint On The Sand"] = new BookData({
 //processed materials
 (function(){
     item_templates["Bonemeal"] = new Material({
-        description: "Powdered bones and teeth, that can be used as an organic fertilizer.",
+        description: "Powdered bones and teeth, that can be used as an organic fertilizer",
         value: 100,
     }),
     item_templates["Low quality iron ingot"] = new Material({
@@ -1407,23 +1407,23 @@ book_stats["A Glint On The Sand"] = new BookData({
         material_type: "metal",
     });
     item_templates["Iron ingot"] = new Material({
-        description: "It doesn't suffer from any excessive impurities and can be used without worries.",
+        description: "It doesn't suffer from any excessive impurities and can be used without worries",
         value: 20,
         material_type: "metal",
     });
     item_templates["Steel ingot"] = new Material({
-        description: "Basic alloy of iron, harder and more resistant.",
+        description: "Basic alloy of iron, harder and more resistant",
         value: 40,
         material_type: "metal",
     });
     item_templates["Piece of wolf rat leather"] = new Material({
-        description: "It's slightly damaged and seems useless for anything that requires precise work.",
+        description: "It's slightly damaged and seems useless for anything that requires precise work",
         value: 10,
         material_type: "piece of leather",
     });
     item_templates["Processed rat pelt"] = new Material({
-        description: "Processed pelt of a huge rat. It's of a barely acceptable quality, but it's still a miracle with how terrible the basic material was.", 
-        value: 20,
+        description: "Processed pelt of a huge rat. It's of a barely acceptable quality, but it's still a miracle with how terrible the basic material was", 
+        value: 15,
         material_type: "processed pelt",
     });
     item_templates["Piece of wolf leather"] = new Material({
@@ -1432,8 +1432,8 @@ book_stats["A Glint On The Sand"] = new BookData({
         material_type: "piece of leather",
     });
     item_templates["Processed wolf pelt"] = new Material({
-        description: "Processed pelt of a wild wolf. It's a nice, stylish material.",
-        value: 40,
+        description: "Processed pelt of a wild wolf. It's a nice, stylish material",
+        value: 30,
         material_type: "processed pelt",
     });
     item_templates["Piece of boar leather"] = new Material({
@@ -1442,8 +1442,8 @@ book_stats["A Glint On The Sand"] = new BookData({
         material_type: "piece of leather",
     });
     item_templates["Processed boar hide"] = new Material({
-        description: "Processed hide of a wild boar. It's a rough, heavy material, but it's quite strong.",
-        value: 60,
+        description: "Processed hide of a wild boar. It's a rough, heavy material, but it's quite strong",
+        value: 45,
         material_type: "processed pelt",
     });
     item_templates["Piece of goat leather"] = new Material({
@@ -1452,8 +1452,8 @@ book_stats["A Glint On The Sand"] = new BookData({
         material_type: "piece of leather"
     }),
     item_templates["Processed goat hide"] = new Material({
-        description: "Processed hide of a wild goat. It's a rough and resistant material.",
-        value: 80,
+        description: "Processed hide of a wild goat. It's a rough and resistant material",
+        value: 60,
         material_type: "processed pelt",
     });
     item_templates["Piece of bear leather"] = new Material({
@@ -1462,12 +1462,12 @@ book_stats["A Glint On The Sand"] = new BookData({
         material_type: "piece of leather"
     }),
     item_templates["Processed bear hide"] = new Material({
-        description: "Strong and resistant, but too thick for clothing",
-        value: 120,
+        description: "Strong, resistan, and warm",
+        value: 90,
         material_type: "piece of leather"
     }),
     item_templates["Animal fat"] = new Material({
-        description: "White, thick, oily substance, rendered from animal tissue.",
+        description: "White, thick, oily substance, rendered from animal tissue",
         value: 40,
         material_type: "fat",
     });
@@ -1487,41 +1487,41 @@ book_stats["A Glint On The Sand"] = new BookData({
         material_type: "chainmail",
     });
     item_templates["Scraps of wolf rat meat"] = new Material({
-        description: "Ignoring where they come from and all the attached diseases, they actually look edible. Just remember to cook it first.",
+        description: "Ignoring where they come from and all the attached diseases, they actually look edible. Just remember to cook it first",
         value: 8,
         material_type: "meat",
     });
     item_templates["Processed rough wood"] = new Material({
-        description: "Cheapest form of wood, ready to be used. Despite being rather weak, it still has a lot of uses.",
+        description: "Cheapest form of wood, ready to be used. Despite being rather weak, it still has a lot of uses",
         value: 6,
         material_type: "wood",
     });
 
     item_templates["Processed wood"] = new Material({
-        description: "Average quality wood, ready to be used.",
+        description: "Average quality wood, ready to be used",
         value: 11,
         material_type: "wood",
     });
 
     item_templates["Processed ash wood"] = new Material({
-        description: "High quality wood, just waiting to be turned into a piece of equipment.",
+        description: "High quality wood, just waiting to be turned into a piece of equipment",
         value: 20,
         material_type: "wood",
     });
 
     item_templates["Processed weak monster bone"] = new Material({
-        description: "Polished and cleaned bones of a weak monster, just waiting to be turned into a piece of equipment.",
+        description: "Polished and cleaned bones of a weak monster, just waiting to be turned into a piece of equipment",
         value: 40,
         material_type: "bone",
     });
 
     item_templates["Potash"] = new Material({
-        description: "An alchemical substance derived from plant ash, sought after for production of bleach, soap and glass.",
+        description: "An alchemical substance derived from plant ash, sought after for production of bleach, soap and glass",
         value: 25
     });
 
     item_templates["Raw Glass"] = new Material({
-        description: "Molten piece of glass, yet to be shaped into something useful.",
+        description: "Molten piece of glass, yet to be shaped into something useful",
         value: 100
     });
 
