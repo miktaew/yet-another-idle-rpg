@@ -510,7 +510,7 @@ function format_skill_rewards(milestone){
 
     skills["Evasion"] = new Skill({
                                 names: {0: "Evasion"},                                
-                                description:"Ability to evade attacks. You cannot do it while using a shield.",
+                                description:"Ability to evade attacks. You cannot do it while using a shield",
                                 max_level_coefficient: 2,
                                 base_xp_cost: 20,
                                 category: "Combat",
@@ -567,7 +567,7 @@ function format_skill_rewards(milestone){
                             });
     skills["Shield blocking"] = new Skill({
                                     names: {0: "Shield blocking"}, 
-                                    description: "Ability to block attacks with shield. You cannot evade while using one.",
+                                    description: "Ability to block attacks with shield. You cannot evade while using one",
                                     max_level: 30, 
                                     max_level_bonus: 0.2,
                                     category: "Combat",
@@ -582,7 +582,7 @@ function format_skill_rewards(milestone){
                                     get_effect_description: ()=> {
                                         return `Multiplies damage dealt in unarmed combat by ${Math.round(get_total_skill_coefficient({skill_id:"Unarmed",scaling_type:"multiplicative"})*1000)/1000}. 
 Multiplies attack speed, EP and AP in unarmed combat by ${Math.round((get_total_skill_coefficient({skill_id:"Unarmed",scaling_type:"multiplicative"})**0.3333)*1000)/1000}.
-Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks.`;
+Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                                     },
                                     max_level_coefficient: 64, //even with 8x more it's still gonna be worse than just using a weapon lol
                                     milestones: {
@@ -724,7 +724,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks.`;
                                             names: {0: "Spatial awareness"}, 
                                             description: "Understanding where you are in relation to other creatures and objects", 
                                             get_effect_description: ()=> {
-                                                return `Reduces environmental penalty in open areas.`;
+                                                return `Reduces environmental penalty in open areas`;
                                             },
                                             category: "Environmental",
                                             milestones: {
@@ -769,7 +769,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks.`;
                                         description: "Learn how to fight in narrow environment, where there's not much space for dodging attacks", 
                                         category: "Environmental",
                                         get_effect_description: ()=> {
-                                            return `Reduces environmental penalty in narrow areas.`;
+                                            return `Reduces environmental penalty in narrow areas`;
                                         },
                                         milestones: {
                                             3: {
@@ -806,7 +806,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks.`;
                                     max_level: 10,
                                     category: "Environmental",
                                     get_effect_description: () => {
-                                        return `Reduces environmental penalty in dark areas (except for 'pure darkness').`;
+                                        return `Reduces environmental penalty in dark areas (except for 'pure darkness')`;
                                     },
                                     milestones: {
                                         2: {
@@ -863,7 +863,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks.`;
                 max_level: 20,
                 category: "Environmental",
                 get_effect_description: () => {
-                    return `Reduces environmental penalty in extremly dark areas.`;
+                    return `Reduces environmental penalty in extremly dark areas`;
                 },
                 milestones: {
                     1: {
@@ -928,7 +928,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks.`;
 
     skills["Strength of mind"] = new Skill({
         names: {0: "Strength of mind"}, 
-        description: "Resist and reject the unnatural influence. Turn your psyche into an iron fortress.",
+        description: "Resist and reject the unnatural influence. Turn your psyche into an iron fortress",
         category: "Environmental",
         base_xp_cost: 400,
         max_level: 40,
@@ -1376,7 +1376,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
 (function(){
     skills["Sleeping"] = new Skill({
                                     names: {0: "Sleeping"}, 
-                                    description: "Good, regular sleep is the basis of getting stronger and helps your body heal.",
+                                    description: "Good, regular sleep is the basis of getting stronger and helps your body heal",
                                     get_effect_description: ()=>{
                                         return `Multiplies health restored when sleeping by ${Math.round(100*(1 + get_total_skill_level("Sleeping")/skills["Sleeping"].max_level))/100}`;
                                     },
@@ -2321,7 +2321,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     }); 
     skills["Medicine"] = new Skill({
         names: {0: "Medicine"}, 
-        description: "Create better medicaments and improve your skill at treating wounds.",
+        description: "Create better medicaments and improve your skill at treating wounds",
         category: "Character",
         max_level: 30,
         visibility_treshold: 5,
@@ -2390,7 +2390,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     });
     skills["Breathing"] = new Skill({
         names: {0: "Breathing"},
-        description: "Oxygen is the most important resource for improving the performance of your body. Learn how to take it in more efficiently.",
+        description: "Oxygen is the most important resource for improving the performance of your body. Learn how to take it in more efficiently",
         flavour_text: "You are now breathing manually",
         base_xp_cost: 400,
         visibility_treshold: 390,
