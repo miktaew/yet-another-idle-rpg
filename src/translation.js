@@ -51,8 +51,8 @@ const translations = {
         "elder need to answ": `You first need to recover, to get some rest and maybe also training, as you seem rather frail... Well, you know what? Killing a few wolf rats could be a good exercise. `
                         +`You could help us clear some field of them, how about that?`,
         "elder eq": "Is there any way I could get a weapon and proper clothes?",
-        "elder eq answ": `We don't have anything to spare, but you can talk with our trader. He should be somewhere nearby. `
-                        +`If you need money, try selling him some rat remains. Fangs, tails or pelts, he will buy them all. I have no idea what he does with this stuff...`,
+        "elder eq answ": `We don't have anything to spare, but you can check out our market. Just go over there *[points a direction]*, then turn right. It's nowhere near what you can find in a town, but people always have some gear, food, and other useful stuff to sell. `
+                        +`If you need money, try selling some rat remains there. Fangs, tails or pelts, people will buy them all. I have no idea what they do with this stuff...`,
         "elder leave 2": "Can I leave the village?",
         "elder leave 2 answ":  "We talked about this, you are still too weak",
         "elder money": "Are there other ways to make money?",

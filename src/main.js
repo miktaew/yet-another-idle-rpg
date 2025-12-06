@@ -2187,7 +2187,11 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
             if(!trader.is_unlocked) {
                 trader.is_unlocked = true;
                 if(!rewards.traders[i].skip_message) {
-                    log_message(`You can now trade with ${trader.name}`, "activity_unlocked");
+                    if(trader.unlock_message) {
+                        log_message(trader.unlock_message, "activity_unlocked");
+                    } else {
+                        log_message(`You can now trade with ${trader.name}`, "activity_unlocked");
+                    }
                 }
             }
         }

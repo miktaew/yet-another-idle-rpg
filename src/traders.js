@@ -14,6 +14,7 @@ class Trader extends InventoryHaver {
                 name,
                 display_name,
                 trade_text,
+                unlock_message = null,
                 location_name,
                 refresh_time = 4,
                 refresh_shift = 0,
@@ -26,6 +27,7 @@ class Trader extends InventoryHaver {
         this.name = name;
         this.display_name = display_name || name;
         this.trade_text = trade_text || `Trade with ${this.display_name}`;
+        this.unlock_message = unlock_message,
         this.location_name = location_name;
         this.last_refresh = -1;  
         //just the day_count from game_time at which trader was supposedly last refreshed
@@ -146,6 +148,8 @@ class TradeItem {
         inventory_template: "Basic",
         is_unlocked: false,
         location_name: "Village",
+        trade_text: "Trade on the village market",
+        unlock_message: "You can now visit the village market",
     });
     traders["suspicious trader"] = new Trader({
         name: "suspicious trader",
