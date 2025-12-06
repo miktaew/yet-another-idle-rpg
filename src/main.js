@@ -1841,7 +1841,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
         }
     }
 
-    if(cap_gained_xp && typeof xp_to_next_lvl === Number) {
+    if(cap_gained_xp && typeof skill.xp_to_next_lvl === Number) {
         //cap on singular gains for non-crafting skills; cap for crafting skills handled in crafting code as it's dependent on how many items are made at once
         xp_to_add = Math.min(xp_to_add, skill.xp_to_next_lvl*skill_xp_gains_cap);
     }
@@ -4581,6 +4581,7 @@ function load_from_localstorage() {
                 load(JSON.parse(localStorage.getItem(dev_save_key)));
                 log_message("Loaded dev save. If you want to use save from live version, import it through options panel or manually");
             } else {
+                //no need to check if it should import or do a fresh start (in case it's a result of hard reset), as that's already handled elsewhere
                 load(JSON.parse(localStorage.getItem(save_key)));
                 log_message("Dev save was not found. Loaded live version save.");
             }
@@ -4652,6 +4653,7 @@ function hard_reset() {
     if(confirmation === "reset" || confirmation === `"reset"`) {
         if(is_on_dev()) {
             localStorage.removeItem(dev_save_key);
+            localStorage.setItem("skip_live_import", "true");
         } else {
             localStorage.removeItem(save_key);
         }
@@ -5235,7 +5237,7 @@ play_button.addEventListener("click", hide_loading_screen);
 
 
 //check if there's an existing save file, otherwise just do some initial setup
-if(save_key in localStorage || (is_on_dev() && dev_save_key in localStorage)) {
+if(!is_on_dev() && save_key in localStorage || (is_on_dev() && dev_save_key in localStorage || is_on_dev() && !("skip_live_import" in localStorage) && save_key in localStorage )) {
     load_from_localstorage();
     update_character_stats();
     update_displayed_xp_bonuses();

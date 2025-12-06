@@ -954,7 +954,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         is_temperature_static: true,
         static_temperature: 18,
         is_under_roof: true,
-        unlock_text: "After a long and ardous fight, you reach a chamber that ends with a massive stone gate. You can see it's guarded by some kind of wolf rats, but much bigger than the ones you fought until now."
+        unlock_text: "After a long and ardous fight, you reach a chamber that ends with a massive stone gate. You can feel it's guarded by some kind of wolf rats, but much bigger than the ones you fought until now."
     });
 
     locations["Nearby cave"].connected_locations.push(
@@ -1347,7 +1347,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
         repeatable_reward: {
             traders: [{trader: "suspicious trader 2", skip_message: true}],
-            textlines: [{dialogue: "suspicious man", lines: ["defeated gang", "behave 3"]}],
+            textlines: [{dialogue: "suspicious man", lines: ["defeated gang"]}],
             locks: {
                 traders: ["suspicious trader"],
                 locations: ["Gang hideout"],

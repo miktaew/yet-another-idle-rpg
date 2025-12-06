@@ -509,7 +509,7 @@ class DialogueAction extends GameAction {
                 text: "sus gang defeated answ",
                 locks_lines: ["defeated gang"],
                 rewards: {
-                    textlines: [{dialogue: "suspicious man", lines: ["tricks"]}],
+                    textlines: [{dialogue: "suspicious man", lines: ["tricks", "behave 3" ]}],
                     dialogues: ["old woman of the slums"],
                 }
             }),

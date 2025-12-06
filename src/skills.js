@@ -510,7 +510,7 @@ function format_skill_rewards(milestone){
 
     skills["Evasion"] = new Skill({
                                 names: {0: "Evasion"},                                
-                                description:"Ability to evade attacks", 
+                                description:"Ability to evade attacks. You cannot do it while using a shield.",
                                 max_level_coefficient: 2,
                                 base_xp_cost: 20,
                                 category: "Combat",
@@ -567,12 +567,12 @@ function format_skill_rewards(milestone){
                             });
     skills["Shield blocking"] = new Skill({
                                     names: {0: "Shield blocking"}, 
-                                    description: "Ability to block attacks with shield", 
+                                    description: "Ability to block attacks with shield. You cannot evade while using one.",
                                     max_level: 30, 
                                     max_level_bonus: 0.2,
                                     category: "Combat",
                                     get_effect_description: ()=> {
-                                        return `Increases block chance by flat ${Math.round(get_total_level_bonus("Shield blocking")*1000)/10}%. Increases blocked damage by ${Math.round(get_total_level_bonus("Shield blocking")*5000)/10}%`;
+                                        return `Increases block chance by flat ${Math.round(get_total_level_bonus("Shield blocking")*1000)/10}%. Increases blocked damage by ${Math.round(get_total_level_bonus("Shield blocking")*5000)/10}%.`;
                                     }});
     
      skills["Unarmed"] = new Skill({ 

@@ -107,7 +107,7 @@ const translations = {
         "guard tips": "Can you give me any tips for the journey?",
         "guard tips answ": `First and foremost, don't rush. It's fine to spend some more time here, to better prepare yourself. `
                 +`There's a lot of dangerous animals out there, much stronger than those damn rats, and in worst case you might even run into some bandits. `
-                +`If you see something that is too dangerous to fight, try to run away.`,
+                +`If you see something that is too dangerous to fight, try to run away. There's no shame in staying alive to fight on another day, when chances of survival become better.`,
         "guard teach": "Could you maybe teach me something that would be of use?",
         "guard teach answ":  `Lemme take a look... Yes, it looks like you know some basics. Do you know any proper techniques? No? I thought so. I could teach you the most standard three. `
                 +`They might be more tiring than fighting the "normal" way, but if used in a proper situation, they will be a lot more effective. Two can be easily presented through `
