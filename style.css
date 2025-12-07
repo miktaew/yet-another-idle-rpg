@@ -2037,26 +2037,20 @@ i {
 				height: 255px;
 			}
 
-			#data_box_div, #books_box_div{
+			#data_box_div, #books_box_div, #bestiary_box_div, #quests_box_div{
 				width: 100%;
-				height: 300px;
-				display: none;
+				height: 284px;
 				overflow-y: scroll;
+			}
+
+			#data_box_div, #books_box_div, #bestiary_box_div{
+				display: none;
 			}
 
 			#quests_box_div {
-				width: 100%;
-				height: 284px;
 				display: block;
-				overflow-y: scroll;
 			}
 
-			#bestiary_box_div{
-				width: 100%;
-				height: 300px;
-				display: none;
-				overflow-y: scroll;
-			}
 				.bestiary_entry_div, .data_entry, .anthology_entry_div {
 					width: 380px;
 					display: flex;
