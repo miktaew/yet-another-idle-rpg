@@ -572,7 +572,7 @@ function format_skill_rewards(milestone){
                                     max_level_bonus: 0.2,
                                     category: "Combat",
                                     get_effect_description: ()=> {
-                                        return `Increases block chance by flat ${Math.round(get_total_level_bonus("Shield blocking")*1000)/10}%. Increases blocked damage by ${Math.round(get_total_level_bonus("Shield blocking")*5000)/10}%.`;
+                                        return `Increases block chance by flat ${Math.round(get_total_level_bonus("Shield blocking")*1000)/10}%. Increases blocked damage by ${Math.round(get_total_level_bonus("Shield blocking")*5000)/10}%`;
                                     }});
     
      skills["Unarmed"] = new Skill({ 
@@ -1712,7 +1712,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         },
     });
     skills["Swimming"] = new Skill({
-        description: "A nice, gentle, and relaxing exercise. Just remember to be careful.",
+        description: "A nice, gentle, and relaxing exercise. Just remember to be careful",
         names: {0: "Swimming"},
         max_level: 50,
         category: "Activity",
@@ -2478,12 +2478,12 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         },
         get_effect_description: ()=> {
             let value = get_total_skill_coefficient({skill_id:"Breathing",scaling_type:"multiplicative"});
-            return `Multiplies strength, agility and stamina by ${Math.round(value*100)/100}. Reduces thin air effects.`;
+            return `Multiplies strength, agility and stamina by ${Math.round(value*100)/100}. Reduces thin air effects`;
           },
     });  
     skills["Regeneration"] = new Skill({
                                 names: {0: "Regeneration"}, 
-                                description: "As your body regenerates more and more, it slowly becomes more proficient in this task.",
+                                description: "As your body regenerates more and more, it slowly becomes more proficient in this task",
                                 get_effect_description: ()=>{
                                     return `Multiplies health restored when resting or sleeping by ${Math.round(100*(1 + 3*get_total_skill_level("Regeneration")/skills["Regeneration"].max_level))/100}`;
                                 },

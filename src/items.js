@@ -1167,7 +1167,7 @@ book_stats["A Glint On The Sand"] = new BookData({
 
     item_templates["Wolf fang"] = new OtherItem({
         name: "Wolf fang", 
-        description: "Fang of a wild wolf. Somewhat sharp, still not very useful. Maybe if it had a bit better quality...", 
+        description: "Fang of a wild wolf. Somewhat sharp, still not very useful. Maybe if it had a bit better quality...",
         value: 12,
         material_type: "animal tooth",
     });
@@ -2250,7 +2250,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
     item_templates["Boar leather glove armor"] = new ArmorComponent({
         name: "Boar leather glove armor",
-        description: "Pieces of boar leather shaped for gloves.",
+        description: "Pieces of boar leather shaped for gloves",
         component_type: "glove exterior",
         value: 400,
         component_tier: 3,
@@ -2379,7 +2379,7 @@ book_stats["A Glint On The Sand"] = new BookData({
 
     item_templates["Iron chainmail greaves"] = new ArmorComponent({
         name: "Iron chainmail greaves",
-        description: "Greaves made of iron chainmail. Just attach them onto some pants and you are ready to go.",
+        description: "Greaves made of iron chainmail. Just attach them onto some pants and you are ready to go",
         component_type: "leg armor exterior",
         value: 320,
         component_tier: 2,
@@ -2399,7 +2399,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
     item_templates["Steel chainmail greaves"] = new ArmorComponent({
         name: "Steel chainmail greaves",
-        description: "Greaves made of steel chainmail. Just attach them onto some pants and you are ready to go.",
+        description: "Greaves made of steel chainmail. Just attach them onto some pants and you are ready to go",
         component_type: "leg armor exterior",
         value: 480,
         component_tier: 3,
@@ -2420,7 +2420,7 @@ book_stats["A Glint On The Sand"] = new BookData({
 
     item_templates["Iron chainmail glove"] = new ArmorComponent({
         name: "Iron chainmail glove",
-        description: "Iron chainmail in a form ready to be applied onto a glove.",
+        description: "Iron chainmail in a form ready to be applied onto a glove",
         component_type: "glove exterior",
         value: 320,
         component_tier: 2,
@@ -2440,7 +2440,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
     item_templates["Steel chainmail glove"] = new ArmorComponent({
         name: "Steel chainmail glove",
-        description: "Steel chainmail in a form ready to be applied onto a glove.",
+        description: "Steel chainmail in a form ready to be applied onto a glove",
         component_type: "glove exterior",
         value: 480,
         component_tier: 3,
@@ -2461,7 +2461,7 @@ book_stats["A Glint On The Sand"] = new BookData({
 
     item_templates["Iron chainmail shoes"] = new ArmorComponent({
         name: "Iron chainmail shoes",
-        description: "Iron chainmail in a form ready to be applied onto a pair of shoes.",
+        description: "Iron chainmail in a form ready to be applied onto a pair of shoes",
         component_type: "shoes exterior",
         value: 320,
         component_tier: 2,
@@ -2478,7 +2478,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
     item_templates["Steel chainmail shoes"] = new ArmorComponent({
         name: "Steel chainmail shoes",
-        description: "Steel chainmail in a form ready to be applied onto a pair of shoes.",
+        description: "Steel chainmail in a form ready to be applied onto a pair of shoes",
         component_type: "shoes exterior",
         value: 480,
         component_tier: 3,
@@ -2516,7 +2516,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
     item_templates["Leather vest"] = new Armor({
         name: "Leather vest", 
-        description: "Comfortable leather vest, offering a low protection.", 
+        description: "Comfortable leather vest, offering a low protection",
         value: 300,
         component_type: "chestplate interior",
         base_defense: 2,
@@ -2559,7 +2559,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
     item_templates["Leather pants"] = new Armor({
         name: "Leather pants", 
-        description: "Solid leather pants.", 
+        description: "Solid leather pants",
         value: 300,
         component_type: "leg armor interior",
         base_defense: 2,

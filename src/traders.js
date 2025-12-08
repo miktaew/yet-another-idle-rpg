@@ -313,6 +313,7 @@ class TradeItem {
             new TradeItem({item_name: "Iron sickle", count: [1], chance: 0.8}),
             new TradeItem({item_name: "Iron pickaxe", count: [1], chance: 0.8}),
             new TradeItem({item_name: "Iron chopping axe", count: [1], chance: 0.8}),
+            new TradeItem({item_name: "Iron shovel", count: [1], chance: 0.8}),
     ];
 
     inventory_templates["Intermediate"] = 
@@ -371,6 +372,7 @@ class TradeItem {
         new TradeItem({item_name: "Wolf pelt cape", count: [1], chance: 0.9, quality: [70, 120]}),
         new TradeItem({item_name: "Boar hide cape", count: [1], chance: 0.9, quality: [70, 120]}),
         new TradeItem({item_name: "Goat hide cape", count: [1], chance: 0.9, quality: [70, 120]}),
+        new TradeItem({item_name: "Bear hide cape", count: [1], chance: 0.5, quality: [70, 120]}),
         
         
         new TradeItem({item_name: "Fresh bread", count: [4,10]}),
@@ -396,6 +398,7 @@ class TradeItem {
         new TradeItem({item_name: "Iron sickle", count: [1], chance: 1}),
         new TradeItem({item_name: "Iron pickaxe", count: [1], chance: 1}),
         new TradeItem({item_name: "Iron chopping axe", count: [1], chance: 1}),
+        new TradeItem({item_name: "Iron shovel", count: [1], chance: 1}),
     ];
 })();
 export { traders, inventory_templates, TradeItem };
