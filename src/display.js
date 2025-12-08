@@ -361,8 +361,13 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
                 item_tooltip += 
                 `<br><br>Defense: ${Math.round(10*item.getDefense(options.quality[0]))/10} - ${Math.round(10*item.getDefense(options.quality[1]))/10}`;
             } else if(item.offhand_type === "shield") {
-                item_tooltip += 
+                if(item.tags.ignore_skill) {
+                    item_tooltip += 
+                `<br><br>Can block up to: ${Math.round(10*item.getShieldStrength(options.quality[0]))/10} - ${Math.round(10*item.getShieldStrength(options.quality[1]))/10} damage [base: ${item.getShieldStrength(options.quality[0])}-${item.getShieldStrength(options.quality[1])}]`;
+                } else {
+                    item_tooltip += 
                 `<br><br>Can block up to: ${Math.round(10*item.getShieldStrength(options.quality[0])*(character.stats.total_multiplier.block_strength))/10} - ${Math.round(10*item.getShieldStrength(options.quality[1])*(character.stats.total_multiplier.block_strength))/10} damage [base: ${item.getShieldStrength(options.quality[0])}-${item.getShieldStrength(options.quality[1])}]`;
+                }
             }
 
             const equip_stats_0 = item.getStats(options.quality[0]);
@@ -388,8 +393,13 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
                 item_tooltip += 
                 `<br><br>Defense: ${Math.round(10*item.getDefense())/10}`;
             } else if(item.offhand_type === "shield") {
-                item_tooltip += 
+                if(item.tags.ignore_skill) {
+                    item_tooltip += 
+                `<br><br>Can block up to: ${Math.round(10*item.getShieldStrength())/10} damage [unaffected by skill]`;
+                } else {
+                    item_tooltip += 
                 `<br><br>Can block up to: ${Math.round(10*item.getShieldStrength()*(character.stats.total_multiplier.block_strength))/10} damage [base: ${item.getShieldStrength()}]`;
+                }
             }
 
             const equip_stats = item.getStats();
@@ -1776,9 +1786,9 @@ function update_displayed_enemies() {
             }
 
             //enemies_div.children[i].children[0].children[1].innerHTML = `AP : ${Math.round(ap)} | EP : ${Math.round(ep)}`;
-            enemies_div.children[i].children[0].children[1].children[0].innerHTML = `Atk pwr: ${current_enemies[i].stats.attack}`;
+            enemies_div.children[i].children[0].children[1].children[0].innerHTML = `Atk: ${current_enemies[i].stats.attack}dmg`;
             if(current_enemies[i].stats.attack_count > 1) {
-                enemies_div.children[i].children[0].children[1].children[0].innerHTML+=`x${current_enemies[i].stats.attack_count}`;
+                enemies_div.children[i].children[0].children[1].children[0].innerHTML+=` x${current_enemies[i].stats.attack_count}`;
             }
             enemies_div.children[i].children[0].children[1].children[1].innerHTML = `Atk spd: ${disp_speed}`;
             enemies_div.children[i].children[0].children[1].children[2].innerHTML = `Hit: ${Math.min(100,Math.max(0,Math.round(100*hit_chance)))}%`; //100% if shield!

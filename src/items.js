@@ -553,6 +553,7 @@ class Shield extends Equippable {
             throw new Error(`No such shield handle component as: ${item_data.components.handle}`);
         }
         this.components.handle = item_data.components.handle; //only the name
+        this.tags = {...this.tags, ...item_templates[this.components.handle].tags, ...item_templates[this.components.shield_base].tags};
         this.tags["shield"] = true;
         if(!this.id) {
             this.id = this.getName();
@@ -574,9 +575,9 @@ class Shield extends Equippable {
 
     calculateShieldStrength(quality) {
         return Math.round(
-            10 * Math.ceil(item_templates[this.components.shield_base].shield_strength 
+            10 * Math.ceil(10*item_templates[this.components.shield_base].shield_strength 
             * (item_templates[this.components.handle].component_stats?.block_strength?.multiplier || 1) 
-            * (quality/100) * rarity_multipliers[this.getRarity(quality)]))/10;
+            * (quality/100) * rarity_multipliers[this.getRarity(quality)]))/100;
     }
 
     getName() {
@@ -1202,7 +1203,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
     item_templates["Coil of rope"] = new OtherItem({
         name: "Coil of rope",
-        description: "A nice, long coil of rope, for whatever use you might find",
+        description: "A nice, long coil of rope, for whatever use you might find (although you have a feeling it will only be very situational)",
         value: 400,
     });
 
@@ -2921,8 +2922,26 @@ book_stats["A Glint On The Sand"] = new BookData({
 
 //shield components:
 (function(){
+
+    item_templates["Wooden training shield base"] = new ShieldComponent({
+        name: "Wooden training shield base",
+        description: "A primitive but cheap form of a shield",
+        value: 16,
+        tags: {"ignore_skill": true},
+        shield_strength: 0.5,
+        shield_name: "Wooden training shield",
+        component_tier: 1,
+        component_type: "shield base",
+        component_stats: {
+            attack_speed: {
+                multiplier: 0.95,
+            }
+        }
+    });
+    
     item_templates["Cheap wooden shield base"] = new ShieldComponent({
-        name: "Cheap wooden shield base", description: "Cheap shield component made of wood, basically just a few planks barely holding together", 
+        name: "Cheap wooden shield base",
+        description: "Cheap shield component made of wood, basically just a few planks barely holding together", 
         value: 16, 
         shield_strength: 1, 
         shield_name: "Cheap wooden shield",
@@ -2936,7 +2955,8 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
 
     item_templates["Crude wooden shield base"] = new ShieldComponent({
-        name: "Crude wooden shield base", description: "A shield base of rather bad quality, but at least it won't fall apart by itself", 
+        name: "Crude wooden shield base",
+        description: "A shield base of rather bad quality, but at least it won't fall apart by itself", 
         value: 32,
         shield_strength: 3,
         shield_name: "Crude wooden shield",
@@ -2949,7 +2969,8 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Wooden shield base"] = new ShieldComponent({
-        name: "Wooden shield base", description: "Proper wooden shield base, although it could use some additional reinforcement", 
+        name: "Wooden shield base",
+        description: "Proper wooden shield base, although it could use some additional reinforcement", 
         value: 80,
         shield_strength: 5,
         shield_name: "Wooden shield",
@@ -2962,7 +2983,8 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Ash wood shield base"] = new ShieldComponent({
-        name: "Ash wood shield base", description: "Solid wooden shield base, although still nowhere near as resistant as metal", 
+        name: "Ash wood shield base",
+        description: "Solid wooden shield base, although still nowhere near as resistant as metal", 
         value: 120,
         shield_strength: 8,
         shield_name: "Ash wood shield",
@@ -3055,6 +3077,13 @@ book_stats["A Glint On The Sand"] = new BookData({
 
 //shields:
 (function(){
+    item_templates["Wooden training shield"] = new Shield({
+        components: {
+            shield_base: "Wooden training shield base",
+            handle: "Basic shield handle",
+        }
+    });
+
     item_templates["Cheap wooden shield"] = new Shield({
         components: {
             shield_base: "Cheap wooden shield base",

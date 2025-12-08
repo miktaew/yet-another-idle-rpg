@@ -56,7 +56,7 @@ class Trader extends InventoryHaver {
      * @returns boolean informing if it was able to refresh
      */
     refresh() {
-        if (this.can_refresh()) {
+        if(this.can_refresh()) {
             //refresh inventory
             this.inventory = this.get_inventory_from_template();
 
@@ -190,6 +190,7 @@ class TradeItem {
             new TradeItem({item_name: "Iron axe", count: [1], quality: [70, 90], chance: 0.4}),
             new TradeItem({item_name: "Iron battle hammer", count: [1], quality: [70, 90], chance: 0.4}),
 
+            new TradeItem({item_name: "Wooden training shield", count: [1], quality: [100,100]}),
             new TradeItem({item_name: "Cheap wooden shield", count: [1], quality: [40, 90]}),
             new TradeItem({item_name: "Cheap wooden shield", count: [1], chance: 0.8, quality: [91, 120]}),
             new TradeItem({item_name: "Crude wooden shield", count: [1], chance: 0.7, quality: [40, 90]}),
@@ -215,11 +216,11 @@ class TradeItem {
 
             new TradeItem({item_name: "Rat pelt cape", count: [1,3], chance: 1, quality: [70, 120]}),
 
-            new TradeItem({item_name: "Stale bread", count: [4,10]}),
-            new TradeItem({item_name: "Bread kwas", count: [1], chance: 0.6}),
-            new TradeItem({item_name: "Fresh bread", count: [2,5]}),
+            new TradeItem({item_name: "Stale bread", count: [7,14]}),
+            new TradeItem({item_name: "Bread kwas", count: [3,5], chance: 0.6}),
+            new TradeItem({item_name: "Fresh bread", count: [4,7]}),
             new TradeItem({item_name: "Weak healing powder", count: [2,5]}),
-            new TradeItem({item_name: "Cooking herbs", count: [1,3]}, 0.5),
+            new TradeItem({item_name: "Cooking herbs", count: [2,4]}, 0.5),
 
             new TradeItem({item_name: "ABC for kids", count: [1], chance: 1}),
             new TradeItem({item_name: "Old combat manual", count: [1], chance: 0.5}),
@@ -231,8 +232,8 @@ class TradeItem {
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
             new TradeItem({item_name: "Glass bottle", count: [4,8], chance: 1}),
 
-            new TradeItem({item_name: "Camping supplies", count: [1], chance: 1}),
-            new TradeItem({item_name: "Coil of rope", count: [1], chance: 1}),
+            new TradeItem({item_name: "Camping supplies", count: [1,3], chance: 1}),
+            new TradeItem({item_name: "Coil of rope", count: [1,3], chance: 1}),
     ];
 
     inventory_templates["Basic plus"] = 

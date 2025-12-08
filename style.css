@@ -631,7 +631,9 @@ input[type=checkbox], input[type=radio] {
 }
 
 .item_tooltip, .job_tooltip, .location_tooltip, .recipe_tooltip {
-	width: 210px;
+	max-width: 250px;
+	min-width: 150px;
+	width: max-content;
 }
 
 #export_button_tooltip {
@@ -712,7 +714,9 @@ input[type=checkbox], input[type=radio] {
 	padding: 5px;
 	position: absolute;
 	z-index: 10;
-	width: 300px;
+	max-width: 350px;
+	min-width: 100px;
+	width: max-content;
 	pointer-events: none;
 	top: var(--bar_tooltip_top);
 	left: var(--bar_tooltip_left);
@@ -730,7 +734,9 @@ input[type=checkbox], input[type=radio] {
 	padding: 5px;
 	position: absolute;
 	z-index: 1000;
-	width: 300px;
+	max-width: 300px;
+	width: max-content;
+	min-width: 100px;
 	top: var(--skill_tooltip_top);
 	left: var(--skill_tooltip_left);
 	pointer-events: none;
