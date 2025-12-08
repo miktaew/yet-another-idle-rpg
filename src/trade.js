@@ -459,7 +459,7 @@ function calculate_total_values() {
             to_sell.groups[traded_group_key].group_value 
                                     += item.getValueOfMultiple({
                                         additional_traded_count: sold_saturation,
-                                        stop_multiplier_at: Math.max(0,sold_saturation-bought_saturation+to_sell.groups[traded_group_key].sorted[i].count),
+                                        stop_multiplier_at: Math.max(0,sold_saturation-bought_saturation-to_sell.groups[traded_group_key].sorted[i].count),
                                         count: to_sell.groups[traded_group_key].sorted[i].count,
                                         region: current_location.market_region,
                                     });

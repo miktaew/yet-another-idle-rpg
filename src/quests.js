@@ -346,7 +346,7 @@ const questManager = {
         ],
         quest_rewards: {
             money: 5000,
-            xp: 100000, //100k, probably almost worthless by that point
+            xp: 50000, //50k
             reputation: {
                 town: 60,
             }
