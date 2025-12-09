@@ -5302,7 +5302,10 @@ function add_all_active_effects(duration){
     update_displayed_effects();
 }
 
-//add_to_character_inventory([{item_id: "Warrior's necklace", count: 1}]);
+//add_to_character_inventory([{item_id: "Iron sword", count: 20, quality: 100}]);
+//add_to_character_inventory([{item_id: "Iron sword", count: 20, quality: 120}]);
+//add_to_character_inventory([{item_id: "Iron sword", count: 20, quality: 140}]);
+
 
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();

@@ -1467,7 +1467,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
 //challenge zones
 (function(){
     locations["Sparring with the village guard (heavy)"] = new Challenge_zone({
-        description: "He's showing you a technique that makes his attacks slow but deadly",
+        description: "She's showing you a technique that makes her attacks slow but deadly",
         enemy_count: 1, 
         enemies_list: ["Village guard (heavy)"],
         enemy_group_size: [1,1],
@@ -1485,7 +1485,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         unlock_text: "You can now spar with the guard (heavy stance) in the Village"
     });
     locations["Sparring with the village guard (quick)"] = new Challenge_zone({
-        description: "He's showing you a technique that makes his attacks slow but deadly",
+        description: "She's showing you a technique that makes her attacks slow but deadly",
         enemy_count: 1, 
         enemies_list: ["Village guard (quick)"],
         enemy_group_size: [1,1],
