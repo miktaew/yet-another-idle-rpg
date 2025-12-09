@@ -68,7 +68,7 @@ const translations = {
         "elder leave 3": "Can I leave the village?",
         "elder leave 3 answ":  "You still need to get stronger.",
         "elder cave clear":  "I cleared the cave. Most of it, at least",
-        "elder cave clear answ": `Then I can't call you "too weak" anymore, can I? You are free to leave whenever you want, but still, be careful. You might also want to ask the guard for some tips about the outside. He used to be an adventurer.`,
+        "elder cave clear answ": `Then I can't call you "too weak" anymore, can I? You are free to leave whenever you want, but still, be careful. You might also want to ask the guard for some tips about the outside. She used to be an adventurer.`,
         "elder leave 4": "Can I leave the village?",
         "elder leave 4 answ": "You are strong enough, you can leave and come whenever you want.",
         "elder tunnel": "I found an even deeper tunnel in the cave",
@@ -99,7 +99,7 @@ const translations = {
         "craftsman remind 4": "How do I get better at crafting?",
         "craftsman remind 4 answ": "Ahh, there aren't any secrets, you just need to keep practicing it. Just don't spend your entire life working on same louse materials, try to work on stronger stuff when you feel confident. There's a limit to how much you can learn by working with rat leather, isn't there?",
         //
-        "guard description": "You see a man in light armor, with a spear in his hand and two daggers on his belt.",
+        "guard description": "You see a woman in light armor, with a spear in her hand and two daggers on her belt.",
         "guard hello": "Hello?",
         "guard hello answ": "Hello. I see you are finally leaving, huh?",
         "guard job": "Do you maybe have any jobs for me?",
@@ -206,7 +206,7 @@ const translations = {
         "craftsman learn answ": "Ahh, that's great. Well then... \n*[Old man spends some time explaining all the important basics of crafting and providing you with tips, his large fingers proving to be as nimble as they seemed]*\n"+
                 "Ahh, and before I forget, here, take these. They will be helpful for gathering necessary materials.",
         //
-        "guard description": "You see a man in light armor, with a spear in his hand and two daggers on his belt. His sharp fuzzy ears rotate every now end then towards any new sound.",
+        "guard description": "You see a woman in light armor, with a spear in her hand and two daggers on her belt. Her sharp fuzzy ears rotate every now end then towards any new sound. When she spots you, she looks at you as if you were a prey for a split second, before her face becomes neutral",
         //
         "g guard description": "You see a massive, hairy man with round ears and a tiny tail. He's clad in a steel chainmail, with a spear in his hand and a sword on his belt.",
         //

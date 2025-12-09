@@ -330,6 +330,10 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
             }
         }
 
+        if(item.tags.unique) {
+            item_tooltip += `<br><br><b class="item_unique">Unique</b>`
+        }
+
 
         item_tooltip += `<br><br>Slot: <b>${item.equip_slot}</b>`;
         if(item.equip_slot === "weapon") {

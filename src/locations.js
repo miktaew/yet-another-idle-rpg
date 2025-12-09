@@ -1124,7 +1124,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Forest road"].connected_locations.push({location: locations["Forest den"], custom_text: "Enter the [Forest den]", travel_time: 90});
 
     locations["Bears' den"] = new Combat_zone({
-        description: "A relatively large cave in the depths of the forest, filled with hordes of direwolves.",
+        description: "A dark, smelly cave in the heart of the forest, with massive bones spread around the entrance.",
         enemies_list: ["Forest bear"],
         enemy_count: 20,
         enemy_group_size: [1,1],

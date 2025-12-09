@@ -220,7 +220,9 @@ class TradeItem {
             new TradeItem({item_name: "Bread kwas", count: [3,5], chance: 0.6}),
             new TradeItem({item_name: "Fresh bread", count: [4,7]}),
             new TradeItem({item_name: "Weak healing powder", count: [2,5]}),
-            new TradeItem({item_name: "Cooking herbs", count: [2,4]}, 0.5),
+            new TradeItem({item_name: "Cooking herbs", count: [2,4], chance: 0.5}),
+
+            new TradeItem({item_name: "Coal", count: [5,20]}),
 
             new TradeItem({item_name: "ABC for kids", count: [1], chance: 1}),
             new TradeItem({item_name: "Old combat manual", count: [1], chance: 0.5}),
@@ -296,7 +298,9 @@ class TradeItem {
             new TradeItem({item_name: "Bread kwas", count: [1,3]}),
             new TradeItem({item_name: "Weak healing powder", count: [2,5]}),
             new TradeItem({item_name: "Oneberry juice", count: [2,5]}),
-            new TradeItem({item_name: "Cooking herbs", count: [1,4]}, 0.6),
+            new TradeItem({item_name: "Cooking herbs", count: [1,4], chance: 0.6}),
+
+            new TradeItem({item_name: "Coal", count: [20,50]}),
 
             new TradeItem({item_name: "Twist liek a snek", count: [1], chance: 0.8}),
             new TradeItem({item_name: "Butchering and you", count: [1], chance: 0.6}),
@@ -381,7 +385,9 @@ class TradeItem {
         new TradeItem({item_name: "Oneberry juice", count: [2,5]}),
         new TradeItem({item_name: "Healing powder", count: [2,5]}),
         new TradeItem({item_name: "Healing potion", count: [2,5]}),
-        new TradeItem({item_name: "Cooking herbs", count: [2,5]}, 0.8),
+        new TradeItem({item_name: "Cooking herbs", count: [2,5], chance: 0.8}),
+
+        new TradeItem({item_name: "Coal", count: [20,50]}),
 
         new TradeItem({item_name: "Twist liek a snek", count: [1], chance: 1}),
         new TradeItem({item_name: "Butchering and you", count: [1], chance: 1}),

@@ -168,7 +168,7 @@ class Enemy {
     });
     enemy_templates["Wall rat"] = new Enemy({
         name: "Wall rat",
-        description: "They don't live in the walls, they ARE the walls. Insane writhing masses of teeth, fangs, and tails, that make no logical sense. An abomination that cannot exist, and yet it does.",
+        description: "They don't live in the walls, they ARE the walls. Insane writhing masses of teeth, fangs, and tails, that make no logical sense. An abomination that cannot exist, and yet it does",
         xp_value: 50,
         rank: 8,
         size: enemy_sizes.LARGE,

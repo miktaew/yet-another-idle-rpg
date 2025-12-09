@@ -2775,7 +2775,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         component_tier: 2,
         component_stats: {
             cold_tolerance: {
-                flat: 2,
+                flat: 3,
             }
         }
     });
@@ -3193,6 +3193,7 @@ book_stats["A Glint On The Sand"] = new BookData({
 (function(){
     item_templates["Warrior's necklace"] = new Amulet({
         value: 1000,
+        tags: {unique: true},
         stats: {
             attack_power: {
                 multiplier: 1.1,

@@ -944,6 +944,12 @@ input[type=checkbox], input[type=radio] {
 	display: var(--other_display);
 }
 
+.item_unique {
+	font-weight:1000;
+	color: purple;
+	font-style: italic;
+}
+
 .character_control_button {
 	float:left;
 	padding: 6px;
