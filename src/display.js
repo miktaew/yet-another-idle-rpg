@@ -1794,7 +1794,7 @@ function update_displayed_enemies() {
             if(current_enemies[i].stats.attack_count > 1) {
                 enemies_div.children[i].children[0].children[1].children[0].innerHTML+=` x${current_enemies[i].stats.attack_count}`;
             }
-            enemies_div.children[i].children[0].children[1].children[1].innerHTML = `Atk spd: ${disp_speed}`;
+            enemies_div.children[i].children[0].children[1].children[1].innerHTML = `Spd: ${disp_speed}`;
             enemies_div.children[i].children[0].children[1].children[2].innerHTML = `Hit: ${Math.min(100,Math.max(0,Math.round(100*hit_chance)))}%`; //100% if shield!
             enemies_div.children[i].children[0].children[1].children[3].innerHTML = `Ddg: ${Math.min(100,Math.max(0,Math.round(100*evasion_chance)))}%`;
             enemies_div.children[i].children[0].children[1].children[4].innerHTML = `Def: ${current_enemies[i].stats.defense}`;
@@ -3379,7 +3379,7 @@ function update_displayed_stats() {
         atk = Math.round(10*atk)/10;
     }
     attack_stats.children[0].innerHTML = `Atk: ${atk}`;
-    attack_stats.children[1].innerHTML = `Atk spd: ${Math.round(character.get_attack_speed()*100)/100}`;
+    attack_stats.children[1].innerHTML = `Spd: ${Math.round(character.get_attack_speed()*100)/100}`;
     attack_stats.children[2].innerHTML = `AP:  ${Math.round(ap)}`;
     attack_stats.children[4].innerHTML = `Def: ${Math.round(character.stats.full.defense)} `;
 }

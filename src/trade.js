@@ -444,13 +444,13 @@ function calculate_total_values() {
                 trade_cap = capped_at;
             }
 
-            //grab both saturations beforehand, to avoid unnecessary recalc
+            //grab both saturations beforehand, to avoid unnecessary recalc (those are not total, just for current trade)
             const sold_saturation = calculate_total_saturation({sold_by_tier: traded_groups.selling[traded_group_key], target_tier: group_tier, cap: trade_cap});
             const bought_saturation = calculate_total_saturation({sold_by_tier: traded_groups.buying_precalculated[traded_group_key], target_tier: group_tier, cap: trade_cap});
 
             /*
             increase value by value of however many there is of specific item
-            additional traded count: what's being sold from same group
+            additional traded count: what's being sold from same group (and is already processed)
             stop_multiplier_at: difference in counts, as only count over that difference should be subject to saturation
             */
             to_sell.groups[traded_group_key].group_value 
