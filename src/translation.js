@@ -121,6 +121,8 @@ const translations = {
         "guard wide": "What's the third technique?",
         "guard wide answ": `It's usually called "broad arc". Instead of focusing on a single target, you make a wide swing to hit as many as possible. ` 
                 +`It might work great against groups of weaker enemies, but it will also significantly reduce the power of your attacks and will be even more tiring than the other two stances.`,
+        "guard hi": "Hi again, how's it going?",
+        "guard hi answ": "Hey there, cutie~",
         //
         "g guard description": "You see a massive man in a steel chainmail, with a spear in his hand and a sword on his belt.",
         "g guard hello": "Hello, can I get in?",
@@ -206,7 +208,9 @@ const translations = {
         "craftsman learn answ": "Ahh, that's great. Well then... \n*[Old man spends some time explaining all the important basics of crafting and providing you with tips, his large fingers proving to be as nimble as they seemed]*\n"+
                 "Ahh, and before I forget, here, take these. They will be helpful for gathering necessary materials.",
         //
-        "guard description": "You see a woman in light armor, with a spear in her hand and two daggers on her belt. Her sharp fuzzy ears rotate every now end then towards any new sound. When she spots you, she looks at you as if you were a prey for a split second, before her face becomes neutral",
+        "guard description": "You see a tall woman in light armor, with a spear in her hand and two daggers on her belt. Her sharp fuzzy ears rotate every now and then towards any new sound, while her fluffy tail remains motionless. When she spots you, she looks at you as if you were a prey, but then adopts a more neutral expression",
+        "guard hi": "Hi again, how's it going?",
+        "guard hi answ": "Hey there, cutie. Be careful, or this big bad wolf might just decide to eat you~",
         //
         "g guard description": "You see a massive, hairy man with round ears and a tiny tail. He's clad in a steel chainmail, with a spear in his hand and a sword on his belt.",
         //

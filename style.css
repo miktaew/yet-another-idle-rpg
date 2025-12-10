@@ -1858,10 +1858,13 @@ i {
 						white-space: nowrap;
 					}
 					.enemy_stat_short, .attack_stat_short {
-						width: 70px;
+						width: 65px;
 					}
 					.enemy_stat_long, .attack_stat_long {
-						width: 70px;
+						width: 85px;
+					}
+					.attack_start_veryshort {
+						width: 52px;
 					}
 
 				.enemy_health_div {

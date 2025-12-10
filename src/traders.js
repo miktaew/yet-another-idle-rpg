@@ -209,6 +209,7 @@ class TradeItem {
             new TradeItem({item_name: "Leather pants", count: [1], chance: 0.7, quality: [70, 120]}),
             new TradeItem({item_name: "Leather hat", count: [1], chance: 0.7, quality: [70, 120]}),
             new TradeItem({item_name: "Leather gloves", count: [1], chance: 0.7, quality: [70, 120]}),
+            new TradeItem({item_name: "Work shoes", count: [1,2], chance: 0.6, quality: [100, 100]}),
 
             new TradeItem({item_name: "Wolf leather armor", count: [1], chance: 0.3, quality: [60, 120]}),
             new TradeItem({item_name: "Wolf leather armored pants", count: [1], chance: 0.3, quality: [60, 120]}),
@@ -278,6 +279,7 @@ class TradeItem {
             new TradeItem({item_name: "Leather hat", count: [1], chance: 0.9, quality: [81, 120]}),
             new TradeItem({item_name: "Leather shoes", count: [1], chance: 0.8, quality: [91, 120]}),
             new TradeItem({item_name: "Leather gloves", count: [1], chance: 0.8, quality: [91, 120]}),
+            new TradeItem({item_name: "Work shoes", count: [2,3], chance: 0.6, quality: [100, 100]}),
 
             new TradeItem({item_name: "Wolf leather armor", count: [1], chance: 0.8, quality: [91, 120]}),
             new TradeItem({item_name: "Wolf leather armored pants", count: [1], chance: 0.8, quality: [91, 120]}),
@@ -354,6 +356,7 @@ class TradeItem {
         new TradeItem({item_name: "Leather hat", count: [1], chance: 0.9, quality: [81, 120]}),
         new TradeItem({item_name: "Leather shoes", count: [1], chance: 0.8, quality: [91, 120]}),
         new TradeItem({item_name: "Leather gloves", count: [1], chance: 0.8, quality: [91, 120]}),
+        new TradeItem({item_name: "Work shoes", count: [2,3], chance: 0.6, quality: [100, 100]}),
 
         new TradeItem({item_name: "Goat leather vest", count: [1], chance: 0.5, quality: [81, 120]}),
         new TradeItem({item_name: "Goat leather pants", count: [1], chance: 0.5, quality: [81, 120]}),

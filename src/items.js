@@ -2673,6 +2673,26 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
 
+    item_templates["Work shoes"] = new Armor({
+        name: "Work shoes", 
+        description: "Work shoes made of a mix of leather and wool. While they provide no protection, they are very comfortable for moving around",
+        value: 300,
+        component_type: "shoes interior",
+        base_defense: 0,
+        component_tier: 2,
+        component_stats: {
+            attack_speed: {
+                multiplier: 1.02,
+            },
+            agility: {
+                multiplier: 1.15,
+            },
+            cold_tolerance: {
+                flat: 2,
+            }
+        }
+    });
+
     item_templates["Leather shoes"] = new Armor({
         name: "Leather shoes", 
         description: "Solid shoes made of leather, a must have for any traveler", 

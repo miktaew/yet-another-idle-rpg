@@ -380,8 +380,13 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 text: "guard tips answ",
                 rewards: {
-                    textlines: [{dialogue: "village guard", lines: ["teach"]}],
+                    textlines: [{dialogue: "village guard", lines: ["teach", "hi"]}],
                 },
+            }),
+            "hi": new Textline({
+                name: "guard hi",
+                is_unlocked: false,
+                text: "guard hi answ",
             }),
             "teach": new Textline({
                 name: "guard teach",
@@ -426,7 +431,7 @@ class DialogueAction extends GameAction {
                 text: "guard wide answ",
                 locks_lines: ["wide"],
                 rewards: {
-                    stances: ["wide"]
+                    stances: ["wide"],
                 }
             }),
         },
