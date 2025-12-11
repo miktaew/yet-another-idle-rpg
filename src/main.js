@@ -4421,7 +4421,8 @@ function load(save_data) {
             }
         }
 
-        if(is_a_older_than_b(save_data["game version"], "v0.5.0.7")){ //reposted because "fight" textline was originally not included, causing issues
+        //reposted because "fight" textline was originally not included, causing issues
+        if(is_a_older_than_b(save_data["game version"], "v0.5.0.7") && is_a_older_than_b("v0.5.0", save_data["game version"])){ 
              if(dialogues["farm supervisor"].textlines["fight0"].is_finished || dialogues["farm supervisor"].textlines["fight"].is_finished) {
                 questManager.startQuest({quest_id: "Ploughs to swords", should_inform: false});
 
@@ -4435,7 +4436,7 @@ function load(save_data) {
             }
         }
 
-        //continuation for compatibility as there was no good place in dialogues to put it it...
+        //continuation for compatibility as there was no good place in dialogues to put it in...
         if(dialogues["farm supervisor"].textlines["defeated boars"].is_finished) {
             dialogues["farm supervisor"].textlines["troubled"].is_unlocked = true;
         }

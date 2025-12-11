@@ -107,7 +107,7 @@ const translations = {
         "guard tips": "Can you give me any tips for the journey?",
         "guard tips answ": `First and foremost, don't rush. It's fine to spend some more time here, to better prepare yourself. `
                 +`There's a lot of dangerous animals out there, much stronger than those damn rats, and in worst case you might even run into some bandits. `
-                +`If you see something that is too dangerous to fight, try to run away. There's no shame in staying alive to fight on another day, when chances of survival become better.`,
+                +`If you see something that is too dangerous to fight, try to run away. There's no shame in staying alive to fight on another day, when chances of survival become better, and it would be a pity if someone with your looks were to die~`,
         "guard teach": "Could you maybe teach me something that would be of use?",
         "guard teach answ":  `Lemme take a look... Yes, it looks like you know some basics. Do you know any proper techniques? No? I thought so. I could teach you the most standard three. `
                 +`They might be more tiring than fighting the "normal" way, but if used in a proper situation, they will be a lot more effective. Two can be easily presented through `
@@ -122,7 +122,7 @@ const translations = {
         "guard wide answ": `It's usually called "broad arc". Instead of focusing on a single target, you make a wide swing to hit as many as possible. ` 
                 +`It might work great against groups of weaker enemies, but it will also significantly reduce the power of your attacks and will be even more tiring than the other two stances.`,
         "guard hi": "Hi again, how's it going?",
-        "guard hi answ": "Hey there, cutie~",
+        "guard hi answ": "Hey there. I heard you've been helping around a lot, good job cutie~\n *[As she says that, she bends forward and pats your head a few times with a surprisingly gentle touch]*",
         //
         "g guard description": "You see a massive man in a steel chainmail, with a spear in his hand and a sword on his belt.",
         "g guard hello": "Hello, can I get in?",
@@ -210,9 +210,9 @@ const translations = {
         //
         "guard description": "You see a tall woman in light armor, with a spear in her hand and two daggers on her belt. Her sharp fuzzy ears rotate every now and then towards any new sound, while her fluffy tail remains motionless. When she spots you, she looks at you as if you were a prey, but then adopts a more neutral expression",
         "guard hi": "Hi again, how's it going?",
-        "guard hi answ": "Hey there, cutie. Be careful, or this big bad wolf might just decide to eat you~",
+        "guard hi answ": "Hey there. I heard you've been helping around a lot, good job cutie~\n *[As she says that, she bends forward and pats your head a few times with a surprisingly gentle touch, her tail slightly wagging]*",
         //
-        "g guard description": "You see a massive, hairy man with round ears and a tiny tail. He's clad in a steel chainmail, with a spear in his hand and a sword on his belt.",
+        "g guard description": "You see a massive, hairy man with round ears and a tiny tail. He's clad in a steel chainmail, with a spear in his hand and an axe on his belt.",
         //
         "sus description 1": "You see a young man in shabby clothes and with messy hair, who keeps looking around. He appears to have some nervous ticks, or maybe he's just really stressed. Both his doggy ears and his tail are lowered and not moving. He notices you and stares.",
         "sus description 2": "You see a young man in shabby clothes and with messy hair, who keeps calmly looking around, with ears straight up and occasionally turning towards new sounds. The moment he notices you, he appears to get calmer and his tail starts slowly wagging.",

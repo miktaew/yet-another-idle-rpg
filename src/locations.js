@@ -764,7 +764,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         },
         rewards_with_clear_requirement: [
             {
-                required_clear_count: 1,
+                required_clear_count: 2,
                 reputation: {"village": 10},
             },
             {

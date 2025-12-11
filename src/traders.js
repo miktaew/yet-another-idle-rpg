@@ -164,7 +164,7 @@ class TradeItem {
         inventory_template: "Intermediate",
         is_unlocked: false,
         location_name: "Slums",
-        profit_margin: 4, //rise back to 5 once reputation is implemented
+        profit_margin: 4, //rise back to 5 once reputation impact is implemented
     });
 })();
 

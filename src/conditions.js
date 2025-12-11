@@ -141,6 +141,18 @@ const process_conditions = (conditions, character) => {
             }
         }
     }
+
+    //checks reputation
+    if(conditions[0].reputation) {
+        Object.keys(conditions[0].reputation).forEach(rep_region => {
+            if(character.reputation[rep_region] < conditions[0].reputation[rep_region]) {
+                met = 0;
+                return met;
+            } else if(conditions[1]?.reputation && conditions[1].reputation[rep_region] > conditions[0].reputation[rep_region] && character.reputation[rep_region] < conditions[1].reputation[rep_region]) {
+                met *= (character.reputation[rep_region] - conditions[0].reputation[rep_region])/(conditions[1].reputation[rep_region] - conditions[0].reputation[rep_region]);
+            }
+        });
+    }
     
     //check flags
     if(conditions[0].flags) {

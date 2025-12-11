@@ -387,6 +387,9 @@ class DialogueAction extends GameAction {
                 name: "guard hi",
                 is_unlocked: false,
                 text: "guard hi answ",
+                display_conditions: {
+                    reputation: {village: 250},
+                },
             }),
             "teach": new Textline({
                 name: "guard teach",
