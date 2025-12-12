@@ -38,7 +38,7 @@
 //leaving it on armor seems fine on the other hand, as it makes much more sense for worn clothing to impact such a situation
 
 import { round_item_price } from "./misc.js";
-import { group_key_prefix, get_item_value_with_market_saturation, get_loot_price_modifier_multiple, get_total_tier_saturation} from "./market_saturation.js";
+import { group_key_prefix, get_item_value_with_market_saturation, get_total_tier_saturation, get_loot_price_multiple} from "./market_saturation.js";
 import { is_rat } from "./character.js";
 
 const rarity_multipliers = {
@@ -202,8 +202,8 @@ class Item {
             const val = this.getBaseValue();
 
             //start_count: total existing saturation + however many is artificially added to sold (e.g. got 40 already added to selling, need to calc price of next 1)
-            const modifier = get_loot_price_modifier_multiple({
-                value: val, 
+            const multi_modifier = get_loot_price_multiple({
+                value: val*price_multiplier, 
                 start_count: get_total_tier_saturation({region, group_key, group_tier}) + additional_traded_count,
                 how_many_to_trade: count,
                 region,
@@ -212,8 +212,7 @@ class Item {
                 stop_multiplier_at,
             });
 
-            //return with modifier rounded by value
-            return Math.max(count, Math.ceil(round_item_price(val*price_multiplier) * Math.round(val*modifier)/val));
+            return Math.max(count, multi_modifier);
         }
     }
 

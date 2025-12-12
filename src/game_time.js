@@ -147,23 +147,28 @@ function format_time({time, long_names, round=true}) { //{time, long_names?}
         }
     }
 
-    time.minutes = Math.round(time.minutes);
+    time.minutes = Math.ceil(time.minutes);
 
     let formatted_time = '';
     if(time.years > 0) {
-        formatted_time += long_names? `${time.year} years ` : `${time.year}Y`;
+        const used_term = time.years == 1?"year":"years";
+        formatted_time += long_names? `${time.year} ${used_term} ` : `${time.year}Y`;
     }
     if(time.months > 0) {
-        formatted_time += long_names? `${time.months} months ` : `${time.months}M`;
+        const used_term = time.months == 1?"month":"months";
+        formatted_time += long_names? `${time.months} ${used_term} ` : `${time.months}M`;
     }
     if(time.days > 0) {
-        formatted_time += long_names? `${time.days} days ` : `${time.days}D`;
+        const used_term = time.days == 1?"day":"days";
+        formatted_time += long_names? `${time.days} ${used_term} ` : `${time.days}D`;
     }
     if(time.hours > 0) {
-        formatted_time += long_names? `${time.hours} hours ` : `${time.hours}h`;
+        const used_term = time.hours == 1?"hour":"hours";
+        formatted_time += long_names? `${time.hours} ${used_term} ` : `${time.hours}h`;
     }
     if(time.minutes > 0) {
-        formatted_time += long_names? `${time.minutes} minutes ` : `${time.minutes}m`;
+        const used_term = time.minutes == 1?"minute":"minutes";
+        formatted_time += long_names? `${time.minutes} ${used_term} ` : `${time.minutes}m`;
     }
 
     return formatted_time;

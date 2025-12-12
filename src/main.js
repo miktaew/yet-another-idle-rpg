@@ -3614,7 +3614,7 @@ function load(save_data) {
                         any_warnings = true;
                     } else {
                         const item = getItem({components, quality:quality*quality_mult, equip_slot, item_type: "EQUIPPABLE"});
-                        equip_item(item);
+                        equip_item(item, true);
                     }
                 } else if(key === "off-hand") {
                     const {quality, equip_slot} = save_data.character.equipment[key];
@@ -3634,10 +3634,10 @@ function load(save_data) {
                         any_warnings = true;
                     } else {
                         const item = getItem({components, quality:quality*quality_mult, equip_slot, item_type: "EQUIPPABLE"});
-                        equip_item(item);
+                        equip_item(item, true);
                     }
                 } else if(save_data.character.equipment[key].equip_slot === "arti'fact" || save_data.character.equipment[key].tags?.tool) {
-                    equip_item(getItem(save_data.character.equipment[key]));
+                    equip_item(getItem(save_data.character.equipment[key]), true);
                 } else { //armor
                     
                     const {quality, equip_slot} = save_data.character.equipment[key];
@@ -3645,7 +3645,7 @@ function load(save_data) {
                     if(save_data.character.equipment[key].components && save_data.character.equipment[key].components.internal.includes(" [component]")) {
                         //compatibility for armors from before v0.4.3
                         const item = getItem({...item_templates[save_data.character.equipment[key].components.internal.replace(" [component]","")], quality:quality*quality_mult});
-                        equip_item(item);
+                        equip_item(item, true);
                     }
                     else if(save_data.character.equipment[key].components) {
                         let components = save_data.character.equipment[key].components;
@@ -3657,11 +3657,11 @@ function load(save_data) {
                             any_warnings = true;
                         } else {
                             const item = getItem({components, quality:quality*quality_mult, equip_slot, item_type: "EQUIPPABLE"});
-                            equip_item(item);
+                            equip_item(item, true);
                         }
                     } else {
                         const item = getItem({...item_templates[save_data.character.equipment[key].name], quality:quality*quality_mult});
-                        equip_item(item);
+                        equip_item(item, true);
                     }
 
                 }
@@ -3669,7 +3669,7 @@ function load(save_data) {
         }); //equip proper items
 
         if(character.equipment.weapon === null) {
-            equip_item(null);
+            equip_item(null, true);
         }
 
         const item_list = [];

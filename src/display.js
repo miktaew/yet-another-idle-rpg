@@ -1319,7 +1319,7 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
  * if item_key/equip_slot is passed, it will instead only update the display of that one item
  * 
  */
-function update_displayed_character_inventory({item_key, equip_slot, character_sorting="name", sorting_direction="asc", was_anything_new_added=false, is_trade=false} = {}) {    
+function update_displayed_character_inventory({item_key, equip_slot, character_sorting="name", sorting_direction="asc", was_anything_new_added=false, is_trade=false, skip_sorting=false} = {}) {    
     //removal of unneeded divs
     if(!item_key){
         Object.keys(item_divs).forEach(div_key => {
@@ -1462,7 +1462,7 @@ function update_displayed_character_inventory({item_key, equip_slot, character_s
         }
     }
     
-    if(was_anything_new_added) {
+    if(was_anything_new_added && !skip_sorting) {
         sort_displayed_inventory({target: "character", sort_by: character_sorting, direction: sorting_direction});
     }
 }

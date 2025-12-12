@@ -697,29 +697,29 @@ function remove_from_character_inventory(items) {
  * don't call this one directly (except for when loading save data), but via equip_item_from_inventory()
  * @param: game item object
  */
-function equip_item(item) {
+function equip_item(item, skip_sorting) {
 
         if(!item) {
                 update_displayed_equipment();
-                update_displayed_character_inventory();
+                update_displayed_character_inventory({skip_sorting});
                 character.stats.add_all_equipment_bonus();
                 
                 update_character_stats();
                 return;
-        }
-
-        const prev_item = character.equipment[item.equip_slot];
-        unequip_item(item.equip_slot, true);
-        character.equipment[item.equip_slot] = item;
-        
-        update_displayed_equipment();
-        update_displayed_character_inventory();
-        character.stats.add_all_equipment_bonus();
-        
-        update_character_stats();
-        manage_changed_skill_bonuses(item);
-        if(prev_item) {
-                manage_changed_skill_bonuses(prev_item);
+        } else {
+                const prev_item = character.equipment[item.equip_slot];
+                unequip_item(item.equip_slot, true);
+                character.equipment[item.equip_slot] = item;
+                
+                update_displayed_equipment();
+                update_displayed_character_inventory({skip_sorting});
+                character.stats.add_all_equipment_bonus();
+                
+                update_character_stats();
+                manage_changed_skill_bonuses(item);
+                if(prev_item) {
+                        manage_changed_skill_bonuses(prev_item);
+                }
         }
 }
 
