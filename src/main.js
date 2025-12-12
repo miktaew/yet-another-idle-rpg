@@ -1217,13 +1217,13 @@ function unlock_combat_stance(stance_id) {
     update_displayed_stance_list(stances, current_stance, faved_stances);
 }
 
-function change_stance({stance_id, is_temporary = false, give_persistence_xp = true}) {
+function change_stance({stance_id, is_temporary = false}) {
     if(is_temporary) {
         if(!stances[stance_id]) {
             throw new Error(`No such stance as "${stance_id}"`);
         }
         if(!stances[stance_id].is_unlocked) {
-            throw new Error(`Stance "${stance_id}" is not yet unlocked!`)
+            throw new Error(`Stance "${stance_id}" is not yet unlocked!`);
         }
 
     } else {
@@ -1234,7 +1234,7 @@ function change_stance({stance_id, is_temporary = false, give_persistence_xp = t
     current_stance = stances[stance_id];
 
     update_character_stats();
-    reset_combat_loops(give_persistence_xp); //param will be used to award 'Persistence' xp only when change was due to low stamina and not to a player click
+    reset_combat_loops(true); //param will be used to award 'Persistence' xp only when change was due to low stamina and not to a player click
 }
 
 /**
@@ -2894,7 +2894,7 @@ function switch_action_box_content() {
 function character_equip_item(item_key) {
     equip_item_from_inventory(item_key);
     if(current_enemies) {
-        reset_combat_loops();
+        reset_combat_loops(true);
     } else if(current_location.tags.safe_zone) {
         //update resource gathering tooltips in case there's a skill lvl bonus change
         //done on any change as of now, but could be slightly optimized
@@ -2909,7 +2909,7 @@ function character_equip_item(item_key) {
 function character_unequip_item(item_slot) {
     unequip_item(item_slot);
     if(current_enemies) {
-        reset_combat_loops();
+        reset_combat_loops(true);
         //set_new_combat({enemies: current_enemies});
     }
 }

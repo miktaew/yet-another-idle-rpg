@@ -102,7 +102,7 @@ function accept_trade() {
             const item = getItemFromKey(trade_item.item_key);
             const {group_key, group_tier} = item.getMarketSaturationGroup();
             if(item.saturates_market) {
-                remove_from_sold({group_key, group_tier, count: item.count, region: current_location.market_region});
+                remove_from_sold({group_key, group_tier, count: trade_item.count, region: current_location.market_region});
             }
         }
         

@@ -522,7 +522,7 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
                 item[value_function]({quality:options.quality[0], region:current_location?.market_region})))} - ${format_money(round_item_price(item.getBaseValue({quality:options.quality[1]})
             ))}`;
     } else {
-        item_tooltip += `<br>Value: ${format_money(round_item_price(item[value_function]({quality, region:current_location?.market_region}) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}`;
+        item_tooltip += `<br>Value: ${format_money(round_item_price(item[value_function]({quality, region:current_location?.market_region, multiplier: ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1)})))}`;
         if(item.saturates_market) {
             item_tooltip += ` [originally ${format_money(round_item_price(item.getBaseValue({quality, region:current_location?.market_region}) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}]`
         }
@@ -1090,13 +1090,14 @@ function sort_displayed_inventory({sort_by = "name", target = "character", chang
 
         const slot_a = a.dataset.item_slot;
         const slot_b = b.dataset.item_slot;
+        /*
         //tools above non-tools
         if(!tool_slots.includes(slot_a) && tool_slots.includes(slot_b)) {
             return 1;
         } else if(tool_slots.includes(slot_a) && !tool_slots.includes(slot_b)){
             return -1;
         }
-
+        */
         
         //other items by properties, name or otherwise by value
         if (sort_by === "type") {
@@ -1260,7 +1261,7 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
                 was_anything_new_added = true;
             } else {
                 //item is present
-
+                
                 //grab the displayed count
                 let div_count = Number.parseInt(trader_item_divs[inventory_key].getElementsByClassName("item_count")[0].innerText.replace("x",""));
                 if(Number.isNaN(div_count)) {
@@ -1280,7 +1281,7 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
                 tooltip_div.replaceWith(create_item_tooltip(trader.inventory[inventory_key].item, {trader: true}, true));
 
                 const price_span = trader_item_divs[inventory_key].getElementsByClassName("item_value")[0];
-                price_span.innerHTML =  `${format_money(round_item_price(trader.inventory[inventory_key].item.getValue({region: current_location.market_region})*(traders[current_trader].getProfitMargin() || 1)), true)}`;
+                price_span.innerHTML =  `${format_money(round_item_price(trader.inventory[inventory_key].item.getValue({region: current_location.market_region, multiplier: (traders[current_trader].getProfitMargin() || 1)})), true)}`;
             }
         });
 
@@ -1701,8 +1702,7 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
     item_additional.appendChild(create_trade_buttons());
 
     let item_value_span = document.createElement("span");
-    item_value_span.innerHTML = `${format_money(round_item_price(target_item.getValue({region: current_location?.market_region})*price_multiplier), true)}`;
-
+    item_value_span.innerHTML = `${format_money(round_item_price(target_item.getValue({region: current_location?.market_region, multiplier: price_multiplier})), true)}`;
     item_value_span.classList.add("item_value", "item_controls");
     item_additional.appendChild(item_value_span);
     item_control_div.appendChild(item_additional);

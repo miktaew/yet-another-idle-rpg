@@ -209,15 +209,12 @@ function get_loot_price_multiple({value, start_count, how_many_to_trade, is_grou
     return sum;
 }
 
-function get_item_value_with_market_saturation({base_value, group_key, group_tier, region}) {
+function get_item_value_with_market_saturation({value, group_key, group_tier, region}) {
 
     const how_many_sold = get_total_tier_saturation({region, group_key, group_tier});
-
     return Math.max(
             1, round_item_price(
-                Math.ceil(
-                    base_value * get_loot_price_modifier({value: base_value, how_many_sold, is_group: group_key.startsWith(group_key_prefix)})
-                )
+                    value * get_loot_price_modifier({value: value, how_many_sold, is_group: group_key.startsWith(group_key_prefix)})
             )
         );
 }

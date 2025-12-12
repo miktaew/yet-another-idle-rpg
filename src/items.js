@@ -170,19 +170,19 @@ class Item {
         }
     }
 
-    getValue({quality, region}) {
+    getValue({quality, region, multiplier}) {
         quality = quality || this.quality || 100;
         if(!this.saturates_market || !region) {
-            return round_item_price(this.getBaseValue({quality}));
+            return this.getBaseValue({quality, multiplier});
         } else {  
-            return this.getValueWithSaturation(region);
+            return this.getValueWithSaturation(region, multiplier);
         }
     }
 
-    getValueWithSaturation(region) {
+    getValueWithSaturation(region, multiplier = 1) {
         const {group_key, group_tier} = this.getMarketSaturationGroup();
 
-        return get_item_value_with_market_saturation({item: this, base_value: this.getBaseValue(), group_key, group_tier, region});
+        return get_item_value_with_market_saturation({item: this, value: round_item_price(this.getBaseValue() * multiplier), group_key, group_tier, region});
     }
 
     /**
@@ -200,10 +200,9 @@ class Item {
             const {group_key, group_tier} = this.getMarketSaturationGroup();
 
             const val = this.getBaseValue();
-
             //start_count: total existing saturation + however many is artificially added to sold (e.g. got 40 already added to selling, need to calc price of next 1)
-            const multi_modifier = get_loot_price_multiple({
-                value: val*price_multiplier, 
+            const multi_value = get_loot_price_multiple({
+                value: round_item_price(val*price_multiplier),
                 start_count: get_total_tier_saturation({region, group_key, group_tier}) + additional_traded_count,
                 how_many_to_trade: count,
                 region,
@@ -212,7 +211,7 @@ class Item {
                 stop_multiplier_at,
             });
 
-            return Math.max(count, multi_modifier);
+            return Math.max(count, multi_value);
         }
     }
 
