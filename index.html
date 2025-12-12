@@ -4,8 +4,8 @@
         <link rel = "stylesheet" href = "style.css">
         
         <script type="module" src="resources/js/HackTimer/HackTimer.min.js"></script>
-        <script type='module' src="dist/bundle.js?version=v0.5.0.17"></script>
-        <!--script type="module" src="src/main.js"></script-->
+        <!--script type='module' src="dist/bundle.js?version=v0.5.0.17"></script-->
+        <script type="module" src="src/main.js"></script>
 
         <!--Icons-->
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -1366,7 +1366,7 @@
             }
 
             function select_stance(stance_id) {
-                change_stance(stance_id);
+                change_stance({stance_id, give_persistence_xp: false});
             }
 
             /**

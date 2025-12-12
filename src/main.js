@@ -1217,7 +1217,7 @@ function unlock_combat_stance(stance_id) {
     update_displayed_stance_list(stances, current_stance, faved_stances);
 }
 
-function change_stance(stance_id, is_temporary = false) {
+function change_stance({stance_id, is_temporary = false, give_persistence_xp = true}) {
     if(is_temporary) {
         if(!stances[stance_id]) {
             throw new Error(`No such stance as "${stance_id}"`);
@@ -1234,7 +1234,7 @@ function change_stance(stance_id, is_temporary = false) {
     current_stance = stances[stance_id];
 
     update_character_stats();
-    reset_combat_loops();
+    reset_combat_loops(give_persistence_xp); //param will be used to award 'Persistence' xp only when change was due to low stamina and not to a player click
 }
 
 /**
@@ -1315,7 +1315,7 @@ function set_new_combat({enemies} = {}) {
  * 
  * For enemies, modifies their existing cooldowns, for hero it restarts the attack bar with a new cooldown 
  */
-function reset_combat_loops() {
+function reset_combat_loops(skip_persistence_xp_for_stance_change) {
     if(!current_enemies) { 
         return;
     }
@@ -1334,7 +1334,7 @@ function reset_combat_loops() {
         }
     }
 
-    set_character_attack_loop({base_cooldown: character_attack_cooldown});
+    set_character_attack_loop({base_cooldown: character_attack_cooldown, skip_persistence_xp_for_stance_change});
 }
 
 /**
@@ -1390,7 +1390,7 @@ function clear_enemy_attack_loop(enemy_id) {
  * @param {Number} base_cooldown basic cooldown based on attack speeds of enemies and character (ignoring stamina penalty) 
  * @param {String} attack_type type of attack, not yet implemented
  */
-function set_character_attack_loop({base_cooldown}) {
+function set_character_attack_loop({base_cooldown, skip_persistence_xp_for_stance_change}) {
     clear_character_attack_loop();
 
     //little safety, as this function would occasionally throw an error due to not having any enemies left 
@@ -1402,11 +1402,11 @@ function set_character_attack_loop({base_cooldown}) {
     //tries to switch stance back to the one that was actually selected if there's enough stamina, otherwise tries to switch stance to "normal" if not enough stamina
     if(character.stats.full.stamina >= (selected_stance.stamina_cost / character.stats.full.stamina_efficiency)){ 
         if(selected_stance.id !== current_stance.id) {
-            change_stance(selected_stance.id);
+            change_stance({stance_id: selected_stance.id});
             return;
         }
     } else if(current_stance.id !== "normal") {
-        change_stance("normal", true);
+        change_stance({stance_id: "normal", is_temporary: true});
         return;
     }
 
@@ -1426,7 +1426,7 @@ function set_character_attack_loop({base_cooldown}) {
         targets.push(alive_targets.pop());
     }
 
-    use_stamina(current_stance.stamina_cost);
+    use_stamina({stamina_to_use: current_stance.stamina_cost, skip_persistence_xp_for_stance_change});
     let actual_cooldown = base_cooldown / character.get_stamina_multiplier();
 
     let attack_power = character.get_attack_power();
@@ -1786,9 +1786,9 @@ function kill_player({is_combat = true} = {}) {
     add_active_effect("Recovering", 5);
 }
 
-function use_stamina(num = 1, use_efficiency = true) {
+function use_stamina({stamina_to_use = 1, skip_persistence_xp_for_stance_change = false}) {
     
-    character.stats.full.stamina -= num/(use_efficiency * character.stats.full.stamina_efficiency || 1);
+    character.stats.full.stamina -= stamina_to_use/(character.stats.full.stamina_efficiency || 1);
 
     if(character.stats.full.stamina < 0)  {
         character.stats.full.stamina = 0;
@@ -1798,15 +1798,17 @@ function use_stamina(num = 1, use_efficiency = true) {
 
         //double the gain if hp under 20%
         if(character.stats.full.health/character.stats.full.max_health < 0.2) {
-            num *= 2;
+            stamina_to_use *= 2;
         }
         for(let i = 0; i < cold_status_effects.length; i++) {
             if(active_effects[cold_status_effects[i]]) {
-                num *= (1.19**i); //~x2 at i==4
+                stamina_to_use *= (1.19**i); //~x2 at i==4
             }
         }
 
-        add_xp_to_skill({skill: skills["Persistence"], xp_to_add: num});
+        if(!skip_persistence_xp_for_stance_change) {
+            add_xp_to_skill({skill: skills["Persistence"], xp_to_add: stamina_to_use});
+        }
         update_displayed_stats();
     }
 
@@ -2349,7 +2351,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         }
     }
 
-    if(rewards.reputation && !only_unlocks) {
+    if(rewards.reputation) {
         Object.keys(rewards.reputation).forEach(region => {
             ReputationManager.add_reputation({region, reputation: rewards.reputation[region]});
         });
@@ -3494,6 +3496,7 @@ function load(save_data) {
             favourite_consumables[key] = true;
         });
 
+        /*
         Object.keys(save_data.character.reputation || {}).forEach(rep_region => {
             if(rep_region in character.reputation) {
                 character.reputation[rep_region] = save_data.character.reputation[rep_region];
@@ -3502,6 +3505,7 @@ function load(save_data) {
                 any_warnings = true;
             }
         });
+        */
         update_displayed_reputation();
 
 
@@ -3586,7 +3590,7 @@ function load(save_data) {
             current_stance = stances[save_data.current_stance.id] || stances[save_data.current_stance];
             selected_stance = stances[save_data.selected_stance.id] || stances[save_data.selected_stance];
 
-            change_stance(selected_stance.id);
+            change_stance({stance_id: selected_stance.id});
         }
 
         Object.keys(save_data.character.equipment).forEach(function(key){
@@ -4127,13 +4131,6 @@ function load(save_data) {
                     locations[key].enemy_groups_killed = save_data.locations[key].enemy_groups_killed || 0;   
 
                     if(is_a_older_than_b(save_data["game version"], "v0.4.6")) { //compatibility patch for pre-rep and/or pre-rewrite of rewards with required clear count
-                        if(locations[key].enemy_groups_killed / locations[key].enemy_count >= 1) {
-                            const {rep_rew} = locations[key].first_reward;
-                            if(rep_rew) {
-                                process_rewards({reputation: rep_rew, is_from_loading: true});
-                            }
-                        }
-
                         if(locations[key].rewards_with_clear_requirement) {
                             for(let i = 0; i < locations[key].rewards_with_clear_requirement.length; i++) {
                                 if(locations[key].enemy_groups_killed == locations[key].enemy_count * locations[key].rewards_with_clear_requirement[i].required_clear_count)
@@ -4161,6 +4158,17 @@ function load(save_data) {
                                 }
                             }
                         }
+                    }
+
+                    if(locations[key].first_reward) {
+                        process_rewards({
+                            rewards: locations[key].first_reward, 
+                            source_type: "location", 
+                            is_first_clear: true, 
+                            source_id: location.id,
+                            is_from_loading: true,
+                            only_unlocks: true,
+                        });
                     }
                 }
 
@@ -4887,7 +4895,7 @@ function update() {
             } 
 
             if(selected_stance.id !== current_stance.id) {
-                change_stance(selected_stance.id);
+                change_stance({stance_id: selected_stance.id});
             }
 
             if(current_activity) { //in activity
@@ -5259,7 +5267,7 @@ if(!is_on_dev() && save_key in localStorage || (is_on_dev() && dev_save_key in l
     update_character_stats();
 
     update_displayed_stance_list(stances, current_stance, faved_stances);
-    change_stance("normal");
+    change_stance({stance_id: "normal"});
     create_displayed_crafting_recipes();
     change_location({location_id: "Village", skip_travel_time: true});
     questManager.startQuest({quest_id: "Lost memory"});

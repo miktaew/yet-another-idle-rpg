@@ -59,6 +59,7 @@ class Textline {
                             flags: [],
                             items: [],
                             locks: {textlines: {}}, //for lines to be locked in diferent dialogues and possibly for other stuff
+                            //reputation reward from textlines is currently not supported
                             },
                 branches_into = [],
                 locks_lines = [], //for lines to be locked in same dialogue
@@ -380,7 +381,7 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 text: "guard tips answ",
                 rewards: {
-                    textlines: [{dialogue: "village guard", lines: ["teach", "hi"]}],
+                    textlines: [{dialogue: "village guard", lines: ["teach"]}],
                 },
             }),
             "hi": new Textline({
@@ -435,8 +436,16 @@ class DialogueAction extends GameAction {
                 locks_lines: ["wide"],
                 rewards: {
                     stances: ["wide"],
+                    textlines: [{dialogue: "village guard", lines: ["serious", "hi"]}],
                 }
             }),
+            "serious": new Textline({
+                name: "guard serious",
+                is_unlocked: false,
+                text: "guard serious answ",
+                locks_lines: ["serious"],
+            }),
+            
         },
         description: "guard description",
     });

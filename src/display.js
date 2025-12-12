@@ -298,6 +298,7 @@ function create_item_tooltip(item, options = {}, is_trade = false) {
  * @param {Item} params.item
  * @param {Object} params.options
  * @param {String} params.options.class_name
+ * @param {String} params.options.trader
  * @param {Boolean} params.options.skip_quality
  * @param {Array} params.options.quality array with 1 or 2 values (1 - show only it, instead of item's; 2 - show start comparison between the two)
  */
@@ -1276,9 +1277,8 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
 
                 //overwrite tooltip (for displayed prices)
                 const tooltip_div = trader_item_divs[inventory_key].querySelector(".item_tooltip");
-                tooltip_div.replaceWith(create_item_tooltip(trader.inventory[inventory_key].item, options));
+                tooltip_div.replaceWith(create_item_tooltip(trader.inventory[inventory_key].item, {trader: true}, true));
 
-                //grab and update price div, do it for all as trading can affect prices of multiple items
                 const price_span = trader_item_divs[inventory_key].getElementsByClassName("item_value")[0];
                 price_span.innerHTML =  `${format_money(round_item_price(trader.inventory[inventory_key].item.getValue({region: current_location.market_region})*(traders[current_trader].getProfitMargin() || 1)), true)}`;
             }
@@ -1288,6 +1288,7 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
         for(let i = 0; i < to_sell.items.length; i++) {
             const key = to_sell.items[i].item_key;
             if(!item_selling_divs[key]) {
+                //item not present - add to display
                 item_selling_divs[key] = create_inventory_item_div({target: "trader", trade_index: i, is_trade: true});
                 trader_inventory_div.appendChild(item_selling_divs[key]);
             } else {
@@ -1411,7 +1412,7 @@ function update_displayed_character_inventory({item_key, equip_slot, character_s
 
                 //overwrite tooltip (for displayed prices)
                 const tooltip_div = item_divs[inventory_key].querySelector(".item_tooltip");
-                tooltip_div.replaceWith(create_item_tooltip(character.inventory[inventory_key].item, options, is_trade));
+                tooltip_div.replaceWith(create_item_tooltip(character.inventory[inventory_key].item, {}, is_trade));
 
                 //grab and update price div, do it for all as trading can affect prices of multiple items
                 const price_span = item_divs[inventory_key].getElementsByClassName("item_value")[0];
@@ -1492,10 +1493,12 @@ function update_displayed_storage_inventory({item_key, storage_sorting="name", s
 
 
             if(!storage_item_divs[inventory_key]) {
+                //not in display, add it
                 storage_item_divs[inventory_key] = create_inventory_item_div({key: inventory_key, item_count, target: "storage"});
                 storage_inventory_div.appendChild(storage_item_divs[inventory_key]);
                 was_anything_new_added = true;
             } else {
+                //in display, just update it
                 let div_count = Number.parseInt(storage_item_divs[inventory_key].getElementsByClassName("item_count")[0].innerText.replace("x",""));
                 if(Number.isNaN(div_count)) {
                     div_count = 0;

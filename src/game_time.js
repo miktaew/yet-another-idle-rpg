@@ -131,7 +131,7 @@ function format_time({time, long_names, round=true}) { //{time, long_names?}
     if(round) {
         if(time.minutes >= 60) {
             time.hours = time.hours + Math.floor(time.minutes/60) || Math.floor(time.minutes/60);
-            time.minutes = Math.round(time.minutes % 60);
+            time.minutes = time.minutes % 60;
         }
         if(time.hours >= 24) {
             time.days = time.days + Math.floor(time.hours/24) || Math.floor(time.hours/24);
@@ -146,6 +146,8 @@ function format_time({time, long_names, round=true}) { //{time, long_names?}
             time.months = time.months % 12;
         }
     }
+
+    time.minutes = Math.round(time.minutes);
 
     let formatted_time = '';
     if(time.years > 0) {

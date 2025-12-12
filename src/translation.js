@@ -99,7 +99,7 @@ const translations = {
         "craftsman remind 4": "How do I get better at crafting?",
         "craftsman remind 4 answ": "Ahh, there aren't any secrets, you just need to keep practicing it. Just don't spend your entire life working on same louse materials, try to work on stronger stuff when you feel confident. There's a limit to how much you can learn by working with rat leather, isn't there?",
         //
-        "guard description": "You see a woman in light armor, with a spear in her hand and two daggers on her belt.",
+        "guard description": "You see a woman in light armor, with a spear in her hand and two daggers on her belt. There's a scar across her face.",
         "guard hello": "Hello?",
         "guard hello answ": "Hello. I see you are finally leaving, huh?",
         "guard job": "Do you maybe have any jobs for me?",
@@ -123,6 +123,8 @@ const translations = {
                 +`It might work great against groups of weaker enemies, but it will also significantly reduce the power of your attacks and will be even more tiring than the other two stances.`,
         "guard hi": "Hi again, how's it going?",
         "guard hi answ": "Hey there. I heard you've been helping around a lot, good job cutie~\n *[As she says that, she bends forward and pats your head a few times with a surprisingly gentle touch]*",
+        "guard serious": "Can we try a more serious fight?",
+        "guard serious answ": "Ohhh, someone wants to impress the cute guard lady? Sorry, but I'm way too strong for you~",
         //
         "g guard description": "You see a massive man in a steel chainmail, with a spear in his hand and a sword on his belt.",
         "g guard hello": "Hello, can I get in?",
@@ -208,9 +210,9 @@ const translations = {
         "craftsman learn answ": "Ahh, that's great. Well then... \n*[Old man spends some time explaining all the important basics of crafting and providing you with tips, his large fingers proving to be as nimble as they seemed]*\n"+
                 "Ahh, and before I forget, here, take these. They will be helpful for gathering necessary materials.",
         //
-        "guard description": "You see a tall woman in light armor, with a spear in her hand and two daggers on her belt. Her sharp fuzzy ears rotate every now and then towards any new sound, while her fluffy tail remains motionless. When she spots you, she looks at you as if you were a prey, but then adopts a more neutral expression",
-        "guard hi": "Hi again, how's it going?",
+        "guard description": "You see a tall woman in light armor, with a spear in her hand and two daggers on her belt. Her sharp fuzzy ears rotate every now and then towards any new sound, while her fluffy tail remains motionless. There's a scar across her face. When she spots you, she looks at you as if you were a prey, but then adopts a more neutral expression",
         "guard hi answ": "Hey there. I heard you've been helping around a lot, good job cutie~\n *[As she says that, she bends forward and pats your head a few times with a surprisingly gentle touch, her tail slightly wagging]*",
+        "guard serious answ": "Ohhh, someone wants to impress the cute fluffy wolf lady? Sorry, but I'm way too strong for you~",
         //
         "g guard description": "You see a massive, hairy man with round ears and a tiny tail. He's clad in a steel chainmail, with a spear in his hand and an axe on his belt.",
         //
