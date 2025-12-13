@@ -939,6 +939,7 @@ function getItem(item_data) {
                 case "pickaxe":
                 case "sickle":
                 case "shovel":
+                case "fishing_pole":
                     return new Tool(item_data);
                 case "cape":
                     return new Cape(item_data);
@@ -1393,7 +1394,37 @@ book_stats["A Glint On The Sand"] = new BookData({
         description: "Sand made potent by the remains of countless generations of creatures that lived and died in the body of water it was taken from",
         value: 1
     });
+
+    item_templates["Ratfish"] = new Material({
+        name: "Ratfish",
+        description: "A small sweetwater fish, named after its unremarkable coloration and propensity to travel in large groups",
+        value: 5,
+        material_type: "small fish",
+    });
+
+    item_templates["Minnow"] = new Material({
+        name: "Minnow",
+        description: "One of the variety of small fish that inhabit rivers and streams",
+        value: 10,
+        material_type: "small fish",
+    });
+
+    item_templates["Mackerel shark"] = new Material({
+        name: "Mackerel shark",
+        description: "A shark small enough to fit in a stream. Makes up for its size with its feistiness and big mouth",
+        value: 50,
+        material_type: "medium fish",
+    });
+
+    item_templates["Trout"] = new Material({
+        name: "Trout",
+        description: "A fish large enough for a full meal and common in most rivers, making it a convenient source of food. So far, this has not effected their population",
+        value: 50,
+        material_type: "medium fish",
+    });
 })();
+
+
 
 //processed materials
 (function(){
@@ -3292,6 +3323,13 @@ book_stats["A Glint On The Sand"] = new BookData({
             "Digging": 3,
         }
     });
+
+    item_templates["Makeshift fishing pole"] = new Tool({
+        name: "Makeshift fishing pole",
+        description: "Little more than a piece of string tied to a stick, but sufficient to get a catch",
+        value: 10,
+        equip_slot: "fishing_pole",
+    });
 })();
 
 //usables:
@@ -3439,6 +3477,21 @@ book_stats["A Glint On The Sand"] = new BookData({
         tags: {"food": true},
     });
 
+    item_templates["Fish skewer"] = new UsableItem({
+        name: "Fish skewer", 
+        description: "Several small fish cooked together on a stick. While none of them have much meat on them individually, together they make for a servicable meal",
+        value: 20,
+        effects: [{effect: "Cheap meat meal", duration: 45}],
+        tags: {"food": true},
+    });
+
+    item_templates["Fried fish"] = new UsableItem({
+        name: "Fried fish",
+        description: "A fish fried whole. A simple but fulfilling meal.",
+        value: 40,
+        effects: [{effect: "Simple meat meal", duration: 60}],
+        tags: {"food": true},
+    });
 })();
 
 //setup ids

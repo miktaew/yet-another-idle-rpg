@@ -1661,6 +1661,25 @@ There's another gate on the wall in front of you, but you have a strange feeling
             require_tool: true,
             unlock_text: "You realize that the river near the village might contain the type of sand you need",
         }),
+        "fishing": new LocationActivity({
+            activity_name: "fishing",
+            starting_text: "Try fishing in the river",
+            availability_seasons: ["Spring", "Summer", "Autumn"],
+            skill_xp_per_tick: 1,
+            is_unlocked: true,
+            gained_resources: {
+                resources: [
+                    {name: "Ratfish", ammount: [[1,1], [1,1]], chance: [0.3, 0.5]},
+                    {name: "Minnow", ammount: [[1,1], [1,1]], chance: [0.1, 0.5]},
+                    {name: "Trout", ammount: [[1,1], [1,1]], chance: [0.01, 0.20]},
+                    {name: "Mackerel shark", ammount: [[1,1], [1,1]], chance: [0.001, 0.05]}
+                ], 
+                time_period: [120, 30],
+                skill_required: [0, 10],
+                scales_with_skill: true,
+            },
+            require_tool: true,
+        })
     };
     locations["Nearby cave"].activities = {
         "weightlifting": new LocationActivity({

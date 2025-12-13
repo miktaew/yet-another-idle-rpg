@@ -17,7 +17,7 @@ import { skill_consumable_tags } from "./misc.js";
 const base_block_chance = 0.75; //+20 from the skill
 const base_xp_cost = 10;
 
-const tool_slots = ["axe", "pickaxe", "sickle", "shovel"];
+const tool_slots = ["axe", "pickaxe", "sickle", "shovel", "fishing_pole"];
 
 
 //stupid little thing for a stupid easter egg
@@ -142,6 +142,7 @@ class Hero extends InventoryHaver {
                         pickaxe: null,
                         sickle: null,
                         shovel: null,
+                        fishing_pole: null
                 };
                 this.money = 0;
                 this.xp = {

@@ -178,6 +178,16 @@ class Gathering extends Training {
         base_skills_names: ["Animal handling"],
         is_unlocked: true,
     });
+
+    activities["fishing"] = new Gathering({
+        name: "fishing",
+        action_text: "Waiting for a bite",
+        description: "Try to catch some fish",
+        base_skills_names: ["Fishing"],
+        is_unlocked: true,
+        required_tool_type: "fishing_pole",
+        //getBackgroundNoises: () => [""]
+    });
 })();
 
 

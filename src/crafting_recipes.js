@@ -1092,6 +1092,21 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [1,12],
         recipe_skill: "Crafting",
     });
+
+    woodworking_recipes.items["Makeshift fishing pole"] = new ItemRecipe({
+        name: "Makeshift fishing pole",
+        recipe_type: "equipment",
+        is_unlocked: true,
+        materials: [
+            { material_id: "Processed rough wood", count: 4 },
+            //{ material_id: "Simple long wooden shaft", count: 1 },    //TODO
+            { material_id: "Wool", count: 1 },
+        ],
+        result: { result_id: "Makeshift fishing pole", count: 1 },
+        success_chance: [0.5, 1],
+        recipe_level: [1, 10],
+        recipe_skill: "Woodworking",
+    });
 })();
 
 //consumables
@@ -1163,6 +1178,25 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Bread kwas", count: 1},
         success_chance: [0.3,1],
         recipe_level: [10,15],
+        recipe_skill: "Cooking",
+    });
+
+    cooking_recipes.items["Fish skewer"] = new ItemRecipe({
+        name: "Fish skewer",
+        recipe_type: "usable",
+        materials: [{material_type: "small fish", count: 5}], 
+        result: {result_id: "Fish skewer", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [1,10],
+        recipe_skill: "Cooking",
+    });
+    cooking_recipes.items["Fried fish"] = new ItemRecipe({
+        name: "Fried fish",
+        recipe_type: "usable",
+        materials: [{material_type: "medium fish", count: 1}], 
+        result: {result_id: "Fried fish", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [7,15],
         recipe_skill: "Cooking",
     });
     
