@@ -1419,7 +1419,7 @@ function set_character_attack_loop({base_cooldown, skip_persistence_xp_for_stanc
         target_count = Math.floor(Math.random()*target_count) || 1;
     }
 
-    let targets=[];
+    let targets = [];
     const alive_targets = current_enemies.filter(enemy => enemy.is_alive).slice(-target_count);
 
     while(alive_targets.length>0) {
