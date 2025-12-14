@@ -4889,6 +4889,7 @@ function update_enemy_attack_bar(enemy_id, num) {
 
 function do_enemy_onhit_animation(enemy_id) {
     const enemy_div = enemies_div.children[enemy_id];
+    enemy_animations[enemy_id]?.cancel(); //almost certainly unnecessary
     enemy_animations[enemy_id] = enemy_div.animate(onhitAnimation, onhitAnimationTiming);
 }
 
@@ -4898,6 +4899,7 @@ function remove_enemy_onhit_animation(enemy_id) {
 
 function do_enemy_onstart_animation(enemy_id) {
     const enemy_div = enemies_div.children[enemy_id];
+    enemy_animations[enemy_id]?.cancel(); //almost certainly unnecessary
     enemy_animations[enemy_id] =  enemy_div.animate(onstartAnimation, onstartAnimationTiming);
 }
 
