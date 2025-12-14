@@ -165,7 +165,6 @@ let rain_counter = 0;
 const cold_status_counters = [0,0,0,0];
 
 let was_raining = false;
-let was_night = false;
 let was_starry = false;
 
 //current enemy
