@@ -166,6 +166,7 @@ const cold_status_counters = [0,0,0,0];
 
 let was_raining = false;
 let was_night = false;
+let was_starry = false;
 
 //current enemy
 let current_enemies = null;
@@ -4767,57 +4768,70 @@ function update() {
 
         const new_temperature = get_current_temperature_smoothed();
 
-        if(is_raining() && !current_location.is_under_roof) {
-            //can get wet
-            if(rain_counter >= time_until_wet) {
+        if(!current_location.is_under_roof) {
+            //not under roof, background animations can happen
+            if(is_raining()) {
+                if(rain_counter >= time_until_wet) {
                 //been in rain long enough, add wet even if present
-                add_active_effect("Wet",30);
-            } else {
-                //haven't been in rain long enough, increase the counter
-
-                if(new_temperature < 0)
-                    //snowing, doesn't soak the player as much the rain
-                    rain_counter += 0.25
-                else 
-                    rain_counter++;
-            }
-
-            if(!was_raining && options.do_background_animations) {
-                if(new_temperature >= 0) {
-                    window.addEventListener("resize", start_rain_animation);
-                    window.removeEventListener("resize", start_snow_animation);
-                    window.removeEventListener("resize", start_stars_animation);
-                    start_rain_animation();
+                    add_active_effect("Wet",30);
                 } else {
-                    window.addEventListener("resize", start_snow_animation);
-                    window.removeEventListener("resize", start_rain_animation);
-                    window.removeEventListener("resize", start_stars_animation);
-                    start_snow_animation();
+                    //haven't been in rain long enough, increase the counter
+
+                    if(new_temperature < 0)
+                        //snowing, doesn't soak the player as much the rain
+                        rain_counter += 0.25
+                    else 
+                        rain_counter++;
+                }
+
+                if(!was_raining && options.do_background_animations) {
+                    if(new_temperature >= 0) {
+                        window.addEventListener("resize", start_rain_animation);
+                        window.removeEventListener("resize", start_snow_animation);
+                        window.removeEventListener("resize", start_stars_animation);
+                        start_rain_animation();
+                    } else {
+                        window.addEventListener("resize", start_snow_animation);
+                        window.removeEventListener("resize", start_rain_animation);
+                        window.removeEventListener("resize", start_stars_animation);
+                        start_snow_animation();
+                    }
+                }
+
+                was_raining = true && options.do_background_animations;
+            } else {
+                //not raining
+
+                if(rain_counter > 0) {
+                    //not in rain -> reduce rain counter
+                    rain_counter--;
+                }
+                was_raining = false;
+
+                //not in rain -> sky visible
+                if(!was_starry && is_night()) {
+
+                    if(options.do_background_animations) {
+                        window.addEventListener("resize", start_stars_animation);
+                        window.removeEventListener("resize", start_snow_animation);
+                        window.removeEventListener("resize", start_rain_animation);
+                        start_stars_animation();
+                    }
+                    was_starry = true && options.do_background_animations;
                 }
             }
-            was_raining = true && options.do_background_animations;
         } else {
-            if(was_raining) {
+            //under roof
+            if(was_raining || was_starry) {
+                //was animation - stop doing that
                 stop_background_animation();
+                window.removeEventListener("resize", start_stars_animation);
                 window.removeEventListener("resize", start_snow_animation);
                 window.removeEventListener("resize", start_rain_animation);
-            }
-            if(rain_counter > 0) {
-                //not in rain, reduce rain counter
-                rain_counter--;
             }
             was_raining = false;
+            was_starry = false;
         }
-        
-        if(options.do_background_animations) {
-            //night started or it's night and rain stopped => stars
-            if(!is_raining() && !current_location.is_under_roof && is_night() && (was_raining || !was_night)) {
-                window.addEventListener("resize", start_stars_animation);
-                window.removeEventListener("resize", start_snow_animation);
-                window.removeEventListener("resize", start_rain_animation);
-            }
-        }
-        
 
         //temperature changed => update stats if needed
         if(current_temperature !== new_temperature) {
