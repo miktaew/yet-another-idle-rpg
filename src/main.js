@@ -1300,7 +1300,10 @@ function set_new_combat({enemies} = {}) {
 
     //attach loops and animations
     for(let i = 0; i < current_enemies.length; i++) {
-        do_enemy_onstart_animation(i);
+        if(options.do_enemy_onhit_animations) {
+            do_enemy_onstart_animation(i);
+        }
+        
         do_enemy_attack_loop(i, 0, true);
     }
 
@@ -1558,7 +1561,6 @@ function do_enemy_combat_action(enemy_id) {
 
     const enemy_base_damage = attacker.stats.attack;
 
-    //let damage_dealt;
     let damages_dealt = [];
 
     let critted = false;
@@ -1680,8 +1682,8 @@ function do_character_combat_action({target, attack_power, target_count}) {
         }
         //small randomization by up to 20%, then bonus from skill
 
-        const enemy_id = current_enemies.findIndex(enemy => enemy===target);
         if(options.do_enemy_onhit_animations) {
+            const enemy_id = current_enemies.findIndex(enemy => enemy===target);
             do_enemy_onhit_animation(enemy_id);
         }
         if(character.stats.full.crit_rate > Math.random()) {
@@ -1913,8 +1915,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
 
             if(skill.is_parent) {
                 update_all_displayed_skills_xp_gain();
-            }
-            else {
+            } else {
                 update_displayed_skill_xp_gain(skill);
             }
 
@@ -2266,6 +2267,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
 
                     if(skills[source_name]) {
                         which_skills_affect_skill[rewards.skills[i]].push(source_name);
+                        //shouldn't cause issues, as it will only trigger on skill unlocks by other skills
                     } else {
                         console.error(`Tried to register skill "${source_name}" as related to "${rewards.skills[i]}", but the former does not exist!`);
                     }
@@ -4784,15 +4786,16 @@ function update() {
                 }
 
                 if(!was_raining && options.do_background_animations) {
+
+                    window.removeEventListener("resize", start_stars_animation);
+
                     if(new_temperature >= 0) {
                         window.addEventListener("resize", start_rain_animation);
                         window.removeEventListener("resize", start_snow_animation);
-                        window.removeEventListener("resize", start_stars_animation);
                         start_rain_animation();
                     } else {
                         window.addEventListener("resize", start_snow_animation);
                         window.removeEventListener("resize", start_rain_animation);
-                        window.removeEventListener("resize", start_stars_animation);
                         start_snow_animation();
                     }
                 }
@@ -4817,6 +4820,9 @@ function update() {
                         start_stars_animation();
                     }
                     was_starry = true && options.do_background_animations;
+                } else if(was_starry && !is_night()) {
+                    stop_background_animation();
+                    window.removeEventListener("resize", start_stars_animation);
                 }
             }
         } else {

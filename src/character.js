@@ -563,7 +563,7 @@ character.update_stats = function () {
         const bonus = character.xp_bonuses.total_multiplier[bonus_target];
 
         if(bonus != 1){
-                if (bonus_target !== "hero") {
+                if(bonus_target !== "hero") {
                         if(bonus_target === "all" || bonus_target === "all_skill" || bonus_target.includes("category_")) {
                                 update_all_displayed_skills_xp_gain();
                         } else {

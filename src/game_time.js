@@ -128,6 +128,9 @@ function format_time({time, long_names, round=true}) { //{time, long_names?}
     if(!time) {
         throw "No time passed in arguments!";
     }
+
+    time.minutes = Math.ceil(time.minutes);
+
     if(round) {
         if(time.minutes >= 60) {
             time.hours = time.hours + Math.floor(time.minutes/60) || Math.floor(time.minutes/60);
@@ -146,8 +149,6 @@ function format_time({time, long_names, round=true}) { //{time, long_names?}
             time.months = time.months % 12;
         }
     }
-
-    time.minutes = Math.ceil(time.minutes);
 
     let formatted_time = '';
     if(time.years > 0) {
