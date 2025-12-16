@@ -21,23 +21,23 @@ function Game_Time(new_time) {
     
         if(this.hour >= 24) {
             const h = this.hour % 24;
-            const d = Math.floor((this.hour-1)/24) + 1;
+            const d = Math.floor(this.hour/24);
             this.hour = h;
             this.day += d;
             this.day_count += d;
         }
     
         if(this.day > 30) {
-            const d = (this.day-1) % 30 + 1;
-            const m = Math.floor((this.day-1)/30) + 1;
-            this.day = d+1;
+            const d = this.day % 30;
+            const m = Math.floor(this.day/30);
+            this.day = d;
             this.month += m;
         }
     
         if(this.month > 12) {
-            const m = (this.month-1) % 12 + 1;
-            const y = Math.floor((this.month-1)/ 12) + 1;
-            this.month = m+1;
+            const m = this.month % 12;
+            const y = Math.floor(this.month/12);
+            this.month = m;
             this.year += y;
         }
     }
