@@ -121,7 +121,7 @@ class ActiveEffect {
                 stamina_regeneration_flat: {flat: 1},
             }
         },
-        tags: {"buff": true},
+        tags: {"buff": true, "food": true},
     });
 
     effect_templates["Weak healing powder"] = new ActiveEffect({
