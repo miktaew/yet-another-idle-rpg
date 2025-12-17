@@ -42,21 +42,40 @@ Object.keys(market_region_mapping).forEach(region => {
  */
 function set_loot_sold_count(data) {
     Object.keys(data).forEach(market_region_key => {
-        loot_sold_count[market_region_key] = data[market_region_key];
+        loot_sold_count[market_region_key] = {};
+        Object.keys(data[market_region_key]).forEach(item_key => {
+            loot_sold_count[market_region_key][item_key] = [];
+            for(let i = 0; i < data[market_region_key][item_key].length; i++) {
+                if(data[market_region_key][item_key][i].sold < 1e13) {
+                    if(data[market_region_key][item_key][i].recovered == null) {
+                        data[market_region_key][item_key][i].recovered = 0;
+                    }
+                    loot_sold_count[market_region_key][item_key].push({...data[market_region_key][item_key][i]});
+                } else {
+                    const sold = 1000;
+                    const recovered = Math.min(1000, Math.round(1000 * (data[market_region_key][item_key][i].recovered/data[market_region_key][item_key][i].sold))) ?? 0;
+                    loot_sold_count[market_region_key][item_key].push({sold, recovered});
+                    console.warn(`Encountered a suspiciously large sold count of a trade group "${item_key}" at tier ${i} (${data[market_region_key][item_key][i].sold}).`
+                        +` It has been reduced to a 1000, and it's recovered_count was lowered in proportion to it.`);
+                }
+            }
+        });
     });
 }
 
 function recover_item_prices(flat_recovery=1, ratio_recovery = 0) {
-    Object.keys(loot_sold_count).forEach(item_group_key => {
-        for(let i = 0; i < loot_sold_count[item_group_key].length; i++) {
+    Object.keys(loot_sold_count).forEach(region_key => {
+        Object.keys(loot_sold_count[region_key]).forEach(item_group_key => {
+            for(let i = 0; i < loot_sold_count[region_key][item_group_key].length; i++) {
 
-            //recovered stored as a separate value that cannot be larger than sold count;
-            loot_sold_count[item_group_key][i].recovered += Math.max(ratio_recovery*(loot_sold_count[item_group_key][i].sold-loot_sold_count[item_group_key][i].recovered), flat_recovery);
-            
-            if(loot_sold_count[item_group_key][i].recovered > loot_sold_count[item_group_key][i].sold) {
-                loot_sold_count[item_group_key][i].recovered = loot_sold_count[item_group_key][i].sold;
+                //recovered stored as a separate value that cannot be larger than sold count;
+                loot_sold_count[region_key][item_group_key][i].recovered += Math.max(ratio_recovery*(loot_sold_count[region_key][item_group_key][i].sold-loot_sold_count[region_key][item_group_key][i].recovered), flat_recovery);
+                
+                if(loot_sold_count[region_key][item_group_key][i].recovered > loot_sold_count[region_key][item_group_key][i].sold) {
+                    loot_sold_count[region_key][item_group_key][i].recovered = loot_sold_count[region_key][item_group_key][i].sold;
+                }                
             }
-        }
+        });
     });
 }
 
@@ -198,14 +217,25 @@ function calculate_total_saturation({sold_by_tier, target_tier, cap}) {
 function get_loot_price_multiple({value, start_count, how_many_to_trade, is_group, is_selling = true, stop_multiplier_at}) {
     let sum = 0;
     if(is_selling) {
+        /*
         for(let i = start_count; i < start_count+how_many_to_trade; i++) {
             sum += round_item_price(value*get_loot_price_modifier({value, how_many_sold: Math.min(start_count+stop_multiplier_at,i), is_group}));
         }
+        */
+        for(let i = 0; i < how_many_to_trade; i++) {
+            sum += round_item_price(value*get_loot_price_modifier({value, how_many_sold: Math.min(start_count+stop_multiplier_at,i+start_count), is_group}));
+        }
     } else {
+        /*
         for(let i = start_count; i > start_count-how_many_to_trade; i--) {
             sum += round_item_price(value*get_loot_price_modifier({value, how_many_sold: Math.min(start_count+stop_multiplier_at,Math.max(i,0)), is_group}));
         }
+        */
+        for(let i = 0; i > -how_many_to_trade; i--) {
+            sum += round_item_price(value*get_loot_price_modifier({value, how_many_sold: Math.min(start_count+stop_multiplier_at,Math.max(i+start_count,0)), is_group}));
+        }
     }
+    
     return sum;
 }
 
