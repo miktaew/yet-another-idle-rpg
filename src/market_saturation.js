@@ -101,19 +101,25 @@ function trickle_market_saturations(trickle_rate) {
 
                 new_sold_count[connected_region][group_key] = new_sold_count[connected_region][group_key] || [];
                 new_sold_count[trade_region][group_key] = new_sold_count[trade_region][group_key] || [];
+                //new_sold_count[trade_region][group_key] = [];
                 for(let group_tier = 0; group_tier < loot_sold_count[trade_region][group_key].length; group_tier++) {
                     //go through saturation groups' tier
         
+                    
                     const saturation_level = loot_sold_count[trade_region][group_key][group_tier].sold - loot_sold_count[trade_region][group_key][group_tier].recovered;
-                    //saturation level, basis for what to move
+                    //saturation level, basis for what to move, calculated as a simple difference between sold and recovered
 
                     const total_value_to_move = Math.floor(saturation_level * trickle_rate);
                     loot_sold_count[trade_region][group_key][group_tier].sold -= total_value_to_move;
+                    //reducing sold count in current by trickle rate (some fraction) * saturation level
 
                     const value_to_move = Math.floor(total_value_to_move / connections_count);
+                    //and dividing by connection count, to distribute evenly
 
                     if(!new_sold_count[trade_region][group_key][group_tier]) {
-                        new_sold_count[trade_region][group_key][group_tier] = {...loot_sold_count[trade_region][group_key][group_tier]}
+                        new_sold_count[trade_region][group_key][group_tier] = {...loot_sold_count[trade_region][group_key][group_tier]};
+                    } else {
+                        new_sold_count[trade_region][group_key][group_tier].sold -= total_value_to_move;
                     }
 
                     if(!new_sold_count[connected_region][group_key][group_tier]) {
@@ -123,7 +129,7 @@ function trickle_market_saturations(trickle_rate) {
                             new_sold_count[connected_region][group_key][group_tier] = {sold: 0, recovered: 0};
                         }
                     }
-
+                    
                     new_sold_count[connected_region][group_key][group_tier].sold += value_to_move;
                 }
             });
@@ -174,7 +180,7 @@ function get_total_tier_saturation({ region, group_key, group_tier }) {
 
     const sold_by_tier = [];
     for(let i = 0; i < loot_sold_count[region][group_key]?.length; i++) {
-        sold_by_tier[i] = loot_sold_count[region][group_key][i].sold - loot_sold_count[region][group_key][i].recovered;
+        sold_by_tier[i] = Math.max(0,loot_sold_count[region][group_key][i].sold - loot_sold_count[region][group_key][i].recovered);
     }
 
     const cap = group_key.startsWith(group_key_prefix)?equipment_capped_at:capped_at;

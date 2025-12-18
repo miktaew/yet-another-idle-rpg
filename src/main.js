@@ -2,7 +2,7 @@
 
 import { current_game_time, is_night } from "./game_time.js";
 import { item_templates, getItem, book_stats, rarity_multipliers, getArmorSlot, getItemFromKey, getItemRarity} from "./items.js";
-import { loot_sold_count, market_region_mapping, recover_item_prices, trickle_market_saturations, set_loot_sold_count } from "./market_saturation.js";
+import { loot_sold_count, market_region_mapping, recover_item_prices, trickle_market_saturations, set_loot_sold_count, capped_at } from "./market_saturation.js";
 import { locations, favourite_locations } from "./locations.js";
 import { crafting_skill_xp_gains_cap, skill_categories, skill_xp_gains_cap, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
@@ -4274,6 +4274,30 @@ function load(save_data) {
             if(dialogues["old craftsman"].textlines["learn"].is_finished) {
                 add_to_character_inventory([{item_id: "Old shovel"}]);
             }
+        } else if(is_a_older_than_b(save_data["game version"], "v0.5.0.22") && is_a_older_than_b("v0.5", save_data["game version"])) {
+            //save between 0.5 and trickle rate fix
+            const loot_count = {};
+            
+            Object.keys(save_data.loot_sold_count).forEach(region_key => {
+                loot_count[region_key] = {};
+                Object.keys(save_data.loot_sold_count[region_key]).forEach(trade_key => {
+                    loot_count[region_key][trade_key] = [];
+                    for(let i = 0; i < save_data.loot_sold_count[region_key][trade_key].length; i++) {
+                        if(save_data.loot_sold_count[region_key][trade_key][i].sold > capped_at) {
+                            console.warn(`Encountered a large sold count (${save_data.loot_sold_count[region_key][trade_key][i].sold}) of a trade group "${trade_key}" at tier ${i}. Due to the save being from a game version where a certain bug`
+                                    + ` could make these values keep growing by themselves, it was reduced to ${capped_at}, and it's recovered_count was lowered proportionally.`);
+
+                            const ratio = save_data.loot_sold_count[region_key][trade_key][i].recovered/save_data.loot_sold_count[region_key][trade_key][i].sold;
+                            save_data.loot_sold_count[region_key][trade_key][i].sold = capped_at;
+                            save_data.loot_sold_count[region_key][trade_key][i].recovered = capped_at*ratio;
+                        }
+
+                        loot_count[region_key][trade_key].push({sold: save_data.loot_sold_count[region_key][trade_key][i].sold, recovered: save_data.loot_sold_count[region_key][trade_key][i].recovered});
+                    }
+                });
+            });
+
+            set_loot_sold_count(loot_count);
         } else {
             //set it normally
             set_loot_sold_count(save_data.loot_sold_count || {});

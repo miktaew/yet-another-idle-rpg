@@ -292,9 +292,13 @@ v0.5.0.20
     - effect of kwas is now tagged as 'food' and subject to 'Gluttony' skill
 v0.5.0.21
     - fixed a bug with time progression not working as intended on bigger increases (fast travelling in last minutes of a day/month/year lead to skipping 1 more than it should)
-    - fixed a bug that defaulted prices to 1 if item's sold count was big enough to break precision and, due to silly code logic, make low numbers meaningless (which required another bug to even happen in the first place)
+    - fixed a bug that defaulted prices to 1 if item's sold count was big enough to break precision and, due to silly code logic, make low numbers meaningless (which required another not-yet-confirmed bug to even happen in the first place)
     - fixed an issue with trade price recovery not working
     - slightly nerfed some food effects
+v0.5.0.22
+    - fixed a bug where market saturation trickling was behaving incorrectly and capable of causing sold counts to climb to absurdly high levels (leading to 2nd bug fixed in previous version)
+        - all saves from previous v0.5.0 version will have related values adjusted on game loading
+
 </pre></div>
 <button type="button" class="collapsible">v0.4.6 - Actions (and some other things too) [testing release: 01/04/2025 / main release: 18/05/2025] </button>
 <div class="content"><pre>
