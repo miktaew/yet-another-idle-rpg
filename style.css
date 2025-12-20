@@ -1846,6 +1846,7 @@ i {
 				}
 				.enemy_name {
 					text-align: right;
+					margin-top: 2px;
 				}
 				.enemy_stats {
 					padding-right: 10px;
@@ -2014,6 +2015,9 @@ i {
 		.quest_name_div {
 			font-weight: bold;
 			padding-left: 2px;
+		}
+		.quest_name_div:hover {
+			background-color: var(--active_button_color);
 		}
 		.quest_description_div {
 			font-size: 14px;

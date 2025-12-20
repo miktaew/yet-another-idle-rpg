@@ -6,6 +6,7 @@ const loot_sold_count = {};
 const group_key_prefix = "type_";
 
 //direct connections for resource trickle
+const market_regions = {};
 const market_region_mapping = {
     "Village": ["Slums"],
 };
@@ -35,6 +36,15 @@ Object.keys(market_region_mapping).forEach(region => {
         }
     }
 });
+
+/**
+ * fills loot_sold_count with keys from market_regions (added in locations which have regions assigned)
+ */
+function fill_market_regions() {
+    Object.keys(market_regions).forEach(region => {
+        loot_sold_count[region] = {};
+    })
+}
 
 /**
  * sets the sold count, used for loading and for inter-region trickling
@@ -289,5 +299,6 @@ export {
     get_item_value_with_market_saturation,
     add_to_sold, remove_from_sold,
     get_total_tier_saturation, calculate_total_saturation,
-    capped_at, equipment_capped_at
+    capped_at, equipment_capped_at,
+    market_regions, fill_market_regions
 };

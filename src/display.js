@@ -2408,7 +2408,16 @@ function create_fast_travel_choices() {
 }
 
 function remove_fast_travel_choice({location_id}) {
+    if(!location_choice_divs["fast_travel"]) {
+        return;
+    }
+    
     const element = location_choice_divs["fast_travel"].querySelector(`[data-travel="${location_id}"`);
+
+    if(!element) {
+        return;
+    }
+
     if(location_id === last_combat_location || locations[location_id].housing?.is_unlocked) {
         //remove only button
         element.getElementsByClassName("fast_travel_removal_button")[0].parentNode.remove();
@@ -4244,11 +4253,9 @@ function create_new_skill_bar(skill) {
     if(skill.flavour_text) {
         tooltip_desc.innerHTML += `<br><span class="skill_flavour_text">"${skill.flavour_text}"</span>`;
     }
-    if(skill.get_effect_description()) {
-        tooltip_desc.innerHTML += `<br><br>`;
-    }
+
     if(skill.parent_skill) {
-        tooltip_desc.innerHTML += `Parent skill: ${skill.parent_skill}<br><br>`; 
+        tooltip_desc.innerHTML += `<br>Parent skill: ${skill.parent_skill}<br><br>`; 
     }
     
     skill_bar_max.appendChild(skill_bar_text);

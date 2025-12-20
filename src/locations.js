@@ -6,6 +6,7 @@ import { current_game_time } from "./game_time.js";
 import { activities } from "./activities.js";
 import { get_total_skill_level, is_rat } from "./character.js";
 import { GameAction } from "./actions.js";
+import { fill_market_regions, market_regions } from "./market_saturation.js";
 const locations = {}; //contains all the created locations
 const location_types = {};
 
@@ -55,6 +56,9 @@ class Location {
         this.dialogues = dialogues;
         this.traders = traders;
         this.market_region = market_region; //for separate regions for market saturation
+        if(market_region) {
+            market_regions[market_region] = true;
+        }
         this.activities = {};
         this.actions = {};
         this.types = types;
@@ -2191,4 +2195,5 @@ There's another gate on the wall in front of you, but you have a strange feeling
         });
     });
 })();
+fill_market_regions();
 export { Location, Combat_zone, LocationActivity, locations, location_types, get_location_type_penalty, favourite_locations };
