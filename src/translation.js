@@ -67,6 +67,8 @@ const translations = {
                         +`Oh, and before I forget, our old craftsman wanted to talk to you.`,
         "elder leave 3": "Can I leave the village?",
         "elder leave 3 answ":  "You still need to get stronger.",
+        "elder room clear": "I dealt with some rats in the cave, but is there anything else to help with?",
+        "elder room clear answ": "Ahh, good to hear you are making progress. Let me think... Could you check on the eastern mill? I'm a bit worried if the two kids running it can manage everything by themselves.",
         "elder cave clear":  "I cleared the cave. Most of it, at least",
         "elder cave clear answ": `Then I can't call you "too weak" anymore, can I? You are free to leave whenever you want, but still, be careful. You might also want to ask the guard for some tips about the outside. She used to be an adventurer.`,
         "elder leave 4": "Can I leave the village?",
@@ -125,6 +127,14 @@ const translations = {
         "guard hi answ": "Hey there. I heard you've been helping around a lot, good job cutie~\n *[As she says that, she bends forward and pats your head a few times with a surprisingly gentle touch]*",
         "guard serious": "Can we try a more serious fight?",
         "guard serious answ": "Ohhh, someone wants to impress the cute guard lady? Sorry, but I'm way too strong for you~",
+        //
+        "millers description": "You see two teenagers with mischievous looks on their faces. It's only with great deal of effort that you manage to recognize them both as males. One of them has red hair, the other gray.",
+        "millers hello": "Hello there",
+        "millers hello answ": "[Red] Hi~! <br> [Gray]: Hello",
+        "millers how": "Are you doing alright? Elder asked me to check on you.",
+        "millers how answ": "[Gray] We are fine, mostly. <br> [Cat] Except for rats in the storehouse. <br> [Gray] The big rats, like on the fields...",
+        "millers young": "Aren't you two a bit too young to have a job?",
+        "millers young answ": "Nope, we are both adults, but we will take that as a compliment~ <br> *[They both smirk as they say that]*",
         //
         "g guard description": "You see a massive man in a steel chainmail, with a spear in his hand and a sword on his belt.",
         "g guard hello": "Hello, can I get in?",
@@ -213,6 +223,11 @@ const translations = {
         "guard description": "You see a tall woman in light armor, with a spear in her hand and two daggers on her belt. Her sharp fuzzy ears rotate every now and then towards any new sound, while her fluffy tail remains motionless. There's a scar across her face. When she spots you, she looks at you as if you were a prey, but then adopts a more neutral expression",
         "guard hi answ": "Hey there. I heard you've been helping around a lot, good job cutie~\n *[As she says that, she bends forward and pats your head a few times with a surprisingly gentle touch, her tail slightly wagging]*",
         "guard serious answ": "Ohhh, someone wants to impress the cute fluffy wolf lady? Sorry, but I'm way too strong for you~",
+        //
+        //
+        "millers description": "You see two teenagers with mischievous looks on their faces. One has cat ears and a fluffy tail, the other mouse ears and a tail with barely any hair on it. It's only with great deal of effort that you manage to recognize them both as males. The cat has red hair, the mouse gray.",
+        "millers hello answ": "[Cat] Hi~! <br> [Mouse]: Hello",
+        "millers how answ": "[Mouse] We are fine, mostly. <br> [Cat] Except for rats in the storehouse. <br> [Mouse] The big rats, like on the fields... <br> [Cat] I would prefer mice, at least those are cute. <br> [Mouse] Shut up.",
         //
         "g guard description": "You see a massive, hairy man with round ears and a tiny tail. He's clad in a steel chainmail, with a spear in his hand and an axe on his belt.",
         //

@@ -239,6 +239,16 @@ class DialogueAction extends GameAction {
                 },
                 is_unlocked: false,
             }),
+            "cleared room": new Textline({
+                name: "elder room clear",
+                text: "elder room clear answ",
+                is_unlocked: false,
+                rewards: {
+                    locations: [{location: "Eastern mill"}],
+                    quests: ["It won't mill itself"],
+                },
+                locks_lines: ["cleared room"],
+            }),
             "cleared cave": new Textline({
                 name: "elder cave clear",
                 text: "elder cave clear answ",
@@ -448,6 +458,47 @@ class DialogueAction extends GameAction {
             
         },
         description: "guard description",
+    });
+
+    dialogues["village millers"] = new Dialogue({
+        //cat and mouse
+        name: "village millers",
+        textlines: {
+            "hello": new Textline({
+                name: "millers hello",
+                text: "millers hello answ",
+                rewards: {
+                    textlines: [{dialogue: "village millers", lines: ["how", "young"]}],
+                },
+                locks_lines: ["hello"],
+            }),
+            "how": new Textline({
+                is_unlocked: false,
+                name: "millers how",
+                text: "millers how answ",
+                rewards: {
+                    quest_progress: [{quest_id: "It won't mill itself", task_index: 0}],
+                    locations: [{location: "Eastern storehouse"}],
+                },
+                locks_lines: ["how"],
+            }),
+            "young": new Textline({
+                is_unlocked: false,
+                name: "millers young",
+                text: "millers young answ",
+                locks_lines: ["young"],
+            }),
+            "cleared storage": new Textline({
+                is_unlocked: false,
+                name: "millers cleared",
+                text: "millers cleared answ",
+                locks_lines: ["cleared storage"],
+                rewards: {
+
+                },
+            }),
+        },
+        description: "millers description",
     });
 
     dialogues["gate guard"] = new Dialogue({

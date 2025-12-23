@@ -7,6 +7,7 @@ import { activities } from "./activities.js";
 import { get_total_skill_level, is_rat } from "./character.js";
 import { GameAction } from "./actions.js";
 import { fill_market_regions, market_regions } from "./market_saturation.js";
+import { global_flags } from "./main.js";
 const locations = {}; //contains all the created locations
 const location_types = {};
 
@@ -747,6 +748,64 @@ function get_location_type_penalty(type, stage, stat, category) {
     locations["Village"].connected_locations.push({location: locations["Shack"], travel_time: 10});
     //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
 
+    locations["Eastern mill"] = new Location({
+        name: "Eastern mill",
+        is_unlocked: false,
+        connected_locations: [{location: locations["Village"], travel_time: 30, custom_text: "Go outside to [Village]"}],
+        description: "Local mill, run by a young duo. It's somewhat tidy, with occasional flour dust in corners.",
+        getBackgroundNoises: function() {
+            let noises = [
+                "*Creaking*", "*A small cloud of flour dust rises in the air*", 
+                "*Crunch*","*You hear a steady crunching sounds as stones crush grain*",
+                "Shhh, not now, we're not alone...", "I have a fun idea for later~", 
+            ];
+
+            if(is_rat()) {
+                noises.push("Shhh, don't move, there's a rat on your shoulder");
+            }
+
+            if(global_flags.is_mofu_mofu_enabled) {
+                noises.push("*Their tails brush against each other and the duo blushes*", "*A tail brushes against your leg* oh my, sorry for that~");
+            }
+
+            if(current_game_time.hour > 20 ) {
+                noises.push("It's getting late", "Time for a break", "Can't wait to... you know~");
+            } else if(current_game_time.hour < 4) {
+                noises.push("Why are we even working at this hour...", "I wanna sleep...");
+            } 
+
+            return noises;
+        },
+        dialogues: ["village millers"],
+    });
+    locations["Village"].connected_locations.push({location: locations["Eastern mill"], travel_time: 30});
+
+    locations["Eastern storehouse"] = new Combat_zone({
+        name: "Eastern storehouse",
+        is_unlocked: false,
+        description: "",
+        enemies_list: ["Wolf rat"],
+        types: [{type: "narrow", stage: 1, xp_gain: 2}],
+        enemy_count: 40,
+        enemy_group_size: [4,5],
+        enemy_stat_variation: 0.1,
+        parent_location: locations["Village"],
+        first_reward: {
+            xp: 100,
+        },
+        repeatable_reward: {
+            textlines: [{dialogue: "village millers", lines: ["cleared storage"]}],
+            locks: {
+                locations: ["Eastern storehouse"]
+            }, 
+            move_to: {location: "Village"},
+            quest_progress: [{quest_id: "It won't mill itself", task_index: 1}],
+        },
+        temperature_range_modifier: 0.8,
+        is_under_roof: true,   
+    });
+    locations["Village"].connected_locations.push({location: locations["Eastern storehouse"], travel_time: 30});
+
     locations["Infested field"] = new Combat_zone({
         description: "Field infested with wolf rats. You can see the grain stalks move as these creatures scurry around.", 
         enemy_count: 15, 
@@ -830,6 +889,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             xp: 20,
         },
         repeatable_reward: {
+            //textlines: [{dialogue: "village elder", lines: ["cleared room"]}],
             locations: [{location: "Cave depths"}],
             xp: 10,
             activities: [{location:"Nearby cave", activity:"weightlifting"}, {location:"Nearby cave", activity:"mining"}, {location:"Village", activity:"balancing"}],
