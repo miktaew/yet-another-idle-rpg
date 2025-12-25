@@ -319,7 +319,7 @@ const questManager = {
         ],
         quest_rewards: {
             money: 500,
-            xp: 500, 
+            xp: 250,
             reputation: {
                 village: 100,
             }

@@ -62,7 +62,7 @@ const translations = {
                         +`They are a nasty vermin that's really hard to get rid of. And with their numbers they can be seriously life-threatening. `
                         +`Only in a group though, single wolf rat is not much of a threat`,
         "elder cleared 1":  "I cleared the field, just as you asked me to",
-        "elder cleared 1 answ": `You did? That's good. How about a stronger target? Nearby cave is just full of this vermin. `
+        "elder cleared 1 answ": `You did? That's good. How about a stronger target? Nearby cave is just full of this vermin. Try yourself against whatever occupies the frontal room, and then also the deeper parts. `
                         +`Before that, maybe get some sleep? Some folks prepared that shack over there for you. It's clean, it's dry, and it will give you some privacy. `
                         +`Oh, and before I forget, our old craftsman wanted to talk to you.`,
         "elder leave 3": "Can I leave the village?",
@@ -132,9 +132,31 @@ const translations = {
         "millers hello": "Hello there",
         "millers hello answ": "[Red] Hi~! <br> [Gray]: Hello",
         "millers how": "Are you doing alright? Elder asked me to check on you.",
-        "millers how answ": "[Gray] We are fine, mostly. <br> [Cat] Except for rats in the storehouse. <br> [Gray] The big rats, like on the fields...",
+        "millers how answ": "[Gray] We are fine, mostly. <br> [Red] Except for rats in the storehouse, especially since we are about to have grain delivery. <br> [Gray] The big rats, like on the fields... <br> [Red] So if you could help us with them, it would be great!",
         "millers young": "Aren't you two a bit too young to have a job?",
-        "millers young answ": "Nope, we are both adults, but we will take that as a compliment~ <br> *[They both smirk as they say that]*",
+        "millers young answ": "Nope, we are both adults, but we will take that as a compliment~ <br> *[They both smirk as they say that, apparently happy with their looks]*",
+        "millers sure": "Sure, I can deal with them.",
+        "millers sure answ": "[Red] Ehehe, thank you~ <br> [Gray] We will get you some reward for it later. <br> [Red] A bit of money, and maybe a kiss or two~",
+        "millers cleared": "I cleared out your storehouse",
+        "millers cleared answ": "[Red] Nice job! <br>[Gray] Now where is that grain? <br> [Red] Oh right, it was supposed to be delivered by now. <br>[Gray] Could you search the village for a cart loaded with bags of grain that's 'supposed' to be heading our way?",
+        "millers delivered": "Your delivery has arrived.",
+        "millers delivered answ": "[Red] Thanks <br>[Gray] Thank you! <br>[Red] And here's your reward.",
+        "millers kiss": "",
+        "millers kiss answ": "",
+        "millers kiss mouse": "",
+        "millers kiss mouse answ": "",
+        "millers kiss cat": "",
+        "millers kiss cat answ": "",
+        "millers kiss both": "",
+        "millers kiss both answ": "",
+        "millers reject nice": "",
+        "millers reject nice answ": "",
+        "millers reject mean": "",
+        "millers reject mean answ": "",
+        "millers kiss more": "",
+        "millers kiss more answ": "",
+        "millers how2": "",
+        "millers how2 answ": "",
         //
         "g guard description": "You see a massive man in a steel chainmail, with a spear in his hand and a sword on his belt.",
         "g guard hello": "Hello, can I get in?",
@@ -227,7 +249,10 @@ const translations = {
         //
         "millers description": "You see two teenagers with mischievous looks on their faces. One has cat ears and a fluffy tail, the other mouse ears and a tail with barely any hair on it. It's only with great deal of effort that you manage to recognize them both as males. The cat has red hair, the mouse gray.",
         "millers hello answ": "[Cat] Hi~! <br> [Mouse]: Hello",
-        "millers how answ": "[Mouse] We are fine, mostly. <br> [Cat] Except for rats in the storehouse. <br> [Mouse] The big rats, like on the fields... <br> [Cat] I would prefer mice, at least those are cute. <br> [Mouse] Shut up.",
+        "millers how answ": "[Mouse] We are fine, mostly. <br> [Cat] Except for rats in the storehouse, especially since we are about to have grain delivery. <br> [Mouse] The big rats, like on the fields... <br> [Cat] I would prefer mice, at least those are cute. <br> [Mouse] Shut up. <br> [Cat] So if you could help us with them, it would be great!",
+        "millers sure answ": "[Cat] Ehehe, thank you~ <br> [Mouse] We will get you some reward for it later. <br> [Cat] A bit of money, and maybe a kiss or two~",
+        "millers cleared answ": "[Cat] Nice job! <br>[Mouse] Now where is that grain? <br> [Cat] Oh right, it was supposed to be delivered by now. <br>[Mouse] Could you search the village for a cart loaded with bags of grain that's 'supposed' to be heading our way?",
+        "millers delivered answ": "[Cat] Thanks <br>[Mouse] Thank you! <br>[Cat] And here's your reward.",
         //
         "g guard description": "You see a massive, hairy man with round ears and a tiny tail. He's clad in a steel chainmail, with a spear in his hand and an axe on his belt.",
         //
