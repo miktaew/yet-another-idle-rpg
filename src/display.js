@@ -3562,6 +3562,7 @@ function update_displayed_effects() {
     } else {
         //no effects
         active_effects_tooltip.innerHTML = 'No active effects';
+        effect_divs = {};
     }
     update_displayed_effect_durations();
 }
@@ -3570,6 +3571,7 @@ function update_displayed_effect_durations() {
     Object.keys(effect_divs).forEach(key => {
         if(!active_effects[key]?.duration) {
             effect_divs[key].remove();
+            delete effect_divs[key];
         } else {
             effect_divs[key].querySelector(".active_effect_duration").innerHTML = format_time({time: {minutes: active_effects[key].duration}, round: false});
         }
