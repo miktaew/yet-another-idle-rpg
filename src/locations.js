@@ -673,6 +673,55 @@ function get_location_type_penalty(type, stage, stat, category) {
             }
         }
     });
+	location_types["rough"] = new LocationType({
+        name: "rough",
+        stages: {
+            1: {
+                description: "The loose sand and jagged rocks make it harder to fight effectively",
+                related_skill: "Scrambling",
+                scaling_lvl: 20, 
+                effects: {
+                    agility: {multiplier: 0.5},
+                    dexterity: {multiplier: 0.5},
+                    attack_points: {multiplier: 0.5},
+                    evasion_points: {multiplier: 0.5},
+					attack_speed: {multiplier: 0.7},
+                }
+            },
+            2: {
+                description: "A boggy marshland is a terrible location to fight for your life in",
+                related_skill: "Scrambling",
+				scaling_lvl: 40,
+                effects: {
+                    agility: {multiplier: 0.2},
+                    dexterity: {multiplier: 0.2},
+                    attack_points: {multiplier: 0.2},
+                    evasion_points: {multiplier: 0.2},
+					attack_speed: {multiplier: 0.4},
+                }
+			3: {
+                description: "The muck somehow causes you to slip even while holding you firmly in place",
+                related_skill: "Scrambling",
+				scaling_lvl: 60, //not implemented, intended for if in slick high viscosity fluids above waist height
+                effects: {
+                    agility: {multiplier: 0.08},
+                    dexterity: {multiplier: 0.08},
+                    attack_points: {multiplier: 0.08},
+                    evasion_points: {multiplier: 0.08},
+					attack_speed: {multiplier: 0.15},
+                }
+            }
+        }
+    });
+    location_types["wet"] = new LocationType({
+        name: "wet",
+        stages: {
+            1: {
+                description: "Attempting to stay dry in conditions like this is impossible",
+                effects: {add_active_effect("Wet",3)}
+            }
+        }
+    });
 })();
 
 //create locations and zones
@@ -1525,7 +1574,144 @@ There's another gate on the wall in front of you, but you have a strange feeling
         temperature_modifier: -2,
     });
     locations["Mountain camp"].connected_locations.push({location: locations["Gentle mountain slope"], travel_time: 120});
+	
+    locations["Downstream from the village"] = new Location({ 
+        connected_locations: [{location: locations["Village"], custom_text: "Make the long hike back to the [Village]", travel_time: 2160}], 
+        description: "After an incredibly long hike following the river's winding path, you stumble across what you think at first is a boulder blocking your path, before you notice it move...",
+        getBackgroundNoises: function() {
+            let noises = ["*You hear the waves crashing along the shoreline*", "*Splash*", "*You hear the chittering clicks of dozens of crabs*"];
+            return noises;
+        },
+        temperature_range_modifier: 0.6,
+        name: "Downstream from the village",
+        is_unlocked: false,
+    });
+    locations["Village"].connected_locations.push({location: locations["Downstream from the village"], travel_time: 2160});
+
+    locations["Riverbank"] = new Location({ 
+        connected_locations: [{location: locations["Village"], custom_text: "Make the long hike back to the [Village]", travel_time: 2160}], 
+         getDescription: function() {
+		 if(locations["Riverbank shore"].enemy_groups_killed >= 10 * locations["Riverbank shore"].enemy_count) { 
+                return "While there are still an abundance of crabs on the river's shore, they don't appear to be interested in climbing any higher onto the riverbank. It shouldn't be difficult to move past them at this point";
+            } else if(locations["Riverbank shore"].enemy_groups_killed >= 5 * locations["Riverbank shore"].enemy_count) {
+                return "There is an abundance of crabs on the river's shore, but you should be able to get around them and further down the riverbank with a little bit of effort";
+            } else {
+                return "If the amount of crabs on the river's shore are any indication, this must be the nesting grounds you had heard about. You can't even tell where the shore meets the riverbank with the amount of crabs around here. The giant crab is gone for now, but it's just not possible to follow it without getting attacked by the smaller crabs";
+        },
+        getBackgroundNoises: function() {
+            let noises = ["*You hear the waves crashing along the shoreline*", "*Splash*", "*You hear the chittering clicks of dozens of crabs*"];
+            return noises;
+        },
+        temperature_range_modifier: 0.6,
+        name: "Riverbank",
+        is_unlocked: false,
+    });
+    locations["Village"].connected_locations.push({location: locations["Riverbank"], travel_time: 2160});
+	locations["Downstream from the village"].connected_locations.push({location: locations["Riverbank"], travel_time: 0});
+
+    locations["Riverbank shore"] = new Combat_zone({
+        description: "As your eyes scan the shoreline, you see nothing but crabs across the horizon", 
+        enemy_count: 50, 
+        types: [{type: "open", stage: 1,  xp_gain: 2}],
+        enemies_list: ["River crab"],
+        enemy_group_size: [2,4],
+        enemy_stat_variation: 0.2,
+        is_unlocked: true, 
+        name: "Riverbank shore", 
+        leave_text: "Climb off the beach and back to safety",
+        parent_location: locations["Riverbank"],
+        temperature_range_modifier: 0.5,
+        first_reward: {
+            xp: 1000,
+        },
+        repeatable_reward: {
+			xp: 500,
+        },
+        rewards_with_clear_requirement: [
+            {
+                required_clear_count: 5,
+                locations: [{location: "Further downstream"}],
+            },
+        ],
+    });
+    locations["Riverbank"].connected_locations.push({location: locations["Riverbank shore"], travel_time: 15});
+	
+    locations["Further downstream"] = new Location({ 
+        connected_locations: [{location: locations["Riverbank"], custom_text: "Go back along the path you've made to the [Riverbank]", travel_time: 240}], 
+        description: "It wasn't hard to see the giant crab's trail, although following after it is a different story. Making your way through the thick forest bush, you finally spot the crab resting at the edge of a moderately sized lake. Despite the cracks you've caused in it's shell, it seems more active and alert than when you fought it earlier",
+        getBackgroundNoises: function() {
+            let noises = [];
+            if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
+                noises.push("*You hear the roar of rushing water in the distance*", "*The hum of insects buzz in your ear*", "*Birds are singing, flowers are blooming...*");
+            } else {
+                noises.push("*You hear the roar of rushing water in the distance*", "*The hum of insects buzz in your ear*");
+            }
+            return noises;
+        },
+        temperature_range_modifier: 1.0,
+        name: "Further downstream",
+        is_unlocked: false,
+    });
+    locations["Riverbank"].connected_locations.push({location: locations["Further downstream"], custom_text: "Try to track the giant crab", travel_time: 240});
+
+    locations["Lake beach"] = new Location({ 
+        connected_locations: [{location: locations["Riverbank"], custom_text: "Go back along the path you've made to the [Riverbank]", travel_time: 180}], 
+        description: "The winding river lead to a peaceful lake in the middle of the forest. The surface of the lake ripples from the current of the river feeding into it. Animals occasionally come up and lap at the water's surface before running back off into the woods. On the far end, the lake feeds into a waterfall",
+        getBackgroundNoises: function() {
+            let noises = [];
+            if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
+                noises.push("*You hear the roar of rushing water in the distance*", "*The hum of insects buzz in your ear*", "*Birds are singing, flowers are blooming...*");
+            } else {
+                noises.push("*You hear the roar of rushing water in the distance*", "*The hum of insects buzz in your ear*");
+            }
+            return noises;
+        },
+        temperature_range_modifier: 1.0,
+        name: "Lake beach",
+        is_unlocked: false,
+    });
+    locations["Riverbank"].connected_locations.push({location: locations["Lake beach"],  travel_time: 180});
+    locations["Further downstream"].connected_locations.push({location: locations["Lake beach"], travel_time: 240});
+
+
+
+    locations["Forest road"] = new Location({ 
+        connected_locations: [{location: locations["Village"], travel_time: 240}],
+        description: "Old trodden road leading through a dark forest, the only path connecting the village to the town. You can hear some animals from the surrounding woods.",
+        name: "Forest road",
+        getBackgroundNoises: function() {
+            let noises = ["*You hear some rustling*", "Roar!", "*You almost tripped on some roots*", "*You hear some animal running away*"];
+
+            return noises;
+        },
+        is_unlocked: false,
+    });
+    locations["Village"].connected_locations.push({location: locations["Forest road"], custom_text: "Leave the village towards [Forest road]", travel_time: 240});
+	
+    locations["Gentle mountain slope"] = new Combat_zone({
+        description: "A surprisingly gentle clearing, with a herd of angry goats protecting it.",
+        enemies_list: ["Angry mountain goat"],
+        enemy_count: 50,
+        enemy_group_size: [3,4],
+        is_unlocked: false,
+        enemy_stat_variation: 0.2,
+        name: "Gentle mountain slope", 
+        types: [{type: "open", stage: 1, xp_gain: 5}, {type: "thin air", stage: 1, xp_gain: 3}],
+        parent_location: locations["Mountain camp"],
+        first_reward: {
+            xp: 2000,
+            flags: ["is_strength_proved"],
+        },
+        repeatable_reward: {
+            xp: 1000,
+        },
+        temperature_modifier: -2,
+    });
+    locations["Mountain camp"].connected_locations.push({location: locations["Gentle mountain slope"], travel_time: 120});
+	
 })();
+
+
 
 //challenge zones
 (function(){
@@ -1631,6 +1817,50 @@ There's another gate on the wall in front of you, but you have a strange feeling
         temperature_modifier: -2,
     });
     locations["Mountain path"].connected_locations.push({location: locations["Fight the angry mountain goat"], custom_text: "Fight the angry goat", travel_time: 0});
+
+    locations["Fight the giant stone crab"] = new Challenge_zone({
+        description: "The village elder told you to be cautious...",
+        enemy_count: 1, 
+        types: [{type: "open", stage: 1, xp_gain: 2}],
+        enemies_list: ["Giant stone crab"],
+        enemy_group_size: [1,1],
+        enemy_stat_variation: 0,
+        is_unlocked: true, 
+        name: "Fight the giant stone crab", 
+        leave_text: "Scramble away and hide!",
+        parent_location: locations["Downstream from the village"],
+        repeatable_reward: {
+            locations: [{location: "Riverbank"}],
+            xp: 2000,
+        },
+        unlock_text: "Is this what the village elder meant when he said an enormous crab nest??",
+        temperature_modifier: 0.6,
+    });
+    locations["Downstream from the village"].connected_locations.push({location: locations["Fight the giant stone crab"], custom_text: "Fight the giant stone crab", travel_time: 0});
+
+
+    locations["Fight the giant stone crab again"] = new Challenge_zone({
+        description: "This time, you can't let it get away",
+        enemy_count: 1, 
+        types: [{type: "open", stage: 2, xp_gain: 5}, {type: "rough", stage: 1, xp_gain: 1}],
+        enemies_list: ["Enraged giant stone crab"],
+        enemy_group_size: [1,1],
+        enemy_stat_variation: 0,
+        is_unlocked: true, 
+        name: "Fight the giant stone crab again!", 
+        leave_text: "Scramble away and hide!",
+        parent_location: locations["Further downstream"],
+        repeatable_reward: {
+            locations: [{location: "Lake beach"}],
+            xp: 5000,
+        },
+        unlock_text: "It's wounded, but in spite of that it looks more dangerous than before",
+        temperature_modifier: 1,
+    });
+    locations["Further downstream"].connected_locations.push({location: locations["Fight the giant stone crab again"], custom_text: "Fight the giant stone crab again", travel_time: 0});
+})();
+
+	
 })();
 
 //add activities

@@ -330,6 +330,76 @@ class Enemy {
         size: enemy_sizes.MEDIUM,
         stats: {health: 500, attack: 60, agility: 60, dexterity: 60, magic: 0, intuition: 60, attack_speed: 1.7, defense: 45},
     });
+	
+	enemy_templates["River crab"] = new Enemy({
+        name: "River crab",
+        description: "A crab the size of a small boulder",
+        xp_value: 25,
+        rank: 5,
+        size: enemy_sizes.SMALL,
+        tags: ["living", "beast", "aquatic"],
+        stats: {health: 800, attack: 45, agility: 50, dexterity: 90, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 45}, //numbers are just estimates, intended AP is 550 and EP is 450
+        loot_list: [
+            {item_name: "Crab meat", chance: 0.02},
+        ]
+    });
+
+	enemy_templates["Stone crab"] = new Enemy({
+        name: "Stone crab",
+        description: "A crab the size of a large boulder, and about as hard to crack open",
+        xp_value: 70,
+        rank: 9,
+        size: enemy_sizes.MEDIUM,
+        tags: ["living", "beast", "aquatic"],
+        stats: {health: 3000, attack: 90, agility: 200, dexterity: 180, intuition: 200, magic: 0, attack_speed: 1.7, attack_count: 2, defense: 700}, //numbers are just estimates, intended AP is 1550 and EP is 1700
+        loot_list: [
+            {item_name: "Crab meat", chance: 0.05},
+            {item_name: "Crab claw", chance: 0.01},
+            {item_name: "Giant crab claw", chance: 0.005},
+        ]
+    });
+
+	enemy_templates["Alligator"] = new Enemy({
+        name: "Alligator",
+        description: "An alligator in it's natural habitat is one of the deadliest predators in nature",
+        xp_value: 550,
+        rank: 13,
+        size: enemy_sizes.LARGE,
+        tags: ["living", "beast", "aquatic"],
+        stats: {health: 9000, attack: 750, agility: 300, dexterity: 600, intuition: 450, magic: 0, attack_speed: 1.6, defense: 550}, //numbers are just estimates, intended AP is 3200 and EP is 2700
+        loot_list: [
+            {item_name: "Alligator meat", chance: 0.02},
+            {item_name: "Alligator skin", chance: 0.01},
+        ]
+    });
+
+	enemy_templates["Snapping turtle"] = new Enemy({
+        name: "Snapping turtle",
+        description: "A large turtle with an incredibly dense shell",
+        xp_value: 500,
+        rank: 12,
+        size: enemy_sizes.MEDIUM,
+        tags: ["living", "beast", "aquatic"],
+        stats: {health: 10000, attack: 550, agility: 150, dexterity: 150, intuition: 150, magic: 0, attack_speed: 0.9, defense: 1000}, //numbers are just estimates, intended AP is 2250 and EP is 2400
+        loot_list: [
+            {item_name: "Turtle meat", chance: 0.02},
+            {item_name: "Turtle shell", chance: 0.005},
+        ]
+    });
+
+	enemy_templates["Giant snake"] = new Enemy({
+        name: "Giant snake",
+        description: "This large snake is fast enough to catch even the most cautious warriors by surprise",
+        xp_value: 600,
+        rank: 14,
+        size: enemy_sizes.LARGE,
+        tags: ["living", "beast"],
+        stats: {health: 7000, attack: 450, agility: 350, dexterity: 700, intuition: 300, magic: 0, attack_speed: 2.7, defense: 400}, //numbers are just estimates, intended AP is 5550 and EP is 3300
+        loot_list: [
+            {item_name: "Giant snake meat", chance: 0.02},
+            {item_name: "Giant snake skin", chance: 0.01},
+        ]
+    });
 })();
 
 
@@ -387,6 +457,29 @@ class Enemy {
         size: enemy_sizes.MEDIUM,
         stats: {health: 1200, attack: 150, agility: 100, dexterity: 70, magic: 0, intuition: 60, attack_speed: 0.5, defense: 60},
     });
+	enemy_templates["Giant stone crab"] = new Enemy({
+        name: "Giant stone crab",
+        description: "This is the biggest crab you've ever seen. It's also the smallest crab you've ever seen",
+        xp_value: 1,
+        rank: 10,
+        size: enemy_sizes.LARGE,
+        tags: ["living", "beast", "aquatic"],
+        stats: {health: 8000, attack: 200, agility: 200, dexterity: 500, intuition: 200, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 1250}, //numbers are just estimates, intended AP is 4000 and EP is 2000
+    });
+
+	enemy_templates["Enraged giant stone crab"] = new Enemy({
+        name: "Enraged giant stone crab",
+        description: "This is still the biggest crab you've ever seen",
+        xp_value: 1,
+        rank: 11,
+        size: enemy_sizes.LARGE,
+        tags: ["living", "beast", "aquatic"],
+        stats: {health: 13000, attack: 300, agility: 300, dexterity: 700, intuition: 200, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 850}, //numbers are just estimates, intended AP is 6000 and EP is 3500
+        loot_list: [
+            {item_name: "Giant crab claw", chance: 1.00},
+        ]
+    });
+
 })()
 
 export {Enemy, enemy_templates, enemy_killcount, tags_for_droprate_modifier_skills};

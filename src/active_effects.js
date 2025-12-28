@@ -220,6 +220,46 @@ class ActiveEffect {
         },
         tags: {"debuff": true, "poison": true},
     });
+	effect_templates["Tough meat meal"] = new ActiveEffect({
+        name: "Tough meat meal",
+        effects: {
+            stats: {
+                stamina_regeneration_flat: {flat: .5},
+                health_regeneration_flat: {flat: .1},
+            }
+        },
+        tags: {"buff": true, "food": true},
+    });
+		effect_templates["Simple seafood soup"] = new ActiveEffect({
+        name: "Simple seafood soup",
+        effects: {
+            stats: {
+                stamina_regeneration_flat: {flat: 1.5},
+                health_regeneration_flat: {flat: .5},
+            }
+        },
+        tags: {"buff": true, "food": true},
+    });
+		effect_templates["Varied meat meal"] = new ActiveEffect({
+        name: "Varied meal meal",
+        effects: {
+            stats: {
+                stamina_regeneration_flat: {flat: 2},
+                health_regeneration_flat: {flat: 1},
+            }
+        },
+        tags: {"buff": true, "food": true},
+    });
+		effect_templates["Varied seafood meal"] = new ActiveEffect({
+        name: "Varied seafood meal",
+        effects: {
+            stats: {
+                xp_multipliers: {
+            all: 1.25,
+            }
+        },
+        tags: {"buff": true, "food": true},
+    });
 })();
 
 effect_templates["Recovering"] = new ActiveEffect({
