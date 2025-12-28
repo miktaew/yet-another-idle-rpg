@@ -1083,7 +1083,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
             },
             20: {
                 attack_speed: {
-                    multiplier: 1.02,
+                    multiplier: 1.03,
                 }
 				stats: {
                     stamina_regeneration_flat: {

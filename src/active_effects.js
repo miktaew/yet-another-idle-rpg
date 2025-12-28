@@ -241,7 +241,7 @@ class ActiveEffect {
         tags: {"buff": true, "food": true},
     });
 		effect_templates["Varied meat meal"] = new ActiveEffect({
-        name: "Varied meal meal",
+        name: "Varied meat meal",
         effects: {
             stats: {
                 stamina_regeneration_flat: {flat: 2},

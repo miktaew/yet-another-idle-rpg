@@ -424,7 +424,7 @@ class TradeItem {
         new TradeItem({item_name: "Iron shovel", count: [1], chance: 1}),
     ];
 	
-inventory_templates["Swamp"] = 
+	inventory_templates["Swamp"] = 
     [
             new TradeItem({item_name: "Alligator jerky", count: [1,2]}),
             new TradeItem({item_name: "Snake jerky", count: [1,2]}),
@@ -435,7 +435,7 @@ inventory_templates["Swamp"] =
             new TradeItem({item_name: "Wild garlic", count: [1,3]}),
             new TradeItem({item_name: "Wild potato", count: [1,3]}),
     ];
-    inventory_templates["Swamp plus"] = 
+	inventory_templates["Swamp plus"] = 
     [
             new TradeItem({item_name: "Alligator jerky", count: [2,5]}),
             new TradeItem({item_name: "Snake jerky", count: [2,5]}),

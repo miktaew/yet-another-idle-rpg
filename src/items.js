@@ -1172,7 +1172,7 @@ book_stats["Shellfish Desires"] = new BookData({
         id: "Shellfish desires",
         name: "Shellfish desires",
         description: "A cookbook detailing various methods of cleaning and preparing crab, clam, snail, turtle, and other aquatic animals",
-        value: 540
+        value: 1620
     });
 	
 })();
@@ -3961,7 +3961,7 @@ book_stats["Shellfish Desires"] = new BookData({
     });
     item_templates["Healing potion"] = new UsableItem({
         name: "Healing potion",
-        description: "Tastes nice at first but has a bitter aftertase. Povides a quick burst of healing",
+        description: "Tastes nice at first but has a bitter aftertase. Provides a quick burst of healing",
         value: 200,
         effects: [{effect: "Healing potion", duration: 10}],
         recovery_chances: {"Glass phial": 0.75},

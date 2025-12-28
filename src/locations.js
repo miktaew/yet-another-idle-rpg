@@ -783,7 +783,7 @@ function get_location_type_penalty(type, stage, stat, category) {
 
     locations["Shack"] = new Location({
         connected_locations: [{location: locations["Village"], custom_text: "Go outside to [Village]", travel_time: 10}],
-        description: "This small shack was the only spare building in the village. It's surprisingly tidy.",
+        description: "This small shack was the only spare building in the village. It's surprisingly tidy",
         name: "Shack",
         is_unlocked: false,
         housing: {
@@ -801,7 +801,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         name: "Eastern mill",
         is_unlocked: false,
         connected_locations: [{location: locations["Village"], travel_time: 30, custom_text: "Go outside to [Village]"}],
-        description: "Local mill, run by a young duo. It's somewhat tidy, with occasional flour dust in corners.",
+        description: "Local mill, run by a young duo. It's somewhat tidy, with occasional flour dust in corners",
         getBackgroundNoises: function() {
             let noises = [
                 "*Creaking*", "*A small cloud of flour dust rises in the air*", 
@@ -855,7 +855,7 @@ function get_location_type_penalty(type, stage, stat, category) {
     locations["Eastern mill"].connected_locations.push({location: locations["Eastern storehouse"], travel_time: 10});
 
     locations["Infested field"] = new Combat_zone({
-        description: "Field infested with wolf rats. You can see the grain stalks move as these creatures scurry around.", 
+        description: "Field infested with wolf rats. You can see the grain stalks move as these creatures scurry around", 
         enemy_count: 15, 
         enemies_list: ["Starving wolf rat", "Wolf rat"],
         types: [{type: "open", stage: 1, xp_gain: 1}],
@@ -894,18 +894,18 @@ function get_location_type_penalty(type, stage, stat, category) {
         connected_locations: [{location: locations["Village"], custom_text: "Go outside and to the [Village]", travel_time: 60}], 
         getDescription: function() {
             if(locations["Pitch black tunnel"].enemy_groups_killed >= locations["Pitch black tunnel"].enemy_count) { 
-                return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the cave walls, providing a dim light. Your efforts have secured a decent space and many of the tunnels. It seems like you almost reached the deepest part.";
+                return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the cave walls, providing a dim light. Your efforts have secured a decent space and many of the tunnels. It seems like you almost reached the deepest part";
             }
             else if(locations["Hidden tunnel"].enemy_groups_killed >= locations["Hidden tunnel"].enemy_count) { 
-                return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured a major space and some tunnels, but there are still more places left to clear out.";
+                return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured a major space and some tunnels, but there are still more places left to clear out";
             }
             else if(locations["Cave depths"].enemy_groups_killed >= locations["Cave depths"].enemy_count) { 
-                return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured a decent space and even a few tunnels, yet somehow you can still hear the sounds of the wolf rats.";
+                return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured a decent space and even a few tunnels, yet somehow you can still hear the sounds of the wolf rats";
             }
             else if(locations["Cave room"].enemy_groups_killed >= locations["Cave room"].enemy_count) {
-                return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured some space, but you can hear more wolf rats in some deeper tunnels.";
+                return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the walls, providing a dim light. Your efforts have secured some space, but you can hear more wolf rats in some deeper tunnels";
             } else {
-                return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the walls, providing a dim light. You can hear sounds of wolf rats from the nearby room.";
+                return "A big cave at the base of a steep mountain, near the village. There are old storage sheds outside and signs of mining inside. Groups of fluorescent mushrooms cover the walls, providing a dim light. You can hear sounds of wolf rats from the nearby room";
             }
         },
         getBackgroundNoises: function() {
@@ -921,7 +921,7 @@ function get_location_type_penalty(type, stage, stat, category) {
     //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
 
     locations["Cave room"] = new Combat_zone({
-        description: "It's full of rats. At least the glowing mushrooms provide some light.", 
+        description: "It's full of rats. At least the glowing mushrooms provide some light", 
         enemy_count: 25, 
         types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "bright", stage:1}],
         enemies_list: ["Wolf rat"],
@@ -956,7 +956,7 @@ function get_location_type_penalty(type, stage, stat, category) {
     locations["Nearby cave"].connected_locations.push({location: locations["Cave room"], travel_time: 5});
 
     locations["Cave depths"] = new Combat_zone({
-        description: "It's dark. And full of rats.", 
+        description: "It's dark. And full of rats", 
         enemy_count: 40,
         types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 2, xp_gain: 3}],
         enemies_list: ["Wolf rat"],
@@ -985,7 +985,7 @@ function get_location_type_penalty(type, stage, stat, category) {
     });
     
     locations["Hidden tunnel"] = new Combat_zone({
-        description: "There is, in fact, even more rats here.", 
+        description: "There is, in fact, even more rats here", 
         enemy_count: 50, 
         types: [{type: "narrow", stage: 1,  xp_gain: 3}, {type: "dark", stage: 3, xp_gain: 1}],
         enemies_list: ["Elite wolf rat"],
@@ -1009,7 +1009,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         unlock_text: "As the wall falls apart, you find yourself in front of a new tunnel, leading even deeper. And of course, it's full of wolf rats."
     });
     locations["Pitch black tunnel"] = new Combat_zone({
-        description: "There is no light here. Only rats.", 
+        description: "There is no light here. Only rats", 
         enemy_count: 50, 
         types: [{type: "narrow", stage: 1,  xp_gain: 6}, {type: "dark", stage: 3, xp_gain: 3}],
         enemies_list: ["Elite wolf rat"],
@@ -1037,7 +1037,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         is_temperature_static: true,
         static_temperature: 16,
         is_under_roof: true,
-        unlock_text: "As you keep going deeper, you barely notice a pitch black hole. Not even a tiniest speck of light reaches it."
+        unlock_text: "As you keep going deeper, you barely notice a pitch black hole. Not even a tiniest speck of light reaches it"
     });
 
     locations["Mysterious gate"] = new Combat_zone({
@@ -1066,7 +1066,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         is_temperature_static: true,
         static_temperature: 18,
         is_under_roof: true,
-        unlock_text: "After a long and ardous fight, you reach a chamber that ends with a massive stone gate. You can feel it's guarded by some kind of wolf rats, but much bigger than the ones you fought until now."
+        unlock_text: "After a long and ardous fight, you reach a chamber that ends with a massive stone gate. You can feel it's guarded by some kind of wolf rats, but much bigger than the ones you fought until now"
     });
 
     locations["Nearby cave"].connected_locations.push(
@@ -1127,7 +1127,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
 
     locations["Forest road"] = new Location({ 
         connected_locations: [{location: locations["Village"], travel_time: 240}],
-        description: "Old trodden road leading through a dark forest, the only path connecting the village to the town. You can hear some animals from the surrounding woods.",
+        description: "Old trodden road leading through a dark forest, the only path connecting the village to the town. You can hear some animals from the surrounding woods",
         name: "Forest road",
         getBackgroundNoises: function() {
             let noises = ["*You hear some rustling*", "Roar!", "*You almost tripped on some roots*", "*You hear some animal running away*"];
@@ -1206,7 +1206,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Forest road"].connected_locations.push({location: locations["Forest clearing"], custom_text: "Go towards the [Forest clearing] in the north", travel_time: 60});
 
     locations["Forest den"] = new Combat_zone({
-        description: "A relatively large cave in the depths of the forest, filled with hordes of direwolves.",
+        description: "A relatively large cave in the depths of the forest, filled with hordes of direwolves",
         enemies_list: ["Direwolf"],
         enemy_count: 50,
         enemy_group_size: [2,3],
@@ -1236,7 +1236,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Forest road"].connected_locations.push({location: locations["Forest den"], custom_text: "Enter the [Forest den]", travel_time: 90});
 
     locations["Bears' den"] = new Combat_zone({
-        description: "A dark, smelly cave in the heart of the forest, with massive bones spread around the entrance.",
+        description: "A dark, smelly cave in the heart of the forest, with massive bones spread around the entrance",
         enemies_list: ["Forest bear"],
         enemy_count: 20,
         enemy_group_size: [1,1],
@@ -1283,7 +1283,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
 
     locations["Town outskirts"] = new Location({ 
         connected_locations: [{location: locations["Forest road"], custom_text: "Return to the [Forest road]", travel_time: 240}],
-        description: "The town is surrounded by a tall stone wall. The only gate seems to be closed, with a lone guard outside. You can see farms to the north and slums to the south.",
+        description: "The town is surrounded by a tall stone wall. The only gate seems to be closed, with a lone guard outside. You can see farms to the north and slums to the south",
         name: "Town outskirts",
         is_unlocked: true,
         dialogues: ["gate guard"],
@@ -1328,7 +1328,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     });
     locations["Town farms"] = new Location({ 
         connected_locations: [{location: locations["Town outskirts"], travel_time: 60}],
-        description: "Semi-private farms under jurisdiction of the city council. Full of life and sounds of heavy work.",
+        description: "Semi-private farms under jurisdiction of the city council. Full of life and sounds of heavy work",
         name: "Town farms",
         is_unlocked: true,
         dialogues: ["farm supervisor"],
@@ -1443,7 +1443,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     );
 
     locations["Gang hideout"] = new Combat_zone({ 
-        description: "Hideout of a local gang. Old building with a labirynth of narrow corridors.", 
+        description: "Hideout of a local gang. Old building with a labirynth of narrow corridors", 
         enemies_list: ["Slums thug"],
         types: [{type: "narrow", stage: 2, xp_gain: 3}, {type: "dark", stage: 1, xp_gain: 3}],
         enemy_count: 30,
@@ -1517,13 +1517,13 @@ There's another gate on the wall in front of you, but you have a strange feeling
             return noises;
         },
         temperature_modifier: -2,
-        unlock_text: "Thanks to your hard effort, you reached a narrow safe spot where you can rest a bit.",
+        unlock_text: "Thanks to your hard effort, you reached a narrow safe spot where you can rest a bit",
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Mountain path"], custom_text: "Climb up to [Mountain path]", travel_time: 60, travel_time_skills: ["Climbing"]});
 
     locations["Small flat area in mountains"] = new Location({
         connected_locations: [{location: locations["Mountain path"], travel_time: 120}],
-        description: "A piece of flatland somewhere in the mountains, very high above the village. It's not that big, but more than enough for a camp.",
+        description: "A piece of flatland somewhere in the mountains, very high above the village. It's not that big, but more than enough for a camp",
         name: "Small flat area in mountains",
         is_unlocked: false,
         getBackgroundNoises: function() {
@@ -1537,7 +1537,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     
     locations["Mountain camp"] = new Location({
         connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb down to [Nearby cave]", travel_time: 140, travel_time_skills: ["Climbing", "Running"]}],
-        description: "A nice safe camp with a crackling fire, created by you to be a perfect base for further exploration.",
+        description: "A nice safe camp with a crackling fire, created by you to be a perfect base for further exploration",
         name: "Mountain camp",
         housing: {
             is_unlocked: true,
@@ -1555,7 +1555,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Mountain path"].connected_locations.push({location: locations["Mountain camp"], travel_time: 120});
 
     locations["Gentle mountain slope"] = new Combat_zone({
-        description: "A surprisingly gentle clearing, with a herd of angry goats protecting it.",
+        description: "A surprisingly gentle clearing, with a herd of angry goats protecting it",
         enemies_list: ["Angry mountain goat"],
         enemy_count: 50,
         enemy_group_size: [3,4],
@@ -1586,7 +1586,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         name: "Downstream from the village",
         is_unlocked: false,
     });
-    locations["Village"].connected_locations.push({location: locations["Downstream from the village"], travel_time: 2160});
+    locations["Village"].connected_locations.push({location: locations["Downstream from the village"], custom_text: "Hike down the river", travel_time: 2160});
 
     locations["Riverbank"] = new Location({ 
         connected_locations: [{location: locations["Village"], custom_text: "Make the long hike back to the [Village]", travel_time: 2160}], 
@@ -1597,7 +1597,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 return "There is an abundance of crabs on the river's shore, but you should be able to get around them and further down the riverbank with a little bit of effort";
             } else {
                 return "If the amount of crabs on the river's shore are any indication, this must be the nesting grounds you had heard about. You can't even tell where the shore meets the riverbank with the amount of crabs around here. The giant crab is gone for now, but it's just not possible to follow it without getting attacked by the smaller crabs";
-        },
+        });
         getBackgroundNoises: function() {
             let noises = ["*You hear the waves crashing along the shoreline*", "*Splash*", "*You hear the chittering clicks of dozens of crabs*"];
             return noises;
@@ -1606,8 +1606,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
         name: "Riverbank",
         is_unlocked: false,
     });
-    locations["Village"].connected_locations.push({location: locations["Riverbank"], travel_time: 2160});
-	locations["Downstream from the village"].connected_locations.push({location: locations["Riverbank"], travel_time: 0});
+    locations["Village"].connected_locations.push({location: locations["Riverbank"], custom_text: "Hike down the river", travel_time: 2160});
+	locations["Downstream from the village"].connected_locations.push({location: locations["Riverbank"], custom_text: "Move down to the [Riverbank]", travel_time: 30});
 
     locations["Riverbank shore"] = new Combat_zone({
         description: "As your eyes scan the shoreline, you see nothing but crabs across the horizon", 
@@ -1630,7 +1630,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         rewards_with_clear_requirement: [
             {
                 required_clear_count: 5,
-                locations: [{location: "Further downstream"}],
+                locations: [{location: "Further downstream"}]
             },
         ],
     });
@@ -1648,67 +1648,184 @@ There's another gate on the wall in front of you, but you have a strange feeling
             }
             return noises;
         },
-        temperature_range_modifier: 1.0,
+        temperature_range_modifier: 1,
         name: "Further downstream",
         is_unlocked: false,
     });
     locations["Riverbank"].connected_locations.push({location: locations["Further downstream"], custom_text: "Try to track the giant crab", travel_time: 240});
 
     locations["Lake beach"] = new Location({ 
-        connected_locations: [{location: locations["Riverbank"], custom_text: "Go back along the path you've made to the [Riverbank]", travel_time: 180}], 
-        description: "The winding river lead to a peaceful lake in the middle of the forest. The surface of the lake ripples from the current of the river feeding into it. Animals occasionally come up and lap at the water's surface before running back off into the woods. On the far end, the lake feeds into a waterfall",
+        connected_locations: [{location: locations["Riverbank"], custom_text: "Go back along the path you've made to the [Riverbank]", travel_time: 180, travel_time_skills: ["Scrambling"]}], 
+        description: "The winding river lead to a peaceful lake in the middle of the forest. The surface of the lake ripples from the current of the river feeding into it. Animals occasionally come up and lap at the edge of the lake before running back off into the woods. On the far end, the lake feeds into a waterfall",
         getBackgroundNoises: function() {
             let noises = [];
             if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
-                noises.push("*You hear the roar of rushing water in the distance*", "*The hum of insects buzz in your ear*", "*Birds are singing, flowers are blooming...*");
+                noises.push("*You hear the roar of rushing water nearby*", "*The hum of insects buzz in your ear*", "*Birds are singing, flowers are blooming...*");
             } else {
-                noises.push("*You hear the roar of rushing water in the distance*", "*The hum of insects buzz in your ear*");
+                noises.push("*You hear the roar of rushing water nearby*", "*The hum of insects buzz in your ear*");
             }
             return noises;
         },
-        temperature_range_modifier: 1.0,
+        temperature_range_modifier: 1,
         name: "Lake beach",
         is_unlocked: false,
     });
-    locations["Riverbank"].connected_locations.push({location: locations["Lake beach"],  travel_time: 180});
+    locations["Riverbank"].connected_locations.push({location: locations["Lake beach"],  travel_time: 180, travel_time_skills: ["Scrambling"]});
     locations["Further downstream"].connected_locations.push({location: locations["Lake beach"], travel_time: 240});
 
-
-
-    locations["Forest road"] = new Location({ 
-        connected_locations: [{location: locations["Village"], travel_time: 240}],
-        description: "Old trodden road leading through a dark forest, the only path connecting the village to the town. You can hear some animals from the surrounding woods.",
-        name: "Forest road",
+    locations["Waterfall basin"] = new Location({ 
+        connected_locations: [{location: locations["Lake beach"], custom_text: "Climb the cliffside and return to the [Lake beach]", travel_time: 80, travel_time_skills: ["Climbing"]}], 
+         getDescription: function() {
+		 if(locations["Stone crab spawning grounds"].enemy_groups_killed >= 10 * locations["Stone crab spawning grounds"].enemy_count) { 
+                return "The waterfall at the bottom of the lake. The cool rushing waters and serene nature of the area make it ideal for training your mind and body. Large crabs almost indistinguishable from the stone can be found along the shore of the basin. At the far end of the basin, you can just barely make out the overgrown remains of a trail leading off into a swampy field";
+            } else if(locations["Stone crab spawning grounds"].enemy_groups_killed >= 5 * locations["Stone crab spawning grounds"].enemy_count) {
+                return "The waterfall at the bottom of the lake. Large crabs almost indistinguishable from the stone inhabit the shore. The sound of roaring water echoing under the rock shelters provides a calming noise that would make it easier to focus your mind";
+            } else {
+                return "The waterfall at the bottom of the lake. Large crabs almost indistinguishable from the stone inhabit the shore and nearby rock shelters. You consider that the cool rushing waters from overhead might be an good way to train your body to endure tougher situations";
+        });
         getBackgroundNoises: function() {
-            let noises = ["*You hear some rustling*", "Roar!", "*You almost tripped on some roots*", "*You hear some animal running away*"];
-
+            let noises = ["*You hear the roar of thousands of gallons of water crashing down*"];
             return noises;
         },
+        temperature_range_modifier: 1.5,
+        name: "Waterfall basin",
         is_unlocked: false,
     });
-    locations["Village"].connected_locations.push({location: locations["Forest road"], custom_text: "Leave the village towards [Forest road]", travel_time: 240});
-	
-    locations["Gentle mountain slope"] = new Combat_zone({
-        description: "A surprisingly gentle clearing, with a herd of angry goats protecting it.",
-        enemies_list: ["Angry mountain goat"],
-        enemy_count: 50,
-        enemy_group_size: [3,4],
-        is_unlocked: false,
+    locations["Lake beach"].connected_locations.push({location: locations["Waterfall basin"], custom_text: "Rappel down to the [Waterfall basin]", travel_time: 40, travel_time_skills: ["Climbing"]});
+
+    locations["Stone crab spawning grounds"] = new Combat_zone({
+        description: "First an enormous nest of crabs, then an enormous crab's nest, and now this??", 
+        enemy_count: 50, 
+        types: [{type: "open", stage: 2, xp_gain: 5}, {type: "rough", stage: 1, xp_gain: 1}, {type: "wet", stage: 1}],
+        enemies_list: ["Stone crab"],
+        enemy_group_size: [3,5],
         enemy_stat_variation: 0.2,
-        name: "Gentle mountain slope", 
-        types: [{type: "open", stage: 1, xp_gain: 5}, {type: "thin air", stage: 1, xp_gain: 3}],
-        parent_location: locations["Mountain camp"],
+        is_unlocked: true, 
+        name: "Stone crab spawning grounds", 
+        leave_text: "Leave the stone crab spawning grounds",
+        parent_location: locations["Waterfall basin"],
+        temperature_range_modifier: 1,
         first_reward: {
-            xp: 2000,
-            flags: ["is_strength_proved"],
+            xp: 5000,
         },
         repeatable_reward: {
-            xp: 1000,
+			xp: 2500,
         },
-        temperature_modifier: -2,
-    });
-    locations["Mountain camp"].connected_locations.push({location: locations["Gentle mountain slope"], travel_time: 120});
+        rewards_with_clear_requirement: [
+            {
+                required_clear_count: 5,
+                activities: [{location:"Waterfall basin", activity:"meditating"}],
+            },
+            {
+                required_clear_count: 10,
+                locations: [{location: "Swampland fields"}]
+            });
+        });
+    locations["Waterfall basin"].connected_locations.push({location: locations["Stone crab spawning grounds"], travel_time: 20});
 	
+    locations["Swampland fields"] = new Location({ 
+        connected_locations: [{location: locations["Waterfall basin"], custom_text: "Climb through the muck and brush and return to the [Waterfall basin]", travel_time: 45, travel_time_skills: ["Scrambling"]}], 
+         getDescription: function() {
+		 if(locations["Wander randomly in the swamplands"].enemy_groups_killed >= 100 * locations["Wander randomly in the swamplands"].enemy_count) { 
+                return "The swamplands are filled with everpresent danger. Only an experienced warrior such as yourself is capable of withstanding the threats that lie under the boggy depths";
+            } else if(locations["Wander randomly in the swamplands"].enemy_groups_killed >= 10 * locations["Wander randomly in the swamplands"].enemy_count) {
+                return "The swamplands are difficult to navigate and dangerous to traverse, but after scouting it for what feels like a few weeks, you begin to find that the bog feels smaller and emptier";
+            } else if(locations["Wander randomly in the swamplands"].enemy_groups_killed >= 3 * locations["Wander randomly in the swamplands"].enemy_count) {
+                return "The swamplands are difficult to navigate and dangerous to traverse, but after travelling across it for what feels like a few days, you managed to find an actual solid pathway leading to a small settlement. It seems that somehow, some folks have managed to find a way to survive out here";
+            } else {
+                return "A disgusting boggy marsh lies before you. Most of the ground, or at least what you can make out through the reeds, is covered in filthy water up to your knees, and what isn't submerged has rotted into compost or is the nest of some unknown creature. You think you see something out of the corner of your eye, but as you turn to look, all you catch is a ripple in the reeds";
+        });
+        getBackgroundNoises: function() {
+            let noises = ["*Gnats and mosquitos pick at your exposed skin*", "*fwoosh* *thump*", "*You hear something moving around you, but you can't see it*", "*The buzz of insects throb in your ears*", "*gurgle gurgle*", "*You feel something moving next you, but you can't see it*", "*snap* *crunch*", "*You hear the rythmic swish-swash of something swimming nearby*", "*hssssssssssss*", "*slither*"];
+            return noises;
+        },
+        temperature_range_modifier: 2,
+        name: "Swampland fields",
+        is_unlocked: false,
+    });
+    locations["Waterfall basin"].connected_locations.push({location: locations["Swampland fields"], custom_text: "Climb through the muck and brush to the [Swampland fields]", travel_time: 45, travel_time_skills: ["Scrambling"]});
+
+    locations["Wander randomly in the swamplands"] = new Combat_zone({
+        description: "The swamplands are hot, wet, and smell of rot. Water impedes your every movement, and vicious predators lie beneath it's surface", 
+        enemy_count: 100, 
+        types: [{type: "rough", stage: 2, xp_gain: 5}, {type: "wet", stage: 1}],
+        enemies_list: ["Alligator", "Snapping turtle", "Giant snake"],
+        enemy_group_size: [1,1],
+        enemy_stat_variation: 0.2,
+        is_unlocked: true, 
+        name: "Wander randomly in the swamplands", 
+        leave_text: "Slink away to some higher, dryer ground",
+        parent_location: locations["Swampland fields"],
+        temperature_range_modifier: 2.5,
+        first_reward: {
+            xp: 10000,
+        },
+        repeatable_reward: {
+			xp: 5000,
+        },
+        rewards_with_clear_requirement: [
+				{
+                required_clear_count: 3,
+                locations: [{location: "Swampland tribe"}]
+				}
+            });
+        });
+    locations["Swampland fields"].connected_locations.push({location: locations["Wander randomly in the swamplands"], travel_time: 45});
+	
+
+
+    locations["Swampland tribe"] = new Location({ 
+        connected_locations: [{location: locations["Swampland fields"], custom_text: "Leave the safety of the settlement and return to the [Swampland fields]", travel_time: 90, travel_time_skills: ["Scrambling", "Running"]}], 
+        getDescription: function() {
+            if(locations["Wander randomly in the swamplands"].enemy_groups_killed >= 20 * locations["Wander randomly in the swamplands"].enemy_count) { 
+                return "Very small fortified settlement, built on a stretch of dry, stable ground. There are a few small huts and a lone building built into the back of the encampment. As small as the settlement is, the fortifications surrounding it suggest that it once was larger";
+            } else if(locations["Wander randomly in the swamplands"].enemy_groups_killed >= 6 * locations["Wander randomly in the swamplands"].enemy_count) {
+                return "Very small fortified settlement, built on a stretch of dry, stable ground. There are a few small huts with stalls build into them, and a lone building built into the back of the encampment";
+            } else {
+                return "Very small fortified settlement, built on a stretch of dry, stable ground. It's surrounded by swampy fields, most of them infested by dangerous creatures. It's surprising there's anyone living here at all"; 
+            }
+        },
+        getBackgroundNoises: function() {
+            let noises = ["*You hear some rustling*", "*The hum of insects buzz in your ear*", "*Gnats and mosquitos pick at your exposed skin*", "*fwoosh* *thump*", "*gurgle gurgle*", "*snap* *crunch*", "*You hear the rythmic swish-swash of something swimming nearby*"];
+            return noises;
+        },
+        temperature_range_modifier: 2,
+        dialogues: ["Swampland chief", "Swampland cook", "Swampland tanner", "Swampland tailor"],
+        traders: ["swampland trader"],
+        market_region: "Swamp",
+        name: "Swampland tribe", 
+        crafting: {
+            is_unlocked: false, 
+            use_text: "Try to craft something", 
+            tiers: {
+                crafting: 2,
+                forging: 2,
+                smelting: 2,
+                cooking: 2,
+                alchemy: 2,
+                butchering: 2,
+                woodworking: 2,
+            }
+        },
+    });
+    locations["Swampland fields"].connected_locations.push({location: locations["Swampland tribe"], travel_time: 90, travel_time_skills: ["Scrambling", "Running"]});
+	
+    locations["Longhouse"] = new Location({
+        connected_locations: [{location: locations["Swampland tribe"], custom_text: "Go back out to the [Swampland tribe]", travel_time: 5}],
+        description: "A communal building that members of the settlement rest, eat, and recover in. There's only one other resident in here right now, but you can't help but notice there's more cots than needed",
+        dialogues: ["Swampland scout"],
+        name: "Longhouse",
+        is_unlocked: false,
+        housing: {
+            is_unlocked: true,
+            text_to_sleep: "Lie down on an available cot",
+            sleeping_xp_per_tick: 3},
+        temperature_range_modifier: 1.3,
+        is_under_roof: true,
+    });
+
+    locations["Swampland tribe"].connected_locations.push({location: locations["Longhouse"], travel_time: 5});
+
 })();
 
 
@@ -1734,7 +1851,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         unlock_text: "You can now spar with the guard (heavy stance) in the Village"
     });
     locations["Sparring with the village guard (quick)"] = new Challenge_zone({
-        description: "She's showing you a technique that makes her attacks slow but deadly",
+        description: "She's showing you a technique that makes her attacks fast but weaker",
         enemy_count: 1, 
         enemies_list: ["Village guard (quick)"],
         enemy_group_size: [1,1],
@@ -1853,6 +1970,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         repeatable_reward: {
             locations: [{location: "Lake beach"}],
             xp: 5000,
+            quests: ["Giant Enemy Crab"],
         },
         unlock_text: "It's wounded, but in spite of that it looks more dangerous than before",
         temperature_modifier: 1,
@@ -2164,6 +2282,87 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: true,
         }),
     }
+	
+    locations["Riverbank"].activities = {
+        "herbalism": new LocationActivity({
+            activity_name: "herbalism",
+            infinite: true,
+            starting_text: "Harvest flax from around the riverbank",
+            skill_xp_per_tick: 9,
+            is_unlocked: false,
+            gained_resources: {
+                resources: [{name: "Flax", ammount: [[1,1], [1,3]], chance: [0.4, 0.8]}], 
+                time_period: [120, 60],
+                skill_required: [20, 30],
+                scales_with_skill: true,
+            },
+            require_tool: true,
+        }),
+    };
+	
+    locations["Lake beach"].activities = {
+        "swimming": new LocationActivity({
+            activity_name: "swimming",
+            starting_text: "Swim against the current",
+            skill_xp_per_tick: 4,
+            is_unlocked: true,
+            applied_effects: [{effect: "Wet", duration: 30}],
+        }),
+        "sand": new LocationActivity({
+            activity_id: "sand",
+            activity_name: "digging",
+            infinite: true,
+            starting_text: "Dig for clams around the lake beach",
+            skill_xp_per_tick: 10,
+            is_unlocked: false,
+            gained_resources: {
+                resources: [{ name: "Clam", ammount: [[1, 3], [1, 3]], chance: [0.34, 1.0] }],
+                time_period: [60, 30],
+                skill_required: [10, 20],
+                scales_with_skill: true,
+            },
+            require_tool: true,
+        }),
+    };
+	
+    locations["Waterfall basin"].activities = {
+        "enduring": new LocationActivity({
+            activity_name: "enduring",
+            infinite: true,
+            starting_text: "Harden your resolve by sitting underneath the waterfall",
+            skill_xp_per_tick: 2,
+        }),
+        "meditating": new LocationActivity({
+            activity_name: "meditating",
+            infinite: true,
+            starting_text: "Sit in the rock shelter behind the waterfall and focus your mind",
+            skill_xp_per_tick: 8,
+            is_unlocked: false,
+            unlock_text: "As you finish driving the stone crabs from the rock shelter behind the waterfall, you feel a strange sense of serenity from the sounds bouncing off the rocks. This spot, surrounded by soft noise and solid stone, seems perfect to sit down and focus your mind"
+        }),
+    };
+	
+    locations["Swampland tribe"].activities = {
+        "herbalism": new LocationActivity({
+            activity_name: "herbalism",
+            infinite: true,
+            starting_text: "Forage for wild herbs and vegetables in the swamplands",
+            skill_xp_per_tick: 14,
+            is_unlocked: false,
+            gained_resources: {
+                resources: [
+                    {name: "Wild onion", ammount: [[1,1], [1,1]], chance: [0.2, 0.65]},
+                    {name: "Wild garlic", ammount: [[1,1], [1,1]], chance: [0.2, 0.65]},
+                    {name: "Wild potato", ammount: [[1,1], [1,2]], chance: [0.3, 0.6]},
+                    {name: "Cooking herbs", ammount: [[1,1], [1,2]], chance: [0.3, 0.6]}
+                ], 
+                time_period: [90, 45],
+                skill_required: [25, 35],
+                scales_with_skill: true,
+            },
+            require_tool: true,
+        }),
+    };
 })();
 
 //add actions
@@ -2573,6 +2772,87 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 skill_xp: {Digging: 50},
             },
             unlock_text: "While your task is finished, it seems that you might be able to find more ants away from the farms",
+        }),
+    };
+    locations["Lake beach"].actions = {
+        "rappel waterfall": new GameAction({
+            action_id: "rappel waterfall",
+            starting_text: "Try to rappel down the cliffside next to the waterfall",
+            description: "It doesn't look that difficult, but it's still a strenuous task that will require some good long rope and proficiency in climbing, together with a fit physique. It will take a good deal of time, so make sure to avoid runing out of energy halfway through",
+            action_text: "Rapelling the cliff",
+            success_text: "It was slow, methodical work, but you've managed to secure a safe and stable pathway across the cliff face.  That should make subsequent trips back up and down significantly faster in the future",
+            failure_texts: {
+                conditional_loss: ["Despite telling yourself that scaling down the cliff would be easy, you realize that the path is far more dangerous that you initially expected. Perhaps a more experienced mountain climber would be able to manage the hazards"],
+                random_loss: [
+                    "The routing looked easier from up top, but the slick rock wall and poor footing put you on a path to failure shortly after beginning",
+                ],
+                unable_to_begin: ["While mentally prepared, you realize you're missing an important accessory - some nice long rope is gonna be a necessity for this, especially if you want to go back up at some point."],
+            },
+            required: {
+                items_by_id: {"Coil of rope": {count: 1, remove_on_success: true}},
+            },
+            conditions: [
+                {
+                    skills: {
+                        "Climbing": 17,
+                    },
+                    stats: {
+                        strength: 400,
+                        agility: 350,
+                        max_stamina: 1000,
+                    }
+                },
+                {
+                    skills: {
+                        "Climbing": 25,
+                    },
+                    stats: {
+                        strength: 600,
+                        agility: 1000,
+                        max_stamina: 1500,
+                    }
+                }
+            ],
+            attempt_duration: 540,
+            success_chances: [0.45, 1],
+            rewards: {
+                locations: [{location: "Waterfall basin"}],
+                move_to: {location: "Waterfall basin"},
+                skill_xp: {
+                    "Climbing": 25000,
+            },
+        }),
+    };	
+    locations["Longhouse"].actions = {
+        "learn forage": new GameAction({
+            action_id: "learn forage",
+            starting_text: "Ask the scout to teach you about local herbs and vegetables",
+            description: "",
+            action_text: "Learning how to forage",
+            success_text: "The scout explains the local herbs, root vegetables and tubers that grow in the outlying swamplands. You feel confident that you could find them yourself at this point",
+            failure_texts: {
+                conditional_loss: ["The scout tries to explain the look and uses of local flora, but you're having a hard time understanding what they're talking about. Maybe if you were a better herbalist, it would be easier"],
+                random_loss: [
+                    "The scout tries to explain the look and uses of local flora, but you just can't really internalize what they're telling you",
+                ],
+            },
+            conditions: [
+                {
+                    skills: {
+                        "Herbalism": 20,
+                    },
+                },
+                {
+                    skills: {
+                        "Herbalism": 25,
+                    },
+                }
+            ],
+            attempt_duration: 60,
+            success_chances: [0.6, 1],
+            rewards: {
+                actions: [{location:"Swampland tribe", action: "herbalism"}]
+            },
         }),
     };
 })();
