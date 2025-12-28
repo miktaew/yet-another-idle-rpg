@@ -758,7 +758,7 @@ function finish_game_action({action_key, conditions_status, dialogue_key}){
 
             result_message = action.success_text;
             if(!action.repeatable) {
-                action.is_finished = true;
+                lock_action({dialogue_key, location_key: current_location.id, action_key});
             }
             process_rewards({rewards: action.rewards, source_type: "action"});
             is_won = true;
@@ -883,6 +883,14 @@ function unlock_action(action_data) {
                 }
             }
         }
+    }
+}
+
+function lock_action({location_key, dialogue_key, action_key}) {
+    if(dialogue_key) {
+        dialogues[dialogue_key].actions[action_key].is_finished = true;
+    } else  {
+        locations[location_key].actions[action_key].is_finished = true;
     }
 }
 
@@ -1186,7 +1194,7 @@ function start_textline(textline_key){
     }
 
     if(textline.branches_into?.length) {
-        fill_action_box({content_type: "dialogue_branch", data: {text: text, textlines: textline.branches_into}});
+        fill_action_box({content_type: "dialogue_branch", data: {text: text, dialogue_key: current_dialogue, textlines: textline.branches_into}});
     } else {
         fill_action_box({content_type: "dialogue_answer", data: {text: text, dialogue_key: current_dialogue}});
     }
@@ -2240,7 +2248,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
                                 action: locations[rewards.actions[i].location].actions[rewards.actions[i].action],
                                 skip_message: is_from_loading,
                             });
-            }  
+            }
         }
     }
 
@@ -2339,6 +2347,15 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         if(rewards.locks.quests) {
             for(let i = 0; i < rewards.locks.quests.length; i++) {
                 questManager.finishQuest({quest_id: rewards.locks.quests[i], skip_rewards: true})
+            }
+        }
+        if(rewards.locks.actions) {
+            for(let i = 0; i < rewards.locks.actions.length; i++) {
+                lock_action({
+                            dialogue_key: rewards.locks.actions[i].dialogue,
+                            location_key: rewards.locks.actions[i].location,
+                            action_key: rewards.locks.actions[i].action
+                        });
             }
         }
     }
@@ -4134,6 +4151,7 @@ function load(save_data) {
 
                     if(is_a_older_than_b(save_data["game version"], "v0.4.6")) { //compatibility patch for pre-rep and/or pre-rewrite of rewards with required clear count
                         if(locations[key].rewards_with_clear_requirement) {
+                            //process rewards with clear req, as these won't be checked on further clears
                             for(let i = 0; i < locations[key].rewards_with_clear_requirement.length; i++) {
                                 if(locations[key].enemy_groups_killed == locations[key].enemy_count * locations[key].rewards_with_clear_requirement[i].required_clear_count)
                                 {
@@ -4148,6 +4166,7 @@ function load(save_data) {
                         }
                     } else {
                         if(locations[key].rewards_with_clear_requirement) {
+                            //process rewards with clear req, as these won't be checked on further clears
                             for(let i = 0; i < locations[key].rewards_with_clear_requirement.length; i++) {
                                 if(locations[key].enemy_groups_killed >= locations[key].enemy_count * locations[key].rewards_with_clear_requirement[i].required_clear_count)
                                 {
@@ -4163,6 +4182,7 @@ function load(save_data) {
                     }
 
                     if(locations[key].first_reward) {
+                        //process first clear reward, as it won't be checked on further clears
                         process_rewards({
                             rewards: locations[key].first_reward, 
                             source_type: "location", 

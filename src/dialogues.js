@@ -557,7 +557,7 @@ class DialogueAction extends GameAction {
                 text: "millers reject nice answ",
                 locks_lines: ["kiss"],
                 rewards: {
-                    textlines: [{dialogue: "village millers", lines: ["kiss more", "how2"]}],
+                    textlines: [{dialogue: "village millers", lines: ["how2"]}],
                 }
             }),
             "reject mean": new Textline({
@@ -566,7 +566,7 @@ class DialogueAction extends GameAction {
                 text: "millers reject mean answ",
                 locks_lines: ["kiss"],
                 rewards: {
-                    textlines: [{dialogue: "village millers", lines: ["kiss more", "how2"]}],
+                    textlines: [{dialogue: "village millers", lines: ["how2"]}],
                 }
             }),
             "kiss more": new Textline({
