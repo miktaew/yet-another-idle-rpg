@@ -851,6 +851,24 @@ class Amulet extends Equippable {
         return this.stats;
     }
 }
+class Ring extends Equippable {
+    constructor(item_data) {
+        super(item_data);
+        this.equip_slot = "ring";
+        this.stats = item_data.stats;
+
+        this.ignore_quality = true;
+
+        this.tags["ring"] = true;
+        if(!this.id) {
+            this.id = this.getName();
+        }
+    }
+
+    getStats(){
+        return this.stats;
+    }
+}
 
 //////////////////////////////
 //////////////////////////////
