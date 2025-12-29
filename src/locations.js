@@ -2311,6 +2311,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Lake beach"].activities = {
         "swimming": new LocationActivity({
             activity_name: "swimming",
+            infinite: true,
             starting_text: "Swim against the current",
             skill_xp_per_tick: 4,
             is_unlocked: true,
