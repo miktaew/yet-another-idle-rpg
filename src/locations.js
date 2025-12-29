@@ -1671,7 +1671,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         temperature_range_modifier: 1,
         temperature_modifier: 0.5,
         name: "Lake beach",
-        is_unlocked: false,
+        //is_unlocked: false,                       //commented out for testing purposes
     });
     locations["Riverbank"].connected_locations.push({location: locations["Lake beach"],  travel_time: 180, travel_time_skills: ["Scrambling"]});
     locations["Further downstream"].connected_locations.push({location: locations["Lake beach"], travel_time: 240});

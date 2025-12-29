@@ -338,7 +338,7 @@ class Enemy {
         rank: 5,
         size: enemy_sizes.SMALL,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 800, attack: 45, agility: 50, dexterity: 90, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 45}, //numbers are just estimates, intended AP is 550 and EP is 450
+        stats: {health: 800, attack: 75, agility: 120, dexterity: 90, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 145}, //numbers are just estimates, intended AP is 550 and EP is 450
         loot_list: [
             {item_name: "Crab meat", chance: 0.02},
         ]
@@ -351,7 +351,7 @@ class Enemy {
         rank: 9,
         size: enemy_sizes.MEDIUM,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 3000, attack: 90, agility: 200, dexterity: 180, intuition: 200, magic: 0, attack_speed: 1.7, attack_count: 2, defense: 700}, //numbers are just estimates, intended AP is 1550 and EP is 1700
+        stats: {health: 3000, attack: 160, agility: 200, dexterity: 180, intuition: 200, magic: 0, attack_speed: 1.7, attack_count: 2, defense: 700}, //numbers are just estimates, intended AP is 1550 and EP is 1700
         loot_list: [
             {item_name: "Crab meat", chance: 0.05},
             {item_name: "Crab claw", chance: 0.01},
@@ -464,7 +464,7 @@ class Enemy {
         rank: 10,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 8000, attack: 200, agility: 200, dexterity: 500, intuition: 200, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 1250}, //numbers are just estimates, intended AP is 4000 and EP is 2000
+        stats: {health: 8000, attack: 250, agility: 200, dexterity: 350, intuition: 200, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 1250}, //numbers are just estimates, intended AP is 4000 and EP is 2000
     });
 
 	enemy_templates["Enraged giant stone crab"] = new Enemy({
