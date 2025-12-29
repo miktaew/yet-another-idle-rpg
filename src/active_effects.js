@@ -121,7 +121,7 @@ class ActiveEffect {
                 stamina_regeneration_flat: {flat: 1},
             }
         },
-        tags: {"buff": true},
+        tags: {"buff": true, "food": true},
     });
 
     effect_templates["Weak healing powder"] = new ActiveEffect({
@@ -186,7 +186,7 @@ class ActiveEffect {
         name: "Simple meat meal",
         effects: {
             stats: {
-                stamina_regeneration_flat: {flat: 1.5},
+                stamina_regeneration_flat: {flat: 1},
                 health_regeneration_flat: {flat: 1},
             }
         },
@@ -196,7 +196,7 @@ class ActiveEffect {
         name: "Decent meat meal",
         effects: {
             stats: {
-                stamina_regeneration_flat: {flat: 3},
+                stamina_regeneration_flat: {flat: 2},
                 health_regeneration_flat: {flat: 2},
             }
         },

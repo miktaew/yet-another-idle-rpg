@@ -286,6 +286,33 @@ v0.5.0.19
     - fixed a bug where buying items back only reduced the relevant market saturation by 1, no matter the actual count
     - tools no longer get auto-sorted to be above other equippables in inventory, as similar effect of grouping them together can be achieved with "sort by type"
     - equipment changing can no longer give "Persistence" xp when out of stamina
+v0.5.0.20
+    - fixed incorrect conditions for background animations
+    - tweaked time formatting again
+    - effect of kwas is now tagged as 'food' and subject to 'Gluttony' skill
+v0.5.0.21
+    - fixed a bug with time progression not working as intended on bigger increases (fast travelling in last minutes of a day/month/year lead to skipping 1 more than it should)
+    - fixed a bug that defaulted prices to 1 if item's sold count was big enough to break precision and, due to silly code logic, make low numbers meaningless (which required another not-yet-confirmed bug to even happen in the first place)
+    - fixed an issue with trade price recovery not working
+    - slightly nerfed some food effects
+v0.5.0.22
+    - fixed a bug where market saturation trickling was behaving incorrectly and capable of causing sold counts to climb to absurdly high levels (leading to 2nd bug fixed in previous version)
+        - all saves from previous v0.5.0 version will have related values adjusted on game loading
+v0.5.0.23
+    - fixed a minor bug when clearing a faved self-locking location
+    - dealt with some potentially buggy behaviour
+    - tweaked some skill descriptions
+    - added onhover color change for quest headers
+v0.5.0.24
+    - fixed a minor display bug where trader multiplier was not included in displayed prices for items that don't saturate market (food and books)
+v0.5.0.25
+    - fixed a minor display bug with enemy blocks being a tiny bit too tall and going out of designated space
+v0.5.0.26
+    - courtesy of Mercurius: tweak to avoid data retention that could've potentially lead to dangerous increase in memory usage
+    - increased xp rewards for clearing some early locations
+    - replies in dialogues are now aligned to left instead of being centered
+v0.5.0.27
+    - fixed a bug with finishing actions
 </pre></div>
 <button type="button" class="collapsible">v0.4.6 - Actions (and some other things too) [testing release: 01/04/2025 / main release: 18/05/2025] </button>
 <div class="content"><pre>

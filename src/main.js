@@ -2,7 +2,7 @@
 
 import { current_game_time, is_night } from "./game_time.js";
 import { item_templates, getItem, book_stats, rarity_multipliers, getArmorSlot, getItemFromKey, getItemRarity} from "./items.js";
-import { loot_sold_count, market_region_mapping, recover_item_prices, trickle_market_saturations, set_loot_sold_count } from "./market_saturation.js";
+import { loot_sold_count, market_region_mapping, recover_item_prices, trickle_market_saturations, set_loot_sold_count, capped_at } from "./market_saturation.js";
 import { locations, favourite_locations } from "./locations.js";
 import { crafting_skill_xp_gains_cap, skill_categories, skill_xp_gains_cap, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
@@ -165,7 +165,7 @@ let rain_counter = 0;
 const cold_status_counters = [0,0,0,0];
 
 let was_raining = false;
-let was_night = false;
+let was_starry = false;
 
 //current enemy
 let current_enemies = null;
@@ -769,7 +769,7 @@ function finish_game_action({action_key, conditions_status, dialogue_key}){
 
             result_message = action.success_text;
             if(!action.repeatable) {
-                action.is_finished = true;
+                lock_action({dialogue_key, location_key: current_location.id, action_key});
             }
             process_rewards({rewards: action.rewards, source_type: "action"});
             is_won = true;
@@ -894,6 +894,14 @@ function unlock_action(action_data) {
                 }
             }
         }
+    }
+}
+
+function lock_action({location_key, dialogue_key, action_key}) {
+    if(dialogue_key) {
+        dialogues[dialogue_key].actions[action_key].is_finished = true;
+    } else  {
+        locations[location_key].actions[action_key].is_finished = true;
     }
 }
 
@@ -1197,7 +1205,7 @@ function start_textline(textline_key){
     }
 
     if(textline.branches_into?.length) {
-        fill_action_box({content_type: "dialogue_branch", data: {text: text, textlines: textline.branches_into}});
+        fill_action_box({content_type: "dialogue_branch", data: {text: text, dialogue_key: current_dialogue, textlines: textline.branches_into}});
     } else {
         fill_action_box({content_type: "dialogue_answer", data: {text: text, dialogue_key: current_dialogue}});
     }
@@ -1311,7 +1319,10 @@ function set_new_combat({enemies} = {}) {
 
     //attach loops and animations
     for(let i = 0; i < current_enemies.length; i++) {
-        do_enemy_onstart_animation(i);
+        if(options.do_enemy_onhit_animations) {
+            do_enemy_onstart_animation(i);
+        }
+        
         do_enemy_attack_loop(i, 0, true);
     }
 
@@ -1430,7 +1441,7 @@ function set_character_attack_loop({base_cooldown, skip_persistence_xp_for_stanc
         target_count = Math.floor(Math.random()*target_count) || 1;
     }
 
-    let targets=[];
+    let targets = [];
     const alive_targets = current_enemies.filter(enemy => enemy.is_alive).slice(-target_count);
 
     while(alive_targets.length>0) {
@@ -1569,7 +1580,6 @@ function do_enemy_combat_action(enemy_id) {
 
     const enemy_base_damage = attacker.stats.attack;
 
-    //let damage_dealt;
     let damages_dealt = [];
 
     let critted = false;
@@ -1691,8 +1701,8 @@ function do_character_combat_action({target, attack_power, target_count}) {
         }
         //small randomization by up to 20%, then bonus from skill
 
-        const enemy_id = current_enemies.findIndex(enemy => enemy===target);
         if(options.do_enemy_onhit_animations) {
+            const enemy_id = current_enemies.findIndex(enemy => enemy===target);
             do_enemy_onhit_animation(enemy_id);
         }
         if(character.stats.full.crit_rate > Math.random()) {
@@ -1924,8 +1934,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
 
             if(skill.is_parent) {
                 update_all_displayed_skills_xp_gain();
-            }
-            else {
+            } else {
                 update_displayed_skill_xp_gain(skill);
             }
 
@@ -2250,7 +2259,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
                                 action: locations[rewards.actions[i].location].actions[rewards.actions[i].action],
                                 skip_message: is_from_loading,
                             });
-            }  
+            }
         }
     }
 
@@ -2277,6 +2286,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
 
                     if(skills[source_name]) {
                         which_skills_affect_skill[rewards.skills[i]].push(source_name);
+                        //shouldn't cause issues, as it will only trigger on skill unlocks by other skills
                     } else {
                         console.error(`Tried to register skill "${source_name}" as related to "${rewards.skills[i]}", but the former does not exist!`);
                     }
@@ -2348,6 +2358,15 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         if(rewards.locks.quests) {
             for(let i = 0; i < rewards.locks.quests.length; i++) {
                 questManager.finishQuest({quest_id: rewards.locks.quests[i], skip_rewards: true})
+            }
+        }
+        if(rewards.locks.actions) {
+            for(let i = 0; i < rewards.locks.actions.length; i++) {
+                lock_action({
+                            dialogue_key: rewards.locks.actions[i].dialogue,
+                            location_key: rewards.locks.actions[i].location,
+                            action_key: rewards.locks.actions[i].action
+                        });
             }
         }
     }
@@ -4146,6 +4165,7 @@ function load(save_data) {
 
                     if(is_a_older_than_b(save_data["game version"], "v0.4.6")) { //compatibility patch for pre-rep and/or pre-rewrite of rewards with required clear count
                         if(locations[key].rewards_with_clear_requirement) {
+                            //process rewards with clear req, as these won't be checked on further clears
                             for(let i = 0; i < locations[key].rewards_with_clear_requirement.length; i++) {
                                 if(locations[key].enemy_groups_killed == locations[key].enemy_count * locations[key].rewards_with_clear_requirement[i].required_clear_count)
                                 {
@@ -4160,6 +4180,7 @@ function load(save_data) {
                         }
                     } else {
                         if(locations[key].rewards_with_clear_requirement) {
+                            //process rewards with clear req, as these won't be checked on further clears
                             for(let i = 0; i < locations[key].rewards_with_clear_requirement.length; i++) {
                                 if(locations[key].enemy_groups_killed >= locations[key].enemy_count * locations[key].rewards_with_clear_requirement[i].required_clear_count)
                                 {
@@ -4175,6 +4196,7 @@ function load(save_data) {
                     }
 
                     if(locations[key].first_reward) {
+                        //process first clear reward, as it won't be checked on further clears
                         process_rewards({
                             rewards: locations[key].first_reward, 
                             source_type: "location", 
@@ -4286,6 +4308,30 @@ function load(save_data) {
             if(dialogues["old craftsman"].textlines["learn"].is_finished) {
                 add_to_character_inventory([{item_id: "Old shovel"}]);
             }
+        } else if(is_a_older_than_b(save_data["game version"], "v0.5.0.22") && is_a_older_than_b("v0.5", save_data["game version"])) {
+            //save between 0.5 and trickle rate fix
+            const loot_count = {};
+            
+            Object.keys(save_data.loot_sold_count).forEach(region_key => {
+                loot_count[region_key] = {};
+                Object.keys(save_data.loot_sold_count[region_key]).forEach(trade_key => {
+                    loot_count[region_key][trade_key] = [];
+                    for(let i = 0; i < save_data.loot_sold_count[region_key][trade_key].length; i++) {
+                        if(save_data.loot_sold_count[region_key][trade_key][i].sold > capped_at) {
+                            console.warn(`Encountered a large sold count (${save_data.loot_sold_count[region_key][trade_key][i].sold}) of a trade group "${trade_key}" at tier ${i}. Due to the save being from a game version where a certain bug`
+                                    + ` could make these values keep growing by themselves, it was reduced to ${capped_at}, and it's recovered_count was lowered proportionally.`);
+
+                            const ratio = save_data.loot_sold_count[region_key][trade_key][i].recovered/save_data.loot_sold_count[region_key][trade_key][i].sold;
+                            save_data.loot_sold_count[region_key][trade_key][i].sold = capped_at;
+                            save_data.loot_sold_count[region_key][trade_key][i].recovered = capped_at*ratio;
+                        }
+
+                        loot_count[region_key][trade_key].push({sold: save_data.loot_sold_count[region_key][trade_key][i].sold, recovered: save_data.loot_sold_count[region_key][trade_key][i].recovered});
+                    }
+                });
+            });
+
+            set_loot_sold_count(loot_count);
         } else {
             //set it normally
             set_loot_sold_count(save_data.loot_sold_count || {});
@@ -4781,57 +4827,74 @@ function update() {
 
         const new_temperature = get_current_temperature_smoothed();
 
-        if(is_raining() && !current_location.is_under_roof) {
-            //can get wet
-            if(rain_counter >= time_until_wet) {
+        if(!current_location.is_under_roof) {
+            //not under roof, background animations can happen
+            if(is_raining()) {
+                if(rain_counter >= time_until_wet) {
                 //been in rain long enough, add wet even if present
-                add_active_effect("Wet",30);
-            } else {
-                //haven't been in rain long enough, increase the counter
-
-                if(new_temperature < 0)
-                    //snowing, doesn't soak the player as much the rain
-                    rain_counter += 0.25
-                else 
-                    rain_counter++;
-            }
-
-            if(!was_raining && options.do_background_animations) {
-                if(new_temperature >= 0) {
-                    window.addEventListener("resize", start_rain_animation);
-                    window.removeEventListener("resize", start_snow_animation);
-                    window.removeEventListener("resize", start_stars_animation);
-                    start_rain_animation();
+                    add_active_effect("Wet",30);
                 } else {
-                    window.addEventListener("resize", start_snow_animation);
-                    window.removeEventListener("resize", start_rain_animation);
+                    //haven't been in rain long enough, increase the counter
+
+                    if(new_temperature < 0)
+                        //snowing, doesn't soak the player as much the rain
+                        rain_counter += 0.25
+                    else 
+                        rain_counter++;
+                }
+
+                if(!was_raining && options.do_background_animations) {
+
                     window.removeEventListener("resize", start_stars_animation);
-                    start_snow_animation();
+
+                    if(new_temperature >= 0) {
+                        window.addEventListener("resize", start_rain_animation);
+                        window.removeEventListener("resize", start_snow_animation);
+                        start_rain_animation();
+                    } else {
+                        window.addEventListener("resize", start_snow_animation);
+                        window.removeEventListener("resize", start_rain_animation);
+                        start_snow_animation();
+                    }
+                }
+
+                was_raining = true && options.do_background_animations;
+            } else {
+                //not raining
+
+                if(rain_counter > 0) {
+                    //not in rain -> reduce rain counter
+                    rain_counter--;
+                }
+                was_raining = false;
+
+                //not in rain -> sky visible
+                if(!was_starry && is_night()) {
+
+                    if(options.do_background_animations) {
+                        window.addEventListener("resize", start_stars_animation);
+                        window.removeEventListener("resize", start_snow_animation);
+                        window.removeEventListener("resize", start_rain_animation);
+                        start_stars_animation();
+                    }
+                    was_starry = true && options.do_background_animations;
+                } else if(was_starry && !is_night()) {
+                    stop_background_animation();
+                    window.removeEventListener("resize", start_stars_animation);
                 }
             }
-            was_raining = true && options.do_background_animations;
         } else {
-            if(was_raining) {
+            //under roof
+            if(was_raining || was_starry) {
+                //was animation - stop doing that
                 stop_background_animation();
+                window.removeEventListener("resize", start_stars_animation);
                 window.removeEventListener("resize", start_snow_animation);
                 window.removeEventListener("resize", start_rain_animation);
-            }
-            if(rain_counter > 0) {
-                //not in rain, reduce rain counter
-                rain_counter--;
             }
             was_raining = false;
+            was_starry = false;
         }
-        
-        if(options.do_background_animations) {
-            //night started or it's night and rain stopped => stars
-            if(!is_raining() && !current_location.is_under_roof && is_night() && (was_raining || !was_night)) {
-                window.addEventListener("resize", start_stars_animation);
-                window.removeEventListener("resize", start_snow_animation);
-                window.removeEventListener("resize", start_rain_animation);
-            }
-        }
-        
 
         //temperature changed => update stats if needed
         if(current_temperature !== new_temperature) {

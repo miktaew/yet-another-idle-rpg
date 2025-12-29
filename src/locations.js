@@ -6,6 +6,8 @@ import { current_game_time } from "./game_time.js";
 import { activities } from "./activities.js";
 import { get_total_skill_level, is_rat } from "./character.js";
 import { GameAction } from "./actions.js";
+import { fill_market_regions, market_regions } from "./market_saturation.js";
+import { global_flags } from "./main.js";
 const locations = {}; //contains all the created locations
 const location_types = {};
 
@@ -55,6 +57,9 @@ class Location {
         this.dialogues = dialogues;
         this.traders = traders;
         this.market_region = market_region; //for separate regions for market saturation
+        if(market_region) {
+            market_regions[market_region] = true;
+        }
         this.activities = {};
         this.actions = {};
         this.types = types;
@@ -743,6 +748,63 @@ function get_location_type_penalty(type, stage, stat, category) {
     locations["Village"].connected_locations.push({location: locations["Shack"], travel_time: 10});
     //remember to always add it like that, otherwise travel will be possible only in one direction and location might not even be reachable
 
+    locations["Eastern mill"] = new Location({
+        name: "Eastern mill",
+        is_unlocked: false,
+        connected_locations: [{location: locations["Village"], travel_time: 30, custom_text: "Go outside to [Village]"}],
+        description: "Local mill, run by a young duo. It's somewhat tidy, with occasional flour dust in corners.",
+        getBackgroundNoises: function() {
+            let noises = [
+                "*Creaking*", "*A small cloud of flour dust rises in the air*", 
+                "*Crunch*","*You hear a steady crunching sounds as stones crush grain*",
+                "Shhh, not now, we're not alone...", "I have a fun idea for later~", 
+            ];
+
+            if(is_rat()) {
+                noises.push("Shhh, don't move, there's a rat on your shoulder");
+            }
+
+            if(global_flags.is_mofu_mofu_enabled) {
+                noises.push("*Their tails brush against each other and the duo blushes*", "*A tail brushes against your leg* oh my, sorry for that~");
+            }
+
+            if(current_game_time.hour > 20 ) {
+                noises.push("It's getting late", "Time for a break", "Can't wait to... you know~");
+            } else if(current_game_time.hour < 4) {
+                noises.push("Why are we even working at this hour...", "I wanna sleep...");
+            } 
+
+            return noises;
+        },
+        dialogues: ["village millers"],
+    });
+    locations["Village"].connected_locations.push({location: locations["Eastern mill"], travel_time: 30});
+
+    locations["Eastern storehouse"] = new Combat_zone({
+        name: "Eastern storehouse",
+        is_unlocked: false,
+        description: "",
+        enemies_list: ["Wolf rat"],
+        types: [{type: "narrow", stage: 1, xp_gain: 3}, {type: "dark", stage: 1, xp_gain: 2}],
+        enemy_count: 25,
+        enemy_group_size: [3,5],
+        enemy_stat_variation: 0.2,
+        parent_location: locations["Eastern mill"],
+        first_reward: {
+            xp: 60,
+        },
+        repeatable_reward: {
+            textlines: [{dialogue: "village millers", lines: ["cleared storage"]}],
+            locks: {
+                locations: ["Eastern storehouse"]
+            }, 
+            move_to: {location: "Eastern mill"},
+        },
+        temperature_range_modifier: 0.8,
+        is_under_roof: true,   
+    });
+    locations["Eastern mill"].connected_locations.push({location: locations["Eastern storehouse"], travel_time: 10});
+
     locations["Infested field"] = new Combat_zone({
         description: "Field infested with wolf rats. You can see the grain stalks move as these creatures scurry around.", 
         enemy_count: 15, 
@@ -826,6 +888,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             xp: 20,
         },
         repeatable_reward: {
+            //textlines: [{dialogue: "village elder", lines: ["cleared room"]}],
             locations: [{location: "Cave depths"}],
             xp: 10,
             activities: [{location:"Nearby cave", activity:"weightlifting"}, {location:"Nearby cave", activity:"mining"}, {location:"Village", activity:"balancing"}],
@@ -855,11 +918,11 @@ function get_location_type_penalty(type, stage, stat, category) {
         leave_text: "Climb out",
         parent_location: locations["Nearby cave"],
         first_reward: {
-            xp: 30,
+            xp: 60,
         },
         repeatable_reward: {
             textlines: [{dialogue: "village elder", lines: ["cleared cave"]}],
-            xp: 15,
+            xp: 30,
         },
         rewards_with_clear_requirement: [
             {
@@ -1035,10 +1098,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         name: "Forest", 
         parent_location: locations["Forest road"],
         first_reward: {
-            xp: 40,
+            xp: 100,
         },
         repeatable_reward: {
-            xp: 20,
+            xp: 50,
             locations: [{location:"Deep forest"}],
             activities: [{location:"Forest road", activity: "herbalism"}],
         },
@@ -1894,6 +1957,107 @@ There's another gate on the wall in front of you, but you have a strange feeling
 
 //add actions
 (function(){
+    locations["Village"].actions = {
+        "search for delivery": new GameAction({
+            action_id: "search for delivery",
+            starting_text: "Search the village for the missing grain delivery",
+            description: "It might take some time, but it has to be somewhere",
+            action_text: "Searching the village",
+            success_text: "There it is! You see a cart loaded with grain bags, an annoyed driver, and a horse ignoring everything and calmly munching on grass",
+            failure_texts: {
+                random_loss: [
+                    "You look around for some time, but end up with nothing. Keep searching!",
+                ],
+            },
+            attempt_duration: 15,
+            success_chances: [0.5],
+            rewards: {
+                actions: [{location: "Village", action: "carry grain"}, {location: "Village", action: "pull cart"}, {location: "Village", action: "convince horse"}],
+            },
+        }),
+        "carry grain": new GameAction({
+            action_id: "carry grain",
+            starting_text: "Try to carry the grain bags yourself",
+            description: "It won't be quick...",
+            action_text: "Carrying bags",
+            success_text: "After a few hours of slow and heavy work, you place the final bag in front of the storehouse. You should let that mischievous duo know that the task is done.",
+            failure_texts: {
+                unable_to_begin: ["You try for a bit, but you quickly realize you are not fit enough for this task."],
+            },
+            attempt_duration: 480,
+            success_chances: [1],
+            conditions: [
+                {
+                    stats: {
+                        strength: 20,
+                        max_stamina: 80,
+                    }
+                },
+            ],
+            rewards: {
+                move_to: {location: "Eastern mill"},
+                skill_xp: {Weightlifting: 300},
+                textlines: [{dialogue: "village millers", lines: ["delivered"]}],
+                locks: {
+                    actions: [{location: "Village", action: "pull cart"}, {location: "Village", action: "convince horse"}],
+                },
+            },
+        }),
+        "pull cart": new GameAction({
+            action_id: "pull cart",
+            starting_text: "Attempt to pull the cart by yourself",
+            description: "It own't be easy, but at least will be somewhat quick",
+            action_text: "Pulling the cart",
+            success_text: "Lo and behold, the cart begins moving as you pull it. Slow but steady, after some time you reach the storehouse. You should let that mischievous duo know that the task is done.",
+            failure_texts: {
+                unable_to_begin: ["You try and try, but it won't budge"],
+            },
+            attempt_duration: 60,
+            success_chances: [1],
+            conditions: [
+                {
+                    stats: {
+                        strength: 45,
+                    }
+                },
+            ],
+            rewards: {
+                move_to: {location: "Eastern mill"},
+                skill_xp: {Weightlifting: 300},
+                textlines: [{dialogue: "village millers", lines: ["delivered"]}],
+                locks: {
+                    actions: [{location: "Village", action: "carry grain"}, {location: "Village", action: "convince horse"}],
+                },
+            },
+        }),
+        "convince horse": new GameAction({
+            action_id: "convince horse",
+            starting_text: "Try to convince the horse to go back to its work",
+            description: "Getting that animal back to work is the fastest way to be done",
+            action_text: "Being nice",
+            success_text: "The horse seems to understand you, as it abandons its snack and obediently pulls the cart towards the storehouse. You should let that mischievous duo know that the task is done.",
+            failure_texts: {
+                conditional_loss: ["No matter what you try, the horse does not care. Maybe if you had some actual experience with animals..."],
+            },
+            attempt_duration: 10,
+            success_chances: [1],
+            conditions: [
+                {
+                    skills: {
+                        "Animal handling": 8,
+                    }
+                },
+            ],
+            rewards: {
+                move_to: {location: "Eastern mill"},
+                skill_xp: {"Animal handling": 300},
+                textlines: [{dialogue: "village millers", lines: ["delivered"]}],
+                locks: {
+                    actions: [{location: "Village", action: "pull cart"}, {location: "Village", action: "carry grain"}],
+                },
+            },
+        }),
+    }
     locations["Nearby cave"].actions = {
         "open the gate": new GameAction({
             action_id: "open the gate",
@@ -2210,4 +2374,5 @@ There's another gate on the wall in front of you, but you have a strange feeling
         });
     });
 })();
+fill_market_regions();
 export { Location, Combat_zone, LocationActivity, locations, location_types, get_location_type_penalty, favourite_locations };

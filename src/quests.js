@@ -302,6 +302,30 @@ const questManager = {
 
 //Side quests
 (()=>{
+    quests["It won't mill itself"] = new Quest({
+        quest_name: "It won't mill itself",
+        display_priority: 1,
+        getQuestDescription: ()=>{
+            if(!quests["It won't mill itself"].quest_tasks[0].is_finished) {
+                return `Village elder asked you to check how the "kids" running the eastern mill are doing`;
+            } else {
+                return "Boys running the eastern mill could use your help";
+            }
+        },
+        quest_tasks: [
+            new QuestTask({task_description: "Check on the eastern mill"}), //gained on talking to elder after clearing 'Cave room'
+            new QuestTask({task_description: "Clear the infested storehouse"}),
+            new QuestTask({task_description: "Find the missing grain delivery and bring it to the mill"}),
+        ],
+        quest_rewards: {
+            money: 500,
+            xp: 250,
+            reputation: {
+                village: 100,
+            }
+        }
+    });
+
     quests["Bonemeal delivery"] = new Quest({
         quest_name: "Bonemeal delivery",
         quest_description: "The farm supervisor is in a dire need of 50 packs of bonemeal, and he needs the entire order delivered in one go.",
@@ -351,7 +375,7 @@ const questManager = {
                 town: 60,
             }
         }
-    })
+    });
 })();
 
 //Hidden quests for unlocks

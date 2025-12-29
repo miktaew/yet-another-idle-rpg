@@ -548,8 +548,9 @@ input[type=checkbox], input[type=radio] {
 	cursor: not-allowed;
 }
 
-.action_travel:hover:not(:has(.fast_travel_removal_button:hover)), .start_dialogue:hover, .start_trade:hover, .start_game_action:hover, .start_activity:hover, 
-.location_choices:hover, .choices_return_button:hover, .location_choice_dropdown:not(.location_choice_dropdown_expanded):hover, .dialogue_textline:hover, .end_dialogue_button:hover, .dialogue_trade:hover  {
+.action_travel:hover:not(:has(.fast_travel_removal_button:hover)), .start_dialogue:hover, .start_trade:hover, .start_game_action:hover, 
+.start_activity:hover, .location_choices:hover, .choices_return_button:hover, .location_choice_dropdown:not(.location_choice_dropdown_expanded):hover, 
+.dialogue_textline:hover, .end_dialogue_button:hover, .dialogue_trade:hover, .backstep_dialogue_button:hover {
 	background-color: #2c3953;
 }
 .dialogue_textline {
@@ -566,7 +567,6 @@ input[type=checkbox], input[type=radio] {
 
 	#dialogue_answer_div {
 		border-bottom: 1px solid white;
-		text-align: center;
 		background-color: #15152d;
 		font-size: var(--options_action_textsize);
 		padding: 10px;
@@ -581,6 +581,14 @@ input[type=checkbox], input[type=radio] {
 		font-size: 14px;
 		padding: 2px;
 		font-weight: bold;
+	}
+	.backstep_dialogue_button {
+		text-align: center;
+		font-size: var(--options_action_textsize);
+
+		border-bottom: 1px solid white;
+		cursor: pointer;
+		padding: 5px;
 	}
 
 .inventory_item, .trader_item {
@@ -1846,6 +1854,7 @@ i {
 				}
 				.enemy_name {
 					text-align: right;
+					margin-top: 1px;
 				}
 				.enemy_stats {
 					padding-right: 10px;
@@ -2014,6 +2023,9 @@ i {
 		.quest_name_div {
 			font-weight: bold;
 			padding-left: 2px;
+		}
+		.quest_name_div:hover {
+			background-color: var(--active_button_color);
 		}
 		.quest_description_div {
 			font-size: 14px;

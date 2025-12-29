@@ -161,12 +161,12 @@ class Item {
         return JSON.stringify(key);
     }
 
-    getBaseValue({quality}={}) {
+    getBaseValue({quality, multiplier = 1}={}) {
         quality = quality || this.quality || 100;
         if(this.components) {
             return getEquipmentValue({components: this.components, quality});
         } else {
-            return round_item_price(this.value * ((quality)/100) * rarity_multipliers[getItemRarity(quality)]);
+            return round_item_price(multiplier * this.value * ((quality)/100) * rarity_multipliers[getItemRarity(quality)]);
         }
     }
 

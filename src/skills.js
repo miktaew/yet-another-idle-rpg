@@ -1087,7 +1087,7 @@ Multiplies AP with swords by ${Math.round((get_total_skill_coefficient({skill_id
                                 parent_skill: "Weapon mastery",
                                 names: {0: "Axe combat"}, 
                                 category: "Weapon",
-                                description: "Ability to fight with use of axes", 
+                                description: "Ability to fight with axes", 
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with axes by ${Math.round(get_total_skill_coefficient({skill_id:"Axes",scaling_type:"multiplicative"})*1000)/1000}.
 Multiplies AP with axes by ${Math.round((get_total_skill_coefficient({skill_id:"Axes",scaling_type:"multiplicative"})**0.3333)*1000)/1000}`;
@@ -1132,7 +1132,7 @@ Multiplies AP with axes by ${Math.round((get_total_skill_coefficient({skill_id:"
                                 parent_skill: "Weapon mastery",
                                 names: {0: "Spearmanship"}, 
                                 category: "Weapon",
-                                description: "The ability to fight with the most deadly weapon in the history", 
+                                description: "The ability to fight with the most deadly weapon in history", 
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with spears by ${Math.round(get_total_skill_coefficient({skill_id:"Spears",scaling_type:"multiplicative"})*1000)/1000}.
 Multiplies AP with spears by ${Math.round((get_total_skill_coefficient({skill_id:"Spears",scaling_type:"multiplicative"})**0.3333)*1000)/1000}`;
@@ -1178,7 +1178,7 @@ Multiplies AP with spears by ${Math.round((get_total_skill_coefficient({skill_id
                                         parent_skill: "Weapon mastery",
                                         names: {0: "Hammer combat"}, 
                                         category: "Weapon",
-                                        description: "Ability to fight with use of battle hammers. Why bother trying to cut someone, when you can just crack all their bones?", 
+                                        description: "Ability to fight with battle hammers. Why bother trying to cut someone, when you can just crack all their bones?", 
                                         get_effect_description: ()=> {
                                             return `Multiplies damage dealt with battle hammers by ${Math.round(get_total_skill_coefficient({skill_id:"Hammers",scaling_type:"multiplicative"})*1000)/1000}.
 Multiplies AP with hammers by ${Math.round((get_total_skill_coefficient({skill_id:"Hammers",scaling_type:"multiplicative"})**0.3333)*1000)/1000}`;
@@ -1224,7 +1224,7 @@ Multiplies AP with hammers by ${Math.round((get_total_skill_coefficient({skill_i
                                 parent_skill: "Weapon mastery",
                                 names: {0: "Dagger combat"},
                                 category: "Weapon",
-                                description: "The looked down on art of fighting (and stabbing) with daggers",
+                                description: "The disdained art of fighting (and stabbing) with daggers",
                                 get_effect_description: ()=> {
                                     return `Multiplies damage dealt with daggers by ${Math.round(get_total_skill_coefficient({skill_id:"Daggers",scaling_type:"multiplicative"})*1000)/1000}.
 Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_id:"Daggers",scaling_type:"multiplicative"})**0.3333)*1000)/1000}`;

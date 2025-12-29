@@ -239,6 +239,16 @@ class DialogueAction extends GameAction {
                 },
                 is_unlocked: false,
             }),
+            "cleared room": new Textline({
+                name: "elder room clear",
+                text: "elder room clear answ",
+                is_unlocked: false,
+                rewards: {
+                    locations: [{location: "Eastern mill"}],
+                    quests: ["It won't mill itself"],
+                },
+                locks_lines: ["cleared room"],
+            }),
             "cleared cave": new Textline({
                 name: "elder cave clear",
                 text: "elder cave clear answ",
@@ -448,6 +458,130 @@ class DialogueAction extends GameAction {
             
         },
         description: "guard description",
+    });
+
+    dialogues["village millers"] = new Dialogue({
+        //cat and mouse
+        name: "village millers",
+        textlines: {
+            "hello": new Textline({
+                name: "millers hello",
+                text: "millers hello answ",
+                rewards: {
+                    textlines: [{dialogue: "village millers", lines: ["how", "young"]}],
+                },
+                locks_lines: ["hello"],
+            }),
+            "how": new Textline({
+                is_unlocked: false,
+                name: "millers how",
+                text: "millers how answ",
+                rewards: {
+                    textlines: [{dialogue: "village millers", lines: ["sure"]}],
+                },
+                locks_lines: ["how"],
+            }),
+            "sure": new Textline({
+                is_unlocked: false,
+                name: "millers sure",
+                text: "millers sure answ",
+                rewards: {
+                    quest_progress: [{quest_id: "It won't mill itself", task_index: 0}],
+                    locations: [{location: "Eastern storehouse"}],
+                },
+                locks_lines: ["sure"],
+            }),
+            "young": new Textline({
+                is_unlocked: false,
+                name: "millers young",
+                text: "millers young answ",
+                locks_lines: ["young"],
+            }),
+            "cleared storage": new Textline({
+                is_unlocked: false,
+                name: "millers cleared",
+                text: "millers cleared answ",
+                locks_lines: ["cleared storage"],
+                rewards: {
+                    quest_progress: [{quest_id: "It won't mill itself", task_index: 1}],
+                    actions: [{location: "Village", action: "search for delivery"}],
+                },
+            }),
+            "delivered": new Textline({
+                is_unlocked: false,
+                name: "millers delivered",
+                text: "millers delivered answ",
+                locks_lines: ["delivered"],
+                rewards: {
+                    textlines: [{dialogue: "village millers", lines: ["kiss"]}],
+                    quest_progress: [{quest_id: "It won't mill itself", task_index: 2}],
+                    actions: [{location: "Village", action: "search for delivery"}],
+                },
+            }),
+            "kiss": new Textline({
+                is_unlocked: false,
+                name: "millers kiss",
+                text: "millers kiss answ",
+                branches_into: ["kiss both", "kiss cat", "kiss mouse", "reject nice", "reject mean"],
+            }),
+            "kiss both": new Textline({
+                is_branch_only: true,
+                name: "millers kiss both",
+                text: "millers kiss both answ",
+                locks_lines: ["kiss"],
+                rewards: {
+                    textlines: [{dialogue: "village millers", lines: ["kiss more", "how2"]}],
+                }
+            }),
+            "kiss cat": new Textline({
+                is_branch_only: true,
+                name: "millers kiss cat",
+                text: "millers kiss cat answ",
+                locks_lines: ["kiss"],
+                rewards: {
+                    textlines: [{dialogue: "village millers", lines: ["kiss more", "how2"]}],
+                }
+            }),
+            "kiss mouse": new Textline({
+                is_branch_only: true,
+                name: "millers kiss mouse",
+                text: "millers kiss mouse answ",
+                locks_lines: ["kiss"],
+                rewards: {
+                    textlines: [{dialogue: "village millers", lines: ["kiss more", "how2"]}],
+                }
+            }),
+            "reject nice": new Textline({
+                is_branch_only: true,
+                name: "millers reject nice",
+                text: "millers reject nice answ",
+                locks_lines: ["kiss"],
+                rewards: {
+                    textlines: [{dialogue: "village millers", lines: ["how2"]}],
+                }
+            }),
+            "reject mean": new Textline({
+                is_branch_only: true,
+                name: "millers reject mean",
+                text: "millers reject mean answ",
+                locks_lines: ["kiss"],
+                rewards: {
+                    textlines: [{dialogue: "village millers", lines: ["how2"]}],
+                }
+            }),
+            "kiss more": new Textline({
+                is_unlocked: false,
+                name: "millers kiss more",
+                text: "millers kiss more answ",
+                locks_lines: ["kiss more"],
+            }),
+            "how2": new Textline({
+                is_unlocked: false,
+                name: "millers how2",
+                text: "millers how2 answ",
+            }),
+        },
+        description: "millers description",
     });
 
     dialogues["gate guard"] = new Dialogue({
