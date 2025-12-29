@@ -503,8 +503,8 @@ const questManager = {
             new QuestTask({task_description: "Bring the tailor 200 bundles of flax to make fresh linen"}), //flax delivery part 2
             new QuestTask({is_hidden: true}), //get taught how to make linen cloth
             new QuestTask({task_description: "Speak to the tanner and see how you can help"}), //tanner delivery part 1
-            new QuestTask({task_description: "Bring the tanner 80 pieces of alligator skin to make new leathers"}), //tanner delivery part 2
-            new QuestTask({task_description: "Bring the tanner 80 pieces of giant snake skin to make new leathers"}), //tanner delivery part 3
+            new QuestTask({task_description: "Bring the tanner 60 pieces of alligator skin to make new leathers"}), //tanner delivery part 2
+            new QuestTask({task_description: "Bring the tanner 60 pieces of giant snake skin to make new leathers"}), //tanner delivery part 3
             new QuestTask({is_hidden: true}), //get taught how to make new animal materials
             new QuestTask({task_description: "Speak to the chief again"}), //formally finish the quest
             new QuestTask({is_hidden: true}), //get access to longhouse, crafting station, and a unique ring

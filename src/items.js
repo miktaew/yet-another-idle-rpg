@@ -3433,7 +3433,7 @@ book_stats["Shellfish Desires"] = new BookData({
 	item_templates["Turtleshell platemail armor"] = new Armor({
         components: {
             internal: "Linen vest",
-            external: "Turtleshell chestplate armor",
+            external: "Turtleshell chestplate",
         }
     });
     item_templates["Turtleshell platemail helmet"] = new Armor({
