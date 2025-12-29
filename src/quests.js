@@ -433,7 +433,8 @@ const questManager = {
     });
 })();
 
-//Swampland expansion quests
+/*
+//Swampland expansion quests            //commented out until I can figure out how to get quest working and linked
 (()=>{
     quests["Giant Enemy Crab"] = new Quest({
         quest_name: "Giant Enemy Crab",
@@ -512,6 +513,7 @@ const questManager = {
     });
 
 })();
+*/
 
 /*
 quests["Test quest"] = new Quest({

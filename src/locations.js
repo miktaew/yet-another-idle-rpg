@@ -1585,7 +1585,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
         temperature_range_modifier: 0.6,
         name: "Downstream from the village",
-        is_unlocked: false,
+        //is_unlocked: false,                       //commented out for testing purposes
     });
     locations["Village"].connected_locations.push({location: locations["Downstream from the village"], custom_text: "Hike down the river", travel_time: 2160});
 
