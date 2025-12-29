@@ -2143,7 +2143,7 @@ book_stats["Shellfish Desires"] = new BookData({
         component_stats: {
             attack_power: {
                 multiplier: 1.5,
-            }
+            },
             attack_speed: {
                 multiplier: 0.95,
             },
@@ -3961,7 +3961,7 @@ book_stats["Shellfish Desires"] = new BookData({
     });
     item_templates["Healing potion"] = new UsableItem({
         name: "Healing potion",
-        description: "Tastes nice at first but has a bitter aftertase. Provides a quick burst of healing",
+        description: "Tastes nice at first but has a bitter aftertaste. Provides a quick burst of healing",
         value: 200,
         effects: [{effect: "Healing potion", duration: 10}],
         recovery_chances: {"Glass phial": 0.75},

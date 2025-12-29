@@ -433,6 +433,86 @@ const questManager = {
     });
 })();
 
+//Swampland expansion quests
+(()=>{
+    quests["Giant Enemy Crab"] = new Quest({
+        quest_name: "Giant Enemy Crab",
+        display_priority: 9,
+        getQuestDescription: ()=>{
+            if(!quests["Giant Enemy Crab"].quest_tasks[2].is_finished) {
+                return "You slew the giant crab nesting at the forest lakebed";
+            } else if(!quests["Giant Enemy Crab"].quest_tasks[1].is_finished) {
+                return "You managed to chase the giant crab away, but if no one comes to finish the job, it'll just be a problem for somebody else to deal with. And even if they did, the crab would only be more dangerous, then. Better just to take care of it yourself now";
+            } else if(!quests["Giant Enemy Crab"].quest_tasks[0].is_finished) {
+                return "The elder gave you his blessing to investigate the rumors of an enormous crab nest down the river. Or was it an enormous crab's nest? Or was it a nest of enormous crabs? Either way, he told you to be careful";
+            } else {
+                return "You think you may have overheard somebody mention something about a crab nest down the river. Maybe you should speak to the elder about it, and see what he knows";
+            }
+        },
+        questline: "Giant Enemy Crab",
+        quest_tasks: [
+            new QuestTask({
+                task_condition: {
+                    all: {
+                        reach_skill: {					//skill check to make sure the player is end-game
+                            "Combat": {target: 27},
+                            "Giant slayer": {target: 20},
+                            "Stance mastery": {target: 25},
+                            "Spatial awareness": {target: 20},
+                            "Weapon mastery": {target: 25},
+                            "Persistence": {target: 15},
+                            "Fortitude": {target: 10},
+                        }
+                    }
+                }
+            }),
+            new QuestTask({task_description: "Investigate down the river"}), //beat the crab once
+            new QuestTask({task_description: "Track down the giant crab"}), //beat the crab twice
+        ]
+    });
+    quests["In Times of Need"] = new Quest({
+        quest_name: "In Times of Need",
+        display_priority: 9,
+        getQuestDescription: ()=>{
+            if(!quests["In Times of Need"].quest_tasks[13].is_finished) {
+                return "You helped the swampland tribe in their time of need";
+            } else if(!quests["In Times of Need"].quest_tasks[1].is_finished) {
+                return "You accepted the chief's request to ask around and see how you could assist the swampland tribe";
+            } else {
+                return "You should introduce yourself to whomever is in charge";
+            }
+        },
+        questline: "In Times of Need",
+        quest_tasks: [
+            new QuestTask({
+                task_condition: {
+                    all: {
+                        enter_location: { //enter the village
+                            "Swampland tribe": {
+                                target: 1, 
+                            },
+                        }
+                    }
+                }
+			}),
+            new QuestTask({task_description: "Speak to the cook and see how you can help"}), //crab delivery part 1
+            new QuestTask({task_description: "Bring the cook 60 pieces of crab meat to improve morale"}), //crab delivery part 2
+            new QuestTask({is_hidden: true}), //get taught how to make new foods
+            new QuestTask({task_description: "Speak to the tailor and see how you can help"}), //flax delivery part 1
+            new QuestTask({is_hidden: true}), //get taught how to find and harvest flax
+            new QuestTask({task_description: "Bring the tailor 200 bundles of flax to make fresh linen"}), //flax delivery part 2
+            new QuestTask({is_hidden: true}), //get taught how to make linen cloth
+            new QuestTask({task_description: "Speak to the tanner and see how you can help"}), //tanner delivery part 1
+            new QuestTask({task_description: "Bring the tanner 80 pieces of alligator skin to make new leathers"}), //tanner delivery part 2
+            new QuestTask({task_description: "Bring the tanner 80 pieces of giant snake skin to make new leathers"}), //tanner delivery part 3
+            new QuestTask({is_hidden: true}), //get taught how to make new animal materials
+            new QuestTask({task_description: "Speak to the chief again"}), //formally finish the quest
+            new QuestTask({is_hidden: true}), //get access to longhouse, crafting station, and a unique ring
+        ]
+    });
+
+})();
+
 /*
 quests["Test quest"] = new Quest({
     quest_name: "Test quest",

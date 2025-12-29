@@ -699,6 +699,7 @@ function get_location_type_penalty(type, stage, stat, category) {
                     evasion_points: {multiplier: 0.2},
 					attack_speed: {multiplier: 0.4},
                 }
+            },
 			3: {
                 description: "The muck somehow causes you to slip even while holding you firmly in place",
                 related_skill: "Scrambling",
@@ -718,7 +719,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         stages: {
             1: {
                 description: "Attempting to stay dry in conditions like this is impossible",
-                effects: {add_active_effect("Wet",3)}
+                effects: [{effect: "Wet", duration: 30}],
             }
         }
     });
@@ -1597,7 +1598,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 return "There is an abundance of crabs on the river's shore, but you should be able to get around them and further down the riverbank with a little bit of effort";
             } else {
                 return "If the amount of crabs on the river's shore are any indication, this must be the nesting grounds you had heard about. You can't even tell where the shore meets the riverbank with the amount of crabs around here. The giant crab is gone for now, but it's just not possible to follow it without getting attacked by the smaller crabs";
-        });
+            }},
         getBackgroundNoises: function() {
             let noises = ["*You hear the waves crashing along the shoreline*", "*Splash*", "*You hear the chittering clicks of dozens of crabs*"];
             return noises;
@@ -1649,6 +1650,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             return noises;
         },
         temperature_range_modifier: 1,
+        temperature_modifier: 0.5,
         name: "Further downstream",
         is_unlocked: false,
     });
@@ -1667,6 +1669,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             return noises;
         },
         temperature_range_modifier: 1,
+        temperature_modifier: 0.5,
         name: "Lake beach",
         is_unlocked: false,
     });
@@ -1682,12 +1685,13 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 return "The waterfall at the bottom of the lake. Large crabs almost indistinguishable from the stone inhabit the shore. The sound of roaring water echoing under the rock shelters provides a calming noise that would make it easier to focus your mind";
             } else {
                 return "The waterfall at the bottom of the lake. Large crabs almost indistinguishable from the stone inhabit the shore and nearby rock shelters. You consider that the cool rushing waters from overhead might be an good way to train your body to endure tougher situations";
-        });
+            }},
         getBackgroundNoises: function() {
             let noises = ["*You hear the roar of thousands of gallons of water crashing down*"];
             return noises;
         },
         temperature_range_modifier: 1.5,
+        temperature_modifier: 1,
         name: "Waterfall basin",
         is_unlocked: false,
     });
@@ -1705,6 +1709,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         leave_text: "Leave the stone crab spawning grounds",
         parent_location: locations["Waterfall basin"],
         temperature_range_modifier: 1,
+        temperature_modifier: 1,
         first_reward: {
             xp: 5000,
         },
@@ -1719,7 +1724,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             {
                 required_clear_count: 10,
                 locations: [{location: "Swampland fields"}]
-            });
+            }]
         });
     locations["Waterfall basin"].connected_locations.push({location: locations["Stone crab spawning grounds"], travel_time: 20});
 	
@@ -1734,12 +1739,13 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 return "The swamplands are difficult to navigate and dangerous to traverse, but after travelling across it for what feels like a few days, you managed to find an actual solid pathway leading to a small settlement. It seems that somehow, some folks have managed to find a way to survive out here";
             } else {
                 return "A disgusting boggy marsh lies before you. Most of the ground, or at least what you can make out through the reeds, is covered in filthy water up to your knees, and what isn't submerged has rotted into compost or is the nest of some unknown creature. You think you see something out of the corner of your eye, but as you turn to look, all you catch is a ripple in the reeds";
-        });
+            }},
         getBackgroundNoises: function() {
             let noises = ["*Gnats and mosquitos pick at your exposed skin*", "*fwoosh* *thump*", "*You hear something moving around you, but you can't see it*", "*The buzz of insects throb in your ears*", "*gurgle gurgle*", "*You feel something moving next you, but you can't see it*", "*snap* *crunch*", "*You hear the rythmic swish-swash of something swimming nearby*", "*hssssssssssss*", "*slither*"];
             return noises;
         },
         temperature_range_modifier: 2,
+        temperature_modifier: 2,
         name: "Swampland fields",
         is_unlocked: false,
     });
@@ -1750,13 +1756,13 @@ There's another gate on the wall in front of you, but you have a strange feeling
         enemy_count: 100, 
         types: [{type: "rough", stage: 2, xp_gain: 5}, {type: "wet", stage: 1}],
         enemies_list: ["Alligator", "Snapping turtle", "Giant snake"],
-        enemy_group_size: [1,1],
         enemy_stat_variation: 0.2,
         is_unlocked: true, 
         name: "Wander randomly in the swamplands", 
         leave_text: "Slink away to some higher, dryer ground",
         parent_location: locations["Swampland fields"],
         temperature_range_modifier: 2.5,
+        temperature_modifier: 2,
         first_reward: {
             xp: 10000,
         },
@@ -1768,11 +1774,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 required_clear_count: 3,
                 locations: [{location: "Swampland tribe"}]
 				}
-            });
+            ]
         });
     locations["Swampland fields"].connected_locations.push({location: locations["Wander randomly in the swamplands"], travel_time: 45});
-	
-
 
     locations["Swampland tribe"] = new Location({ 
         connected_locations: [{location: locations["Swampland fields"], custom_text: "Leave the safety of the settlement and return to the [Swampland fields]", travel_time: 90, travel_time_skills: ["Scrambling", "Running"]}], 
@@ -1790,6 +1794,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             return noises;
         },
         temperature_range_modifier: 2,
+        temperature_modifier: 1,
         dialogues: ["Swampland chief", "Swampland cook", "Swampland tanner", "Swampland tailor"],
         traders: ["swampland trader"],
         market_region: "Swamp",
@@ -1821,6 +1826,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             text_to_sleep: "Lie down on an available cot",
             sleeping_xp_per_tick: 3},
         temperature_range_modifier: 1.3,
+        temperature_modifier: 1,
         is_under_roof: true,
     });
 
@@ -1949,6 +1955,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
         repeatable_reward: {
             locations: [{location: "Riverbank"}],
             xp: 2000,
+            quest_progress: [
+                {quest_id: "Giant Enemy Crab", task_index: 1},
+            ]
         },
         unlock_text: "Is this what the village elder meant when he said an enormous crab nest??",
         temperature_modifier: 0.6,
@@ -1970,15 +1979,14 @@ There's another gate on the wall in front of you, but you have a strange feeling
         repeatable_reward: {
             locations: [{location: "Lake beach"}],
             xp: 5000,
-            quests: ["Giant Enemy Crab"],
+            quest_progress: [
+                {quest_id: "Giant Enemy Crab", task_index: 2},
+            ]
         },
         unlock_text: "It's wounded, but in spite of that it looks more dangerous than before",
         temperature_modifier: 1,
     });
     locations["Further downstream"].connected_locations.push({location: locations["Fight the giant stone crab again"], custom_text: "Fight the giant stone crab again", travel_time: 0});
-})();
-
-	
 })();
 
 //add activities
@@ -2779,13 +2787,11 @@ There's another gate on the wall in front of you, but you have a strange feeling
             action_id: "rappel waterfall",
             starting_text: "Try to rappel down the cliffside next to the waterfall",
             description: "It doesn't look that difficult, but it's still a strenuous task that will require some good long rope and proficiency in climbing, together with a fit physique. It will take a good deal of time, so make sure to avoid runing out of energy halfway through",
-            action_text: "Rapelling the cliff",
+            action_text: "Rappelling down the cliff",
             success_text: "It was slow, methodical work, but you've managed to secure a safe and stable pathway across the cliff face.  That should make subsequent trips back up and down significantly faster in the future",
             failure_texts: {
                 conditional_loss: ["Despite telling yourself that scaling down the cliff would be easy, you realize that the path is far more dangerous that you initially expected. Perhaps a more experienced mountain climber would be able to manage the hazards"],
-                random_loss: [
-                    "The routing looked easier from up top, but the slick rock wall and poor footing put you on a path to failure shortly after beginning",
-                ],
+                random_loss: ["The routing looked easier from up top, but the slick rock wall and poor footing put you on a path to failure shortly after beginning"],
                 unable_to_begin: ["While mentally prepared, you realize you're missing an important accessory - some nice long rope is gonna be a necessity for this, especially if you want to go back up at some point."],
             },
             required: {
@@ -2821,19 +2827,19 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 skill_xp: {
                     "Climbing": 25000,
             },
-        }),
+        }}),
     };	
     locations["Longhouse"].actions = {
         "learn forage": new GameAction({
             action_id: "learn forage",
             starting_text: "Ask the scout to teach you about local herbs and vegetables",
-            description: "",
+            description: "The chief asked you to talk to the scout, maybe he can teach you about the plants you've seen growing around here",
             action_text: "Learning how to forage",
             success_text: "The scout explains the local herbs, root vegetables and tubers that grow in the outlying swamplands. You feel confident that you could find them yourself at this point",
             failure_texts: {
                 conditional_loss: ["The scout tries to explain the look and uses of local flora, but you're having a hard time understanding what they're talking about. Maybe if you were a better herbalist, it would be easier"],
                 random_loss: [
-                    "The scout tries to explain the look and uses of local flora, but you just can't really internalize what they're telling you",
+                    "The scout tries to explain the look and uses of local flora, but you just can't really internalize what they're telling you"
                 ],
             },
             conditions: [

@@ -1262,7 +1262,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
                     {material_id: "Glass bottle", count: 1}
                 ], 
         result: [{result_id: "Clam broth", count: 1},
-				{result_id: "Cooked clam", count: 3
+				{result_id: "Cooked clam", count: 3}
 				],
         success_chance: [0.4,1],
         recipe_level: [20,30],

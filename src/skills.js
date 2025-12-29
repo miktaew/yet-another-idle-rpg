@@ -1012,10 +1012,9 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
 						flat: 1},
 					agility: {
 						flat: 1},
-                }
                 max_stamina: {
 					multiplier: 1.1,
-                }
+                }}
             },
             3: {
                 stats: {
@@ -1031,20 +1030,18 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
 						flat: 3},
 					agility: {
 						flat: 3},
-                }
                 xp_multipliers: {
-					"Running": 1.2,
-                }
+                    Running: 1.1,
+                }}
             },
             8: {
 				stats: {
                     stamina_regeneration_flat: {
                         flat: 0.2,
-                    }
 				stamina_efficiency: {
                         multiplier: 1.1,
                     },
-                }
+                }}
             },
             10: {
                 attack_speed: {
@@ -1057,10 +1054,9 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
 						flat: 2},
 					agility: {
 						flat: 2},
-                }
                 max_stamina: {
 					multiplier: 1.2,
-                }
+                }}
             },
             15: {
                 stats: {
@@ -1076,22 +1072,18 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
 						flat: 4},
 					agility: {
 						flat: 4},
-				}
                 xp_multipliers: {
                     "Scrambling": 1.2,
-                }
+                }}
             },
             20: {
-                attack_speed: {
-                    multiplier: 1.03,
-                }
 				stats: {
+                    attack_speed: {
+                        multiplier: 1.03},
                     stamina_regeneration_flat: {
-                        flat: 0.3,
-                    }
-				stamina_efficiency: {
-                        multiplier: 1.15,
-                    },
+                        flat: 0.3},
+				    stamina_efficiency: {
+                        multiplier: 1.15},
                 }
             },
         }

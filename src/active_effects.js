@@ -253,13 +253,9 @@ class ActiveEffect {
 		effect_templates["Varied seafood meal"] = new ActiveEffect({
         name: "Varied seafood meal",
         effects: {
-            stats: {
-                xp_multipliers: {
-            all: 1.25,
-            }
-        },
-        tags: {"buff": true, "food": true},
-    });
+            stats: {xp_multipliers: {all: 1.25}}},
+         tags: {"buff": true, "food": true},
+});
 })();
 
 effect_templates["Recovering"] = new ActiveEffect({
