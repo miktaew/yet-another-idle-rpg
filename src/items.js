@@ -1176,13 +1176,13 @@ book_stats["Shellfish Desires"] = new BookData({
         value: 240,
     });
     item_templates["Ode to Whimsy, and other poems"] = new Book({
-        name: "Ode to whimsy, and other poems",
+        name: "Ode to Whimsy, and other poems",
         description: "A short and wonderful book of poetry that fills one with appreciation for life",
         value: 200,
     });
     item_templates["A Glint On The Sand"] = new Book({
         id: "A Glint On The Sand",
-        name: "A glint on the sand",
+        name: "A Glint On The Sand",
         description: "This books recounts a tale of shipwrecked crew accidentally discovering glassmaking while cooking on a beach. More importantly, it details the processees and materials necessary to manufacture glass",
         value: 300
     });

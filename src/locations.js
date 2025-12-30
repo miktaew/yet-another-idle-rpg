@@ -719,7 +719,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         stages: {
             1: {
                 description: "Attempting to stay dry in conditions like this is impossible",
-                effects: [{effect: "Wet", duration: 30}],
+                applied_effects: [{effect: "Wet", duration: 30}],
             }
         }
     });
@@ -1655,8 +1655,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             }
             return noises;
         },
-        temperature_range_modifier: 1,
-        temperature_modifier: 0.5,
+        temperature_modifier: 0.9,
         name: "Further downstream",
         is_unlocked: false,
     });
@@ -1674,8 +1673,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             }
             return noises;
         },
-        temperature_range_modifier: 1,
-        temperature_modifier: 0.5,
+        temperature_modifier: 0.9,
         name: "Lake beach",
         //is_unlocked: false,                       //commented out for testing purposes
     });
@@ -1696,10 +1694,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["*You hear the roar of thousands of gallons of water crashing down*"];
             return noises;
         },
-        temperature_range_modifier: 1.5,
-        temperature_modifier: 1,
+        temperature_modifier: 1.6,
         name: "Waterfall basin",
-        //is_unlocked: false,                       //commented out for testing purposes
+        is_unlocked: false,
     });
     locations["Lake beach"].connected_locations.push({location: locations["Waterfall basin"], custom_text: "Rappel down to the [Waterfall basin]", travel_time: 40, travel_time_skills: ["Climbing"]});
 
@@ -1714,7 +1711,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         name: "Stone crab spawning grounds", 
         leave_text: "Leave the stone crab spawning grounds",
         parent_location: locations["Waterfall basin"],
-        temperature_range_modifier: 1,
         temperature_modifier: 1,
         first_reward: {
             xp: 5000,
@@ -1750,8 +1746,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["*Gnats and mosquitos pick at your exposed skin*", "*fwoosh* *thump*", "*You hear something moving around you, but you can't see it*", "*The buzz of insects throb in your ears*", "*gurgle gurgle*", "*You feel something moving next you, but you can't see it*", "*snap* *crunch*", "*You hear the rythmic swish-swash of something swimming nearby*", "*hssssssssssss*", "*slither*"];
             return noises;
         },
-        temperature_range_modifier: 2,
-        temperature_modifier: 2,
+        temperature_modifier: 2.1,
         name: "Swampland fields",
         //is_unlocked: false,                       //commented out for testing purposes
     });
@@ -1760,15 +1755,14 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Wander randomly in the swamplands"] = new Combat_zone({
         description: "The swamplands are hot, wet, and smell of rot. Water impedes your every movement, and vicious predators lie beneath it's surface", 
         enemy_count: 100, 
-        types: [{type: "rough", stage: 2, xp_gain: 5}, {type: "wet", stage: 1}],
+        types: [/*{type: "rough", stage: 2, xp_gain: 5},*/ {type: "wet", stage: 1}],                       //commented out for testing purposes
         enemies_list: ["Alligator", "Snapping turtle", "Giant snake"],
         enemy_stat_variation: 0.2,
         is_unlocked: true, 
         name: "Wander randomly in the swamplands", 
         leave_text: "Slink away to some higher, dryer ground",
         parent_location: locations["Swampland fields"],
-        temperature_range_modifier: 2.5,
-        temperature_modifier: 2,
+        temperature_modifier: 3.2,
         first_reward: {
             xp: 10000,
         },
@@ -1782,7 +1776,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
 				}
             ]
         });
-    locations["Swampland fields"].connected_locations.push({location: locations["Wander randomly in the swamplands"], travel_time: 45});
+    locations["Swampland fields"].connected_locations.push({location: locations["Wander randomly in the swamplands"], custom_text: "Wander randomly in the swamplands", travel_time: 45});
 
     locations["Swampland tribe"] = new Location({       //a dying village on it's last legs, found by you recently after the loss of their only remaining warriors; only survivor was the hunting party scout who is wounded in the longhouse
         connected_locations: [{location: locations["Swampland fields"], custom_text: "Leave the safety of the settlement and return to the [Swampland fields]", travel_time: 90, travel_time_skills: ["Scrambling", "Running"]}], 
@@ -1799,9 +1793,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["*You hear some rustling*", "*The hum of insects buzz in your ear*", "*Gnats and mosquitos pick at your exposed skin*", "*fwoosh* *thump*", "*gurgle gurgle*", "*snap* *crunch*", "*You hear the rythmic swish-swash of something swimming nearby*"];
             return noises;
         },
-        temperature_range_modifier: 2,
-        temperature_modifier: 1,
-        dialogues: ["Swampland chief", "Swampland cook", "Swampland tanner", "Swampland tailor"],
+        temperature_modifier: 2,
+        dialogues: ["swampland chief", "swampland cook", "swampland tanner", "swampland tailor"],
         traders: ["swampland trader"],
         market_region: "Swamp",
         name: "Swampland tribe", 
@@ -1831,8 +1824,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: true,
             text_to_sleep: "Lie down on an available cot",
             sleeping_xp_per_tick: 3},
-        temperature_range_modifier: 1.3,
-        temperature_modifier: 1,
+        temperature_modifier: 1.5,
         is_under_roof: true,
     });
 
@@ -1967,7 +1959,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         unlock_text: "Is this what the village elder meant when he said an enormous crab nest??",
         temperature_modifier: 0.6,
     });
-    locations["Downstream from the village"].connected_locations.push({location: locations["Fight the giant stone crab"], custom_text: "Fight the giant stone crab", travel_time: 0});
+    locations["Downstream from the village"].connected_locations.push({location: locations["Fight the giant stone crab"], custom_text: "Fight the giant stone crab", travel_time: 5});
 
 
     locations["Fight the giant stone crab again"] = new Challenge_zone({
@@ -1985,14 +1977,12 @@ There's another gate on the wall in front of you, but you have a strange feeling
             xp: 5000,
             move_to: {location: "Lake beach"},
             //quest_progress: [{quest_id: "Giant Enemy Crab"}]       //for when Giant Enemy Crab quest is properly implemented
-            activities: [{location:"Lake beach", activity:"swimming"}],
-            actions: [{location: "Lake beach", action: "rappel waterfall"}],
             locks: {locations: ["Further downstream"]}, 
         },
         unlock_text: "It's wounded, but in spite of that it looks more dangerous than before",
         temperature_modifier: 1,
     });
-    locations["Further downstream"].connected_locations.push({location: locations["Fight the giant stone crab again"], custom_text: "Fight the giant stone crab again", travel_time: 0});
+    locations["Further downstream"].connected_locations.push({location: locations["Fight the giant stone crab again"], custom_text: "Fight the giant stone crab again", travel_time: 5});
 })();
 
 //add activities
@@ -2346,6 +2336,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             infinite: true,
             starting_text: "Harden your resolve by sitting underneath the waterfall",
             skill_xp_per_tick: 2,
+            applied_effects: [{effect: "Wet", duration: 30}],
         }),
         "meditating": new LocationActivity({
             activity_name: "meditating",
@@ -2823,9 +2814,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
                         strength: 600,
                         agility: 1000,
                         max_stamina: 1500,
-                    }
-                }
+                    },
+                },
             ],
+            is_unlocked: true,
             attempt_duration: 540,
             success_chances: [0.45, 1],
             rewards: {
@@ -2846,7 +2838,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             failure_texts: {
                 conditional_loss: ["The scout tries to explain the look and uses of local flora, but you're having a hard time understanding what they're talking about. Maybe if you were a better herbalist, it would be easier"],
                 random_loss: [
-                    "The scout tries to explain the look and uses of local flora, but you just can't really internalize what they're telling you"
+                    "The scout tries to explain the look and uses of local flora, but you just can't really internalize what they're telling you",
                 ],
             },
             conditions: [
@@ -2859,12 +2851,12 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     skills: {
                         "Herbalism": 25,
                     },
-                }
+                },
             ],
             attempt_duration: 60,
             success_chances: [0.6, 1],
             rewards: {
-                actions: [{location:"Swampland tribe", action: "herbalism"}]
+                actions: [{location:"Swampland tribe", action: "herbalism"}],
             },
         }),
     };

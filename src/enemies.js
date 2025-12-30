@@ -334,11 +334,11 @@ class Enemy {
 	enemy_templates["River crab"] = new Enemy({
         name: "River crab",
         description: "A crab the size of a small boulder",
-        xp_value: 75,
+        xp_value: 55,
         rank: 5,
         size: enemy_sizes.SMALL,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 2000, attack: 75, agility: 120, dexterity: 90, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 145}, //numbers are just estimates, intended AP is 550 and EP is 450
+        stats: {health: 2000, attack: 75, agility: 120, dexterity: 90, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 145},
         loot_list: [
             {item_name: "Crab meat", chance: 0.02},
         ]
@@ -351,7 +351,7 @@ class Enemy {
         rank: 9,
         size: enemy_sizes.MEDIUM,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 9000, attack: 160, agility: 200, dexterity: 180, intuition: 200, magic: 0, attack_speed: 1.7, attack_count: 2, defense: 700}, //numbers are just estimates, intended AP is 1550 and EP is 1700
+        stats: {health: 7000, attack: 160, agility: 180, dexterity: 160, intuition: 120, magic: 0, attack_speed: 1.7, attack_count: 2, defense: 700}, //numbers are just estimates, intended AP is 1550 and EP is 1700
         loot_list: [
             {item_name: "Crab meat", chance: 0.05},
             {item_name: "Crab claw", chance: 0.01},
