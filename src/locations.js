@@ -1675,7 +1675,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         },
         temperature_modifier: +1.3,
         name: "Lake beach",
-        is_unlocked: false,
+        //is_unlocked: false,           //commented out due to the second giant crab fight not working; it should be unlocked upon completion
     });
     locations["Riverbank"].connected_locations.push({location: locations["Lake beach"],  travel_time: 180, travel_time_skills: ["Scrambling"]});
     locations["Further downstream"].connected_locations.push({location: locations["Lake beach"], travel_time: 240});

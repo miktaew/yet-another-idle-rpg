@@ -366,7 +366,7 @@ class Enemy {
         rank: 13,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 16500, attack: 750, agility: 270, dexterity: 300, intuition: 150, magic: 0, attack_speed: 1.6, defense: 550},
+        stats: {health: 16500, attack: 750, agility: 270, dexterity: 350, intuition: 120, magic: 0, attack_speed: 1.6, defense: 550},
         loot_list: [
             {item_name: "Alligator meat", chance: 0.02},
             {item_name: "Alligator skin", chance: 0.01},
@@ -380,7 +380,7 @@ class Enemy {
         rank: 12,
         size: enemy_sizes.MEDIUM,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 22000, attack: 550, agility: 230, dexterity: 220, intuition: 150, magic: 0, attack_speed: 0.9, defense: 1000},
+        stats: {health: 22000, attack: 550, agility: 250, dexterity: 240, intuition: 140, magic: 0, attack_speed: 0.9, defense: 1000},
         loot_list: [
             {item_name: "Turtle meat", chance: 0.02},
             {item_name: "Turtle shell", chance: 0.005},
@@ -394,7 +394,7 @@ class Enemy {
         rank: 14,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast"],
-        stats: {health: 13000, attack: 450, agility: 380, dexterity: 300, intuition: 150, magic: 0, attack_speed: 2.7, defense: 400},
+        stats: {health: 13000, attack: 450, agility: 380, dexterity: 500, intuition: 150, magic: 0, attack_speed: 2.7, defense: 400},
         loot_list: [
             {item_name: "Giant snake meat", chance: 0.02},
             {item_name: "Giant snake skin", chance: 0.01},
@@ -465,7 +465,7 @@ class Enemy {
         rank: 10,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 28000, attack: 250, agility: 350, dexterity: 520, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 1250},
+        stats: {health: 28000, attack: 250, agility: 350, dexterity: 580, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 1250},
     });
 
 	enemy_templates["Enraged giant stone crab"] = new Enemy({
@@ -476,7 +476,7 @@ class Enemy {
         rank: 11,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 43000, attack: 480, agility: 400, dexterity: 480, intuition: 200, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 850}, //numbers are just estimates, intended to have a higher AP and EP than the alligator, turtle, and snake
+        stats: {health: 43000, attack: 480, agility: 400, dexterity: 630, intuition: 150, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 850}, //numbers are just estimates, intended to have a higher AP and EP than the alligator, turtle, and snake
         loot_list: [
             {item_name: "Giant crab claw", chance: 0.99},
         ]
