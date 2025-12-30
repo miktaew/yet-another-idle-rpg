@@ -430,23 +430,15 @@ class TradeItem {
             new TradeItem({item_name: "Snake jerky", count: [1,2]}),
             new TradeItem({item_name: "Turtle jerky", count: [1,2]}),
 
-            new TradeItem({item_name: "Cooking herbs", count: [200,200]}),              //reset values to 1,3 after testing
-            new TradeItem({item_name: "Wild onion", count: [200,200]}),
-            new TradeItem({item_name: "Wild garlic", count: [200,200]}),
-            new TradeItem({item_name: "Wild potato", count: [200,200]}),
+            new TradeItem({item_name: "Cooking herbs", count: [1,3]}),
+            new TradeItem({item_name: "Wild onion", count: [1,3]}),
+            new TradeItem({item_name: "Wild garlic", count: [1,3]}),
+            new TradeItem({item_name: "Wild potato", count: [1,3]}),
 
-            new TradeItem({item_name: "Shellfish desires", count: [1]}),            //for testing purposes
-            new TradeItem({item_name: "Piece of alligator leather", count: [200,200]}),
-            new TradeItem({item_name: "Piece of snakeskin leather", count: [200,200]}),
-            new TradeItem({item_name: "Turtle shellplate", count: [200,200]}),
-            new TradeItem({item_name: "Crab meat", count: [200,200]}),
-
-            new TradeItem({item_name: "Clam", count: [200,200]}),
-            new TradeItem({item_name: "Alligator meat", count: [200,200]}),
-            new TradeItem({item_name: "Turtle meat", count: [200,200]}),
-            new TradeItem({item_name: "Belmart leaf", count: [200,200]}),
-            new TradeItem({item_name: "Glass bottle", count: [200,200]}),
-            new TradeItem({item_name: "Snake fang ring", count: [1]}),
+            new TradeItem({item_name: "Piece of alligator leather", count: [200,200], chance: 1}),
+            new TradeItem({item_name: "Piece of snakeskin leather", count: [200,200], chance: 1}),
+            new TradeItem({item_name: "Turtle shellplate", count: [200,200], chance: 1}),
+            new TradeItem({item_name: "Snake fang ring", count: [1], chance: 1}),
 
 
 
@@ -471,7 +463,7 @@ class TradeItem {
             new TradeItem({item_name: "Turtleshell platemail pants", count: [1], quality: [70, 100], chance: 0.01}),
             new TradeItem({item_name: "Turtleshell shield", count: [1], quality: [70, 100], chance: 0.01}),
 
-            new TradeItem({item_name: "Shellfish desires", count: [1], chance: 0.5}),
+            //new TradeItem({item_name: "Shellfish desires", count: [1], chance: 0.5}),     //commented out to prevent errors, something is broken somewhere with this book and I don't know what
 
 			new TradeItem({item_name: "Healing balm", count: [1,2], chance: 0.15}),
 			new TradeItem({item_name: "Healing powder", count: [1,3], chance: 0.2}),

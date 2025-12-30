@@ -468,15 +468,16 @@ class Enemy {
         stats: {health: 28000, attack: 250, agility: 350, dexterity: 580, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 1250},
     });
 
-	enemy_templates["Enraged giant crab"] = new Enemy({
+	enemy_templates["Enraged giant crab"] = new Enemy({     //not working at present, not sure if the problem is here or the locations "Further downstream" or "Fight the giant crab again"
         name: "Enraged giant crab",
-        description: "Graa! Crab battle!",     //reference to the Metal Gear Solid 3 flash animation "Crab Battle"
+        description: "Graa~! Crab battle!",     //reference to the Metal Gear Solid 3 flash animation "Crab Battle"
         add_to_bestiary: false,
         xp_value: 1,
         rank: 11,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
         stats: {health: 43000, attack: 480, agility: 400, dexterity: 630, intuition: 150, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 850}, //numbers are just estimates, may need to be reduced
+        loot_list: [{item_name: "Giant crab claw", chance: 1}],
     });
 
 })()

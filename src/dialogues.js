@@ -977,7 +977,7 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief mid help"]}],
-                    dialogues: ["swampland cook"],
+                    dialogues: ["swampland cook"],                                              //this isn't unlocking the cook for some reason, stopping the quest from progressing
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 1}],
                 },
                 locks_lines: ["swampchief help"],
@@ -1006,7 +1006,7 @@ class DialogueAction extends GameAction {
                 rewards: {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief generic"]}],
                     locations: [{location: "Longhouse"}],
-                    items_by_id: {"Snake fang ring": {count: 1}},
+                    items_by_id: {"Snake fang ring": {count: 1}},                           //reward for completing the quest; other reward is the trader's book with the xp boosting food recipe
                     //activities: [{location: "Swampland tribe", activity: "crafting"}],	//unsure of how to swap the crafting station in the tribe from locked to unlocked
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 9}],		//finishes the quest
                 },
@@ -1059,6 +1059,7 @@ class DialogueAction extends GameAction {
                 description: "",
                 action_text: "",
                 success_text: "swampcook deliver answ",
+                repeatable: false,
                 failure_texts: {
                     unable_to_begin: ["swampcook deliver not"],
                 },
@@ -1070,7 +1071,7 @@ class DialogueAction extends GameAction {
                 rewards: {
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 3}], 
                     textlines: [{dialogue: "swampland cook", lines: ["swampcook liked"]}],
-                    dialogues: ["swampland cook"],
+                    dialogues: ["swampland tailor"],
                 },
                 locks_lines: (["swampcook deliver"], ["swampcook known"]),
             }),
@@ -1127,6 +1128,7 @@ class DialogueAction extends GameAction {
                 description: "",
                 action_text: "",
                 success_text: "swamptailor deliver answ",
+                repeatable: false,
                 failure_texts: {
                     unable_to_begin: ["swamptailor deliver not"],
                 },
@@ -1184,6 +1186,7 @@ class DialogueAction extends GameAction {
                 description: "",
                 action_text: "",
                 success_text: "swamptanner deliver 1 answ",
+                repeatable: false,
                 failure_texts: {
                     unable_to_begin: ["swamptanner deliver 1 not"],
                 },
@@ -1204,7 +1207,7 @@ class DialogueAction extends GameAction {
                 description: "",
                 action_text: "",
                 success_text: "swamptanner deliver 2 answ",
-                repeatable: true,
+                repeatable: false,
                 failure_texts: {
                     unable_to_begin: ["swamptanner deliver 2 not"],
                 },
@@ -1214,7 +1217,7 @@ class DialogueAction extends GameAction {
                 attempt_duration: 0,
                 success_chances: [1],
                 rewards: {
-                    //quest_progress: [{quest_id: "In Times of Need", task_index: 8}], 
+                    //quest_progress: [{quest_id: "In Times of Need", task_index: 8}], //need to find some way to tie back to the chief since I can't make the quest work. locking the turn-in dialogue to rep could work, but I don't know how to implement questlines to give rep either, and rep rewards don't work in dialogue yet. maybe just disabling him after accepting the quest and enabling a new chief after this step?
                     textlines: [{dialogue: "swampland tanner", lines: ["swamptanner liked"]}],
                 },
                 locks_lines: (["swamptanner deliver 2"], ["swamptanner known"]),
