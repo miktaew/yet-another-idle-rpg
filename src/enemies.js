@@ -457,10 +457,10 @@ class Enemy {
         size: enemy_sizes.MEDIUM,
         stats: {health: 1200, attack: 150, agility: 100, dexterity: 70, magic: 0, intuition: 60, attack_speed: 0.5, defense: 60},
     });
-	enemy_templates["Giant stone crab"] = new Enemy({
-        name: "Giant stone crab",
+	enemy_templates["Giant crab"] = new Enemy({
+        name: "Giant crab",
         description: "This was the biggest crab you had ever seen. It's also the smallest crab you had ever seen",  //descriptions of challenge fights aren't visible, but this is a joke based on the fact that the player hasn't seen any other crab enemies yet
-        add_to_bestiary: true,          //for testing purposes
+        add_to_bestiary: false,
         xp_value: 1,
         rank: 10,
         size: enemy_sizes.LARGE,
@@ -468,15 +468,15 @@ class Enemy {
         stats: {health: 28000, attack: 250, agility: 350, dexterity: 580, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 1250},
     });
 
-	enemy_templates["Enraged giant stone crab"] = new Enemy({
-        name: "Enraged giant stone crab",
+	enemy_templates["Enraged giant crab"] = new Enemy({
+        name: "Enraged giant crab",
         description: "Graa~! Crab battle!",     //reference to the Metal Gear Solid 3 flash animation "Crab Battle"
         add_to_bestiary: false,
         xp_value: 1,
         rank: 11,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 43000, attack: 480, agility: 400, dexterity: 630, intuition: 150, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 850}, //numbers are just estimates, intended to have a higher AP and EP than the alligator, turtle, and snake
+        stats: {health: 43000, attack: 480, agility: 400, dexterity: 630, intuition: 150, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 850}, //numbers are just estimates, may need to be reduced
         loot_list: [
             {item_name: "Giant crab claw", chance: 0.99},
         ]

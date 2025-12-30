@@ -1035,12 +1035,12 @@ class DialogueAction extends GameAction {
             "swampcook known": new Textline({		//unlocked after accepting the quest, locked after completing their portion
                 name: "swampcook known",
                 text: "swampcook known answ",
-                is_unlocked: false,
+                is_unlocked: true,
             }),
             "swampcook help": new Textline({
                 name: "swampcook help",
                 text: "swampcook help answ",
-                is_unlocked: false,
+                is_unlocked: true,
                 rewards: {actions: [{dialogue: "swampland cook", action: "swampcook deliver"}]},
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 2}],
                 locks_lines: ["swampcook help"],
@@ -1090,12 +1090,12 @@ class DialogueAction extends GameAction {
             "swamptailor known": new Textline({
                 name: "swamptailor known",
                 text: "swamptailor known answ",
-                is_unlocked: false,
+                is_unlocked: true,
             }),
             "swamptailor help": new Textline({
                 name: "swamptailor help",
                 text: "swamptailor help answ",
-                is_unlocked: false,
+                is_unlocked: true,
                 rewards: {
                     textlines: [{dialogue: "swampland tailor", lines: ["swamptailor flax"]}],
                 },
@@ -1156,12 +1156,12 @@ class DialogueAction extends GameAction {
             "swamptanner known": new Textline({
                 name: "swamptanner known",
                 text: "swamptanner known answ",
-                is_unlocked: false,
+                is_unlocked: true,
             }),
             "swamptanner help": new Textline({
                 name: "swamptanner help",
                 text: "swamptanner help answ",
-                is_unlocked: false,
+                is_unlocked: true,
                 rewards: {
                     actions: [{dialogue: "swampland tailor", action: "swamptailor deliver"}],
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 6}],

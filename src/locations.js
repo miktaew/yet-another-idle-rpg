@@ -1680,12 +1680,44 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Riverbank"].connected_locations.push({location: locations["Lake beach"],  travel_time: 180, travel_time_skills: ["Scrambling"]});
     locations["Further downstream"].connected_locations.push({location: locations["Lake beach"], travel_time: 240});
 
+
+    locations["Lake camp"] = new Location({
+        connected_locations: [{location: locations["Lake beach"], custom_text: "Go to your camp on the lakeside", travel_time: 5}],
+        description: "A pleasant little camp with a crackling fire, created by you to be a perfect relaxation spot",
+        name: "Lake camp",
+        housing: {
+            is_unlocked: true,
+            sleeping_xp_per_tick: 8,
+            text_to_sleep: "Take a nap on the bedroll",
+        },
+        is_unlocked: false,
+        getBackgroundNoises: function() {
+            let noises = [];
+            if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
+                noises.push("*You hear the roar of rushing water nearby*", "*The hum of insects buzz in your ear*", "*Birds are singing, flowers are blooming...*");
+            } else {
+                noises.push("*You hear the roar of rushing water nearby*", "*The hum of insects buzz in your ear*");
+            }
+            return noises;
+        },
+        temperature_range_modifier: +1,
+        crafting: {
+            is_unlocked: true, 
+            use_text: "Try to cook something", 
+            tiers: {
+                cooking: 1,
+            }
+        },
+    });
+    locations["Lake beach"].connected_locations.push({location: locations["Lake camp"], custom_text: "Go back out to the [Lake beach]", travel_time: 5});
+
+
     locations["Waterfall basin"] = new Location({ 
         connected_locations: [{location: locations["Lake beach"], custom_text: "Climb the cliffside and return to the [Lake beach]", travel_time: 80, travel_time_skills: ["Climbing"]}], 
          getDescription: function() {
-		 if(locations["Stone crab spawning grounds"].enemy_groups_killed >= 10 * locations["Stone crab spawning grounds"].enemy_count) { 
+		 if(locations["Crab spawning grounds"].enemy_groups_killed >= 10 * locations["Crab spawning grounds"].enemy_count) { 
                 return "The waterfall at the bottom of the lake. The cool rushing waters and serene nature of the area make it ideal for training your mind and body. Large crabs almost indistinguishable from the stone can be found along the shore of the basin. At the far end of the basin, you can just barely make out the overgrown remains of a trail leading off into a swampy field";
-            } else if(locations["Stone crab spawning grounds"].enemy_groups_killed >= 5 * locations["Stone crab spawning grounds"].enemy_count) {
+            } else if(locations["Crab spawning grounds"].enemy_groups_killed >= 5 * locations["Crab spawning grounds"].enemy_count) {
                 return "The waterfall at the bottom of the lake. Large crabs almost indistinguishable from the stone inhabit the shore. The sound of roaring water echoing under the rock shelters provides a calming noise that would make it easier to focus your mind";
             } else {
                 return "The waterfall at the bottom of the lake. Large crabs almost indistinguishable from the stone inhabit the shore and nearby rock shelters. You consider that the cool rushing waters from overhead might be an good way to train your body to endure tougher situations";
@@ -1700,7 +1732,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     });
     locations["Lake beach"].connected_locations.push({location: locations["Waterfall basin"], custom_text: "Rappel down to the [Waterfall basin]", travel_time: 40, travel_time_skills: ["Climbing"]});
 
-    locations["Stone crab spawning grounds"] = new Combat_zone({
+    locations["Crab spawning grounds"] = new Combat_zone({
         description: "First an enormous nest of crabs, then an enormous crab's nest, and now this??",       //final punchline to the "big crab nest/big crabs' nest/big crab's nest" setup
         enemy_count: 50, 
         types: [{type: "open", stage: 2, xp_gain: 5}, {type: "rough", stage: 1, xp_gain: 1}, {type: "wet", stage: 1}],
@@ -1708,8 +1740,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
         enemy_group_size: [3,5],
         enemy_stat_variation: 0.2,
         is_unlocked: true, 
-        name: "Stone crab spawning grounds", 
-        leave_text: "Leave the stone crab spawning grounds",
+        name: "Crab spawning grounds", 
+        leave_text: "Leave the crab spawning grounds",
         parent_location: locations["Waterfall basin"],
         temperature_modifier: 1,
         first_reward: {
@@ -1728,7 +1760,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 locations: [{location: "Swampland fields"}]
             }]
         });
-    locations["Waterfall basin"].connected_locations.push({location: locations["Stone crab spawning grounds"], travel_time: 20});
+    locations["Waterfall basin"].connected_locations.push({location: locations["Crab spawning grounds"], travel_time: 20});
 	
     locations["Swampland fields"] = new Location({ 
         connected_locations: [{location: locations["Waterfall basin"], custom_text: "Climb through the muck and brush and return to the [Waterfall basin]", travel_time: 45, travel_time_skills: ["Scrambling"]}], 
@@ -1755,7 +1787,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["The swamplands"] = new Combat_zone({
         description: "The swamplands are hot, wet, and smell of rot. Water impedes your every movement, and vicious predators lie beneath it's surface", 
         enemy_count: 100, 
-        types: [/*{type: "rough", stage: 2, xp_gain: 5},*/ {type: "wet", stage: 1}],                       //commented out for testing purposes
+        types: [{type: "rough", stage: 2, xp_gain: 5}, {type: "wet", stage: 1}],
         enemies_list: ["Alligator", "Snapping turtle", "Giant snake"],
         enemy_stat_variation: 0.2,
         is_unlocked: true, 
@@ -1794,10 +1826,11 @@ There's another gate on the wall in front of you, but you have a strange feeling
             return noises;
         },
         temperature_modifier: 2,
-        dialogues: ["swampland chief", "swampland cook", "swampland tanner", "swampland tailor"],
+        dialogues: ["swampland chief"],
         traders: ["swampland trader"],
         market_region: "Swamp",
         name: "Swampland tribe", 
+        is_unlocked: false, 
         crafting: {
             is_unlocked: false,
             use_text: "Try to craft something", 
@@ -1939,14 +1972,14 @@ There's another gate on the wall in front of you, but you have a strange feeling
     });
     locations["Mountain path"].connected_locations.push({location: locations["Fight the angry mountain goat"], custom_text: "Fight the angry goat", travel_time: 0});
 
-    locations["Fight the giant stone crab"] = new Challenge_zone({
+    locations["Fight the giant crab"] = new Challenge_zone({
         description: "The village elder told you to be cautious...",
         enemy_count: 1, 
         types: [{type: "open", stage: 1, xp_gain: 2}],
-        enemies_list: ["Giant stone crab"],
+        enemies_list: ["Giant crab"],
         enemy_stat_variation: 0,
         is_unlocked: true, 
-        name: "Fight the giant stone crab", 
+        name: "Fight the giant crab", 
         leave_text: "Scramble away and hide!",
         parent_location: locations["Downstream from the village"],
         repeatable_reward: {
@@ -1959,17 +1992,17 @@ There's another gate on the wall in front of you, but you have a strange feeling
         unlock_text: "Is this what the village elder meant when he said an enormous crab nest??",
         temperature_modifier: 0.6,
     });
-    locations["Downstream from the village"].connected_locations.push({location: locations["Fight the giant stone crab"], custom_text: "Fight the giant stone crab", travel_time: 5});
+    locations["Downstream from the village"].connected_locations.push({location: locations["Fight the giant crab"], custom_text: "Fight the giant crab", travel_time: 5});
 
 
-    locations["Fight the giant stone crab again"] = new Challenge_zone({
+    locations["Fight the giant crab again"] = new Challenge_zone({
         description: "This time, you can't let it get away",
         enemy_count: 1, 
         types: [{type: "open", stage: 2, xp_gain: 5}, {type: "rough", stage: 1, xp_gain: 1}],
-        enemies_list: ["Enraged giant stone crab"],
+        enemies_list: ["Enraged giant crab"],
         enemy_stat_variation: 0,
         is_unlocked: true, 
-        name: "Fight the giant stone crab again!", 
+        name: "Fight the giant crab again!", 
         leave_text: "Scramble away and hide!",
         parent_location: locations["Further downstream"],
         repeatable_reward: {
@@ -1982,7 +2015,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         unlock_text: "It's wounded, but in spite of that it looks more dangerous than before",
         temperature_modifier: 1,
     });
-    locations["Further downstream"].connected_locations.push({location: locations["Fight the giant stone crab again"], custom_text: "Fight the giant stone crab again", travel_time: 5});
+    locations["Further downstream"].connected_locations.push({location: locations["Fight the giant crab again"], custom_text: "Fight the giant crab again", travel_time: 5});
 })();
 
 //add activities
@@ -2327,6 +2360,13 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 scales_with_skill: true,
             },
             require_tool: true,
+        }),
+        "climbing": new LocationActivity({
+            activity_name: "climbing",
+            infinite: true,
+            starting_text: "Practice rappelling down the cliff face",
+            skill_xp_per_tick: 10,
+            is_unlocked: false,
         }),
     };
 	
@@ -2824,10 +2864,56 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 locations: [{location: "Waterfall basin"}],
                 move_to: {location: "Waterfall basin"},
                 skill_xp: {
-                    "Climbing": 25000,
+                    "Climbing": 50000,
             },
-        }}),
-    };	
+        }
+    }),
+        "create lake camp": new GameAction({
+            action_id: "create lake camp",
+            starting_text: "Establish a camp here",
+            description: "Prepare a tent, a fire pit, and a storage here to create a new base. It will be necessary if you are going to rest in the area",
+            action_text: "Working",
+            success_text: "After a few hours of hard work, your camp is ready. You can rest here before venturing further",
+            conditions: [
+                {
+                    items_by_id: {"Camping supplies": {count: 1, remove: true}},
+                }
+            ],
+            is_unlocked: true,
+            check_conditions_on_finish: false,
+            failure_texts: {
+                conditional_loss: ["You lack camping supplies!"],
+            },
+            attempt_duration: 180,
+            success_chances: [1],
+            rewards: {
+                locations: [{location: "Lake camp"}],
+                move_to: {location: "Lake camp"},
+            },
+        }),
+        "create lake climbing": new GameAction({
+            action_id: "create lake climbing",
+            starting_text: "Prepare a rappel practice point",
+            description: "The cliff face here would make a good place to practice advance climbing techniques such as rappelling",
+            action_text: "Working",
+            success_text: "After an hour, you manage to safely secure some rope over a shallow underhang close to the edge of the cliff. You can practice here before trying to make your way down the entire cliffside",
+            conditions: [
+                {
+                    items_by_id: {"Coil of rope": {count: 1, remove: true}},
+                }
+            ],
+            is_unlocked: true,
+            check_conditions_on_finish: false,
+            failure_texts: {
+                conditional_loss: ["You're going to need some rope before you can do that!"],
+            },
+            attempt_duration: 60,
+            success_chances: [1],
+            rewards: {
+                activities: [{location:"Forest road", activity: "herbalism"}],
+            },
+        }),
+    },	
     locations["Longhouse"].actions = {
         "learn forage": new GameAction({
             action_id: "learn forage",
