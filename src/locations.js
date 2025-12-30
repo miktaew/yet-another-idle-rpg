@@ -1683,7 +1683,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
 
     locations["Lake camp"] = new Location({
         connected_locations: [{location: locations["Lake beach"], custom_text: "Go to your camp on the lakeside", travel_time: 5}],
-        description: "A pleasant little camp with a crackling fire, created by you to be a perfect relaxation spot",
+        description: "A pleasant little camp with a crackling fire, created by you to be the perfect lakeside relaxation spot",
         name: "Lake camp",
         housing: {
             is_unlocked: true,
@@ -1706,7 +1706,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             use_text: "Try to cook something", 
             tiers: {
                 cooking: 1,
-            }
+            },
         },
     });
     locations["Lake beach"].connected_locations.push({location: locations["Lake camp"], custom_text: "Go back out to the [Lake beach]", travel_time: 5});
@@ -2368,6 +2368,27 @@ There's another gate on the wall in front of you, but you have a strange feeling
             skill_xp_per_tick: 10,
             is_unlocked: false,
         }),
+        "weightlifting": new LocationActivity({
+            activity_name: "weightlifting",
+            infinite: true,
+            starting_text: "Sled pull a boulder",
+            skill_xp_per_tick: 10,
+            is_unlocked: false,
+        }),
+        "running": new LocationActivity({
+            activity_name: "running",
+            infinite: true,
+            starting_text: "Run along the shore",
+            skill_xp_per_tick: 10,
+            is_unlocked: true,
+        }),
+        "balancing": new LocationActivity({
+            activity_name: "balancing",
+            infinite: true,
+            starting_text: "Stupidly risk your life by trying to balance on some stones on the very edge of the waterfall",
+            skill_xp_per_tick: 10,
+            is_unlocked: true,
+        }),
     };
 	
     locations["Waterfall basin"].activities = {
@@ -2882,9 +2903,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: true,
             check_conditions_on_finish: false,
             failure_texts: {
-                conditional_loss: ["You lack camping supplies!"],
+                conditional_loss: ["You can't make a camp without camping supplies!"],
             },
-            attempt_duration: 180,
+            attempt_duration: 120,
             success_chances: [1],
             rewards: {
                 locations: [{location: "Lake camp"}],
@@ -2900,7 +2921,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             conditions: [
                 {
                     items_by_id: {"Coil of rope": {count: 1, remove: true}},
-                }
+                },
             ],
             is_unlocked: true,
             check_conditions_on_finish: false,
@@ -2910,7 +2931,29 @@ There's another gate on the wall in front of you, but you have a strange feeling
             attempt_duration: 60,
             success_chances: [1],
             rewards: {
-                activities: [{location:"Forest road", activity: "herbalism"}],
+                activities: [{location:"Lake beach", activity: "climbing"}],
+            },
+        }),
+        "create lake weightlifting": new GameAction({
+            action_id: "create lake weightlifting",
+            starting_text: "Wrap a boulder for sled pull training",
+            description: "Looking at the large boulders nearby, you consider that dragging or pulling one around the beach with a rope might be good strength training",
+            action_text: "Working",
+            success_text: "After about an hour, you manage to securely wrap a boulder with some rope. Grabbing the end and pulling with all your might, the boulder inches forward with you",
+            conditions: [
+                {
+                    items_by_id: {"Coil of rope": {count: 1, remove: true}},
+                },
+            ],
+            is_unlocked: true,
+            check_conditions_on_finish: false,
+            failure_texts: {
+                conditional_loss: ["You're going to need some rope before you wrap anything!"],
+            },
+            attempt_duration: 60,
+            success_chances: [1],
+            rewards: {
+                activities: [{location:"Lake beach", activity: "weightlifting"}],
             },
         }),
     },	
