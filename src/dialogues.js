@@ -983,7 +983,7 @@ class DialogueAction extends GameAction {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief mid help"]}],
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 1}],
                 },
-                locks_lines: (["swampchief help"], ["swampcook unknown"], ["swamptailor unknown"], ["swamptanner unknown"])
+                //locks_lines: (["swampchief help"], ["swampcook unknown"], ["swamptailor unknown"], ["swamptanner unknown"])                       //commented out for testing purposes
             }),
             "swampchief mid help": new Textline({
                 name: "swampchief mid help",

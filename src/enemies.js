@@ -465,7 +465,7 @@ class Enemy {
         rank: 10,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 28000, attack: 250, agility: 480, dexterity: 400, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 1250},
+        stats: {health: 28000, attack: 250, agility: 350, dexterity: 520, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 1250},
     });
 
 	enemy_templates["Enraged giant stone crab"] = new Enemy({
@@ -476,7 +476,7 @@ class Enemy {
         rank: 11,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 43000, attack: 480, agility: 480, dexterity: 400, intuition: 200, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 850}, //numbers are just estimates, intended to have a higher AP and EP than the alligator, turtle, and snake
+        stats: {health: 43000, attack: 480, agility: 400, dexterity: 480, intuition: 200, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 850}, //numbers are just estimates, intended to have a higher AP and EP than the alligator, turtle, and snake
         loot_list: [
             {item_name: "Giant crab claw", chance: 0.99},
         ]

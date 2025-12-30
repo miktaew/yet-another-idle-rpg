@@ -1589,7 +1589,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["*You hear the waves crashing along the shoreline*", "*Splash*", "*You hear the chittering clicks of dozens of crabs*"];
             return noises;
         },
-        temperature_range_modifier: 0.6,
+        temperature_range_modifier: 0.4,
         name: "Downstream from the village",
         is_unlocked: false,
     });
@@ -1609,7 +1609,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["*You hear the waves crashing along the shoreline*", "*Splash*", "*You hear the chittering clicks of dozens of crabs*"];
             return noises;
         },
-        temperature_range_modifier: 0.6,
+        temperature_range_modifier: 0.4,
         name: "Riverbank",
         is_unlocked: false,
     });
@@ -1655,7 +1655,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             }
             return noises;
         },
-        temperature_modifier: +0.9,
+        temperature_modifier: +0.8,
         name: "Further downstream",
         is_unlocked: false,
     });
@@ -1673,9 +1673,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             }
             return noises;
         },
-        temperature_modifier: +0.9,
+        temperature_modifier: +1.3,
         name: "Lake beach",
-        //is_unlocked: false,                       //commented out for testing purposes
+        is_unlocked: false,
     });
     locations["Riverbank"].connected_locations.push({location: locations["Lake beach"],  travel_time: 180, travel_time_skills: ["Scrambling"]});
     locations["Further downstream"].connected_locations.push({location: locations["Lake beach"], travel_time: 240});
@@ -1694,7 +1694,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["*You hear the roar of thousands of gallons of water crashing down*"];
             return noises;
         },
-        temperature_modifier: +1.6,
+        temperature_modifier: +2,
         name: "Waterfall basin",
         is_unlocked: false,
     });
@@ -1746,23 +1746,23 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["*Gnats and mosquitos pick at your exposed skin*", "*fwoosh* *thump*", "*You hear something moving around you, but you can't see it*", "*The buzz of insects throb in your ears*", "*gurgle gurgle*", "*You feel something moving next you, but you can't see it*", "*snap* *crunch*", "*You hear the rythmic swish-swash of something swimming nearby*", "*hssssssssssss*", "*slither*"];
             return noises;
         },
-        temperature_modifier: +2.1,
+        temperature_modifier: +3,
         name: "Swampland fields",
-        //is_unlocked: false,                       //commented out for testing purposes
+        is_unlocked: false,
     });
     locations["Waterfall basin"].connected_locations.push({location: locations["Swampland fields"], custom_text: "Climb through the muck and brush to the [Swampland fields]", travel_time: 45, travel_time_skills: ["Scrambling"]});
 
     locations["The swamplands"] = new Combat_zone({
         description: "The swamplands are hot, wet, and smell of rot. Water impedes your every movement, and vicious predators lie beneath it's surface", 
         enemy_count: 100, 
-        types: [{type: "rough", stage: 2, xp_gain: 5}, {type: "wet", stage: 1}],
+        types: [/*{type: "rough", stage: 2, xp_gain: 5},*/ {type: "wet", stage: 1}],                       //commented out for testing purposes
         enemies_list: ["Alligator", "Snapping turtle", "Giant snake"],
         enemy_stat_variation: 0.2,
         is_unlocked: true, 
         name: "The swamplands", 
         leave_text: "Slink away to some higher, dryer ground",
         parent_location: locations["Swampland fields"],
-        temperature_modifier: -3.2,
+        temperature_modifier: +4,
         first_reward: {
             xp: 10000,
         },
@@ -1799,7 +1799,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         market_region: "Swamp",
         name: "Swampland tribe", 
         crafting: {
-            is_unlocked: true,     //to be swapped to false when properly implemented by Mik
+            is_unlocked: false,
             use_text: "Try to craft something", 
             tiers: {
                 crafting: 2,
