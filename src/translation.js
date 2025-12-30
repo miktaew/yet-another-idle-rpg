@@ -260,7 +260,6 @@ const translations = {
 	//
         "swampcook description 1": "a",
         "swampcook description 2": "b",
-        "swampcook description 3": "c",
 	"swampcook unknown": "",
         "swampcook unknown answ": "",
         "swampcook known": "",
@@ -275,7 +274,6 @@ const translations = {
 	//
         "swamptailor description 1": "a",
         "swamptailor description 2": "b",
-        "swamptailor description 3": "c",
 	"swamptailor unknown": "",
         "swamptailor unknown answ": "",
         "swamptailor known": "",
@@ -292,7 +290,6 @@ const translations = {
 	//
         "swamptanner description 1": "a",
         "swamptanner description 2": "b",
-        "swamptanner description 3": "c",
 	"swamptanner unknown": "",
         "swamptanner unknown answ": "",
         "swamptanner known": "",

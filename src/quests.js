@@ -433,7 +433,7 @@ const questManager = {
     });
 })();
 
-
+/*
 //Swampland expansion quests            //commented out until properly integrated
 (()=>{
     quests["Giant Enemy Crab"] = new Quest({            //reference to the old "Sony E3 2006 / Giant Enemy Crab" meme
@@ -452,7 +452,21 @@ const questManager = {
         },
         questline: "Giant Enemy Crab",
         quest_tasks: [
-            new QuestTask({is_hidden: true}), //talk to the elder
+            new QuestTask({
+                task_condition: {
+                    all: {
+                        reach_skill: {					//skill check to make sure the player is end-game
+                            "Combat": {target: 27},
+                            "Giant slayer": {target: 20},
+                            "Stance mastery": {target: 25},
+                            "Spatial awareness": {target: 20},
+                            "Weapon mastery": {target: 25},
+                            "Persistence": {target: 15},
+                            "Fortitude": {target: 10},
+                        },
+                    },
+                },
+            }),
             new QuestTask({task_description: "Investigate down the river"}), //beat the crab once
             new QuestTask({task_description: "Track down the giant crab"}), //beat the crab twice
         ]
@@ -493,70 +507,9 @@ const questManager = {
         ]
     });
 
-//hidden quest for giving rep to make the chief quest function
-    quests["swamp rep 1"] = new Quest({
-        is_hidden: true,
-        quest_tasks: [
-            new QuestTask({is_hidden: true}), //turning in crab meat
-        ],
-        quest_rewards: {
-            reputation: {
-                swamp: 10,
-            }
-        }
-    });
-    quests["swamp rep 2"] = new Quest({
-        is_hidden: true,
-        quest_tasks: [
-            new QuestTask({is_hidden: true}), //turning in flax
-        ],
-        quest_rewards: {
-            reputation: {
-                swamp: 15,
-            }
-        }
-    });
-    quests["swamp rep 3"] = new Quest({
-        is_hidden: true,
-        quest_tasks: [
-            new QuestTask({is_hidden: true}), //turning in giant snake skin
-        ],
-        quest_rewards: {
-            reputation: {
-                swamp: 25, //gives enough rep to unlock the turn-in dialog for the swampland chief
-            },
-            textlines: [{dialogue: "swampland chief", lines: ["swampchief mid help"], skip_message: true}],
-        },
-    });
 
-//hidden quests to set initialize active quests due to confusion in quest integration
-    quests["init crab"] = new Quest({
-        //climbing can still be unlocked via fights in the cave
-        is_hidden: true,
-        quest_tasks: [
-            new QuestTask({
-                task_condition: {
-                    all: {
-                        reach_skill: {					//skill check to make sure the player is end-game
-                            "Combat": {target: 27},
-                            "Giant slayer": {target: 20},
-                            "Stance mastery": {target: 25},
-                            "Spatial awareness": {target: 20},
-                            "Weapon mastery": {target: 25},
-                            "Persistence": {target: 15},
-                            "Fortitude": {target: 10},
-                        }
-                    }
-                }
-            })
-        ],
-        quest_rewards: {
-            textlines: [{dialogue: "village elder", lines: ["crab rumors"]}],
-            quest_progress: [{quest_id: "Giant Enemy Crab", task_index: 0}]
-        }
-    });
 })();
-
+*/
 
 /*
 quests["Test quest"] = new Quest({

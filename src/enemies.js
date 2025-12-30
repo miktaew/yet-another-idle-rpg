@@ -394,7 +394,7 @@ class Enemy {
         rank: 14,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast"],
-        stats: {health: 13000, attack: 450, agility: 380, dexterity: 500, intuition: 150, magic: 0, attack_speed: 2.7, defense: 400},
+        stats: {health: 13000, attack: 450, agility: 320, dexterity: 460, intuition: 150, magic: 0, attack_speed: 2.7, defense: 400},
         loot_list: [
             {item_name: "Giant snake meat", chance: 0.02},
             {item_name: "Giant snake skin", chance: 0.01},
