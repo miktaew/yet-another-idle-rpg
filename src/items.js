@@ -1526,7 +1526,7 @@ book_stats["Shellfish Desires"] = new BookData({
         value: 40,
         material_type: "metal",
     });
-    item_templates["Turtle shellplate"] = new Material({
+    item_templates["Turtle shellplate"] = new Material({        //treated as a metal material/chainmail instead of leather
         description: "Small, dense plates capable of reflecting mighty blows. Nowhere near a usable form, turning it into anything will still take a lot of effort and focus",
         value: 60,
         material_type: "metal",
@@ -3791,7 +3791,7 @@ book_stats["Shellfish Desires"] = new BookData({
 })();
 
 
-//rings:
+//rings:            //effectively just a second amulet slot at the moment
 (function(){
     item_templates["Snake fang ring"] = new Ring({
         value: 2000,
@@ -3801,9 +3801,9 @@ book_stats["Shellfish Desires"] = new BookData({
                 multiplier: 1.3,
             },
             crit_rate: {
-                multiplier: 1.3,
+                multiplier: 1.2,
             },
-            unarmed_power: {
+            unarmed_power: {            //rings are probably as close as the player will ever get to an unarmed weapon
                 flat: 1,
             },
         },
@@ -3945,7 +3945,7 @@ book_stats["Shellfish Desires"] = new BookData({
         tags: {"food": true},
     });
 
-    item_templates["Cooked clam"] = new Material({
+    item_templates["Cooked clam"] = new Material({      //making clam broth returns cooked clams
         name: "Boiled clam",
         description: "Common shellfish found around the lake shore that has been boiled, not steamed",
         value: 6,
@@ -4054,7 +4054,7 @@ book_stats["Shellfish Desires"] = new BookData({
         name: "Clam broth",
         description: "Briny, flavorful, and tastes of the ocean. In a good way",
         value: 100,
-        effects: [{ effect: "Simple seafood soup", duration: 120 },
+        effects: [{ effect: "Simple seafood soup", duration: 90 },
                   { effect: "Hot meal", duration: 30 }],
         tags: {"food": true},
     });
@@ -4081,10 +4081,10 @@ book_stats["Shellfish Desires"] = new BookData({
     });
     item_templates["Turtle soup"] = new UsableItem({
         name: "Turtle soup",
-        description: "Tonight you dine on turtle soup",
+        description: "Tonight you dine on turtle soup",     //reference to a line said by Shredder in the old Teenaged Mutant Ninja Turtles cartoon
         value: 100,
         effects: [{ effect: "Simple seafood soup", duration: 120 },
-                  { effect: "Hot meal", duration: 30 }],
+                  { effect: "Hot meal", duration: 45 }],
         tags: {"food": true},
     });
     item_templates["Swampland skewer"] = new UsableItem({
@@ -4097,7 +4097,7 @@ book_stats["Shellfish Desires"] = new BookData({
     });
     item_templates["Basin gumbo"] = new UsableItem({
         name: "Basin gumbo",
-        description: "An incredibly complex and difficult meal, but it's got an indescribable taste",
+        description: "An incredibly complex meal that's difficult to make, but it's got an indescribable taste",
         value: 100,
         effects: [{ effect: "Varied seafood meal", duration: 90 }],
         tags: {"food": true},

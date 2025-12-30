@@ -434,6 +434,13 @@ class TradeItem {
             new TradeItem({item_name: "Wild onion", count: [1,3]}),
             new TradeItem({item_name: "Wild garlic", count: [1,3]}),
             new TradeItem({item_name: "Wild potato", count: [1,3]}),
+            
+            //testing purposes, 100% of the required items for the chief quest plus extra for testing crafting bench and recipes
+            new TradeItem({item_name: "Crab meat", count: [60,60]}),
+            new TradeItem({item_name: "Flax", count: [500,500]}),
+            new TradeItem({item_name: "Alligator skin", count: [200,200]}),
+            new TradeItem({item_name: "Giant snake skin", count: [200,200]}),
+            new TradeItem({item_name: "Turtle shell", count: [500,500]}),
     ];
 	inventory_templates["Swamp plus"] = 
     [

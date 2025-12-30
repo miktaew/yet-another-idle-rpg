@@ -279,6 +279,35 @@ class DialogueAction extends GameAction {
                 locks_lines: ["new tunnel"],
             }),
 
+            "crab rumors": new Textline({		//needs to be unlocked to start the expansion content, stat check should be the unlock trigger
+                name: "elder crab rumors",
+                text: "elder crab rumors answ",
+                is_unlocked: true,			//set to false when quest integration is worked out and can unlock it
+                rewards: {
+                    textlines: [{dialogue: "village elder", lines: ["crab where"]}],
+                },
+                locks_lines: ["crab rumors"],
+            }),
+            "crab where": new Textline({
+                name: "elder crab where",
+                text: "elder crab where answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "village elder", lines: ["crab hunt"]}],
+                },
+                locks_lines: ["crab where"],
+            }),
+            "crab hunt": new Textline({
+                name: "elder crab hunt",
+                text: "elder crab hunt answ",
+                is_unlocked: false,
+                rewards: {
+                    locations: [{location: "Downstream from the village"}],
+                    //quest_progress: [{quest_id: "Giant Enemy Crab", task_index: 1}],      //for when Giant Enemy Crab quest is properly implemented
+                },
+                locks_lines: ["crab hunt"],
+            }),
+            
             "more training": new Textline({
                 name: "elder training",
                 getText: (context) => {
@@ -919,6 +948,344 @@ class DialogueAction extends GameAction {
         },
         description: "sup description",
     });
+	    dialogues["swampland chief"] = new Dialogue({
+        //tbd
+        name: "swampland chief",
+        textlines: {
+            "swampchief meet": new Textline({		//quest technically starts when entering tribe, this starts it "properly"
+                name: "swampchief meet",
+                text: "swampchief meet answ",
+                is_unlocked: true,
+                rewards: {
+                    textlines: [{dialogue: "swampland chief", lines: ["swampchief explain"]}],
+                    //quest_progress: [{quest_id: "In Times of Need", task_index: 0}],
+                },
+                locks_lines: ["swampchief meet"],
+            }),
+            "swampchief explain": new Textline({
+                name: "swampchief explain",
+                text: "swampchief explain answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "swampland chief", lines: ["swampchief help"]}],
+                },
+                locks_lines: ["swampchief explain"],
+            }),
+            "swampchief help": new Textline({
+                name: "swampchief help",
+                text: "swampchief help answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "swampland cook", lines: ["swampcook known"]}],
+                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor known"]}],
+                    textlines: [{dialogue: "swampland tanner", lines: ["swamptanner known"]}],
+                    textlines: [{dialogue: "swampland cook", lines: ["swampcook help"]}],
+                    textlines: [{dialogue: "swampland chief", lines: ["swampchief helping"]}],
+                    //quest_progress: [{quest_id: "In Times of Need", task_index: 1}],
+                },
+                locks_lines: (["swampchief help"], ["swampcook unknown"], ["swamptailor unknown"], ["swamptanner unknown"])
+            }),
+            "swampchief helping": new Textline({
+                name: "swampchief helping",
+                text: "swampchief helping answ",
+                is_unlocked: false,
+            }),
+            "swampchief report": new Textline({
+                name: "swampchief report",
+                text: "swampchief report answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "swampland chief", lines: ["swampchief confirm"]}],
+                },
+                locks_lines: ["swampchief report"],
+            }),
+            "swampchief confirm": new Textline({
+                name: "swampchief confirm",
+                text: "swampchief confirm answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "swampland chief", lines: ["swampchief generic"]}],
+                    locations: [{location: "Longhouse"}],
+                    items_by_id: {"Snake fang ring": {count: 1}},
+                    //activities: [{location: "Swampland tribe", activity: "crafting"}],	//unsure of how to swap the crafting station in the tribe from locked to unlocked
+                    //quest_progress: [{quest_id: "In Times of Need", task_index: 9}],		//finishes the quest
+                },
+                locks_lines: ["swampchief confirm"],
+            }),
+            "swampchief generic": new Textline({
+                name: "swampchief generic",
+                text: "swampchief generic answ",
+                is_unlocked: false,
+            }),
+        },
+        getDescription: ()=>{
+            if(dialogues["swampland chief"].textlines["swampchief confirm"].is_finished) {
+                return "swampchief description 3";
+            } else if (dialogues["swampland chief"].textlines["swampchief help"].is_finished) {
+                return "swampchief description 2";
+            } else {
+                return "swampchief description 1";
+            }}
+        });
+        
+	    dialogues["swampland cook"] = new Dialogue({
+        //tbd
+        name: "swampland cook",
+        textlines: {
+            "swampcook unknown": new Textline({		//locked after accepting the quest
+                name: "swampcook unknown",
+                text: "swampcook unknown answ",
+                is_unlocked: true,
+            }),
+            "swampcook known": new Textline({		//unlocked after accepting the quest, locked after completing their portion
+                name: "swampcook known",
+                text: "swampcook known answ",
+                is_unlocked: false,
+            }),
+            "swampcook help": new Textline({
+                name: "swampcook help",
+                text: "swampcook help answ",
+                is_unlocked: false,
+                rewards: {actions: [{dialogue: "swampland cook", action: "swampcook deliver"}]},
+                    //quest_progress: [{quest_id: "In Times of Need", task_index: 2}],
+                locks_lines: ["swampcook help"],
+            }),
+            "swampcook liked": new Textline({		//unlocked after completing their portion of the quest
+                name: "swampcook liked",
+                text: "swampcook liked answ",
+                is_unlocked: false,
+            }),
+        },
+        actions: {
+            "swampcook deliver": new DialogueAction({
+                action_id: "swampcook deliver",
+                starting_text: "swampcook deliver",
+                description: "",
+                action_text: "",
+                success_text: "swampcook deliver answ",
+                failure_texts: {
+                    unable_to_begin: ["swampcook deliver not"],
+                },
+                required: {
+                    items_by_id: {"Crab meat": {count: 60, remove_on_success: true}},
+                },
+                attempt_duration: 0,
+                success_chances: [1],
+                rewards: {
+                    //quest_progress: [{quest_id: "In Times of Need", task_index: 3}], 
+                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor help"]}],
+                    textlines: [{dialogue: "swampland cook", lines: ["swampcook liked"]}],
+                },
+                locks_lines: (["swampcook deliver"], ["swampcook known"]),
+            }),
+        getDescription: ()=>{
+            if(dialogues["swampland cook"].textlines[""].is_finished) {
+                return "swampcook description 3";
+            } else if (dialogues["swampland chief"].textlines["swampchief help"].is_finished) {
+                return "swampcook description 2";
+            } else {
+                return "swampcook description 1";
+            }}
+        }
+});
+        
+	
+    dialogues["swampland tailor"] = new Dialogue({
+        //tbd
+        name: "swampland tailor",
+        textlines: {
+            "swamptailor unknown": new Textline({
+                name: "swamptailor unknown",
+                text: "swamptailor unknown answ",
+                is_unlocked: true,
+            }),
+            "swamptailor known": new Textline({
+                name: "swamptailor known",
+                text: "swamptailor known answ",
+                is_unlocked: false,
+            }),
+            "swamptailor help": new Textline({
+                name: "swamptailor help",
+                text: "swamptailor help answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor flax"]}],
+                },
+                locks_lines: ["swamptailor help"],
+            }),
+            "swamptailor flax": new Textline({
+                name: "swamptailor flax",
+                text: "swamptailor flax answ",
+                is_unlocked: false,
+                rewards: {
+                    actions: [{dialogue: "swampland tailor", action: "swamptailor deliver"}],
+                    activities: [{location: "Riverbank", activity: "herbalism"}],
+                    //quest_progress: [{quest_id: "In Times of Need", task_index: 4}],
+                },
+                locks_lines: ["swamptailor flax"],
+            }),
+            "swamptailor liked": new Textline({
+                name: "swamptailor liked",
+                text: "swamptailor liked answ",
+                is_unlocked: false,
+            }),
+        },
+        actions: {
+            "swamptailor deliver": new DialogueAction({
+                action_id: "swamptailor deliver",
+                starting_text: "swamptailor deliver",
+                description: "",
+                action_text: "",
+                success_text: "swamptailor deliver answ",
+                failure_texts: {
+                    unable_to_begin: ["swamptailor deliver not"],
+                },
+                required: {
+                    items_by_id: {"Flax": {count: 200, remove_on_success: true}},
+                },
+                attempt_duration: 0,
+                success_chances: [1],
+                rewards: {
+                    //quest_progress: [{quest_id: "In Times of Need", task_index: 5}], 
+                    textlines: [{dialogue: "swampland tanner", lines: ["swamptanner help"]}],
+                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor liked"]}],
+                },
+                locks_lines: (["swamptailor deliver"], ["swamptailor known"]),
+            }),
+        getDescription: ()=>{
+            if(dialogues["swampland tailor"].textlines[""].is_finished) {
+                return "swamptailor description 3";
+            } else if (dialogues["swampland chief"].textlines["swampchief help"].is_finished) {
+                return "swamptailor description 2";
+            } else {
+                return "swamptailor description 1";
+            }}
+        }
+});
+
+    dialogues["swampland tanner"] = new Dialogue({
+        //tbd
+        name: "swampland tanner",
+        textlines: {
+            "swamptanner unknown": new Textline({
+                name: "swamptanner unknown",
+                text: "swamptanner unknown answ",
+                is_unlocked: true,
+            }),
+            "swamptanner known": new Textline({
+                name: "swamptanner known",
+                text: "swamptanner known answ",
+                is_unlocked: false,
+            }),
+            "swamptanner help": new Textline({
+                name: "swamptanner help",
+                text: "swamptanner help answ",
+                is_unlocked: false,
+                rewards: {
+                    actions: [{dialogue: "swampland tailor", action: "swamptailor deliver"}],
+                    //quest_progress: [{quest_id: "In Times of Need", task_index: 6}],
+                },
+                locks_lines: ["swamptanner help"],
+            }),
+            "swamptanner liked": new Textline({
+                name: "swamptanner liked",
+                text: "swamptanner liked answ",
+                is_unlocked: false,
+            }),
+        },
+        actions: {
+            "swamptanner deliver 1": new DialogueAction({
+                action_id: "swamptanner deliver 1",
+                starting_text: "swamptanner deliver 1",
+                description: "",
+                action_text: "",
+                success_text: "swamptanner deliver 1 answ",
+                failure_texts: {
+                    unable_to_begin: ["swamptanner deliver 1 not"],
+                },
+                required: {
+                    items_by_id: {"Alligator skin": {count: 60, remove_on_success: true}},
+                },
+                attempt_duration: 0,
+                success_chances: [1],
+                rewards: {
+                    //quest_progress: [{quest_id: "In Times of Need", task_index: 7}], 
+                    actions: [{dialogue: "swampland tanner", lines: ["swamptanner deliver 2"]}],
+                },
+                locks_lines: ["swamptanner deliver 1"],
+            }),
+            "swamptanner deliver 2": new DialogueAction({
+                action_id: "swamptanner deliver 2",
+                starting_text: "swamptanner deliver 2",
+                description: "",
+                action_text: "",
+                success_text: "swamptanner deliver 2 answ",
+                repeatable: true,
+                failure_texts: {
+                    unable_to_begin: ["swamptanner deliver 2 not"],
+                },
+                required: {
+                    items_by_id: {"Giant snake skin": {count: 60, remove_on_success: true}},
+                },
+                attempt_duration: 0,
+                success_chances: [1],
+                rewards: {
+                    //quest_progress: [{quest_id: "In Times of Need", task_index: 8}], 
+                    textlines: [{dialogue: "swampland chief", lines: ["swampchief report"]}],
+                    textlines: [{dialogue: "swampland tanner", lines: ["swamptanner liked"]}],
+                },
+                locks_lines: (["swamptanner deliver 2"], ["swamptanner known"]),
+            }),
+        },
+        getDescription: ()=>{
+            if(dialogues["swampland tanner"].textlines[""].is_finished) {
+                return "swamptanner description 3";
+            } else if(dialogues["swampland chief"].textlines["swampchief help"].is_finished) {
+                return "swamptanner description 2";
+            } else {
+                return "swamptanner description 1";
+            }}
+        });
+	    dialogues["swampland scout"] = new Dialogue({
+        //tbd
+        name: "swampland scout",
+        textlines: {
+            "swampscout meet": new Textline({
+                name: "swampscout meet",
+                text: "swampscout meet answ",
+                is_unlocked: true,
+                rewards: {
+                    textlines: [{dialogue: "swampland scout", lines: ["swampscout generic"]}],
+                    textlines: [{dialogue: "swampland scout", lines: ["swampscout foraging"]}],
+                },
+                locks_lines: ["swampscout meet"],
+            }),
+            "swampscout generic": new Textline({
+                name: "swampscout generic",
+                text: "swampscout generic answ",
+                is_unlocked: false,
+            }),
+            "swampscout foraging": new Textline({
+                name: "swampscout foraging",
+                text: "swampscout foraging answ",
+                is_unlocked: false,
+                rewards: {
+                    actions: [{location: "Longhouse", action: "learn forage"}],
+                },
+                locks_lines: ["swampscout foraging"],
+            }),
+        },
+        getDescription: ()=>{
+            if(dialogues["swampland scout"].textlines["swampscout foraging"].is_finished) {
+                return "swampscout description 3";
+            } else if (dialogues["swampland scout"].textlines["swampscout meet"].is_finished) {
+                return "swampscout description 2";
+            } else {
+                return "swampscout description 1";
+            }}
+        });
+	
+
     /*
     dialogues["cute little rat"] = new Dialogue({
         name: "cute little rat",

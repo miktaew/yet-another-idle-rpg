@@ -761,6 +761,12 @@ function get_location_type_penalty(type, stage, stat, category) {
                 noises.push("♫♫ Heigh ho, heigh ho, it's home from work I go~ ♫♫");
             } 
 
+            if(current_game_time.hour > 8 && current_game_time.hour < 10) {     //limited timeframe because rumors, and also that Oblivion reference should be obscure
+                noises.push("Did you hear about what that fisherman saw?", "I just don't believe you can find one that big");
+            } else if(current_game_time.hour > 16 && current_game_time.hour < 18) {
+                noises.push("Saw a river crab the other day, horrible creatures");
+            } 
+
             return noises;
         },
         dialogues: ["village elder", "village guard", "old craftsman"],
@@ -1693,12 +1699,12 @@ There's another gate on the wall in front of you, but you have a strange feeling
         temperature_range_modifier: 1.5,
         temperature_modifier: 1,
         name: "Waterfall basin",
-        is_unlocked: false,
+        //is_unlocked: false,                       //commented out for testing purposes
     });
     locations["Lake beach"].connected_locations.push({location: locations["Waterfall basin"], custom_text: "Rappel down to the [Waterfall basin]", travel_time: 40, travel_time_skills: ["Climbing"]});
 
     locations["Stone crab spawning grounds"] = new Combat_zone({
-        description: "First an enormous nest of crabs, then an enormous crab's nest, and now this??", 
+        description: "First an enormous nest of crabs, then an enormous crab's nest, and now this??",       //final punchline to the "big crab nest/big crabs' nest/big crab's nest" setup
         enemy_count: 50, 
         types: [{type: "open", stage: 2, xp_gain: 5}, {type: "rough", stage: 1, xp_gain: 1}, {type: "wet", stage: 1}],
         enemies_list: ["Stone crab"],
@@ -1747,7 +1753,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         temperature_range_modifier: 2,
         temperature_modifier: 2,
         name: "Swampland fields",
-        is_unlocked: false,
+        //is_unlocked: false,                       //commented out for testing purposes
     });
     locations["Waterfall basin"].connected_locations.push({location: locations["Swampland fields"], custom_text: "Climb through the muck and brush to the [Swampland fields]", travel_time: 45, travel_time_skills: ["Scrambling"]});
 
@@ -1778,7 +1784,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         });
     locations["Swampland fields"].connected_locations.push({location: locations["Wander randomly in the swamplands"], travel_time: 45});
 
-    locations["Swampland tribe"] = new Location({ 
+    locations["Swampland tribe"] = new Location({       //a dying village on it's last legs, found by you recently after the loss of their only remaining warriors; only survivor was the hunting party scout who is wounded in the longhouse
         connected_locations: [{location: locations["Swampland fields"], custom_text: "Leave the safety of the settlement and return to the [Swampland fields]", travel_time: 90, travel_time_skills: ["Scrambling", "Running"]}], 
         getDescription: function() {
             if(locations["Wander randomly in the swamplands"].enemy_groups_killed >= 20 * locations["Wander randomly in the swamplands"].enemy_count) { 
@@ -1946,7 +1952,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         enemy_count: 1, 
         types: [{type: "open", stage: 1, xp_gain: 2}],
         enemies_list: ["Giant stone crab"],
-        enemy_group_size: [1,1],
         enemy_stat_variation: 0,
         is_unlocked: true, 
         name: "Fight the giant stone crab", 
@@ -1955,9 +1960,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
         repeatable_reward: {
             locations: [{location: "Riverbank"}],
             xp: 2000,
-            quest_progress: [
-                {quest_id: "Giant Enemy Crab", task_index: 1},
-            ]
+            move_to: {location: "Riverbank"},
+            //quest_progress: [{quest_id: "Giant Enemy Crab"}]       //for when Giant Enemy Crab quest is properly implemented
+            locks: {locations: ["Downstream from the village"]}, 
         },
         unlock_text: "Is this what the village elder meant when he said an enormous crab nest??",
         temperature_modifier: 0.6,
@@ -1970,7 +1975,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         enemy_count: 1, 
         types: [{type: "open", stage: 2, xp_gain: 5}, {type: "rough", stage: 1, xp_gain: 1}],
         enemies_list: ["Enraged giant stone crab"],
-        enemy_group_size: [1,1],
         enemy_stat_variation: 0,
         is_unlocked: true, 
         name: "Fight the giant stone crab again!", 
@@ -1979,9 +1983,11 @@ There's another gate on the wall in front of you, but you have a strange feeling
         repeatable_reward: {
             locations: [{location: "Lake beach"}],
             xp: 5000,
-            quest_progress: [
-                {quest_id: "Giant Enemy Crab", task_index: 2},
-            ]
+            move_to: {location: "Lake beach"},
+            //quest_progress: [{quest_id: "Giant Enemy Crab"}]       //for when Giant Enemy Crab quest is properly implemented
+            activities: [{location:"Lake beach", activity:"swimming"}],
+            actions: [{location: "Lake beach", action: "rappel waterfall"}],
+            locks: {locations: ["Further downstream"]}, 
         },
         unlock_text: "It's wounded, but in spite of that it looks more dangerous than before",
         temperature_modifier: 1,
@@ -2314,7 +2320,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             infinite: true,
             starting_text: "Swim against the current",
             skill_xp_per_tick: 4,
-            is_unlocked: true,
+            is_unlocked: false,
             applied_effects: [{effect: "Wet", duration: 30}],
         }),
         "sand": new LocationActivity({

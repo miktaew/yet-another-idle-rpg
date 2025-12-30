@@ -436,11 +436,11 @@ const questManager = {
 /*
 //Swampland expansion quests            //commented out until I can figure out how to get quest working and linked
 (()=>{
-    quests["Giant Enemy Crab"] = new Quest({
+    quests["Giant Enemy Crab"] = new Quest({            //reference to the old "Sony E3 2006 / Giant Enemy Crab" meme
         quest_name: "Giant Enemy Crab",
         display_priority: 9,
         getQuestDescription: ()=>{
-            if(!quests["Giant Enemy Crab"].quest_tasks[2].is_finished) {
+            if(!quests["Giant Enemy Crab"].quest_tasks[2].is_finished) {    //update upon completion of final task
                 return "You slew the giant crab nesting at the forest lakebed";
             } else if(!quests["Giant Enemy Crab"].quest_tasks[1].is_finished) {
                 return "You managed to chase the giant crab away, but if no one comes to finish the job, it'll just be a problem for somebody else to deal with. And even if they did, the crab would only be more dangerous, then. Better just to take care of it yourself now";
@@ -466,19 +466,19 @@ const questManager = {
                         }
                     }
                 }
-            }),
+            }), //talk to the elder
             new QuestTask({task_description: "Investigate down the river"}), //beat the crab once
             new QuestTask({task_description: "Track down the giant crab"}), //beat the crab twice
         ]
-    });
+    });*/
     quests["In Times of Need"] = new Quest({
         quest_name: "In Times of Need",
         display_priority: 9,
         getQuestDescription: ()=>{
-            if(!quests["In Times of Need"].quest_tasks[13].is_finished) {
+            if(!quests["In Times of Need"].quest_tasks[9].is_finished) {    //update upon completion of final task
                 return "You helped the swampland tribe in their time of need";
             } else if(!quests["In Times of Need"].quest_tasks[1].is_finished) {
-                return "You accepted the chief's request to ask around and see how you could assist the swampland tribe";
+                return "You accepted the chief's request to ask around and see how you could assist the tribe";
             } else {
                 return "You should introduce yourself to whomever is in charge";
             }
@@ -488,32 +488,27 @@ const questManager = {
             new QuestTask({
                 task_condition: {
                     all: {
-                        enter_location: { //enter the village
+                        enter_location: { //enter the village to start the quest
                             "Swampland tribe": {
                                 target: 1, 
                             },
                         }
                     }
                 }
-			}),
+			}), //speak to the chief to formally accept the quest
             new QuestTask({task_description: "Speak to the cook and see how you can help"}), //crab delivery part 1
             new QuestTask({task_description: "Bring the cook 60 pieces of crab meat to improve morale"}), //crab delivery part 2
-            new QuestTask({is_hidden: true}), //get taught how to make new foods
             new QuestTask({task_description: "Speak to the tailor and see how you can help"}), //flax delivery part 1
-            new QuestTask({is_hidden: true}), //get taught how to find and harvest flax
             new QuestTask({task_description: "Bring the tailor 200 bundles of flax to make fresh linen"}), //flax delivery part 2
-            new QuestTask({is_hidden: true}), //get taught how to make linen cloth
             new QuestTask({task_description: "Speak to the tanner and see how you can help"}), //tanner delivery part 1
             new QuestTask({task_description: "Bring the tanner 60 pieces of alligator skin to make new leathers"}), //tanner delivery part 2
             new QuestTask({task_description: "Bring the tanner 60 pieces of giant snake skin to make new leathers"}), //tanner delivery part 3
-            new QuestTask({is_hidden: true}), //get taught how to make new animal materials
-            new QuestTask({task_description: "Speak to the chief again"}), //formally finish the quest
-            new QuestTask({is_hidden: true}), //get access to longhouse, crafting station, and a unique ring
+            new QuestTask({task_description: "Speak to the chief again"}), //properly finishes the quest, rewards come in dialogue
         ]
     });
 
-})();
-*/
+//})();
+
 
 /*
 quests["Test quest"] = new Quest({
