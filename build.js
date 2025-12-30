@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import { styleText } from 'node:util';
 import { get_game_version } from './src/game_version.js';
 
+const version_regex = /dist\/bundle\.js\?version=[^&"]+/;
 
 esbuild
     .build({
@@ -21,13 +22,13 @@ esbuild
         const htmlPath = 'index.html';
         let htmlContent = fs.readFileSync(htmlPath, 'utf8');
 
-        if(htmlContent.search(/dist\/bundle\.js\?version=[^&"]+/) == -1) {
+        if(htmlContent.search(version_regex) == -1) {
             console.log(styleText("red", 'Failed to update the bundle version in .html!'));
             return;
         }
 
         htmlContent = htmlContent.replace(
-            /dist\/bundle\.js\?version=[^&"]+/,
+            version_regex,
             `dist/bundle.js?version=${get_game_version()}`
         );
         try {

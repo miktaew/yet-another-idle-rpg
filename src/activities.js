@@ -5,7 +5,7 @@ const activities = {};
 /*
     A bit complicated with activities defined both here and in locations, but:
     - multiple locations can have "same" activity available, though with different xp/money gains
-    - activity can be overall unlocked, but not yet available in specific location
+    - activity can be overall unlocked, but not yet available in specific location (or vice versa)
 */
 
 class Activity {
@@ -14,6 +14,7 @@ class Activity {
                   action_text,
                   base_skills_names,
                   is_unlocked = false,
+                  getBackgroundNoises,
         }) 
     {
         this.name = name;
@@ -24,6 +25,8 @@ class Activity {
         //originally meant to allow multiple, but with current implementation of stuff, doing that would break a lot of things
         this.tags = [];
         this.is_unlocked = is_unlocked;
+
+        this.getBackgroundNoises = getBackgroundNoises || function(){return [];}
     }
 }
 
@@ -49,8 +52,9 @@ class Gathering extends Training {
         base_skills_names,
         is_unlocked = false,
         required_tool_type,
+        getBackgroundNoises = null
     }) {
-        super({name, description, action_text, base_skills_names, is_unlocked});
+        super({name, description, action_text, base_skills_names, is_unlocked, getBackgroundNoises});
         this.type = "GATHERING";
         this.tags["gathering"] = true;
         this.required_tool_type = required_tool_type;
@@ -104,6 +108,13 @@ class Gathering extends Training {
         base_skills_names: ["Equilibrium"],
         is_unlocked: true,
     });
+    activities["swimming"] = new Training({
+        name: "swimming",
+        action_text: "Splish, splash, splosh",
+        description: "A rather basic, although somewhat risky exercise",
+        base_skills_names: ["Swimming"],
+        is_unlocked: false,
+    });
     activities["meditating"] = new Training({
         name: "meditating",
         action_text: "Focusing your mind",
@@ -116,7 +127,7 @@ class Gathering extends Training {
         action_text: "Looking for next grip to hold to",
         description: "An advanced exercise that uses majority of muscles in the body",
         base_skills_names: ["Climbing"],
-        is_unlocked: true,
+        is_unlocked: false,
     });
 })();
 
@@ -129,6 +140,16 @@ class Gathering extends Training {
         base_skills_names: ["Mining"],
         is_unlocked: true,
         required_tool_type: "pickaxe",
+        getBackgroundNoises: () => ["clang clang", "clink clink", "tink tink", "crunch", "*Your pickaxe strikes the heart of the rock*"]
+    });
+    activities["digging"] = new Gathering({
+        name: "digging",
+        action_text: "Swinging the shovel",
+        description: "Dig up useful materials with a shovel",
+        base_skills_names: ["Digging"],
+        is_unlocked: true,
+        required_tool_type: "shovel",
+        getBackgroundNoises: () => ["plap plap", "plop plop", "crunch", "thwack", "scrape", "squelch"]
     });
     activities["woodcutting"] = new Gathering({
         name: "woodcutting",
@@ -137,6 +158,7 @@ class Gathering extends Training {
         base_skills_names: ["Woodcutting"],
         is_unlocked: true,
         required_tool_type: "axe",
+        getBackgroundNoises: () => ["chop", "CHOP chop", "chop CHOP", "chop chop", "creeeak", "Sap oozes from the gash", "*Splinters burst from under your axe*", "*A pinecone falls on you*", "*A squirrel is upset with you*"]
     });
 
     activities["herbalism"] = new Gathering({
@@ -146,6 +168,7 @@ class Gathering extends Training {
         base_skills_names: ["Herbalism"],
         is_unlocked: true,
         required_tool_type: "sickle",
+        getBackgroundNoises: () => ["*rustle*", "A frog is watching you work", "You find a particularly impressive snail under a leaf"]
     });
 
     activities["animal care"] = new Gathering({
@@ -158,4 +181,4 @@ class Gathering extends Training {
 })();
 
 
-export {activities};
+export {activities, Gathering};

@@ -4,6 +4,8 @@
 
 /*  REWARDS:
     {
+        messages: [String] //array of messages to be logged together with rewards
+
         money: Number //flat value that will be given to player
 
         xp: Number //flat value that will be given to player
@@ -65,6 +67,17 @@
         reputation: {
             "region": Number //flat value of rep gained
         }
+
+        quests: [
+            quest_id: String //just an id for unlock
+        ]
+
+        quest_progress: [ 
+            {
+                quest_id: String,
+                task_index: Number,
+            }
+        ]
 
         locks: {
             locations: [String] //an array with location keys

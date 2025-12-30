@@ -12,9 +12,29 @@ import { update_displayed_character_inventory, update_displayed_equipment,
 import { active_effects, current_location, current_stance, favourite_consumables, remove_consumable_from_favourites } from "./main.js";
 import { current_game_time, is_night } from "./game_time.js";
 import { item_templates } from "./items.js";
+import { skill_consumable_tags } from "./misc.js";
 
 const base_block_chance = 0.75; //+20 from the skill
 const base_xp_cost = 10;
+
+const tool_slots = ["axe", "pickaxe", "sickle", "shovel"];
+
+
+//stupid little thing for a stupid easter egg
+const is_rat = () => character.name.match(/\b(?<![\w])rat\b/i);
+
+
+//6 things below: for weather; why here? because it's related to the hero, I guess
+const time_until_wet = 10; //snowing accumulates it at a slower rate
+const time_until_cold = 60;
+const time_until_cold_when_wet = 20;
+
+//temperatures for effects 'cold','very cold','freezing','hypothermia'
+//not exactly realistic
+const cold_status_temperatures = [14,8,2,-4];
+const lowest_tolerable_temperature = cold_status_temperatures[0];
+//array for matching the names of aforementioned effects
+const cold_status_effects = ["Cold","Very cold","Freezing","Hypothermia"];
 
 class Hero extends InventoryHaver {
         constructor() {
@@ -31,11 +51,11 @@ class Hero extends InventoryHaver {
                         stamina_regeneration_flat: 0, //in combat
                         stamina_regeneration_percent: 0, //in combat
                         stamina_efficiency: 1,
-                        max_mana: 0,
-                        mana: 0,
-                        mana_regeneration_flat: 0, //in combat
-                        mana_regeneration_percent: 0, //in combat
-                        mana_efficiency: 1,
+                        max_mana: 0, //currently useless
+                        mana: 0, //currently useless
+                        mana_regeneration_flat: 0, //in combat //currently useless
+                        mana_regeneration_percent: 0, //in combat //currently useless
+                        mana_efficiency: 1, //currently useless
                         strength: 10, 
                         agility: 10, 
                         dexterity: 10, 
@@ -50,6 +70,10 @@ class Hero extends InventoryHaver {
                         block_chance: 0,
                         evasion_points: 0, //EP
                         attack_points: 0, //AP
+                        heat_tolerance: 0, //currently useless
+                        cold_tolerance: 0,
+                        unarmed_power: 1, //base damage for unarmed, as it has no weapon dmg to scale with
+                        armor_penetration: 0,
                 };
                 this.name = "Hero";
                 this.titles = {};
@@ -76,7 +100,7 @@ class Hero extends InventoryHaver {
                                 environment: {},
                         }
                 };
-                this.reputation = { //effects go up to 1000?
+                this.reputation = { //effects would go up to 1000?
                         village: 0,
                         slums: 0,
                         town: 0,
@@ -102,7 +126,8 @@ class Hero extends InventoryHaver {
                                 levels: {},
                                 skills: {},
                                 //equipment: {},
-                                books: {}
+                                books: {},
+                                active_effects: {},
                         }
                 };
                 this.equipment = {
@@ -111,15 +136,17 @@ class Hero extends InventoryHaver {
                         weapon: null, "off-hand": null,
                         legs: null, feet: null, 
                         amulet: null, artifact: null,
+                        cape: null,
                 
                         axe: null, 
                         pickaxe: null,
                         sickle: null,
+                        shovel: null,
                 };
                 this.money = 0;
                 this.xp = {
                         current_level: 0, total_xp: 0, current_xp: 0, xp_to_next_lvl: base_xp_cost, 
-                        total_xp_to_next_lvl: base_xp_cost, base_xp_cost: base_xp_cost, xp_scaling: 1.7,
+                        total_xp_to_next_lvl: base_xp_cost, base_xp_cost: base_xp_cost, xp_scaling: 1.6,
                 }
         }
         add_xp({xp_to_add, use_bonus = true}) {
@@ -194,7 +221,7 @@ class Hero extends InventoryHaver {
                 character.stats.flat.level.dexterity = (character.stats.flat.level.dexterity || 0) + gained_dex;
         
                 character.xp_bonuses.multiplier.levels.all_skill = (character.xp_bonuses.multiplier.levels.all_skill || 1) * total_skill_xp_multiplier;
-        
+
                 let gains = `<br>HP increased by ${gained_hp}<br>Stamina increased by ${gained_stamina}`;
                 if(gained_str > 0) {
                         gains += `<br>Strength increased by ${gained_str}`;
@@ -270,25 +297,27 @@ character.stats.add_book_bonus = function ({multipliers = {}, xp_multipliers = {
         });
        
         if(xp_multipliers?.hero) {
-                character.xp_bonuses.multiplier.skills.hero = (character.xp_bonuses.multiplier.skills.hero || 1) * xp_multipliers.hero;
+                character.xp_bonuses.multiplier.books.hero = (character.xp_bonuses.multiplier.books.hero || 1) * xp_multipliers.hero;
         }
         if(xp_multipliers?.all) {
-                character.xp_bonuses.multiplier.skills.all = (character.xp_bonuses.multiplier.skills.all || 1) * xp_multipliers.all;
+                character.xp_bonuses.multiplier.books.all = (character.xp_bonuses.multiplier.books.all || 1) * xp_multipliers.all;
         }
         if(xp_multipliers?.all_skill) {
-                character.xp_bonuses.multiplier.skills.all_skill = (character.xp_bonuses.multiplier.skills.all_skill || 1) * xp_multipliers.all_skill;
+                character.xp_bonuses.multiplier.books.all_skill = (character.xp_bonuses.multiplier.books.all_skill || 1) * xp_multipliers.all_skill;
         }
 
         Object.keys(skills).forEach(skill => {
                 if(xp_multipliers[skill]) {
-                        character.xp_bonuses.multiplier.skills[skill] = (character.xp_bonuses.multiplier.skills[skill] || 1) * xp_multipliers[skill];
+                        character.xp_bonuses.multiplier.books[skill] = (character.xp_bonuses.multiplier.books[skill] || 1) * xp_multipliers[skill];
                 }
         });
 }
 
 character.stats.add_active_effect_bonus = function() {
-        character.stats.flat.active_effect = {};
-        character.stats.multiplier.active_effect = {};
+        character.stats.flat.active_effects = {};
+        character.stats.multiplier.active_effects = {};
+        character.bonus_skill_levels.flat.active_effects = {};
+        character.xp_bonuses.multiplier.active_effects = {};
 
         Object.keys(active_effects).forEach(effect_key => {
                 let multiplier = 1;
@@ -296,15 +325,18 @@ character.stats.add_active_effect_bonus = function() {
                 let effects = get_effect_with_bonuses(active_effects[effect_key]);
                 for(const [key, value] of Object.entries(effects.stats)) {
                         if(value.flat) {
-                                character.stats.flat.active_effect[key] = (character.stats.flat.active_effect[key] || 0) + value.flat*multiplier;
+                                character.stats.flat.active_effects[key] = (character.stats.flat.active_effects[key] || 0) + value.flat*multiplier;
                         }
 
                         if(value.multiplier) {
-                                character.stats.multiplier.active_effect[key] = (character.stats.multiplier.active_effect[key] || 1) * value.multiplier*multiplier;
+                                character.stats.multiplier.active_effects[key] = (character.stats.multiplier.active_effects[key] || 1) * value.multiplier*multiplier;
                         }
                 }
                 for(const [key, value] of Object.entries(effects.bonus_skill_levels)) {
                         character.bonus_skill_levels.flat.active_effects[key] = (character.bonus_skill_levels.flat.active_effects[key] || 0) + value;
+                }
+                for(const [key, value] of Object.entries(effects.xp_multipliers)) {
+                        character.xp_bonuses.multiplier.active_effects[key] = (character.xp_bonuses.multiplier.active_effects[key] || 1) * value;
                 }
         });
 }
@@ -384,13 +416,22 @@ character.stats.add_all_skill_level_bonus = function() {
 
         character.stats.multiplier.skills.agility = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Equilibrium"}) 
                                                         * get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Climbing"})
-                                                        * get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Breathing"});
+                                                        * get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Breathing"})
+                                                        * get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Swimming"});
         
         character.stats.multiplier.skills.dexterity = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Climbing"});                                                
 
-        character.stats.multiplier.skills.max_stamina = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Breathing"});
+        character.stats.multiplier.skills.max_stamina = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Breathing"})
+                                                                * get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Swimming"});
+
+        character.stats.multiplier.skills.max_health = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Fortitude"});
+
+        character.stats.multiplier.skills.intuition = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Meditation"});
+
+        character.stats.flat.skills.unarmed_power = skills["Unarmed"].current_level * 0.1;
 
         character.stats.add_weapon_type_bonuses();
+        character.stats.flat.skills.cold_tolerance = 0.5 * get_total_skill_level("Cold resistance");
 }
 
 /**
@@ -443,6 +484,18 @@ character.stats.add_location_penalties = function() {
 }
 
 /**
+ * 
+ * @returns character temperature tolerance; a stub for now, to be based on clothing worn
+ */
+character.get_character_cold_tolerance = function(){
+        return character.stats.full.cold_tolerance;
+}
+
+character.get_character_heat_tolerance = function(){
+        return character.stats.full.heat_tolerance;
+}
+
+/**
  * full stat recalculation, call whenever something changes
  */
 character.update_stats = function () {
@@ -491,23 +544,26 @@ character.update_stats = function () {
 
      
     if(character.equipment.weapon != null) { 
+        //has weapon
         character.stats.full.attack_power = (character.stats.full.strength/10) * character.equipment.weapon.getAttack() * character.stats.total_multiplier.attack_power;
-    } 
-    else {
-        character.stats.full.attack_power = (character.stats.full.strength/10) * character.stats.total_multiplier.attack_power;
+    } else {
+        //has no weapon
+        //character.stats.full.attack_power = (character.stats.full.strength/10) * (1+skills["Unarmed"].current_level*0.1) * character.stats.total_multiplier.attack_power;
+        character.stats.full.attack_power = (character.stats.full.strength/10) * character.stats.total_multiplier.attack_power * character.stats.full.unarmed_power;
     }
     
     character.stats.total_flat.attack_power = character.stats.full.attack_power/character.stats.total_multiplier.attack_power;
     Object.keys(character.xp_bonuses.total_multiplier).forEach(bonus_target => {
         character.xp_bonuses.total_multiplier[bonus_target] = 
-                  (character.xp_bonuses.multiplier.levels[bonus_target] || 1) 
-                * (character.xp_bonuses.multiplier.skills[bonus_target] || 1) 
-                * (character.xp_bonuses.multiplier.books[bonus_target] || 1); 
+                  (character.xp_bonuses.multiplier.levels[bonus_target] || 1)
+                * (character.xp_bonuses.multiplier.skills[bonus_target] || 1)
+                * (character.xp_bonuses.multiplier.books[bonus_target] || 1)
+                * (character.xp_bonuses.multiplier.active_effects[bonus_target] || 1);
 
         const bonus = character.xp_bonuses.total_multiplier[bonus_target];
 
         if(bonus != 1){
-                if (bonus_target !== "hero") {
+                if(bonus_target !== "hero") {
                         if(bonus_target === "all" || bonus_target === "all_skill" || bonus_target.includes("category_")) {
                                 update_all_displayed_skills_xp_gain();
                         } else {
@@ -562,7 +618,8 @@ character.wears_armor = function () {
                 (character.equipment.torso && character.equipment.torso.getDefense() !== 0) ||
                 (character.equipment.arms && character.equipment.arms.getDefense() !== 0) ||
                 (character.equipment.legs && character.equipment.legs.getDefense() !== 0) ||
-                (character.equipment.feet && character.equipment.feet.getDefense() !== 0);
+                (character.equipment.feet && character.equipment.feet.getDefense() !== 0) ||
+                (character.equipment.cape && character.equipment.cape.getDefense() !== 0);
 }
 
 /**
@@ -640,29 +697,29 @@ function remove_from_character_inventory(items) {
  * don't call this one directly (except for when loading save data), but via equip_item_from_inventory()
  * @param: game item object
  */
-function equip_item(item) {
+function equip_item(item, skip_sorting) {
 
         if(!item) {
                 update_displayed_equipment();
-                update_displayed_character_inventory();
+                update_displayed_character_inventory({skip_sorting});
                 character.stats.add_all_equipment_bonus();
                 
                 update_character_stats();
                 return;
-        }
-
-        const prev_item = character.equipment[item.equip_slot];
-        unequip_item(item.equip_slot, true);
-        character.equipment[item.equip_slot] = item;
-        
-        update_displayed_equipment();
-        update_displayed_character_inventory();
-        character.stats.add_all_equipment_bonus();
-        
-        update_character_stats();
-        manage_changed_skill_bonuses(item);
-        if(prev_item) {
-                manage_changed_skill_bonuses(prev_item);
+        } else {
+                const prev_item = character.equipment[item.equip_slot];
+                unequip_item(item.equip_slot, true);
+                character.equipment[item.equip_slot] = item;
+                
+                update_displayed_equipment();
+                update_displayed_character_inventory({skip_sorting});
+                character.stats.add_all_equipment_bonus();
+                
+                update_character_stats();
+                manage_changed_skill_bonuses(item);
+                if(prev_item) {
+                        manage_changed_skill_bonuses(prev_item);
+                }
         }
 }
 
@@ -712,6 +769,17 @@ function add_location_penalties() {
         character.stats.add_location_penalties();
 }
 
+function add_weather_effects() {
+        //character.stats.add_weather_effects();
+}
+
+function get_character_cold_tolerance() {
+        return character.get_character_cold_tolerance();
+}
+function get_character_heat_tolerance() {
+        return character.get_character_heat_tolerance();
+}
+
 /**
  * updates character stats + their display 
  */
@@ -728,23 +796,32 @@ function update_character_stats() {
 }
 
 /**
- * updates character stats related to combat, things that are more situational and/or based on other stats, kept separately from them
+ * 
+ * @param {*} skill_name 
+ * @returns total xp gains for provided skill 
  */
-
 function get_skill_xp_gain(skill_name) {
+        return (character.xp_bonuses.total_multiplier[skill_name] || 1) * get_skill_xp_gain_bonus(skill_name);
+}
+
+/**
+ * 
+ * @param {*} skill_name 
+ * @returns almost-total multiplier to xp gains of provided skill (everything except things that apply to it by name)
+ */
+function get_skill_xp_gain_bonus(skill_name) {
         const category = "category_"+skills[skill_name].category;
         return (character.xp_bonuses.total_multiplier.all_skill || 1) 
               * (character.xp_bonuses.total_multiplier.all || 1) 
-              * (character.xp_bonuses.total_multiplier[skill_name] || 1)
               * (character.xp_bonuses.total_multiplier[category] || 1);
 }
 
 function get_skills_overall_xp_gain() {
-        return (character.xp_bonuses.total_multiplier.all_skill || 1) * (character.xp_bonuses.total_multiplier.all || 1)
+        return (character.xp_bonuses.total_multiplier.all_skill || 1) * (character.xp_bonuses.total_multiplier.all || 1);
 }
 
 function get_hero_xp_gain() {
-        return (character.xp_bonuses.total_multiplier.hero || 1) * (character.xp_bonuses.total_multiplier.all || 1)
+        return (character.xp_bonuses.total_multiplier.hero || 1) * (character.xp_bonuses.total_multiplier.all || 1);
 }
 
 function get_total_skill_level(skill_id) {
@@ -759,29 +836,39 @@ function get_total_skill_coefficient({scaling_type, skill_id}) {
         return skills[skill_id].get_coefficient({scaling_type, skill_level: get_total_skill_level(skill_id)});
 }
 
+/**
+ * @param {*} active_effect 
+ * @returns effects modified by relevant skill bonuses 
+ */
 function get_effect_with_bonuses(active_effect) {
         let multiplier = 1;
-        if(active_effect.tags.medicine) {
-                multiplier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id:"Medicine"});
-        }
-        let boosted = {stats: {}, bonus_skill_levels: {...active_effect.effects.bonus_skill_levels}};
+        Object.keys(skill_consumable_tags).forEach(skill_id => {
+                if(active_effect.tags[skill_consumable_tags[skill_id]]) {
+                        multiplier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: skill_id});
+                }
+        });
+
+        let boosted = {stats: {}, bonus_skill_levels: {...active_effect.effects.bonus_skill_levels}, xp_multipliers: {...active_effect.effects.xp_multipliers}};
         for(const [key, value] of Object.entries(active_effect.effects.stats)) {
                 boosted.stats[key] = {};
-                if(value.flat && key.includes("_flat")) {
-                        boosted.stats[key].flat = value.flat*multiplier**2;
-                }
-                if(value.flat && key.includes("_percent")) {
-                        //this exclusively means percent based regeneration and is therefore treated as multiplicative effect
-                        boosted.stats[key].flat = value.flat*multiplier;
-                }
-                if(value.multiplier) {
-                        boosted.stats[key].multiplier = value.multiplier*multiplier;
+                if(value.flat) {
+                        if(key.includes("_percent")) {
+                                //this exclusively means percent based regeneration and is therefore treated as multiplicative effect
+                                boosted.stats[key].flat = value.flat*(multiplier>0?multiplier:1);
+                        } else {
+                                boosted.stats[key].flat = value.flat*(multiplier>0?multiplier:1)**2;
+                        }
+                } else if(value.multiplier) {
+                        boosted.stats[key].multiplier = value.multiplier*(multiplier>1?multiplier:1);
                 }      
         }
-
         return boosted;
 }
 
 export {character, add_to_character_inventory, remove_from_character_inventory, equip_item_from_inventory, equip_item, 
-        unequip_item, update_character_stats, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, add_location_penalties,
-        get_total_skill_level, get_total_level_bonus, get_total_skill_coefficient, get_effect_with_bonuses};
+        unequip_item, update_character_stats, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, get_skill_xp_gain_bonus, add_location_penalties,
+        get_total_skill_level, get_total_level_bonus, get_total_skill_coefficient, get_effect_with_bonuses,
+        time_until_wet, time_until_cold, time_until_cold_when_wet, 
+        cold_status_temperatures, cold_status_effects,
+        get_character_cold_tolerance, lowest_tolerable_temperature, is_rat, tool_slots
+};

@@ -45,12 +45,18 @@
 	--stat_tooltip_top: 0px;
 	--stat_tooltip_left: 0px;
 
+	--bar_tooltip_top: 0px;
+	--bar_tooltip_left: 0px;
+
 	--location_type_tooltip_top: 0px;
 	--location_type_tooltip_left: 0px;
 
 	--location__desc_tooltip_top: 0px;
 	--location_desc_tooltip_left: 0px;
 	--location_desc_tooltip_visibility: hidden;
+
+	--temperature_tooltip_top: 0px;
+	--temperature_tooltip_left: 0px;
 
 
 	--stance_tooltip_top: 0px;
@@ -66,11 +72,16 @@
 	--actions_div_top_combat: 640px;
 	--actions_div_top: var(--actions_div_top_default);
 
+	--export_button_tooltip_top: 0px;
+	--export_button_tooltip_left: 0px;
+
 	--options_action_textsize: 16px;
-	--location_name_div_width: 250px;
+	--location_name_div_width: 270px;
 
 	--active_button_color: #435270;
 	--tooltip_background_color: rgba(92, 92, 92, 0.97);
+
+	--onclick_button_color: rgb(75, 99, 145);
 }
 
 body {
@@ -94,26 +105,200 @@ body {
     }
 }
 
+input[type=checkbox], input[type=radio] {
+	accent-color: rgb(0, 127, 255);
+}
+
+.bold {
+	font-weight: bold;
+}
+
 #loading_screen {
 	visibility: visible;
 	width: 100%;
 	height: 100%;
 	z-index: 10;
-	position: absolute;
+	position: fixed;
 	top: 0px;
 	left: 0px;
-	font-size: 150px;
-	background-color: #1c1c4b;
-
+	background-image: linear-gradient(to bottom right,  #641860, #2e154b 50%, #15152d);
 	display: flex;
 	justify-content: center;
-	align-items: center;
+}
+
+	#loading_screen_game_title {
+		width: 910px;
+		font-size: 600%;
+		font-family:'Ink Free';
+		font-weight: bold;
+		position: fixed;
+		justify-content: center;
+		top: 200px;
+	}
+	#loading_screen_author {
+		width: fit-content;
+		font-size: 35px;
+		font-family:'Ink Free';
+		font-weight: lighter;
+		text-align: right;
+		position: absolute;
+		top: 120px;
+		right: -50px;
+		rotate: -10deg;
+		animation-name: titleSizeAnimation;
+		animation-duration: 2s;
+		animation-iteration-count: infinite;
+		animation-direction: alternate;
+	}
+		@keyframes titleSizeAnimation {
+			from {font-size: 35px;}
+			to {font-size: 40px;}
+		}
+	#loading_screen_loading_text {
+		width: fit-content;
+		height: fit-content;
+		font-size: 50px;
+		position: fixed;
+		top: 320px;
+		border-bottom: 1px solid gray;
+	}
+
+	#loading_screen_loading_progress {
+		width: 100%;
+		font-size: 25px;
+		top: 390px;
+		position: fixed;
+		text-align: center;
+	}
+
+	#loading_screen_version_info {
+		width: fit-content;
+		max-width: 420px;
+		font-size: 20px;
+		top: 470px;
+		left: -170px;
+		position: relative;
+	}
+
+	#loading_screen_play_button {
+		width: 200px;
+		font-size: 60px;
+		height: fit-content;
+		top: 470px;;
+		position: fixed;
+		text-align: center;
+		border: 1px solid gray;
+	}
+
+	#loading_screen_play_button:hover {
+		background-color: var(--active_button_color);
+	}
+
+	#loading_screen_status {
+		max-width: 300px;
+		padding: 10px;
+		font-size: 20px;
+		height: fit-content;
+		top: 470px;
+		left: 150px;
+		position: relative;
+		border: 3px double gray;
+		font-weight: bold;
+	}
+
+	.loading_screen_status_good {
+		background-color: rgb(0, 128, 0, 0.5);
+	}
+
+	.loading_screen_status_errors {
+		color: rgb(255, 73, 73, 0.5);
+		background-color: black;
+	}
+	
+	.loading_screen_status_warnings {
+		color: rgba(255, 230, 0, 0.555);
+		background-color: black;
+	}
+
+#background_canvas {
+	position: absolute;
+	pointer-events: none;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	z-index: -1;
+}
+
+#foreground_canvas {
+	position: absolute;
+	pointer-events: none;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
 }
 
 .box_div {
 	background-image: var(--background_gradient);
 	border: 3px solid #797691;
 	position: absolute;
+}
+
+.top_border {
+	border-top: 1px solid gray;
+}
+
+.hidden {
+	visibility: hidden;
+}
+
+.none_display {
+	display: none;
+}
+
+.fade_in {
+	opacity: 1;
+	animation-name: fadeIn;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-out;
+	animation-duration: 1s;
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+@keyframes fadeInLight {
+	0% {
+		opacity: 0.8;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+
+.fade {
+	opacity: 0;
+	animation-name: fadeOut;
+	animation-iteration-count: 1;
+	animation-timing-function: ease-out;
+	animation-duration: 1s;
+}
+
+@keyframes fadeOut {
+	0% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0;
+	}
 }
 
 .message_common { 
@@ -178,17 +363,54 @@ body {
 	text-align: left;
  }
 
+ .message_export_reward {
+	font-size: 12px;
+	color: yellow;
+ }
+ @keyframes export_reward {
+  0% {
+		color: white;
+	}
+  50% {
+		color: orange;
+	}
+  100% {
+		color: greenyellow;
+  	}
+ }
+ .export_button_with_reward {
+	animation-name: export_reward;
+  	animation-duration: 4s;
+	animation-iteration-count: infinite;
+	animation-direction: alternate;
+	font-weight: bold;
+ }
+
+ #export_button_tooltip {
+	display: none;
+	position: absolute;
+ }
+
+ #save_to_file_button:hover #export_button_tooltip{
+	display: block;
+	top: var(--export_button_tooltip_top);
+	left: var(--export_button_tooltip_left);
+ }
+
  .message_background {
 	font-style: italic;
 	color: rgb(171, 171, 255);
  }
 
- .action_travel, .activity_unavailable, .start_dialogue,  .end_dialogue_button, .start_trade, .start_location_action, .dialogue_trade, .choices_return_button, .start_activity, #action_status_div, #action_end_div {
+ .action_travel, .activity_unavailable, .start_dialogue,  .end_dialogue_button, .start_trade, .start_game_action, .dialogue_trade, .choices_return_button, .start_activity, #action_status_div, #action_end_div {
 	text-align: left;
 	font-size: 20px;
 	border-top: 1px dotted white;
 	cursor: pointer;
 	padding: 5px;
+ }
+ .action_travel {
+	padding-top: 8px;
  }
  .end_dialogue_button {
 	border-bottom: 1px solid white;
@@ -198,6 +420,13 @@ body {
 	font-size: 16px;
 	padding-left: 5px;
 	margin-top: 2px;
+ }
+ .location_choice_icon_box {
+	float: left;
+	width: auto;
+	height: auto;
+	top: -4px;
+	position: relative;
  }
 
  .location_choice_dropdown, .location_choices, #start_sleeping_div, #open_storage_div, :not(.location_choice_dropdown) > .action_travel {
@@ -223,7 +452,7 @@ body {
 
  .fast_travel_name {
 	display: inline-block;
-	width: 305px;
+	width: 304px;
  }
 
  .fast_travel_removal_button {
@@ -250,12 +479,12 @@ body {
 	width: 600px;
 	height: fit-content;
 	border: 4px solid blueviolet;
-	z-index: 2;
+	z-index: 20;
 	bottom: 50px;
 	left: 300px;
  }
 
- @media only screen and (max-height: 857px) {
+ @media only screen and (max-height: 600px) {
 	#options_panel {
 		position: absolute;
 		top: 405px;
@@ -294,7 +523,7 @@ body {
 
  .options_button {
 	width: fit-content;
-	margin-left: 40px;;
+	margin-left: 40px;
 	margin-right: auto;
 	padding: 10px 10px;
 	height: 20px;
@@ -319,8 +548,9 @@ body {
 	cursor: not-allowed;
 }
 
-.action_travel:hover:not(:has(.fast_travel_removal_button:hover)), .start_dialogue:hover, .start_trade:hover, .start_location_action:hover, .start_activity:hover, 
-.location_choices:hover, .choices_return_button:hover, .location_choice_dropdown:not(.location_choice_dropdown_expanded):hover, .dialogue_textline:hover, .end_dialogue_button:hover, .dialogue_trade:hover  {
+.action_travel:hover:not(:has(.fast_travel_removal_button:hover)), .start_dialogue:hover, .start_trade:hover, .start_game_action:hover, 
+.start_activity:hover, .location_choices:hover, .choices_return_button:hover, .location_choice_dropdown:not(.location_choice_dropdown_expanded):hover, 
+.dialogue_textline:hover, .end_dialogue_button:hover, .dialogue_trade:hover, .backstep_dialogue_button:hover {
 	background-color: #2c3953;
 }
 .dialogue_textline {
@@ -331,12 +561,34 @@ body {
 	cursor: pointer;
 	padding: 5px;
 }
+	.dialogue_textline:active{
+		color: var(--onclick_button_color);
+	}
+
 	#dialogue_answer_div {
 		border-bottom: 1px solid white;
-		text-align: center;
 		background-color: #15152d;
 		font-size: var(--options_action_textsize);
 		padding: 10px;
+		animation: fadeInLight;
+		opacity: 1;
+		animation-duration: 0.2s;
+	}
+	#dialogue_name_div {
+		border-bottom: 1px solid white;
+		text-align: center;
+		background-color: #15152d;
+		font-size: 14px;
+		padding: 2px;
+		font-weight: bold;
+	}
+	.backstep_dialogue_button {
+		text-align: center;
+		font-size: var(--options_action_textsize);
+
+		border-bottom: 1px solid white;
+		cursor: pointer;
+		padding: 5px;
 	}
 
 .inventory_item, .trader_item {
@@ -345,7 +597,7 @@ body {
 }
 
 .equipped_item_control {
-	width: 385px;
+	width: 383px;
 	border-bottom: 1px dotted white;
 	font-size: 13px;
 	background-color: rgba(255, 236, 128, 0.15);
@@ -353,16 +605,23 @@ body {
 	padding-top: 1px;
 }
 
+.equipped_item_control:hover {
+	background-color: var(--active_button_color);
+}
+
 .inventory_item_control {
 	border-bottom: 1px dotted white;
-	width: 385px;
+	width: 383px;
+}
+.inventory_item_control:hover {
+	background-color: var(--active_button_color);
 }
 .item_additional_content {
 	float: right;
 	width: fit-content;
 }
 
-.item_tooltip, .job_tooltip, .location_tooltip, .recipe_tooltip {
+.item_tooltip, .job_tooltip, .location_tooltip, .recipe_tooltip, #export_button_tooltip {
 	display: none;
 	text-align: left;
 	color: white;
@@ -374,10 +633,19 @@ body {
 	padding: 5px;
 	position: absolute;
 	z-index: 1000;
-	width: 210px;
 	pointer-events: none;
 	font-size: 14px;
 	border: 1px solid white;
+}
+
+.item_tooltip, .job_tooltip, .location_tooltip, .recipe_tooltip {
+	max-width: 250px;
+	min-width: 150px;
+	width: max-content;
+}
+
+#export_button_tooltip {
+	width: fit-content;
 }
 
 .recipe_tooltip {
@@ -443,8 +711,28 @@ body {
 		text-align: left;
 	}
 
-.stat_slot_div:hover .stat_tooltip {
-	 display: block;
+.stat_slot_div:hover .stat_tooltip{
+	display: block;
+}
+
+#character_health_tooltip, #character_stamina_tooltip, #character_xp_tooltip {
+	display: none;
+	background-color: var(--tooltip_background_color);
+	border-radius: 10px;
+	padding: 5px;
+	position: absolute;
+	z-index: 10;
+	max-width: 350px;
+	min-width: 100px;
+	width: max-content;
+	pointer-events: none;
+	top: var(--bar_tooltip_top);
+	left: var(--bar_tooltip_left);
+	border: 1px solid white;
+}
+
+#character_health_div:hover #character_health_tooltip, #character_stamina_div:hover #character_stamina_tooltip, #character_xp_div:hover #character_xp_tooltip {
+	display: block;
 }
 
 .skill_tooltip {
@@ -454,7 +742,9 @@ body {
 	padding: 5px;
 	position: absolute;
 	z-index: 1000;
-	width: 300px;
+	max-width: 300px;
+	width: max-content;
+	min-width: 100px;
 	top: var(--skill_tooltip_top);
 	left: var(--skill_tooltip_left);
 	pointer-events: none;
@@ -525,6 +815,10 @@ body {
 	font-size: 20px;
 }
 
+.skill_stance_control_button:hover {
+	background-color: var(--active_button_color);
+}
+
 .item_slot {
 	color: rgb(149, 255, 190);
 }
@@ -541,8 +835,16 @@ body {
 	width: 48px;
 }
 
+.equip_item_button:active {
+	color: var(--onclick_button_color);
+}
+
 .unequip_item_button {
 	width: 60px;
+}
+
+.unequip_item_button:active {
+	color: var(--onclick_button_color);
 }
 
 .book_finished + .item_use_button {
@@ -573,6 +875,10 @@ body {
 	font-size: 13px;
 	text-align: right;
 	float: left;
+}
+
+.item_use_button:active {
+	color: var(--onclick_button_color);
 }
 
 .item_auto_use_button {
@@ -646,6 +952,12 @@ body {
 	display: var(--other_display);
 }
 
+.item_unique {
+	font-weight:1000;
+	color: purple;
+	font-style: italic;
+}
+
 .character_control_button {
 	float:left;
 	padding: 6px;
@@ -688,11 +1000,15 @@ body {
 	font-size: 14px;
 	width: 100%;
 	height: 28px;
-	margin-bottom: 1px;
+	margin-bottom: -1px;
 	padding-top: 1px;
 	padding-bottom: 1px;
 	border: 1px solid white;
 	padding-top: auto;
+}
+.equipment_slot_div_long {
+	height: 15px;
+	padding-bottom: 2px;
 }
 
 .equipment_slot_empty {
@@ -717,6 +1033,10 @@ body {
 	padding-top: 2px;
 	margin-left: 1px;
 	outline: 1px solid white;
+}
+
+.loot_slots_div {
+	margin-top: 20px;
 }
 
 	.stat_value {
@@ -784,6 +1104,17 @@ body {
 	clear: both;
 }
 
+.skill_bar_capped {
+	border: 2px solid rgb(0, 123, 32);
+	/*	border: 2px solid goldenrod;*/
+}
+
+	.skill_bar_capped .skill_bar_current {
+		background-color: rgb(0, 123, 32);
+		/*		background-color: goldenrod;*/
+		height: 8px;
+	}
+
 #crafting_window {
 	display: none;
 	height: 400px;
@@ -792,46 +1123,38 @@ body {
 	#crafting_mainpage_buttons {
 		font-size: 20px;
 		top: 0px;
+		outline: 2px dashed silver;
 	}
 		.crafting_mainpage_button {
 			float:left;
 			padding: 3px;
 			padding-left: 2.4px;
 			padding-right: 2.4px;
-			min-width: 63px;
-			max-width: fit-content;
 			text-align: center;
-			outline: 1px solid white;
-			margin: 1px;
+			border: 1px solid white;
 			cursor: pointer;
+			flex-grow: 1;
 		}
 
 	.crafting_subpage_buttons {
 		font-size: 18px;
+		outline: 2px dashed silver;
 	}
 		.crafting_subpage_button {
 			padding: 3px 0px 3px 0px;
 			float:left;
 			text-align: center;
-			outline: 1px solid white;
 			cursor: pointer;
-			margin-left: 1px;
-		}
-		.crafting_subpage_button_1 {
-			width: 398px;
-		}
-		.crafting_subpage_button_2 {
-			width: 198.5px;
-		}
-		.crafting_subpage_button_3 {
-			width: 132px;
+			flex-grow: 1;
+			border: 1px solid white;
 		}
 
 .crafting_recipe_list {
-	height: 333px;
+	height: 300px;
 	width:100%;
 	top: 60px;
 	overflow-y: scroll;
+	border-top: 2px solid gray;
 }
 
 .crafting_mainpage_button:hover, .crafting_subpage_button:hover {
@@ -884,6 +1207,11 @@ body {
 	background-color: rgba(128, 128, 128, 0.5);
 	text-align: center;
 }
+
+.recipe_creation_button:active{
+	color: var(--onclick_button_color);
+}
+
 .recipe_creation_span {
 	width: 300px;
 	display:inline-block;
@@ -946,10 +1274,18 @@ body {
 	width: 300px;
 }
 
+.recipe_item_name:active{
+	color: var(--onclick_button_color);
+}
+
 .recipe_comp_name {
 	display: inline-block;
 	padding-bottom: 5px;
 	width: 287px;
+}
+
+.recipe_comp_name:active{
+	color: var(--onclick_button_color);
 }
 
 .folded_crafting_selection, .folded_material_list {
@@ -987,6 +1323,10 @@ body {
 	cursor: pointer;
 }
 
+.craft_ammount_button:active{
+	color: var(--onclick_button_color);
+}
+
 .sl_button {
 	width: fit-content;
 	padding: 10px 10px;
@@ -1001,6 +1341,10 @@ body {
 .sl_button:hover {
 	background-image: none;
 	background-color: #2c3953;
+}
+
+.sl_button:active {
+	background-color: var(--onclick_button_color);
 }
 
 .game_info a, .game_info span {
@@ -1020,6 +1364,11 @@ body {
 	background-color: #2c3953;
 }
 
+.repo_link {
+	right: 42px;
+	position: fixed;
+	padding: 3px;
+}
 .financial_link {
 	right: 0px;
 	position: fixed;
@@ -1043,9 +1392,14 @@ i {
 	cursor: pointer;
 }
 
+.activable_buttons {
+	display: flex;
+	flex-wrap: wrap;
+}
+
 .character_sorting_button {
-    float: left;
-	width: 198px;
+	float: left;
+	flex-grow: 1;
 	text-align: center;
 	outline: 1px solid white;
 	cursor: pointer;
@@ -1142,8 +1496,9 @@ i {
 }
 
 .skill_sorting_button {
-	float:left;
-	width: 198px;
+	flex-grow: 1;
+	padding-left: 5px;
+	padding-right: 5px;
 	text-align: center;
 	outline: 1px solid white;
 	cursor: pointer;
@@ -1151,9 +1506,21 @@ i {
 	font-size: 16px;
 }
 
+.skill_sorting_button:hover {
+	background-color: var(--active_button_color);
+}
+
+.floating_effect {
+	position: absolute;
+	pointer-events: none;
+	font-weight: bold;
+	opacity: 1;
+}
+
+
 #accept_trade_button, #cancel_trade_button, .trader_sorting_button, .storage_sorting_button {
-    float:left;
-	width: 198px;
+	float: left;
+	flex-grow: 1;
 	text-align: center;
 	outline: 1px solid white;
 	margin: -1px 1px;
@@ -1163,6 +1530,7 @@ i {
 
 #accept_trade_button {
 	background-color: green;
+	width: 198px;
 }
 
 #active_effect_count {
@@ -1214,6 +1582,7 @@ i {
 
 #cancel_trade_button {
 	background-color: red;
+	width: 198px;
 }
 
 #location_related_div {
@@ -1263,11 +1632,17 @@ i {
 	left: 140px;
 }
 
+#character_health_div, #character_stamina_div, #character_mana_div, #character_xp_div {
+	width: 340px;
+	margin: auto;
+	margin-top: 10px;
+}
+
 #character_healthbar_max {
 	outline: 2px solid rgb(199, 0, 0);
 	background-color: rgba(255, 46, 46, 0.3);
 	margin: auto;
-	width: 85%;
+	width: 100%;
 	height: 16px;
 	margin-top: 10px;
 }
@@ -1276,22 +1651,16 @@ i {
 	height: 100%;
 }
 
-#character_health_value, #character_health_text, #character_xp_value, #character_level_div {
+#character_health_value, #character_health_text, #character_xp_value, #character_mana_value, #character_stamina_value {
 	color: white;
-	width: 100%;
-}
-#character_health_value, #character_health_text {
+	width: 340px;
 	text-align: center;
+	position: absolute;
 }
 
 #character_health_value {
-	position: absolute;
-	width: 400px;
-	top: 102px;
+	top: 103px;
 	font-size: 18px;
-}
-#character_health_text {
-	text-align: left; margin-left: 28px;
 }
 
 #character_level_div {
@@ -1306,8 +1675,6 @@ i {
 #character_mana_bar_max {
 	outline: 2px solid rgb(0, 0, 127);
 	margin: auto;
-	width: 85%;
-	margin-top: 9px;
 	height: 15px;
 	background-color: rgba(0, 0, 255, 0.3);
 }
@@ -1319,18 +1686,13 @@ i {
 }
 
 #character_mana_value {
-	position: absolute;
 	font-size: 15px;
-	width: 400px;
 	top: 77px;
-	text-align: center;
 }
 
 #character_stamina_bar_max {
 	outline: 2px solid rgb(0, 127, 0);
 	margin: auto;
-	width: 85%;
-	margin-top: 9px;
 	height: 15px;
 	background-color: rgba(0, 255, 0, 0.3);
 }
@@ -1341,10 +1703,7 @@ i {
 }
 
 #character_stamina_value {
-	position: absolute;
-	width: 400px;
 	top: 53px;
-	text-align: center;
 	font-size: 15px;
 }
 
@@ -1352,7 +1711,6 @@ i {
 	outline: 2px solid rgb(255, 126, 0);
 	margin: auto;
 	margin-top: 30px;
-	width: 85%;
 	height: 15px;
 	background-color: rgba(255, 165, 0, 0.3);
 }
@@ -1363,18 +1721,15 @@ i {
 }
 
 #character_xp_value {
-	position: absolute;
 	font-size: 15px;
-	width: 400px;
 	top: 29px;
-	text-align: center;
 }
 
 #character_equipment_div { 
 	margin: auto;
 	width: 350px;
 	position: relative;
-	top: 8px;
+	top: 3px;
 	display: none;
 }
 
@@ -1493,19 +1848,32 @@ i {
 				
 				.enemy_name, .enemy_stats, #attack_stats  {
 					height: 18px;
-					text-align: right;
 					width: 400px;
+					overflow: hidden;
+					white-space: nowrap;
+				}
+				.enemy_name {
+					text-align: right;
+					margin-top: 1px;
+				}
+				.enemy_stats {
+					padding-right: 10px;
 				}
 					.enemy_stat, .attack_stat {
 						display: inline-block;
 						text-align: left;
 						font-size: 12px;
+						overflow: hidden;
+						white-space: nowrap;
 					}
 					.enemy_stat_short, .attack_stat_short {
-						width: 64px;
+						width: 65px;
 					}
 					.enemy_stat_long, .attack_stat_long {
-						width: 77px;
+						width: 85px;
+					}
+					.attack_stat_veryshort {
+						width: 52px;
 					}
 
 				.enemy_health_div {
@@ -1626,63 +1994,119 @@ i {
 	height: 330px;
 	top: 0px
 }
+#journal_content_div {
+	height: 287px;
+}
 	#quests_header {
 		width: 100%;
 		text-align: center;
 		padding-top: 5px;
 		margin-bottom: 5px;
 	}
+		.quest_div {
+			border: 1px solid white;
+			margin-left: 1px;
+			margin-bottom: 3px;
+		}
+		.quest_div :not(.quest_name_div) {
+			display: none;
+		}
+			.quest_div_expanded :not(.quest_name_div) {
+				display: block;
+			}
+			.quest_finished {
+				color: silver;
+			}
+			.quest_finished .quest_name_div{
+				text-decoration: line-through;
+			}
+		.quest_name_div {
+			font-weight: bold;
+			padding-left: 2px;
+		}
+		.quest_name_div:hover {
+			background-color: var(--active_button_color);
+		}
+		.quest_description_div {
+			font-size: 14px;
+			padding-left: 2px;
+			border-bottom: 1px solid gray;
+			padding-bottom: 5px;
+		}
+		.task_status_icon {
+			float: left;
+		}
+		.task_status_icon i {
+			font-size: 18px;
+		}
+		.task_finished {
+			color: silver;
+		}
+		.task_condition_div {
+			padding-left: 16px;
+		}
+		.task_type_div, .task_target_div {
+			padding-left: 12px;
+		}
 
 	#journal_control_div {
 		font-size: 20px;
 	}
 		.journal_control_button{
-			float: left;
-			width: 131.3px;
 			text-align: center;
 			outline: 1px solid white;
 			cursor: pointer;
 			margin: 1px;
 			font-size: 18px;
+			flex-grow: 1;
+			padding-left: 20px;
+			padding-right: 20px;
+		}
+
+		.journal_control_button:hover{
+			background-color: var(--active_button_color);
 		}
 			#story_box_div {
 				width:100%;
 				height: 255px;
 			}
 
-			#quests_box_div, #data_box_div{
+			#data_box_div, #books_box_div, #bestiary_box_div, #quests_box_div{
 				width: 100%;
-				height: 255px;
+				height: 284px;
+				overflow-y: scroll;
+			}
+
+			#data_box_div, #books_box_div, #bestiary_box_div{
 				display: none;
-				overflow-y: scroll;
 			}
 
-			#bestiary_box_div{
-				width: 100%;
-				height: 255px;
+			#quests_box_div {
 				display: block;
-				overflow-y: scroll;
-
 			}
-				.bestiary_entry_div, .data_entry {
+
+				.bestiary_entry_div, .data_entry, .anthology_entry_div {
 					width: 380px;
 					display: flex;
 					box-shadow: 0 -1px 0 gray, 0 1px 0 gray;
 					margin-bottom: 1px;
 				}
-					.bestiary_entry_name {
+				.bestiary_entry_div:hover, .anthology_entry_div:hover {
+					background-color: var(--active_button_color);
+				}
+					.bestiary_entry_name, .anthology_entry_name {
 						float: left;
 						width:295px;
 						text-align: left;
 						padding-left: 5px;
 					}
-					.bestiary_entry_kill_count{
+					.bestiary_entry_kill_count {
 						text-align: right;
 						width:90px;
 						padding-right: 5px;
 					}
 
-					.bestiary_entry_tooltip {
+					.bestiary_entry_tooltip, .anthology_entry_tooltip {
 						display: none;
 						background-color: var(--tooltip_background_color);
 						border-radius: 10px;
@@ -1695,7 +2119,7 @@ i {
 						pointer-events: none;
 						border: 1px solid white;
 					}
-						.bestiary_entry_div:hover .bestiary_entry_tooltip {
+						.bestiary_entry_div:hover .bestiary_entry_tooltip, .anthology_entry_div:hover .anthology_entry_tooltip {
 							display: block;
 						}
 
@@ -1792,83 +2216,121 @@ i {
 
 #location_div {
 	width: 400px;
-	height: 263px;
+	height: 297px;
 	left: 410px;
-	top: 70px;
+	top: 36px;
 	border-top: 0px;
 }
-		#location_description_div {
-			height: 113px;
-			font-style: italic;
-			color: rgb(224, 224, 224);
-			padding: 5px;
+	#location_description_div {
+		height: 113px;
+		font-style: italic;
+		color: rgb(224, 224, 224);
+		padding: 5px;
+		float: none;
+		display: inline-block;
+	}
+	#location_name_div {
+		padding: 4px;
+		width: var(--location_name_div_width);
+		height: fit-content;
+		float: left;
+		z-index: 2;
+		border-bottom: 1px solid white;
+		font-size: 18px;
+	}
+	#location_icon_span i:not(.location_bed_icon):hover {
+		background-color: var(--active_button_color);
+	}
+	#location_icon_span i:not(.location_bed_icon) {
+		cursor: pointer;
+	}
+	#location_types_div {
+		left: 292px;
+		width: 100px;
+		height: 23px;
+		padding: 2px;
+		position: absolute;
+		text-align: right;
+		font-size: 12px;
+		top: 0px;
+	}
+		.location_type_div {
+			float: left;
+			width: 50px;
 		}
+
+			.location_type_tooltip {
+				display: none;
+				background-color: var(--tooltip_background_color);
+				border-radius: 10px;
+				padding: 5px;
+				position: absolute;
+				z-index: 1000;
+				width: 200px;
+				top: var(--location_type_tooltip_top);
+				left: var(--location_type_tooltip_left);
+				pointer-events: none;
+				text-align: left;
+			}
+
+				.location_type_div:hover .location_type_tooltip {
+					display: block;
+				}
+
 
 #time_and_location {
 	left: 410px;
 	width: 400px;
-	font-size: 20px;
+	font-size: 17px;
 }
-		#location_name_div {
-			padding: 4px;
-			width: var(--location_name_div_width);
-			height:fit-content;
-			float: left;
-			z-index: 2;
-		}
-		#location_icon_span i:not(.location_bed_icon):hover {
-			background-color: var(--active_button_color);
-		}
-		#location_icon_span i:not(.location_bed_icon) {
-			cursor: pointer;
-		}
-		#location_types_div {
-			left: 292px;
-			width: 100px;
-			height: 23px;
-			padding: 2px;
-			position: absolute;
-			text-align: right;
-			font-size: 12px;
-		}
-			.location_type_div {
-				float: left;
-				width: 50px;
-			}
-
-				.location_type_tooltip {
-					display: none;
-					background-color: var(--tooltip_background_color);
-					border-radius: 10px;
-					padding: 5px;
-					position: absolute;
-					z-index: 1000;
-					width: 200px;
-					top: var(--location_type_tooltip_top);
-					left: var(--location_type_tooltip_left);
-					pointer-events: none;
-					text-align: left;
-				}
-
-					.location_type_div:hover .location_type_tooltip {
-						display: block;
-					}
-
+	#time_and_weather_div {
+		border-bottom: 1px solid white;
+		padding: 3px 0px 2px 0px;
+	}
 		#time_div {
+			text-align: left;
+			width: 305px;
+			display: inline-block;
 			padding: 2px;
-			text-align: right;
-			border-bottom: 1px solid white;
 		}
 			.icon {
 				position: relative;
-				top:3px;
+				top: 3px;
 			}
-			.icon_night {
-				color: gray;
-			}
-			.icon_day {
-				color: orange;
-			}
+		#weather_div {
+			width: 80px;
+			display: inline-block;
+			padding: 2px;
+			text-align: right;
+		}
+		#weather_div .icon {
+			font-size: 16px;
+		}
+		.cold_temperature {
+			color: #00acc1;
+		}
+		#temperature_tooltip {
+			display: none;
+			position: absolute;
+			z-index: 1000;
+			font-style: italic;
+			background-color: var(--tooltip_background_color);
+			border-radius: 10px;
+			margin-left: 30px;
+			padding: 5px;
+			width: 300px;
+			height: auto;
+			font-size: 16px;
+			border-radius: 10px;
+			padding: 5px;
+			top: var(--temperature_tooltip_top);
+			left: var(--temperature_tooltip_left);
+			text-align: left;
+			border: 1px solid white;
+		}
+		#weather_div:hover #temperature_tooltip {
+			display: block;
+		}
 #location_name_div:hover #location_description_tooltip {
 	display: block;
 }
@@ -1938,6 +2400,9 @@ i {
 			outline: 1px solid white;
 			margin: 1px;
 			cursor: pointer;
+		}
+		.message_control_button:hover {
+			background-color: var(--active_button_color);
 		}
 	.message_combat {
 		display: var(--message_combat_display);
@@ -2042,7 +2507,7 @@ i {
 /* scrollbar */
 ::-webkit-scrollbar {
 	width: 15px;
-	height: 10px;;
+	height: 10px;
   }
 
 ::-webkit-scrollbar-track {

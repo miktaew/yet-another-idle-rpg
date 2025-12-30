@@ -1,12 +1,15 @@
 "use strict";
 
-const stat_names = {"strength": "str",
+const stat_names = {
+    "strength": "str",
     "health": "hp",
     "max_health": "hp", //same as for "health"
-    "health_regenaration_flat": "hp regen",
-    "health_regeneration_multiplier": "hp regen",
+    "health_regeneration_flat": "hp regen",
+    "health_regeneration_percent": "hp % regen",
     "health_loss_flat": "hp loss",
-    "health_loss_multiplier": "hp loss",
+    "health_loss_percent": "hp % loss",
+    "stamina_regeneration_flat": "stam regen",
+    "stamina_regeneration_percent": "stam % regen",
     "max_stamina": "stamina",
     "agility": "agl",
     "dexterity": "dex",
@@ -22,20 +25,44 @@ const stat_names = {"strength": "str",
     "evasion": "EP",
     "evasion_points": "EP",
     "attack_points": "AP",
+    "heat_tolerance": "heat resistance",
+    "cold_tolerance": "cold resistance",
+    "unarmed_power": "unarmed base dmg",
+    "armor_penetration": "armor pen",
+    "defense": "defense",
 };
 
-function expo(number, precision = 2)
+const task_type_names = {
+    "kill": "kill",
+    "kill_any": "kill",
+    "clear": "clear",
+}
+
+//skill-tag mapping for when consumables are used
+const skill_consumable_tags = {
+    "Medicine": "medicine",
+    "Gluttony": "food"
+}
+
+//additional skill-tag mapping for crafting
+const crafting_tags_to_skills = {
+    "medicine": "Medicine",
+}
+
+function expo(number, precision = 3)
 {
+    let expo_threshold = 1000000;
+
     if(number == 0) {
         return 0;
-    } else if(number >= 1000 || number < 0.01) {
+    } else if(number >= expo_threshold || number < 0.01) {
         return Number.parseFloat(number).toExponential(precision).replace(/[+-]/g,"");
     } else if(number > 10) {
-        return Math.round(number);
+        return Math.round(number).toLocaleString();
     } else if(number > 1) {
-        return Math.round(number*10)/10;
+        return (Math.round(number * 10) / 10).toLocaleString();
     } else {
-        return Math.round(number*100)/100;
+        return (Math.round(number * 100) / 100).toLocaleString();
     }
 }
 
@@ -119,6 +146,15 @@ function get_hit_chance(attack_points, evasion_points) {
 function compare_game_version(version_a, version_b) {
     let a = version_a.replace("v","").split(".");
     let b = version_b.replace("v","").split(".");
+
+    //if length differs, fill shorter with additional zeroes; could just do additional condition in comparison, but this is more fancy
+    if(a.length > b.length) {
+        b.push(...Array(a.length-b.length).fill("0"));
+    } else if(b.length > a.length) {
+        a.push(...Array(b.length-a.length).fill("0"));
+    }
+
+    //go through the entire length, comparing values until they differ (or until reaching the end, in which case it will return a 0 after the loop)
     for(let i = 0; i < a.length; i++) {
         let temp;
         if(Number.parseInt(a[i]) && Number.parseInt(b[i])) {
@@ -142,6 +178,13 @@ function is_a_older_than_b(version1, version2) {
     return compare_game_version(version1, version2) < 0;
 }
 
-export { expo, format_reading_time, format_working_time, stat_names, get_hit_chance, 
+function celsius_to_fahrenheit(num) {
+    return 32 + Math.round(10*num*9/5)/10;
+}
+
+export { expo, format_reading_time, format_working_time, 
+        get_hit_chance, round_item_price,
         compare_game_version, is_a_older_than_b,
-        round_item_price};
+        stat_names, task_type_names, skill_consumable_tags, crafting_tags_to_skills,
+        celsius_to_fahrenheit
+    };

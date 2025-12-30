@@ -63,6 +63,257 @@
 
 <div id="header">Click on blocks to unfold their content</div>
 
+
+<button type="button" class="collapsible">v0.5.0 - The Whimsy Edition: Quests, Weather, kemonomimi, and a lot of other things  [testing release: 28/11/2025 / main release: 30/12/2025] </button>
+<div class="content"><pre>
+v0.5.0
+    - implemented a Quest system
+    - implemented a simple weather system (temperature and rain), effects are mostly some penalties of varying degree if you get too cold; clothing now provides cold protection
+    - the game is now slightly more fluffy; if you dislike kemonomimi, you can disable it in options
+    - added a small reward (xp-increasing active effect) for exporting the game; when it's available, the export button will be visually marked by bold text and changing colors
+    - travelling now moves the in-game timer forward, affecting durations of all active effects except the one from export reward; travel times scale with skills (mostly 'running')
+    - added foreground animations for rain and for snow, and a background animation of stars for clear sky night; <b>they are disabled by default and can be enabled in the options panel</b>
+    - market saturation system now covers everything except consumables; it has a harsher scaling for equipment and components
+    - market saturation has been split into regions (currently: Village and Slums), with saturation slowly trickling between all regions until it balances out; for existing saves, saturations were equally split between the regions
+    - added some (one, to be precise) actions started from dialogue level
+    - added a new equipment category, capes; they are rather expensive in terms of material cost, but provide the most cold protection out of all item types and allow you to feel fancy
+    - added two new combat zones available from <span class="spoiler">'Forest road'</span>, offering new enemies and a new armor crafting material 
+    - added some actions and related combat zones in <span class="spoiler">'Town farms', after you deal with the boars, completing it unlocks another combat zone from 'Forest road'; enemies in these don't have any drops yet</span>
+    - added another stance, available from <span class="spoiler">'Suspicious man' after helping out in the 'Slums' (it technically existed before, but was impossible to unlock);
+        as usual with new unlocks, if you already used the textline that's supposed to unlock it then you can get it from the repeatable one instead</span>
+    - added a new skill <span class="spoiler">'Regeneration' which increases effectiveness of passive healing (sleeping/resting)</span>
+    - added a new skill <span class="spoiler">'Gluttony'  to complement 'medicine' by increasing the effects of the food items (unlike medicine, this one doesn't get xp from crafting)</span>
+    - added a new skill and training: <span class="spoiler">'Swimming'</span>, available at <span class="spoiler">'Village', after meeting some special conditions (hint: train)</span>
+    - added a new skill <span class="spoiler">'Fortitude' which increases max health and gains xp when you take damage, similarly to 'Tough Skin', however it scales with damage taken and not with enemy xp value</span>
+    - added a new skill and related items: <span class="spoiler">"Digging" and 2 shovels, used for gathering sand (see: glassmaking, at the bottom of this version's changelog)</span>
+    - added a new skill <span class="spoiler">'Cold resistance' which increases cold tolerance by 0.5 per level and gains xp passively at low rate when character is in cold environment</span>
+    - renamed 'Crafting' to 'Tinkering', added a new parent skill: <span class="spoiler">"Crafting mastery" which encompasses 'Tinkering', 'Butchering', and 'Woodworking' (for more on the latter 2, see: bottom of this version's changelog)</span>
+    - added a new spot for training 'Equilibrium' at <span class="spoiler">'Mountain path' and 'Mountain camp'</span>
+    - added a new spot for training 'Climbing' at <span class="spoiler">'Mountain camp'</span>
+    - added another book <span class="spoiler">'Ode to Whimsy, and other poems', available at any trader but with a low chance to appear</span>
+    - added a new consumable <span class="spoiler">'Bread kwas', made from 2 pieces of any bread and a glass bottle (made from 3 pieces of glass), which gives additional stamina regeneration; while not higher than on bread, it's a different effect meaning it can stack</span>
+    - added reputation to display in 'Data' tab (it still does nothing)
+    - added an amulet so that you can finally fill that one equipment slot, obtained <span class="spoiler">as a drop for first clear of one of new combat zones</span>
+    - getting killed now gives a debuff that reduces xp gains to 1/5th for 5 in-game minutes, as a probably-unnecessary exploit prevention
+
+    - 'Persistence' skill's xp gains are now doubled when under 20% hp (you still need to be out of stamina); they are also increased when under any cold effect, the stronger the more, up to x2 at 'Hypothermia' (although there's also a massive xp reduction from later cold effects, so it's far from being worth it)
+    - 'Unarmed' skill now provides additional +0.1 base dmg to unarmed attacks (original base was 1, this means by lvl 10 dmg will be doubled)
+    - 'Tough skin' skill is now back to only receiving xp when you wear no armor
+    - 'Tough skin' skill received some changes to when the name changes (duh)
+    - 'Sleeping' skill provides a bit less of hp
+    - 'Meditation' skill now provides some 'Strength of mind' xp multipliers
+    - 'Meditation' skill now provides a small intuition multiplier
+    - 'Strength of Mind' skill now requires 120->400 xp for first level, but cost scaling was reduced x1.9->x1.7
+    - 'Breathing' skill now requires 300->400xp for first level
+    - "Wolf trophy" now gives flat armor penetration instead of attack speed
+    - hero level xp cost scaling was reduced x1.7->x1.6
+    - exponent on crafting xp has been reduced ^1.2->^1.1
+    - condition to unlock first combat task in 'Town farms' was changed from clearing a specific location to clearing one of a three (each in a different region)
+    - equippables unaffected by quality will no longer display it (trinkets, tools, artifacts, etc)
+    - increased defense on a bunch of enemies
+    - increased value of trinkets
+    - slightly nerfed active effects from food, as more of them are now available
+    - some location type penalties now scale up to certain level instead of up to skill max level; scaling information was removed from skill descriptions
+    - fieldwork in Village / Town Farms is now unavailable during winters
+    - removed defense on wool items
+    - for multi-target attacks, xp gains are now divided by target count to provide similar xp gains as with single-target attacks
+    - for fighting against a group, xp gains for skills that gain xp when enemy attacks are now divided by target count ^ (2/3) (fighting 8 enemies will only give 2x xp of one)
+    - for multi-target attacks, loot drop chances are now divided by target count ^ (2/3) (killing 8 enemies with 1 attack should only give 2x loot instead of 8x)
+    - recipes requiring enemy drops are now slightly cheaper to make
+    - xp gains for skills are now capped based on what's required for a level up, at 1/10th for general skills and at 1/4th for crafting skill; this generally won't have much impact on gameplay and will only affect some rare cases of extreme gains connected with very low skill level
+    - hp bar, stamina bar, and xp bar, now have basic tooltips with breakdows (max health, max stamina and stamina efficiency, global/hero/all_skill xp multiplier)
+    - updated 'Sleeping' skill's tooltip so that it mentions the increase to sleeping health restoration (mechanic already existed, but was missing from tooltip)
+    - message log will now only scroll down for messages that belong to displayed categories, stuff that is hidden will not cause a scrolling to happen
+    - work payments have been increased
+    - trader profit margins were increased
+    - increased trade price recovery per day (it's still very low and shouldn't be relied on)
+    - increased duration of both types of 'Healing Powder'
+    - slightly buffed xp gains for gathering tier 3 wood/metal
+    - in dialogues, name of the one being talked to is now displayed above the answers
+    - added very simple click effects to some buttons
+    - added simple animations to enemies when hit
+    - added color change on hover to some elements
+    - dialogue descriptions and textline answers now have a basic fade-in animation
+    - notifications for unlocking a gathering activity now only appear if gathering is globally unlocked
+    - reduced 'Wall Rat' agility from 20 to 2 (where are they gonna go? they are stuck in place)
+    - increased 'Wall Rat' health 1000->2000 and dexterity 90->120
+    - increased 'Elite wolf rat guardian' health 250->400, attack 50->60, agility 40->50, dexterity 40->50, xp value 10->15
+    - increased 'Young wolf' health 120->150
+    - increased 'Starving wolf' health 150->200
+    - increased 'Wolf' health 200->250, attack 32->40, agility 42->50, dexterity 42->50, intuition 32->40, xp value 4->6
+    - increase 'Boar' health 300->600, xp value 8->10
+
+    - implemented dialogue branching (clicking a textline can show more textlines that are a continuation of the topic), not yet in use
+    - implemented content stack that holds information on what's currently shown and what it originated from, 
+        realistically serves just for aforementioned starting actions from dialogue level and for branching,
+        but handles everything that's not a location display (which is the default state for when stack is empty)
+    - updated enemy lineup creation code to allow using predefined groups in their order (instead of choosing one randomly),
+    and to allow using a predefined group every N clears while remaining fights use random enemies
+    - jobs can now be made available only in selected seasons; overall time-based limitation was extended to cover training actions as well
+    - actions can now have conditions for being displayed
+    - textlines can now have conditions for being displayed, using same template as actions do
+    - conditions can now include global flags and equipped tools
+    - locations can now include rewards provided for simply entering them (obviously meant for unlocks only)
+    - item names can now be skipped in item creation, which will default them to same as item's id
+    - made it possible for activities to apply active effects
+    - made it possible for active effects to affect xp gains
+    - changed color of checkboxes to blue, instead of using browser's default colors
+    - slightly changed display style of crafting category buttons to hopefully make it a little bit less messy
+    - removed some unused location types related to temperatures as those were implemented as a part of weather instead
+    
+    - fixed component/equipment crafting xp formulas, they now work as described on help page, with scaling starting at 8*tier delayed by sqrt of rarity multiplier (earlier it scaled at every point)
+    - fixed a mistake in enemy lineup creation code that resulted in enemy group size capping at 1 less than intended
+    - fixed an issue with incorrect display of some of game settings after reloading
+    - fixed a minor bug where book bonuses needed save+reload to be properly applied
+    - fixed an error on beating a challenge zone that was in favourites
+    - fixed a minor multi-crafting bug where if the result was not an integer, the chance for the fraction to be turned into 1 additional item was calculated incorrectly
+    - fixed a minor display bug where traded items always ended up at the bottom of respective container, even moving the entire stack down if they were already present there
+
+    courtesy of OnonokiNonon:
+        - glassmaking module, including 1 new book, 1 new activity, 3 new items and 3 new recipes
+        - added 2 new crafting skills: <span class="spoiler"> 'Butchering' and 'Woodworking', with the former also affecting some drop rates; moved relevant recipes from 'Crafting'; 'Butchering and you' now unlocks the skill instead of recipes </span>
+        - skill categories can now be reordered
+        - a new dialogue that unlocks 2 more food items with their recipes, and a gathering activity for one of their ingredients
+        - tweaks to recipe listing code, to make future categories easier to add (a bit of WIP)
+        - the recipe window now remembers the last open tab
+        - fixed display issues with inventory and fast travel on Firefox
+        - maxed out skills are now displayed with a darker shade of green
+        - skill categories now persist their open/closed state
+        - skills can now be sorted by progress (how close they are to next level, with maxed out skills always displayed last)
+        - inventory can now by sorted by type: components/materials of the same type are grouped together, equipment is sorted by slot, etc.
+        - harvesting actions can now have their own ambience (BGM) messages
+        - actions that give experience now show time to level up in realtime hours
+        - larger xp numbers now display with separators and switch to scientific notation at a much higher threshold
+        - added a new category to the journal, listing all the books Hero has read and their effects
+
+v0.5.0.1
+    - fixed a bug where having environmental skill at high enough level turned the penalty into a positive effect
+    - fixed a bug with health loss stat working the opposite of how it was intended to
+    - increased material cost of 'Rat pelt cape' by half (wolf rats are kinda small)
+    - fixed rounding in 'Unarmed' skill description
+v0.5.0.2
+    - fixed a bug that made digging activity impossible
+    - removed quest progress notifications for progress awarded automatically on loading pre-quests saves
+v0.5.0.3
+    - backwards compatibility for having cleared one of locations with newly added rewards-that-require-certain-clearcount
+v0.5.0.4
+    - now that previous fix actually works
+    - removed some repeating messages on loading
+    - fixed a typo
+v0.5.0.5
+    - fixed a bug with "Bears' den" not being connected to its parent location
+v0.5.0.6
+    - fixed a bug with 'Gluttony' skill effect not working due to missing tags on effects
+    - fixed a bug with defense being ignored and with armor penetration sometimes providing more bonus than it should
+    - fixed bugs with skill xp gains formula (global bonus applied twice, skill-specific bonus not applied at all)
+    - fixed a bug where books and non-consumables were unaffected by trader profit margins
+    - fixed a bug with total earnings (and time to reach them) not being displayed while working
+    - fixed a display issue when too many quests were expanded
+    - fixed a bug with 'Meditation' intuition bonus being a flat increase instead of a multiplier
+    - fixed a display bug with celsius and cahrenheit temperatures being displayed with same value (celsius) in roofed locations
+    - fixed bug with 'Processed weak monster bone' not being available for crafting
+    - fixed a bug where selling a stack of certain item types and then doing save/load would result in trader only having 1 of it
+
+    - buffed 'Forest bear': health 3000->6000, attack 300->600, intuition 100->200, attack speed 0.7->0.8, defense 300->500, xp 30->50
+    - buffed 'Wall rat': hewalth 2000->4000, attack 70->100, intuition 90->200, attack count 3->4
+    - increased some of the travel times
+v0.5.0.7
+    - fixed a bug that made it possible to be unable to properly access later stage of the farm quest (incorrect conditions in backwards compatibility)
+    - fixed a display issue with crafting components extending over the 'Exit' button
+    - fixed a display issue with certain crafting tooltips upon closing and re-opening the crafting window
+    - 'Broad arc' now reduces attack speed to x0.8
+v0.5.0.8
+    - fixed an issue with enemy stat display not fitting in one line
+    - hopefully fixed an issue with enemy onhit animation not running on subsequent hits; changed how they appear after enemy group gets defeated
+    - fixed a display issue with anthology tooltips not updating skill names and keeping them as "???"
+    - skill xp gains in combat against a group are multiplied by enemy count to 1/3 (fighting 8 enemies will give double xp), just like it already was for hero xp
+v0.5.0.9
+    - fixed a bug with crafting display that, when triggered, resulted in a serious error and inability to do anything that would load the main display of 'Village'
+    - added normal iron items to village trader; slightly reduced chances for steel weapons to appear in pre-hideout slums trader
+v0.5.0.10
+    - fixed a bug with xp gain caps not working
+    - moved a textline unlock in 'Suspicious guy' from clearing a location to instead informing him after clearing it
+    - added regeneration breakdowns to health bar and stamina bar; these do not include passive non-combat regeneration
+    - undid the change to enemy animation handling upon group defeat from v0.5.0.8, added a separate animation for new enemies instead
+    - doing a hard reset on dev release should no longer result in still importing a main release savefile but instead allow you to start from scratch
+    - increased base xp cost for "Regeneration" 600->1000, increased scaling x1.4->x1.5
+    - action to climb up the mountain now rewards some "Climbing" xp on success
+    - beating the 'Gang hideout' now rewards a bit of money (as an implied loot)
+    - updated evasion/blocking skill tooltips to clarify that it's either one or another and that you cannot do both simultanously
+    - tweaked one of 'Village guard' textlines
+    - slightly tweaked some descriptions, mostly removing '.' from items to make them more consistent
+v0.5.0.11
+    - added a training shield that doesn't scale with skill and stays at 0.5 block
+    - [hopefully] fixed a bug with price slightly dropping when adding a different item of same trade group to selling
+    - lowered xp reward for farm quest from 100k to 50k
+    - tweaked some more descriptions in same way as in v0.5.0.10
+    - tweaked unlock text and trade text for village trader to give vibes more fitting of a supposedly "medium-sized village", increased the count of some items there for same reason
+    - fixed a display issue with bestiary content going outside the box
+    - tweaked display of some tooltips to better match the size of their content
+    - slightly changed display of enemy attack power in combat for multi-attack enemies, to remove confusion on which is the damage and which is the count 
+v0.5.0.12
+    - fixed: 'Bear hide cape should now be craftable
+    - 'Iron shovel' can now be found in slums trader
+    - 'Bear hide cape' can now be found in slums trader post-gang
+    - removed even more periods from descriptions
+v0.5.0.13
+    - fixed a bug with shield strength being always treated as 1
+v0.5.0.14
+    - another attempt at fixing trade
+    - added coal to trader inventories
+    - increased cold tolerance on wool gloves 2->3
+    - unique items are now marked as such in their tooltips
+    - village guard is now a woman
+    - fixed incorrect description on "Bear's den"
+v0.5.0.15
+    - trade fixes again, yes, send help
+    - tweaked combat stat display
+v0.5.0.16
+    - added uncraftable "Work shoes" with 0 defense and a lot better attack speed / agility bonuses than cheap leather, available from all traders
+    - reduced impact of lower tier items on market saturation from 1/2 of the cap to 1/8 of the cap
+    - tweaked combat stat display again
+    - tweaked some dialogues a little bit
+v0.5.0.17
+    - conditions object can now include reputation, hid one of village guard's textlines behind it (with currently unreachable goal) as it was not yet ready
+    - tweaked time formatting a little bit
+v0.5.0.18
+    - slightly changed the way prices are calculated when trading multiple of same item (or same group), as the previous approach resulted in slightly incorrect results
+    - fixed time formatting after a tiny little whoopsie in last patch
+    - reputation is now recalculated on load instead of being saved
+    - manual stance switching can no longer give "Persistence" xp when out of stamina
+v0.5.0.19
+    - fixed another bug with trade prices (again mismatch between displayed vs actual)
+    - fixed a bug where buying items back only reduced the relevant market saturation by 1, no matter the actual count
+    - tools no longer get auto-sorted to be above other equippables in inventory, as similar effect of grouping them together can be achieved with "sort by type"
+    - equipment changing can no longer give "Persistence" xp when out of stamina
+v0.5.0.20
+    - fixed incorrect conditions for background animations
+    - tweaked time formatting again
+    - effect of kwas is now tagged as 'food' and subject to 'Gluttony' skill
+v0.5.0.21
+    - fixed a bug with time progression not working as intended on bigger increases (fast travelling in last minutes of a day/month/year lead to skipping 1 more than it should)
+    - fixed a bug that defaulted prices to 1 if item's sold count was big enough to break precision and, due to silly code logic, make low numbers meaningless (which required another not-yet-confirmed bug to even happen in the first place)
+    - fixed an issue with trade price recovery not working
+    - slightly nerfed some food effects
+v0.5.0.22
+    - fixed a bug where market saturation trickling was behaving incorrectly and capable of causing sold counts to climb to absurdly high levels (leading to 2nd bug fixed in previous version)
+        - all saves from previous v0.5.0 version will have related values adjusted on game loading
+v0.5.0.23
+    - fixed a minor bug when clearing a faved self-locking location
+    - dealt with some potentially buggy behaviour
+    - tweaked some skill descriptions
+    - added onhover color change for quest headers
+v0.5.0.24
+    - fixed a minor display bug where trader multiplier was not included in displayed prices for items that don't saturate market (food and books)
+v0.5.0.25
+    - fixed a minor display bug with enemy blocks being a tiny bit too tall and going out of designated space
+v0.5.0.26
+    - courtesy of Mercurius: tweak to avoid data retention that could've potentially lead to dangerous increase in memory usage
+    - increased xp rewards for clearing some early locations
+    - replies in dialogues are now aligned to left instead of being centered
+v0.5.0.27
+    - fixed a bug with finishing actions
+</pre></div>
 <button type="button" class="collapsible">v0.4.6 - Actions (and some other things too) [testing release: 01/04/2025 / main release: 18/05/2025] </button>
 <div class="content"><pre>
 v0.4.6
