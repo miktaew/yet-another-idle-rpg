@@ -962,6 +962,8 @@ function getItem(item_data) {
                     return new Cape(item_data);
                 case "amulet":
                     return new Amulet(item_data);
+                case "ring":
+                    return new Ring(item_data);
                 default:
                     return new Armor(item_data);
             }
