@@ -977,8 +977,8 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief mid help"]}],
-                    //quest_progress: [{quest_id: "In Times of Need", task_index: 1}],
                     dialogues: ["swampland cook"],
+                    //quest_progress: [{quest_id: "In Times of Need", task_index: 1}],
                 },
                 locks_lines: ["swampchief help"],
             }),
@@ -1031,6 +1031,7 @@ class DialogueAction extends GameAction {
 	    dialogues["swampland cook"] = new Dialogue({
         //tbd
         name: "swampland cook",
+        is_unlocked: false,
         textlines: {
             "swampcook known": new Textline({		//unlocked after accepting the quest, locked after completing their portion
                 name: "swampcook known",
@@ -1086,6 +1087,7 @@ class DialogueAction extends GameAction {
     dialogues["swampland tailor"] = new Dialogue({
         //tbd
         name: "swampland tailor",
+        is_unlocked: false,
         textlines: {
             "swamptailor known": new Textline({
                 name: "swamptailor known",
@@ -1152,6 +1154,7 @@ class DialogueAction extends GameAction {
     dialogues["swampland tanner"] = new Dialogue({
         //tbd
         name: "swampland tanner",
+        is_unlocked: false,
         textlines: {
             "swamptanner known": new Textline({
                 name: "swamptanner known",
