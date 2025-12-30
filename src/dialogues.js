@@ -980,14 +980,14 @@ class DialogueAction extends GameAction {
                     textlines: [{dialogue: "swampland tailor", lines: ["swamptailor known"]}],
                     textlines: [{dialogue: "swampland tanner", lines: ["swamptanner known"]}],
                     textlines: [{dialogue: "swampland cook", lines: ["swampcook help"]}],
-                    textlines: [{dialogue: "swampland chief", lines: ["swampchief helping"]}],
+                    textlines: [{dialogue: "swampland chief", lines: ["swampchief mid help"]}],
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 1}],
                 },
                 locks_lines: (["swampchief help"], ["swampcook unknown"], ["swamptailor unknown"], ["swamptanner unknown"])
             }),
-            "swampchief helping": new Textline({
-                name: "swampchief helping",
-                text: "swampchief helping answ",
+            "swampchief mid help": new Textline({
+                name: "swampchief mid help",
+                text: "swampchief mid help answ",
                 is_unlocked: false,
             }),
             "swampchief report": new Textline({
@@ -1234,7 +1234,7 @@ class DialogueAction extends GameAction {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief report"]}],
                     textlines: [{dialogue: "swampland tanner", lines: ["swamptanner liked"]}],
                 },
-                locks_lines: (["swamptanner deliver 2"], ["swamptanner known"]),
+                locks_lines: (["swamptanner deliver 2"], ["swamptanner known"], ["swampchief help"], ["swampchief mid help"]),
             }),
         },
         getDescription: ()=>{

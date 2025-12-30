@@ -351,7 +351,7 @@ class Enemy {
         rank: 9,
         size: enemy_sizes.MEDIUM,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 7000, attack: 160, agility: 180, dexterity: 160, intuition: 120, magic: 0, attack_speed: 1.7, attack_count: 2, defense: 700}, //numbers are just estimates, intended AP is 1550 and EP is 1700
+        stats: {health: 7000, attack: 160, agility: 180, dexterity: 160, intuition: 120, magic: 0, attack_speed: 1.7, attack_count: 2, defense: 700},
         loot_list: [
             {item_name: "Crab meat", chance: 0.05},
             {item_name: "Crab claw", chance: 0.01},
@@ -366,7 +366,7 @@ class Enemy {
         rank: 13,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 19000, attack: 750, agility: 300, dexterity: 600, intuition: 450, magic: 0, attack_speed: 1.6, defense: 550}, //numbers are just estimates, intended AP is 3200 and EP is 2700
+        stats: {health: 16500, attack: 750, agility: 270, dexterity: 300, intuition: 150, magic: 0, attack_speed: 1.6, defense: 550},
         loot_list: [
             {item_name: "Alligator meat", chance: 0.02},
             {item_name: "Alligator skin", chance: 0.01},
@@ -380,7 +380,7 @@ class Enemy {
         rank: 12,
         size: enemy_sizes.MEDIUM,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 25000, attack: 550, agility: 150, dexterity: 150, intuition: 150, magic: 0, attack_speed: 0.9, defense: 1000}, //numbers are just estimates, intended AP is 2250 and EP is 2400
+        stats: {health: 22000, attack: 550, agility: 230, dexterity: 220, intuition: 150, magic: 0, attack_speed: 0.9, defense: 1000},
         loot_list: [
             {item_name: "Turtle meat", chance: 0.02},
             {item_name: "Turtle shell", chance: 0.005},
@@ -394,7 +394,7 @@ class Enemy {
         rank: 14,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast"],
-        stats: {health: 17000, attack: 450, agility: 350, dexterity: 700, intuition: 300, magic: 0, attack_speed: 2.7, defense: 400}, //numbers are just estimates, intended AP is 5550 and EP is 3300
+        stats: {health: 13000, attack: 450, agility: 380, dexterity: 300, intuition: 150, magic: 0, attack_speed: 2.7, defense: 400},
         loot_list: [
             {item_name: "Giant snake meat", chance: 0.02},
             {item_name: "Giant snake skin", chance: 0.01},
@@ -460,12 +460,12 @@ class Enemy {
 	enemy_templates["Giant stone crab"] = new Enemy({
         name: "Giant stone crab",
         description: "This was the biggest crab you had ever seen. It's also the smallest crab you had ever seen",  //descriptions of challenge fights aren't visible, but this is a joke based on the fact that the player hasn't seen any other crab enemies yet
-        add_to_bestiary: false,
+        add_to_bestiary: true,          //for testing purposes
         xp_value: 1,
         rank: 10,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 28000, attack: 250, agility: 200, dexterity: 350, intuition: 200, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 1250}, //numbers are just estimates, intended AP is 4000 and EP is 2000
+        stats: {health: 28000, attack: 250, agility: 480, dexterity: 400, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 1250},
     });
 
 	enemy_templates["Enraged giant stone crab"] = new Enemy({
@@ -476,9 +476,9 @@ class Enemy {
         rank: 11,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 43000, attack: 480, agility: 300, dexterity: 500, intuition: 50, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 850}, //numbers are just estimates, intended AP is 6000 and EP is 3500
+        stats: {health: 43000, attack: 480, agility: 480, dexterity: 400, intuition: 200, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 850}, //numbers are just estimates, intended to have a higher AP and EP than the alligator, turtle, and snake
         loot_list: [
-            {item_name: "Giant crab claw", chance: 1.00},
+            {item_name: "Giant crab claw", chance: 0.99},
         ]
     });
 

@@ -719,7 +719,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         stages: {
             1: {
                 description: "Attempting to stay dry in conditions like this is impossible",
-                applied_effects: [{effect: "Wet", duration: 30}],
+                effects: [{effect: "Wet", duration: 30}],
             }
         }
     });
@@ -1655,7 +1655,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             }
             return noises;
         },
-        temperature_modifier: 0.9,
+        temperature_modifier: +0.9,
         name: "Further downstream",
         is_unlocked: false,
     });
@@ -1673,7 +1673,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             }
             return noises;
         },
-        temperature_modifier: 0.9,
+        temperature_modifier: +0.9,
         name: "Lake beach",
         //is_unlocked: false,                       //commented out for testing purposes
     });
@@ -1694,7 +1694,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["*You hear the roar of thousands of gallons of water crashing down*"];
             return noises;
         },
-        temperature_modifier: 1.6,
+        temperature_modifier: +1.6,
         name: "Waterfall basin",
         is_unlocked: false,
     });
@@ -1733,11 +1733,11 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Swampland fields"] = new Location({ 
         connected_locations: [{location: locations["Waterfall basin"], custom_text: "Climb through the muck and brush and return to the [Waterfall basin]", travel_time: 45, travel_time_skills: ["Scrambling"]}], 
          getDescription: function() {
-		 if(locations["Wander randomly in the swamplands"].enemy_groups_killed >= 100 * locations["Wander randomly in the swamplands"].enemy_count) { 
+		 if(locations["The swamplands"].enemy_groups_killed >= 100 * locations["The swamplands"].enemy_count) { 
                 return "The swamplands are filled with everpresent danger. Only an experienced warrior such as yourself is capable of withstanding the threats that lie under the boggy depths";
-            } else if(locations["Wander randomly in the swamplands"].enemy_groups_killed >= 10 * locations["Wander randomly in the swamplands"].enemy_count) {
+            } else if(locations["The swamplands"].enemy_groups_killed >= 10 * locations["The swamplands"].enemy_count) {
                 return "The swamplands are difficult to navigate and dangerous to traverse, but after scouting it for what feels like a few weeks, you begin to find that the bog feels smaller and emptier";
-            } else if(locations["Wander randomly in the swamplands"].enemy_groups_killed >= 3 * locations["Wander randomly in the swamplands"].enemy_count) {
+            } else if(locations["The swamplands"].enemy_groups_killed >= 3 * locations["The swamplands"].enemy_count) {
                 return "The swamplands are difficult to navigate and dangerous to traverse, but after travelling across it for what feels like a few days, you managed to find an actual solid pathway leading to a small settlement. It seems that somehow, some folks have managed to find a way to survive out here";
             } else {
                 return "A disgusting boggy marsh lies before you. Most of the ground, or at least what you can make out through the reeds, is covered in filthy water up to your knees, and what isn't submerged has rotted into compost or is the nest of some unknown creature. You think you see something out of the corner of your eye, but as you turn to look, all you catch is a ripple in the reeds";
@@ -1746,23 +1746,23 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["*Gnats and mosquitos pick at your exposed skin*", "*fwoosh* *thump*", "*You hear something moving around you, but you can't see it*", "*The buzz of insects throb in your ears*", "*gurgle gurgle*", "*You feel something moving next you, but you can't see it*", "*snap* *crunch*", "*You hear the rythmic swish-swash of something swimming nearby*", "*hssssssssssss*", "*slither*"];
             return noises;
         },
-        temperature_modifier: 2.1,
+        temperature_modifier: +2.1,
         name: "Swampland fields",
         //is_unlocked: false,                       //commented out for testing purposes
     });
     locations["Waterfall basin"].connected_locations.push({location: locations["Swampland fields"], custom_text: "Climb through the muck and brush to the [Swampland fields]", travel_time: 45, travel_time_skills: ["Scrambling"]});
 
-    locations["Wander randomly in the swamplands"] = new Combat_zone({
+    locations["The swamplands"] = new Combat_zone({
         description: "The swamplands are hot, wet, and smell of rot. Water impedes your every movement, and vicious predators lie beneath it's surface", 
         enemy_count: 100, 
-        types: [/*{type: "rough", stage: 2, xp_gain: 5},*/ {type: "wet", stage: 1}],                       //commented out for testing purposes
+        types: [{type: "rough", stage: 2, xp_gain: 5}, {type: "wet", stage: 1}],
         enemies_list: ["Alligator", "Snapping turtle", "Giant snake"],
         enemy_stat_variation: 0.2,
         is_unlocked: true, 
-        name: "Wander randomly in the swamplands", 
+        name: "The swamplands", 
         leave_text: "Slink away to some higher, dryer ground",
         parent_location: locations["Swampland fields"],
-        temperature_modifier: 3.2,
+        temperature_modifier: -3.2,
         first_reward: {
             xp: 10000,
         },
@@ -1776,14 +1776,14 @@ There's another gate on the wall in front of you, but you have a strange feeling
 				}
             ]
         });
-    locations["Swampland fields"].connected_locations.push({location: locations["Wander randomly in the swamplands"], custom_text: "Wander randomly in the swamplands", travel_time: 45});
+    locations["Swampland fields"].connected_locations.push({location: locations["The swamplands"], custom_text: "Wander randomly in the swamplands", travel_time: 45});
 
     locations["Swampland tribe"] = new Location({       //a dying village on it's last legs, found by you recently after the loss of their only remaining warriors; only survivor was the hunting party scout who is wounded in the longhouse
         connected_locations: [{location: locations["Swampland fields"], custom_text: "Leave the safety of the settlement and return to the [Swampland fields]", travel_time: 90, travel_time_skills: ["Scrambling", "Running"]}], 
         getDescription: function() {
-            if(locations["Wander randomly in the swamplands"].enemy_groups_killed >= 20 * locations["Wander randomly in the swamplands"].enemy_count) { 
+            if(locations["The swamplands"].enemy_groups_killed >= 20 * locations["The swamplands"].enemy_count) { 
                 return "Very small fortified settlement, built on a stretch of dry, stable ground. There are a few small huts and a lone building built into the back of the encampment. As small as the settlement is, the fortifications surrounding it suggest that it once was larger";
-            } else if(locations["Wander randomly in the swamplands"].enemy_groups_killed >= 6 * locations["Wander randomly in the swamplands"].enemy_count) {
+            } else if(locations["The swamplands"].enemy_groups_killed >= 6 * locations["The swamplands"].enemy_count) {
                 return "Very small fortified settlement, built on a stretch of dry, stable ground. There are a few small huts with stalls build into them, and a lone building built into the back of the encampment";
             } else {
                 return "Very small fortified settlement, built on a stretch of dry, stable ground. It's surrounded by swampy fields, most of them infested by dangerous creatures. It's surprising there's anyone living here at all"; 
@@ -1799,7 +1799,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         market_region: "Swamp",
         name: "Swampland tribe", 
         crafting: {
-            //is_unlocked: false,     //to be uncommented when properly implemented by Mik
+            is_unlocked: true,     //to be swapped to false when properly implemented by Mik
             use_text: "Try to craft something", 
             tiers: {
                 crafting: 2,
