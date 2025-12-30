@@ -238,7 +238,7 @@ const translations = {
         "sup deliver 2": "[Deliver the bonemeal]",
         "sup deliver 2 answ": "Thank you very much, here's your money! We will gladly take more, whenever you have it!",
         "sup deliver 2 not": "I'm sorry, but that's not enough",
-        "sup description": "You see a well dressed man with a notebook on his belt and a hat on his head. Despite seeming more like a scribe, he's buff and tanned."
+        "sup description": "You see a well dressed man with a notebook on his belt and a hat on his head. Despite seeming more like a scribe, he's buff and tanned.",
         //
         "swampchief description 1": "",
         "swampchief description 2": "",
