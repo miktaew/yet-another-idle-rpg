@@ -429,11 +429,30 @@ class TradeItem {
             new TradeItem({item_name: "Alligator jerky", count: [1,2]}),
             new TradeItem({item_name: "Snake jerky", count: [1,2]}),
             new TradeItem({item_name: "Turtle jerky", count: [1,2]}),
-
+/*
             new TradeItem({item_name: "Cooking herbs", count: [1,3]}),
             new TradeItem({item_name: "Wild onion", count: [1,3]}),
             new TradeItem({item_name: "Wild garlic", count: [1,3]}),
             new TradeItem({item_name: "Wild potato", count: [1,3]}),
+*/
+            new TradeItem({item_name: "Shellfish desires", count: [1]}),            //for testing purposes
+            new TradeItem({item_name: "Piece of alligator leather", count: [200,200]}),
+            new TradeItem({item_name: "Piece of snakeskin leather", count: [200,200]}),
+            new TradeItem({item_name: "Turtle shellplate", count: [200,200]}),
+            new TradeItem({item_name: "Crab meat", count: [200,200]}),
+            new TradeItem({item_name: "Clam", count: [200,200]}),
+            new TradeItem({item_name: "Cooking herbs", count: [200,200]}),
+            new TradeItem({item_name: "Wild onion", count: [200,200]}),
+            new TradeItem({item_name: "Wild garlic", count: [200,200]}),
+            new TradeItem({item_name: "Wild potato", count: [200,200]}),
+            new TradeItem({item_name: "Alligator meat", count: [200,200]}),
+            new TradeItem({item_name: "Turtle meat", count: [200,200]}),
+            new TradeItem({item_name: "Belmart leaf", count: [200,200]}),
+            new TradeItem({item_name: "Glass bottle", count: [200,200]}),
+            new TradeItem({item_name: "Snake fang ring", count: [1]}),
+
+
+
     ];
 	inventory_templates["Swamp plus"] = 
     [
