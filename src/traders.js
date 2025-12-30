@@ -434,14 +434,6 @@ class TradeItem {
             new TradeItem({item_name: "Wild onion", count: [1,3]}),
             new TradeItem({item_name: "Wild garlic", count: [1,3]}),
             new TradeItem({item_name: "Wild potato", count: [1,3]}),
-
-            new TradeItem({item_name: "Piece of alligator leather", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Piece of snakeskin leather", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Turtle shellplate", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Snake fang ring", count: [1], chance: 1}),
-
-
-
     ];
 	inventory_templates["Swamp plus"] = 
     [
