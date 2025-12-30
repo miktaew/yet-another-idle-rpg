@@ -1682,7 +1682,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
 
 
     locations["Lake camp"] = new Location({
-        connected_locations: [{location: locations["Lake beach"], custom_text: "Go to your camp on the lakeside", travel_time: 5}],
+        connected_locations: [{location: locations["Lake beach"], custom_text: "Go back out to the [Lake beach]", travel_time: 5}],
         description: "A pleasant little camp with a crackling fire, created by you to be the perfect lakeside relaxation spot",
         name: "Lake camp",
         housing: {
@@ -1701,15 +1701,13 @@ There's another gate on the wall in front of you, but you have a strange feeling
             return noises;
         },
         temperature_range_modifier: +1,
-        crafting: {
-            is_unlocked: true, 
-            use_text: "Try to cook something", 
-            tiers: {
-                cooking: 1,
-            },
-        },
+        //crafting: {           //unable to add cooking alone to the camp
+            //is_unlocked: true, 
+            //use_text: "Try to cook something", 
+            //tiers: {cooking: 1},
+        //},
     });
-    locations["Lake beach"].connected_locations.push({location: locations["Lake camp"], custom_text: "Go back out to the [Lake beach]", travel_time: 5});
+    locations["Lake beach"].connected_locations.push({location: locations["Lake camp"], custom_text: "Go to your camp on the lakeside", travel_time: 5});
 
 
     locations["Waterfall basin"] = new Location({ 
