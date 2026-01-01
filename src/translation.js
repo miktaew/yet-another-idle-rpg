@@ -79,20 +79,20 @@ const translations = {
         "elder training answ 1": "You did? Well, let me think... You could try swimming in the river nearby if you haven't done that yet, just remember not to do it in cold weather. Or you could try some wall climbing, but be sure to start with low heights to be safe.",
         "elder training answ 2": "You did? Well, let me think... Swimming in the river nearby would be a good exercise, but it's mostly frozen now in winter. You could try some wall climbing though, but be sure to start with low heights to be safe.",
 	"elder crab rumors": "I had overheard some villagers talking about an enormous crab nest nearby.", //crab start
-	"elder crab rumors answ": "That seems to have become the rumor of the week. Somebody found a fisherman unconscious in the forest a few weeks ago. He's recovering even now."
-        	+"His wounds weren't too severe, but they must have gotten infected, because he's been in a fever ever since we found him. In his delirium, he was murmuring something about enormous crab nests. We haven't seen anything nearby, but..."
+	"elder crab rumors answ": "That seems to have become the rumor of the week. Somebody found a fisherman unconscious in the forest a few weeks ago. He's recovering even now. "
+        	+"His wounds weren't too severe, but they must have gotten infected, because he's been in a fever ever since we found him. In his delirium, he was murmuring something about enormous crab nests. We haven't seen anything nearby, but... "
         	+"This isn't the first I've heard of crab infestations along the river. Every few decades, their population undergoes a great boom, only to recede the following year.",
 	"elder crab where": "The fisherman was found in the forest?",
-	"elder crab where answ": "The river that you see flowing through our village spans a great deal of the forest, and some of the fishermen swear they have better catches out in the woods where it's quieter."
+	"elder crab where answ": "The river that you see flowing through our village spans a great deal of the forest, and some of the fishermen swear they have better catches out in the woods where it's quieter. "
         	+"As I understand it, the fisherman was found by a farmhand taking one of the horses out for a ride in the woods. The farmhand didn't mention seeing any rivers nearby, so we don't know if that's where he was injured.",
 	"elder crab hunt": "I want to search for this enormous crab nest, they could be a danger to the village.",
-	"elder crab hunt answ": "The guards can handle any crabs that get near the village. And beside, you..."
-                +"\n*[The village elder trails off while looking you over, silently staring for a moment before speaking]*\n" //The elder is realizing that this isn't about protecting the village, it's about exploring the world and finding their place in it
-	        +"It's clear you are much stronger than when you were first brought to recover under my care."
-        	+"I will not try to convince you otherwise, I can see the determination in your eyes. You have my blessing. But know this: there are dangers in the wilderness that no training can ready you for."
-                +"If your current weapon, armor, or method of attack isn't working, it's much better to run away, reassess, and recover your strength instead of unnecessarily risking your life."
-        	+"Please, be cautious. And consider checking with the village market to get some medicine and supplies. There's no telling how long your journey will take, or what challenges you will face on it."
-        	+"No matter how far you go, just remember that you always have a home in this village.",
+	"elder crab hunt answ": "The guards can handle any crabs that get near the village. And beside, you... "
+                +"\n*[The village elder trails off while looking you over, silently staring for a moment before speaking]*\n " //The elder is realizing that this isn't about protecting the village, it's about exploring the world and finding their place in it
+	        +"It's clear you are much stronger than when you were first brought to recover under my care. "
+        	+"I will not try to convince you otherwise, I can see the determination in your eyes. You have my blessing. But know this: there are dangers in the wilderness that no training can ready you for. "
+                +"If your current weapon, armor, or method of attack isn't working, it's much better to run away, reassess, and recover your strength instead of unnecessarily risking your life. "
+        	+"Please, be cautious. And consider checking with the village market to get some medicine and supplies. There's no telling how long your journey will take, or what challenges you will face on it. "
+        	+"No matter how far you go, just remember that you always have a home in this village. ",
 	//
         "craftsman description": "You see an old man who clearly experienced a lot in life. He's wearing some handmade accessories. Despite his age, his fingers seem exceptionally nimble.",
         "craftsman hello": "Hello, I heard you wanted to talk to me?",

@@ -1485,6 +1485,13 @@ book_stats["Shellfish desires"] = new BookData({
         value: 14,
         material_type: "raw fabric",
     });
+    item_templates["Clam"] = new Material({
+        name: "Clam",
+        description: "Common shellfish found in the sand and mud around the lake shore. Cann't be eaten raw",
+        value: 6,
+        //effects: [{effect: "Basic meal", duration: 30}],          //couldn't manage to make it both edible and usable as a material
+        //tags: {"food": true},
+    });
     item_templates["Wild onion"] = new Material({
         name: "Wild onion",
         description: "A wild root vegetable sometimes used to add flavor to dishes. Can't be eaten raw",
@@ -3936,14 +3943,6 @@ book_stats["Shellfish desires"] = new BookData({
         name: "Potato", description: "A common tuber with versatile culinary usage, though this one was simply cooked",
         value: 40,
         effects: [{effect: "Basic meal", duration: 150}],
-        tags: {"food": true},
-    });
-
-    item_templates["Clam"] = new UsableItem({
-        name: "Clam",
-        description: "Common shellfish found in the sand and mud around the lake shore that can be eaten raw",
-        value: 6,
-        effects: [{effect: "Basic meal", duration: 30}],
         tags: {"food": true},
     });
 
