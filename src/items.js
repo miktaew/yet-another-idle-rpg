@@ -1132,7 +1132,7 @@ book_stats["A Glint On The Sand"] = new BookData({
 	
 });
 
-book_stats["Shellfish Desires"] = new BookData({
+book_stats["Shellfish desires"] = new BookData({
     required_time: 360,
     literacy_xp_rate: 6,
     rewards: {
@@ -3593,7 +3593,7 @@ book_stats["Shellfish Desires"] = new BookData({
         name: "Turtleshell shield base",
         description: "Dense turtle shellplate base, although it's quite heavy",
         value: 650,
-        shield_strength: 20,
+        shield_strength: 24,
         shield_name: "Turtleshell shield",
         component_tier: 5,
         component_type: "shield base",
@@ -3939,7 +3939,7 @@ book_stats["Shellfish Desires"] = new BookData({
         tags: {"food": true},
     });
 
-    item_templates["Clam"] = new Material({
+    item_templates["Clam"] = new UsableItem({
         name: "Clam",
         description: "Common shellfish found in the sand and mud around the lake shore that can be eaten raw",
         value: 6,
@@ -3947,7 +3947,7 @@ book_stats["Shellfish Desires"] = new BookData({
         tags: {"food": true},
     });
 
-    item_templates["Cooked clam"] = new Material({      //making clam broth returns cooked clams
+    item_templates["Cooked clam"] = new UsableItem({      //making clam broth returns cooked clams
         name: "Boiled clam",
         description: "Common shellfish found around the lake shore that has been boiled, not steamed",
         value: 6,

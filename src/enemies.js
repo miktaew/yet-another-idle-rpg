@@ -366,7 +366,7 @@ class Enemy {
         rank: 13,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 16500, attack: 750, agility: 270, dexterity: 350, intuition: 120, magic: 0, attack_speed: 1.6, defense: 550},
+        stats: {health: 16500, attack: 750, agility: 283, dexterity: 350, intuition: 120, magic: 0, attack_speed: 1.6, defense: 550},
         loot_list: [
             {item_name: "Alligator meat", chance: 0.02},
             {item_name: "Alligator skin", chance: 0.01},
@@ -380,7 +380,7 @@ class Enemy {
         rank: 12,
         size: enemy_sizes.MEDIUM,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 22000, attack: 550, agility: 250, dexterity: 240, intuition: 140, magic: 0, attack_speed: 0.9, defense: 1000},
+        stats: {health: 22000, attack: 550, agility: 225, dexterity: 240, intuition: 130, magic: 0, attack_speed: 0.9, defense: 1000},
         loot_list: [
             {item_name: "Turtle meat", chance: 0.02},
             {item_name: "Turtle shell", chance: 0.005},

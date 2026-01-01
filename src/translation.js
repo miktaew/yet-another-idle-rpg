@@ -78,13 +78,22 @@ const translations = {
         "elder training": "I think I went far enough with basic training, do you have any other suggestions?",
         "elder training answ 1": "You did? Well, let me think... You could try swimming in the river nearby if you haven't done that yet, just remember not to do it in cold weather. Or you could try some wall climbing, but be sure to start with low heights to be safe.",
         "elder training answ 2": "You did? Well, let me think... Swimming in the river nearby would be a good exercise, but it's mostly frozen now in winter. You could try some wall climbing though, but be sure to start with low heights to be safe.",
-        "elder crab rumors": "",
-	"elder crab rumors answ": "",
-	"elder crab where": "",
-	"elder crab where answ": "",
-	"elder crab hunt": "",
-        "elder crab hunt answ": "",
-        //
+	"elder crab rumors": "I had overheard some villagers talking about an enormous crab nest nearby.", //crab start
+	"elder crab rumors answ": "That seems to have become the rumor of the week. Somebody found a fisherman unconscious in the forest a few weeks ago. He's recovering even now."
+        	+"His wounds weren't too severe, but they must have gotten infected, because he's been in a fever ever since we found him. In his delirium, he was murmuring something about enormous crab nests. We haven't seen anything nearby, but..."
+        	+"This isn't the first I've heard of crab infestations along the river. Every few decades, their population undergoes a great boom, only to recede the following year.",
+	"elder crab where": "The fisherman was found in the forest?",
+	"elder crab where answ": "The river that you see flowing through our village spans a great deal of the forest, and some of the fishermen swear they have better catches out in the woods where it's quieter."
+        	+"As I understand it, the fisherman was found by a farmhand taking one of the horses out for a ride in the woods. The farmhand didn't mention seeing any rivers nearby, so we don't know if that's where he was injured.",
+	"elder crab hunt": "I want to search for this enormous crab nest, they could be a danger to the village.",
+	"elder crab hunt answ": "The guards can handle any crabs that get near the village. And beside, you..."
+                +"\n*[The village elder trails off while looking you over, silently staring for a moment before speaking]*\n" //The elder is realizing that this isn't about protecting the village, it's about exploring the world and finding their place in it
+	        +"It's clear you are much stronger than when you were first brought to recover under my care."
+        	+"I will not try to convince you otherwise, I can see the determination in your eyes. You have my blessing. But know this: there are dangers in the wilderness that no training can ready you for."
+                +"If your current weapon, armor, or method of attack isn't working, it's much better to run away, reassess, and recover your strength instead of unnecessarily risking your life."
+        	+"Please, be cautious. And consider checking with the village market to get some medicine and supplies. There's no telling how long your journey will take, or what challenges you will face on it."
+        	+"No matter how far you go, just remember that you always have a home in this village.",
+	//
         "craftsman description": "You see an old man who clearly experienced a lot in life. He's wearing some handmade accessories. Despite his age, his fingers seem exceptionally nimble.",
         "craftsman hello": "Hello, I heard you wanted to talk to me?",
         "craftsman hello answ": "Ahh, good to see you traveler. I just thought of a little something that could be of help for someone like you. See, young people this days "+
@@ -241,8 +250,8 @@ const translations = {
         "sup description": "You see a well dressed man with a notebook on his belt and a hat on his head. Despite seeming more like a scribe, he's buff and tanned.",
         //
         "swampchief description 1": "",
-        "swampchief description 2": "",
-        "swampchief description 3": "",
+        "swampchief description 2": "", //description changes upon accepting In Times of Need
+        "swampchief description 3": "", //description changes again upon finishing In Times of Need
 	"swampchief meet": "",
         "swampchief meet answ": "",
         "swampchief explain": "",
@@ -258,8 +267,9 @@ const translations = {
         "swampchief generic": "",
         "swampchief generic answ": "",
 	//
-        "swampcook description 1": "",
-        "swampcook description 2": "",
+        "swampcook description 1": "As you get closer to the cook's workhut, you're met with a loud bellowing in a distinctive tune and an acrid smell emanating from inside. Bracing your nose, you approach to find a short fellow, moving between a rack larger than he is housing thin cuts of meat suspended between grated slats and a large cauldron build into a workbench covered in large slabs of rough leather in various stages of processing. You're surprised to find that he was the source of the singing. Noticing your approach, he stops singing and turns to face you with a smile on his face.", //before accepted task
+        "swampcook description 2": "You approach the cooks's workhut, finding him standing outside next to a small smokehouse in between splitting logs. As before, you can both smell the leather the cook is processing and hear the song that he is singing long before you see him.", //before finishing delivery
+        "swampcook description 3": "As you approach the workhut, you absentmindedly sing the cook's song the tune to yourself alongside him as he works. He notices your singing more than your approach, and gives you a big nod with a toothy smile before resuming his work.", //after finishing delivery
 	"swampcook unknown": "",
         "swampcook unknown answ": "",
         "swampcook known": "",
@@ -272,8 +282,13 @@ const translations = {
         "swampcook liked": "",
         "swampcook liked answ": "",
 	//
-        "swamptailor description 1": "",
-        "swamptailor description 2": "",
+        "swamptailor description 1": "Approaching the tailor's workhut, you glance inside to see an fidgety man quickly moving between multple tasks. He seems to be talking to somebody in hushed tones, but as you get closer, you realize there's nobody else around.", //setup description for the initial dialogue
+        "swamptailor description 2": "As you approach the tailor's workhut, you see he's already putting down whatever task he was working on and moving outside to meet with you.", //for in between the initial dialogue and completing his portion of the quest
+        "swamptailor description 3": "You approach the tailor's workhut, knocking loudly at the door to get his attention over his relentless fretting about the place.", //for after completing his portion of the quest
+	"swamptailor interrupt": "*knock on the workhut door*", //the tailor will winge to himself until the player makes their presence known
+        "swamptailor interrupt answ": "-and how am I-"
+			+"*Upon realising you're there, the tailor drops what they were doing and dives behind a nearby table, knocking it's contents to the floor. They slowly scramble to their feet while reaching futilely for some sort of weapon."
+			+"What? Who are you! Why are you here! How did you get here!",
 	"swamptailor unknown": "",
         "swamptailor unknown answ": "",
         "swamptailor known": "",
@@ -288,8 +303,9 @@ const translations = {
         "swamptailor liked": "",
         "swamptailor liked answ": "",
 	//
-        "swamptanner description 1": "",
-        "swamptanner description 2": "",
+        "swamptanner description 1": "You approach the tanner's workhut to find the old woman with a scowl on her face standing next to a rack stretching drying leather. Her hands are visibly shaky as she checks them, an apparent sign of wear and old age, as she goes about her work.", //before completing the first delivery.
+        "swamptanner description 2": "You approach the tanner's workhut, finding her with meticulously fleshing the alligator skins you brought her earlier. In spite of her clear and deliberate effort, her unsteady hands make deep gouges in the leather like that of an amateur first learning how to clean the skin.", //for after completing the first part of the delivery
+        "swamptanner description 2": "", //description changes after making the second delivery and finishing her part of In Times of Need
 	"swamptanner unknown": "",
         "swamptanner unknown answ": "",
         "swamptanner known": "",
@@ -306,8 +322,7 @@ const translations = {
         "swamptanner liked answ": "",
 	//
         "swampscout description 1": "",
-        "swampscout description 2": "",
-        "swampscout description 3": "",
+        "swampscout description 2": "", //description changes after she teaches the player foraging
 	"swampscout meet": "",
         "swampscout meet answ": "",
         "swampscout generic": "",

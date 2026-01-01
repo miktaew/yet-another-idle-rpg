@@ -426,6 +426,7 @@ class TradeItem {
 	
 	inventory_templates["Swamp"] = 
     [
+            /*
             new TradeItem({item_name: "Alligator jerky", count: [1,2]}),
             new TradeItem({item_name: "Snake jerky", count: [1,2]}),
             new TradeItem({item_name: "Turtle jerky", count: [1,2]}),
@@ -434,6 +435,32 @@ class TradeItem {
             new TradeItem({item_name: "Wild onion", count: [1,3]}),
             new TradeItem({item_name: "Wild garlic", count: [1,3]}),
             new TradeItem({item_name: "Wild potato", count: [1,3]}),
+            */
+
+            
+            new TradeItem({item_name: "Alligator skin", count: [200,200]}), //for testing purposes. Obviously.
+            new TradeItem({item_name: "Giant snake skin", count: [200,200]}),
+            new TradeItem({item_name: "Turtle shell", count: [200,200]}),
+            new TradeItem({item_name: "Alligator meat", count: [200,200]}),
+            new TradeItem({item_name: "Giant snake meat", count: [200,200]}),
+            new TradeItem({item_name: "Turtle meat", count: [200,200]}),
+            new TradeItem({item_name: "Flax", count: [200,200]}),
+            new TradeItem({item_name: "Linen cloth", count: [200,200]}),
+            new TradeItem({item_name: "Piece of alligator leather", count: [200,200]}),
+            new TradeItem({item_name: "Piece of snakeskin leather", count: [200,200]}),
+            new TradeItem({item_name: "Turtle shellplate", count: [200,200]}),
+
+            new TradeItem({item_name: "Cooking herbs", count: [200,200]}),
+            new TradeItem({item_name: "Wild onion", count: [200,200]}),
+            new TradeItem({item_name: "Wild garlic", count: [200,200]}),
+            new TradeItem({item_name: "Wild potato", count: [200,200]}),
+            new TradeItem({item_name: "Clam", count: [200,200]}),
+            new TradeItem({item_name: "Crab meat", count: [200,200]}),
+            new TradeItem({item_name: "Belmart leaf", count: [200,200]}),
+            new TradeItem({item_name: "Empty bottle", count: [200,200]}),
+            new TradeItem({item_name: "Animal fat", count: [200,200]}),
+
+            new TradeItem({item_name: "Shellfish desires", count: [1], chance: 1}),
     ];
 	inventory_templates["Swamp plus"] = 
     [
@@ -455,7 +482,7 @@ class TradeItem {
             new TradeItem({item_name: "Turtleshell platemail pants", count: [1], quality: [70, 100], chance: 0.01}),
             new TradeItem({item_name: "Turtleshell shield", count: [1], quality: [70, 100], chance: 0.01}),
 
-            //new TradeItem({item_name: "Shellfish desires", count: [1], chance: 0.5}),     //commented out to prevent errors, something is broken somewhere with this book and I don't know what
+            new TradeItem({item_name: "Shellfish desires", count: [1], chance: 0.5}),
 
 			new TradeItem({item_name: "Healing balm", count: [1,2], chance: 0.15}),
 			new TradeItem({item_name: "Healing powder", count: [1,3], chance: 0.2}),

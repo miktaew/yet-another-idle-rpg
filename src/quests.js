@@ -440,14 +440,14 @@ const questManager = {
         quest_name: "Giant Enemy Crab",
         display_priority: 9,
         getQuestDescription: ()=>{
-            if(!quests["Giant Enemy Crab"].quest_tasks[2].is_finished) {    //update upon completion of final task
-                return "You slew the giant crab nesting at the forest lakebed";
+            if(!quests["Giant Enemy Crab"].quest_tasks[2].is_finished) {
+                return "You slew the giant crab nesting at the lake beach";
             } else if(!quests["Giant Enemy Crab"].quest_tasks[1].is_finished) {
-                return "You managed to chase the giant crab away, but if no one comes to finish the job, it'll just be a problem for somebody else to deal with. And even if they did, the crab would only be more dangerous, then. Better just to take care of it yourself now";
+                return "You managed to chase the giant crab away, but if you don't finish it off soon, it'll just nest somewhere else and be a problem for somebody else later. And even if someone did find it, would they be strong enough to defeat it? Better just to take care of it yourself now";
             } else if(!quests["Giant Enemy Crab"].quest_tasks[0].is_finished) {
-                return "The elder gave you his blessing to investigate the rumors of an enormous crab nest down the river. Or was it an enormous crab's nest? Or was it a nest of enormous crabs? Either way, he told you to be careful";
+                return "The elder gave you his blessing to investigate the rumors of enormous crab nests somewhere down river. Or was it an enormous crab's nest? Or was it some enormous crabs' nest? Either way, he reminded you to prepare for the journey ahead";
             } else {
-                return "You think you may have overheard somebody mention something about a crab nest down the river. Maybe you should speak to the elder about it, and see what he knows";
+                return "You think you may have overheard some villagers mention something about crab nests down the river? Maybe you should speak to the elder about it, and see what he knows";
             }
         },
         questline: "Giant Enemy Crab",
@@ -476,7 +476,7 @@ const questManager = {
         display_priority: 9,
         getQuestDescription: ()=>{
             if(!quests["In Times of Need"].quest_tasks[9].is_finished) {    //update upon completion of final task
-                return "You helped the swampland tribe in their time of need";
+                return "You helped the snakefang tribe in their time of need";
             } else if(!quests["In Times of Need"].quest_tasks[1].is_finished) {
                 return "You accepted the chief's request to ask around and see how you could assist the tribe";
             } else {
@@ -488,22 +488,22 @@ const questManager = {
             new QuestTask({
                 task_condition: {
                     all: {
-                        enter_location: { //enter the village to start the quest
+                        enter_location: { //enter the village to start the quest, speak to the chief to formally accept the quest
                             "Swampland tribe": {
                                 target: 1, 
                             },
                         }
                     }
                 }
-			}), //speak to the chief to formally accept the quest
+			}),
             new QuestTask({task_description: "Speak to the cook and see how you can help"}), //crab delivery part 1
-            new QuestTask({task_description: "Bring the cook 60 pieces of crab meat to improve morale"}), //crab delivery part 2
+            new QuestTask({task_description: "Bring the cook 60 pieces of fresh crab meat"}), //crab delivery part 2
             new QuestTask({task_description: "Speak to the tailor and see how you can help"}), //flax delivery part 1
-            new QuestTask({task_description: "Bring the tailor 200 bundles of flax to make fresh linen"}), //flax delivery part 2
+            new QuestTask({task_description: "Bring the tailor 200 bundles of fresh flax"}), //flax delivery part 2
             new QuestTask({task_description: "Speak to the tanner and see how you can help"}), //tanner delivery part 1
-            new QuestTask({task_description: "Bring the tanner 60 pieces of alligator skin to make new leathers"}), //tanner delivery part 2
-            new QuestTask({task_description: "Bring the tanner 60 pieces of giant snake skin to make new leathers"}), //tanner delivery part 3
-            new QuestTask({task_description: "Speak to the chief again"}), //properly finishes the quest, rewards come in dialogue
+            new QuestTask({task_description: "Bring the tanner 60 pieces of alligator skin"}), //tanner delivery part 2
+            new QuestTask({task_description: "Bring the tanner 60 pieces of giant snake skin"}), //tanner delivery part 3
+            new QuestTask({task_description: "Report to the chief"}), //properly finishes the quest, rewards come in dialogue
         ]
     });
 

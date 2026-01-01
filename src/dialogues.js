@@ -302,7 +302,7 @@ class DialogueAction extends GameAction {
                 text: "elder crab hunt answ",
                 is_unlocked: false,
                 rewards: {
-                    locations: [{location: "Downstream from the village"}],
+                    actions: [{location: "Village", action: "hike down river"}],
                     //quest_progress: [{quest_id: "Giant Enemy Crab", task_index: 1}],      //for when Giant Enemy Crab quest is properly implemented
                 },
                 locks_lines: ["crab hunt"],
@@ -1002,12 +1002,12 @@ class DialogueAction extends GameAction {
             "swampchief confirm": new Textline({
                 name: "swampchief confirm",
                 text: "swampchief confirm answ",
-                is_unlocked: false,
+                is_unlocked: true,                                  //for testing purposes, change to false when done
                 rewards: {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief generic"]}],
                     locations: [{location: "Longhouse"}],
                     items_by_id: {"Snake fang ring": {count: 1}},                           //reward for completing the quest; other reward is the trader's book with the xp boosting food recipe
-                    //activities: [{location: "Swampland tribe", activity: "crafting"}],	//unsure of how to swap the crafting station in the tribe from locked to unlocked
+                    activities: [{location: "Swampland tribe", activity: "crafting"}],	//unsure of how to swap the crafting station in the tribe from locked to unlocked
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 9}],		//finishes the quest
                 },
                 locks_lines: ["swampchief confirm"],
@@ -1029,9 +1029,9 @@ class DialogueAction extends GameAction {
         });
         
 	    dialogues["swampland cook"] = new Dialogue({
-        //tbd
+        //tbd, originally an outsider to the tribe
         name: "swampland cook",
-        is_unlocked: false,
+        is_unlocked: true,                                  //for testing purposes, change to false when done
         textlines: {
             "swampcook known": new Textline({		//unlocked after accepting the quest, locked after completing their portion
                 name: "swampcook known",
@@ -1041,7 +1041,7 @@ class DialogueAction extends GameAction {
             "swampcook help": new Textline({
                 name: "swampcook help",
                 text: "swampcook help answ",
-                is_unlocked: true,
+                is_unlocked: true,                                  //for testing purposes, change to false when done
                 rewards: {actions: [{dialogue: "swampland cook", action: "swampcook deliver"}]},
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 2}],
                 locks_lines: ["swampcook help"],
@@ -1071,6 +1071,12 @@ class DialogueAction extends GameAction {
                 rewards: {
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 3}], 
                     textlines: [{dialogue: "swampland cook", lines: ["swampcook liked"]}],
+                    recipes: [
+                        {category: "cooking", subcategory: "items", recipe_id: "Alligator jerky"},
+                        {category: "cooking", subcategory: "items", recipe_id: "Turtle jerky"},
+                        {category: "cooking", subcategory: "items", recipe_id: "Snake jerky"},
+                        {category: "cooking", subcategory: "items", recipe_id: "Swampland skewer"},
+                    ],
                     dialogues: ["swampland tailor"],
                 },
                 locks_lines: (["swampcook deliver"], ["swampcook known"]),
@@ -1140,6 +1146,7 @@ class DialogueAction extends GameAction {
                 rewards: {
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 5}], 
                     textlines: [{dialogue: "swampland tailor", lines: ["swamptailor liked"]}],
+                    recipes: [{category: "Crafting", subcategory: "items", recipe_id: "Linen cloth"}],
                     dialogues: ["swampland tanner"],
                 },
                 locks_lines: (["swamptailor deliver"], ["swamptailor known"]),
@@ -1219,6 +1226,11 @@ class DialogueAction extends GameAction {
                 rewards: {
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 8}], //need to find some way to tie back to the chief since I can't make the quest work. locking the turn-in dialogue to rep could work, but I don't know how to implement questlines to give rep either, and rep rewards don't work in dialogue yet. maybe just disabling him after accepting the quest and enabling a new chief after this step?
                     textlines: [{dialogue: "swampland tanner", lines: ["swamptanner liked"]}],
+                    recipes: [
+                        {category: "Butchering", subcategory: "items", recipe_id: "Piece of alligator leather"},
+                        {category: "Butchering", subcategory: "items", recipe_id: "Piece of snakeskin leather"},
+                        {category: "Butchering", subcategory: "items", recipe_id: "Turtle shellplate"},
+                    ],
                 },
                 locks_lines: (["swamptanner deliver 2"], ["swamptanner known"]),
             }),
