@@ -324,21 +324,19 @@ class Enemy {
         size: enemy_sizes.LARGE,
         on_hit: (character) => {
             let roll = Math.random();
-            if (character.equipment.weapon != null && roll < 0.1) {
-                //TODO messages should belong to a category, but I'm not sure which
-                log_message("The frog's long tongue wraps around your weapon and wrests it from you!");
-                window.unequip_item("weapon");
-            }
-            else if (roll < 0.2) {
+            if(roll < 0.2) {
+                //todo: add some category for these messages
                 log_message("The frog's long tongue leaves you covered in sticky saliva!");
                 add_active_effect("Sticky", 30);
-            }
-            else if (roll < 0.3) {
+            } else if (roll < 0.3) {
                 log_message("The frog's attack leaves some of its toxins on you!");
                 switch (Math.floor(Math.random() * 3)) {
-                    case 0: add_active_effect("Irritation", 10); break;
-                    case 1: add_active_effect("Confusion", 10); break;
-                    case 2: add_active_effect("Hallucinations", 10); break;
+                    case 0: add_active_effect("Irritation", 10); 
+                            break;
+                    case 1: add_active_effect("Confusion", 10); 
+                            break;
+                    case 2: add_active_effect("Hallucinations", 10); 
+                            break;
                 }
             }
         },
@@ -347,17 +345,23 @@ class Enemy {
             if (character.equipment.weapon == null && roll < 0.2) {
                 log_message("Touching the frog with your bare hands leaves them covered in toxins!");
                 switch (Math.floor(Math.random() * 3)) {
-                    case 0: add_active_effect("Irritation", 10); break;
-                    case 1: add_active_effect("Confusion", 10); break;
-                    case 2: add_active_effect("Hallucinations", 10); break;
+                    case 0: add_active_effect("Irritation", 10); 
+                            break;
+                    case 1: add_active_effect("Confusion", 10); 
+                            break;
+                    case 2: add_active_effect("Hallucinations", 10); 
+                            break;
                 }
             }
             else if (character.equipment.weapon != null && roll < 0.05) {
                 log_message("Striking the frog causes some toxins to splash on you!");
                 switch (Math.floor(Math.random() * 3)) {
-                    case 0: add_active_effect("Irritation", 10); break;
-                    case 1: add_active_effect("Confusion", 10); break;
-                    case 2: add_active_effect("Hallucinations", 10); break;
+                    case 0: add_active_effect("Irritation", 10); 
+                            break;
+                    case 1: add_active_effect("Confusion", 10); 
+                            break;
+                    case 2: add_active_effect("Hallucinations", 10);
+                            break;
                 }
             }
         },
