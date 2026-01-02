@@ -946,7 +946,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             xp: 20,
         },
         repeatable_reward: {
-            //textlines: [{dialogue: "village elder", lines: ["cleared room"]}],
+            textlines: [{dialogue: "village elder", lines: ["cleared room"]}],
             locations: [{location: "Cave depths"}],
             xp: 10,
             activities: [{location:"Nearby cave", activity:"weightlifting"}, {location:"Nearby cave", activity:"mining"}, {location:"Village", activity:"balancing"}],

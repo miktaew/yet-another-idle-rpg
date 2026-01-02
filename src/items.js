@@ -1507,7 +1507,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         material_type: "piece of leather",
     });
     item_templates["Processed wolf pelt"] = new Material({
-        description: "Processed pelt of a wild wolf. It's a nice, stylish material",
+        description: "Processed pelt of a wild wolf. It's a nice, stylish material, with fur that's feels good to touch",
         value: 30,
         material_type: "processed pelt",
     });
@@ -1517,7 +1517,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         material_type: "piece of leather",
     });
     item_templates["Processed boar hide"] = new Material({
-        description: "Processed hide of a wild boar. It's a rough, heavy material, but it's quite strong",
+        description: "Processed hide of a wild boar. It's a thick, heavy material, with short rough fur, but it's quite strong",
         value: 45,
         material_type: "processed pelt",
     });
@@ -1527,7 +1527,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         material_type: "piece of leather"
     }),
     item_templates["Processed goat hide"] = new Material({
-        description: "Processed hide of a wild goat. It's a rough and resistant material",
+        description: "Processed hide of a wild goat. It's a resistant material, with short and rough fur",
         value: 60,
         material_type: "processed pelt",
     });
@@ -1537,7 +1537,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         material_type: "piece of leather"
     });
     item_templates["Processed bear hide"] = new Material({
-        description: "Strong, resistant, and warm",
+        description: "Strong, resistant, and warm, with fluffy fur",
         value: 90,
         material_type: "piece of leather"
     });

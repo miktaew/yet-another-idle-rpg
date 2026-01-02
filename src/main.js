@@ -2116,7 +2116,8 @@ function get_location_rewards(location) {
  * @param {Object} rewards_data.rewards //the standard object with rewards
  * @param {String} rewards_data.source_type //location, gameAction, textline
  * @param {Boolean} rewards_data.is_first_clear //exclusively for location rewards (and only for a single message to be logged)
- * @param {Boolean} rewards_data.inform_textline //if textline unlock is to be logged
+ * @param {Boolean} rewards_data.inform_overall //if unlocks are to be logged
+ * @param {Boolean} rewards_data.inform_textline //if textline unlock is to be logged (requires inform_overall to also be true)
  * @param {String} rewards_data.source_name //in case it's needed for logging a message
  */
 function process_rewards({rewards = {}, source_type, source_name, is_first_clear, inform_overall = true, inform_textline = true, only_unlocks = false, is_from_loading = false}) {
@@ -3978,6 +3979,16 @@ function load(save_data) {
                 }); 
             }
         }); //load for dialogues and their textlines and actions their unlocked/finished status
+
+        if(is_a_older_than_b(save_data["game version"], "v0.5.1")) {
+            //compatibility for some dialogues
+            process_rewards({
+                rewards: {
+                        textlines: [{dialogue: "village guard", lines: ["serious", "hi"]}],
+                    },
+                inform_overall: false,
+            });
+        }
 
         Object.keys(save_data.traders).forEach(function(trader) { 
             let trader_item_list = [];

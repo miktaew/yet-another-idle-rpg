@@ -399,8 +399,12 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 text: "guard hi answ",
                 display_conditions: {
-                    reputation: {village: 250},
+                    reputation: {village: 200},
                 },
+                rewards: {
+                    actions: [{dialogue: "village guard", action: "ask for pats"}, {dialogue: "village guard", action: "try to pat"}],
+                },
+                locks_lines: ["hi"],
             }),
             "teach": new Textline({
                 name: "guard teach",
@@ -455,7 +459,30 @@ class DialogueAction extends GameAction {
                 text: "guard serious answ",
                 locks_lines: ["serious"],
             }),
-            
+        },
+        actions: {
+            "ask for pats": new DialogueAction({
+                action_id: "ask for pats",
+                is_unlocked: false,
+                repeatable: true,
+                starting_text: "guard pats",
+                floating_click_effects: ['(ノ= ⩊ = )ノ', '( ´･･)ﾉ'],
+                description: "",
+                action_text: "",
+                success_text: "guard pats answ",
+                attempt_duration: 0,
+                success_chances: [1],
+            }),
+            "try to pat": new DialogueAction({
+                action_id: "try to pat",
+                is_unlocked: false,
+                starting_text: "guard try",
+                description: "",
+                action_text: "",
+                success_text: "guard try answ",
+                attempt_duration: 0,
+                success_chances: [1],
+            }),
         },
         description: "guard description",
     });
@@ -713,7 +740,6 @@ class DialogueAction extends GameAction {
                 success_chances: [1],
             }),
         }
-        
     });
 
     dialogues["old woman of the slums"] = new Dialogue({

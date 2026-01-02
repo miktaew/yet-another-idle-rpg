@@ -74,10 +74,10 @@ class Enemy {
         
         for (let i = 0; i < this.loot_list.length; i++) {
             item = this.loot_list[i];
-            if (item.chance * this.get_droprate_modifier(drop_chance_modifier) >= Math.random()) {
+            if(item.chance * this.get_droprate_modifier(drop_chance_modifier) >= Math.random()) {
                 // checks if it should drop
                 let item_count = 1;
-                if ("count" in item) {
+                if("count" in item) {
                     item_count = Math.round(Math.random() * (item["count"]["max"] - item["count"]["min"]) + item["count"]["min"]);
                     // calculates how much drops (from range min-max, both inclusive)
                 }

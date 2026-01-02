@@ -127,6 +127,10 @@ const translations = {
         "guard hi answ": "Hey there. I heard you've been helping around a lot, good job cutie~\n *[As she says that, she bends forward and pats your head a few times with a surprisingly gentle touch]*",
         "guard serious": "Can we try a more serious fight?",
         "guard serious answ": "Ohhh, someone wants to impress the cute guard lady? Sorry, but I'm way too strong for you~",
+        "guard pats": "[Ask for more headpats]",
+        "guard pats answ": "[She smiles and pats your head a few more times]",
+        "guard try": "[Try to pat her head instead]",
+        "guard try answ": '"<i>Nuh uh~</i>" <br>*[She says, patting your head again]',
         //
         "millers description": "You see two teenagers with mischievous looks on their faces. It's only with great deal of effort that you manage to recognize them both as males. One of them has red hair, the other gray.",
         "millers hello": "Hello there",
@@ -243,7 +247,7 @@ const translations = {
                 "Ahh, and before I forget, here, take these. They will be helpful for gathering necessary materials.",
         //
         "guard description": "You see a tall woman in light armor, with a spear in her hand and two daggers on her belt. Her sharp fuzzy ears rotate every now and then towards any new sound, while her fluffy tail remains motionless. There's a scar across her face. When she spots you, she looks at you as if you were a prey, but then adopts a more neutral expression",
-        "guard hi answ": "Hey there. I heard you've been helping around a lot, good job cutie~\n *[As she says that, she bends forward and pats your head a few times with a surprisingly gentle touch, her tail slightly wagging]*",
+        "guard hi answ": "Hey there. I heard you've been helping around a lot, good job cutie~ <br> *[As she says that, she bends forward and pats your head a few times with a surprisingly gentle touch, her tail slightly wagging]*",
         "guard serious answ": "Ohhh, someone wants to impress the cute fluffy wolf lady? Sorry, but I'm way too strong for you~",
         //
         //

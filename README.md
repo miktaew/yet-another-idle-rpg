@@ -24,3 +24,5 @@ To run the project locally, you will need a server - even some basic static serv
 Making actual changes in code will require either running the build script after installing esbuild, or simply changing script source in index.html from dist/bundle.js to src/main.js
 
 For modding purposes, it's recommended to at the very least take a look at the dev repository, as there's always a possibility it already contains things you wanted to add, or has code changes that will make your work easier, or at least has a fix to a bug you found
+
+Consider also calling `Verify_Game_Objects()` in the console, which is a custom built-in tool that will go through most of the content, checking things like properties having acceptable values, or references to other objects being correct. While neither infallible nor covering *everything*, it might save you a lot of time and annoyance.
