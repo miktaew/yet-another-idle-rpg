@@ -458,8 +458,6 @@ class TradeItem {
             new TradeItem({item_name: "Crab meat", count: [200,200], chance: 1}),
             new TradeItem({item_name: "Belmart leaf", count: [200,200], chance: 1}),
             new TradeItem({item_name: "Glass bottle", count: [200,200], chance: 1}),
-
-            new TradeItem({item_name: "Shellfish desires", count: [1], chance: 1}),
     ];
 	inventory_templates["Swamp plus"] = 
     [
@@ -481,7 +479,7 @@ class TradeItem {
             new TradeItem({item_name: "Turtleshell platemail pants", count: [1], quality: [70, 100], chance: 0.01}),
             new TradeItem({item_name: "Turtleshell shield", count: [1], quality: [70, 100], chance: 0.01}),
 
-            new TradeItem({item_name: "Shellfish desires", count: [1], chance: 0.5}),
+            //new TradeItem({item_name: "Shellfish desires", count: [1], chance: 0.5}), //temporarily removed due to errors
 
 			new TradeItem({item_name: "Healing balm", count: [1,2], chance: 0.15}),
 			new TradeItem({item_name: "Healing powder", count: [1,3], chance: 0.2}),

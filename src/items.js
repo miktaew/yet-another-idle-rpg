@@ -1487,7 +1487,7 @@ book_stats["Shellfish desires"] = new BookData({
     });
     item_templates["Clam"] = new Material({
         name: "Clam",
-        description: "Common shellfish found in the sand and mud around the lake shore. Cann't be eaten raw",
+        description: "Common shellfish found in the sand and mud around the lake shore. Can't be eaten raw",
         value: 6,
         //effects: [{effect: "Basic meal", duration: 30}],          //couldn't manage to make it both edible and usable as a material
         //tags: {"food": true},

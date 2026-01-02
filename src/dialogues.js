@@ -305,7 +305,7 @@ class DialogueAction extends GameAction {
                     actions: [{location: "Village", action: "hike down river"}],
                     //quest_progress: [{quest_id: "Giant Enemy Crab", task_index: 1}],      //for when Giant Enemy Crab quest is properly implemented
                 },
-                locks_lines: ["crab hunt"],
+                locks_lines: ["crab hunt", "ask to leave 4"], //removes the final "Can I leave the village?" question. This will leave the elder with no default dialog.
             }),
             
             "more training": new Textline({
@@ -1096,10 +1096,87 @@ class DialogueAction extends GameAction {
         name: "swampland tailor",
         is_unlocked: false,
         textlines: {
-            "swamptailor known": new Textline({
-                name: "swamptailor known",
-                text: "swamptailor known answ",
+            "swamptailor interrupt": new Textline({
+                name: "swamptailor interrupt",
+                text: "swamptailor interrupt answ",
                 is_unlocked: true,
+                rewards: {
+                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor help"]}],       //placeholder for winge loop test
+                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor listen1"]}],
+                },
+                locks_lines: ["swamptailor interrupt", "swamptailor listen1", "swamptailor listen2", "swamptailor listen3", "swamptailor listen4", "swamptailor listen5", "swamptailor listen6", "swamptailor listen7", "swamptailor listen8"],
+            }),
+            "swamptailor listen1": new Textline({
+                name: "swamptailor listen1",
+                text: "swamptailor listen1 answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor listen2"]}],
+                },
+                locks_lines: ["swamptailor listen1"],
+            }),
+            "swamptailor listen2": new Textline({
+                name: "swamptailor listen2",
+                text: "swamptailor listen2 answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor listen3"]}],
+                },
+                locks_lines: ["swamptailor listen2"],
+            }),
+            "swamptailor listen3": new Textline({
+                name: "swamptailor listen3",
+                text: "swamptailor listen3 answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor listen4"]}],
+                },
+                locks_lines: ["swamptailor listen3"],
+            }),
+            "swamptailor listen4": new Textline({
+                name: "swamptailor listen4",
+                text: "swamptailor listen4 answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor listen5"]}],
+                },
+                locks_lines: ["swamptailor listen4"],
+            }),
+            "swamptailor listen5": new Textline({
+                name: "swamptailor listen5",
+                text: "swamptailor listen5 answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor listen4"]}],
+                },
+                locks_lines: ["swamptailor listen5"],
+            }),
+            "swamptailor listen6": new Textline({
+                name: "swamptailor listen6",
+                text: "swamptailor listen6 answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor listen7"]}],
+                },
+                locks_lines: ["swamptailor listen6"],
+            }),
+            "swamptailor listen7": new Textline({
+                name: "swamptailor listen7",
+                text: "swamptailor listen7 answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor listen8"]}],
+                },
+                locks_lines: ["swamptailor listen7"],
+            }),
+            "swamptailor listen8": new Textline({
+                name: "swamptailor listen8",
+                text: "swamptailor listen8 answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor listen1"]}],
+                },
+                locks_lines: ["swamptailor listen8"],
             }),
             "swamptailor help": new Textline({
                 name: "swamptailor help",

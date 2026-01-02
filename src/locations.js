@@ -1582,7 +1582,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     });
     locations["Mountain camp"].connected_locations.push({location: locations["Gentle mountain slope"], travel_time: 120});
 	
-    locations["Downstream from the village"] = new Location({ 
+    locations["Downstream from the village"] = new Location({       //start of the new content
         connected_locations: [{location: locations["Village"], custom_text: "Make the long hike back to the [Village]", travel_time: 2160}], 
         description: "The chittering clicks of crabs tell you that you're headed in the right direction. As you make your way closer to the riverbank's shore, you stumble across what you think at first is a boulder the size of a small building blocking your path. That is, until you notice it start to move...",
         getBackgroundNoises: function() {
@@ -1645,11 +1645,11 @@ There's another gate on the wall in front of you, but you have a strange feeling
 	
     locations["Further downstream"] = new Location({ 
         connected_locations: [{location: locations["Riverbank"], custom_text: "Go back along the path you've made to the [Riverbank]", travel_time: 240}], 
-        description: "While it wasn't hard to spot the giant crab's trail, following after it proved to be a different story. You made your way through the thick forest bush until the woods gave way to a moderately large lake overlooking a great basin, where you finally spotted the crab in a frenzy at it's nest. You consider going back and telling the guards, but by the time they'd arrive, the crab might have chosen a new nesting ground -- and you decide you have to end it now. Despite the cracks you've caused in it's shell, it seems more dangerous than when you fought it earlier",
+        description: "While it wasn't hard to spot the giant crab's trail, following after it proved to be a different story. You made your way through the thick forest bush until the woods gave way to a moderately large lake overlooking a great basin, where you finally spotted the crab in a frenzy at it's nest. You consider going back and telling the guards, but by the time they'd arrive, the crab might have chosen a new nesting ground -- and you decide you have to end it now. Despite the cracks you've caused in it's shell, it seems more dangerous than when you fought it earlier, and the loose sand is only going to make this fight harder...",
         getBackgroundNoises: function() {
             let noises = [];
             if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
-                noises.push("*You hear the roar of rushing water in the distance*", "*The hum of insects buzz in your ear*", "*Birds are singing, flowers are blooming...*");
+                noises.push("*You hear the roar of rushing water in the distance*", "*The hum of insects buzz in your ear*", "*Birds are singing, flowers are blooming...*"); //reference to sans undertale
             } else {
                 noises.push("*You hear the roar of rushing water in the distance*", "*The hum of insects buzz in your ear*");
             }
@@ -1684,7 +1684,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
 
     locations["Lake camp"] = new Location({
         connected_locations: [{location: locations["Lake beach"], custom_text: "Go back out to the [Lake beach]", travel_time: 5}],
-        description: "A pleasant little camp with a crackling fire, created by you to be the perfect lakeside rest and relaxation spot",
+        description: "A pleasant little encampment built in the remains of the giant crab's nest. With a crackling firepit and comfortable cot, it was created by you to be the perfect lakeside rest and relaxation spot",
         name: "Lake camp",
         housing: {
             is_unlocked: true,
@@ -1697,7 +1697,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
                 noises.push("*You hear the roar of rushing water nearby*", "*The hum of insects buzz in your ear*", "*Birds are singing, flowers are blooming...*");
             } else {
-                noises.push("*You hear the roar of rushing water nearby*", "*The hum of insects buzz in your ear*");
+                noises.push("*You hear the roar of rushing water nearby*", "*The hum of insects echoes across the lakebed*", "*The fire crackles in the middle of your camp*");
             }
             return noises;
         },
@@ -1764,7 +1764,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Swampland fields"] = new Location({ 
         connected_locations: [{location: locations["Waterfall basin"], custom_text: "Crawl through the muck and brush and return to the [Waterfall basin]", travel_time: 45, travel_time_skills: ["Scrambling"]}], 
          getDescription: function() {
-		 if(locations["The swamplands"].enemy_groups_killed >= 100 * locations["The swamplands"].enemy_count) { 
+		 if(locations["The swamplands"].enemy_groups_killed >= 100 * locations["The swamplands"].enemy_count) { //10000 enemies killed
                 return "The swamplands are filled with everpresent danger. Only an experienced warrior such as yourself is capable of withstanding the threats that lie within its boggy depths";
             } else if(locations["The swamplands"].enemy_groups_killed >= 10 * locations["The swamplands"].enemy_count) {
                 return "The swamplands are difficult to navigate and dangerous to traverse, but after scouting it for what feels like a few months, you begin to find that the bog feels smaller and emptier";
@@ -1826,7 +1826,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             return noises;
         },
         temperature_modifier: 2,
-        dialogues: ["swampland chief"],
+        dialogues: ["swampland chief", "Swampland cook"],
         traders: ["swampland trader"],
         market_region: "Swamp",
         name: "Swampland tribe", 
@@ -1847,7 +1847,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     });
     locations["Swampland fields"].connected_locations.push({location: locations["Swampland tribe"], travel_time: 90, travel_time_skills: ["Scrambling", "Running"]});
 	
-    locations["Longhouse"] = new Location({
+    locations["Longhouse"] = new Location({     //end of the new content
         connected_locations: [{location: locations["Swampland tribe"], custom_text: "Go back out to the [Swampland tribe]", travel_time: 5}],
         description: "A communal building that members of the settlement rest, eat, and recover in. The only other person in here right now is the scout, lying in a cot next to the door. The air smells faintly of rot and you can't help but notice there's far more cots than needed",
         dialogues: ["Swampland scout"],
@@ -1972,7 +1972,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     });
     locations["Mountain path"].connected_locations.push({location: locations["Fight the angry mountain goat"], custom_text: "Fight the angry goat", travel_time: 0});
 
-    locations["Fight the giant crab"] = new Challenge_zone({
+    locations["Fight the giant crab"] = new Challenge_zone({        //crab 1
         description: "The village elder told you to be cautious...",
         enemy_count: 1, 
         types: [{type: "open", stage: 1, xp_gain: 2}],
@@ -1995,7 +1995,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Downstream from the village"].connected_locations.push({location: locations["Fight the giant crab"], custom_text: "Fight the giant crab", travel_time: 5});
 
 
-    locations["Fight the giant crab again"] = new Challenge_zone({
+    locations["Fight the giant crab again"] = new Challenge_zone({      //crab 2
         description: "This time, you can't let it get away",
         enemy_count: 1, 
         types: [{type: "open", stage: 2, xp_gain: 5}, {type: "rough", stage: 1, xp_gain: 1}],
@@ -2871,7 +2871,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             failure_texts: {
                 conditional_loss: ["Despite telling yourself that scaling down the cliff would be easy, you realize that the path is far more dangerous that you initially expected. Perhaps a more experienced mountain climber would be able to manage the hazards"],
                 random_loss: ["The routing looked easier from up top, but the slick rock wall and poor footing put you on a path to failure shortly after beginning"],
-                unable_to_begin: ["While mentally prepared, you realize you're missing an important accessory -- the rope! Rope is kind of a necessity for this, especially if you want to survive the landing"],
+                unable_to_begin: ["While mentally prepared, you realize you're missing an important accessory -- the rope! Rope is kind of a necessity for this, especially if you want to survive the landing!"],
             },
             required: {
                 items_by_id: {"Coil of rope": {count: 1, remove_on_success: true}},
@@ -3008,7 +3008,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 },
             ],
             attempt_duration: 60,
-            success_chances: [0.6, 1],
+            success_chances: [0.45, 1],
             rewards: {
                 actions: [{location:"Swampland tribe", action: "herbalism"}],
             },

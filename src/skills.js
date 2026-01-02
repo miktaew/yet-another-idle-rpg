@@ -1039,10 +1039,10 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
 				stats: {
                     stamina_regeneration_flat: {
                         flat: 0.2,
-                    }
-                },
-				stamina_efficiency: {
+                    },
+				    stamina_efficiency: {
                         multiplier: 1.1,
+                    }
                 },
             },
             10: {
@@ -1090,9 +1090,9 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                         multiplier: 1.03},
                     stamina_regeneration_flat: {
                         flat: 0.3},
-                },
 				    stamina_efficiency: {
                         multiplier: 1.15
+                    }
                 },
             },
         }

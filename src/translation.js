@@ -92,7 +92,7 @@ const translations = {
         	+"I will not try to convince you otherwise, I can see the determination in your eyes. You have my blessing. But know this: there are dangers in the wilderness that no training can ready you for. "
                 +"If your current weapon, armor, or method of attack isn't working, it's much better to run away, reassess, and recover your strength instead of unnecessarily risking your life. "
         	+"Please, be cautious. And consider checking with the village market to get some medicine and supplies. There's no telling how long your journey will take, or what challenges you will face on it. "
-        	+"No matter how far you go, just remember that you always have a home in this village. ",
+        	+"No matter how far you go, just remember that you always have a home in this village.",
 	//
         "craftsman description": "You see an old man who clearly experienced a lot in life. He's wearing some handmade accessories. Despite his age, his fingers seem exceptionally nimble.",
         "craftsman hello": "Hello, I heard you wanted to talk to me?",
@@ -269,7 +269,7 @@ const translations = {
 	//
         "swampcook description 1": "As you get closer to the cook's workhut, you're met with a loud bellowing in a distinctive tune and an acrid smell emanating from inside. Bracing your nose, you approach to find a short fellow, moving between a rack larger than he is housing thin cuts of meat suspended between grated slats and a large cauldron build into a workbench covered in large slabs of rough leather in various stages of processing. You're surprised to find that he was the source of the singing. Noticing your approach, he stops singing and turns to face you with a smile on his face.", //before accepted task
         "swampcook description 2": "You approach the cooks's workhut, finding him standing outside next to a small smokehouse in between splitting logs. As before, you can both smell the leather the cook is processing and hear the song that he is singing long before you see him.", //before finishing delivery
-        "swampcook description 3": "As you approach the workhut, you absentmindedly sing the cook's song the tune to yourself alongside him as he works. He notices your singing more than your approach, and gives you a big nod with a toothy smile before resuming his work.", //after finishing delivery
+        "swampcook description 3": "As you approach the workhut, you absentmindedly sing along to the cook's song. He notices your singing before turning to you and giving a big nod with a toothy grin before resuming his work.", //after finishing delivery
 	"swampcook unknown": "",
         "swampcook unknown answ": "",
         "swampcook known": "",
@@ -286,9 +286,29 @@ const translations = {
         "swamptailor description 2": "As you approach the tailor's workhut, you see he's already putting down whatever task he was working on and moving outside to meet with you.", //for in between the initial dialogue and completing his portion of the quest
         "swamptailor description 3": "You approach the tailor's workhut, knocking loudly at the door to get his attention over his relentless fretting about the place.", //for after completing his portion of the quest
 	"swamptailor interrupt": "*knock on the workhut door*", //the tailor will winge to himself until the player makes their presence known
-        "swamptailor interrupt answ": "-and how am I-"
-			+"*Upon realising you're there, the tailor drops what they were doing and dives behind a nearby table, knocking it's contents to the floor. They slowly scramble to their feet while reaching futilely for some sort of weapon."
+        "swamptailor interrupt answ": "-and how am I- "
+			+"*Upon realising you're there, the tailor drops what they were doing and dives behind a nearby table, knocking it's contents to the floor. They slowly scramble to their feet while reaching futilely for some sort of weapon. "
 			+"What? Who are you! Why are you here! How did you get here!",
+        "swamptailor listen1": "*[Wait for the tailor to notice you]*", //start of the winge loop
+        "swamptailor listen1 answ": "-boil the linen, he says, as if that'll- " //"Just boil the linen, he says, as if that'll disinfect them."
+			+"*[The tailor puts down some sewing tools and moves to futz with a bubbling pot near the fireplace*",
+        "swamptailor listen2": "*[Wait for the tailor to notice you]*", //winge loop
+        "swamptailor listen2 answ": "-if she think's it's so easy why doesn't she-", //"If she thinks it's so easy why doesn't she take care of the scout's wounds?"
+        "swamptailor listen3": "*[Wait for the tailor to notice you]*", //winge loop
+        "swamptailor listen3 answ": "-I'm a tailor, not a doctor, for- "	//reference to McCoy's catchphrase in Star Trek: The Original Series
+			+"*[The tailor moves away from the pot and to a table where they begin stripping old cloth]*",
+        "swamptailor listen4": "*[Wait for the tailor to notice you]*", //winge loop
+        "swamptailor listen4 answ": "-not my fault that they-", //"It's not my fault they got ambushed"
+        "swamptailor listen5": "*[Wait for the tailor to notice you]*", //winge loop
+        "swamptailor listen5 answ": "-if they had better- " //"Maybe if they had better armor, they would have survived"
+			+"*[The tailor stops mid-cut to grab something and turns back around to the pot near the fireplace]*",
+        "swamptailor listen6": "*[Wait for the tailor to notice you]*", //winge loop
+        "swamptailor listen6 answ": "-they think I can just fix- ", //"Do they think I can just fix her wounds because the bandages are cloth?"
+        "swamptailor listen7": "*[Wait for the tailor to notice you]*", //winge loop
+        "swamptailor listen7 answ": "-the others made sure-", //"At least the others made sure she got away"
+        "swamptailor listen8": "*[Wait for the tailor to notice you]*", //loop point
+        "swamptailor listen8 answ": "-need fresh cloth, or else-", //"We need fresh cloth, or else the wounds will just get worse"
+        "swamptailor cookword": "Sorry! The cook sent me! He told me to tell you XXXXXXXXX",
 	"swamptailor unknown": "",
         "swamptailor unknown answ": "",
         "swamptailor known": "",
@@ -304,7 +324,7 @@ const translations = {
         "swamptailor liked answ": "",
 	//
         "swamptanner description 1": "You approach the tanner's workhut to find the old woman with a scowl on her face standing next to a rack stretching drying leather. Her hands are visibly shaky as she checks them, an apparent sign of wear and old age, as she goes about her work.", //before completing the first delivery.
-        "swamptanner description 2": "You approach the tanner's workhut, finding her with meticulously fleshing the alligator skins you brought her earlier. In spite of her clear and deliberate effort, her unsteady hands make deep gouges in the leather like that of an amateur first learning how to clean the skin.", //for after completing the first part of the delivery
+        "swamptanner description 2": "You approach the tanner's workhut, finding her with meticulously fleshing the alligator skins you brought her earlier. In spite of her clear and deliberate effort, her unsteady hands make deep gouges in the hide like that of an amateur first learning how to clean the skin.", //for after completing the first part of the delivery
         "swamptanner description 2": "", //description changes after making the second delivery and finishing her part of In Times of Need
 	"swamptanner unknown": "",
         "swamptanner unknown answ": "",

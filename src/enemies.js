@@ -335,7 +335,7 @@ class Enemy {
         name: "River crab",
         description: "A crab the size of a small boulder",
         xp_value: 55,
-        rank: 5,
+        rank: 10,
         size: enemy_sizes.SMALL,
         tags: ["living", "beast", "aquatic"],
         stats: {health: 2000, attack: 75, agility: 120, dexterity: 90, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 145},
@@ -348,7 +348,7 @@ class Enemy {
         name: "Stone crab",
         description: "A crab the size of a large boulder, and about as hard to crack open",
         xp_value: 100,
-        rank: 9,
+        rank: 10,
         size: enemy_sizes.MEDIUM,
         tags: ["living", "beast", "aquatic"],
         stats: {health: 7000, attack: 160, agility: 180, dexterity: 160, intuition: 120, magic: 0, attack_speed: 1.7, attack_count: 2, defense: 700},
@@ -363,10 +363,10 @@ class Enemy {
         name: "Alligator",
         description: "An alligator in it's natural habitat is one of the deadliest predators in nature",
         xp_value: 350,
-        rank: 13,
+        rank: 11,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 16500, attack: 750, agility: 283, dexterity: 350, intuition: 120, magic: 0, attack_speed: 1.6, defense: 550},
+        stats: {health: 16750, attack: 830, agility: 283, dexterity: 350, intuition: 120, magic: 0, attack_speed: 1.6, defense: 545},
         loot_list: [
             {item_name: "Alligator meat", chance: 0.02},
             {item_name: "Alligator skin", chance: 0.01},
@@ -376,11 +376,11 @@ class Enemy {
 	enemy_templates["Snapping turtle"] = new Enemy({
         name: "Snapping turtle",
         description: "A large turtle with an incredibly dense shell",
-        xp_value: 400,
-        rank: 12,
+        xp_value: 400,      //in between alligator and snake because it'll probably take the longest to kill during post-completion grinding
+        rank: 11,
         size: enemy_sizes.MEDIUM,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 22000, attack: 550, agility: 225, dexterity: 240, intuition: 130, magic: 0, attack_speed: 0.9, defense: 1000},
+        stats: {health: 22000, attack: 525, agility: 225, dexterity: 240, intuition: 130, magic: 0, attack_speed: 0.9, defense: 1000},
         loot_list: [
             {item_name: "Turtle meat", chance: 0.02},
             {item_name: "Turtle shell", chance: 0.005},
@@ -390,11 +390,11 @@ class Enemy {
 	enemy_templates["Giant snake"] = new Enemy({
         name: "Giant snake",
         description: "This large snake is fast enough to catch even the most cautious warriors by surprise",
-        xp_value: 450,
-        rank: 14,
+        xp_value: 450,  //more than alligator and turtle because initially the most dangerous
+        rank: 11,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast"],
-        stats: {health: 13000, attack: 450, agility: 320, dexterity: 460, intuition: 150, magic: 0, attack_speed: 2.7, defense: 400},
+        stats: {health: 12500, attack: 440, agility: 320, dexterity: 460, intuition: 150, magic: 0, attack_speed: 2.7, defense: 385},
         loot_list: [
             {item_name: "Giant snake meat", chance: 0.02},
             {item_name: "Giant snake skin", chance: 0.01},
@@ -462,13 +462,13 @@ class Enemy {
         description: "This was the biggest crab you had ever seen. It's also the smallest crab you had ever seen",  //descriptions of challenge fights aren't visible, but this is a joke based on the fact that the player hasn't seen any other crab enemies yet
         add_to_bestiary: false,
         xp_value: 1,
-        rank: 10,
+        rank: 11,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
         stats: {health: 28000, attack: 250, agility: 350, dexterity: 580, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 1250},
     });
 
-	enemy_templates["Enraged giant crab"] = new Enemy({     //not working at present, not sure if the problem is here or the locations "Further downstream" or "Fight the giant crab again"
+	enemy_templates["Enraged giant crab"] = new Enemy({     //not working at present, not sure where the problem is
         name: "Enraged giant crab",
         description: "Graa~! Crab battle!",     //reference to the Metal Gear Solid 3 flash animation "Crab Battle"
         add_to_bestiary: false,
