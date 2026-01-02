@@ -1826,7 +1826,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             return noises;
         },
         temperature_modifier: 2,
-        dialogues: ["swampland chief", "Swampland cook"],
+        dialogues: ["swampland chief"],
         traders: ["swampland trader"],
         market_region: "Swamp",
         name: "Swampland tribe", 

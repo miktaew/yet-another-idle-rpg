@@ -977,7 +977,7 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief mid help"]}],
-                    dialogues: ["swampland cook"],                                              //this isn't unlocking the cook for some reason, stopping the quest from progressing
+                    //dialogues: ["swampland cook"],                                              //this isn't unlocking the cook for some reason, stopping the quest from progressing
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 1}],
                 },
                 locks_lines: ["swampchief help"],
@@ -987,6 +987,7 @@ class DialogueAction extends GameAction {
                 text: "swampchief mid help answ",
                 is_unlocked: false,
             }),
+/*
             "swampchief report": new Textline({
                 name: "swampchief report",
                 text: "swampchief report answ",
@@ -1002,7 +1003,7 @@ class DialogueAction extends GameAction {
             "swampchief confirm": new Textline({
                 name: "swampchief confirm",
                 text: "swampchief confirm answ",
-                is_unlocked: true,                                  //for testing purposes, change to false when done
+                is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief generic"]}],
                     locations: [{location: "Longhouse"}],
@@ -1017,6 +1018,7 @@ class DialogueAction extends GameAction {
                 text: "swampchief generic answ",
                 is_unlocked: false,
             }),
+*/
         },
         getDescription: ()=>{
             if(dialogues["swampland chief"].textlines["swampchief confirm"].is_finished) {
@@ -1028,6 +1030,7 @@ class DialogueAction extends GameAction {
             }}
         });
         
+/*
 	    dialogues["swampland cook"] = new Dialogue({
         //tbd, originally an outsider to the tribe
         name: "swampland cook",
@@ -1089,8 +1092,9 @@ class DialogueAction extends GameAction {
             }}
         }
 });
-        
+*/
 	
+/*
     dialogues["swampland tailor"] = new Dialogue({
         //tbd
         name: "swampland tailor",
@@ -1101,7 +1105,7 @@ class DialogueAction extends GameAction {
                 text: "swamptailor interrupt answ",
                 is_unlocked: true,
                 rewards: {
-                    //textlines: [{dialogue: "swampland tailor", lines: ["swamptailor cookword"]}],       //placeholder for winge loop test
+                    //textlines: [{dialogue: "swampland tailor", lines: ["swamptailor cookword"]}],
                 },
                 locks_lines: ["swamptailor interrupt", "swamptailor listen1", "swamptailor listen2", "swamptailor listen3", "swamptailor listen4", "swamptailor listen5", "swamptailor listen6", "swamptailor listen7", "swamptailor listen8"],
             }),
@@ -1180,7 +1184,7 @@ class DialogueAction extends GameAction {
             "swamptailor help": new Textline({
                 name: "swamptailor help",
                 text: "swamptailor help answ",
-                is_unlocked: true,      //for testing purposes
+                is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "swampland tailor", lines: ["swamptailor flax"]}],
                 },
@@ -1235,7 +1239,9 @@ class DialogueAction extends GameAction {
             }}
         }
 });
+*/
 
+/*
     dialogues["swampland tanner"] = new Dialogue({
         //tbd
         name: "swampland tanner",
@@ -1356,7 +1362,7 @@ class DialogueAction extends GameAction {
                 return "swampscout description 1";
             }}
         });
-	
+*/
 
     /*
     dialogues["cute little rat"] = new Dialogue({
