@@ -1101,15 +1101,14 @@ class DialogueAction extends GameAction {
                 text: "swamptailor interrupt answ",
                 is_unlocked: true,
                 rewards: {
-                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor help"]}],       //placeholder for winge loop test
-                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor listen1"]}],
+                    //textlines: [{dialogue: "swampland tailor", lines: ["swamptailor cookword"]}],       //placeholder for winge loop test
                 },
                 locks_lines: ["swamptailor interrupt", "swamptailor listen1", "swamptailor listen2", "swamptailor listen3", "swamptailor listen4", "swamptailor listen5", "swamptailor listen6", "swamptailor listen7", "swamptailor listen8"],
             }),
             "swamptailor listen1": new Textline({
                 name: "swamptailor listen1",
                 text: "swamptailor listen1 answ",
-                is_unlocked: false,
+                is_unlocked: true,
                 rewards: {
                     textlines: [{dialogue: "swampland tailor", lines: ["swamptailor listen2"]}],
                 },
@@ -1147,7 +1146,7 @@ class DialogueAction extends GameAction {
                 text: "swamptailor listen5 answ",
                 is_unlocked: false,
                 rewards: {
-                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor listen4"]}],
+                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor listen6"]}],
                 },
                 locks_lines: ["swamptailor listen5"],
             }),
@@ -1181,7 +1180,7 @@ class DialogueAction extends GameAction {
             "swamptailor help": new Textline({
                 name: "swamptailor help",
                 text: "swamptailor help answ",
-                is_unlocked: true,
+                is_unlocked: true,      //for testing purposes
                 rewards: {
                     textlines: [{dialogue: "swampland tailor", lines: ["swamptailor flax"]}],
                 },
