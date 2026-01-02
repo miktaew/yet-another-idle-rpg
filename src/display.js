@@ -552,6 +552,12 @@ function create_effect_tooltip({effect_name, duration, add_bonus=false}) {
     top_div.appendChild(duration_span);
     tooltip.appendChild(top_div);
 
+    if (effect.description) {
+        const description_p = document.createElement("i");
+        description_p.innerHTML = effect.description;
+        tooltip.appendChild(description_p);
+    }
+
     const effects_div = document.createElement("div");
 
     let effects;

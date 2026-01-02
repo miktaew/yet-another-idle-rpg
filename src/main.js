@@ -1655,6 +1655,8 @@ function do_enemy_combat_action(enemy_id) {
         }
     }
 
+    attacker.on_hit(character);
+
     if(fainted) {
         kill_player();
         return;
@@ -1728,9 +1730,12 @@ function do_character_combat_action({target, attack_power, target_count}) {
             log_message(target.name + " was hit for " + damage_dealt + " dmg", "enemy_attacked");
         }
 
+        target.on_damaged(character);
+
         if(target.stats.health <= 0) {
             total_kills++;
             target.stats.health = 0; //to not go negative on displayed value
+            target.on_death(character);
 
             log_message(target.name + " was defeated", "enemy_defeated");
 
@@ -5450,5 +5455,6 @@ export { current_enemies,
         remove_consumable_from_favourites,
         process_rewards,
         travel_times,
-        language
+        language,
+        add_active_effect
 };
