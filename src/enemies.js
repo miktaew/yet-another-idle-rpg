@@ -1,6 +1,8 @@
 "use strict";
 
 import { get_total_skill_coefficient } from "./character.js";
+import { log_message } from "./display.js";
+import { add_active_effect } from "./main.js";
 
 let enemy_templates = {};
 let enemy_killcount = {};
@@ -32,6 +34,9 @@ class Enemy {
         size = "small",
         add_to_bestiary = true,
         tags = [],
+        on_hit = (character) => { },
+        on_damaged = (character) => { },
+        on_death = (character) => { },
     }) {
                     
         this.name = name;
@@ -57,6 +62,9 @@ class Enemy {
             this.size = size;
         }
 
+        this.on_hit = on_hit;
+        this.on_damaged = on_damaged;
+        this.on_death = on_death;
     }
     get_loot({drop_chance_modifier = 1} = {}) {
         // goes through items and calculates drops
@@ -299,6 +307,60 @@ class Enemy {
             {item_name: "Sharp bear claw", chance: 0.002},
         ],
         size: enemy_sizes.LARGE,
+    });
+
+    enemy_templates["Frog"] = new Enemy({
+        name: "Frog",
+        description: "A huge beast with muscular legs and a mouth large enough to swallow a direwolf whole",
+        xp_value: 80,
+        rank: 10,
+        tags: ["living", "beast"],
+        stats: {health: 8000, attack: 500, agility: 120, dexterity: 200, intuition: 200, magic: 0, attack_speed: 0.8, defense: 500},
+        loot_list: [
+            {item_name: "Frog meat", chance: 0.24},
+            {item_name: "Frog hide", chance: 0.05},
+            {item_name: "Weak monster bone", chance: 0.05},
+        ],
+        size: enemy_sizes.LARGE,
+        on_hit: (character) => {
+            let roll = Math.random();
+            if (character.equipment.weapon != null && roll < 0.1) {
+                //TODO messages should belong to a category, but I'm not sure which
+                log_message("The frog's long tongue wraps around your weapon and wrests it from you!");
+                window.unequip_item("weapon");
+            }
+            else if (roll < 0.2) {
+                log_message("The frog's long tongue leaves you covered in sticky saliva!");
+                add_active_effect("Sticky", 30);
+            }
+            else if (roll < 0.3) {
+                log_message("The frog's attack leaves some of its toxins on you!");
+                switch (Math.floor(Math.random() * 3)) {
+                    case 0: add_active_effect("Irritation", 10); break;
+                    case 1: add_active_effect("Confusion", 10); break;
+                    case 2: add_active_effect("Hallucinations", 10); break;
+                }
+            }
+        },
+        on_damaged: (character) => {
+            let roll = Math.random();
+            if (character.equipment.weapon == null && roll < 0.2) {
+                log_message("Touching the frog with your bare hands leaves them covered in toxins!");
+                switch (Math.floor(Math.random() * 3)) {
+                    case 0: add_active_effect("Irritation", 10); break;
+                    case 1: add_active_effect("Confusion", 10); break;
+                    case 2: add_active_effect("Hallucinations", 10); break;
+                }
+            }
+            else if (character.equipment.weapon != null && roll < 0.05) {
+                log_message("Striking the frog causes some toxins to splash on you!");
+                switch (Math.floor(Math.random() * 3)) {
+                    case 0: add_active_effect("Irritation", 10); break;
+                    case 1: add_active_effect("Confusion", 10); break;
+                    case 2: add_active_effect("Hallucinations", 10); break;
+                }
+            }
+        },
     });
 
     enemy_templates["Red ant swarm"] = new Enemy({

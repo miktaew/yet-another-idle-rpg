@@ -258,6 +258,7 @@ const options = {
     skip_play_button: false, //not really skips, just automatically clicks it right after loading
     mofu_mofu_mode: true,
     do_enemy_onhit_animations: true,
+    expo_threshold: 1000000000
 };
 
 let message_log_filters = {
@@ -419,6 +420,16 @@ function option_log_gathering_result(option) {
 
     if(option !== undefined) {
         checkbox.checked = option;
+    }
+}
+
+function option_expo_threshold(option) {
+    const input = document.getElementById("options_expo_threshold");
+
+    options.expo_threshold = input.value || option || 0;
+
+    if(option !== undefined) {
+        input.value = option;
     }
 }
 
@@ -1644,6 +1655,8 @@ function do_enemy_combat_action(enemy_id) {
         }
     }
 
+    attacker.on_hit(character);
+
     if(fainted) {
         kill_player();
         return;
@@ -1717,9 +1730,12 @@ function do_character_combat_action({target, attack_power, target_count}) {
             log_message(target.name + " was hit for " + damage_dealt + " dmg", "enemy_attacked");
         }
 
+        target.on_damaged(character);
+
         if(target.stats.health <= 0) {
             total_kills++;
             target.stats.health = 0; //to not go negative on displayed value
+            target.on_death(character);
 
             log_message(target.name + " was defeated", "enemy_defeated");
 
@@ -3497,6 +3513,9 @@ function load(save_data) {
 
         options.do_enemy_onhit_animations = save_data.options?.do_enemy_onhit_animations;
         option_do_enemy_onhit_animations(options.do_enemy_onhit_animations);
+
+        options.expo_threshold = save_data.options?.expo_threshold;
+        option_expo_threshold(options.expo_threshold);
 
         //compatibility for old saves, can be removed at some point
         const is_from_before_eco_rework = compare_game_version("v0.3.5", save_data["game version"]) == 1;
@@ -5288,6 +5307,7 @@ window.option_do_background_animations = option_do_background_animations;
 window.option_skip_play_button = option_skip_play_button;
 window.option_mofu_mofu_mode = option_mofu_mofu_mode;
 window.option_do_enemy_onhit_animations = option_do_enemy_onhit_animations;
+window.option_expo_threshold = option_expo_threshold;
 
 window.getDate = get_date;
 
@@ -5435,5 +5455,6 @@ export { current_enemies,
         remove_consumable_from_favourites,
         process_rewards,
         travel_times,
-        language
+        language,
+        add_active_effect
 };

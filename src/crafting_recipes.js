@@ -708,6 +708,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
             {material_id: "Piece of wolf leather", count: 3, result_id: "Leather hat"},
             {material_id: "Wool cloth", count: 3, result_id: "Wool hat"},
             {material_id: "Piece of goat leather", count: 3, result_id: "Goat leather hat"},
+            {material_id: "Piece of frog leather", count: 3, result_id: "Batrachian hat"}
         ],
         item_type: "Armor",
         component_type: "helmet interior",
@@ -721,6 +722,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
             {material_id: "Piece of wolf leather", count: 5, result_id: "Leather vest"},
             {material_id: "Wool cloth", count: 5, result_id: "Wool shirt"},
             {material_id: "Piece of goat leather", count: 5, result_id: "Goat leather vest"},
+            {material_id: "Piece of frog leather", count: 5, result_id: "Batrachian vest"}
         ],
         item_type: "Armor",
         component_type: "chestplate interior",
@@ -734,6 +736,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
             {material_id: "Piece of wolf leather", count: 3, result_id: "Leather pants"},
             {material_id: "Wool cloth", count: 3, result_id: "Wool pants"},
             {material_id: "Piece of goat leather", count: 3, result_id: "Goat leather pants"},
+            {material_id: "Piece of frog leather", count: 3, result_id: "Batrachian pants"}
         ],
         item_type: "Armor",
         component_type: "leg armor interior",
@@ -746,6 +749,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
             {material_id: "Piece of wolf leather", count: 2, result_id: "Leather gloves"},
             {material_id: "Wool cloth", count: 2, result_id: "Wool gloves"},
             {material_id: "Piece of goat leather", count: 2, result_id: "Goat leather gloves"},
+            {material_id: "Piece of frog leather", count: 2, result_id: "Batrachian gloves"}
         ],
         item_type: "Armor",
         component_type: "glove interior",
@@ -758,6 +762,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
             {material_id: "Piece of wolf rat leather", count: 2, result_id: "Cheap leather shoes"},
             {material_id: "Piece of wolf leather", count: 2, result_id: "Leather shoes"},
             {material_id: "Piece of goat leather", count: 2, result_id: "Goat leather shoes"},
+            {material_id: "Piece of frog leather", count: 2, result_id: "Batrachian shoes" }
         ],
         item_type: "Armor",
         component_type: "shoes interior",
@@ -776,6 +781,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
             {material_id: "Processed boar hide", count: 8, result_id: "Boar hide cape"},
             {material_id: "Processed goat hide", count: 8, result_id: "Goat hide cape"},
             {material_id: "Processed bear hide", count: 8, result_id: "Bear hide cape"},
+            {material_id: "Piece of frog leather", count: 8, result_id: "Batrachian cape"}
         ],
         item_type: "Cape",
         recipe_skill: "Crafting",
@@ -829,6 +835,17 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_skill: "Butchering",
         recipe_level: [12,25],
     });
+    butchering_recipes.items["Piece of frog leather"] = new ItemRecipe({
+        name: "Piece of frog leather",
+        recipe_type: "material",
+        materials: [{ material_id: "Frog hide", count: 4 },
+                    { material_id: "Belmart leaf", count: 4 }],
+        result: {result_id: "Piece of frog leather", count: 1},
+        success_chance: [0.2,1],
+        recipe_level: [12,25],
+        recipe_skill: "Butchering",
+    });
+
     butchering_recipes.items["Processed rat pelt"] = new ItemRecipe({
         name: "Processed rat pelt",
         recipe_type: "material",
@@ -934,6 +951,16 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_skill: "Butchering",
     });
 
+    butchering_recipes.items["Fish fillet"] = new ItemRecipe({
+        name: "Fish fillet",
+        recipe_type: "material",
+        materials: [{material_type: "large fish", count: 1}],
+        result: {result_id: "Fish fillet", count: 3},
+        success_chance: [0.4,1],
+        recipe_level: [10,15],
+        recipe_skill: "Butchering",
+    });
+
     smelting_recipes.items["Low quality iron ingot"] = new ItemRecipe({
         name: "Low quality iron ingot",
         recipe_type: "material",
@@ -950,6 +977,15 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Iron ingot", count: 1},
         success_chance: [0.4,1],
         recipe_level: [5,15],
+        recipe_skill: "Smelting",
+    });
+    smelting_recipes.items["Silver ingot"] = new ItemRecipe({
+        name: "Silver ingot",
+        recipe_type: "material",
+        materials: [{material_id: "Silver ore", count: 5}, {material_type: "coal", count: 1}], 
+        result: {result_id: "Silver ingot", count: 1},
+        success_chance: [0.4,1],
+        recipe_level: [7,17],
         recipe_skill: "Smelting",
     });
     smelting_recipes.items["Steel ingot (inefficient)"] = new ItemRecipe({
@@ -1092,6 +1128,21 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [1,12],
         recipe_skill: "Crafting",
     });
+
+    woodworking_recipes.items["Makeshift fishing pole"] = new ItemRecipe({
+        name: "Makeshift fishing pole",
+        recipe_type: "equipment",
+        is_unlocked: true,
+        materials: [
+            { material_id: "Processed rough wood", count: 4 },
+            //{ material_id: "Simple long wooden shaft", count: 1 },    //TODO
+            { material_id: "Wool", count: 1 },
+        ],
+        result: { result_id: "Makeshift fishing pole", count: 1 },
+        success_chance: [0.5, 1],
+        recipe_level: [1, 10],
+        recipe_skill: "Woodworking",
+    });
 })();
 
 //consumables
@@ -1163,6 +1214,55 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Bread kwas", count: 1},
         success_chance: [0.3,1],
         recipe_level: [10,15],
+        recipe_skill: "Cooking",
+    });
+
+    cooking_recipes.items["Fish skewer"] = new ItemRecipe({
+        name: "Fish skewer",
+        recipe_type: "usable",
+        materials: [{material_type: "small fish", count: 5}], 
+        result: {result_id: "Fish skewer", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [1,10],
+        recipe_skill: "Cooking",
+    });
+    cooking_recipes.items["Fried fish"] = new ItemRecipe({
+        name: "Fried fish",
+        recipe_type: "usable",
+        materials: [{material_type: "medium fish", count: 1}], 
+        result: {result_id: "Fried fish", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [7,15],
+        recipe_skill: "Cooking",
+    });
+    cooking_recipes.items["Fish steak"] = new ItemRecipe({
+        name: "Fish steak",
+        recipe_type: "usable",
+        materials: [{material_id: "Fish fillet", count: 1},
+                    {material_id: "Cooking herbs", count: 1}], 
+        result: {result_id: "Fish steak", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [7,15],
+        recipe_skill: "Cooking",
+    });
+
+    cooking_recipes.items["Fried frog meat"] = new ItemRecipe({
+        name: "Fried frog meat",
+        recipe_type: "usable",
+        materials: [{material_id: "Frog meat", count: 2}], 
+        result: {result_id: "Fried frog meat", count: 1},
+        success_chance: [0.4,1],
+        recipe_level: [12,20],
+        recipe_skill: "Cooking",
+    });
+    cooking_recipes.items["Kingsized frog legs"] = new ItemRecipe({
+        name: "Kingsized frog legs",
+        recipe_type: "usable",
+        materials: [{ material_id: "Frog meat", count: 2},
+                    { material_id: "Cooking herbs", count: 2}], 
+        result: {result_id: "Kingsized frog legs", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [15,25],
         recipe_skill: "Cooking",
     });
     

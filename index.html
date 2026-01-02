@@ -920,6 +920,7 @@
                             <div class = "equipment_slot_div" id = "pickaxe_slot"> pickaxe </div>
                             <div class = "equipment_slot_div" id = "sickle_slot"> sickle </div>
                             <div class = "equipment_slot_div" id = "shovel_slot"> shovel </div>
+                            <div class = "equipment_slot_div" id = "fishing_slot"> fishing rod </div>
                         </div>
                     </div>
                     <div id = "character_control_div" class="activable_buttons">
@@ -998,6 +999,10 @@
                 <div class="options_choice">
                     <input type="checkbox" id="options_log_gathering_result" name="options_log_gathering_result" value="options_log_gathering_result" onclick = "option_log_gathering_result()" checked>
                     <label for="options_log_gathering_result">Log total gathered materials on gathering finish</label>
+                </div>
+                <div class="options_choice">
+                    <label for="options_expo_threshold">Use scientific notation for values over:</label>
+                    <input type="number" id="options_expo_threshold" name="options_expo_threshold" min="0" onchange="option_expo_threshold()">
                 </div>
                 <div class="options_choice">
                     <input type="checkbox" id="options_use_uncivilised_temperature_scale" name="options_use_uncivilised_temperature_scale" value="options_use_uncivilised_temperature_scale" onclick = "option_use_uncivilised_temperature_scale()">

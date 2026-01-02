@@ -11,9 +11,10 @@ class ActiveEffect {
      * @param {Number} effect_data.duration
      * @param {Object} effect_data.effects {stats}
      */
-    constructor({name, id, duration, effects, tags, potency, group_tags, affected_by_travel = true}) {
+    constructor({name, id, description = null, duration, effects, tags, potency, group_tags, affected_by_travel = true}) {
         this.name = name;
         this.id = id || name;
+        this.description = description;
         this.duration = duration ?? 0;
         this.effects = effects;
         if(!this.effects.bonus_skill_levels) {
@@ -219,6 +220,57 @@ class ActiveEffect {
             }
         },
         tags: {"debuff": true, "poison": true},
+    });
+})();
+
+
+//combat effects
+(()=>{
+    effect_templates["Irritation"] = new ActiveEffect({
+        name: "Irritation",
+        description: "Sensations caused by a foreign substance are making it difficult to concentrate",
+        effects: {
+            stats: {
+                intuition: {multiplier: 0.75},
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+        group_tags: {psychedelic: 1}
+    });
+    effect_templates["Confusion"] = new ActiveEffect({
+        name: "Confusion",
+        description: "An intoxicating substance is making you unable to think clearly",
+        effects: {
+            stats: {
+                intuition: {multiplier: 0.5},
+            }
+        },
+        tags: {"debuff": true, "poison": true},
+        group_tags: {psychedelic: 2}
+        });
+    effect_templates["Hallucinations"] = new ActiveEffect({
+        name: "Hallucinations",
+        description: "A psychedelic substance is making it hard to tell what's real",
+        effects: {
+            stats: {
+                intuition: {multiplier: 0.25},
+            }
+        },
+        tags: {"debuff": true, "poison": true},
+        group_tags: {psychedelic: 3}
+    });
+
+    effect_templates["Sticky"] = new ActiveEffect({
+        name: "Sticky",
+        description: "Covered in a sticky substance that restricts your movements",
+        effects: {
+            stats: {
+                dexterity: { multiplier: 0.75 },
+                agility: { multiplier: 0.75 },
+                attack_speed: { multiplier: 0.75 }
+            }
+        },
+        tags: { "debuff": true },
     });
 })();
 

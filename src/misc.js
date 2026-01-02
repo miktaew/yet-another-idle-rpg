@@ -1,5 +1,7 @@
 "use strict";
 
+import { options } from "./main.js"
+
 const stat_names = {
     "strength": "str",
     "health": "hp",
@@ -51,12 +53,12 @@ const crafting_tags_to_skills = {
 
 function expo(number, precision = 3)
 {
-    let expo_threshold = 1000000;
+    number = Number.parseFloat(number);
 
     if(number == 0) {
         return 0;
-    } else if(number >= expo_threshold || number < 0.01) {
-        return Number.parseFloat(number).toExponential(precision).replace(/[+-]/g,"");
+    } else if(number >= options.expo_threshold || number < 0.01) {
+        return number.toExponential(precision).replace(/[+-]/g,"");
     } else if(number > 10) {
         return Math.round(number).toLocaleString();
     } else if(number > 1) {
