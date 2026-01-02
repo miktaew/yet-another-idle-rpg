@@ -1036,10 +1036,10 @@ function do_reading() {
     item_templates[is_reading].addProgress();
 
     update_displayed_book(is_reading);
-
-    add_xp_to_skill({skill: skills["Literacy"], xp_to_add: book_stats.literacy_xp_rate});
     const book = book_stats[is_reading];
-    if(book_stats[is_reading].is_finished) {
+    add_xp_to_skill({skill: skills["Literacy"], xp_to_add: book.literacy_xp_rate});
+
+    if(book.is_finished) {
         log_message(`Finished the book "${is_reading}"`);
         update_booklist_entry(is_reading, true);
         end_reading();
@@ -1727,7 +1727,7 @@ function do_character_combat_action({target, attack_power, target_count}) {
             let xp_reward = target.xp_value * groupsize_xp_multiplier;
             add_xp_to_character(xp_reward/target_count, true);
 
-            let loot = target.get_loot({drop_chance_modifier: 1/current_enemies.length**0.6667});
+            let loot = target.get_loot({drop_chance_modifier: 1/target_count**0.6667});
             if(loot.length > 0) {
                 log_loot({loot_list: loot, is_combat: true});
                 loot = loot.map(x => {return {item_key: item_templates[x.item_id].getInventoryKey(), count: x.count}});
