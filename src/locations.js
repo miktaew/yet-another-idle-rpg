@@ -1826,8 +1826,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             return noises;
         },
         temperature_modifier: 2,
-        dialogues: ["swampland chief"],
-        traders: ["swampland trader"],
+        dialogues: ["swampland chief", "swampland cook", "swampland tailor", "swampland tanner"],
+        traders: ["swampland trader", "swampland trader 2"],
         market_region: "Swamp",
         name: "Swampland tribe", 
         is_unlocked: false,
@@ -1858,6 +1858,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             text_to_sleep: "Lie down on an open cot",
             sleeping_xp_per_tick: 3},
         temperature_modifier: 1.5,
+        dialogues: ["swampland scout"],
         is_under_roof: true,
     });
 

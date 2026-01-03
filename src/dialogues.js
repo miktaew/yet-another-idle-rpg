@@ -987,7 +987,6 @@ class DialogueAction extends GameAction {
                 text: "swampchief mid help answ",
                 is_unlocked: false,
             }),
-//  /*
             "swampchief report": new Textline({
                 name: "swampchief report",
                 text: "swampchief report answ",
@@ -1017,7 +1016,8 @@ class DialogueAction extends GameAction {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief generic"]}],
                     locations: [{location: "Longhouse"}],
                     items: ["Snake fang ring"],
-                    //items_by_id: {"Snake fang ring": {count: 1}},       //reward for completing the quest; not given because I don't know the proper syntax
+                    traders: ["swampland trader 2"],
+                    locks: ["swampland trader"]
                     //activities: [{location: "Swampland tribe", activity: "crafting"}],      //unsure of how to swap the crafting station in the tribe from locked to unlocked
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 9}],		//finishes the quest
                 },
@@ -1028,7 +1028,6 @@ class DialogueAction extends GameAction {
                 text: "swampchief generic answ",
                 is_unlocked: false,
             }),
-//  */
         },
         getDescription: ()=>{
             if(dialogues["swampland chief"].textlines["swampchief confirm"].is_finished) {
@@ -1042,7 +1041,7 @@ class DialogueAction extends GameAction {
 	    dialogues["swampland cook"] = new Dialogue({
         //tbd, an outlander to the tribe. Slips foreign terms in dialogue. Speaks in odd, short sentences ending with exclamation marks
         name: "swampland cook",
-        is_unlocked: true,          //swapped for testing, change to false
+        is_unlocked: false,
         textlines: {
             "swampcook greeting1": new Textline({
                 name: "swampcook greeting1",
