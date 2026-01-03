@@ -426,7 +426,6 @@ class TradeItem {
 	
 	inventory_templates["Swamp"] = 
     [
-            /*
             new TradeItem({item_name: "Alligator jerky", count: [1,2]}),
             new TradeItem({item_name: "Snake jerky", count: [1,2]}),
             new TradeItem({item_name: "Turtle jerky", count: [1,2]}),
@@ -435,29 +434,6 @@ class TradeItem {
             new TradeItem({item_name: "Wild onion", count: [1,3]}),
             new TradeItem({item_name: "Wild garlic", count: [1,3]}),
             new TradeItem({item_name: "Wild potato", count: [1,3]}),
-            */
-
-            
-            new TradeItem({item_name: "Alligator skin", count: [200,200], chance: 1}), //for testing purposes. Obviously.
-            new TradeItem({item_name: "Giant snake skin", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Turtle shell", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Alligator meat", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Giant snake meat", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Turtle meat", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Flax", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Linen cloth", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Piece of alligator leather", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Piece of snakeskin leather", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Turtle shellplate", count: [200,200], chance: 1}),
-
-            new TradeItem({item_name: "Cooking herbs", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Wild onion", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Wild garlic", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Wild potato", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Clam", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Crab meat", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Belmart leaf", count: [200,200], chance: 1}),
-            new TradeItem({item_name: "Glass bottle", count: [200,200], chance: 1}),
     ];
 	inventory_templates["Swamp plus"] = 
     [

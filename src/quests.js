@@ -488,15 +488,15 @@ const questManager = {
             new QuestTask({
                 task_condition: {
                     all: {
-                        enter_location: { //enter the village to start the quest, speak to the chief to formally accept the quest
+                        enter_location: { //enter the tribe to start the quest, speak to the chief to formally accept the quest
                             "Swampland tribe": {
                                 target: 1, 
                             },
                         }
                     }
                 }
-			}),
-            new QuestTask({task_description: "Speak to the cook and see how you can help"}), //crab delivery part 1
+			}), //"Introduce yourself to the village elder?"
+            new QuestTask({task_description: "Ask around and see how you can help"}), //crab delivery part 1
             new QuestTask({task_description: "Bring the cook 60 pieces of fresh crab meat"}), //crab delivery part 2
             new QuestTask({task_description: "Speak to the tailor and see how you can help"}), //flax delivery part 1
             new QuestTask({task_description: "Bring the tailor 200 bundles of fresh flax"}), //flax delivery part 2

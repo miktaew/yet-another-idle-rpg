@@ -1771,7 +1771,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             } else if(locations["The swamplands"].enemy_groups_killed >= 3 * locations["The swamplands"].enemy_count) {
                 return "The swamplands are difficult to navigate and dangerous to traverse, but after travelling across it for what feels like a few weeks, you managed to find an actual solid pathway leading to a small settlement. It seems that somehow, some folks have managed to find a way to survive out here";
             } else {
-                return "A disgusting boggy marsh lies before you. Most of the ground, or at least what you can make out through the reeds, is covered in filthy water up to your knees, and what isn't submerged has rotted into compost or is the nest of some unknown creature. You think you see something out of the corner of your eye, but as you turn to look, all you catch is a ripple in the reeds";
+                return "A disgusting boggy marsh lies before you. Most of the ground, or at least what you can make out through the reeds, is covered in filthy water halfway up to your knees, and what isn't submerged has rotted into compost or is the nest of some unknown creature. You think you see something out of the corner of your eye, but as you turn to look, all you catch is a ripple in the reeds";
             }},
         getBackgroundNoises: function() {
             let noises = ["*Gnats and mosquitos pick at your exposed skin*", "*fwoosh* *thump*", "*You hear something moving around you, but you can't see it*", "*The buzz of insects throb in your ears*", "*gurgle gurgle*", "*You feel something moving next you, but you can't see it*", "*snap* *crunch*", "*You hear the rythmic swish-swash of something swimming nearby*", "*hssssssssssss*", "*slither*"];
@@ -1818,7 +1818,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             } else if(locations["The swamplands"].enemy_groups_killed >= 6 * locations["The swamplands"].enemy_count) {
                 return "Very small fortified settlement, built on a stretch of dry, stable ground. There are a few small huts with stalls build into them, and a lone building lies in the back of the encampment";
             } else {
-                return "Very small fortified settlement, built on a stretch of dry, stable ground. It's surrounded by swampy fields, most of them infested by dangerous creatures. It's surprising there's anyone living here at all"; 
+                return "Very small fortified settlement, built on a stretch of dry, stable ground. It's surrounded by swampy fields, most of them infested by dangerous creatures. It's surprising there's anyone living here at all, although you don't see anyone at the moment"; 
             }
         },
         getBackgroundNoises: function() {
@@ -1850,7 +1850,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Longhouse"] = new Location({     //end of the new content
         connected_locations: [{location: locations["Swampland tribe"], custom_text: "Go back out to the [Swampland tribe]", travel_time: 5}],
         description: "A communal building that members of the settlement rest, eat, and recover in. The only other person in here right now is the scout, lying in a cot next to the door. The air smells faintly of rot and you can't help but notice there's far more cots than needed",
-        dialogues: ["Swampland scout"],
+        //dialogues: ["Swampland scout"],       //breaks the longhouse at the moment
         name: "Longhouse",
         is_unlocked: false,
         housing: {
@@ -2342,7 +2342,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             activity_name: "swimming",
             infinite: true,
             starting_text: "Swim against the current",
-            skill_xp_per_tick: 4,
+            skill_xp_per_tick: 7,
             is_unlocked: true,
             applied_effects: [{effect: "Wet", duration: 30}],
         }),
@@ -2981,7 +2981,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         "learn forage": new GameAction({
             action_id: "learn forage",
             starting_text: "Ask the scout to teach you about local herbs and vegetables",
-            description: "The chief asked you to talk to the scout, maybe she can teach you about the plants you've seen growing around here",
+            description: "The scout had mentioned interesting local plants, maybe she can teach you about them",
             action_text: "Learning how to forage from the scout",
             success_text: "The scout explains the local herbs, root vegetables and tubers that grow in the outlying swamplands. You feel confident that you could find them yourself at this point",
             failure_texts: {
@@ -3011,6 +3011,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_chances: [0.45, 1],
             rewards: {
                 actions: [{location:"Swampland tribe", action: "herbalism"}],
+                textlines: [{dialogue: "swampland scout", action: ["swampscout help"]}],
             },
         }),
     };
