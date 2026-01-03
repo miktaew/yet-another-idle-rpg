@@ -1016,7 +1016,7 @@ class DialogueAction extends GameAction {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief generic"]}],
                     locations: [{location: "Longhouse"}],
                     items: ["Snake fang ring"],
-                    traders: ["swampland trader 2"],        //don't know a way to lock the second vendor, since I can't make quests work and no locations are involved
+                    //traders: ["swampland trader 2"],        //this seems to break this dialogue, and I don't know a way to lock the second vendor anyway
                     //activities: [{location: "Swampland tribe", activity: "crafting"}],      //unsure of how to swap the crafting station in the tribe from locked to unlocked
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 9}],		//finishes the quest
                 },
@@ -1123,8 +1123,7 @@ class DialogueAction extends GameAction {
                 text: "swampcook history1 answ",
                 is_unlocked: false,
                 rewards: {textlines: [
-                    {dialogue: "swampland cook", lines: ["swampcook history2"]},
-                    {dialogue: "swampland cook", lines: ["swampcook zalgo"]}
+                    {dialogue: "swampland cook", lines: ["swampcook history2"]}
                 ]
             },
                 locks_lines: ["swampcook history1"],
@@ -1133,7 +1132,9 @@ class DialogueAction extends GameAction {
                 name: "swampcook history2",
                 text: "swampcook history2 answ",
                 is_unlocked: false,
-                rewards: {textlines: [{dialogue: "swampland cook", lines: ["swampcook history3"]}]
+                rewards: {textlines: [
+                    {dialogue: "swampland cook", lines: ["swampcook history3"]}
+                ]
             },
                 locks_lines: ["swampcook history2"],
             }),
@@ -1305,7 +1306,8 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 rewards: {textlines: [
                     {dialogue: "swampland cook", lines: ["swampcook tailor"]},
-                    {dialogue: "swampland cook", lines: ["swampcook tanner"]}
+                    {dialogue: "swampland cook", lines: ["swampcook tanner"]},
+                    {dialogue: "swampland cook", lines: ["swampcook peopleend"]},
                 ]
             },
                 locks_lines: ["swampcook fangs"],
@@ -1507,6 +1509,7 @@ class DialogueAction extends GameAction {
                 },
                 locks_lines: ["swampcook deliver", "swampcook obaru"],
             }),
+        },
         getDescription: ()=>{
             if(dialogues["swampland cook"].actions["swampcook deliver"].is_finished) {
                 return "swampcook description 3";
@@ -1515,8 +1518,7 @@ class DialogueAction extends GameAction {
             } else {
                 return "swampcook description 1";
             }}
-        }
-});
+        });
     dialogues["swampland tailor"] = new Dialogue({
         //tbd, speaks in verbose diatribes
         name: "swampland tailor",
@@ -1659,6 +1661,7 @@ class DialogueAction extends GameAction {
                 },
                 locks_lines: ["swamptailor deliver"],
             }),
+        },
         getDescription: ()=>{
             if(dialogues["swampland tailor"].actions["swamptailor deliver"].is_finished) {
                 return "swamptailor description 3";
@@ -1667,8 +1670,7 @@ class DialogueAction extends GameAction {
             } else {
                 return "swamptailor description 1";
             }}
-        }
-});
+        });
     dialogues["swampland tanner"] = new Dialogue({
         //tbd, speaks in short sentences
         name: "swampland tanner",
@@ -1887,7 +1889,7 @@ class DialogueAction extends GameAction {
             }),
         },
         getDescription: ()=>{
-            if(dialogues["swampland scout"].textlines["swampscout help"].is_finished) {
+            if(dialogues["swampland scout"].actions["swampscout help"].is_finished) {
                 return "swampscout description 4";
             } else if (dialogues["swampland scout"].textlines["swampscout foraging"].is_finished) {
                 return "swampscout description 3";
