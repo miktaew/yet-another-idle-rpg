@@ -378,7 +378,7 @@ const translations = {
                 +"\n[*The cook's odd phrases, loud voice, bizarre cadence, and constant singing make it hard to understand what he's saying, but by following along with his actions, you pick up on how to make jerkies from the meats of the swampland cratures.*]\n",
         "swampcook obaru": "Uh... obaru? What is obaru?",
         "swampcook obaru answ": "Ha~! You are obaru! Silly obaru!",
-        "swampcook kazoku": "Okay, what is kazoku",
+        "swampcook kazoku": "Okay, what is kazoku?",
         "swampcook kazoku answ": "A-ha~! We are kazoku! Silly kazoku!",
         "swampcook sosso": "Are you just going to keep saying words at me I don't understand? What does sosso mean?",
         "swampcook sosso answ": "Ha~! Okay! In your tongue, sosso means...! Fool?! Yes! Fool! You are being the fool!",
@@ -392,7 +392,7 @@ const translations = {
         "swamptailor description 1": "Approaching the tailor's workhut, you glance inside to see an fidgety man quickly moving between multple tasks. He seems to be talking to somebody in hushed tones, but as you get closer, you realize there's nobody else around.", //setup description for the initial dialogue
         "swamptailor description 2": "As you approach the tailor's workhut, you see he's already putting down whatever task he was working on and moving outside to meet with you.", //for in between the initial dialogue and completing his portion of the quest
         "swamptailor description 3": "You approach the tailor's workhut, knocking loudly at the door to get his attention over his relentless fretting about the place.", //for after completing his portion of the quest
-	"swamptailor interrupt": "*knock on the workhut door*", //the tailor will winge to himself until the player makes their presence known
+	"swamptailor interrupt": "\n[*knock on the workhut door*]\n", //the tailor will winge to himself until the player makes their presence known
         "swamptailor interrupt answ": "-and how am I- "
 			+"\n[*Upon realising you're there, the tailor drops what they were doing and dives behind a nearby table, knocking it's contents to the floor. They slowly scramble to their feet while reaching futilely for some sort of weapon]*\n "
 			+"What? Who are you! Why are you here! How did you get here!",

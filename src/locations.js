@@ -1833,7 +1833,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         is_unlocked: false,
         crafting: {
             is_unlocked: false,
-            use_text: "Use the tribe's tools to craft something", 
+            use_text: "Use the tribe's workhuts to craft something", 
             tiers: {
                 crafting: 2,
                 forging: 2,
@@ -1849,7 +1849,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
 	
     locations["Longhouse"] = new Location({     //end of the new content
         connected_locations: [{location: locations["Swampland tribe"], custom_text: "Go back out to the [Swampland tribe]", travel_time: 5}],
-        description: "A communal building that members of the settlement rest, eat, and recover in. The only other person in here right now is the scout, lying in a cot next to the door. The air smells faintly of rot and you can't help but notice there's far more cots than needed",
+        description: "A communal building that members of the settlement rest, eat, and recover in. The only other person in here right now is a wounded young woman, lying in a cot next to the door. The air smells faintly of rot and you can't help but notice there's far more cots than needed",
         //dialogues: ["Swampland scout"],       //breaks the longhouse at the moment
         name: "Longhouse",
         is_unlocked: false,
@@ -3012,7 +3012,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_chances: [0.45, 1],
             rewards: {
                 actions: [{location:"Swampland tribe", action: "herbalism"}],
-                textlines: [{dialogue: "swampland scout", action: ["swampscout help"]}],
+                //textlines: [{dialogue: "swampland scout", action: ["swampscout help"]}],  //for testing purposes to narrow down a bug
             },
         }),
     };

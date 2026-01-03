@@ -1016,8 +1016,7 @@ class DialogueAction extends GameAction {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief generic"]}],
                     locations: [{location: "Longhouse"}],
                     items: ["Snake fang ring"],
-                    traders: ["swampland trader 2"],
-                    locks: ["swampland trader"]
+                    traders: ["swampland trader 2"],        //don't know a way to lock the second vendor, since I can't make quests work and no locations are involved
                     //activities: [{location: "Swampland tribe", activity: "crafting"}],      //unsure of how to swap the crafting station in the tribe from locked to unlocked
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 9}],		//finishes the quest
                 },
@@ -1099,13 +1098,13 @@ class DialogueAction extends GameAction {
                         {dialogue: "swampland cook", lines: ["swampcook chief"]},
                         {dialogue: "swampland cook", lines: ["swampcook people"]}
                     ]
-                },
-                    recipes: [
+                },  /*  
+                    recipes: [          //added recipes breaks the game for a reason I can't figure out
                         {category: "cooking", subcategory: "items", recipe_id: "Alligator jerky"},
                         {category: "cooking", subcategory: "items", recipe_id: "Turtle jerky"},
                         {category: "cooking", subcategory: "items", recipe_id: "Snake jerky"},
                         {category: "cooking", subcategory: "items", recipe_id: "Swampland skewer"},
-                    ],
+                    ],  */
                 locks_lines: ["swampcook yeslore", "swampcook nolore"],
             }),
             "swampcook history": new Textline({
@@ -1437,13 +1436,13 @@ class DialogueAction extends GameAction {
                 name: "swampcook noloreteach",
                 text: "swampcook noloreteach answ",
                 is_unlocked: false,
-                rewards: {
-                    recipes: [
+                rewards: {  /*
+                    recipes: [          //added recipes breaks the game for a reason I can't figure out
                         {category: "cooking", subcategory: "items", recipe_id: "Alligator jerky"},
                         {category: "cooking", subcategory: "items", recipe_id: "Turtle jerky"},
                         {category: "cooking", subcategory: "items", recipe_id: "Snake jerky"},
                         {category: "cooking", subcategory: "items", recipe_id: "Swampland skewer"},
-                    ],
+                    ], */
                 },  
                 locks_lines: ["swampcook noloreteach"],
             }),
@@ -1510,7 +1509,7 @@ class DialogueAction extends GameAction {
             }),
         getDescription: ()=>{
             if(dialogues["swampland cook"].actions["swampcook deliver"].is_finished) {
-                return "swampchief description 3";
+                return "swampcook description 3";
             } else if (dialogues["swampland cook"].textlines["swampcook help"].is_finished) {
                 return "swampcook description 2";
             } else {
@@ -1523,7 +1522,7 @@ class DialogueAction extends GameAction {
         name: "swampland tailor",
         is_unlocked: false,
         textlines: {
-            "swamptailor interrupt": new Textline({     //breaks the loop, moves forward
+            "swamptailor interrupt": new Textline({     // moves forward
                 name: "swamptailor interrupt",
                 text: "swamptailor interrupt answ",
                 is_unlocked: true,
@@ -1532,7 +1531,7 @@ class DialogueAction extends GameAction {
                 },
                 locks_lines: ["swamptailor interrupt", "swamptailor listen1", "swamptailor listen2", "swamptailor listen3", "swamptailor listen4", "swamptailor listen5", "swamptailor listen6", "swamptailor listen7", "swamptailor listen8"],
             }),
-            "swamptailor listen1": new Textline({       //loop beginning
+            "swamptailor listen1": new Textline({       //intended to loop after listen8, but dialog can't be unlocked after locking it, it seems
                 name: "swamptailor listen1",
                 text: "swamptailor listen1 answ",
                 is_unlocked: true,
@@ -1595,13 +1594,10 @@ class DialogueAction extends GameAction {
                 },
                 locks_lines: ["swamptailor listen7"],
             }),
-            "swamptailor listen8": new Textline({       //loop point
+            "swamptailor listen8": new Textline({
                 name: "swamptailor listen8",
                 text: "swamptailor listen8 answ",
                 is_unlocked: false,
-                rewards: {
-                    textlines: [{dialogue: "swampland tailor", lines: ["swamptailor listen1"]}],
-                },
                 locks_lines: ["swamptailor listen8"],
             }),
             "swamptailor cookword": new Textline({
@@ -1665,7 +1661,7 @@ class DialogueAction extends GameAction {
             }),
         getDescription: ()=>{
             if(dialogues["swampland tailor"].actions["swamptailor deliver"].is_finished) {
-                return "swampchief description 3";
+                return "swamptailor description 3";
             } else if (dialogues["swampland tailor"].textlines["swamptailor interrupt"].is_finished) {
                 return "swamptailor description 2";
             } else {
@@ -1690,7 +1686,7 @@ class DialogueAction extends GameAction {
             "swamptanner help": new Textline({
                 name: "swamptanner help",
                 text: "swamptanner help answ",
-                is_unlocked: true,
+                is_unlocked: false,
                 rewards: {
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 6}], 
                     actions: [{dialogue: "swampland tanner", action: "swamptanner deliver 1"}],
@@ -1700,7 +1696,7 @@ class DialogueAction extends GameAction {
             "swamptanner known": new Textline({
                 name: "swamptanner known",
                 text: "swamptanner known answ",
-                is_unlocked: true,
+                is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "swampland tanner", action: ["swamptanner deliver 2"]}],
                 },
@@ -1751,12 +1747,12 @@ class DialogueAction extends GameAction {
                 success_chances: [1],
                 rewards: {
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 8}], //need to find some way to tie back to the chief since I can't make the quest work. locking the turn-in dialogue to rep could work, but I don't know how to implement questlines to give rep either, and rep rewards don't work in dialogue yet. maybe just disabling him after accepting the quest and enabling a new chief after this step?
-                    textlines: [{dialogue: "swampland tanner", lines: ["swamptanner liked"]}],
-                    recipes: [
+                    textlines: [{dialogue: "swampland tanner", lines: ["swamptanner liked"]}],      /*
+                    recipes: [            //added recipes breaks the game for a reason I can't figure out
                         {category: "Butchering", subcategory: "items", recipe_id: "Piece of alligator leather"},
                         {category: "Butchering", subcategory: "items", recipe_id: "Piece of snakeskin leather"},
                         {category: "Butchering", subcategory: "items", recipe_id: "Turtle shellplate"},
-                    ],
+                    ],  */
                 },
                 locks_lines: ["swamptanner deliver 2"],
             }),
