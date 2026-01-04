@@ -1676,7 +1676,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         temperature_modifier: +1.3,
         unlock_text: "It's just a shame no one will ever believe you caught one ~this~ big",        //intended to show up after beating the giant crab for the second time, playing off the old "fisherman lying about the size of his catch" trope
         name: "Lake beach",
-        is_unlocked: false,
+        is_unlocked: true,
     });
     locations["Riverbank"].connected_locations.push({location: locations["Lake beach"], custom_text: "Go to the [Lake beach]",  travel_time: 180, travel_time_skills: ["Scrambling"]});
     locations["Further downstream"].connected_locations.push({location: locations["Lake beach"], custom_text: "Go to the [Lake beach]", travel_time: 240}); //Pretty sure "Further downstream" should be locked by this point, but if it's not or if it gets unlocked, it should reconnect I suppose

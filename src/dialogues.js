@@ -1011,7 +1011,7 @@ class DialogueAction extends GameAction {
             "swampchief accept": new Textline({
                 name: "swampchief accept",
                 text: "swampchief accept answ",
-                is_unlocked: true,      //swapped for testing, change to false
+                is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief generic"]}],
                     locations: [{location: "Longhouse"}],
@@ -1700,9 +1700,10 @@ class DialogueAction extends GameAction {
                 text: "swamptanner known answ",
                 is_unlocked: false,
                 rewards: {
+                    //quest_progress: [{quest_id: "In Times of Need", task_index: 6}], 
                     actions: [{dialogue: "swampland tanner", action: ["swamptanner deliver 2"]}],
                 },
-                locks_lines: ["swamptailor known"],
+                locks_lines: ["swamptanner known"],
             }),
             "swamptanner liked": new Textline({
                 name: "swamptanner liked",
