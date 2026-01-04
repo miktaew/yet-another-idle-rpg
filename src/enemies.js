@@ -65,6 +65,7 @@ class Enemy {
         this.on_hit = on_hit;
         this.on_damaged = on_damaged;
         this.on_death = on_death;
+        //try to limit the usage of those 3
     }
     get_loot({drop_chance_modifier = 1} = {}) {
         // goes through items and calculates drops

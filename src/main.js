@@ -258,7 +258,7 @@ const options = {
     skip_play_button: false, //not really skips, just automatically clicks it right after loading
     mofu_mofu_mode: true,
     do_enemy_onhit_animations: true,
-    expo_threshold: 1000000000
+    expo_threshold: 1e9,
 };
 
 let message_log_filters = {
@@ -315,14 +315,12 @@ function option_uniform_textsize(option) {
 
 function option_bed_return(option) {
     const checkbox = document.getElementById("options_bed_return");
-    if(checkbox.checked || option) {
-        options.auto_return_to_bed = true;
-    } else {
-        options.auto_return_to_bed = false;
-    }
 
     if(option !== undefined) {
+        options.auto_return_to_bed = option;
         checkbox.checked = option;
+    } else {
+        options.auto_return_to_bed = checkbox.checked;
     }
 }
 

@@ -249,18 +249,13 @@ class Combat_zone {
             const enemy = enemy_templates[enemy_group[i]];
             let newEnemy;
 
-            // why not newEmemy = new Enemy({...enemy}) and apply variations after?
-
             if(this.enemy_stat_variation != 0) {
 
                 const variation = Math.random() * this.enemy_stat_variation;
 
                 const base = 1 + variation;
                 const vary = 2 * variation;
-                newEnemy = new Enemy({
-                    name: enemy.name, 
-                    description: enemy.description, 
-                    xp_value: enemy.xp_value,
+                newEnemy = new Enemy({...enemy,
                     stats: {
                         health: Math.round(enemy.stats.health * (base - Math.random() * vary)),
                         attack: Math.round(enemy.stats.attack * (base - Math.random() * vary)),
@@ -272,37 +267,10 @@ class Combat_zone {
                         attack_count: Math.round((enemy.stats.attack_count || 1) * (base - Math.random() * vary)),
                         defense: Math.round(enemy.stats.defense * (base - Math.random() * vary))
                     },
-                    loot_list: enemy.loot_list,
-                    add_to_bestiary: enemy.add_to_bestiary,
-                    size: enemy.size,
-                    on_hit: enemy.on_hit,
-                    on_damaged: enemy.on_damaged,
-                    on_death: enemy.on_death
                 });
 
             } else {
-                newEnemy = new Enemy({
-                    name: enemy.name, 
-                    description: enemy.description, 
-                    xp_value: enemy.xp_value,
-                    stats: {
-                        health: enemy.stats.health,
-                        attack: enemy.stats.attack,
-                        agility: enemy.stats.agility,
-                        dexterity: enemy.stats.dexterity,
-                        magic: enemy.stats.magic,
-                        intuition: enemy.stats.intuition,
-                        attack_speed: enemy.stats.attack_speed,
-                        attack_count: enemy.stats.attack_count || 1,
-                        defense: enemy.stats.defense
-                    },
-                    loot_list: enemy.loot_list,
-                    add_to_bestiary: enemy.add_to_bestiary,
-                    size: enemy.size,
-                    on_hit: enemy.on_hit,
-                    on_damaged: enemy.on_damaged,
-                    on_death: enemy.on_death
-                });
+                newEnemy = new Enemy({...enemy, stats: {...enemy.stats}});
             }
             newEnemy.is_alive = true;
             enemies.push(newEnemy); 
@@ -435,17 +403,24 @@ class LocationActivity{
         /*
             {
                 scales_with_skill: boolean, 
-                resource: [{name, ammount: [[min,max], [min,max]], chance: [min,max]}], 
+                resources: [{name, ammount: [[min,max], [min,max]], chance: [min,max]}], 
                 time_period: [min,max], 
                 skill_required: [min_efficiency, max_efficiency]
             }
         */
         //every 2-value array is oriented [starting_value, value_with_required_skill_level], except for subarrays of ammount (which are for randomizing gained item count) and for skill_required
         //                                                                                   (ammount array itself follows the mentioned orientation)
+        //ammounts can be skipped if they are meant to be [[1,1],[1,1]] (auto-filled just below the comments)
         //value start scaling after reaching min_efficiency skill lvl, before that they are just all at min
         //skill required refers to level of every skill
         //if scales_with_skill is false, scalings will be ignored and first value will be used
+
+        for(let i = 0; i < this.gained_resources?.resources.length; i++) {
+            if(!this.gained_resources.resources[i].ammount) {
+                this.gained_resources.resources[i].ammount = [[1,1],[1,1]];
+            }
         }
+    }
 
     getActivityEfficiency = function() {
         let skill_modifier = 1;
@@ -1602,10 +1577,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         description: "Battling at the lake's edge",
         enemies_list: ["Frog"],
         enemy_count: 50,
-        enemy_group_size: [1,1],
-        enemy_groups_list: [{enemies: ["Frog"]}],
-        is_enemy_groups_list_random: true,
-        predefined_lineup_on_nth_group: 4,
         is_unlocked: false,
         enemy_stat_variation: 0.2,
         name: "Frogs",
@@ -1617,7 +1588,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         repeatable_reward: {
             xp: 1000,
             actions: [
-                {location: "Forest lake", action: "search2"}
+                //{location: "Forest lake", action: "search2"}
             ],
         },
         temperature_range_modifier: 0.8,
@@ -1741,7 +1712,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         predefined_lineup_on_nth_group: 4,
         is_unlocked: false,
         enemy_stat_variation: 0.2,
-        name: "Forest den traversal", 
+        name: "Forest den traversal",
         types: [{type: "narrow", stage: 2, xp_gain: 5}, {type: "dark", stage: 2, xp_gain: 5}],
         parent_location: locations["Forest road"],
         repeatable_reward: {
@@ -1856,10 +1827,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: true,
             gained_resources: {
                 resources: [
-                    {name: "Ratfish", ammount: [[1,1], [1,1]], chance: [0.3, 0.5]},
-                    {name: "Minnow", ammount: [[1,1], [1,1]], chance: [0.1, 0.5]},
-                    {name: "Trout", ammount: [[1,1], [1,1]], chance: [0.01, 0.20]},
-                    {name: "Mackerel shark", ammount: [[1,1], [1,1]], chance: [0.001, 0.05]}
+                    {name: "Ratfish", chance: [0.3, 0.5]},
+                    {name: "Minnow", chance: [0.1, 0.5]},
+                    {name: "Trout", chance: [0.01, 0.20]},
+                    {name: "Mackerel shark", chance: [0.001, 0.05]}
                 ], 
                 time_period: [120, 30],
                 skill_required: [0, 10],
@@ -1977,9 +1948,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [
-                    {name: "Oneberry", ammount: [[1,1], [1,1]], chance: [0.1, 0.5]},
-                    {name: "Golmoon leaf", ammount: [[1,1], [1,1]], chance: [0.1, 0.7]},
-                    {name: "Belmart leaf", ammount: [[1,1], [1,1]], chance: [0.1, 0.7]}
+                    {name: "Oneberry", chance: [0.1, 0.5]},
+                    {name: "Golmoon leaf", chance: [0.1, 0.7]},
+                    {name: "Belmart leaf", chance: [0.1, 0.7]}
                 ], 
                 time_period: [120, 45],
                 skill_required: [0, 10],
@@ -2054,7 +2025,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [
-                    { name: "Silver thistle", ammount: [[1, 1], [1, 1]], chance: [0.1, 0.5] },
+                    { name: "Silver thistle", chance: [0.1, 0.5] },
                 ],
                 time_period: [120, 60],
                 skill_required: [7, 17],
@@ -2111,10 +2082,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: true,
             gained_resources: {
                 resources: [
-                    { name: "Ratfish", ammount: [[1, 1], [1, 1]], chance: [0.2, 0.8] },
-                    { name: "Carp", ammount: [[1, 1], [1, 1]], chance: [0.1, 0.5] },
-                    { name: "Mackerel shark", ammount: [[1, 1], [1, 1]], chance: [0.05, 0.2] },
-                    { name: "Catfish", ammount: [[1, 1], [1, 1]], chance: [0.01, 0.1] }
+                    { name: "Ratfish", chance: [0.2, 0.8] },
+                    { name: "Carp", chance: [0.1, 0.5] },
+                    { name: "Mackerel shark", chance: [0.05, 0.2] },
+                    { name: "Catfish", chance: [0.01, 0.1] }
                 ],
                 time_period: [120, 30],
                 skill_required: [10, 20],
