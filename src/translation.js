@@ -429,7 +429,7 @@ const translations = {
                 +"\n*[The tailor bends down and picks up a long thin plant with blue flowers]*\n "
                 +"-THIS is flax. Go up in the mountains, find more, and bring it to me. Two hundred bundles. Thank you goodbye.",
         "swamptailor deliver": "I've managed to collect all 200 bundles of flax plants that you wanted.",
-        "swamptailor deliver answ": "You did? I... I'm sorry, it was unkind of me, the way I spoke to you before. Please understand, these plants are going to be used to make fresh bandages, and without them... I'm not sure I would have been able to do much of anything trying to reuse fraying rags. I can only hope you were quick enough. I know it's untoward of me to even consider asking this of you after you've already done the hardest part, but could you spare some additional time and help me being to process these into usable linen cloth? Even if you don't know what do to, which I'm fairly certain you don't, an extra pair of hands makes all the difference in the world, and you might be able to make linen yourself afterwards too. "
+        "swamptailor deliver answ": "You did? I... I'm sorry, it was unkind of me, the way I spoke to you before. Please understand, these plants are going to be used to make fresh bandages, and without them... I'm not sure I would have been able to do much of anything trying to reuse fraying rags. I can only hope you were quick enough. I know it's untoward of me to even consider asking this of you after you've already done the hardest part, but could you spare some additional time and help me begin to process these into usable linen cloth? Even if you don't know what do to, which I'm fairly certain you don't, an extra pair of hands makes all the difference in the world, and you might be able to make linen yourself afterwards too. "
                 +"\n*[The tailor teaches you how to process flax into linen cloth]*\n",
 	"swamptailor deliver not": "You did? Where are they, then? Please, I ~need~ those plants. Every hour counts.",
         "swamptailor liked": "Is there anything I can do to help you out today?",
@@ -444,16 +444,16 @@ const translations = {
         "swamptanner help answ": "Were the young always so eager to die? Fine. If you shan't be wary, then be the fool. Skin five dozen alligators, or feed the bog trying.",
         "swamptanner deliver 1": "I've got the 60 alligator skins you requested.",
         "swamptanner deliver 1 answ": "You did!? Ah... " 
-                +"*[The old woman stands up, and with shaky yet strong hands, takes the alligator skins from you, staring at you as she does]* "
+                +"*\n[The old woman stands up, and with shaky yet strong hands, takes the alligator skins from you, staring at you as she does]*\n "
                 +"My eyes are not as good as they used to be. But now that I see you... You have a strength within. A courageous spirit burning bright; a warrior's heart beating strong. She does too.",
 	"swamptanner deliver 1 not": "My eyes may not be as good as they used to be, but I can still count. This is not five dozen, child.",
         "swamptanner known": "Who is `she`?",
         "swamptanner known answ": "The person I needed these skins for. She needs new armor if she's going to survive out there, next time. I will be honest, child: if I am to make her new armor, I am in need of more; these hides can protect, but not alone. I will need the skins of five dozen snakes as well. But I cannot ask you to go and risk your life again for them. I have seen too many children already...", //"already die trying."
         "swamptanner deliver 2": "You don't need to worry any longer. I have the 60 snake skins you need.",
         "swamptanner deliver 2 answ": "Child... You truly have a mighty soul." 
-                +"*[The old woman stands up, and with ever shaky hands, takes the giant snake skins from you, staring at you as she does]* "
+                +"*\n[The old woman stands up, and with ever shaky hands, takes the giant snake skins from you, staring at you as she does]*\n "
                 +"My eyes are not as good as they used to be. But now that I see your armor... I know not how you survived such brutal attacks. Come. I will teach you how to process the skins you've brought. Surely they will be stronger than whatever it is you're wearing. I may even have some old turtle shells you could practice with. Their shells are very tough, but difficult to... "
-                +"*[The old woman teaches you what you need to know in order to process alligator and giant snake skins, as well as turtle shells]*",
+                +"*\n[The old woman teaches you what you need to know in order to process alligator and giant snake skins, as well as turtle shells]\n*",
 	"swamptanner deliver 2 not": "Child... It is okay, you need not lie nor risk your life. You have done enough already. We will manage. We always have.",
         "swamptanner liked": "Just checking in. Is there anything more I can do to help you?",
         "swamptanner liked answ": "Ahh, you are a good child, and a strong warrior. Warriors such as you need not concern yourself with the worries of an old woman.",

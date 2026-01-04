@@ -1691,7 +1691,7 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 rewards: {
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 6}], 
-                    actions: [{dialogue: "swampland tanner", action: "swamptanner deliver 1"}],
+                    actions: [{dialogue: "swampland tanner", action: ["swamptanner deliver 1"]}],
                 },
                 locks_lines: ["swamptanner help"],
             }),
