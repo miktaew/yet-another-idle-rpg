@@ -2061,6 +2061,15 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         visibility_treshold: 4,
         xp_scaling: 1.6,
     });
+
+    skills["Fishing"] = new Skill({
+        names: {0: "Fishing"}, 
+        description: "Get better at luring all kinds of fish",
+        category: "Gathering",
+        base_xp_cost: 10,
+        visibility_treshold: 4,
+        xp_scaling: 1.6,
+    });
 })();
 
 //crafting skills

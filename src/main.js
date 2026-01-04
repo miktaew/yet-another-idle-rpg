@@ -258,6 +258,7 @@ const options = {
     skip_play_button: false, //not really skips, just automatically clicks it right after loading
     mofu_mofu_mode: true,
     do_enemy_onhit_animations: true,
+    expo_threshold: 1e9,
 };
 
 let message_log_filters = {
@@ -314,14 +315,12 @@ function option_uniform_textsize(option) {
 
 function option_bed_return(option) {
     const checkbox = document.getElementById("options_bed_return");
-    if(checkbox.checked || option) {
-        options.auto_return_to_bed = true;
-    } else {
-        options.auto_return_to_bed = false;
-    }
 
     if(option !== undefined) {
+        options.auto_return_to_bed = option;
         checkbox.checked = option;
+    } else {
+        options.auto_return_to_bed = checkbox.checked;
     }
 }
 
@@ -419,6 +418,16 @@ function option_log_gathering_result(option) {
 
     if(option !== undefined) {
         checkbox.checked = option;
+    }
+}
+
+function option_expo_threshold(option) {
+    const input = document.getElementById("options_expo_threshold");
+
+    options.expo_threshold = input.value || option || 0;
+
+    if(option !== undefined) {
+        input.value = option;
     }
 }
 
@@ -758,7 +767,7 @@ function finish_game_action({action_key, conditions_status, dialogue_key}){
 
             result_message = action.success_text;
             if(!action.repeatable) {
-                action.is_finished = true;
+                lock_action({dialogue_key, location_key: current_location.id, action_key});
             }
             process_rewards({rewards: action.rewards, source_type: "action"});
             is_won = true;
@@ -883,6 +892,14 @@ function unlock_action(action_data) {
                 }
             }
         }
+    }
+}
+
+function lock_action({location_key, dialogue_key, action_key}) {
+    if(dialogue_key) {
+        dialogues[dialogue_key].actions[action_key].is_finished = true;
+    } else  {
+        locations[location_key].actions[action_key].is_finished = true;
     }
 }
 
@@ -1028,10 +1045,10 @@ function do_reading() {
     item_templates[is_reading].addProgress();
 
     update_displayed_book(is_reading);
-
-    add_xp_to_skill({skill: skills["Literacy"], xp_to_add: book_stats.literacy_xp_rate});
     const book = book_stats[is_reading];
-    if(book_stats[is_reading].is_finished) {
+    add_xp_to_skill({skill: skills["Literacy"], xp_to_add: book.literacy_xp_rate});
+
+    if(book.is_finished) {
         log_message(`Finished the book "${is_reading}"`);
         update_booklist_entry(is_reading, true);
         end_reading();
@@ -1186,7 +1203,7 @@ function start_textline(textline_key){
     }
 
     if(textline.branches_into?.length) {
-        fill_action_box({content_type: "dialogue_branch", data: {text: text, textlines: textline.branches_into}});
+        fill_action_box({content_type: "dialogue_branch", data: {text: text, dialogue_key: current_dialogue, textlines: textline.branches_into}});
     } else {
         fill_action_box({content_type: "dialogue_answer", data: {text: text, dialogue_key: current_dialogue}});
     }
@@ -1636,6 +1653,8 @@ function do_enemy_combat_action(enemy_id) {
         }
     }
 
+    attacker.on_hit(character);
+
     if(fainted) {
         kill_player();
         return;
@@ -1709,9 +1728,12 @@ function do_character_combat_action({target, attack_power, target_count}) {
             log_message(target.name + " was hit for " + damage_dealt + " dmg", "enemy_attacked");
         }
 
+        target.on_damaged(character);
+
         if(target.stats.health <= 0) {
             total_kills++;
             target.stats.health = 0; //to not go negative on displayed value
+            target.on_death(character);
 
             log_message(target.name + " was defeated", "enemy_defeated");
 
@@ -1719,7 +1741,7 @@ function do_character_combat_action({target, attack_power, target_count}) {
             let xp_reward = target.xp_value * groupsize_xp_multiplier;
             add_xp_to_character(xp_reward/target_count, true);
 
-            let loot = target.get_loot({drop_chance_modifier: 1/current_enemies.length**0.6667});
+            let loot = target.get_loot({drop_chance_modifier: 1/target_count**0.6667});
             if(loot.length > 0) {
                 log_loot({loot_list: loot, is_combat: true});
                 loot = loot.map(x => {return {item_key: item_templates[x.item_id].getInventoryKey(), count: x.count}});
@@ -2092,7 +2114,8 @@ function get_location_rewards(location) {
  * @param {Object} rewards_data.rewards //the standard object with rewards
  * @param {String} rewards_data.source_type //location, gameAction, textline
  * @param {Boolean} rewards_data.is_first_clear //exclusively for location rewards (and only for a single message to be logged)
- * @param {Boolean} rewards_data.inform_textline //if textline unlock is to be logged
+ * @param {Boolean} rewards_data.inform_overall //if unlocks are to be logged
+ * @param {Boolean} rewards_data.inform_textline //if textline unlock is to be logged (requires inform_overall to also be true)
  * @param {String} rewards_data.source_name //in case it's needed for logging a message
  */
 function process_rewards({rewards = {}, source_type, source_name, is_first_clear, inform_overall = true, inform_textline = true, only_unlocks = false, is_from_loading = false}) {
@@ -2240,7 +2263,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
                                 action: locations[rewards.actions[i].location].actions[rewards.actions[i].action],
                                 skip_message: is_from_loading,
                             });
-            }  
+            }
         }
     }
 
@@ -2339,6 +2362,15 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         if(rewards.locks.quests) {
             for(let i = 0; i < rewards.locks.quests.length; i++) {
                 questManager.finishQuest({quest_id: rewards.locks.quests[i], skip_rewards: true})
+            }
+        }
+        if(rewards.locks.actions) {
+            for(let i = 0; i < rewards.locks.actions.length; i++) {
+                lock_action({
+                            dialogue_key: rewards.locks.actions[i].dialogue,
+                            location_key: rewards.locks.actions[i].location,
+                            action_key: rewards.locks.actions[i].action
+                        });
             }
         }
     }
@@ -3481,6 +3513,9 @@ function load(save_data) {
         options.do_enemy_onhit_animations = save_data.options?.do_enemy_onhit_animations;
         option_do_enemy_onhit_animations(options.do_enemy_onhit_animations);
 
+        options.expo_threshold = save_data.options?.expo_threshold;
+        option_expo_threshold(options.expo_threshold);
+
         //compatibility for old saves, can be removed at some point
         const is_from_before_eco_rework = compare_game_version("v0.3.5", save_data["game version"]) == 1;
 
@@ -3943,6 +3978,16 @@ function load(save_data) {
             }
         }); //load for dialogues and their textlines and actions their unlocked/finished status
 
+        if(is_a_older_than_b(save_data["game version"], "v0.5.1")) {
+            //compatibility for some dialogues
+            process_rewards({
+                rewards: {
+                        textlines: [{dialogue: "village guard", lines: ["serious", "hi"]}],
+                    },
+                inform_overall: false,
+            });
+        }
+
         Object.keys(save_data.traders).forEach(function(trader) { 
             let trader_item_list = [];
             if(traders[trader]){
@@ -4134,6 +4179,7 @@ function load(save_data) {
 
                     if(is_a_older_than_b(save_data["game version"], "v0.4.6")) { //compatibility patch for pre-rep and/or pre-rewrite of rewards with required clear count
                         if(locations[key].rewards_with_clear_requirement) {
+                            //process rewards with clear req, as these won't be checked on further clears
                             for(let i = 0; i < locations[key].rewards_with_clear_requirement.length; i++) {
                                 if(locations[key].enemy_groups_killed == locations[key].enemy_count * locations[key].rewards_with_clear_requirement[i].required_clear_count)
                                 {
@@ -4148,6 +4194,7 @@ function load(save_data) {
                         }
                     } else {
                         if(locations[key].rewards_with_clear_requirement) {
+                            //process rewards with clear req, as these won't be checked on further clears
                             for(let i = 0; i < locations[key].rewards_with_clear_requirement.length; i++) {
                                 if(locations[key].enemy_groups_killed >= locations[key].enemy_count * locations[key].rewards_with_clear_requirement[i].required_clear_count)
                                 {
@@ -4163,6 +4210,7 @@ function load(save_data) {
                     }
 
                     if(locations[key].first_reward) {
+                        //process first clear reward, as it won't be checked on further clears
                         process_rewards({
                             rewards: locations[key].first_reward, 
                             source_type: "location", 
@@ -5268,6 +5316,7 @@ window.option_do_background_animations = option_do_background_animations;
 window.option_skip_play_button = option_skip_play_button;
 window.option_mofu_mofu_mode = option_mofu_mofu_mode;
 window.option_do_enemy_onhit_animations = option_do_enemy_onhit_animations;
+window.option_expo_threshold = option_expo_threshold;
 
 window.getDate = get_date;
 
@@ -5415,5 +5464,6 @@ export { current_enemies,
         remove_consumable_from_favourites,
         process_rewards,
         travel_times,
-        language
+        language,
+        add_active_effect
 };

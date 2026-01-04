@@ -248,51 +248,29 @@ class Combat_zone {
         for(let i = 0; i < enemy_group.length; i++) {
             const enemy = enemy_templates[enemy_group[i]];
             let newEnemy;
+
             if(this.enemy_stat_variation != 0) {
 
                 const variation = Math.random() * this.enemy_stat_variation;
 
                 const base = 1 + variation;
                 const vary = 2 * variation;
-                newEnemy = new Enemy({
-                                        name: enemy.name, 
-                                        description: enemy.description, 
-                                        xp_value: enemy.xp_value,
-                                        stats: {
-                                            health: Math.round(enemy.stats.health * (base - Math.random() * vary)),
-                                            attack: Math.round(enemy.stats.attack * (base - Math.random() * vary)),
-                                            agility: Math.round(enemy.stats.agility * (base - Math.random() * vary)),
-                                            dexterity: Math.round(enemy.stats.dexterity * (base - Math.random() * vary)),
-                                            magic: Math.round(enemy.stats.magic * (base - Math.random() * vary)),
-                                            intuition: Math.round(enemy.stats.intuition * (base - Math.random() * vary)),
-                                            attack_speed: Math.round(enemy.stats.attack_speed * (base - Math.random() * vary) * 100) / 100,
-                                            attack_count: Math.round((enemy.stats.attack_count || 1) * (base - Math.random() * vary)),
-                                            defense: Math.round(enemy.stats.defense * (base - Math.random() * vary))
-                                        },
-                                        loot_list: enemy.loot_list,
-                                        add_to_bestiary: enemy.add_to_bestiary,
-                                        size: enemy.size,
-                                    });
+                newEnemy = new Enemy({...enemy,
+                    stats: {
+                        health: Math.round(enemy.stats.health * (base - Math.random() * vary)),
+                        attack: Math.round(enemy.stats.attack * (base - Math.random() * vary)),
+                        agility: Math.round(enemy.stats.agility * (base - Math.random() * vary)),
+                        dexterity: Math.round(enemy.stats.dexterity * (base - Math.random() * vary)),
+                        magic: Math.round(enemy.stats.magic * (base - Math.random() * vary)),
+                        intuition: Math.round(enemy.stats.intuition * (base - Math.random() * vary)),
+                        attack_speed: Math.round(enemy.stats.attack_speed * (base - Math.random() * vary) * 100) / 100,
+                        attack_count: Math.round((enemy.stats.attack_count || 1) * (base - Math.random() * vary)),
+                        defense: Math.round(enemy.stats.defense * (base - Math.random() * vary))
+                    },
+                });
 
             } else {
-                newEnemy = new Enemy({name: enemy.name, 
-                    description: enemy.description, 
-                    xp_value: enemy.xp_value,
-                    stats: {
-                        health: enemy.stats.health,
-                        attack: enemy.stats.attack,
-                        agility: enemy.stats.agility,
-                        dexterity: enemy.stats.dexterity,
-                        magic: enemy.stats.magic,
-                        intuition: enemy.stats.intuition,
-                        attack_speed: enemy.stats.attack_speed,
-                        attack_count: enemy.stats.attack_count || 1,
-                        defense: enemy.stats.defense
-                    },
-                    loot_list: enemy.loot_list,
-                    add_to_bestiary: enemy.add_to_bestiary,
-                    size: enemy.size
-                });
+                newEnemy = new Enemy({...enemy, stats: {...enemy.stats}});
             }
             newEnemy.is_alive = true;
             enemies.push(newEnemy); 
@@ -425,17 +403,24 @@ class LocationActivity{
         /*
             {
                 scales_with_skill: boolean, 
-                resource: [{name, ammount: [[min,max], [min,max]], chance: [min,max]}], 
+                resources: [{name, ammount: [[min,max], [min,max]], chance: [min,max]}], 
                 time_period: [min,max], 
                 skill_required: [min_efficiency, max_efficiency]
             }
         */
         //every 2-value array is oriented [starting_value, value_with_required_skill_level], except for subarrays of ammount (which are for randomizing gained item count) and for skill_required
         //                                                                                   (ammount array itself follows the mentioned orientation)
+        //ammounts can be skipped if they are meant to be [[1,1],[1,1]] (auto-filled just below the comments)
         //value start scaling after reaching min_efficiency skill lvl, before that they are just all at min
         //skill required refers to level of every skill
         //if scales_with_skill is false, scalings will be ignored and first value will be used
+
+        for(let i = 0; i < this.gained_resources?.resources.length; i++) {
+            if(!this.gained_resources.resources[i].ammount) {
+                this.gained_resources.resources[i].ammount = [[1,1],[1,1]];
+            }
         }
+    }
 
     getActivityEfficiency = function() {
         let skill_modifier = 1;
@@ -723,6 +708,54 @@ function get_location_type_penalty(type, stage, stat, category) {
             }
         }
     });
+
+    location_types["aquatic"] = new LocationType({
+        name: "aquatic",
+        stages: {
+            1: {
+                description: "Wading in water up to your knees restrict your movement",
+                related_skill: "Swimming",
+                scaling_lvl: 20,
+                effects: {
+                    agility: {multiplier: 0.75},
+                    dexterity: {multiplier: 0.75},
+                    stamina_efficiency: {multiplier: 0.75},
+                }
+            },
+            2: {
+                description: "With most of your body submerged, it's hard to move",
+                related_skill: "Swimming",
+                scaling_lvl: 30,
+                effects: {
+                    agility: {multiplier: 0.5},
+                    dexterity: { multiplier: 0.5 },
+                    attack_speed: {multiplier: 0.5 },
+                    stamina_efficiency: { multiplier: 0.5 },
+                }
+            },
+            3: {
+                description: "Fully underwater and with no ground under your feet, the moves you learned on land will help you little",
+                related_skill: "Swimming",
+                effects: {
+                    agility: {multiplier: 0.1},
+                    dexterity: {multiplier: 0.1},
+                    attack_speed: {multiplier: 0.25},
+                    stamina_efficiency: {multiplier: 0.25}
+                }
+            },
+            4: {
+                description: "Crushed by the immense pressure of the oceanic abyss",
+                related_skill: "Swimming",
+                effects: {
+                    agility: {multiplier: 0.01},
+                    dexterity: {multiplier: 0.01},
+                    attack_speed: {multiplier: 0.1},
+                    stamina_efficiency: {multiplier: 0.1},
+                    health_loss_flat: {flat: -1000},
+                }
+            }
+        }
+    });
 })();
 
 //create locations and zones
@@ -944,7 +977,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             xp: 20,
         },
         repeatable_reward: {
-            //textlines: [{dialogue: "village elder", lines: ["cleared room"]}],
+            textlines: [{dialogue: "village elder", lines: ["cleared room"]}],
             locations: [{location: "Cave depths"}],
             xp: 10,
             activities: [{location:"Nearby cave", activity:"weightlifting"}, {location:"Nearby cave", activity:"mining"}, {location:"Village", activity:"balancing"}],
@@ -1235,6 +1268,11 @@ There's another gate on the wall in front of you, but you have a strange feeling
             {
                 required_clear_count: 2,
                 actions: [{action: "search predator", location:"Forest road"}]
+            },
+            {
+                required_clear_count: 4,
+                messages: ["In a moment of quiet between fights, you can make out a faint sound of rushing water in the distance"],
+                locations: [{location:"Forest den traversal"}]
             }
         ],
         temperature_range_modifier: 0.8,
@@ -1614,7 +1652,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
         is_unlocked: false,
     });
     locations["Village"].connected_locations.push({location: locations["Riverbank"], custom_text: "Hike down the river", travel_time: 2160});
-	locations["Downstream from the village"].connected_locations.push({location: locations["Riverbank"], custom_text: "Move down to the [Riverbank]", travel_time: 30});
+  
+	  locations["Downstream from the village"].connected_locations.push({location: locations["Riverbank"], custom_text: "Move down to the [Riverbank]", travel_time: 30});
 
     locations["Riverbank shore"] = new Combat_zone({
         description: "As your eyes scan the shoreline, you see nothing but crabs across the horizon", 
@@ -1679,6 +1718,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         is_unlocked: true,
     });
     locations["Riverbank"].connected_locations.push({location: locations["Lake beach"], custom_text: "Go to the [Lake beach]",  travel_time: 180, travel_time_skills: ["Scrambling"]});
+  
     locations["Further downstream"].connected_locations.push({location: locations["Lake beach"], custom_text: "Go to the [Lake beach]", travel_time: 240}); //Pretty sure "Further downstream" should be locked by this point, but if it's not or if it gets unlocked, it should reconnect I suppose
 
 
@@ -1708,14 +1748,15 @@ There's another gate on the wall in front of you, but you have a strange feeling
 
     locations["Waterfall basin"] = new Location({ 
         connected_locations: [{location: locations["Lake beach"], custom_text: "Climb up the cliffside and return to the [Lake beach]", travel_time: 80, travel_time_skills: ["Climbing"]}], 
-         getDescription: function() {
-		 if(locations["Crab spawning grounds"].enemy_groups_killed >= 10 * locations["Crab spawning grounds"].enemy_count) { 
+        getDescription: function() {
+		      if(locations["Crab spawning grounds"].enemy_groups_killed >= 10 * locations["Crab spawning grounds"].enemy_count) { 
                 return "The waterfall at the bottom of the lake. Cool rushing waters and a sense of serene harmony make the area ideal for training your mind and body. Large crabs almost indistinguishable from the stone can be found along the shore of the basin. Off in the distance, you can just barely make out the overgrown remains of a old trail leading off into a swampy field";
             } else if(locations["Crab spawning grounds"].enemy_groups_killed >= 5 * locations["Crab spawning grounds"].enemy_count) {
                 return "The waterfall at the bottom of the lake. Large crabs almost indistinguishable from the stone inhabit the shore. The sound of roaring water echoing through the rock shelters provides a calming noise that you figure would make it easier to focus your mind";
             } else {
                 return "The waterfall at the bottom of the lake. Large crabs almost indistinguishable from the stone inhabit the shore and nearby rock shelters. You consider that the cool rushing waters from overhead might be an good way to train your body to endure tougher situations";
-            }},
+            }
+        },
         getBackgroundNoises: function() {
             let noises = ["*You hear the roar of thousands of gallons of water crashing down*"];
             return noises;
@@ -1742,7 +1783,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             xp: 5000,
         },
         repeatable_reward: {
-			xp: 2500,
+			    xp: 2500,
         },
         rewards_with_clear_requirement: [
             {
@@ -1758,16 +1799,17 @@ There's another gate on the wall in front of you, but you have a strange feeling
 	
     locations["Swampland fields"] = new Location({ 
         connected_locations: [{location: locations["Waterfall basin"], custom_text: "Crawl through the muck and brush and return to the [Waterfall basin]", travel_time: 45, travel_time_skills: ["Scrambling"]}], 
-         getDescription: function() {
-		 if(locations["The swamplands"].enemy_groups_killed >= 100 * locations["The swamplands"].enemy_count) { //10000 enemies killed
-                return "The swamplands are filled with everpresent danger. Only an experienced warrior such as yourself is capable of withstanding the threats that lie within its boggy depths";
-            } else if(locations["The swamplands"].enemy_groups_killed >= 10 * locations["The swamplands"].enemy_count) {
-                return "The swamplands are difficult to navigate and dangerous to traverse, but after scouting it for what feels like a few months, you begin to find that the bog feels smaller and emptier";
-            } else if(locations["The swamplands"].enemy_groups_killed >= 3 * locations["The swamplands"].enemy_count) {
-                return "The swamplands are difficult to navigate and dangerous to traverse, but after travelling across it for what feels like a few weeks, you managed to find an actual solid pathway leading to a small settlement. It seems that somehow, some folks have managed to find a way to survive out here";
-            } else {
-                return "A disgusting boggy marsh lies before you. Most of the ground, or at least what you can make out through the reeds, is covered in filthy water halfway up to your knees, and what isn't submerged has rotted into compost or is the nest of some unknown creature. You think you see something out of the corner of your eye, but as you turn to look, all you catch is a ripple in the reeds";
-            }},
+        getDescription: function() {
+          if(locations["The swamplands"].enemy_groups_killed >= 100 * locations["The swamplands"].enemy_count) { //10000 enemies killed
+                  return "The swamplands are filled with everpresent danger. Only an experienced warrior such as yourself is capable of withstanding the threats that lie within its boggy depths";
+              } else if(locations["The swamplands"].enemy_groups_killed >= 10 * locations["The swamplands"].enemy_count) {
+                  return "The swamplands are difficult to navigate and dangerous to traverse, but after scouting it for what feels like a few months, you begin to find that the bog feels smaller and emptier";
+              } else if(locations["The swamplands"].enemy_groups_killed >= 3 * locations["The swamplands"].enemy_count) {
+                  return "The swamplands are difficult to navigate and dangerous to traverse, but after travelling across it for what feels like a few weeks, you managed to find an actual solid pathway leading to a small settlement. It seems that somehow, some folks have managed to find a way to survive out here";
+              } else {
+                  return "A disgusting boggy marsh lies before you. Most of the ground, or at least what you can make out through the reeds, is covered in filthy water halfway up to your knees, and what isn't submerged has rotted into compost or is the nest of some unknown creature. You think you see something out of the corner of your eye, but as you turn to look, all you catch is a ripple in the reeds";
+          }
+        },
         getBackgroundNoises: function() {
             let noises = ["*Gnats and mosquitos pick at your exposed skin*", "*fwoosh* *thump*", "*You hear something moving around you, but you can't see it*", "*The buzz of insects throb in your ears*", "*gurgle gurgle*", "*You feel something moving next you, but you can't see it*", "*snap* *crunch*", "*You hear the rythmic swish-swash of something swimming nearby*", "*hssssssssssss*", "*slither*"];
             return noises;
@@ -1794,14 +1836,14 @@ There's another gate on the wall in front of you, but you have a strange feeling
             xp: 10000,
         },
         repeatable_reward: {
-			xp: 5000,
+			    xp: 5000,
         },
         rewards_with_clear_requirement: [
-				{
-                required_clear_count: 3,
-                locations: [{location: "Swampland tribe"}]
-				}
-            ]
+          {
+                  required_clear_count: 3,
+                  locations: [{location: "Swampland tribe"}]
+          }
+        ]
         });
     locations["Swampland fields"].connected_locations.push({location: locations["The swamplands"], custom_text: "Wander randomly in the swamplands", travel_time: 45});
 
@@ -1831,8 +1873,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             use_text: "Use the tribe's workhuts to craft something", 
             tiers: {
                 crafting: 2,
-                forging: 2,
-                smelting: 2,
+                forging: 1,
+                smelting: 1,
                 cooking: 2,
                 alchemy: 2,
                 butchering: 2,
@@ -1858,6 +1900,40 @@ There's another gate on the wall in front of you, but you have a strange feeling
     });
 
     locations["Swampland tribe"].connected_locations.push({location: locations["Longhouse"], travel_time: 5});
+  
+    locations["Mountain camp"].connected_locations.push({ location: locations["Gentle mountain slope"], travel_time: 120 });
+
+    locations["Forest lake"] = new Location({
+        connected_locations: [{location: locations["Forest road"], travel_time: 120}],
+        description: "Far away from civilization, the forest opens up to an unspoiled lake. Nestled between a small cliff where it receives water from a rocky waterfall, and a dense canopy leading to what must be the forest's heart, it serves as a respite for the local animals - and now, yourself.",
+        name: "Forest lake",
+        getBackgroundNoises: () => ["*Mosquitoes buzzing*", "*Frogs croaking*", "*something splashes in the water*", "*an animal comes out to drink*", "Quack", "Quack!"],
+        is_unlocked: false,
+    });
+    locations["Forest road"].connected_locations.push({ location: locations["Forest lake"], travel_time: 120 });
+
+    locations["Frogs"] = new Combat_zone({
+        description: "Battling at the lake's edge",
+        enemies_list: ["Frog"],
+        enemy_count: 50,
+        is_unlocked: false,
+        enemy_stat_variation: 0.2,
+        name: "Frogs",
+        types: [{type: "aquatic", stage: 1, xp_gain: 1}, {type: "open", stage: 1, xp_gain: 1}],
+        parent_location: locations["Forest lake"],
+        first_reward: {
+            xp: 2000,
+        },
+        repeatable_reward: {
+            xp: 1000,
+            actions: [
+                //{location: "Forest lake", action: "search2"}
+            ],
+        },
+        temperature_range_modifier: 0.8,
+        is_under_roof: false,
+    });
+    locations["Forest lake"].connected_locations.push({location: locations["Frogs"], custom_text: "Challenge the apex predator"});
 
 })();
 
@@ -2012,6 +2088,30 @@ There's another gate on the wall in front of you, but you have a strange feeling
         temperature_modifier: 1,
     });
     locations["Further downstream"].connected_locations.push({location: locations["Fight the giant crab again"], custom_text: "Fight the giant crab again", travel_time: 5});
+  
+    locations["Forest den traversal"] = new Challenge_zone({
+        description: "A relatively large cave in the depths of the forest, filled with hordes of direwolves. You are trying to find out what's on the other side.",
+        enemies_list: ["Direwolf"],
+        enemy_count: 1,
+        enemy_group_size: [2,3],
+        enemy_groups_list: [{enemies: ["Direwolf hunter"]}],
+        predefined_lineup_on_nth_group: 4,
+        is_unlocked: false,
+        enemy_stat_variation: 0.2,
+        name: "Forest den traversal",
+        types: [{type: "narrow", stage: 2, xp_gain: 5}, {type: "dark", stage: 2, xp_gain: 5}],
+        parent_location: locations["Forest road"],
+        repeatable_reward: {
+            xp: 1000,
+            messages: ["You reach a wall of water and push through"],
+            locations: [{ location: "Forest lake" }],
+            move_to: {location: "Forest lake"}
+        },
+        temperature_range_modifier: 0.8,
+        is_under_roof: true,
+    });
+    locations["Forest road"].connected_locations.push({location: locations["Forest den traversal"], custom_text: "Try to get to the other side of the [Forest den]", travel_time: 90});
+
 })();
 
 //add activities
@@ -2105,6 +2205,25 @@ There's another gate on the wall in front of you, but you have a strange feeling
             require_tool: true,
             unlock_text: "You realize that the river near the village might contain the type of sand you need",
         }),
+        "fishing": new LocationActivity({
+            activity_name: "fishing",
+            starting_text: "Try fishing in the river",
+            availability_seasons: ["Spring", "Summer", "Autumn"],
+            skill_xp_per_tick: 1,
+            is_unlocked: true,
+            gained_resources: {
+                resources: [
+                    {name: "Ratfish", chance: [0.3, 0.5]},
+                    {name: "Minnow", chance: [0.1, 0.5]},
+                    {name: "Trout", chance: [0.01, 0.20]},
+                    {name: "Mackerel shark", chance: [0.001, 0.05]}
+                ], 
+                time_period: [120, 30],
+                skill_required: [0, 10],
+                scales_with_skill: true,
+            },
+            require_tool: true,
+        })
     };
     locations["Nearby cave"].activities = {
         "weightlifting": new LocationActivity({
@@ -2215,9 +2334,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [
-                    {name: "Oneberry", ammount: [[1,1], [1,1]], chance: [0.1, 0.5]},
-                    {name: "Golmoon leaf", ammount: [[1,1], [1,1]], chance: [0.1, 0.7]},
-                    {name: "Belmart leaf", ammount: [[1,1], [1,1]], chance: [0.1, 0.7]}
+                    {name: "Oneberry", chance: [0.1, 0.5]},
+                    {name: "Golmoon leaf", chance: [0.1, 0.7]},
+                    {name: "Belmart leaf", chance: [0.1, 0.7]}
                 ], 
                 time_period: [120, 45],
                 skill_required: [0, 10],
@@ -2282,7 +2401,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             skill_xp_per_tick: 4,
             is_unlocked: true,
         }),
-    }
+    };
     locations["Mountain camp"].activities = {
         "herbalism": new LocationActivity({
             activity_name: "herbalism",
@@ -2292,8 +2411,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [
-                    {name: "Silver thistle", ammount: [[1,1], [1,1]], chance: [0.1, 0.5]},
-                ], 
+                    { name: "Silver thistle", chance: [0.1, 0.5] },
+                ],
                 time_period: [120, 60],
                 skill_required: [7, 17],
                 scales_with_skill: true,
@@ -2377,13 +2496,58 @@ There's another gate on the wall in front of you, but you have a strange feeling
             starting_text: "Run along the shore",
             skill_xp_per_tick: 10,
             is_unlocked: true,
+        )},
+    };
+
+    locations["Forest lake"].activities = {
+        "swimming": new LocationActivity({
+            activity_name: "swimming",
+            infinite: true,
+            starting_text: "Go diving in the lake waters",
+            skill_xp_per_tick: 4,
+            is_unlocked: true,
+            applied_effects: [{ effect: "Wet", duration: 30 }],
         }),
         "balancing": new LocationActivity({
             activity_name: "balancing",
             infinite: true,
-            starting_text: "Stupidly risk your life by trying to balance on some stones on the very edge of the waterfall",
-            skill_xp_per_tick: 10,
+            starting_text: "Try to keep your balance on top of the waterfall as water rushes around your feet",
+            skill_xp_per_tick: 7,
             is_unlocked: true,
+            applied_effects: [{ effect: "Wet", duration: 30 }],
+        }),
+        "mining": new LocationActivity({
+            activity_name: "mining",
+            infinite: true,
+            starting_text: "Mine the the shiny underwater vein",
+            skill_xp_per_tick: 1,
+            is_unlocked: false,
+            gained_resources: {
+                resources: [{name: "Silver ore", ammount: [[1,1], [1,3]], chance: [0.3, 0.7]}],
+                time_period: [100, 50],
+                skill_required: [10, 20],
+                scales_with_skill: true,
+            },
+            unlock_text: "You discover a vein of silver at the bottom of the lake!",
+        }),
+        "fishing": new LocationActivity({
+            activity_name: "fishing",
+            infinite: true,
+            starting_text: "Try fishing in the lake",
+            skill_xp_per_tick: 4,
+            is_unlocked: true,
+            gained_resources: {
+                resources: [
+                    { name: "Ratfish", chance: [0.2, 0.8] },
+                    { name: "Carp", chance: [0.1, 0.5] },
+                    { name: "Mackerel shark", chance: [0.05, 0.2] },
+                    { name: "Catfish", chance: [0.01, 0.1] }
+                ],
+                time_period: [120, 30],
+                skill_required: [10, 20],
+                scales_with_skill: true,
+            },
+            require_tool: true,
         }),
     };
 	
@@ -2401,7 +2565,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             starting_text: "Sit in the rock shelter behind the waterfall and focus your mind",
             skill_xp_per_tick: 8,
             is_unlocked: false,
-            unlock_text: "As you finish driving the stone crabs from the rock shelter behind the waterfall, you feel a strange sense of serenity from the sounds bouncing off the rocks. This spot, surrounded by soft noise and solid stone, seems perfect to sit down and focus your mind"
+            unlock_text: "As you finish driving the stone crabs from the rock shelter behind the waterfall, you feel a strange sense of serenity from the sounds bouncing off the rocks. This spot, surrounded by soft noise and solid stone, seems perfect to sit down and focus your mind",
         }),
     };
 	
@@ -2414,16 +2578,14 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [
-                    {name: "Wild onion", ammount: [[1,1], [1,1]], chance: [0.2, 0.65]},
-                    {name: "Wild garlic", ammount: [[1,1], [1,1]], chance: [0.2, 0.65]},
+                    {name: "Wild onion", chance: [0.2, 0.65]},
+                    {name: "Wild garlic", chance: [0.2, 0.65]},
                     {name: "Wild potato", ammount: [[1,1], [1,2]], chance: [0.3, 0.6]},
                     {name: "Cooking herbs", ammount: [[1,1], [1,2]], chance: [0.3, 0.6]}
                 ], 
                 time_period: [90, 45],
                 skill_required: [25, 35],
-                scales_with_skill: true,
-            },
-            require_tool: true,
+         
         }),
     };
 })();
@@ -2873,8 +3035,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 items_by_id: {"Coil of rope": {count: 1, remove_on_success: true}},
             },
             conditions: [
-                {
-                    skills: {
+              {
+                  skills: {
                         "Climbing": 17,
                     },
                     stats: {
@@ -2882,8 +3044,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
                         agility: 350,
                         max_stamina: 1000,
                     }
-                },
-                {
+              },
+              {
+                   {
                     skills: {
                         "Climbing": 25,
                     },
@@ -2892,7 +3055,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
                         agility: 1000,
                         max_stamina: 1500,
                     },
-                },
+                  },
+               },
             ],
             is_unlocked: true,
             attempt_duration: 540,
@@ -2902,9 +3066,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 move_to: {location: "Waterfall basin"},
                 skill_xp: {
                     "Climbing": 50000,
-            },
-        }
-    }),
+                }
+            }
+        }),
         "create lake camp": new GameAction({
             action_id: "create lake camp",
             starting_text: "Establish a camp on top of the giant crab's nest",
@@ -2972,6 +3136,81 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 activities: [{location:"Lake beach", activity: "weightlifting"}],
             },
         }),
+    };
+
+    locations["Forest lake"].actions = {
+        "search1": new GameAction({
+            action_id: "search1",
+            action_name: "Dive to the bottom of the lake",
+            starting_text: "Dive to the bottom of the lake",
+            description: "See what you can discover down there",
+            action_text: "Exploring",
+            success_text: "You captured the attention of the lake's true apex predator. It follows you back to the shore",
+            failure_texts: {
+                conditional_loss: ["You need to get more used to water and have lung capacity to go that deep"],
+                random_loss: [
+                    "You run out of breath before you can reach the bottom",
+                    "Nothing catches your attention this time",
+                ],
+            },
+            conditions: [
+                {
+                    skills: {
+                        "Swimming": 10,
+                        "Breathing": 10
+                    }
+                },
+                {
+                    skills: {
+                        "Swimming": 25,
+                        "Breathing": 25
+                    }
+                }
+            ],
+            is_unlocked: true,
+            attempt_duration: 120,
+            success_chances: [0.2, 1],
+            rewards: {
+                locations: [{ location: "Frogs" }],
+                skill_xp: { Swimming: 100, Breathing: 100 },
+            },
+      }),
+      "search2": new GameAction({
+            action_id: "search2",
+            action_name: "Finish exploring the bottom of the lake",
+            starting_text: "Finish exploring the bottom of the lake",
+            description: "See what alse you can discover down there",
+            action_text: "Exploring",
+            success_text: "You spot something shining on the lake's bed",
+            failure_texts: {
+                conditional_loss: ["You need to get more used to water and have lung capacity to go that deep"],
+                random_loss: [
+                    "You run out of breath before you can reach the bottom",
+                    "Nothing catches your attention this time",
+                ],
+            },
+            conditions: [
+                {
+                  skills: {
+                        "Swimming": 10,
+                        "Breathing": 10
+                    }
+                },
+                {
+                    skills: {
+                        "Swimming": 25,
+                        "Breathing": 25
+                    }
+                }
+            ],
+            is_unlocked: false,
+            attempt_duration: 60,
+            success_chances: [0.2, 1],
+            rewards: {
+                action: [{ location: "Forest lake", action: "mining" }],
+                skill_xp: { Swimming: 200, Breathing: 200 },
+            },
+        })
     },	
     locations["Longhouse"].actions = {
         "learn forage": new GameAction({
@@ -2989,7 +3228,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     "The scout tries to explain the look and uses of local flora, but nothing she tells you is very helpful",
                     "The scout tries to explain the look and uses of local flora, but she's just telling you things you've already learned",
                     "The scout tries to explain the look and uses of local flora, but you two get distracted and spend the hour talking about something else. It was nice",
-                ],
+                        
+              ],
             },
             conditions: [
                 {

@@ -957,6 +957,7 @@ function getItem(item_data) {
                 case "pickaxe":
                 case "sickle":
                 case "shovel":
+                case "fishing_pole":
                     return new Tool(item_data);
                 case "cape":
                     return new Cape(item_data);
@@ -1221,6 +1222,13 @@ book_stats["Shellfish desires"] = new BookData({
         description: "Eww",
         value: 8,
     });
+
+    item_templates["Fish fillet"] = new OtherItem({
+        name: "Fish fillet", 
+        description: "Cuts of meat from a fish that was too big to eat whole", 
+        value: 30,
+    });
+
     item_templates["Glass phial"] = new OtherItem({
         name: "Glass phial",
         description: "Small glass phial, a perfect container for a potion",
@@ -1385,6 +1393,19 @@ book_stats["Shellfish desires"] = new BookData({
         material_type: "pelt",
     });
 	
+
+    item_templates["Frog meat"] = new Material({
+        name: "Frog meat",
+        description: "Surprisingly tender meat from a frog",
+        value: 50,
+    });
+    item_templates["Frog hide"] = new Material({
+        name: "Frog hide", 
+        description: "Slippery hide of a giant frog. If you could remove the toxins from it, the leather could be put into good use",
+        value: 50,
+        material_type: "pelt",
+    });
+
 })();
 
 //gatherable materials
@@ -1407,7 +1428,12 @@ book_stats["Shellfish desires"] = new BookData({
         value: 6,
         material_type: "raw metal",
     });
-	
+    item_templates["Silver ore"] = new Material({
+        name: "Silver ore", 
+        description: "Peculiar for its ability to direct or disrupt magic",
+        value: 10,
+        material_type: "raw metal",
+    });
     item_templates["Coal"] = new Material({
         name: "Coal",
         description: "A flammable material with extremely high carbon content",
@@ -1489,8 +1515,6 @@ book_stats["Shellfish desires"] = new BookData({
         name: "Clam",
         description: "Common shellfish found in the sand and mud around the lake shore. Can't be eaten raw",
         value: 6,
-        //effects: [{effect: "Basic meal", duration: 30}],          //couldn't manage to make it both edible and usable as a material
-        //tags: {"food": true},
     });
     item_templates["Wild onion"] = new Material({
         name: "Wild onion",
@@ -1511,7 +1535,50 @@ book_stats["Shellfish desires"] = new BookData({
         material_type: "culinary herb",
     });
 	
+    item_templates["Ratfish"] = new Material({
+        name: "Ratfish",
+        description: "A small sweetwater fish, named after its unremarkable coloration and propensity to travel in large groups",
+        value: 5,
+        material_type: "small fish",
+    });
+
+    item_templates["Minnow"] = new Material({
+        name: "Minnow",
+        description: "One of the variety of small fish that inhabit rivers and streams",
+        value: 10,
+        material_type: "small fish",
+    });
+
+    item_templates["Mackerel shark"] = new Material({
+        name: "Mackerel shark",
+        description: "A shark small enough to fit in a stream. Makes up for its size with its feistiness and big mouth",
+        value: 50,
+        material_type: "medium fish",
+    });
+
+    item_templates["Trout"] = new Material({
+        name: "Trout",
+        description: "A fish large enough for a full meal and common in most rivers, making it a convenient source of food. So far, this has not effected their population",
+        value: 50,
+        material_type: "medium fish",
+    });
+
+    item_templates["Carp"] = new Material({
+        name: "Carp",
+        description: "It hasn't grown into any of its more powerful forms yet, so its meat is still fatty and plump",
+        value: 50,
+        material_type: "medium fish",
+    });
+
+    item_templates["Catfish"] = new Material({
+        name: "Catfish",
+        description: "A large fish with whiskers. Usually found near the bottom of lakes, where it feeds on ratfish and pretty much everything else it can hunt",
+        value: 200,
+        material_type: "large fish",
+    });
 })();
+
+
 
 //processed materials
 (function(){
@@ -1530,17 +1597,23 @@ book_stats["Shellfish desires"] = new BookData({
         value: 20,
         material_type: "metal",
     });
+
     item_templates["Steel ingot"] = new Material({
         description: "Basic alloy of iron, harder and more resistant",
         value: 40,
         material_type: "metal",
     });
     item_templates["Turtle shellplate"] = new Material({        //treated as a metal material/chainmail instead of leather
-        description: "Small, dense plates capable of reflecting mighty blows. Nowhere near a usable form, turning it into anything will still take a lot of effort and focus",
+        description: "Small, dense plates capable of reflecting mighty blows. Useless in their current form, but can be turned into something useful with enough effort and focus",
         value: 60,
         material_type: "metal",
     });
 	
+    item_templates["Silver ingot"] = new Material({
+        description: "Too soft to use as weapon material, but has potential for use in magic tools",
+        value: 30,
+        material_type: "metal",
+    });
     item_templates["Piece of wolf rat leather"] = new Material({
         description: "It's slightly damaged and seems useless for anything that requires precise work",
         value: 10,
@@ -1558,7 +1631,7 @@ book_stats["Shellfish desires"] = new BookData({
         material_type: "piece of leather",
     });
     item_templates["Processed wolf pelt"] = new Material({
-        description: "Processed pelt of a wild wolf. It's a nice, stylish material",
+        description: "Processed pelt of a wild wolf. It's a nice, stylish material, with fur that's feels good to touch",
         value: 30,
         material_type: "processed pelt",
     });
@@ -1569,7 +1642,7 @@ book_stats["Shellfish desires"] = new BookData({
         material_type: "piece of leather",
     });
     item_templates["Processed boar hide"] = new Material({
-        description: "Processed hide of a wild boar. It's a rough, heavy material, but it's quite strong",
+        description: "Processed hide of a wild boar. It's a thick, heavy material, with short rough fur, but it's quite strong",
         value: 45,
         material_type: "processed pelt",
     });
@@ -1580,7 +1653,7 @@ book_stats["Shellfish desires"] = new BookData({
         material_type: "piece of leather"
     }),
     item_templates["Processed goat hide"] = new Material({
-        description: "Processed hide of a wild goat. It's a rough and resistant material",
+        description: "Processed hide of a wild goat. It's a resistant material, with short and rough fur",
         value: 60,
         material_type: "processed pelt",
     });
@@ -1589,14 +1662,14 @@ book_stats["Shellfish desires"] = new BookData({
         description: "Strong and resistant, but too thick for clothing",
         value: 60,
         material_type: "piece of leather"
-    }),
+    });
     item_templates["Processed bear hide"] = new Material({
-        description: "Strong, resistant, and warm",
+        description: "Strong, resistant, and warm, with fluffy fur",
         value: 90,
         material_type: "piece of leather"
     }),
 	
-	item_templates["Piece of alligator leather"] = new Material({
+	  item_templates["Piece of alligator leather"] = new Material({
         description: "Strong and flexible, but too uncomfortable to use as clothing",
         value: 150,
         material_type: "piece of leather"
@@ -1606,7 +1679,12 @@ book_stats["Shellfish desires"] = new BookData({
         value: 150,
         material_type: "piece of leather"
     }),
-	
+
+    item_templates["Piece of frog leather"] = new Material({
+        description: "The toxins have been removed and the slime coagulated into a waxy coating",
+        value: 60,
+        material_type: "piece of leather"
+    });
     item_templates["Animal fat"] = new Material({
         description: "White, thick, oily substance, rendered from animal tissue",
         value: 40,
@@ -2892,6 +2970,26 @@ book_stats["Shellfish desires"] = new BookData({
         }
     });
 
+    item_templates["Batrachian vest"] = new Armor({
+        name: "Batrachian vest", 
+        description: "Comfortable leather vest, slippery enough to make enemy blows slide off",
+        value: 700,
+        component_type: "chestplate interior",
+        base_defense: 3,
+        component_tier: 4,
+        component_stats: {
+            agility: {
+                multiplier: 1.05,
+            },
+            cold_tolerance: {
+                flat: 1,
+            }
+        },
+        bonus_skill_levels: {
+            "Swimming": 1,
+        }
+    });
+
     item_templates["Cheap leather pants"] = new Armor({
         name: "Cheap leather pants",
         description: "Leather pants made from cheapest resources available",
@@ -2951,6 +3049,26 @@ book_stats["Shellfish desires"] = new BookData({
             cold_tolerance: {
                 flat: -.5,
             }
+        }
+    });
+
+    item_templates["Batrachian pants"] = new Armor({
+        name: "Batrachian pants", 
+        description: "Slippery leather pants",
+        value: 700,
+        component_type: "leg armor interior",
+        base_defense: 3,
+        component_tier: 4,
+        component_stats: {
+            agility: {
+                multiplier: 1.05,
+            },
+            cold_tolerance: {
+                flat: 1,
+            }
+        },
+        bonus_skill_levels: {
+            "Swimming": 1,
         }
     });
 
@@ -3016,6 +3134,26 @@ book_stats["Shellfish desires"] = new BookData({
         }
     });
 
+    item_templates["Batrachian hat"] = new Armor({
+        name: "Batrachian hat", 
+        description: "A slippery leather hat to protect your head",
+        value: 700,
+        component_type: "helmet interior",
+        base_defense: 3,
+        component_tier: 4,
+        component_stats: {
+            agility: {
+                multiplier: 1.05,
+            },
+            cold_tolerance: {
+                flat: 1,
+            }
+        },
+        bonus_skill_levels: {
+            "Swimming": 1,
+        }
+    });
+
     item_templates["Leather gloves"] = new Armor({
         name: "Leather gloves",
         description: "Strong leather gloves, perfect for handling rough and sharp objects",
@@ -3059,6 +3197,26 @@ book_stats["Shellfish desires"] = new BookData({
             cold_tolerance: {
                 flat: -.5,
             }
+        }
+    });
+
+    item_templates["Batrachian gloves"] = new Armor({
+        name: "Batrachian gloves", 
+        description: "Strong leather gloves, with membranes to help you swim",
+        value: 700,
+        component_type: "glove interior",
+        base_defense: 2,
+        component_tier: 4,
+        component_stats: {
+            agility: {
+                multiplier: 1.05,
+            },
+            cold_tolerance: {
+                flat: 1,
+            }
+        },
+        bonus_skill_levels: {
+            "Swimming": 2,
         }
     });
 
@@ -3152,6 +3310,29 @@ book_stats["Shellfish desires"] = new BookData({
             cold_tolerance: {
                 flat: -.5,
             }
+        }
+    });
+
+    item_templates["Batrachian shoes"] = new Armor({
+        name: "Batrachian shoes", 
+        description: "Strong shoes made of frog leather, that let you slide along the ground",
+        value: 700,
+        component_type: "shoes interior",
+        base_defense: 2,
+        component_tier: 4,
+        component_stats: {
+            attack_speed: {
+                multiplier: 1.05,
+            },
+            agility: {
+                multiplier: 1.25,
+            },
+            cold_tolerance: {
+                flat: 1,
+            }
+        },
+        bonus_skill_levels: {
+            "Swimming": 2,
         }
     });
 
@@ -3373,6 +3554,21 @@ book_stats["Shellfish desires"] = new BookData({
             },
             cold_tolerance: {
                 flat: 7,
+            }
+        }
+    });
+    item_templates["Batrachian cape"] = new Cape({
+        name: "Batrachian cape", 
+        description: "A waterproof cape made from frogskin",
+        value: 1000,
+        item_tier: 4,
+        base_defense: 4,
+        base_stats: {
+            agility: {
+                multiplier: 0.95,
+            },
+            cold_tolerance: {
+                flat: 4,
             }
         }
     });
@@ -3888,6 +4084,13 @@ book_stats["Shellfish desires"] = new BookData({
             "Digging": 3,
         }
     });
+
+    item_templates["Makeshift fishing pole"] = new Tool({
+        name: "Makeshift fishing pole",
+        description: "Little more than a piece of string tied to a stick, but sufficient to get a catch",
+        value: 10,
+        equip_slot: "fishing_pole",
+    });
 })();
 
 //usables:
@@ -4104,6 +4307,45 @@ book_stats["Shellfish desires"] = new BookData({
         tags: {"food": true},
     });
 	
+    //TODO made them tier 2 and 3 for now, but are hard enough to get that they could be bumped to tier 4?
+    item_templates["Fried frog meat"] = new Material({
+        name: "Fried frog meat",
+        description: "Tastes a bit like bird, and a bit like fish",
+        value: 50,
+        effects: [{effect: "Simple meat meal", duration: 120}],
+        tags: {"food": true},
+    });
+    item_templates["Kingsized frog legs"] = new UsableItem({
+        name: "Kingsized frog legs",
+        description: "The legs are agreed to be the best part, and when cooked with proper seasoning, considered a delicacy by some",
+        value: 100,
+        effects: [{effect: "Decent meat meal", duration: 120}],
+        tags: {"food": true},
+    });
+
+    item_templates["Fish skewer"] = new UsableItem({
+        name: "Fish skewer", 
+        description: "Several small fish cooked together on a stick. While none of them have much meat on them individually, together they make for a servicable meal",
+        value: 20,
+        effects: [{effect: "Cheap meat meal", duration: 45}],
+        tags: {"food": true},
+    });
+
+    item_templates["Fried fish"] = new UsableItem({
+        name: "Fried fish",
+        description: "A fish fried whole. A simple but fulfilling meal",
+        value: 40,
+        effects: [{effect: "Simple meat meal", duration: 60}],
+        tags: {"food": true},
+    });
+
+    item_templates["Fish steak"] = new UsableItem({
+        name: "Fish steak",
+        description: "Properly filleted and cooked. A much better experience than eating them whole",
+        value: 60,
+        effects: [{effect: "Decent meat meal", duration: 60}],
+        tags: {"food": true},
+    });
 })();
 
 //setup ids

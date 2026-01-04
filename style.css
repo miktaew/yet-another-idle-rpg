@@ -514,6 +514,10 @@ input[type=checkbox], input[type=radio] {
 	outline: 1px solid black;
  }
  
+ #options_expo_threshold {
+	width: 100px;
+ }
+ 
  .options_choice {
 	margin: 10px;
 	width: fit-content;
