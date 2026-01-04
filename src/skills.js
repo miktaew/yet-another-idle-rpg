@@ -995,6 +995,109 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
         }
     });
 
+    skills["Scrambling"] = new Skill({
+		names: {0: "Scrambling"}, 
+        description: "Ability to act quickly and with secure footing in rough, loose, or unstable ground", 
+        category: "Environmental",
+        base_xp_cost: 800,
+        max_level: 60,
+        xp_scaling: 1.7,
+        get_effect_description: ()=> {
+            return `Reduces environmental penalty in rough terrain`;
+        },
+        milestones: {
+            1: {
+                stats: {
+					dexterity: {
+						flat: 1},
+					agility: {
+						flat: 1},
+                max_stamina: {
+					multiplier: 1.1,
+                }}
+            },
+            3: {
+                stats: {
+					dexterity: {
+						multiplier: 1.1},
+					agility: {
+						multiplier: 1.1},
+                }
+            },
+            5: {
+                stats: {
+					dexterity: {
+						flat: 3},
+					agility: {
+						flat: 3},
+                },
+                xp_multipliers: {
+                    Running: 1.2,
+                }
+            },
+            8: {
+				stats: {
+                    stamina_regeneration_flat: {
+                        flat: 0.2,
+                    },
+				    stamina_efficiency: {
+                        multiplier: 1.1,
+                    }
+                },
+            },
+            10: {
+				stats: {
+                    attack_speed: {
+                        multiplier: 1.02,
+                    },
+                },
+            },
+            13: {
+                stats: {
+					dexterity: {
+						flat: 2
+                    },
+					agility: {
+						flat: 2
+                    },
+                    max_stamina: {
+					    multiplier: 1.2,
+                    },
+                }
+            },
+            15: {
+                stats: {
+					dexterity: {
+						multiplier: 1.15},
+					agility: {
+						multiplier: 1.15},
+                }
+            },
+            18: {
+                stats: {
+					dexterity: {
+						flat: 4},
+					agility: {
+						flat: 4},
+                },
+                xp_multipliers: {
+                    "Scrambling": 1.2,
+                },
+            },
+            20: {
+				stats: {
+                    attack_speed: {
+                        multiplier: 1.03},
+                    stamina_regeneration_flat: {
+                        flat: 0.3},
+				    stamina_efficiency: {
+                        multiplier: 1.15
+                    }
+                },
+            },
+        }
+    });
+
     skills["Heat resistance"] = new Skill({
         names: {0: "Heat resistance"},
         description: "Ability to survive and function in high temperatures",

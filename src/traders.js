@@ -166,6 +166,20 @@ class TradeItem {
         location_name: "Slums",
         profit_margin: 4, //rise back to 5 once reputation impact is implemented
     });
+    traders["swampland trader"] = new Trader({
+        name: "swampland trader",
+        inventory_template: "Swamp",
+        is_unlocked: true,
+        location_name: "Swampland tribe",
+        profit_margin: 7,
+    });
+    traders["swampland trader 2"] = new Trader({
+        name: "swampland trader 2",
+        inventory_template: "Swamp plus",
+        is_unlocked: false,
+        location_name: "Swampland tribe",
+        profit_margin: 5,
+    });
 })();
 
 //create inventory templates
@@ -409,5 +423,49 @@ class TradeItem {
         new TradeItem({item_name: "Iron chopping axe", count: [1], chance: 1}),
         new TradeItem({item_name: "Iron shovel", count: [1], chance: 1}),
     ];
+	
+	inventory_templates["Swamp"] = 
+    [
+            new TradeItem({item_name: "Alligator jerky", count: [1,2]}),
+            new TradeItem({item_name: "Snake jerky", count: [1,2]}),
+            new TradeItem({item_name: "Turtle jerky", count: [1,2]}),
+
+            new TradeItem({item_name: "Cooking herbs", count: [1,3]}),
+            new TradeItem({item_name: "Wild onion", count: [1,3]}),
+            new TradeItem({item_name: "Wild garlic", count: [1,3]}),
+            new TradeItem({item_name: "Wild potato", count: [1,3]}),
+    ];
+	inventory_templates["Swamp plus"] = 
+    [
+            new TradeItem({item_name: "Alligator jerky", count: [2,5]}),
+            new TradeItem({item_name: "Snake jerky", count: [2,5]}),
+            new TradeItem({item_name: "Turtle jerky", count: [2,5]}),
+
+            new TradeItem({item_name: "Cooking herbs", count: [3,6]}),
+            new TradeItem({item_name: "Wild onion", count: [3,6]}),
+            new TradeItem({item_name: "Wild garlic", count: [3,6]}),
+            new TradeItem({item_name: "Wild potato", count: [5,9]}),
+
+            new TradeItem({item_name: "Alligator leather armor", count: [1], quality: [70, 100], chance: 0.05}),
+            new TradeItem({item_name: "Alligator leather helmet", count: [1], quality: [70, 100], chance: 0.05}),
+            new TradeItem({item_name: "Alligator leather armored pants", count: [1], quality: [70, 100], chance: 0.05}),
+
+            new TradeItem({item_name: "Turtleshell platemail armor", count: [1], quality: [70, 100], chance: 0.01}),
+            new TradeItem({item_name: "Turtleshell platemail helmet", count: [1], quality: [70, 100], chance: 0.01}),
+            new TradeItem({item_name: "Turtleshell platemail pants", count: [1], quality: [70, 100], chance: 0.01}),
+            new TradeItem({item_name: "Turtleshell shield", count: [1], quality: [70, 100], chance: 0.01}),
+
+            //new TradeItem({item_name: "Shellfish desires", count: [1], chance: 0.5}), //temporarily removed due to errors
+
+			new TradeItem({item_name: "Healing balm", count: [1,2], chance: 0.15}),
+			new TradeItem({item_name: "Healing powder", count: [1,3], chance: 0.2}),
+			new TradeItem({item_name: "Healing potion", count: [1,3], chance: 0.25}),
+			
+            new TradeItem({item_name: "Oneberry", count: [1,4], chance: 0.1}),
+            new TradeItem({item_name: "Silver thistle", count: [1,3], chance: 0.1}),
+            new TradeItem({item_name: "Golmoon leaf", count: [1,3], chance: 0.1}),
+            new TradeItem({item_name: "Belmart leaf", count: [1,3], chance: 0.1}),
+    ];
+
 })();
 export { traders, inventory_templates, TradeItem };

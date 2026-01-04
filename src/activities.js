@@ -129,6 +129,13 @@ class Gathering extends Training {
         base_skills_names: ["Climbing"],
         is_unlocked: false,
     });
+    activities["enduring"] = new Training({
+        name: "enduring",
+        action_text: "Withstanding the elements",
+        description: "An advanced technique that hardens your resolve more than your body",
+        base_skills_names: ["Persistence"],
+        is_unlocked: true,
+    });
 })();
 
 //resource gatherings
