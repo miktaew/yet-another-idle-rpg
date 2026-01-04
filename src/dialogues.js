@@ -1384,7 +1384,7 @@ class DialogueAction extends GameAction {
             ], 
                     dialogues: ["swampland tailor"],
             },
-                locks_lines: ["swampcook history", "swampcook history1", "swampcook history2", "swampcook history3", "swampcook historyend", "swampcook surround",  "swampcook surround1", "swampcook surround2", "swampcook surround3", "swampcook surround4", "swampcook surroundend", "swampcook chief", "swampcook chief1", "swampcook chief2", "swampcook chief3", "swampcook chiefend", "swampcook people", "swampcook cook", "swampcook cook2", "swampcook trader", "swampcook trader1", "swampcook trader2", "swampcook trader3", "swampcook traderend", "swampcook tailor",  "swampcook tailor1", "swampcook tailor2", "swampcook tailorend", "swampcook tanner", "swampcook tanner1", "swampcook tanner2", "swampcook tanner", "swampcook peopleend"], //should close all previous dialogue trees
+                locks_lines: ["swampcook history", "swampcook history1", "swampcook history2", "swampcook history3", "swampcook historyend", "swampcook surround",  "swampcook surround1", "swampcook surround2", "swampcook surround3", "swampcook surround4", "swampcook surroundend", "swampcook chief", "swampcook chief1", "swampcook chief2", "swampcook chief3", "swampcook chiefend", "swampcook people", "swampcook cook", "swampcook cook2", "swampcook trader", "swampcook trader1", "swampcook trader2", "swampcook trader3", "swampcook traderend", "swampcook tailor",  "swampcook tailor1", "swampcook tailor2", "swampcook tailorend", "swampcook tanner", "swampcook tanner1", "swampcook tanner2", "swampcook tannerend", "swampcook peopleend"], //should close all previous dialogue trees
             }),
             "swampcook whycrab": new Textline({
                 name: "swampcook whycrab",
@@ -1728,7 +1728,7 @@ class DialogueAction extends GameAction {
                 success_chances: [1],
                 rewards: {
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 7}], 
-                    actions: [{dialogue: "swampland tanner", lines: ["swamptanner known"]}],
+                    textlines: [{dialogue: "swampland tanner", lines: ["swamptanner known"]}],
                 },
                 locks_lines: ["swamptanner deliver 1"],
             }),
@@ -1861,6 +1861,11 @@ class DialogueAction extends GameAction {
                 name: "swampscout generic",
                 text: "swampscout generic answ",
                 is_unlocked: false,
+                rewards: {
+                    textlines: [
+                        {dialogue: "swampland scout", action: ["swampscout help"]},
+                    ],
+                },
             }),
             "swampscout foraging": new Textline({
                 name: "swampscout foraging",
