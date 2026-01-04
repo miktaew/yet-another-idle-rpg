@@ -1398,6 +1398,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Basin gumbo", count: 1},
         success_chance: [0.1,1],
         recipe_level: [35,60],
+    });
 
     cooking_recipes.items["Fish skewer"] = new ItemRecipe({
         name: "Fish skewer",

@@ -2074,7 +2074,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         enemies_list: ["Enraged giant crab"],
         enemy_stat_variation: 0,
         is_unlocked: true, 
-        name: "Fight the giant crab again!", 
+        name: "Fight the giant crab again", 
         leave_text: "Scramble away and hide!",
         parent_location: locations["Further downstream"],
         repeatable_reward: {
@@ -2496,7 +2496,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             starting_text: "Run along the shore",
             skill_xp_per_tick: 10,
             is_unlocked: true,
-        )},
+        }),
     };
 
     locations["Forest lake"].activities = {
@@ -2585,7 +2585,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 ], 
                 time_period: [90, 45],
                 skill_required: [25, 35],
-         
+            }
         }),
     };
 })();
@@ -3046,17 +3046,15 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     }
               },
               {
-                   {
-                    skills: {
-                        "Climbing": 25,
-                    },
-                    stats: {
-                        strength: 600,
-                        agility: 1000,
-                        max_stamina: 1500,
-                    },
-                  },
-               },
+                skills: {
+                    "Climbing": 25,
+                },
+                stats: {
+                    strength: 600,
+                    agility: 1000,
+                    max_stamina: 1500,
+                },
+                },
             ],
             is_unlocked: true,
             attempt_duration: 540,

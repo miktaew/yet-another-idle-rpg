@@ -8,7 +8,7 @@ const group_key_prefix = "type_";
 //direct connections for resource trickle
 const market_regions = {};
 const market_region_mapping = {
-    "Village": ["Slums"],
+    "Village": ["Slums", "Swamp"],
 };
 
 //different caps for normal items and for equipment/components, with the first reaching 1/10th around 1000 sold and latter around 200 sold
