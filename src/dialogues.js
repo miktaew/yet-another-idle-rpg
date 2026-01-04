@@ -1700,7 +1700,7 @@ class DialogueAction extends GameAction {
                 text: "swamptanner known answ",
                 is_unlocked: false,
                 rewards: {
-                    textlines: [{dialogue: "swampland tanner", action: ["swamptanner deliver 2"]}],
+                    actions: [{dialogue: "swampland tanner", action: ["swamptanner deliver 2"]}],
                 },
                 locks_lines: ["swamptailor known"],
             }),
@@ -1862,7 +1862,7 @@ class DialogueAction extends GameAction {
                 text: "swampscout generic answ",
                 is_unlocked: false,
                 rewards: {
-                    textlines: [
+                    actions: [
                         {dialogue: "swampland scout", action: ["swampscout help"]},
                     ],
                 },
