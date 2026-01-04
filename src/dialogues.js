@@ -1259,7 +1259,7 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 rewards: {textlines: [{dialogue: "swampland cook", lines: ["swampcook zalgo"]}]
             },
-                locks_lines: ["swampcook2 cook"],
+                locks_lines: ["swampcook cook2"],
             }),
             "swampcook trader": new Textline({
                 name: "swampcook trader",
@@ -1372,7 +1372,7 @@ class DialogueAction extends GameAction {
                 name: "swampcook tannerend",
                 text: "swampcook tannerend answ",
                 is_unlocked: false,
-                locks_lines: ["swampcook tannerend1", "swampcook tannerend2", "swampcook tannerend"],
+                locks_lines: ["swampcook tanner1", "swampcook tanner2", "swampcook tannerend"],
             }),
             "swampcook peopleend": new Textline({
                 name: "swampcook peopleend",
@@ -1384,7 +1384,7 @@ class DialogueAction extends GameAction {
             ], 
                     dialogues: ["swampland tailor"],
             },
-                locks_lines: ["swampcook history", "swampcook history1", "swampcook history2", "swampcook history3", "swampcook historyend", "swampcook surround",  "swampcook surround1", "swampcook surround2", "swampcook surround3", "swampcook surround4", "swampcook surroundend", "swampcook chief", "swampcook chief1", "swampcook chief2", "swampcook chief3", "swampcook chiefend", "swampcook people", "swampcook cook", "swampcook cook2", "swampcook trader", "swampcook trader1", "swampcook trader2", "swampcook trader3", "swampcook traderend", "swampcook tailor",  "swampcook tailor1", "swampcook tailor2", "swampcook tailorend", "swampcook tanner", "swampcook tannerend1", "swampcook tannerend2", "swampcook tannerend", "swampcook peopleend"], //should close all previous dialogue trees
+                locks_lines: ["swampcook history", "swampcook history1", "swampcook history2", "swampcook history3", "swampcook historyend", "swampcook surround",  "swampcook surround1", "swampcook surround2", "swampcook surround3", "swampcook surround4", "swampcook surroundend", "swampcook chief", "swampcook chief1", "swampcook chief2", "swampcook chief3", "swampcook chiefend", "swampcook people", "swampcook cook", "swampcook cook2", "swampcook trader", "swampcook trader1", "swampcook trader2", "swampcook trader3", "swampcook traderend", "swampcook tailor",  "swampcook tailor1", "swampcook tailor2", "swampcook tailorend", "swampcook tanner", "swampcook tanner1", "swampcook tanner2", "swampcook tanner", "swampcook peopleend"], //should close all previous dialogue trees
             }),
             "swampcook whycrab": new Textline({
                 name: "swampcook whycrab",
@@ -1656,7 +1656,7 @@ class DialogueAction extends GameAction {
                 rewards: {
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 5}], 
                     textlines: [{dialogue: "swampland tailor", lines: ["swamptailor liked"]}],
-                    recipes: [{category: "Crafting", subcategory: "items", recipe_id: "Linen cloth"}],
+                    //recipes: [{category: "Crafting", subcategory: "items", recipe_id: "Linen cloth"}],          //added recipes breaks the game for a reason I can't figure out
                     dialogues: ["swampland tanner"],
                 },
                 locks_lines: ["swamptailor deliver"],
@@ -1850,8 +1850,10 @@ class DialogueAction extends GameAction {
                 text: "swampscout lore8 answ",
                 is_unlocked: false,
                 rewards: {
-                    textlines: [{dialogue: "swampland scout", lines: ["swampscout generic"]}],
-                    textlines: [{dialogue: "swampland scout", lines: ["swampscout foraging"]}],
+                    textlines: [
+                        {dialogue: "swampland scout", lines: ["swampscout generic"]},
+                        {dialogue: "swampland scout", lines: ["swampscout foraging"]}
+                    ],
                 },
                 locks_lines: ["swampscout lore8"],
             }),

@@ -3011,8 +3011,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             attempt_duration: 60,
             success_chances: [0.45, 1],
             rewards: {
-                actions: [{location:"Swampland tribe", action: "herbalism"}],
-                //textlines: [{dialogue: "swampland scout", action: ["swampscout help"]}],  //for testing purposes to narrow down a bug
+                activities: [{location:"Swampland tribe", activity: "herbalism"}],
+                textlines: [{dialogue: "swampland scout", action: ["swampscout help"]}],  //for testing purposes to narrow down a bug
             },
         }),
     };
