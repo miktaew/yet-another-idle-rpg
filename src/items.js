@@ -3634,19 +3634,19 @@ book_stats["Shellfish desires"] = new BookData({
         }
     });
 	
-	item_templates["Alligator leather armor"] = new Armor({
+	item_templates["Alligator armor"] = new Armor({
         components: {
             internal: "Linen vest",
             external: "Alligator leather chestplate armor",
         }
     });
-    item_templates["Alligator leather helmet"] = new Armor({
+    item_templates["Alligator helmet"] = new Armor({
         components: {
             internal: "Linen bandanna",
             external: "Alligator leather helmet armor",
         }
     });
-    item_templates["Alligator leather armored pants"] = new Armor({
+    item_templates["Alligator armored pants"] = new Armor({
         components: {
             internal: "Linen leggings",
             external: "Alligator leather greaves",

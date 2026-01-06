@@ -446,16 +446,16 @@ class TradeItem {
             new TradeItem({item_name: "Wild garlic", count: [3,6]}),
             new TradeItem({item_name: "Wild potato", count: [5,9]}),
 
-            new TradeItem({item_name: "Alligator leather armor", count: [1], quality: [70, 100], chance: 0.05}),
-            new TradeItem({item_name: "Alligator leather helmet", count: [1], quality: [70, 100], chance: 0.05}),
-            new TradeItem({item_name: "Alligator leather armored pants", count: [1], quality: [70, 100], chance: 0.05}),
+            new TradeItem({item_name: "Alligator armor", count: [1], quality: [70, 100], chance: 0.05}),
+            new TradeItem({item_name: "Alligator helmet", count: [1], quality: [70, 100], chance: 0.05}),
+            new TradeItem({item_name: "Alligator armored pants", count: [1], quality: [70, 100], chance: 0.05}),
 
             new TradeItem({item_name: "Turtleshell platemail armor", count: [1], quality: [70, 100], chance: 0.01}),
             new TradeItem({item_name: "Turtleshell platemail helmet", count: [1], quality: [70, 100], chance: 0.01}),
             new TradeItem({item_name: "Turtleshell platemail pants", count: [1], quality: [70, 100], chance: 0.01}),
             new TradeItem({item_name: "Turtleshell shield", count: [1], quality: [70, 100], chance: 0.01}),
 
-            //new TradeItem({item_name: "Shellfish desires", count: [1], chance: 0.5}), //temporarily removed due to errors
+            new TradeItem({item_name: "Shellfish desires", count: [1], chance: 0.5}),
 
 			new TradeItem({item_name: "Healing balm", count: [1,2], chance: 0.15}),
 			new TradeItem({item_name: "Healing powder", count: [1,3], chance: 0.2}),
