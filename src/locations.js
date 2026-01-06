@@ -96,7 +96,7 @@ class Location {
         this.is_temperature_static = is_temperature_static; //true -> uses static temperature, either provided or default
         this.static_temperature = static_temperature;
         this.reverse_day_night_temperatures = reverse_day_night_temperatures; //true -> nights are warmer, days are colder
-        this.temperature_range_modifier = temperature_range_modifier; //flat modifier to how much temperature varies from base
+        this.temperature_range_modifier = temperature_range_modifier; //multiplier to how much temperature varies from base; lower value will make both max and min temps closer do base
         this.temperature_modifier = temperature_modifier; //flat modifier to temperature, applied AFTER range modifier
         this.is_under_roof = is_under_roof; //only for weather display
     }
@@ -1632,7 +1632,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["*You hear the waves crashing along the shoreline*", "*Splash*", "*You hear the chittering clicks of dozens of crabs*"];
             return noises;
         },
-        temperature_range_modifier: 0.4,
+        temperature_modifier: 0.5,
         name: "Downstream from the village",
         is_unlocked: false,
     });
@@ -1640,8 +1640,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
 
     locations["Riverbank"] = new Location({ 
         connected_locations: [{location: locations["Village"], custom_text: "Make the long hike back to the [Village]", travel_time: 2160}], 
-         getDescription: function() {
-		 if(locations["Riverbank shore"].enemy_groups_killed >= 10 * locations["Riverbank shore"].enemy_count) { 
+        getDescription: function() {
+		if(locations["Riverbank shore"].enemy_groups_killed >= 10 * locations["Riverbank shore"].enemy_count) { 
                 return "While there are still an abundance of crabs on the river's shore, they don't appear to be interested in climbing any higher onto the riverbank. It shouldn't be difficult to move past them at this point";
             } else if(locations["Riverbank shore"].enemy_groups_killed >= 5 * locations["Riverbank shore"].enemy_count) {
                 return "There is an abundance of crabs on the river's shore, but you should be able to get around them and further down the riverbank with a little bit of effort";
@@ -1652,13 +1652,13 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["*You hear the waves crashing along the shoreline*", "*Splash*", "*You hear the chittering clicks of dozens of crabs*"];
             return noises;
         },
-        temperature_range_modifier: 0.4,
+        temperature_modifier: 1,
         name: "Riverbank",
         is_unlocked: false,
     });
     locations["Village"].connected_locations.push({location: locations["Riverbank"], custom_text: "Hike down the river", travel_time: 2160});
   
-	  locations["Downstream from the village"].connected_locations.push({location: locations["Riverbank"], custom_text: "Move down to the [Riverbank]", travel_time: 30});
+	locations["Downstream from the village"].connected_locations.push({location: locations["Riverbank"], custom_text: "Move down to the [Riverbank]", travel_time: 30});
 
     locations["Riverbank shore"] = new Combat_zone({
         description: "As your eyes scan the shoreline, you see nothing but crabs across the horizon", 
@@ -1699,7 +1699,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             }
             return noises;
         },
-        temperature_modifier: +0.8,
+        temperature_range_modifier: 0.8,
         name: "Further downstream",
         is_unlocked: false,
     });
@@ -1717,10 +1717,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
             }
             return noises;
         },
-        temperature_modifier: +1.3,
+        temperature_modifier: 1.5,
         unlock_text: "It's just a shame no one will ever believe you caught one ~this~ big",        //intended to show up after beating the giant crab for the second time, playing off the old "fisherman lying about the size of his catch" trope
         name: "Lake beach",
-        is_unlocked: true,
+        is_unlocked: false,
     });
     locations["Riverbank"].connected_locations.push({location: locations["Lake beach"], custom_text: "Go to the [Lake beach]",  travel_time: 180, travel_time_skills: ["Scrambling"]});
   
@@ -1746,7 +1746,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             }
             return noises;
         },
-        temperature_range_modifier: +1,
+        temperature_range_modifier: 0.8,
+        temperature_modifier: 1,
     });
     locations["Lake beach"].connected_locations.push({location: locations["Lake camp"], custom_text: "Go to your camp on the lakeside", travel_time: 5});
 
@@ -1766,7 +1767,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["*You hear the roar of thousands of gallons of water crashing down*"];
             return noises;
         },
-        temperature_modifier: +2,
+        temperature_modifier: 2,
         name: "Waterfall basin",
         is_unlocked: false,
     });
@@ -1819,7 +1820,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["*Gnats and mosquitos pick at your exposed skin*", "*fwoosh* *thump*", "*You hear something moving around you, but you can't see it*", "*The buzz of insects throb in your ears*", "*gurgle gurgle*", "*You feel something moving next you, but you can't see it*", "*snap* *crunch*", "*You hear the rythmic swish-swash of something swimming nearby*", "*hssssssssssss*", "*slither*"];
             return noises;
         },
-        temperature_modifier: +3,
+        temperature_modifier: 3,
         unlock_text: "You can just barely make out the overgrown remains of a old trail leading off into a swampy field as an ill omen passes over you",
         name: "Swampland fields",
         is_unlocked: false,
@@ -1836,12 +1837,12 @@ There's another gate on the wall in front of you, but you have a strange feeling
         name: "The swamplands", 
         leave_text: "Slink away to some higher, dryer ground",
         parent_location: locations["Swampland fields"],
-        temperature_modifier: +5.5,
+        temperature_modifier: 5.5,
         first_reward: {
             xp: 10000,
         },
         repeatable_reward: {
-			    xp: 5000,
+			xp: 5000,
         },
         rewards_with_clear_requirement: [
           {
@@ -1929,14 +1930,13 @@ There's another gate on the wall in front of you, but you have a strange feeling
         repeatable_reward: {
             xp: 1000,
             actions: [
-                //{location: "Forest lake", action: "search2"}
+                //{location: "Forest lake", action: "search2"} //locked as the reward doesn't really have any uses yet
             ],
         },
         temperature_range_modifier: 0.8,
         is_under_roof: false,
     });
     locations["Forest lake"].connected_locations.push({location: locations["Frogs"], custom_text: "Challenge the apex predator"});
-
 })();
 
 
@@ -2665,16 +2665,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
             starting_text: "Attempt to hike through the wilderness alongside the riverbank",
             description: "The only way you're going to find those enormous crabs' nest. Or was it that enormous crab's nest?",
             action_text: "Hiking through the wilderness, attempting to follow the river",
-            success_text: "After hiking for well over a day, you finally come across a relatively clear point on the river with recognizable landmarks and signs of crabs. It feels like a long way off from the village, but you're confident that you can get back here again, and faster too",
-            failure_texts: {
-                random_loss: [
-                    "After hiking for well over a day, you finally come across a relatively clear point on the river with recognizable landmarks. It feels like a long way off from the village, but you're confident that you can get back. And then, with sadness in your heart, it dawns on you that you're just looking at where you came from, but from the other direction", 
-                    "After hiking for well over a day, you finally accept that you're totally lost and have no choice but to try to make your way back to the village to start again",
-                    "After hiking for well over a day without rest, you feel the urge to collapse. Climbing a nearby tree to scout the horizon for a place to rest, you realize that in your exhaustion, you've looped around and are back at the village. At least you can rest in your own bed tonight",
-                ],
-            },
+            success_text: "After hiking for well over a day, you finally come across a relatively clear point on the river with recognizable landmarks and signs of crabs."
+                        + " It feels like a long way off from the village, but you're confident that you can get back here again, and faster too",
             attempt_duration: 2160,
-            success_chances: [.4],
+            success_chances: [1],
             rewards: {
                 locations: [{location: "Downstream from the village"}],
                 move_to: {location: "Downstream from the village"},
@@ -3025,7 +3019,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 },
             ],
             is_unlocked: true,
-            attempt_duration: 540,
+            attempt_duration: 180,
             success_chances: [0.45, 1],
             rewards: {
                 locations: [{location: "Waterfall basin"}],
