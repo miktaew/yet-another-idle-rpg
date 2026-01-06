@@ -1126,16 +1126,17 @@ book_stats["A Glint On The Sand"] = new BookData({
             {category: "crafting", subcategory: "items", recipe_id: "Glass bottle"},
         ],
         activities: [
-		{location: "Village", activity: "sand"},
-		{location: "Lake beach", activity: "sand"}
+            {location: "Village", activity: "sand"},
+            {location: "Lake beach", activity: "sand"}
 		]
     }
 	
 });
 
 book_stats["Shellfish desires"] = new BookData({
-    required_time: 360,
+    required_time: 1,
     literacy_xp_rate: 6,
+    
     rewards: {
         recipes: [
             {category: "cooking", subcategory: "items", recipe_id: "Crab bisque"},
@@ -1144,6 +1145,7 @@ book_stats["Shellfish desires"] = new BookData({
             {category: "cooking", subcategory: "items", recipe_id: "Basin gumbo"},
         ],
     },
+    
     bonuses: {
         xp_multipliers: {
             Cooking: 1.2,
@@ -1184,13 +1186,11 @@ book_stats["Shellfish desires"] = new BookData({
         value: 200,
     });
     item_templates["A Glint On The Sand"] = new Book({
-        id: "A Glint On The Sand",
         name: "A Glint On The Sand",
         description: "This books recounts a tale of shipwrecked crew accidentally discovering glassmaking while cooking on a beach. More importantly, it details the processees and materials necessary to manufacture glass",
         value: 300
     });
     item_templates["Shellfish desires"] = new Book({
-        id: "Shellfish desires",
         name: "Shellfish desires",
         description: "A cookbook detailing various methods of cleaning and preparing crab, clam, snail, turtle, and other aquatic animals",
         value: 1620
@@ -1669,7 +1669,7 @@ book_stats["Shellfish desires"] = new BookData({
         material_type: "piece of leather"
     }),
 	
-	  item_templates["Piece of alligator leather"] = new Material({
+	item_templates["Piece of alligator leather"] = new Material({
         description: "Strong and flexible, but too uncomfortable to use as clothing",
         value: 150,
         material_type: "piece of leather"
@@ -2217,7 +2217,7 @@ book_stats["Shellfish desires"] = new BookData({
         description: "A short handle for a sword or maybe a dagger, made of turtle shellplate",
         component_type: "short handle",
         value: 140,
-        component_tier: 5,
+        component_tier: 4,
         component_stats: {
             attack_speed: {
                 multiplier: 1.05,
@@ -2232,7 +2232,7 @@ book_stats["Shellfish desires"] = new BookData({
         description: "A medium handle for an axe or a hammer, made of turtle shellplate",
         component_type: "medium handle",
         value: 190,
-        component_tier: 5,
+        component_tier: 4,
         component_stats: {
             attack_points: {
                 multiplier: 1.1,
@@ -2244,10 +2244,10 @@ book_stats["Shellfish desires"] = new BookData({
         description: "A long shaft for a spear, made of turtle shellplate",
         component_type: "long handle",
         value: 250,
-        component_tier: 5,
+        component_tier: 4,
         component_stats: {
             attack_power: {
-                multiplier: 1.5,
+                multiplier: 1.1,
             },
             attack_speed: {
                 multiplier: 0.95,
@@ -2409,7 +2409,7 @@ book_stats["Shellfish desires"] = new BookData({
         component_type: "helmet exterior",
         value: 800,
         component_tier: 5,
-        full_armor_name: "Alligator leather helmet",
+        full_armor_name: "Alligator helmet",
         defense_value: 8,
         component_stats: {
             cold_tolerance: {
@@ -2470,7 +2470,7 @@ book_stats["Shellfish desires"] = new BookData({
         component_type: "chestplate exterior",
         value: 1600,
         component_tier: 5,
-        full_armor_name: "Alligator leather armor",
+        full_armor_name: "Alligator armor",
         defense_value: 16,
         component_stats: {
             cold_tolerance: {
@@ -2527,7 +2527,7 @@ book_stats["Shellfish desires"] = new BookData({
         component_type: "leg armor exterior",
         value: 800,
         component_tier: 5,
-        full_armor_name: "Alligator leather armored pants",
+        full_armor_name: "Alligator armored pants",
         defense_value: 8,
         component_stats: {
             cold_tolerance: {
@@ -2569,7 +2569,7 @@ book_stats["Shellfish desires"] = new BookData({
         component_type: "glove exterior",
         value: 800,
         component_tier: 5,
-        full_armor_name: "Alligator leather gloves",
+        full_armor_name: "Alligator gloves",
         defense_value: 8,
 		component_stats: {
             cold_tolerance: {
@@ -2611,7 +2611,7 @@ book_stats["Shellfish desires"] = new BookData({
         component_type: "shoes exterior",
         value: 800,
         component_tier: 5,
-        full_armor_name: "Alligator leather shoes",
+        full_armor_name: "Alligator shoes",
         defense_value: 8,
 		component_stats: {
             cold_tolerance: {
@@ -3996,7 +3996,7 @@ book_stats["Shellfish desires"] = new BookData({
 })();
 
 
-//rings:            //effectively just a second amulet slot at the moment
+//rings:
 (function(){
     item_templates["Snake fang ring"] = new Ring({
         value: 2000,
@@ -4008,7 +4008,7 @@ book_stats["Shellfish desires"] = new BookData({
             crit_rate: {
                 multiplier: 1.2,
             },
-            unarmed_power: {            //rings are probably as close as the player will ever get to an unarmed weapon
+            unarmed_power: {
                 flat: 1,
             },
         },
@@ -4149,7 +4149,8 @@ book_stats["Shellfish desires"] = new BookData({
         tags: {"food": true},
     });
 
-    item_templates["Cooked clam"] = new UsableItem({      //making clam broth returns cooked clams
+    //supposed to be obtained by making clam broth, but multiple results from a recipe are not yet supported
+    item_templates["Cooked clam"] = new UsableItem({
         name: "Boiled clam",
         description: "Common shellfish found around the lake shore that has been boiled, not steamed",
         value: 6,

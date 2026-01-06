@@ -3,7 +3,7 @@
 import { current_game_time, is_night } from "./game_time.js";
 import { item_templates, getItem, book_stats, rarity_multipliers, getArmorSlot, getItemFromKey, getItemRarity} from "./items.js";
 import { loot_sold_count, market_region_mapping, recover_item_prices, trickle_market_saturations, set_loot_sold_count, capped_at } from "./market_saturation.js";
-import { locations, favourite_locations } from "./locations.js";
+import { locations, favourite_locations, location_types } from "./locations.js";
 import { crafting_skill_xp_gains_cap, skill_categories, skill_xp_gains_cap, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
 import { enemy_killcount, enemy_templates, tags_for_droprate_modifier_skills } from "./enemies.js";
@@ -3982,7 +3982,10 @@ function load(save_data) {
             //compatibility for some dialogues
             process_rewards({
                 rewards: {
-                        textlines: [{dialogue: "village guard", lines: ["serious", "hi"]}],
+                        textlines: [{dialogue: "village guard", lines: ["serious", "hi"]},
+                                    {dialogue: "village elder", lines: ["crab rumors"]},
+                                    //crab could be done the classic way (via one of repeatable textlines), but since this is alredy being done anyway...
+                        ],
                     },
                 inform_overall: false,
             });
@@ -4965,10 +4968,22 @@ function update() {
                 //if effect not active, use item and return
                 if(!active_effects[effects[0].effect]) {
                     use_item(inv_key);
-                    //use will call remove item which will call remove consumable from favs, so nothing more to do here
+                    //use will call 'remove item' which will call 'remove consumable from favs', so nothing more to do here
                     return;
                 }
             });
+
+
+            //go through location's types, check if any of them applie active effects, if so then add them
+            for(let i = 0; i < current_location.types.length; i++) {
+                const effect_key = current_location.types[i].type;
+                const stage = current_location.types[i].stage;
+                if(location_types[effect_key].stages[stage].applied_effects) {
+                    for(let j = 0; j < location_types[effect_key].stages[stage].applied_effects.length; j++) {
+                        add_active_effect(location_types[effect_key].stages[stage].applied_effects[j].effect, location_types[effect_key].stages[stage].applied_effects[j].duration);
+                    }
+                }
+            }
 
             add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.1});
         } else { //everything other than combat
@@ -5406,7 +5421,6 @@ function add_all_active_effects(duration){
 //add_to_character_inventory([{item_id: "Iron sword", count: 20, quality: 100}]);
 //add_to_character_inventory([{item_id: "Iron sword", count: 20, quality: 120}]);
 //add_to_character_inventory([{item_id: "Iron sword", count: 20, quality: 140}]);
-
 
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();

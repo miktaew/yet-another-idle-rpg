@@ -1009,27 +1009,34 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
             1: {
                 stats: {
 					dexterity: {
-						flat: 1},
+						flat: 1
+                    },
 					agility: {
-						flat: 1},
-                max_stamina: {
-					multiplier: 1.1,
-                }}
+						flat: 1
+                    },
+                    max_stamina: {
+                        multiplier: 1.1,
+                    }
+                }
             },
             3: {
                 stats: {
 					dexterity: {
-						multiplier: 1.1},
+						multiplier: 1.05
+                    },
 					agility: {
-						multiplier: 1.1},
+						multiplier: 1.05
+                    },
                 }
             },
             5: {
                 stats: {
 					dexterity: {
-						flat: 3},
+						flat: 3
+                    },
 					agility: {
-						flat: 3},
+						flat: 3
+                    },
                 },
                 xp_multipliers: {
                     Running: 1.2,
@@ -1040,7 +1047,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                     stamina_regeneration_flat: {
                         flat: 0.2,
                     },
-				    stamina_efficiency: {
+                    stamina_efficiency: {
                         multiplier: 1.1,
                     }
                 },
@@ -1061,16 +1068,18 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
 						flat: 2
                     },
                     max_stamina: {
-					    multiplier: 1.2,
+                        multiplier: 1.2,
                     },
                 }
             },
             15: {
                 stats: {
 					dexterity: {
-						multiplier: 1.15},
+						multiplier: 1.1
+                    },
 					agility: {
-						multiplier: 1.15},
+						multiplier: 1.1
+                    },
                 }
             },
             18: {
@@ -1090,8 +1099,8 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                         multiplier: 1.03},
                     stamina_regeneration_flat: {
                         flat: 0.3},
-				    stamina_efficiency: {
-                        multiplier: 1.15
+                    stamina_efficiency: {
+                        multiplier: 1.1
                     }
                 },
             },
@@ -2217,7 +2226,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     skills["Iron skin"] = new Skill({
         category: "Combat",
         names: {0: "Tough skin", 10: "Wooden skin", 20: "Stone skin", 30: "Iron skin"},
-        description: "As it gets damaged, your skin regenerates to be tougher and tougher",
+        description: "Wearing no protective armor means that your skin keeps getting damaged in combat, which leads to it regenerating over and over to become tougher",
         base_xp_cost: 400,
         xp_scaling: 1.9,
         max_level: 30,

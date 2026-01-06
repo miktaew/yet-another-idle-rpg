@@ -42,7 +42,7 @@ class Recipe {
         recipe_skill,
     }) {
         this.name = name;
-        this.id = id || name;
+        this.id = id;
         this.is_unlocked = is_unlocked;
         this.recipe_type = recipe_type;
         this.result = result;
@@ -1312,9 +1312,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
                     {material_id: "Wild garlic", count: 1},
                     {material_id: "Glass bottle", count: 1}
                 ], 
-        result: [{result_id: "Clam broth", count: 1},
-				{result_id: "Cooked clam", count: 3}
-				],
+        result: {result_id: "Clam broth", count: 1},
         success_chance: [0.4,1],
         recipe_level: [20,30],
         recipe_skill: "Cooking",
@@ -1333,7 +1331,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         name: "Snake jerky",
         is_unlocked: false,
         recipe_type: "usable",
-        materials: [{material_id: "Snake meat", count: 2}],
+        materials: [{material_id: "Giant snake meat", count: 2}],
         result: {result_id: "Snake jerky", count: 1},
         success_chance: [0.3,1],
         recipe_level: [25,35],
@@ -1368,7 +1366,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         is_unlocked: false,
         recipe_type: "usable",
         materials: [{material_id: "Alligator meat", count: 1},
-                    {material_id: "Snake meat", count: 1},
+                    {material_id: "Giant snake meat", count: 1},
                     {material_id: "Turtle meat", count: 1},
                     {material_id: "Wild garlic", count: 1},
                     {material_id: "Wild onion", count: 1},
@@ -1398,6 +1396,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Basin gumbo", count: 1},
         success_chance: [0.1,1],
         recipe_level: [35,60],
+        recipe_skill: "Cooking",
     });
 
     cooking_recipes.items["Fish skewer"] = new ItemRecipe({
@@ -1567,5 +1566,14 @@ const recipes = {
     butchering: butchering_recipes,
     woodworking: woodworking_recipes,
 }
+
+
+Object.keys(recipes).forEach(recipe_category => {
+    Object.keys(recipes[recipe_category]).forEach(recipe_subcategory => {
+        Object.keys(recipes[recipe_category][recipe_subcategory]).forEach(recipe_key => {
+            recipes[recipe_category][recipe_subcategory][recipe_key].id = recipe_key;
+        });
+    });
+});
 
 export { recipes, get_recipe_xp_value, get_crafting_quality_caps, ItemRecipe }

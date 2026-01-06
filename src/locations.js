@@ -42,8 +42,8 @@ class Location {
             }) {
         // always a safe zone
 
-        this.name = name; //needs to be the same as key in locations
-        this.id = id || name;
+        this.name = name;
+        this.id = id;
         this.description = description;
         this.getDescription = getDescription || function(){return description;}
         this.background_noises = background_noises;
@@ -135,7 +135,7 @@ class Combat_zone {
                 }) {
 
         this.name = name;
-        this.id = id || name;
+        this.id = id;
         this.unlock_text = unlock_text;
         this.description = description;
         this.getDescription = getDescription || function(){return description;}
@@ -181,9 +181,6 @@ class Combat_zone {
         }
 
         this.parent_location = parent_location;
-        if(!locations[this.parent_location.id]) {
-            throw new Error(`Couldn't add parent location "${this.parent_location.name}" to zone "${this.name}"`)
-        }
 
         this.leave_text = leave_text; //text on option to leave
         this.first_reward = first_reward; //reward for first clear
@@ -467,7 +464,8 @@ class LocationType{
         >number<: {
             description,
             related_skill,
-            effects
+            effects,
+            applied_effects // relates to active_effects, just like same-named property on activities
         }
 
         */
@@ -704,7 +702,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         stages: {
             1: {
                 description: "Attempting to stay dry in conditions like this is impossible",
-                //effects: [{effect: "Wet", duration: 30}],         //doesn't apply the "wet" effect to the player
+                applied_effects: [{effect: "Wet", duration: 30}]
             }
         }
     });
@@ -1208,10 +1206,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         name: "Deep forest", 
         parent_location: locations["Forest road"],
         first_reward: {
-            xp: 70,
+            xp: 300,
         },
         repeatable_reward: {
-            xp: 35,
+            xp: 150,
             flags: ["is_strength_proved"],
             activities: [{location:"Forest road", activity: "woodcutting"}],
         },
@@ -1235,10 +1233,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         types: [{type: "open", stage: 2, xp_gain: 3}],
         parent_location: locations["Forest road"],
         first_reward: {
-            xp: 200,
+            xp: 500,
         },
         repeatable_reward: {
-            xp: 100,
+            xp: 250,
             textlines: [{dialogue: "farm supervisor", lines: ["defeated boars"]}],
             activities: [{location: "Forest road", activity: "woodcutting2"}],
         }
@@ -1749,7 +1747,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Waterfall basin"] = new Location({ 
         connected_locations: [{location: locations["Lake beach"], custom_text: "Climb up the cliffside and return to the [Lake beach]", travel_time: 80, travel_time_skills: ["Climbing"]}], 
         getDescription: function() {
-		      if(locations["Crab spawning grounds"].enemy_groups_killed >= 10 * locations["Crab spawning grounds"].enemy_count) { 
+            if(locations["Crab spawning grounds"].enemy_groups_killed >= 10 * locations["Crab spawning grounds"].enemy_count) { 
                 return "The waterfall at the bottom of the lake. Cool rushing waters and a sense of serene harmony make the area ideal for training your mind and body. Large crabs almost indistinguishable from the stone can be found along the shore of the basin. Off in the distance, you can just barely make out the overgrown remains of a old trail leading off into a swampy field";
             } else if(locations["Crab spawning grounds"].enemy_groups_killed >= 5 * locations["Crab spawning grounds"].enemy_count) {
                 return "The waterfall at the bottom of the lake. Large crabs almost indistinguishable from the stone inhabit the shore. The sound of roaring water echoing through the rock shelters provides a calming noise that you figure would make it easier to focus your mind";
@@ -1783,7 +1781,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             xp: 5000,
         },
         repeatable_reward: {
-			    xp: 2500,
+			xp: 2500,
         },
         rewards_with_clear_requirement: [
             {
@@ -1884,10 +1882,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
     });
     locations["Swampland fields"].connected_locations.push({location: locations["Swampland tribe"], travel_time: 90, travel_time_skills: ["Scrambling", "Running"]});
 	
-    locations["Longhouse"] = new Location({     //end of the new content
+    locations["Longhouse"] = new Location({
         connected_locations: [{location: locations["Swampland tribe"], custom_text: "Go back out to the [Swampland tribe]", travel_time: 5}],
         description: "A communal building that members of the settlement rest, eat, and recover in. The only other person in here right now is a wounded young woman, lying in a cot next to the door. The air smells faintly of rot and you can't help but notice there's far more cots than needed",
-        //dialogues: ["Swampland scout"],       //breaks the longhouse at the moment
         name: "Longhouse",
         is_unlocked: false,
         housing: {
@@ -1901,8 +1898,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
 
     locations["Swampland tribe"].connected_locations.push({location: locations["Longhouse"], travel_time: 5});
   
-    locations["Mountain camp"].connected_locations.push({ location: locations["Gentle mountain slope"], travel_time: 120 });
-
     locations["Forest lake"] = new Location({
         connected_locations: [{location: locations["Forest road"], travel_time: 120}],
         description: "Far away from civilization, the forest opens up to an unspoiled lake. Nestled between a small cliff where it receives water from a rocky waterfall, and a dense canopy leading to what must be the forest's heart, it serves as a respite for the local animals - and now, yourself.",
@@ -2044,7 +2039,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
     });
     locations["Mountain path"].connected_locations.push({location: locations["Fight the angry mountain goat"], custom_text: "Fight the angry goat", travel_time: 0});
 
-    locations["Fight the giant crab"] = new Challenge_zone({        //crab 1
+    locations["Fight the giant crab"] = new Challenge_zone({
+        //crab 1
         description: "The village elder told you to be cautious...",
         enemy_count: 1, 
         types: [{type: "open", stage: 1, xp_gain: 2}],
@@ -2074,7 +2070,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         enemies_list: ["Enraged giant crab"],
         enemy_stat_variation: 0,
         is_unlocked: true, 
-        name: "Fight the giant crab again", 
+        name: "Fight the giant crab again!", 
         leave_text: "Scramble away and hide!",
         parent_location: locations["Further downstream"],
         repeatable_reward: {
@@ -3256,6 +3252,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         Object.keys(locations[location_key].activities || {}).forEach(activity_key => {
             locations[location_key].activities[activity_key].activity_id = activity_key;
         });
+        locations[location_key].id = location_key;
     });
 })();
 fill_market_regions();

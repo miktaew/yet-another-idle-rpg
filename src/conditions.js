@@ -24,6 +24,8 @@ import { global_flags } from "./main.js";
             "skill_id": Number //required level
         ],
 
+        hero_level: Number //required hero level
+
         items_by_id: 
         [
             {
@@ -79,6 +81,15 @@ const process_conditions = (conditions, character) => {
                 met *= (get_total_skill_level(skill_id) - conditions[0].skills[skill_id])/(conditions[1].skills[skill_id] - conditions[0].skills[skill_id]);
             }
         });
+    }
+
+    if(conditions[0].hero_level) {
+        if(character.xp.current_level < conditions[0].hero_level) {
+            met = 0;
+            return met;
+        } else if(conditions[1]?.hero_level && conditions[1].hero_level > character.xp.current_level) {
+            met *= (character.xp.current_level - conditions[0].hero_level)/(conditions[1].hero_level - conditions[0].hero_level);
+        }
     }
 
     if(!met) {

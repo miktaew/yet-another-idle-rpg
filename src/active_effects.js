@@ -13,7 +13,7 @@ class ActiveEffect {
      */
     constructor({name, id, description = null, duration, effects, tags, potency, group_tags, affected_by_travel = true}) {
         this.name = name;
-        this.id = id || name;
+        this.id = id;
         this.description = description;
         this.duration = duration ?? 0;
         this.effects = effects;
@@ -254,8 +254,11 @@ class ActiveEffect {
 		effect_templates["Varied seafood meal"] = new ActiveEffect({
         name: "Varied seafood meal",
         effects: {
-            stats: {xp_multipliers: {all: 1.25}}},
-         tags: {"buff": true, "food": true},
+            xp_multipliers: {
+                all: 1.25
+            }
+        },
+        tags: {"buff": true, "food": true},
 });
 })();
 
@@ -333,6 +336,8 @@ effect_templates["Spark of Inspiration"] = new ActiveEffect({
     affected_by_travel: false,
 });
 
-
+Object.keys(effect_templates).forEach(effect_key => {
+    effect_templates[effect_key].id = effect_key;
+});
 
 export {effect_templates, ActiveEffect};

@@ -40,7 +40,7 @@ class Enemy {
     }) {
                     
         this.name = name;
-        this.id = id || name;
+        this.id = id;
         this.rank = rank; //only for the bestiary order; higher rank => higher in display
         this.description = description; //try to keep it short
         this.xp_value = xp_value;
@@ -547,6 +547,11 @@ class Enemy {
         loot_list: [{item_name: "Giant crab claw", chance: 1}],
     });
 
-})()
+})();
+
+    Object.keys(enemy_templates).forEach(enemy_key => {
+        enemy_templates[enemy_key].id = enemy_key;
+    });
+
 
 export {Enemy, enemy_templates, enemy_killcount, tags_for_droprate_modifier_skills};

@@ -144,8 +144,8 @@ const translations = {
         "guard serious answ": "Ohhh, someone wants to impress the cute guard lady? Sorry, but I'm way too strong for you~",
         "guard pats": "[Ask for more headpats]",
         "guard pats answ": "[She smiles and pats your head a few more times]",
-        "guard try": "[Try to pat her head instead]",
-        "guard try answ": '"<i>Nuh uh~</i>" <br>*[She says, patting your head again]',
+        "guard try": "[Try to pat her head]",
+        "guard try answ": '[Nuh uh. She pats your head instead]',
         //
         "millers description": "You see two teenagers with mischievous looks on their faces. It's only with great deal of effort that you manage to recognize them both as males. One of them has red hair, the other gray.",
         "millers hello": "Hello there",

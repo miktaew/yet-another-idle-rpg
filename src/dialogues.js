@@ -254,7 +254,7 @@ class DialogueAction extends GameAction {
                 text: "elder cave clear answ",
                 is_unlocked: false,
                 rewards: {
-                    textlines: [{dialogue: "village elder", lines: ["ask to leave 4"]}],
+                    textlines: [{dialogue: "village elder", lines: ["ask to leave 4", "crab rumors"]}],
                     locations: [{location: "Forest road"}, {location: "Infested field"}, {location: "Nearby cave"}],
                     dialogues: ["village guard"],
                     quest_progress: [
@@ -279,15 +279,19 @@ class DialogueAction extends GameAction {
                 locks_lines: ["new tunnel"],
             }),
 
-            "crab rumors": new Textline({		//needs to be unlocked to start the expansion content, stat check should be the unlock trigger
+            "crab rumors": new Textline({
                 name: "elder crab rumors",
                 text: "elder crab rumors answ",
-                is_unlocked: true,			//set to false when quest integration is worked out and can unlock it
+                is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["crab where"]}],
                 },
+                display_conditions: {
+                    hero_level: 35,
+                },
                 locks_lines: ["crab rumors"],
             }),
+            
             "crab where": new Textline({
                 name: "elder crab where",
                 text: "elder crab where answ",
@@ -303,9 +307,9 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 rewards: {
                     actions: [{location: "Village", action: "hike down river"}],
-                    //quest_progress: [{quest_id: "Giant Enemy Crab", task_index: 1}],      //for when Giant Enemy Crab quest is properly implemented
+                    quests: ["Giant Enemy Crab"],
                 },
-                locks_lines: ["crab hunt", "ask to leave 4"], //removes the final "Can I leave the village?" question. This will leave the elder with no default dialog.
+                locks_lines: ["crab hunt"]
             }),
             
             "more training": new Textline({
@@ -1003,7 +1007,7 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 rewards: {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief mid help"]}],
-                    dialogues: ["swampland cook"],                                              //this isn't unlocking the cook for some reason, stopping the quest from progressing
+                    dialogues: ["swampland cook"],
                     //quest_progress: [{quest_id: "In Times of Need", task_index: 1}],
                 },
                 locks_lines: ["swampchief help"],
