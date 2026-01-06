@@ -113,6 +113,10 @@ input[type=checkbox], input[type=radio] {
 	font-weight: bold;
 }
 
+.italic {
+	font-style: italic;
+}
+
 #loading_screen {
 	visibility: visible;
 	width: 100%;

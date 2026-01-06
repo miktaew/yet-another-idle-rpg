@@ -3860,9 +3860,11 @@ function update_displayed_textline_answer({text, is_description}) {
     text = translationManager.getText(language, text);
     
     if(is_description) {
-        document.getElementById("dialogue_answer_div").innerHTML =  "*"+text+"*";
+        document.getElementById("dialogue_answer_div").innerText =  "*"+text+"*";
+        document.getElementById("dialogue_answer_div").classList.remove("italic");
     } else {
-        document.getElementById("dialogue_answer_div").innerHTML = '<i>"' + text + '"</i>';
+        document.getElementById("dialogue_answer_div").innerText = '"'+text+'"';
+        document.getElementById("dialogue_answer_div").classList.add("italic");
     }
 }
 
@@ -4083,7 +4085,7 @@ function fill_action_box({content_type, data}) {
         if(!text) {
             text = dialogues[data.dialogue_key].getDescription();
         }
-        //if(!document.getElementById("dialogue_answer_div").innerHTML) { //probably pointless to check?
+        //if(!document.getElementById("dialogue_answer_div").innerText) { //probably pointless to check?
         update_displayed_textline_answer({text, is_description: true});
         //}
     } else if(content_type === "dialogue_answer") {

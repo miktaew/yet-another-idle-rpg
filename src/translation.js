@@ -80,19 +80,19 @@ const translations = {
         "elder training answ 2": "You did? Well, let me think... Swimming in the river nearby would be a good exercise, but it's mostly frozen now in winter. You could try some wall climbing though, but be sure to start with low heights to be safe.",
 	"elder crab rumors": "I had overheard some villagers talking about an enormous crab nest nearby.", //crab start
 	"elder crab rumors answ": "That seems to have become the rumor of the week. Somebody found a fisherman unconscious in the forest a few weeks ago. He's recovering even now. "
-        	+"His wounds weren't too severe, but they must have gotten infected, because he's been in a fever ever since we found him. In his delirium, he was murmuring something about enormous crab nests. We haven't seen anything nearby, but... "
-        	+"This isn't the first I've heard of crab infestations along the river. Every few decades, their population undergoes a great boom, only to recede the following year.",
+                +"His wounds weren't too severe, but they must have gotten infected, because he's been in a fever ever since we found him. In his delirium, he was murmuring something about enormous crab nests. We haven't seen anything nearby, but... "
+                +"This isn't the first I've heard of crab infestations along the river. Every few decades, their population undergoes a great boom, only to recede the following year.",
 	"elder crab where": "The fisherman was found in the forest?",
 	"elder crab where answ": "The river that you see flowing through our village spans a great deal of the forest, and some of the fishermen swear they have better catches out in the woods where it's quieter. "
-        	+"As I understand it, the fisherman was found by a farmhand taking one of the horses out for a ride in the woods. The farmhand didn't mention seeing any rivers nearby, so we don't know if that's where he was injured.",
+                +"As I understand it, the fisherman was found by a farmhand taking one of the horses out for a ride in the woods. The farmhand didn't mention seeing any rivers nearby, so we don't know if that's where he was injured.",
 	"elder crab hunt": "I want to search for this enormous crab nest, they could be a danger to the village.",
 	"elder crab hunt answ": "The guards can handle any crabs that get near the village. And beside, you... "
                 +"\n*[The village elder trails off while looking you over, silently staring for a moment before speaking]*\n " //The elder is realizing that this isn't about protecting the village, it's about exploring the world and finding their place in it
-	        +"It's clear you are much stronger than when you were first brought to recover under my care. "
-        	+"I will not try to convince you otherwise, I can see the determination in your eyes. You have my blessing. But know this: there are dangers in the wilderness that no training can ready you for. "
+                +"It's clear you are much stronger than when you were first brought to recover under my care. "
+                +"I will not try to convince you otherwise, I can see the determination in your eyes. You have my blessing. But know this: there are dangers in the wilderness that no training can ready you for. "
                 +"If your current weapon, armor, or method of attack isn't working, it's much better to run away, reassess, and recover your strength instead of unnecessarily risking your life. "
-        	+"Please, be cautious. And consider checking with the village market to get some medicine and supplies. There's no telling how long your journey will take, or what challenges you will face on it. "
-        	+"No matter how far you go, just remember that you always have a home in this village.",
+                +"Please, be cautious. And consider checking with the village market to get some medicine and supplies. There's no telling how long your journey will take, or what challenges you will face on it. "
+                +"No matter how far you go, just remember that you always have a home in this village.",
 	//
         "craftsman description": "You see an old man who clearly experienced a lot in life. He's wearing some handmade accessories. Despite his age, his fingers seem exceptionally nimble.",
         "craftsman hello": "Hello, I heard you wanted to talk to me?",
@@ -145,21 +145,21 @@ const translations = {
         "guard pats": "[Ask for more headpats]",
         "guard pats answ": "[She smiles and pats your head a few more times]",
         "guard try": "[Try to pat her head]",
-        "guard try answ": '[Nuh uh. She pats your head instead]',
+        "guard try answ": '[Nuh uh. She pats your head instead~~~]',
         //
         "millers description": "You see two teenagers with mischievous looks on their faces. It's only with great deal of effort that you manage to recognize them both as males. One of them has red hair, the other gray.",
         "millers hello": "Hello there",
-        "millers hello answ": "[Red] Hi~! <br> [Gray]: Hello",
+        "millers hello answ": "[Red] Hi~! \n [Gray]: Hello",
         "millers how": "Are you doing alright? Elder asked me to check on you.",
-        "millers how answ": "[Gray] We are fine, mostly. <br> [Red] Except for rats in the storehouse, especially since we are about to have grain delivery. <br> [Gray] The big rats, like on the fields... <br> [Red] So if you could help us with them, it would be great!",
+        "millers how answ": "[Gray] We are fine, mostly. \n [Red] Except for rats in the storehouse, especially since we are about to have grain delivery. \n [Gray] The big rats, like on the fields... \n [Red] So if you could help us with them, it would be great!",
         "millers young": "Aren't you two a bit too young to have a job?",
-        "millers young answ": "Nope, we are both adults, even if barely, but we will take that as a compliment~ <br> *[They both smirk as they say that, apparently happy with their looks]*",
+        "millers young answ": "Nope, we are both adults, even if barely, but we will take that as a compliment~ \n *[They both smirk as they say that, apparently happy with their looks]*",
         "millers sure": "Sure, I can deal with them.",
-        "millers sure answ": "[Red] Ehehe, thank you~ <br> [Gray] We will get you some reward for it later. <br> [Red] A bit of money, and maybe a kiss or two~",
+        "millers sure answ": "[Red] Ehehe, thank you~ \n [Gray] We will get you some reward for it later. \n [Red] A bit of money, and maybe a kiss or two~",
         "millers cleared": "I cleared out your storehouse",
-        "millers cleared answ": "[Red] Nice job! <br>[Gray] Now where is that grain? <br> [Red] Oh right, it was supposed to be delivered by now. <br>[Gray] Could you search the village for a cart loaded with bags of grain that's 'supposed' to be heading our way?",
+        "millers cleared answ": "[Red] Nice job! \n[Gray] Now where is that grain? \n [Red] Oh right, it was supposed to be delivered by now. \n[Gray] Could you search the village for a cart loaded with bags of grain that's 'supposed' to be heading our way?",
         "millers delivered": "Your delivery has arrived.",
-        "millers delivered answ": "[Red] Thanks <br>[Gray] Thank you! <br>[Red] And here's your reward.",
+        "millers delivered answ": "[Red] Thanks \n[Gray] Thank you! \n[Red] And here's your reward.",
         "millers kiss": "So about that kiss you promised...",
         "millers kiss answ": "[Red] Yes? Which one of us do you want it from?",
         "millers kiss mouse": "How about... your gray-haired friend?",
@@ -173,9 +173,9 @@ const translations = {
         "millers reject mean": "Ewww, it's a terrible idea.",
         "millers reject mean answ": "[Red] Whatever you say~",
         "millers kiss more": "Can I get one more kiss?",
-        "millers kiss more answ": "[Red] Hmmm... should we? <br>[Gray] Maybe some other time. <br>[Red] You heard him~",
+        "millers kiss more answ": "[Red] Hmmm... should we? \n[Gray] Maybe some other time. \n[Red] You heard him~",
         "millers how2": "So, how's it going?",
-        "millers how2 answ": "[Red] Kinda boring, but at least company is good. <br>[Gray] What he said.",
+        "millers how2 answ": "[Red] Kinda boring, but at least company is good. \n[Gray] What he said.",
         //
         "g guard description": "You see a massive man in a steel chainmail, with a spear in his hand and a sword on his belt.",
         "g guard hello": "Hello, can I get in?",
@@ -197,13 +197,13 @@ const translations = {
         "sus gang": "What gang?",
         "sus gang answ": "It's j-just a gang, they don't have any name, boss. Their hideout is over t-there, you should stay away from it. Almost every k-killer and thug around t-the slum is a part of their group...",
         "sus gang defeated": "That gang you mentioned? I dealt with them.",
-        "sus gang defeated answ":  "I know boss, we all heard the commotion! You're the best! I think the local trader already pulled out some gear he was hiding from them, you should check it out! <br><strong>*Pauses for a moment*</strong> I wish I had shown you my defensive tricks before that, it might have made your job easier...",
+        "sus gang defeated answ":  "I know boss, we all heard the commotion! You're the best! I think the local trader already pulled out some gear he was hiding from them, you should check it out! \n*[Pauses for a moment]* I wish I had shown you my defensive tricks before that, it might have made your job easier...",
         "sus behave 2": "Are you behaving yourself?",
         "sus behave 2 answ": "Y-yes, I didn't do anything bad since the last time, boss!",
         "sus behave 3": "Are you behaving yourself?",
         "sus behave 3 answ": "Of course boss!",
         "sus tricks": "You said something about defensive tricks? Show me",
-        "sus tricks answ": "Sure, boss! So, it's really about focusing on your legs to either jump away faster or to better brace the shield, and... <strong>*He continues explaining for a while*</strong>",
+        "sus tricks answ": "Sure, boss! So, it's really about focusing on your legs to either jump away faster or to better brace the shield, and... *[He continues explaining for a while]*",
         "sus headpat": "[Pat his head]",
         //line above: not reachable without mofu mofu, but needs to be provided here
         "sus headpat answ": "[He smiles like a little puppy]",
@@ -335,7 +335,7 @@ const translations = {
         "swampcook cook answ": "A-ha~! I am an open book! But you've already helped me! It would be better to learn of someone else!",
 	"swampcook cook2": "Can you at least tell me where you get your meat from?",
         "swampcook cook2 answ": "We kill zalgo! Turtle when we can! Alligator when we must! We do not seek snake! We kill that zalgo that comes! They always do...!"
-	        +"\n*[The cook abruptly stops talking, then clears his throat and hums questioningly at you]*\n", //"Zalgo" - in this context means dangerous thing
+                +"\n*[The cook abruptly stops talking, then clears his throat and hums questioningly at you]*\n", //"Zalgo" - in this context means dangerous thing
 	"swampcook trader": "What can you tell me about the... bartermaster?",
         "swampcook trader answ": "Ahh, she runs the stall near the front of the camp! I give her many meat to barter with! And in return she gives me the local wild to use!",
         "swampcook trader1": "Most people would just call that a merchant or trader, especially if they're just selling what they were given.",
@@ -462,32 +462,51 @@ const translations = {
         "swamptanner liked": "Just checking in. Is there anything more I can do to help you?",
         "swamptanner liked answ": "Ahh, you are a good child, and a strong warrior. Warriors such as you need not concern yourself with the worries of an old woman.",
 	//
-        "swampscout description 1": "You see a young woman lying in a cot near the door. Her chest is covered in worn bandages stained with old blood, her arms covered in cuts and abrasions, and her lower half obscured by a blanket. The smell of rot gets stronger as you approach her.",
-        "swampscout description 2": "You see the scout lying in a cot near the door. Her chest is covered in worn bandages stained with fresh blood, her arms covered in cuts and abrasions, and her lower half obscured by a blanket. The smell of rot gets stronger as you approach her.", //description changes after meeting her
-        "swampscout description 3": "You see the scout lying in a cot near the door. Her chest is covered in fresh bandages stained with fresh blood, her arms covered in bruises and scars, and her lower half partially obscured by a blanket, revealing empty space where her right leg used to be.", //description changes after she teaches the player foraging
+        "swampscout description 1": "You see a young woman lying in a cot near the door. Her chest is covered in worn bandages stained with old blood,"
+                +" her arms covered in cuts and abrasions, and her lower half obscured by a blanket. The smell of rot gets stronger as you approach her.",
+        "swampscout description 2": "You see the scout lying in a cot near the door. Her chest is covered in worn bandages stained with fresh blood,"
+                +" her arms covered in cuts and abrasions, and her lower half obscured by a blanket. The smell of rot gets stronger as you approach her.", //description changes after meeting her
+        "swampscout description 3": "You see the scout lying in a cot near the door. Her chest is covered in fresh bandages stained with fresh blood,"
+                +" her arms covered in bruises and scars, and her lower half partially obscured by a blanket, revealing empty space where her right leg used to be.", //description changes after she teaches the player foraging
         "swampscout description 4": "You see the scout lightly sleeping in a cot near the door. Better to just let her rest.",
 	"swampscout meet": "Hello? Sorry to bother you, I just wanted to introduce myself.",
         "swampscout meet answ": "*[The young woman listlessly turns her head and smiles meekly at you]* "
-                +"I've heard of you already. Our leader said we may have a new den kin joining our ranks. It's been a while since... I last saw it happen. I was just a kid then. And now look... at him, trying to help everyone even now...",
+                +"I've heard of you already. Our leader said we may have a new den kin joining our ranks. It's been a while since... I last saw it happen."
+                +" I was just a kid then. And now look... at him, trying to help everyone even now...",
         "swampscout lore1": "Are you alright?",
-        "swampscout lore1 answ": "Forgive me if my speech is unclear or absurd. I've been in a state of limbo since... I don't even know how long ago it was. It feels like yesterday. But it also feels... like it was years ago. Like I've been living in this cot forever...", //refernce to Pathologic
+        "swampscout lore1 answ": "Forgive me if my speech is unclear or absurd. I've been in a state of limbo since... I don't even know how long ago it was."
+                +" It feels like yesterday. But it also feels... like it was years ago. Like I've been living in this cot forever...", //refernce to Pathologic
         "swampscout lore2": "What happened?",
         "swampscout lore2 answ": "Oh. I figured you must had heard... "
                 +"*[The young woman listlessly turns her head away and stares off into the distance]* "
-                +"It had been a rough few years: the amount of good... huntable meat in the swamps was dwindling. Natural herbs and vegetables were growing more scarce... every year. And the snakes were... creeping into the camp more often. We had posted guards, but they were so fast and quiet, we... often wouldn't notice they were gone until the sun rose.",
+                +"It had been a rough few years: the amount of good... huntable meat in the swamps was dwindling. Natural herbs and vegetables were growing more scarce... "
+                +"every year. And the snakes were... creeping into the camp more often. We had posted guards, but they were so fast and quiet, we... "
+                +"often wouldn't notice they were gone until the sun rose.",
         "swampscout lore3": "*[Let her continue]*",
-        "swampscout lore3 answ": "Our current chief, the brother... to our last chieftan's bondmate and at the former... huntmaster, decided that the best option was to sent hunting parties out into the... swamp, to find the snake's den, so that we could stop their... attacks in the middle of the night. The snake attacks had been... intensifying under his time as huntmaster, and he considered it his destiny to... drive them from the swamp.",
+        "swampscout lore3 answ": "Our current chief, the brother... to our last chieftan's bondmate and at the former... huntmaster, decided that the best option was"
+        +" to sent hunting parties out into the... swamp, to find the snake's den, so that we could stop their... attacks in the middle of the night."
+        +" The snake attacks had been... intensifying under his time as huntmaster, and he considered it his destiny to... drive them from the swamp.",
         "swampscout lore4": "*[Let her continue]*",
-        "swampscout lore4 answ": "Weeks went by, with our supplies... dwindling with them. Groups that should've been gathering or... scouting new hunting spots were searching for snake dens that didn't exist, and deaths... became an almost daily occurance from unskilled scouts pushed to explore past their bounds. No snakes that big could hide... their nest in a bog this small anyway. We tried to tell him, but no, we dare not... challenge the chief's honor by questioning his rule. It didn't take long before some people started talking about... leaving for the great plains southeast of here.",
+        "swampscout lore4 answ": "Weeks went by, with our supplies... dwindling with them. Groups that should've been gathering or..."
+        +" scouting new hunting spots were searching for snake dens that didn't exist, and deaths... became an almost daily occurance from unskilled scouts pushed to"
+        +" explore past their bounds. No snakes that big could hide... their nest in a bog this small anyway. We tried to tell him, but no, we dare not..."
+        +" challenge the chief's honor by questioning his rule. It didn't take long before some people started talking about... leaving for the great plains southeast of here.",
         "swampscout lore5": "*[Let her continue]*",
-        "swampscout lore5 answ": "The chief was angry. He... banished the lot of them, saying they'd be better off... as bog feed than weakening the tribe. And so we were split. Many artisans, scouts, and... warriors went that night. My brother went with them, as did our... doctor, our blacksmith, and the tailor's sister. Even though I'm just... a scout, I had wanted to be a warrior. I was fully loyal to... our chief's vision, at the time. I thought might made right, that force made security. I wonder... if they survived, if they made something new down there... I wonder what life I could have lived...",
+        "swampscout lore5 answ": "The chief was angry. He... banished the lot of them, saying they'd be better off... as bog feed than weakening the tribe."
+        +" And so we were split. Many artisans, scouts, and... warriors went that night. My brother went with them, as did our... doctor, our blacksmith, and the tailor's sister."
+        +" Even though I'm just... a scout, I had wanted to be a warrior. I was fully loyal to... our chief's vision, at the time. I thought might made right, that force made security."
+        +" I wonder... if they survived, if they made something new down there... I wonder what life I could have lived...",
         "swampscout lore6": "*[Let her continue]*",
-        "swampscout lore6 answ": "Well, with so much of our... people gone, there were less eyes to watch the gate, less hand to hold the... spears, less ears to the ground. It became necessary to... scale everything down, pull the walls in, and turtle up. Everyone had double- and triple-duty. And yet the hunt... for the snakes continued. A hunt across the bog with naught but ghosts to watch over us... ...as the snakes bore down on us...",
+        "swampscout lore6 answ": "Well, with so much of our... people gone, there were less eyes to watch the gate, less hand to hold the... spears, less ears to the ground."
+        +" It became necessary to... scale everything down, pull the walls in, and turtle up. Everyone had double- and triple-duty. And yet the hunt... for the snakes continued."
+        +" A hunt across the bog with naught but ghosts to watch over us... ...as the snakes bore down on us...",
         "swampscout lore7": "I'm sorry all that happened.",
-        "swampscout lore7 answ": "I thought myself strong. I thought that... to live meant to be strong. To stand up to... death. But now... Everything that lives is destined to end. To live in pain, in... a neverending spiral of life and death...", //reference to the opening of Nier: Automata
+        "swampscout lore7 answ": "I thought myself strong. I thought that... to live meant to be strong. To stand up to... death. But now... Everything that lives is destined to end."
+        +" To live in pain, in... a neverending spiral of life and death...", //reference to the opening of Nier: Automata
         "swampscout lore8": "Wow...",
         "swampscout lore8 answ": "*[The scout listlessly turns her head towards you]* "
-                +"I'm sorry. I just met you and I'm rambling about... this of all things. We can talk about something... else. I've spent a lot of time in the... swamps, there's some interesting things... growing out there.",
+                +"I'm sorry. I just met you and I'm rambling about... this of all things. We can talk about something... else. I've spent a lot of time in the..."
+                +" swamps, there's some interesting things... growing out there.",
         "swampscout generic": "Is there anything I can do for you?",
         "swampscout generic answ": "No... No, time is the only help for me at this... point. But sitting and talking with me... helps. Thank you.",
         "swampscout help": "Here, I brought you something to help ease your pain.",
@@ -501,41 +520,79 @@ const translations = {
         //
         "craftsman description": "You see an old man with a medium length white tail, who clearly experienced a lot in life. His hair is composed of a black and a white part, with the former very dulled by age. He's wearing some handmade accessories. Despite his age and his massive hands, his fingers seem exceptionally nimble.",
         //
-        "craftsman learn answ": "Ahh, that's great. Well then... \n*[Old man spends some time explaining all the important basics of crafting and providing you with tips, his large fingers proving to be as nimble as they seemed]*\n"+
-                "Ahh, and before I forget, here, take these. They will be helpful for gathering necessary materials.",
+        "craftsman learn answ": "Ahh, that's great. Well then... \n*[Old man spends some time explaining all the important basics of crafting and providing"
+                +" you with tips, his large fingers proving to be as nimble as they seemed]*\n"
+                + "Ahh, and before I forget, here, take these. They will be helpful for gathering necessary materials.",
         //
-        "guard description": "You see a tall woman in light armor, with a spear in her hand and two daggers on her belt. Her sharp fuzzy ears rotate every now and then towards any new sound, while her fluffy tail remains motionless. There's a scar across her face. When she spots you, she looks at you as if you were a prey, but then adopts a more neutral expression",
-        "guard hi answ": "Hey there. I heard you've been helping around a lot, good job cutie~ <br> *[As she says that, she bends forward and pats your head a few times with a surprisingly gentle touch, her tail slightly wagging]*",
+        "guard description": "You see a tall woman in light armor, with a spear in her hand and two daggers on her belt. "
+                +"Her sharp fuzzy ears rotate every now and then towards any new sound, while her fluffy tail remains motionless. There's a scar across her face."
+                +" When she spots you, she looks at you as if you were a prey, but then adopts a more neutral expression",
+        "guard hi answ": "Hey there. I heard you've been helping around a lot, good job cutie~ \n "
+                +"*[As she says that, she bends forward and pats your head a few times with a surprisingly gentle touch, her tail slightly wagging]*",
         "guard serious answ": "Ohhh, someone wants to impress the cute fluffy wolf lady? Sorry, but I'm way too strong for you~",
         //
         //
         "millers description": "You see two teenagers with mischievous looks on their faces. One has cat ears and a fluffy tail, the other mouse ears and a tail with barely any hair on it. It's only with great deal of effort that you manage to recognize them both as males. The cat has red hair, the mouse gray.",
-        "millers hello answ": "[Cat] Hi~! <br> [Mouse]: Hello",
-        "millers how answ": "[Mouse] We are fine, mostly. <br> [Cat] Except for rats in the storehouse, especially since we are about to have grain delivery. <br> [Mouse] The big rats, like on the fields... <br> [Cat] I would prefer mice, at least those are cute. <br> [Mouse] Shut up. <br> [Cat] So if you could help us with them, it would be great!",
-        "millers sure answ": "[Cat] Ehehe, thank you~ <br> [Mouse] We will get you some reward for it later. <br> [Cat] A bit of money, and maybe a kiss or two~",
-        "millers cleared answ": "[Cat] Nice job! <br>[Mouse] Now where is that grain? <br> [Cat] Oh right, it was supposed to be delivered by now. <br>[Mouse] Could you search the village for a cart loaded with bags of grain that's 'supposed' to be heading our way?",
-        "millers delivered answ": "[Cat] Thanks <br>[Mouse] Thank you! <br>[Cat] And here's your reward.",
+        "millers hello answ": "[Cat] Hi~! \n [Mouse]: Hello",
+        "millers how answ": "[Mouse] We are fine, mostly. \n [Cat] Except for rats in the storehouse, especially since we are about to have grain delivery."
+                +" \n [Mouse] The big rats, like on the fields... \n [Cat] I would prefer mice, at least those are cute. \n [Mouse] Shut up. \n "
+                +"[Cat] So if you could help us with them, it would be great!",
+        "millers sure answ": "[Cat] Ehehe, thank you~ \n [Mouse] We will get you some reward for it later. \n [Cat] A bit of money, and maybe a kiss or two~",
+        "millers cleared answ": "[Cat] Nice job! \n[Mouse] Now where is that grain? \n [Cat] Oh right, it was supposed to be delivered by now. "
+                +"\n[Mouse] Could you search the village for a cart loaded with bags of grain that's 'supposed' to be heading our way?",
+        "millers delivered answ": "[Cat] Thanks \n[Mouse] Thank you! \n[Cat] And here's your reward.",
         "millers kiss answ": "[Cat] Yes? Which one of us do you want it from?",
-        "millers kiss mouse answ": "*[Mouse teen slowly approaches you from the side and gives you a gentle smooch on your cheek with his tail brushing against your legs, then steps back with a slightly shy smile]*",
-        "millers kiss cat answ": "*[Cat teen slowly approaches you from the side and gives a gentle smooch on your cheek with his tail brushing against your legs, then steps back with a smirk]*",
-        "millers kiss both answ": "*[The two slowly approach you from both sides and you receive two simultanous gentle smooches, one of each of your cheek  with their tails brushing against your legs, after which they take a step back]*",
+        "millers kiss mouse answ": "*[Mouse teen slowly approaches you from the side and gives you a gentle smooch on your cheek with his tail brushing against your legs,"
+                +" then steps back with a slightly shy smile]*",
+        "millers kiss cat answ": "*[Cat teen slowly approaches you from the side and gives a gentle smooch on your cheek with his tail brushing against your legs,"
+                +" then steps back with a smirk]*",
+        "millers kiss both answ": "*[The two slowly approach you from both sides and you receive two simultanous gentle smooches, one of each of your cheek with their"
+                +" tails brushing against your legs, after which they take a step back]*",
         "millers reject nice answ": "[Cat] Oh well, that's a pity~",
         "millers reject mean answ": "[Cat] Whatever you say~",
-        "millers kiss more answ": "[Cat] Hmmm... should we? <br>[Mouse] Maybe some other time. <br>[Mouse] You heard him~",
-        "millers how2 answ": "[Cat] Kinda boring, but at least company is good. <br>[Mouse] What he said.",
+        "millers kiss more answ": "[Cat] Hmmm... should we? \n[Mouse] Maybe some other time. \n[Mouse] You heard him~",
+        "millers how2 answ": "[Cat] Kinda boring, but at least company is good. \n[Mouse] What he said.",
         //
         "g guard description": "You see a massive, hairy man with round ears and a tiny tail. He's clad in a steel chainmail, with a spear in his hand and an axe on his belt.",
         //
-        "sus description 1": "You see a young man in shabby clothes and with messy hair, who keeps looking around. He appears to have some nervous ticks, or maybe he's just really stressed. Both his doggy ears and his tail are lowered and not moving. He notices you and stares.",
-        "sus description 2": "You see a young man in shabby clothes and with messy hair, who keeps calmly looking around, with ears straight up and occasionally turning towards new sounds. The moment he notices you, he appears to get calmer and his tail starts slowly wagging.",
+        "sus description 1": "You see a young man in shabby clothes and with messy hair, who keeps looking around. He appears to have some nervous ticks, or maybe he's just really"
+                +" stressed. Both his doggy ears and his tail are lowered and not moving. He notices you and stares.",
+        "sus description 2": "You see a young man in shabby clothes and with messy hair, who keeps calmly looking around, with ears straight up and"
+                +" occasionally turning towards new sounds. The moment he notices you, he appears to get calmer and his tail starts slowly wagging.",
         //
         "sus headpat answ": "[He smiles like a little puppy, his tail wagging a lot faster]",
         //
         "old description 1": "With some safety returned to the area, more folk are now out on the streets. One of them, an elderly tanuki lady, is looking at you.",
         "old description 2": "You see a gentle elderly tanuki lady with warm look in her eyes",
         //
-        "sup description": "You see a well dressed man with a notebook on his belt and a hat on his head, awkwardly placed between a pair of antlers. Despite seeming more like a scribe, he's buff and tanned."
-    }
+        "sup description": "You see a well dressed man with a notebook on his belt and a hat on his head, awkwardly placed between a pair of antlers."
+                +" Despite seeming more like a scribe, he's buff and tanned.",
+        //
+        "swampchief description 1": "Looking around the encampment, you see a large hut framed by banners and lit torches."
+                +" You approach the hut, calling out in greeting, but getting no response."
+                +" As you step closer, you see a large man in thick scaly armor wielding a great trident emerge, his thick scaly tail resting behind him."
+                +" He points the trident at you as he takes a firm stance.",
+        //
+        "swampcook description 1": "As you get closer to the cook's workhut, you're met with a distinctive tune bellowed loudly and an acrid smell emanating from inside."
+                +" Bracing your nose, you approach to find a short fellow nearly obscured by hanging meats,"
+                +" moving between a rack larger than he is housing thin cuts suspended between grated slats and a large cauldron build into a workbench covered in large slabs"
+                +" of rough leather in various stages of processing."
+                +" You're surprised to find that he was the source of the singing."
+                +" Noticing your approach, he stops his song and turns to address you with a smile on his face, somehow managing to not hit anything with his scaly tail.",
+        "swampcook description 3": "As you approach the workhut, you absentmindedly sing along to the cook's song."
+                +" He notices your singing before turning to you and giving a big nod with a toothy grin before resuming his work, his large tail once again somehow not hitting anything.",
+        "swampcook peopleend": "I think I've learned all I need to about the lizardfolk of the Snake Fang tribe.",
+        //
+        "swamptanner description 1": "You approach the tanner's workhut to find the old woman with a scowl on her face standing next to a rack stretching drying leather."
+                +" Her hands are visibly shaking while her tail is dull in color and thin, an apparent sign of wear and old age, as she goes about her work.",
+        //
+        "swampscout description 1": "You see a young woman lying in a cot near the door. Her chest is covered in worn bandages stained with old blood,"
+                +" her arms covered in cuts and abrasions, and her lower half obscured by a blanket. The smell of rot gets stronger as you approach her.",
+        "swampscout description 2": "You see the scout lying in a cot near the door. Her chest is covered in worn bandages stained with fresh blood,"
+                +" her arms covered in cuts and abrasions, and her lower half obscured by a blanket. The smell of rot gets stronger as you approach her.",
+        "swampscout description 3": "You see the scout lying in a cot near the door. Her chest is covered in fresh bandages stained with fresh blood,"
+                +" her arms covered in bruises and scars, and her lower half partially obscured by a blanket, revealing empty space where her tail and right leg used to be.",
+        }
 }
 
 
