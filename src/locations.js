@@ -363,7 +363,7 @@ class LocationActivity{
                  get_payment = ()=>{return 1},
                  is_unlocked = true, 
                  working_period = 60,
-                 infinite = false,
+                 infinite = true,
                  availability_time,
                  availability_seasons,
                  skill_xp_per_tick = 1,
@@ -380,13 +380,20 @@ class LocationActivity{
         this.is_unlocked = is_unlocked;
         this.unlock_text = unlock_text;
         this.working_period = working_period; //if exists -> time that needs to be worked to earn anything; only for jobs
-        this.infinite = infinite; //if true -> can be done 24/7, otherwise requires availability time
-        if(this.infinite && (availability_time || availability_seasons)) {
-            console.error("Activity is set to be available all the time, so availability_time value will be ignored!");
+        this.infinite = infinite; //if true -> can be done 24/7, otherwise requires availability time/season
+
+        if(availability_time && availability_seasons) {
+            this.infinite = false;
         }
-        if(!this.infinite && !(availability_time || availability_seasons)) {
-            throw new Error("LocationActivities that are not infinitely available, require a specified time of availability!");
+
+        if(!this.infinite) {
+            if(!(availability_seasons || availability_time)) {
+                console.error("Activity is set to limited availability, but has neither availability_seasons nor availability_time provided for it");
+            }
+        } else if((availability_time || availability_seasons)) {
+            this.infinite = false;
         }
+        
         this.availability_time = availability_time; //if not infinite -> hours between which it's available; used only for work and for training
         this.availability_seasons = availability_seasons; //if not infinite -> seasons when it's available; used for work and for training
         
@@ -2127,14 +2134,12 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "running": new LocationActivity({
             activity_name: "running",
-            infinite: true,
             starting_text: "Go for a run around the village",
             skill_xp_per_tick: 1,
             is_unlocked: false,
         }),
         "weightlifting": new LocationActivity({
             activity_name: "weightlifting",
-            infinite: true,
             starting_text: "Try to carry some bags of grain",
             skill_xp_per_tick: 1,
             is_unlocked: false,
@@ -2142,6 +2147,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         "swimming": new LocationActivity({
             activity_name: "swimming",
             starting_text: "Swim in the river",
+            infinite: false,
             availability_seasons: ["Spring", "Summer", "Autumn"],
             skill_xp_per_tick: 1,
             is_unlocked: true,
@@ -2149,7 +2155,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "balancing": new LocationActivity({
             activity_name: "balancing",
-            infinite: true,
             starting_text: "Try to keep your balance on rocks in the river",
             unlock_text: "All this fighting while surrounded by stone and rocks gives you a new idea",
             skill_xp_per_tick: 1,
@@ -2157,7 +2162,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "meditating": new LocationActivity({
             activity_name: "meditating",
-            infinite: true,
             starting_text: "Sit down and meditate",
             skill_xp_per_tick: 1,
             is_unlocked: true,
@@ -2167,13 +2171,11 @@ There's another gate on the wall in front of you, but you have a strange feeling
             starting_text: "Go on a patrol around the village.",
             get_payment: () => {return 50},
             is_unlocked: false,
-            infinite: true,
             working_period: 60*2,
             skill_xp_per_tick: 1
         }),
         "woodcutting": new LocationActivity({
             activity_name: "woodcutting",
-            infinite: true,
             starting_text: "Gather wood on the outskirts",
             skill_xp_per_tick: 1,
             is_unlocked: true,
@@ -2188,7 +2190,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         "sand": new LocationActivity({
             activity_id: "sand",
             activity_name: "digging",
-            infinite: true,
             starting_text: "Dredge up some sand from the riverbed",
             skill_xp_per_tick: 1,
             is_unlocked: false,
@@ -2224,7 +2225,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Nearby cave"].activities = {
         "weightlifting": new LocationActivity({
             activity_name: "weightlifting",
-            infinite: true,
             starting_text: "Try lifting some of the rocks",
             skill_xp_per_tick: 4,
             is_unlocked: false,
@@ -2232,14 +2232,12 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "climbing": new LocationActivity({
             activity_name: "climbing",
-            infinite: true,
             starting_text: "Attempt climbing the mountain walls outside",
             skill_xp_per_tick: 1,
             is_unlocked: true,
         }),
         "meditating": new LocationActivity({
             activity_name: "meditating",
-            infinite: true,
             starting_text: "Sit down and meditate in front of the gate",
             skill_xp_per_tick: 4,
             is_unlocked: false,
@@ -2247,7 +2245,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "mining": new LocationActivity({
             activity_name: "mining",
-            infinite: true,
             starting_text: "Mine the strange looking iron vein",
             skill_xp_per_tick: 1,
             is_unlocked: false,
@@ -2261,7 +2258,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "mining2": new LocationActivity({
             activity_name: "mining",
-            infinite: true,
             starting_text: "Mine the deeper iron vein",
             skill_xp_per_tick: 5,
             is_unlocked: false,
@@ -2275,7 +2271,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "mining3": new LocationActivity({
             activity_name: "mining",
-            infinite: true,
             starting_text: "Mine the atratan vein",
             skill_xp_per_tick: 12,
             is_unlocked: false,
@@ -2291,13 +2286,11 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Forest road"].activities = {
         "running": new LocationActivity({
             activity_name: "running",
-            infinite: true,
             starting_text: "Go for a run through the forest",
             skill_xp_per_tick: 4,
         }),
         "woodcutting": new LocationActivity({
             activity_name: "woodcutting",
-            infinite: true,
             starting_text: "Gather wood from nearby trees",
             skill_xp_per_tick: 5,
             is_unlocked: false,
@@ -2310,7 +2303,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "woodcutting2": new LocationActivity({
             activity_name: "woodcutting",
-            infinite: true,
             starting_text: "Gather wood from sturdy trees",
             skill_xp_per_tick: 12,
             is_unlocked: false,
@@ -2324,7 +2316,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "herbalism": new LocationActivity({
             activity_name: "herbalism",
-            infinite: true,
             starting_text: "Gather useful herbs throughout the forest",
             skill_xp_per_tick: 2,
             is_unlocked: false,
@@ -2344,7 +2335,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Town outskirts"].activities = {
         "herbalism": new LocationActivity({
             activity_name: "herbalism",
-            infinite: true,
             starting_text: "Search for useful herbs by the roadside",
             skill_xp_per_tick: 4,
             is_unlocked: false,
@@ -2375,7 +2365,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "animal care": new LocationActivity({
             activity_name: "animal care",
-            infinite: true,
             starting_text: "Take care of local sheep in exchange for some wool",
             skill_xp_per_tick: 3,
             is_unlocked: false,
@@ -2392,7 +2381,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Mountain path"].activities = {
         "balancing": new LocationActivity({
             activity_name: "balancing",
-            infinite: true,
             starting_text: "Stupidly risk your life by trying to balance on some stones on the very edge of the cliff",
             skill_xp_per_tick: 4,
             is_unlocked: true,
@@ -2401,7 +2389,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Mountain camp"].activities = {
         "herbalism": new LocationActivity({
             activity_name: "herbalism",
-            infinite: true,
             starting_text: "Search for useful herbs on the mountainside",
             skill_xp_per_tick: 6,
             is_unlocked: false,
@@ -2417,14 +2404,12 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "balancing": new LocationActivity({
             activity_name: "balancing",
-            infinite: true,
             starting_text: "Stupidly risk your life by trying to balance on some stones on the very edge of the cliff",
             skill_xp_per_tick: 4,
             is_unlocked: true,
         }),
         "climbing": new LocationActivity({
             activity_name: "climbing",
-            infinite: true,
             starting_text: "Take a lesson from the goats and try to climb a wall near the camp",
             skill_xp_per_tick: 4,
             is_unlocked: true,
@@ -2434,7 +2419,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Riverbank"].activities = {
         "herbalism": new LocationActivity({
             activity_name: "herbalism",
-            infinite: true,
             starting_text: "Harvest flax from around the riverbank",
             skill_xp_per_tick: 9,
             is_unlocked: false,
@@ -2451,7 +2435,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Lake beach"].activities = {
         "swimming": new LocationActivity({
             activity_name: "swimming",
-            infinite: true,
             starting_text: "Swim against the current",
             skill_xp_per_tick: 7,
             is_unlocked: true,
@@ -2460,7 +2443,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         "sand": new LocationActivity({
             activity_id: "sand",
             activity_name: "digging",
-            infinite: true,
             starting_text: "Dig for clams around the lake beach",
             skill_xp_per_tick: 10,
             is_unlocked: false,
@@ -2474,21 +2456,18 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "climbing": new LocationActivity({
             activity_name: "climbing",
-            infinite: true,
             starting_text: "Practice rappelling down the cliff face",
             skill_xp_per_tick: 10,
             is_unlocked: false,
         }),
         "weightlifting": new LocationActivity({
             activity_name: "weightlifting",
-            infinite: true,
             starting_text: "Sled pull a boulder",
             skill_xp_per_tick: 10,
             is_unlocked: false,
         }),
         "running": new LocationActivity({
             activity_name: "running",
-            infinite: true,
             starting_text: "Run along the shore",
             skill_xp_per_tick: 10,
             is_unlocked: true,
@@ -2498,7 +2477,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Forest lake"].activities = {
         "swimming": new LocationActivity({
             activity_name: "swimming",
-            infinite: true,
             starting_text: "Go diving in the lake waters",
             skill_xp_per_tick: 4,
             is_unlocked: true,
@@ -2506,7 +2484,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "balancing": new LocationActivity({
             activity_name: "balancing",
-            infinite: true,
             starting_text: "Try to keep your balance on top of the waterfall as water rushes around your feet",
             skill_xp_per_tick: 7,
             is_unlocked: true,
@@ -2514,7 +2491,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "mining": new LocationActivity({
             activity_name: "mining",
-            infinite: true,
             starting_text: "Mine the the shiny underwater vein",
             skill_xp_per_tick: 1,
             is_unlocked: false,
@@ -2528,7 +2504,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
         "fishing": new LocationActivity({
             activity_name: "fishing",
-            infinite: true,
             starting_text: "Try fishing in the lake",
             skill_xp_per_tick: 4,
             is_unlocked: true,
@@ -2550,14 +2525,12 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Waterfall basin"].activities = {
         "enduring": new LocationActivity({
             activity_name: "enduring",
-            infinite: true,
             starting_text: "Harden your resolve by sitting underneath the waterfall",
             skill_xp_per_tick: 2,
             applied_effects: [{effect: "Wet", duration: 30}],
         }),
         "meditating": new LocationActivity({
             activity_name: "meditating",
-            infinite: true,
             starting_text: "Sit in the rock shelter behind the waterfall and focus your mind",
             skill_xp_per_tick: 8,
             is_unlocked: false,
@@ -2568,7 +2541,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Swampland tribe"].activities = {
         "herbalism": new LocationActivity({
             activity_name: "herbalism",
-            infinite: true,
             starting_text: "Forage for wild herbs and vegetables in the swamplands",
             skill_xp_per_tick: 14,
             is_unlocked: false,
