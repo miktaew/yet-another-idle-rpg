@@ -983,7 +983,7 @@ input[type=checkbox], input[type=radio] {
 	padding: 3px;
 	margin-top: 1px;
 	height: fit-content;
-	width: 200px;
+	width: 210px;
 }
 .active_effect_name_and_duration {
 	width: 100%;
@@ -992,6 +992,10 @@ input[type=checkbox], input[type=radio] {
 .active_effect_duration {
 	text-align: right;
 	float: right;
+}
+.active_effect_description {
+	margin-top: 5px;
+	margin-bottom: 10px;
 }
 
 .message_border { 

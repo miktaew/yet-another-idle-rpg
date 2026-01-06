@@ -1878,14 +1878,14 @@
                             effects_tooltip.style.top = event.pageY - 300 + "px";
                             effects_tooltip.style.maxHeight = Math.max(20,max_height) + "px";
 
-                            const gap = 5; //4px of gap + 1px of margin top
+                            const gap = 11; //4px of gap + 1px of margin + ...something?
                             let total_height = 0;
                             for(let i = 0 ; i < elems.length; i++) {
                                 total_height += elems[i].offsetHeight+gap;
                             }
 
                             const columns = Math.min(elems.length, Math.ceil(total_height / (max_height+4)));
-                            effects_tooltip.style.width = (columns * 210 || 120)+ "px";
+                            effects_tooltip.style.width = (columns * 222 || 120)+ "px";
                         } 
                         tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }

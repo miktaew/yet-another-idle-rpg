@@ -545,16 +545,17 @@ function create_effect_tooltip({effect_name, duration, add_bonus=false}) {
     name_span.innerHTML = `'${effect.name}' : `;
     const duration_span = document.createElement("span");
     duration_span.classList.add("active_effect_duration");
-    duration_span.innerHTML = ""+ format_time({time: {minutes: duration}});
+    duration_span.innerText = ""+ format_time({time: {minutes: duration}});
     const top_div = document.createElement("div");
     top_div.classList.add("active_effect_name_and_duration");
     top_div.appendChild(name_span);
     top_div.appendChild(duration_span);
     tooltip.appendChild(top_div);
 
-    if (effect.description) {
-        const description_p = document.createElement("i");
-        description_p.innerHTML = effect.description;
+    if(effect.description) {
+        const description_p = document.createElement("div");
+        description_p.classList.add("active_effect_description");
+        description_p.innerText = effect.description;
         tooltip.appendChild(description_p);
     }
 
@@ -3580,7 +3581,7 @@ function update_displayed_effect_durations() {
             effect_divs[key].remove();
             delete effect_divs[key];
         } else {
-            effect_divs[key].querySelector(".active_effect_duration").innerHTML = format_time({time: {minutes: active_effects[key].duration}, round: false});
+            effect_divs[key].querySelector(".active_effect_duration").innerText = format_time({time: {minutes: active_effects[key].duration}, round: false});
         }
     });
 }
