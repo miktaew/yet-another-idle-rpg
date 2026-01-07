@@ -1587,7 +1587,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     
     locations["Mountain camp"] = new Location({
         connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb down to [Nearby cave]", travel_time: 140, travel_time_skills: ["Climbing", "Running"]}],
-        description: "A nice safe camp with a crackling fire, created by you to be a perfect base for further exploration",
+        description: "A nice safe camp with a crackling fire and a rainproof tent, created by you to be a perfect base for further exploration",
         name: "Mountain camp",
         housing: {
             is_unlocked: true,
@@ -1600,6 +1600,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             return noises;
         },
         temperature_range_modifier: 0.5,
+        is_under_roof: true,
     });
     locations["Nearby cave"].connected_locations.push({location: locations["Mountain camp"], travel_time: 140, travel_time_skills: ["Climbing", "Running"]});
     locations["Mountain path"].connected_locations.push({location: locations["Mountain camp"], travel_time: 120});
