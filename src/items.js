@@ -1424,7 +1424,7 @@ book_stats["Shellfish desires"] = new BookData({
     });
     item_templates["Atratan ore"] = new Material({
         name: "Atratan ore",
-        description: "A dark-colored ore that's useless by itself but can be mixed with iron to create steel",
+        description: "A dark-colored ore said to have minuscule magical effects, but used almost excluvisely for refining all types of iron",
         value: 6,
         material_type: "raw metal",
     });

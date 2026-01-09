@@ -25,4 +25,6 @@ Making actual changes in code will require either running the build script after
 
 For modding purposes, it's recommended to at the very least take a look at the dev repository, as there's always a possibility it already contains things you wanted to add, or has code changes that will make your work easier, or at least has a fix to a bug you found
 
+Please keep in mind that the default branch you will see here is the `master` branch, while the one that's hosted is the `gh-pages` branch; on dev, the former might often have code that does yet not correspond to what you will see while playing
+
 Consider also calling `Verify_Game_Objects()` in the console, which is a custom built-in tool that will go through most of the content, checking things like properties having acceptable values, or references to other objects being correct. While neither infallible nor covering *everything*, it might save you a lot of time and annoyance.

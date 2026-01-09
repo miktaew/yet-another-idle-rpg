@@ -863,7 +863,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             }
 
             if(current_game_time.hour > 20 ) {
-                noises.push("It's getting late", "Time for a break", "Can't wait to... you know~");
+                noises.push("It's getting late", "Time for a break", "Can't wait to... hehe...~");
             } else if(current_game_time.hour < 4) {
                 noises.push("Why are we even working at this hour...", "I wanna sleep...");
             } 

@@ -452,21 +452,6 @@ const questManager = {
         },
         questline: "Giant Enemy Crab",
         quest_tasks: [
-            new QuestTask({
-                task_condition: {
-                    all: {
-                        reach_skill: {					//skill check to make sure the player is end-game
-                            "Combat": {target: 27},
-                            "Giant slayer": {target: 20},
-                            "Stance mastery": {target: 25},
-                            "Spatial awareness": {target: 20},
-                            "Weapon mastery": {target: 25},
-                            "Persistence": {target: 15},
-                            "Fortitude": {target: 10},
-                        },
-                    },
-                },
-            }),
             new QuestTask({task_description: "Investigate down the river"}), //beat the crab once
             new QuestTask({task_description: "Track down the giant crab"}), //beat the crab twice
         ]
