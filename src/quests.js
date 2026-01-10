@@ -321,7 +321,7 @@ const questManager = {
             money: 500,
             xp: 250,
             reputation: {
-                village: 100,
+                Village: 100,
             }
         }
     });
@@ -336,7 +336,7 @@ const questManager = {
             money: 6000,
             xp: 5000,
             reputation: {
-                town: 40,
+                Town: 40,
             }
         }
     });
@@ -372,7 +372,7 @@ const questManager = {
             money: 5000,
             xp: 50000, //50k
             reputation: {
-                town: 60,
+                Town: 60,
             }
         }
     });

@@ -511,7 +511,7 @@ function calculate_total_values() {
                                         stop_multiplier_at: Math.max(0,sold_saturation-bought_saturation-to_buy.groups[traded_group_key].sorted[i].count),
                                         count: to_buy.groups[traded_group_key].sorted[i].count,
                                         region: current_location.market_region,
-                                        price_multiplier: traders[current_trader].getProfitMargin(),
+                                        price_multiplier: traders[current_trader].getProfitMargin(current_location.market_region),
                                         is_selling: false,
                                     });
 
@@ -537,7 +537,7 @@ function calculate_total_values() {
  * @returns total value of items, including character haggling skill and trader profit margin
  */
 function get_item_value(selected_item) {
-    const profit_margin = traders[current_trader].getProfitMargin();
+    const profit_margin = traders[current_trader].getProfitMargin(current_location.market_region);
 
     const item = getItemFromKey(selected_item.item_key);
 

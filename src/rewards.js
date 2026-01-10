@@ -65,7 +65,7 @@
         ] 
         
         reputation: {
-            "region": Number //flat value of rep gained
+            "region": Number //flat value of rep gained, should match one of market_region keys if it's supposed to affect any trade
         }
 
         quests: [

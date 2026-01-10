@@ -1915,6 +1915,49 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                     update_displayed_skill_bar(skills[which_skills_affect_skill[skill.skill_id][i]], false);
                 }
             }
+
+            Object.keys(booklist_entry_divs).forEach(book_id => {
+                //update anthology entry
+                const bonuses = book_stats[book_id]?.bonuses?.xp_multipliers || {};
+                if(bonuses[skill.skill_id]) {
+                    update_booklist_entry(book_id, true);
+                }
+            });
+            Object.keys(character.inventory).forEach(inv_key => {
+                //update equippable/useable/book item
+                const item = getItemFromKey(inv_key);
+                if(item.tags.usable) {
+                    const effects = item.effects;
+                    for(let i = 0; i < effects.length; i++) {
+                        if(effect_templates[effects[i].effect].effects?.bonus_skill_levels?.[skill.skill_id]) {
+                            update_displayed_character_inventory({item_key: inv_key});
+                            return;
+                        }
+                    }
+                } else if(item.tags.book) {
+                    const bonuses = book_stats[item.id]?.bonuses?.xp_multipliers || {};
+                    if(bonuses[skill.skill_id]) {
+                        update_displayed_character_inventory({item_key: inv_key});
+                    }
+                } else if(item.tags.equippable) {
+                    const bonuses = item.getBonusSkillLevels();
+                    if(bonuses[skill.skill_id]) {
+                        update_displayed_character_inventory({item_key: inv_key});
+                    }
+                }
+            });
+            Object.keys(character.equipment).forEach(eq_slot => {
+                //update equipped item
+                if(!character.equipment[eq_slot]) {
+                    return;
+                }
+                const bonuses = character.equipment[eq_slot].getBonusSkillLevels(); {
+                    if(bonuses[skill.skill_id]) {
+                        update_displayed_equipment();
+                        update_displayed_character_inventory({equip_slot: eq_slot});
+                    }
+                }
+            });
         }
 
         if(typeof message !== "undefined"){ 
@@ -1963,7 +2006,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                         }
                     });
                 }
-
+                /*
                 Object.keys(character.inventory).forEach(inv_key => {
                     //update equippable/useable item
                     const item = getItemFromKey(inv_key);
@@ -1994,6 +2037,9 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                         }
                     }
                 });
+                */
+
+                /*
                 Object.keys(booklist_entry_divs).forEach(book_id => {
                     //update anthology entry
                     const bonuses = book_stats[book_id]?.bonuses?.xp_multipliers || {};
@@ -2001,9 +2047,10 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                         update_booklist_entry(book_id, true);
                     }
                 });
-                    
+                */
+
                 update_displayed_effects();
-                //a bit lazy, but there shouldn't ever be enough to cause a lag
+                //a bit lazy, but there shouldn't ever be enough to have any performance impact
             }
 
             if(speed_modifiers_from_skills[skill.skill_id] && !is_from_loading) {

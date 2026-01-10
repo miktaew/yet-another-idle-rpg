@@ -910,7 +910,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         parent_location: locations["Village"],
         first_reward: {
             xp: 10,
-            reputation: {"village": 20},
+            reputation: {Village: 20},
         },
         repeatable_reward: {
             textlines: [
@@ -921,15 +921,15 @@ function get_location_type_penalty(type, stage, stat, category) {
         rewards_with_clear_requirement: [
             {
                 required_clear_count: 2,
-                reputation: {"village": 10},
+                reputation: {Village: 10},
             },
             {
                 required_clear_count: 4,
-                reputation: {"village": 30},
+                reputation: {Village: 30},
             },
             {
                 required_clear_count: 10,
-                reputation: {"village": 50},
+                reputation: {Village: 50},
             }
         ]
     });
@@ -990,11 +990,11 @@ function get_location_type_penalty(type, stage, stat, category) {
         rewards_with_clear_requirement: [
             {
                 required_clear_count: 1,
-                reputation: {"village": 10},
+                reputation: {Village: 10},
             },
             {
                 required_clear_count: 4,
-                reputation: {"village": 20},
+                reputation: {Village: 20},
             },
         ],
     });
@@ -1022,7 +1022,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             {
                 required_clear_count: 4,
                 locations: [{location: "Suspicious wall"}],
-                reputation: {"village": 40},
+                reputation: {Village: 40},
             }
         ],
         temperature_range_modifier: 0.6,
@@ -1504,7 +1504,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         parent_location: locations["Slums"],
         first_reward: {
             xp: 1000,
-            reputation: {slums: 200, town: 50},
+            reputation: {Slums: 200, Town: 50},
             money: 1840,
         },
         repeatable_reward: {
@@ -1955,7 +1955,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         parent_location: locations["Village"],
         first_reward: {
             xp: 30,
-            reputation: {"village": 10},
+            reputation: {Village: 10},
         },
         repeatable_reward: {
             textlines: [{dialogue: "village guard", lines: ["heavy"]}],
@@ -1973,7 +1973,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         parent_location: locations["Village"],
         first_reward: {
             xp: 30,
-            reputation: {"village": 10},
+            reputation: {Village: 10},
         },
         repeatable_reward: {
             textlines: [{dialogue: "village guard", lines: ["quick"]}],

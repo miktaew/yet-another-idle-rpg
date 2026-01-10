@@ -591,7 +591,7 @@ const translations = {
         "swampscout description 2": "You see the scout lying in a cot near the door. Her chest is covered in worn bandages stained with fresh blood,"
                 +" her arms covered in cuts and abrasions, and her lower half obscured by a blanket. The smell of rot gets stronger as you approach her.",
         "swampscout description 3": "You see the scout lying in a cot near the door. Her chest is covered in fresh bandages stained with fresh blood,"
-                +" her arms covered in bruises and scars, and her lower half partially obscured by a blanket, revealing empty space where her tail and right leg used to be.",
+                +" her arms covered in bruises and scars, and her lower half partially obscured by a blanket, revealing empty spaces where her tail and right leg used to be.",
         }
 }
 

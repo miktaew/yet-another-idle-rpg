@@ -1,6 +1,6 @@
 "use strict";
 
-import { get_total_level_bonus } from "./character.js";
+import { character, get_total_level_bonus } from "./character.js";
 import { current_game_time } from "./game_time.js";
 import { InventoryHaver } from "./inventory.js";
 import { item_templates, getItem} from "./items.js";
@@ -107,14 +107,19 @@ class Trader extends InventoryHaver {
 
     /**
      * 
-     * @returns {Number} trader's profit margin multiplied by bonus from the haggling skill
+     * @returns {Number} trader's profit margin multiplied by bonus from the haggling skill and by reputation impact
      */
-    getProfitMargin() {
-        return 1 + (this.profit_margin - 1) * (1 - get_total_level_bonus("Haggling"));
+    getProfitMargin(region) {
+
+        const skill_multi = (1-get_total_level_bonus("Haggling"));
+        const rep_multi = 1//(1-Math.min(1000,character.reputation[region])/2000) || 1;
+
+        return 1 + (this.profit_margin - 1) * skill_multi * rep_multi;
     }
 
-    getItemPrice(value) {
-        let price = Math.ceil(value*this.getProfitMargin());
+    /*
+    getItemPrice(value, region) {
+        let price = Math.ceil(value*this.getProfitMargin(region));
         if(price >= 100) {
             return Math.round(price/10)*10;
         } else if(price >= 1000) {
@@ -123,6 +128,7 @@ class Trader extends InventoryHaver {
             return price;
         }
     }
+    */  
 }
 
 class TradeItem {

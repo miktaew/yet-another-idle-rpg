@@ -522,9 +522,9 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
                 item[value_function]({quality:options.quality[0], region:current_location?.market_region})))} - ${format_money(round_item_price(item.getBaseValue({quality:options.quality[1]})
             ))}`;
     } else {
-        item_tooltip += `<br>Value: ${format_money(round_item_price(item[value_function]({quality, region:current_location?.market_region, multiplier: ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1)})))}`;
+        item_tooltip += `<br>Value: ${format_money(round_item_price(item[value_function]({quality, region:current_location?.market_region, multiplier: ((options && options.trader) ? traders[current_trader].getProfitMargin(current_location.market_region) : 1)})))}`;
         if(item.saturates_market) {
-            item_tooltip += ` [originally ${format_money(round_item_price(item.getBaseValue({quality, region:current_location?.market_region}) * ((options && options.trader) ? traders[current_trader].getProfitMargin() : 1) || 1))}]`
+            item_tooltip += ` [originally ${format_money(round_item_price(item.getBaseValue({quality, region:current_location?.market_region}) * ((options && options.trader) ? traders[current_trader].getProfitMargin(current_location.market_region) : 1) || 1))}]`
         }
     }
 
@@ -929,7 +929,7 @@ function start_activity_animation(settings) {
 function update_displayed_trader() {
     action_div.style.display = "none";
     trade_div.style.display = "inherit";
-    document.getElementById("trader_cost_mult_value").textContent = `${Math.round(100 * (traders[current_trader].getProfitMargin()))}%`
+    document.getElementById("trader_cost_mult_value").textContent = `${Math.round(100 * (traders[current_trader].getProfitMargin(current_location.market_region)))}%`
     update_displayed_trader_inventory();
 }
 
@@ -1288,7 +1288,7 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
                 tooltip_div.replaceWith(create_item_tooltip(trader.inventory[inventory_key].item, {trader: true}, true));
 
                 const price_span = trader_item_divs[inventory_key].getElementsByClassName("item_value")[0];
-                price_span.innerHTML =  `${format_money(round_item_price(trader.inventory[inventory_key].item.getValue({region: current_location.market_region, multiplier: (traders[current_trader].getProfitMargin() || 1)})), true)}`;
+                price_span.innerHTML =  `${format_money(round_item_price(trader.inventory[inventory_key].item.getValue({region: current_location.market_region, multiplier: (traders[current_trader].getProfitMargin(current_location.market_region) || 1)})), true)}`;
             }
         });
 
@@ -1558,7 +1558,7 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
     let price_multiplier = 1;
     if(target === "trader") {
         options.trader = true;
-        price_multiplier = traders[current_trader].getProfitMargin() || price_multiplier;
+        price_multiplier = traders[current_trader].getProfitMargin(current_location.market_region) || price_multiplier;
     } else if(target === "storage") {
         options.storage = true;
     }
