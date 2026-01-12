@@ -112,7 +112,7 @@ class Trader extends InventoryHaver {
     getProfitMargin(region) {
 
         const skill_multi = (1-get_total_level_bonus("Haggling"));
-        const rep_multi = 1//(1-Math.min(1000,character.reputation[region])/2000) || 1;
+        const rep_multi = (1-Math.min(1000,character.reputation[region])/2000) || 1;
 
         return 1 + (this.profit_margin - 1) * skill_multi * rep_multi;
     }

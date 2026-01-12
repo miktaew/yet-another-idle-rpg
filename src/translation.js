@@ -78,7 +78,7 @@ const translations = {
         "elder training": "I think I went far enough with basic training, do you have any other suggestions?",
         "elder training answ 1": "You did? Well, let me think... You could try swimming in the river nearby if you haven't done that yet, just remember not to do it in cold weather. Or you could try some wall climbing, but be sure to start with low heights to be safe.",
         "elder training answ 2": "You did? Well, let me think... Swimming in the river nearby would be a good exercise, but it's mostly frozen now in winter. You could try some wall climbing though, but be sure to start with low heights to be safe.",
-	"elder crab rumors": "I had overheard some villagers talking about an enormous crab nest nearby.", //crab start
+	"elder crab rumors": "I had overheard some villagers talking about an enormous crab nest.", //crab start
 	"elder crab rumors answ": "That seems to have become the rumor of the week. Somebody found a fisherman unconscious in the forest a few weeks ago. He's recovering even now. "
                 +"His wounds weren't too severe, but they must have gotten infected, because he's been in a fever ever since we found him. In his delirium, he was murmuring something about enormous crab nests. We haven't seen anything nearby, but... "
                 +"This isn't the first I've heard of crab infestations along the river. Every few decades, their population undergoes a great boom, only to recede the following year.",

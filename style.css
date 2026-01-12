@@ -131,8 +131,8 @@ input[type=checkbox], input[type=radio] {
 }
 
 	#loading_screen_game_title {
-		width: 910px;
-		font-size: 600%;
+		width: 950px;
+		font-size: 96px;
 		font-family:'Ink Free';
 		font-weight: bold;
 		position: fixed;
@@ -1581,7 +1581,7 @@ i {
 	background-color: rgba(48, 0, 48, 0.596);
 }
 
-#location_actions_div :not(#action_end_div):hover #gathering_tooltip, .location_action_div :not(#action_end_div):hover #location_action_tooltip{
+#location_actions_div :not(#action_end_div):hover #gathering_tooltip, .location_action_div:hover .location_action_tooltip{
 	display: block;
 }
 

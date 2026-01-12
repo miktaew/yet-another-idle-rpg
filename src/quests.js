@@ -300,7 +300,7 @@ const questManager = {
     });
 })();
 
-//Side quests
+//General side quests
 (()=>{
     quests["It won't mill itself"] = new Quest({
         quest_name: "It won't mill itself",
@@ -433,21 +433,19 @@ const questManager = {
     });
 })();
 
-/*
-//Swampland expansion quests            //commented out until properly integrated
+
+//Swampland expansion quests
 (()=>{
     quests["Giant Enemy Crab"] = new Quest({            //reference to the old "Sony E3 2006 / Giant Enemy Crab" meme
         quest_name: "Giant Enemy Crab",
         display_priority: 9,
         getQuestDescription: ()=>{
-            if(!quests["Giant Enemy Crab"].quest_tasks[2].is_finished) {
+            if(quests["Giant Enemy Crab"].quest_tasks[1].is_finished) {
                 return "You slew the giant crab nesting at the lake beach";
-            } else if(!quests["Giant Enemy Crab"].quest_tasks[1].is_finished) {
+            } else if(quests["Giant Enemy Crab"].quest_tasks[0].is_finished) {
                 return "You managed to chase the giant crab away, but if you don't finish it off soon, it'll just nest somewhere else and be a problem for somebody else later. And even if someone did find it, would they be strong enough to defeat it? Better just to take care of it yourself now";
-            } else if(!quests["Giant Enemy Crab"].quest_tasks[0].is_finished) {
-                return "The elder gave you his blessing to investigate the rumors of enormous crab nests somewhere down river. Or was it an enormous crab's nest? Or was it some enormous crabs' nest? Either way, he reminded you to prepare for the journey ahead";
             } else {
-                return "You think you may have overheard some villagers mention something about crab nests down the river? Maybe you should speak to the elder about it, and see what he knows";
+                return "The elder gave you his blessing to investigate the rumors of enormous crab nests somewhere down river. Or was it an enormous crab's nest? Or was it some enormous crabs' nest? Either way, he reminded you to prepare for the journey ahead";
             }
         },
         questline: "Giant Enemy Crab",
@@ -491,10 +489,8 @@ const questManager = {
             new QuestTask({task_description: "Report to the chief"}), //properly finishes the quest, rewards come in dialogue
         ]
     });
-
-
 })();
-*/
+
 
 /*
 quests["Test quest"] = new Quest({

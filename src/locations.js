@@ -314,46 +314,9 @@ class Combat_zone {
 }
 
 class Challenge_zone extends Combat_zone {
-    constructor({name, 
-        description, 
-        getDescription,
-        is_unlocked = true, 
-        types = [], //{type, xp_gain}
-        enemy_groups_list = [],
-        enemies_list = [], 
-        enemy_group_size = [1,1],
-        enemy_count = 30,
-        parent_location, 
-        leave_text,
-        first_reward = {},
-        repeatable_reward = {},
-        otherUnlocks,
-        is_finished,
-        unlock_text,
-       }) 
+    constructor(data) 
     {
-        super(
-            {   
-                name, 
-                description, 
-                getDescription, 
-                is_unlocked, 
-                types, 
-                enemy_groups_list, 
-                enemies_list, 
-                enemy_group_size, 
-                enemy_count, 
-                enemy_stat_variation: 0, 
-                parent_location,
-                leave_text,
-                first_reward,
-                repeatable_reward,
-                is_challenge: true,
-                otherUnlocks,
-                is_finished,
-                unlock_text
-            }
-        )
+        super({...data, enemy_stat_variation: 0, is_challenge: true});
     }
 }
 
@@ -641,7 +604,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             1: {
                 description: "This place brings a strong sense of unease",
                 related_skill: "Strength of mind",
-                scaling_lvl: 30, //up to max for now, as there are no locations with second stage yet
+                scaling_lvl: 30,
                 effects: {
                     agility: {multiplier: 0.8},
                     dexterity: {multiplier: 0.8},
@@ -1054,14 +1017,14 @@ function get_location_type_penalty(type, stage, stat, category) {
         unlock_text: "As the wall falls apart, you find yourself in front of a new tunnel, leading even deeper. And of course, it's full of wolf rats."
     });
     locations["Pitch black tunnel"] = new Combat_zone({
-        description: "There is no light here. Only rats", 
-        enemy_count: 50, 
+        description: "There is no light here. Only rats",
+        enemy_count: 50,
         types: [{type: "narrow", stage: 1,  xp_gain: 6}, {type: "dark", stage: 3, xp_gain: 3}],
         enemies_list: ["Elite wolf rat"],
         enemy_group_size: [6,8],
         enemy_stat_variation: 0.2,
-        is_unlocked: false, 
-        name: "Pitch black tunnel", 
+        is_unlocked: false,
+        name: "Pitch black tunnel",
         leave_text: "Retreat for now",
         parent_location: locations["Nearby cave"],
         first_reward: {
@@ -2062,7 +2025,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             locations: [{location: "Riverbank"}],
             xp: 2000,
             move_to: {location: "Riverbank"},
-            //quest_progress: [{quest_id: "Giant Enemy Crab"}]       //for when Giant Enemy Crab quest is properly implemented
+            quest_progress: [{quest_id: "Giant Enemy Crab", task_index: 0}],
             locks: {locations: ["Downstream from the village"]}, 
         },
         unlock_text: "Is this what the village elder meant when he said an enormous crab nest??",
@@ -2664,7 +2627,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         "hike down river": new GameAction({
             action_id: "hike down river",
             starting_text: "Attempt to hike through the wilderness alongside the riverbank",
-            description: "The only way you're going to find those enormous crabs' nest. Or was it that enormous crab's nest?",
+            description: "It might take a really long time, but it's the only way you're going to find those enormous crabs' nest. Or was it that enormous crab's nest?",
             action_text: "Hiking through the wilderness, attempting to follow the river",
             success_text: "After hiking for well over a day, you finally come across a relatively clear point on the river with recognizable landmarks and signs of crabs."
                         + " It feels like a long way off from the village, but you're confident that you can get back here again, and faster too",

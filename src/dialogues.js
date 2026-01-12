@@ -1,14 +1,17 @@
 "use strict";
 
 import { GameAction } from "./actions.js";
+import { capitalize_first_letter } from "./display.js";
 
 const dialogues = {};
 
 class Dialogue {
     constructor({ 
         name,
+        getName = () =>{return this.name},
         id,
         starting_text = `Talk to the ${name}`,
+        getStartingText = () =>{return this.starting_text},
         ending_text = `Go back`,
         is_unlocked = true,
         is_finished = false,
@@ -19,8 +22,10 @@ class Dialogue {
         location_name
     })  {
         this.name = name; //displayed name, e.g. "Village elder"
+        this.getName = getName;
         this.id = id || this.name;
         this.starting_text = starting_text;
+        this.getStartingText = getStartingText;
         this.ending_text = ending_text; //text shown on option to finish talking
         this.is_unlocked = is_unlocked;
         this.is_finished = is_finished; //separate bool to remove dialogue option if it's finished
@@ -432,7 +437,7 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 text: "guard hi answ",
                 display_conditions: {
-                    reputation: {village: 200},
+                    reputation: {Village: 200},
                 },
                 rewards: {
                     actions: [{dialogue: "village guard", action: "ask for pats"}, {dialogue: "village guard", action: "try to pat"}],
@@ -656,6 +661,20 @@ class DialogueAction extends GameAction {
     });
     dialogues["suspicious man"] = new Dialogue({
         name: "suspicious man",
+        getName: (context)=>{
+            if(dialogues["suspicious man"].actions["headpat"].is_unlocked) {
+                if(context.is_mofu_mofu_enabled) {
+                    return "puppy"; //yeah, whatever
+                } else {
+                    return "no-longer-suspicious guy";
+                }
+            } else {
+                return dialogues["suspicious man"].name;
+            }
+        },
+        getStartingText: (context)=>{
+            return `Talk to the ${dialogues["suspicious man"].getName(context)}`;
+        },
         textlines: {
             "hello": new Textline({ 
                 name: "sus hello",
@@ -1022,7 +1041,7 @@ class DialogueAction extends GameAction {
                 text: "swampchief report answ",
                 is_unlocked: false,
                 display_conditions: {
-                    reputation: {village: 50},
+                    reputation: {Village: 50},
                 }, 
                 rewards: {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief confirm"]}],

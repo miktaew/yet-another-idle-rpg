@@ -2090,7 +2090,7 @@ function create_location_choices({location, category, is_combat = false}) {
             //if(Object.keys(dialogues[location.dialogues[i]].textlines).length > 0) { //has any textlines
                 
             //dialogue_div.innerHTML = add_icons ? `<i class="material-icons">question_answer</i>  ` : "";
-            dialogue_div.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + dialogues[location.dialogues[i]].starting_text;
+            dialogue_div.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + dialogues[location.dialogues[i]].getStartingText({is_mofu_mofu_enabled: global_flags.is_mofu_mofu_enabled});
             dialogue_div.classList.add("start_dialogue", "location_choice");
             dialogue_div.setAttribute("data-dialogue", location.dialogues[i]);
             dialogue_div.setAttribute("onclick", "start_dialogue(this.getAttribute('data-dialogue'));");
@@ -3265,8 +3265,7 @@ function update_item_recipe_visibility() {
 
 function create_location_action_tooltip(location_action) {
     const action_tooltip = document.createElement("div");
-    action_tooltip.id = "location_action_tooltip";
-    action_tooltip.classList.add("job_tooltip");
+    action_tooltip.classList.add("job_tooltip","location_action_tooltip");
     action_tooltip.innerHTML = location_action.description;
 
     return action_tooltip;
@@ -3743,7 +3742,7 @@ function update_displayed_dialogue({dialogue_key, textlines, origin}) {
     
     clear_action_div();
     const dialogue_name_div = document.createElement("div");
-    dialogue_name_div.innerHTML = capitalize_first_letter(dialogues[dialogue_key].name);
+    dialogue_name_div.innerHTML = capitalize_first_letter(dialogues[dialogue_key].getName({is_mofu_mofu_enabled: global_flags.is_mofu_mofu_enabled}));
     dialogue_name_div.id = "dialogue_name_div";
     action_div.appendChild(dialogue_name_div);
 
