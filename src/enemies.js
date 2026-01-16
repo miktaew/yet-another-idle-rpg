@@ -532,7 +532,7 @@ class Enemy {
         rank: 11,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 28000, attack: 250, agility: 350, dexterity: 580, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 1250},
+        stats: {health: 25000, attack: 250, agility: 350, dexterity: 580, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 3500},
     });
 
 	enemy_templates["Enraged giant crab"] = new Enemy({     //not working at present, not sure where the problem is
@@ -543,7 +543,7 @@ class Enemy {
         rank: 11,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 43000, attack: 480, agility: 400, dexterity: 630, intuition: 150, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 850}, //numbers are just estimates, may need to be reduced
+        stats: {health: 18000, attack: 400, agility: 350, dexterity: 680, intuition: 50, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 750},
         loot_list: [{item_name: "Giant crab claw", chance: 1}],
     });
 

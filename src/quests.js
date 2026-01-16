@@ -441,7 +441,7 @@ const questManager = {
         display_priority: 9,
         getQuestDescription: ()=>{
             if(quests["Giant Enemy Crab"].quest_tasks[1].is_finished) {
-                return "You slew the giant crab nesting at the lake beach";
+                return "You slew the giant crab nesting at the lake beach. With your task completed, you might as well explore the region further.";
             } else if(quests["Giant Enemy Crab"].quest_tasks[0].is_finished) {
                 return "You managed to chase the giant crab away, but if you don't finish it off soon, it'll just nest somewhere else and be a problem for somebody else later. And even if someone did find it, would they be strong enough to defeat it? Better just to take care of it yourself now";
             } else {

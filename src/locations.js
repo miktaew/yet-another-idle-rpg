@@ -1610,7 +1610,11 @@ There's another gate on the wall in front of you, but you have a strange feeling
             } else if(locations["Riverbank shore"].enemy_groups_killed >= 5 * locations["Riverbank shore"].enemy_count) {
                 return "There is an abundance of crabs on the river's shore, but you should be able to get around them and further down the riverbank with a little bit of effort";
             } else {
-                return "You manage to deal a wounding crack to the giant crab's shell, driving it into a rage as it flees through the forest. With a moment of peace, you take stock of your surroundings. And if the amount of crabs on the river's shore are any indication, this might be the enormous crab nest you had heard about. You can't even tell where the shore meets the riverbank with the amount of crabs around here. The giant crab's trail is easy to spot, but it's just not possible to follow it without getting attacked by the smaller crabs";
+                return "You manage to deal a wounding crack to the giant crab's shell, driving it into a rage as it flees through the forest."
+                        +" With a moment of peace, you take stock of your surroundings. And if the amount of crabs on the river's shore are any indication,"
+                        +" this might be the enormous crab nest you had heard about. You can't even tell where the shore meets the riverbank with the amount of crabs around here."
+                        +" The giant crab's trail is easy to spot, but it's just not possible to follow it without getting attacked by the smaller crabs. You will likely nead to get through "
+                        +" multiple groups of them on your way";
             }},
         getBackgroundNoises: function() {
             let noises = ["*You hear the waves crashing along the shoreline*", "*Splash*", "*You hear the chittering clicks of dozens of crabs*"];
@@ -1627,7 +1631,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Riverbank shore"] = new Combat_zone({
         description: "As your eyes scan the shoreline, you see nothing but crabs across the horizon", 
         enemy_count: 50, 
-        types: [{type: "open", stage: 1,  xp_gain: 2}],
+        types: [{type: "open", stage: 1,  xp_gain: 2}, {type: "rough", stage: 1,  xp_gain: 1}],
         enemies_list: ["River crab"],
         enemy_group_size: [2,4],
         enemy_stat_variation: 0.2,
@@ -1667,7 +1671,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         name: "Further downstream",
         is_unlocked: false,
     });
-    locations["Riverbank"].connected_locations.push({location: locations["Further downstream"], custom_text: "Try to track the giant crab", travel_time: 240});
+    locations["Riverbank"].connected_locations.push({location: locations["Further downstream"], custom_text: "Follow the giant crab's trail", travel_time: 240});
 
     locations["Lake beach"] = new Location({ 
         connected_locations: [{location: locations["Riverbank"], custom_text: "Go back along the path you've made to the [Riverbank]", travel_time: 180, travel_time_skills: ["Scrambling"]}], 
@@ -1740,7 +1744,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Crab spawning grounds"] = new Combat_zone({
         description: "First an enormous crab nest, then an enormous crab's nest, and now this??",       //final punchline to the "big crab nest/big crabs' nest/big crab's nest" setup
         enemy_count: 50, 
-        types: [{type: "open", stage: 2, xp_gain: 5}, {type: "rough", stage: 1, xp_gain: 1}, {type: "wet", stage: 1}],
+        types: [{type: "open", stage: 2, xp_gain: 5}, {type: "rough", stage: 1, xp_gain: 3}, {type: "wet", stage: 1}],
         enemies_list: ["Stone crab"],
         enemy_group_size: [3,5],
         enemy_stat_variation: 0.2,
@@ -1794,7 +1798,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["The swamplands"] = new Combat_zone({
         description: "The swamplands are hot, wet, and smell of rot. Water impedes your every movement, and vicious predators lie beneath it's surface", 
         enemy_count: 100, 
-        types: [{type: "rough", stage: 2, xp_gain: 5}, {type: "wet", stage: 1}],
+        types: [{type: "rough", stage: 2, xp_gain: 7}, {type: "wet", stage: 1}],
         enemies_list: ["Alligator", "Snapping turtle", "Giant snake"],
         enemy_stat_variation: 0.2,
         is_unlocked: true, 
@@ -2037,7 +2041,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Fight the giant crab again"] = new Challenge_zone({      //crab 2
         description: "This time, you can't let it get away",
         enemy_count: 1, 
-        types: [{type: "open", stage: 2, xp_gain: 5}, {type: "rough", stage: 1, xp_gain: 1}],
+        types: [{type: "open", stage: 2, xp_gain: 5}, {type: "rough", stage: 1, xp_gain: 3}],
         enemies_list: ["Enraged giant crab"],
         enemy_stat_variation: 0,
         is_unlocked: true, 
@@ -2048,7 +2052,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             locations: [{location: "Lake beach"}],
             xp: 5000,
             move_to: {location: "Lake beach"},
-            //quest_progress: [{quest_id: "Giant Enemy Crab"}]       //for when Giant Enemy Crab quest is properly implemented
+            quest_progress: [{quest_id: "Giant Enemy Crab", task_index: 1}],
             locks: {locations: ["Further downstream"]}, 
         },
         unlock_text: "It's wounded, but in spite of that it looks more dangerous than before",

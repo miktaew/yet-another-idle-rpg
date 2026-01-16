@@ -1967,7 +1967,7 @@ i {
 
 #enemy_count_content {
 	color: white;
-	width: 50%;
+	width: 60%;
 	font-size: 17px;
 	padding-right: 5px;
 	margin-left: auto;
@@ -1976,7 +1976,7 @@ i {
 }
 
 #enemies_left_div {
-	width: 30px;
+	width: 70px;
 	display: inline-block;
 	text-align: right;
 }

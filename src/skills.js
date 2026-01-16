@@ -999,7 +999,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
 		names: {0: "Scrambling"}, 
         description: "Ability to act quickly and with secure footing in rough, loose, or unstable ground", 
         category: "Environmental",
-        base_xp_cost: 800,
+        base_xp_cost: 400,
         max_level: 60,
         xp_scaling: 1.7,
         get_effect_description: ()=> {
@@ -2400,7 +2400,8 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         names: {0: "Perception"}, 
         description: "Better grasp on your senses allows you to notice small and hidden things, as well as to discern the true nature of what you obsere",
         
-        category: "Character",max_level_coefficient: 2,
+        category: "Character",
+        max_level_coefficient: 2,
         get_effect_description: ()=> {
             return ``;
         },

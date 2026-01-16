@@ -93,7 +93,8 @@ import { end_activity_animation,
          remove_enemy_onhit_animation,
          create_floating_effect,
          booklist_entry_divs,
-         do_enemy_onstart_animation
+         do_enemy_onstart_animation,
+         update_location_kill_count
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -1508,8 +1509,7 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
                         });
                     }
                 }
-                document.getElementById("enemy_count_div").children[0].children[1].innerHTML = current_location.enemy_count - current_location.enemy_groups_killed % current_location.enemy_count;
-        
+                update_location_kill_count(current_location);
                 set_new_combat();
             }
         } else {
@@ -4029,7 +4029,7 @@ function load(save_data) {
             //compatibility for some dialogues
             process_rewards({
                 rewards: {
-                        textlines: [{dialogue: "village guard", lines: ["serious", "hi"]},
+                        textlines: [{dialogue: "village guard", lines: ["serious", "hi", "tips 2"]},
                                     {dialogue: "village elder", lines: ["crab rumors"]},
                                     //crab could be done the classic way (via one of repeatable textlines), but since this is alredy being done anyway...
                         ],

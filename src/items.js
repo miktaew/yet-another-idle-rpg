@@ -2210,7 +2210,7 @@ book_stats["Shellfish desires"] = new BookData({
                 multiplier: 0.8,
             },
             attack_power: {
-                multiplier: 1.5,
+                multiplier: 1.25,
             }
         }
     });
@@ -2239,7 +2239,10 @@ book_stats["Shellfish desires"] = new BookData({
         component_stats: {
             attack_points: {
                 multiplier: 1.1,
-            }
+            },
+            attack_power: {
+                multiplier: 1.1,
+            },
         }
     });
     item_templates["Turtleshell shaft"] = new WeaponComponent({
@@ -2250,7 +2253,7 @@ book_stats["Shellfish desires"] = new BookData({
         component_tier: 4,
         component_stats: {
             attack_power: {
-                multiplier: 1.1,
+                multiplier: 1.2,
             },
             attack_speed: {
                 multiplier: 0.95,

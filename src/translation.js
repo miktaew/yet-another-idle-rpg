@@ -123,7 +123,7 @@ const translations = {
         "guard job answ": "You are somewhat combat capable now, so how about you help me and the boys on patrolling? Not much happens, but it pays better than working on fields",
         "guard tips": "Can you give me any tips for the journey?",
         "guard tips answ": `First and foremost, don't rush. It's fine to spend some more time here, to better prepare yourself. `
-                +`There's a lot of dangerous animals out there, much stronger than those damn rats, and in worst case you might even run into some bandits. `
+                +`There's a lot of dangerous animals out there, much stronger than those annoying rats, and in worst case you might even run into some bandits. `
                 +`If you see something that is too dangerous to fight, try to run away. There's no shame in staying alive to fight on another day, when chances of survival become better, and it would be a pity if someone with your looks were to die~`,
         "guard teach": "Could you maybe teach me something that would be of use?",
         "guard teach answ":  `Lemme take a look... Yes, it looks like you know some basics. Do you know any proper techniques? No? I thought so. I could teach you the most standard three. `
@@ -140,6 +140,12 @@ const translations = {
                 +`It might work great against groups of weaker enemies, but it will also significantly reduce the power of your attacks and will be even more tiring than the other two stances.`,
         "guard hi": "Hi again, how's it going?",
         "guard hi answ": "Hey there. I heard you've been helping around a lot, good job cutie~\n *[As she says that, she bends forward and pats your head a few times with a surprisingly gentle touch]*",
+        "guard tips 2": "Can you give me any training tips?",
+        "guard tips 2 answ": "It's not always best to focus on singular skill, you might learn more if you come back to training after getting more experienced in other aspects and finding new insights."
+                        +" There are also some unconventional training styles that I heard of, like fighting with no weapons or with no armor whatsoever, but I wouldn't recommend it to you, cutie."
+                        +" It's enough that one of us is covered in ugly scars.",
+        "guard scars": "I don't think your scar is ugly",
+        "guard scars answ": "*[She doesn't answer you, just looks away. You can see in her facial expression that she appreciates your words, but doesn't really believe them]*",
         "guard serious": "Can we try a more serious fight?",
         "guard serious answ": "Ohhh, someone wants to impress the cute guard lady? Sorry, but I'm way too strong for you~",
         "guard pats": "[Ask for more headpats]",
@@ -170,7 +176,7 @@ const translations = {
         "millers kiss both answ": "*[The two slowly approach you from both sides and you receive two simultanous gentle smooches, one of each of your cheek, after which they take a step back]*",
         "millers reject nice": "I appreciate the offer, but I'm not interested in that kind of thing",
         "millers reject nice answ": "[Red] Oh well, that's a pity~",
-        "millers reject mean": "Ewww, it's a terrible idea.",
+        "millers reject mean": "Ewww, no, I want you to forget about that whole idea",
         "millers reject mean answ": "[Red] Whatever you say~",
         "millers kiss more": "Can I get one more kiss?",
         "millers kiss more answ": "[Red] Hmmm... should we? \n[Gray] Maybe some other time. \n[Red] You heard him~",
@@ -526,7 +532,7 @@ const translations = {
         //
         "guard description": "You see a tall woman in light armor, with a spear in her hand and two daggers on her belt. "
                 +"Her sharp fuzzy ears rotate every now and then towards any new sound, while her fluffy tail remains motionless. There's a scar across her face."
-                +" When she spots you, she looks at you as if you were a prey, but then adopts a more neutral expression",
+                +" When she spots you, she looks at you as if you were a prey, but then her expression softens a lot.",
         "guard hi answ": "Hey there. I heard you've been helping around a lot, good job cutie~ \n "
                 +"*[As she says that, she bends forward and pats your head a few times with a surprisingly gentle touch, her tail slightly wagging]*",
         "guard serious answ": "Ohhh, someone wants to impress the cute fluffy wolf lady? Sorry, but I'm way too strong for you~",

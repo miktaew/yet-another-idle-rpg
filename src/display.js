@@ -1731,9 +1731,9 @@ function update_displayed_equipment() {
         if(character.equipment[key] == null) { //no item in slot
             eq_tooltip = document.createElement("span");
             eq_tooltip.classList.add("item_tooltip");
-            equipment_slots_divs[key].innerHTML = `${key} slot`;
+            equipment_slots_divs[key].innerHTML = `${key.replace("_"," ")} slot`;
             equipment_slots_divs[key].classList.add("equipment_slot_empty");
-            eq_tooltip.innerHTML = `Your ${key} slot`;
+            eq_tooltip.innerHTML = `Your ${key.replace("_"," ")} slot`;
         } else {
             equipment_slots_divs[key].innerHTML = character.equipment[key].getName();
             equipment_slots_divs[key].classList.remove("equipment_slot_empty");
@@ -2460,7 +2460,7 @@ function update_displayed_combat_location(location) {
     document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_combat'));
 
 
-    enemy_count_div.children[0].children[1].innerHTML = location.enemy_count - location.enemy_groups_killed % location.enemy_count;
+    enemy_count_div.children[0].children[1].innerText = location.enemy_count - location.enemy_groups_killed % location.enemy_count + " / " + location.enemy_count;
 
     action = create_location_choices({location: location, category: "travel", is_combat: true});
 
@@ -2478,6 +2478,10 @@ function update_displayed_combat_location(location) {
     
     document.getElementById("location_description_div").innerText = current_location.getDescription();
     create_location_types_display(current_location);
+}
+
+function update_location_kill_count(location) {
+    enemy_count_div.children[0].children[1].innerText = location.enemy_count - location.enemy_groups_killed % location.enemy_count + " / " + location.enemy_count;
 }
 
 function create_location_types_display(current_location){
@@ -5420,7 +5424,7 @@ export {
     set_game_action_finish_text,
     update_game_action_progress_bar, update_game_action_finish_button,
     update_displayed_storage, exit_displayed_storage, update_displayed_storage_inventory,
-    update_location_icon,
+    update_location_icon, update_location_kill_count,
     skill_list,
     update_booklist_entry, booklist_entry_divs,
     add_quest_to_display, update_displayed_quest, update_displayed_quest_task, 

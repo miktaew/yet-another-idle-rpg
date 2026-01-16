@@ -488,7 +488,7 @@ class DialogueAction extends GameAction {
                 locks_lines: ["wide"],
                 rewards: {
                     stances: ["wide"],
-                    textlines: [{dialogue: "village guard", lines: ["serious", "hi"]}],
+                    textlines: [{dialogue: "village guard", lines: ["serious", "hi", "tips 2"]}],
                 }
             }),
             "serious": new Textline({
@@ -496,6 +496,21 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 text: "guard serious answ",
                 locks_lines: ["serious"],
+            }),
+            "tips 2": new Textline({
+                name: "guard tips 2",
+                is_unlocked: false,
+                text: "guard tips 2 answ",
+                locks_lines: ["tips 2"],
+                rewards: {
+                    textlines: [{dialogue: "village guard", lines: ["scars"]}],
+                }
+            }),
+            "scars": new Textline({
+                name: "guard scars",
+                is_unlocked: false,
+                text: "guard scars answ",
+                locks_lines: ["scars"],
             }),
         },
         actions: {
@@ -997,7 +1012,7 @@ class DialogueAction extends GameAction {
         },
         description: "sup description",
     });
-	    dialogues["swampland chief"] = new Dialogue({
+        dialogues["swampland chief"] = new Dialogue({
         //tbd, aggressive and proud
         name: "swampland chief",
         textlines: {
