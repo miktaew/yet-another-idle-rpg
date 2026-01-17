@@ -1744,7 +1744,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Crab spawning grounds"] = new Combat_zone({
         description: "First an enormous crab nest, then an enormous crab's nest, and now this??",       //final punchline to the "big crab nest/big crabs' nest/big crab's nest" setup
         enemy_count: 50, 
-        types: [{type: "open", stage: 2, xp_gain: 5}, {type: "rough", stage: 1, xp_gain: 3}, {type: "wet", stage: 1}],
+        types: [{type: "open", stage: 2, xp_gain: 10}, {type: "rough", stage: 1, xp_gain: 3}, {type: "wet", stage: 1}],
         enemies_list: ["Stone crab"],
         enemy_group_size: [3,5],
         enemy_stat_variation: 0.2,
@@ -1754,18 +1754,18 @@ There's another gate on the wall in front of you, but you have a strange feeling
         parent_location: locations["Waterfall basin"],
         temperature_modifier: 1,
         first_reward: {
-            xp: 5000,
+            xp: 10000,
         },
         repeatable_reward: {
-			xp: 2500,
+			xp: 5000,
         },
         rewards_with_clear_requirement: [
             {
-                required_clear_count: 5,
+                required_clear_count: 3,
                 activities: [{location:"Waterfall basin", activity:"meditating"}],
             },
             {
-                required_clear_count: 10,
+                required_clear_count: 6,
                 locations: [{location: "Swampland fields"}]
             }]
         });
@@ -1807,10 +1807,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         parent_location: locations["Swampland fields"],
         temperature_modifier: 5.5,
         first_reward: {
-            xp: 10000,
+            xp: 20000,
         },
         repeatable_reward: {
-			xp: 5000,
+			xp: 10000,
         },
         rewards_with_clear_requirement: [
           {
@@ -1866,7 +1866,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
         housing: {
             is_unlocked: true,
             text_to_sleep: "Lie down on an open cot",
-            sleeping_xp_per_tick: 3},
+            sleeping_xp_per_tick: 3
+        },
         temperature_modifier: 1.5,
         dialogues: ["swampland scout"],
         is_under_roof: true,
@@ -2404,6 +2405,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
         "swimming": new LocationActivity({
             activity_name: "swimming",
             starting_text: "Swim against the current",
+            infinite: false,
+            availability_seasons: ["Spring", "Summer", "Autumn"],
             skill_xp_per_tick: 7,
             is_unlocked: true,
             applied_effects: [{effect: "Wet", duration: 30}],
@@ -2448,6 +2451,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             starting_text: "Go diving in the lake waters",
             skill_xp_per_tick: 4,
             is_unlocked: true,
+            infinite: false,
+            availability_seasons: ["Spring", "Summer", "Autumn"],
             applied_effects: [{ effect: "Wet", duration: 30 }],
         }),
         "balancing": new LocationActivity({
@@ -2496,6 +2501,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             starting_text: "Harden your resolve by sitting underneath the waterfall",
             skill_xp_per_tick: 2,
             applied_effects: [{effect: "Wet", duration: 30}],
+            infinite: false,
+            availability_seasons: ["Spring", "Summer", "Autumn"],
         }),
         "meditating": new LocationActivity({
             activity_name: "meditating",

@@ -95,6 +95,7 @@ class Skill {
         //how many times more xp needed for next level
 
         this.get_stat_modifiers = get_stat_modifiers;
+        //refer to how it's used in "Pest killer"/"Giant slayer"
     }
 
     name() {

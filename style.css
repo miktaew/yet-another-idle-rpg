@@ -1958,21 +1958,29 @@ i {
 			text-align: left;
 		}		
 
-#enemy_count_div { 
+#enemy_count_div, #clear_count_div { 
 	width: 100%;
 	padding-top: 2px;
 	bottom: 0px;
 	position: absolute;
+	font-size: 17px;
 }
+
+#clear_count_div { 
+	width: 30%;
+	left: 5px;
+}
+
+#enemy_count_div {
+	width: auto;
+	right: 5px;
+} 
 
 #enemy_count_content {
 	color: white;
-	width: 60%;
-	font-size: 17px;
+	width: 100%;
 	padding-right: 5px;
-	margin-left: auto;
 	text-align: right;
-	
 }
 
 #enemies_left_div {

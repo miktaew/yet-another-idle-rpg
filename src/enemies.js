@@ -426,7 +426,7 @@ class Enemy {
         rank: 8,
         size: enemy_sizes.MEDIUM,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 7000, attack: 160, agility: 180, dexterity: 160, intuition: 120, magic: 0, attack_speed: 1.7, attack_count: 2, defense: 700},
+        stats: {health: 7000, attack: 140, agility: 180, dexterity: 160, intuition: 120, magic: 0, attack_speed: 1.7, attack_count: 2, defense: 700},
         loot_list: [
             {item_name: "Crab meat", chance: 0.05},
             {item_name: "Crab claw", chance: 0.01},

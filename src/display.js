@@ -69,7 +69,7 @@ const combat_div = document.getElementById("combat_div");
 const enemies_div = document.getElementById("enemies_div");
 
 const enemy_count_div = document.getElementById("enemy_count_div");
-
+const clear_count_div = document.getElementById("clear_count_div");
 
 //enemy onhit animation
 const onhitAnimation = [
@@ -1850,6 +1850,7 @@ function update_displayed_normal_location(location) {
     document.documentElement.style.setProperty('--location_desc_tooltip_visibility', "hidden");
 
     enemy_count_div.style.display = "none";
+    clear_count_div.style.display = "none";
     document.documentElement.style.setProperty('--actions_div_height', getComputedStyle(document.body).getPropertyValue('--actions_div_height_default'));
     document.documentElement.style.setProperty('--actions_div_top', getComputedStyle(document.body).getPropertyValue('--actions_div_top_default'));
     
@@ -2449,6 +2450,7 @@ function update_displayed_combat_location(location) {
 
     update_location_icon(location);
 
+    clear_count_div.style.display = "block";
     enemy_count_div.style.display = "block";
     combat_div.style.display = "block";
 
@@ -2466,6 +2468,7 @@ function update_displayed_combat_location(location) {
 
 
     enemy_count_div.children[0].children[1].innerText = location.enemy_count - location.enemy_groups_killed % location.enemy_count + " / " + location.enemy_count;
+    clear_count_div.children[0].children[0].innerText = "Clears: [" + Math.floor(location.enemy_groups_killed / location.enemy_count) +"]";
 
     action = create_location_choices({location: location, category: "travel", is_combat: true});
 
@@ -2487,6 +2490,7 @@ function update_displayed_combat_location(location) {
 
 function update_location_kill_count(location) {
     enemy_count_div.children[0].children[1].innerText = location.enemy_count - location.enemy_groups_killed % location.enemy_count + " / " + location.enemy_count;
+    clear_count_div.children[0].children[0].innerText = "Clears: [" + Math.floor(location.enemy_groups_killed / location.enemy_count) +"]";
 }
 
 function create_location_types_display(current_location){
