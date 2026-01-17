@@ -14,9 +14,17 @@ const enemy_sizes = {
     LARGE: "large",
 }
 
+//tag: skill
 const droprate_modifier_skills_for_tags = {
     "beast": "Butchering",
 }
+
+//tag: [skills], since some skills might be tag-specific and some might affect multiple tags
+const enemy_tag_to_skill_mapping = {
+    small: ["Pest killer"],
+    large: ["Giant slayer"],
+}
+
 const tags_for_droprate_modifier_skills = {};
 Object.keys(droprate_modifier_skills_for_tags).forEach(tag => {
     tags_for_droprate_modifier_skills[droprate_modifier_skills_for_tags[tag]] = tag;
@@ -314,7 +322,7 @@ class Enemy {
         name: "Frog",
         description: "A huge beast with muscular legs and a mouth large enough to swallow a direwolf whole",
         xp_value: 80,
-        rank: 10,
+        rank: 9,
         tags: ["living", "beast"],
         stats: {health: 8000, attack: 500, agility: 120, dexterity: 200, intuition: 200, magic: 0, attack_speed: 0.8, defense: 500},
         loot_list: [
@@ -401,8 +409,8 @@ class Enemy {
 	enemy_templates["River crab"] = new Enemy({
         name: "River crab",
         description: "A crab the size of a small boulder",
-        xp_value: 55,
-        rank: 11,
+        xp_value: 30,
+        rank: 7,
         size: enemy_sizes.SMALL,
         tags: ["living", "beast", "aquatic"],
         stats: {health: 2000, attack: 75, agility: 120, dexterity: 90, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 145},
@@ -414,8 +422,8 @@ class Enemy {
 	enemy_templates["Stone crab"] = new Enemy({
         name: "Stone crab",
         description: "A crab the size of a large boulder, and about as hard to crack open",
-        xp_value: 100,
-        rank: 11,
+        xp_value: 50,
+        rank: 8,
         size: enemy_sizes.MEDIUM,
         tags: ["living", "beast", "aquatic"],
         stats: {health: 7000, attack: 160, agility: 180, dexterity: 160, intuition: 120, magic: 0, attack_speed: 1.7, attack_count: 2, defense: 700},
@@ -429,8 +437,8 @@ class Enemy {
 	enemy_templates["Alligator"] = new Enemy({
         name: "Alligator",
         description: "An alligator in it's natural habitat is one of the deadliest predators in nature",
-        xp_value: 350,
-        rank: 12,
+        xp_value: 150,
+        rank: 9,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
         stats: {health: 16750, attack: 830, agility: 283, dexterity: 350, intuition: 120, magic: 0, attack_speed: 1.6, defense: 545},
@@ -443,8 +451,8 @@ class Enemy {
 	enemy_templates["Snapping turtle"] = new Enemy({
         name: "Snapping turtle",
         description: "A large turtle with an incredibly dense shell",
-        xp_value: 400,      //in between alligator and snake because it'll probably take the longest to kill during post-completion grinding
-        rank: 12,
+        xp_value: 250,      //in between alligator and snake because it'll probably take the longest to kill during post-completion grinding
+        rank: 10,
         size: enemy_sizes.MEDIUM,
         tags: ["living", "beast", "aquatic"],
         stats: {health: 22000, attack: 525, agility: 245, dexterity: 220, intuition: 130, magic: 0, attack_speed: 0.9, defense: 1000},
@@ -457,8 +465,8 @@ class Enemy {
 	enemy_templates["Giant snake"] = new Enemy({
         name: "Giant snake",
         description: "This large snake is fast enough to catch even the most cautious warriors by surprise",
-        xp_value: 450,  //more than alligator and turtle because initially the most dangerous
-        rank: 12,
+        xp_value: 300,  //more than alligator and turtle because initially the most dangerous
+        rank: 10,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast"],
         stats: {health: 12500, attack: 440, agility: 320, dexterity: 460, intuition: 150, magic: 0, attack_speed: 2.7, defense: 385},
@@ -543,7 +551,7 @@ class Enemy {
         rank: 11,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 18000, attack: 400, agility: 350, dexterity: 680, intuition: 50, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 750},
+        stats: {health: 18000, attack: 400, agility: 350, dexterity: 680, intuition: 70, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 750},
         loot_list: [{item_name: "Giant crab claw", chance: 1}],
     });
 
@@ -554,4 +562,4 @@ class Enemy {
     });
 
 
-export {Enemy, enemy_templates, enemy_killcount, tags_for_droprate_modifier_skills};
+export {Enemy, enemy_templates, enemy_killcount, tags_for_droprate_modifier_skills, enemy_tag_to_skill_mapping};

@@ -43,6 +43,7 @@ class Skill {
                   xp_scaling = 1.8,
                   is_unlocked = true,
                   category,
+                  get_stat_modifiers = () => {return {}},
                 }) 
     {
         if(skill_id === "all" || skill_id === "hero" || skill_id === "all_skill") {
@@ -92,6 +93,8 @@ class Skill {
 
         this.xp_scaling = xp_scaling > 1 ? xp_scaling : 1.6;
         //how many times more xp needed for next level
+
+        this.get_stat_modifiers = get_stat_modifiers;
     }
 
     name() {
@@ -496,6 +499,11 @@ function format_skill_rewards(milestone){
                                         }
                                     },
                                     
+                                },
+                                get_stat_modifiers: () => {
+                                    return {
+                                       modifier_to_hit_chance: get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Pest killer"})
+                                    };
                                 }
                             });    
                                 
@@ -506,7 +514,14 @@ function format_skill_rewards(milestone){
                                 category: "Combat",
                                 get_effect_description: ()=> {
                                     return `Multiplies EP against large-type enemies by ${Math.round(get_total_skill_coefficient({skill_id:"Giant slayer",scaling_type:"multiplicative"})*1000)/1000}`;
-                                }});
+                                },
+                                get_stat_modifiers: () => {
+                                    return {
+                                       modifier_to_evasion: get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Giant slayer"}) 
+                                    };
+                                }
+                            });
+                                
 
     skills["Evasion"] = new Skill({
                                 names: {0: "Evasion"},                                

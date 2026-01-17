@@ -68,6 +68,7 @@
 v0.5.1
     - added a new early game quest in the village, obtained after <span class="spoiler"> clearing first cave area </span>
     - tweaked a related dialogue to make it clear that it's optional and not part of the <b> main </b> progression (although still encouraged)
+    - Ctrl+S can now be used to manually save the game (you can still do that by clicking the 'Save' button if that's what you prefer)
 
     - updated some item tooltips, to clarify the difference between leather and processed hides/pelts
     - increased xp for clearing 'Deep forest' 70/35 -> 300/150
@@ -88,6 +89,8 @@ v0.5.1
     - conditions can now include hero level
     - ids for locations, enemies, active effects, and recipes, are now autofilled from keys and no longer defaulted to names if id is not provided
     - ammounts of gained resources in gathering activities can now be skipped if they are meant to always be at 1
+    - combat modifiers from skills for specific enemy types are no longer hardcoded, instead skills come with a method that returns their modifiers ( .get_stat_modifiers ),
+        and a tag-to-skills mapping is defined in enemies.js
     
     courtesy of OnonokiNonon:
         - added a new lategame area (forest lake) with new enemies, new crafting materials, and new training spots

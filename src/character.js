@@ -628,7 +628,7 @@ character.wears_armor = function () {
  * @param {*}
  * @returns [actual damage taken; Boolean if character should faint] 
  */
-character.take_damage = function ({damage_values, can_faint = true, give_skill_xp = true}) {
+character.take_damage = function ({damage_values, can_faint = true, give_skill_xp = true, defense_modifier = 0}) {
         /*
         TODO:
                 - damage types: "physical", "elemental", "magic"
@@ -642,7 +642,7 @@ character.take_damage = function ({damage_values, can_faint = true, give_skill_x
                 if(val < 1) {
                         return Math.max(Math.ceil(10*val)/10, 0);
                 } else {
-                        return Math.ceil(10*Math.max(val - character.stats.full.defense, val*0.05, 1))/10;
+                        return Math.ceil(10*Math.max(val - (character.stats.full.defense + defense_modifier), val*0.05, 1))/10;
                 }
         });
         const damage_taken = damage_values.reduce((a,b)=>a+b);
@@ -656,7 +656,7 @@ character.take_damage = function ({damage_values, can_faint = true, give_skill_x
         }
 
         if(give_skill_xp) {
-                //TODO give xp to resistance skills when taking damge
+                //TODO once they are added, give xp to resistance skills when taking damage
         }
 
         return {damage_taken, fainted};

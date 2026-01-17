@@ -1041,6 +1041,13 @@
         </canvas>
 
         <script>
+            document.addEventListener("keydown", function(e) {
+                if (e.keyCode === 83 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+                    e.preventDefault();
+                    saveProgress();
+                }
+            }, false);
+
             function openOptions() {
                 if(document.documentElement.style.getPropertyValue("--options_display") !== "block") {
                     document.documentElement.style.setProperty('--options_display', 'block');

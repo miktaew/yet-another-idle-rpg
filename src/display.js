@@ -20,7 +20,7 @@ import { activities } from "./activities.js";
 import { format_time, current_game_time, seasons } from "./game_time.js";
 import { book_stats, item_templates, Weapon, Armor, Shield, rarity_multipliers, getItemRarity, getItemFromKey } from "./items.js";
 import { favourite_locations, get_location_type_penalty, location_types, locations } from "./locations.js";
-import { enemy_killcount, enemy_templates } from "./enemies.js";
+import { enemy_killcount, enemy_tag_to_skill_mapping, enemy_templates } from "./enemies.js";
 import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price, format_working_time, task_type_names, celsius_to_fahrenheit, is_a_older_than_b } from "./misc.js"
 //import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
@@ -1783,14 +1783,19 @@ function update_displayed_enemies() {
             }
 
             let hero_hit_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/4); // down to ~ 60% if there's full 8 enemies
-            if(current_enemies[i].size === "small") {
-                hero_hit_chance_modifier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Pest killer"});
-            }
-
             let hero_evasion_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/3); //down to .5 if there's full 8 enemies (multiple attackers make it harder to evade attacks)
-            if(current_enemies[i].size === "large") {
-                hero_evasion_chance_modifier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Giant slayer"});
-            }
+
+            let target = current_enemies[i];
+            Object.keys(target.tags).forEach(enemy_tag => {
+                if(enemy_tag_to_skill_mapping[enemy_tag]) {
+                    for(let i = 0; i < enemy_tag_to_skill_mapping[enemy_tag].length; i++) {
+                        const skill = skills[enemy_tag_to_skill_mapping[enemy_tag][i]];
+                        const {modifier_to_hit_chance, modifier_to_evasion} = skill.get_stat_modifiers();
+                        hero_hit_chance_modifier *= modifier_to_hit_chance || 1;
+                        hero_evasion_chance_modifier *= modifier_to_evasion || 1;
+                    }
+                }
+            });
         
             const evasion_chance = 1 - get_hit_chance(character.stats.full.attack_points*hero_hit_chance_modifier, current_enemies[i].stats.agility * Math.sqrt(current_enemies[i].stats.intuition ?? 1));
             let hit_chance = get_hit_chance(current_enemies[i].stats.dexterity * Math.sqrt(current_enemies[i].stats.intuition ?? 1), character.stats.full.evasion_points*hero_evasion_chance_modifier);

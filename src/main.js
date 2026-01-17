@@ -6,7 +6,7 @@ import { loot_sold_count, market_region_mapping, recover_item_prices, trickle_ma
 import { locations, favourite_locations, location_types } from "./locations.js";
 import { crafting_skill_xp_gains_cap, skill_categories, skill_xp_gains_cap, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
 import { dialogues } from "./dialogues.js";
-import { enemy_killcount, enemy_templates, tags_for_droprate_modifier_skills } from "./enemies.js";
+import { enemy_killcount, enemy_tag_to_skill_mapping, enemy_templates, tags_for_droprate_modifier_skills } from "./enemies.js";
 import { traders } from "./traders.js";
 import { is_in_trade, start_trade, cancel_trade, accept_trade, exit_trade, add_to_trader_inventory,
          add_to_buying_list, remove_from_buying_list, add_to_selling_list, remove_from_selling_list} from "./trade.js";
@@ -1569,12 +1569,19 @@ function do_enemy_combat_action(enemy_id) {
     const attacker = current_enemies[enemy_id];
 
     let evasion_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/3); //down to .5 if there's full 8 enemies (multiple attackers make it harder to evade attacks)
-    if(attacker.size === "small") {
-        add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: attacker.xp_value/enemy_count_xp_mod});
-    } else if(attacker.size === "large") {
-        add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: attacker.xp_value/enemy_count_xp_mod});
-        evasion_chance_modifier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Giant slayer"});
-    }
+    let defense_modifier = 0;
+    
+    Object.keys(attacker.tags).forEach(enemy_tag => {
+        if(enemy_tag_to_skill_mapping[enemy_tag]) {
+            for(let i = 0; i < enemy_tag_to_skill_mapping[enemy_tag].length; i++) {
+                const skill = skills[enemy_tag_to_skill_mapping[enemy_tag][i]];
+                add_xp_to_skill({skill, xp_to_add: attacker.xp_value/enemy_count_xp_mod});
+                const {modifier_to_evasion, modifier_to_defense} = skill.get_stat_modifiers();
+                evasion_chance_modifier *= modifier_to_evasion || 1;
+                defense_modifier += modifier_to_defense || 1;
+            }
+        }
+    });
 
     const enemy_base_damage = attacker.stats.attack;
 
@@ -1631,7 +1638,7 @@ function do_enemy_combat_action(enemy_id) {
         add_xp_to_skill({skill: skills["Iron skin"], xp_to_add: attacker.xp_value/enemy_count_xp_mod});
     } 
     
-    let {damage_taken, fainted} = character.take_damage({damage_values: damages_dealt});
+    let {damage_taken, fainted} = character.take_damage({damage_values: damages_dealt, defense_modifier});
 
     add_xp_to_skill({skill: skills["Fortitude"], xp_to_add: (damage_taken**0.6)/enemy_count_xp_mod});
 
@@ -1673,15 +1680,21 @@ function do_character_combat_action({target, attack_power, target_count}) {
     let critted = false;
     
     let hit_chance_modifier = current_enemies.filter(enemy => enemy.is_alive).length**(-1/4); // down to ~ 60% if there's full 8 enemies
+    let damage_modifier = 1;
     
     add_xp_to_skill({skill: skills["Combat"], xp_to_add: target.xp_value*groupsize_xp_multiplier/target_count});
 
-    if(target.size === "small") {
-        add_xp_to_skill({skill: skills["Pest killer"], xp_to_add: target.xp_value*groupsize_xp_multiplier/target_count});
-        hit_chance_modifier *= get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Pest killer"});
-    } else if(target.size === "large") {
-        add_xp_to_skill({skill: skills["Giant slayer"], xp_to_add: target.xp_value*groupsize_xp_multiplier/target_count});
-    }
+    Object.keys(target.tags).forEach(enemy_tag => {
+        if(enemy_tag_to_skill_mapping[enemy_tag]) {
+            for(let i = 0; i < enemy_tag_to_skill_mapping[enemy_tag].length; i++) {
+                const skill = skills[enemy_tag_to_skill_mapping[enemy_tag][i]];
+                add_xp_to_skill({skill, xp_to_add: target.xp_value*groupsize_xp_multiplier/target_count});
+                const {modifier_to_damage, modifier_to_hit_chance} = skill.get_stat_modifiers();
+                hit_chance_modifier *= modifier_to_hit_chance || 1;
+                damage_modifier *= modifier_to_damage || 1;
+            }
+        }
+    });
 
     const hit_chance = get_hit_chance(character.stats.full.attack_points * hit_chance_modifier, target.stats.agility * Math.sqrt(target.stats.intuition ?? 1));
 
@@ -1690,7 +1703,7 @@ function do_character_combat_action({target, attack_power, target_count}) {
         total_hits_done++;
         if(character.equipment.weapon != null) {
             //if has weapon
-            damage_dealt = Math.round(10 * hero_base_damage * (1.2 - Math.random() * 0.4) )/10;
+            damage_dealt = Math.round(10 * damage_modifier * hero_base_damage * (1.2 - Math.random() * 0.4))/10;
 
             add_xp_to_skill({skill: skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]], xp_to_add: target.xp_value*groupsize_xp_multiplier/target_count}); 
 
@@ -5467,7 +5480,7 @@ function add_all_active_effects(duration){
 
 //add_to_character_inventory([{item_id: "Iron sword", count: 20, quality: 100}]);
 //add_to_character_inventory([{item_id: "Iron sword", count: 20, quality: 120}]);
-//add_to_character_inventory([{item_id: "Iron sword", count: 20, quality: 140}]);
+//add_to_character_inventory([{item_id: "Camping supplies", count: 20}]);
 
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
