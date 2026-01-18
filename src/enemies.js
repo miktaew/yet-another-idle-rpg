@@ -426,7 +426,7 @@ class Enemy {
         rank: 8,
         size: enemy_sizes.MEDIUM,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 7000, attack: 140, agility: 180, dexterity: 160, intuition: 120, magic: 0, attack_speed: 1.7, attack_count: 2, defense: 700},
+        stats: {health: 7000, attack: 160, agility: 180, dexterity: 160, intuition: 120, magic: 0, attack_speed: 1.7, attack_count: 2, defense: 700},
         loot_list: [
             {item_name: "Crab meat", chance: 0.05},
             {item_name: "Crab claw", chance: 0.01},
@@ -441,7 +441,7 @@ class Enemy {
         rank: 9,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 16750, attack: 830, agility: 283, dexterity: 350, intuition: 120, magic: 0, attack_speed: 1.6, defense: 545},
+        stats: {health: 16750, attack: 830, agility: 250, dexterity: 350, intuition: 120, magic: 0, attack_speed: 1.6, defense: 545},
         loot_list: [
             {item_name: "Alligator meat", chance: 0.02},
             {item_name: "Alligator skin", chance: 0.01},
@@ -455,7 +455,7 @@ class Enemy {
         rank: 10,
         size: enemy_sizes.MEDIUM,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 22000, attack: 525, agility: 245, dexterity: 220, intuition: 130, magic: 0, attack_speed: 0.9, defense: 1000},
+        stats: {health: 22000, attack: 525, agility: 230, dexterity: 220, intuition: 130, magic: 0, attack_speed: 0.9, defense: 1000},
         loot_list: [
             {item_name: "Turtle meat", chance: 0.02},
             {item_name: "Turtle shell", chance: 0.005},
@@ -469,7 +469,7 @@ class Enemy {
         rank: 10,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast"],
-        stats: {health: 12500, attack: 440, agility: 320, dexterity: 460, intuition: 150, magic: 0, attack_speed: 2.7, defense: 385},
+        stats: {health: 12500, attack: 440, agility: 260, dexterity: 460, intuition: 150, magic: 0, attack_speed: 2.7, defense: 385},
         loot_list: [
             {item_name: "Giant snake meat", chance: 0.02},
             {item_name: "Giant snake skin", chance: 0.01},

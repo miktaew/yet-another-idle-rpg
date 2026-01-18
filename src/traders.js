@@ -180,7 +180,7 @@ class TradeItem {
         profit_margin: 7,
     });
     traders["swampland trader 2"] = new Trader({
-        name: "swampland trader 2",
+        name: "swampland trader",
         inventory_template: "Swamp plus",
         is_unlocked: false,
         location_name: "Swampland tribe",

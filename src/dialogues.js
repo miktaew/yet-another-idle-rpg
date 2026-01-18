@@ -1012,17 +1012,16 @@ class DialogueAction extends GameAction {
         },
         description: "sup description",
     });
-        dialogues["swampland chief"] = new Dialogue({
-        //tbd, aggressive and proud
+    dialogues["swampland chief"] = new Dialogue({
+        //lizard like everyone in triber, aggressive and proud
         name: "swampland chief",
         textlines: {
-            "swampchief meet": new Textline({		//quest should technically start when entering tribe with a nag to talk to the "village elder?", this starts it "properly"
+            "swampchief meet": new Textline({
                 name: "swampchief meet",
                 text: "swampchief meet answ",
                 is_unlocked: true,
                 rewards: {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief explain"]}],
-                    //quest_progress: [{quest_id: "In Times of Need", task_index: 0}],
                 },
                 locks_lines: ["swampchief meet"],
             }),
@@ -1042,7 +1041,7 @@ class DialogueAction extends GameAction {
                 rewards: {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief mid help"]}],
                     dialogues: ["swampland cook"],
-                    //quest_progress: [{quest_id: "In Times of Need", task_index: 1}],
+                    quest_progress: [{quest_id: "In Times of Need", task_index: 0}],
                 },
                 locks_lines: ["swampchief help"],
             }),
@@ -1061,7 +1060,7 @@ class DialogueAction extends GameAction {
                 rewards: {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief confirm"]}],
                 },
-                locks_lines: (["swampchief report"], ["swampchief mid help"]),
+                locks_lines: ["swampchief report","swampchief mid help"],
             }),
             "swampchief confirm": new Textline({
                 name: "swampchief confirm",
@@ -1080,9 +1079,12 @@ class DialogueAction extends GameAction {
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief generic"]}],
                     locations: [{location: "Longhouse"}],
                     items: ["Snake fang ring"],
-                    //traders: ["swampland trader 2"],        //this seems to break this dialogue, and I don't know a way to lock the second vendor anyway
-                    //activities: [{location: "Swampland tribe", activity: "crafting"}],      //unsure of how to swap the crafting station in the tribe from locked to unlocked
-                    //quest_progress: [{quest_id: "In Times of Need", task_index: 9}],		//finishes the quest
+                    traders: [{trader: "swampland trader 2"}],
+                    //activities: [{location: "Swampland tribe", activity: "crafting"}], //todo
+                    quest_progress: [{quest_id: "In Times of Need", task_index: 10}],   //finishes the quest
+                    locks: {
+                        traders: ["swampland trader"],
+                    }
                 },
                 locks_lines: ["swampchief accept"],
             }),
@@ -1101,8 +1103,8 @@ class DialogueAction extends GameAction {
                 return "swampchief description 1";
             }}
         });
-	    dialogues["swampland cook"] = new Dialogue({
-        //tbd, an outlander to the tribe. Slips foreign terms in dialogue. Speaks in odd, short sentences ending with exclamation marks
+    dialogues["swampland cook"] = new Dialogue({
+        //lizard, an outlander to the tribe. Slips foreign terms in dialogue. Speaks in odd, short sentences ending with exclamation marks
         name: "swampland cook",
         is_unlocked: false,
         textlines: {
@@ -1110,10 +1112,10 @@ class DialogueAction extends GameAction {
                 name: "swampcook greeting1",
                 text: "swampcook greeting1 answ",
                 is_unlocked: true,
-                rewards: {textlines: [
-                    {dialogue: "swampland cook", lines: ["swampcook greeting2"]},
-                    {dialogue: "swampland cook", lines: ["swampcook obaru"]}
-            ]
+                rewards: {
+                    textlines: [
+                        {dialogue: "swampland cook", lines: ["swampcook greeting2", "swampcook obaru"]},
+                ]
             },
                 locks_lines: ["swampcook greeting1"],
             }),
@@ -1121,24 +1123,25 @@ class DialogueAction extends GameAction {
                 name: "swampcook greeting2",
                 text: "swampcook greeting2 answ",
                 is_unlocked: false,
-                rewards: {textlines: [{dialogue: "swampland cook", lines: ["swampcook help"]}]
-            },
+                rewards: {
+                    textlines: [{dialogue: "swampland cook", lines: ["swampcook help"]}]
+                },
                 locks_lines: ["swampcook greeting2"],
             }),
             "swampcook help": new Textline({
                 name: "swampcook help",
                 text: "swampcook help answ",
                 is_unlocked: false,
-                rewards: 
-                    {textlines: [
+                rewards: {
+                    textlines: [
                         {dialogue: "swampland cook", lines: ["swampcook sosso"]},
                     ],
                     actions: [
                         {dialogue: "swampland cook", action: "swampcook deliver"}
                     ],
+                    quest_progress: [{quest_id: "In Times of Need", task_index: 1}],
+                    locks_lines: ["swampcook help"],
                 },
-                    //quest_progress: [{quest_id: "In Times of Need", task_index: 2}],
-                locks_lines: ["swampcook help"],
             }),
             "swampcook know": new Textline({
                 name: "swampcook know",
@@ -1146,9 +1149,9 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 rewards: {
                     textlines:[
-                    {dialogue: "swampland cook", lines: ["swampcook yeslore"]},
-                    {dialogue: "swampland cook", lines: ["swampcook nolore"]},
-                ]},
+                        {dialogue: "swampland cook", lines: ["swampcook yeslore", "swampcook nolore"]},
+                    ]
+                },
                 locks_lines: ["swampcook know"],
             }),
             "swampcook yeslore": new Textline({
@@ -1157,39 +1160,37 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 rewards: {
                     textlines: [
-                        {dialogue: "swampland cook", lines: ["swampcook history"]},
-                        {dialogue: "swampland cook", lines: ["swampcook surround"]},
-                        {dialogue: "swampland cook", lines: ["swampcook chief"]},
-                        {dialogue: "swampland cook", lines: ["swampcook people"]}
-                    ]
-                },  /*  
-                    recipes: [          //added recipes breaks the game for a reason I can't figure out
+                        {dialogue: "swampland cook", lines: ["swampcook history", "swampcook surround", "swampcook chief", "swampcook people"]},
+                    ],
+                    recipes: [
                         {category: "cooking", subcategory: "items", recipe_id: "Alligator jerky"},
                         {category: "cooking", subcategory: "items", recipe_id: "Turtle jerky"},
                         {category: "cooking", subcategory: "items", recipe_id: "Snake jerky"},
                         {category: "cooking", subcategory: "items", recipe_id: "Swampland skewer"},
-                    ],  */
+                    ],
+                },
                 locks_lines: ["swampcook yeslore", "swampcook nolore"],
             }),
             "swampcook history": new Textline({
                 name: "swampcook history",
                 text: "swampcook history answ",
                 is_unlocked: false,
-                rewards: {textlines: [
-                    {dialogue: "swampland cook", lines: ["swampcook history1"]},
-                    {dialogue: "swampland cook", lines: ["swampcook historyend"]},
-                ]
-            },
+                rewards: {
+                    textlines: [
+                        {dialogue: "swampland cook", lines: ["swampcook history1", "swampcook historyend"]},
+                    ]
+                },
                 locks_lines: ["swampcook history"],
             }),
             "swampcook history1": new Textline({
                 name: "swampcook history1",
                 text: "swampcook history1 answ",
                 is_unlocked: false,
-                rewards: {textlines: [
-                    {dialogue: "swampland cook", lines: ["swampcook history2"]}
-                ]
-            },
+                rewards: {
+                    textlines: [
+                        {dialogue: "swampland cook", lines: ["swampcook history2"]}
+                    ]
+                },
                 locks_lines: ["swampcook history1"],
             }),
             "swampcook history2": new Textline({
@@ -1218,14 +1219,11 @@ class DialogueAction extends GameAction {
                 name: "swampcook surround",
                 text: "swampcook surround answ",
                 is_unlocked: false,
-                rewards: {textlines: [
-                    {dialogue: "swampland cook", lines: ["swampcook surround1"]},
-                    {dialogue: "swampland cook", lines: ["swampcook surround2"]},
-                    {dialogue: "swampland cook", lines: ["swampcook surround3"]},
-                    {dialogue: "swampland cook", lines: ["swampcook surround4"]},
-                    {dialogue: "swampland cook", lines: ["swampcook surroundend"]}
-                ]
-            },
+                rewards: {
+                    textlines: [
+                        {dialogue: "swampland cook", lines: ["swampcook surround1", "swampcook surround2", "swampcook surround3", "swampcook surround4", "swampcook surroundend"]},
+                    ]
+                },
                 locks_lines: ["swampcook surround"],
             }),
             "swampcook surround1": new Textline({
@@ -1262,27 +1260,29 @@ class DialogueAction extends GameAction {
                 name: "swampcook chief",
                 text: "swampcook chief answ",
                 is_unlocked: false,
-                rewards: {textlines: [
-                    {dialogue: "swampland cook", lines: ["swampcook chief1"]},
-                    {dialogue: "swampland cook", lines: ["swampcook chiefend"]}
-                ]
-            },
+                rewards: {
+                    textlines: [
+                        {dialogue: "swampland cook", lines: ["swampcook chief1", "swampcook chiefend"]},
+                    ]
+                },
                 locks_lines: ["swampcook chief"],
             }),
             "swampcook chief1": new Textline({
                 name: "swampcook chief1",
                 text: "swampcook chief1 answ",
                 is_unlocked: false,
-                rewards: {textlines: [{dialogue: "swampland cook", lines: ["swampcook chief2"]}]
-            },
+                rewards: {
+                    textlines: [{dialogue: "swampland cook", lines: ["swampcook chief2"]}]
+                },
                 locks_lines: ["swampcook chief1"],
             }),
             "swampcook chief2": new Textline({
                 name: "swampcook chief2",
                 text: "swampcook chief2 answ",
                 is_unlocked: false,
-                rewards: {textlines: [{dialogue: "swampland cook", lines: ["swampcook chief3"]}]
-            },
+                rewards: {
+                        textlines: [{dialogue: "swampland cook", lines: ["swampcook chief3"]}]
+                },
                 locks_lines: ["swampcook chief2"],
             }),
             "swampcook chief3": new Textline({
@@ -1302,9 +1302,7 @@ class DialogueAction extends GameAction {
                 text: "swampcook people answ",
                 is_unlocked: false,
                 rewards: {textlines: [
-                    {dialogue: "swampland cook", lines: ["swampcook cook"]},
-                    {dialogue: "swampland cook", lines: ["swampcook trader"]},
-                    {dialogue: "swampland cook", lines: ["swampcook fangs"]}
+                    {dialogue: "swampland cook", lines: ["swampcook cook","swampcook trader", "swampcook fangs"]},
                 ]
             },
                 locks_lines: ["swampcook people"],
@@ -1313,43 +1311,47 @@ class DialogueAction extends GameAction {
                 name: "swampcook cook",
                 text: "swampcook cook answ",
                 is_unlocked: false,
-                rewards: {textlines: [{dialogue: "swampland cook", lines: ["swampcook cook2"]}]
-            },
+                rewards: {
+                    textlines: [{dialogue: "swampland cook", lines: ["swampcook cook2"]}]
+                },
                 locks_lines: ["swampcook cook"],
             }),
             "swampcook cook2": new Textline({
                 name: "swampcook cook2",
                 text: "swampcook cook2 answ",
                 is_unlocked: false,
-                rewards: {textlines: [{dialogue: "swampland cook", lines: ["swampcook zalgo"]}]
-            },
+                rewards: {
+                    textlines: [{dialogue: "swampland cook", lines: ["swampcook zalgo"]}]
+                },
                 locks_lines: ["swampcook cook2"],
             }),
             "swampcook trader": new Textline({
                 name: "swampcook trader",
                 text: "swampcook trader answ",
                 is_unlocked: false,
-                rewards: {textlines: [
-                    {dialogue: "swampland cook", lines: ["swampcook trader1"]},
-                    {dialogue: "swampland cook", lines: ["swampcook traderend"]}
-                ]
-            },
+                rewards: {
+                    textlines: [
+                        {dialogue: "swampland cook", lines: ["swampcook trader1", "swampcook traderend"]},
+                    ]
+                },
                 locks_lines: ["swampcook trader"],
             }),
             "swampcook trader1": new Textline({
                 name: "swampcook trader1",
                 text: "swampcook trader1 answ",
                 is_unlocked: false,
-                rewards: {textlines: [{dialogue: "swampland cook", lines: ["swampcook trader2"]}]
-            },
+                rewards: {
+                    textlines: [{dialogue: "swampland cook", lines: ["swampcook trader2"]}]
+                },
                 locks_lines: ["swampcook trader1"],
             }),
             "swampcook trader2": new Textline({
                 name: "swampcook trader2",
                 text: "swampcook trader2 answ",
                 is_unlocked: false,
-                rewards: {textlines: [{dialogue: "swampland cook", lines: ["swampcook trader3"]}]
-            },
+                rewards: {
+                    textlines: [{dialogue: "swampland cook", lines: ["swampcook trader3"]}]
+                },
                 locks_lines: ["swampcook trader2"],
             }),
             "swampcook trader3": new Textline({
@@ -1368,31 +1370,31 @@ class DialogueAction extends GameAction {
                 name: "swampcook fangs",
                 text: "swampcook fangs answ",
                 is_unlocked: false,
-                rewards: {textlines: [
-                    {dialogue: "swampland cook", lines: ["swampcook tailor"]},
-                    {dialogue: "swampland cook", lines: ["swampcook tanner"]},
-                    {dialogue: "swampland cook", lines: ["swampcook peopleend"]},
-                ]
-            },
+                rewards: {
+                    textlines: [
+                        {dialogue: "swampland cook", lines: ["swampcook tailor", "swampcook tanner", "swampcook peopleend"]},
+                    ]
+                },
                 locks_lines: ["swampcook fangs"],
             }),
             "swampcook tailor": new Textline({
                 name: "swampcook tailor",
                 text: "swampcook tailor answ",
                 is_unlocked: false,
-                rewards: {textlines: [
-                    {dialogue: "swampland cook", lines: ["swampcook tailor1"]},
-                    {dialogue: "swampland cook", lines: ["swampcook tailorend"]}
-                ]
-            },
+                rewards: {
+                    textlines: [
+                        {dialogue: "swampland cook", lines: ["swampcook tailor1", "swampcook tailorend"]},
+                    ],
+                },
                 locks_lines: ["swampcook tailor"],
             }),
             "swampcook tailor1": new Textline({
                 name: "swampcook tailor1",
                 text: "swampcook tailor1 answ",
                 is_unlocked: false,
-                rewards: {textlines: [{dialogue: "swampland cook", lines: ["swampcook tailor2"]}]
-            },
+                rewards: {
+                    textlines: [{dialogue: "swampland cook", lines: ["swampcook tailor2"]}],
+                },
                 locks_lines: ["swampcook tailor1"],
             }),
             "swampcook tailor2": new Textline({
@@ -1411,19 +1413,20 @@ class DialogueAction extends GameAction {
                 name: "swampcook tanner",
                 text: "swampcook tanner answ",
                 is_unlocked: false,
-                rewards: {textlines: [
-                    {dialogue: "swampland cook", lines: ["swampcook tanner1"]},
-                    {dialogue: "swampland cook", lines: ["swampcook tannerend"]}
-            ]
-            },
+                rewards: {
+                    textlines: [
+                        {dialogue: "swampland cook", lines: ["swampcook tanner1", "swampcook tannerend"]},
+                    ]
+                },
                 locks_lines: ["swampcook tanner"],
             }),
             "swampcook tanner1": new Textline({
                 name: "swampcook tanner1",
                 text: "swampcook tanner1 answ",
                 is_unlocked: false,
-                rewards: {textlines: [{dialogue: "swampland cook", lines: ["swampcook tanner2"]}]
-            },
+                rewards: {
+                    textlines: [{dialogue: "swampland cook", lines: ["swampcook tanner2"]}]
+                },
                 locks_lines: ["swampcook tanner1"],
             }),
             "swampcook tanner2": new Textline({
@@ -1442,12 +1445,13 @@ class DialogueAction extends GameAction {
                 name: "swampcook peopleend",
                 text: "swampcook peopleend answ",
                 is_unlocked: false,
-                rewards: {textlines: [
-                    {dialogue: "swampland cook", lines: ["swampcook whycrab"]},
-                    {dialogue: "swampland cook", lines: ["swampcook tumana"]}
-            ], 
+                rewards: {
+                    textlines: [
+                        {dialogue: "swampland cook", lines: ["swampcook whycrab", "swampcook tumana"]},
+                    ], 
                     dialogues: ["swampland tailor"],
-            },
+                    quest_progress: [{quest_id: "In Times of Need", task_index: 3}],
+                },
                 locks_lines: ["swampcook history", "swampcook history1", "swampcook history2", "swampcook history3", "swampcook historyend", "swampcook surround",  "swampcook surround1", "swampcook surround2", "swampcook surround3", "swampcook surround4", "swampcook surroundend", "swampcook chief", "swampcook chief1", "swampcook chief2", "swampcook chief3", "swampcook chiefend", "swampcook people", "swampcook cook", "swampcook cook2", "swampcook trader", "swampcook trader1", "swampcook trader2", "swampcook trader3", "swampcook traderend", "swampcook tailor",  "swampcook tailor1", "swampcook tailor2", "swampcook tailorend", "swampcook tanner", "swampcook tanner1", "swampcook tanner2", "swampcook tannerend", "swampcook peopleend"], //should close all previous dialogue trees
             }),
             "swampcook whycrab": new Textline({
@@ -1455,8 +1459,7 @@ class DialogueAction extends GameAction {
                 text: "swampcook whycrab answ",
                 is_unlocked: false,
                 rewards: {textlines: [
-                    {dialogue: "swampland cook", lines: ["swampcook whycrabpress"]},
-                    {dialogue: "swampland cook", lines: ["swampcook whycrabdrop"]}
+                    {dialogue: "swampland cook", lines: ["swampcook whycrabpress", "swampcook whycrabdrop"]},
                 ]
             },
                 locks_lines: ["swampcook whycrab"],
@@ -1465,16 +1468,18 @@ class DialogueAction extends GameAction {
                 name: "swampcook whycrabpress",
                 text: "swampcook whycrabpress answ",
                 is_unlocked: false,
-                rewards: {textlines: [{dialogue: "swampland cook", lines: ["swampcook liked"]}]
-            },
+                rewards: {
+                    textlines: [{dialogue: "swampland cook", lines: ["swampcook liked"]}]
+                },
                 locks_lines: ["swampcook whycrabpress", "swampcook whycrabdrop"],
             }),
             "swampcook whycrabdrop": new Textline({
                 name: "swampcook whycrabdrop",
                 text: "swampcook whycrabdrop answ",
                 is_unlocked: false,
-                rewards: {textlines: [{dialogue: "swampland cook", lines: ["swampcook liked"]}]
-            },
+                rewards: {
+                    textlines: [{dialogue: "swampland cook", lines: ["swampcook liked"]}]
+                },
                 locks_lines: ["swampcook whycrabpress", "swampcook whycrabdrop"],
             }),
             "swampcook nolore": new Textline({
@@ -1483,12 +1488,11 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 rewards: {
                     textlines:[
-                    {dialogue: "swampland cook", lines: ["swampcook liked"]},
-                    {dialogue: "swampland cook", lines: ["swampcook noloreteach"]},
-                    {dialogue: "swampland cook", lines: ["swampcook tumana"]}
-                ],
+                        {dialogue: "swampland cook", lines: ["swampcook liked", "swampcook tumana", "swampcook noloreteach"]},
+                    ],
                     dialogues: ["swampland tailor"],
-            },
+                    quest_progress: [{quest_id: "In Times of Need", task_index: 3}],
+                },
                 locks_lines: ["swampcook yeslore", "swampcook nolore"]
             }),
             "swampcook liked": new Textline({
@@ -1502,13 +1506,13 @@ class DialogueAction extends GameAction {
                 name: "swampcook noloreteach",
                 text: "swampcook noloreteach answ",
                 is_unlocked: false,
-                rewards: {  /*
-                    recipes: [          //added recipes breaks the game for a reason I can't figure out
+                rewards: {
+                    recipes: [
                         {category: "cooking", subcategory: "items", recipe_id: "Alligator jerky"},
                         {category: "cooking", subcategory: "items", recipe_id: "Turtle jerky"},
                         {category: "cooking", subcategory: "items", recipe_id: "Snake jerky"},
                         {category: "cooking", subcategory: "items", recipe_id: "Swampland skewer"},
-                    ], */
+                    ],
                 },  
                 locks_lines: ["swampcook noloreteach"],
             }),
@@ -1565,11 +1569,15 @@ class DialogueAction extends GameAction {
                 attempt_duration: 0,
                 success_chances: [1],
                 rewards: {
-                    //quest_progress: [{quest_id: "In Times of Need", task_index: 3}], 
+                    quest_progress: [{quest_id: "In Times of Need", task_index: 2}],
                     textlines: [
-                        {dialogue: "swampland cook", lines: ["swampcook know"]},
-                        {dialogue: "swampland cook", lines: ["swampcook kazoku"]}
-                ],
+                        {dialogue: "swampland cook", lines: ["swampcook know", "swampcook kazoku"]},
+                    ],
+                    locks: {
+                        textlines: [
+                            {dialogue: "swampland chief", lines: ["swampchief mid help"]},
+                        ]
+                    }
                 },
                 locks_lines: ["swampcook deliver", "swampcook obaru"],
             }),
@@ -1584,11 +1592,11 @@ class DialogueAction extends GameAction {
             }}
         });
     dialogues["swampland tailor"] = new Dialogue({
-        //tbd, speaks in verbose diatribes
+        //lizard, speaks in verbose diatribes
         name: "swampland tailor",
         is_unlocked: false,
         textlines: {
-            "swamptailor interrupt": new Textline({     // moves forward
+            "swamptailor interrupt": new Textline({ // moves forward
                 name: "swamptailor interrupt",
                 text: "swamptailor interrupt answ",
                 is_unlocked: true,
@@ -1597,7 +1605,7 @@ class DialogueAction extends GameAction {
                 },
                 locks_lines: ["swamptailor interrupt", "swamptailor listen1", "swamptailor listen2", "swamptailor listen3", "swamptailor listen4", "swamptailor listen5", "swamptailor listen6", "swamptailor listen7", "swamptailor listen8"],
             }),
-            "swamptailor listen1": new Textline({       //intended to loop after listen8, but dialog can't be unlocked after locking it, it seems
+            "swamptailor listen1": new Textline({
                 name: "swamptailor listen1",
                 text: "swamptailor listen1 answ",
                 is_unlocked: true,
@@ -1691,7 +1699,7 @@ class DialogueAction extends GameAction {
                 rewards: {
                     actions: [{dialogue: "swampland tailor", action: "swamptailor deliver"}],
                     activities: [{location: "Riverbank", activity: "herbalism"}],
-                    //quest_progress: [{quest_id: "In Times of Need", task_index: 4}],
+                    quest_progress: [{quest_id: "In Times of Need", task_index: 4}],
                 },
                 locks_lines: ["swamptailor flax"],
             }),
@@ -1718,9 +1726,9 @@ class DialogueAction extends GameAction {
                 attempt_duration: 0,
                 success_chances: [1],
                 rewards: {
-                    //quest_progress: [{quest_id: "In Times of Need", task_index: 5}], 
+                    quest_progress: [{quest_id: "In Times of Need", task_index: 5}], 
                     textlines: [{dialogue: "swampland tailor", lines: ["swamptailor liked"]}],
-                    //recipes: [{category: "Crafting", subcategory: "items", recipe_id: "Linen cloth"}],          //added recipes breaks the game for a reason I can't figure out
+                    recipes: [{category: "crafting", subcategory: "items", recipe_id: "Linen cloth"}],
                     dialogues: ["swampland tanner"],
                 },
                 locks_lines: ["swamptailor deliver"],
@@ -1736,7 +1744,7 @@ class DialogueAction extends GameAction {
             }}
         });
     dialogues["swampland tanner"] = new Dialogue({
-        //tbd, speaks in short sentences
+        //lizard, speaks in short sentences
         name: "swampland tanner",
         is_unlocked: false,
         textlines: {
@@ -1754,7 +1762,7 @@ class DialogueAction extends GameAction {
                 text: "swamptanner help answ",
                 is_unlocked: false,
                 rewards: {
-                    //quest_progress: [{quest_id: "In Times of Need", task_index: 6}], 
+                    quest_progress: [{quest_id: "In Times of Need", task_index: 6}], 
                     actions: [{dialogue: "swampland tanner", action: ["swamptanner deliver 1"]}],
                 },
                 locks_lines: ["swamptanner help"],
@@ -1764,7 +1772,7 @@ class DialogueAction extends GameAction {
                 text: "swamptanner known answ",
                 is_unlocked: false,
                 rewards: {
-                    //quest_progress: [{quest_id: "In Times of Need", task_index: 6}], 
+                    quest_progress: [{quest_id: "In Times of Need", task_index: 8}], 
                     actions: [{dialogue: "swampland tanner", action: ["swamptanner deliver 2"]}],
                 },
                 locks_lines: ["swamptanner known"],
@@ -1792,7 +1800,7 @@ class DialogueAction extends GameAction {
                 attempt_duration: 0,
                 success_chances: [1],
                 rewards: {
-                    //quest_progress: [{quest_id: "In Times of Need", task_index: 7}], 
+                    quest_progress: [{quest_id: "In Times of Need", task_index: 7}], 
                     textlines: [{dialogue: "swampland tanner", lines: ["swamptanner known"]}],
                 },
                 locks_lines: ["swamptanner deliver 1"],
@@ -1813,13 +1821,13 @@ class DialogueAction extends GameAction {
                 attempt_duration: 0,
                 success_chances: [1],
                 rewards: {
-                    //quest_progress: [{quest_id: "In Times of Need", task_index: 8}], //need to find some way to tie back to the chief since I can't make the quest work. locking the turn-in dialogue to rep could work, but I don't know how to implement questlines to give rep either, and rep rewards don't work in dialogue yet. maybe just disabling him after accepting the quest and enabling a new chief after this step?
-                    textlines: [{dialogue: "swampland tanner", lines: ["swamptanner liked"]}],      /*
-                    recipes: [            //added recipes breaks the game for a reason I can't figure out
-                        {category: "Butchering", subcategory: "items", recipe_id: "Piece of alligator leather"},
-                        {category: "Butchering", subcategory: "items", recipe_id: "Piece of snakeskin leather"},
-                        {category: "Butchering", subcategory: "items", recipe_id: "Turtle shellplate"},
-                    ],  */
+                    quest_progress: [{quest_id: "In Times of Need", task_index: 9}],
+                    textlines: [{dialogue: "swampland tanner", lines: ["swamptanner liked"]}, {dialogue: "swampland chief", lines: ["swampchief report"]}],
+                    recipes: [
+                        {category: "butchering", subcategory: "items", recipe_id: "Piece of alligator leather"},
+                        {category: "butchering", subcategory: "items", recipe_id: "Piece of snakeskin leather"},
+                        {category: "butchering", subcategory: "items", recipe_id: "Turtle shellplate"},
+                    ],
                 },
                 locks_lines: ["swamptanner deliver 2"],
             }),
@@ -1835,7 +1843,7 @@ class DialogueAction extends GameAction {
         });
 
 	dialogues["swampland scout"] = new Dialogue({
-        //tbd, speaks in rambling run-on sentences with long pauses
+        //lizard, speaks in rambling run-on sentences with long pauses
         name: "swampland scout",
         textlines: {
             "swampscout meet": new Textline({

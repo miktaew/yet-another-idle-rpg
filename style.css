@@ -332,7 +332,7 @@ input[type=checkbox], input[type=radio] {
  }
 
  .message_hero_defeated {
-	 color:crimson;
+	 color: #ff3d44;
 	 font-weight: bold;
  }
 
@@ -345,10 +345,10 @@ input[type=checkbox], input[type=radio] {
  }
 
  .message_hero_attacked {
-	 color: crimson;
+	 color: #ff3d44;
  }
  .message_hero_attacked_critically, .message_critical {
-	 color: crimson;
+	 color: #ff3d44;
 	 font-weight: bold;
  }
 
@@ -1959,7 +1959,7 @@ i {
 		}		
 
 #enemy_count_div, #clear_count_div { 
-	width: 100%;
+	width: auto;
 	padding-top: 2px;
 	bottom: 0px;
 	position: absolute;
@@ -1967,12 +1967,10 @@ i {
 }
 
 #clear_count_div { 
-	width: 30%;
 	left: 5px;
 }
 
 #enemy_count_div {
-	width: auto;
 	right: 5px;
 } 
 
@@ -1984,7 +1982,7 @@ i {
 }
 
 #enemies_left_div {
-	width: 70px;
+	width: 80px;
 	display: inline-block;
 	text-align: right;
 }

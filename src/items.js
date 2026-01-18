@@ -1137,9 +1137,8 @@ book_stats["A Glint On The Sand"] = new BookData({
 });
 
 book_stats["Shellfish desires"] = new BookData({
-    required_time: 1,
+    required_time: 420,
     literacy_xp_rate: 6,
-    
     rewards: {
         recipes: [
             {category: "cooking", subcategory: "items", recipe_id: "Crab bisque"},
@@ -1148,7 +1147,6 @@ book_stats["Shellfish desires"] = new BookData({
             {category: "cooking", subcategory: "items", recipe_id: "Basin gumbo"},
         ],
     },
-    
     bonuses: {
         xp_multipliers: {
             Cooking: 1.2,
@@ -1523,7 +1521,6 @@ book_stats["Shellfish desires"] = new BookData({
         name: "Wild onion",
         description: "A wild root vegetable sometimes used to add flavor to dishes. Can't be eaten raw",
         value: 20,
-        material_type: "culinary herb",
     });
     item_templates["Wild garlic"] = new Material({
         name: "Wild garlic",
@@ -1535,7 +1532,6 @@ book_stats["Shellfish desires"] = new BookData({
         name: "Wild potato",
         description: "A wild nutrient-rich stem tuber that can be used in a variety of dishes. Can't be eaten raw",
         value: 20,
-        material_type: "culinary herb",
     });
 	
     item_templates["Ratfish"] = new Material({

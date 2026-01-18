@@ -644,7 +644,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             2: {
                 description: "A boggy marshland is a terrible location to fight for your life in",
                 related_skill: "Scrambling",
-				scaling_lvl: 40,
+				scaling_lvl: 30,
                 effects: {
                     agility: {multiplier: 0.2},
                     dexterity: {multiplier: 0.2},
@@ -1788,6 +1788,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             let noises = ["*Gnats and mosquitos pick at your exposed skin*", "*fwoosh* *thump*", "*You hear something moving around you, but you can't see it*", "*The buzz of insects throb in your ears*", "*gurgle gurgle*", "*You feel something moving next you, but you can't see it*", "*snap* *crunch*", "*You hear the rythmic swish-swash of something swimming nearby*", "*hssssssssssss*", "*slither*"];
             return noises;
         },
+        temperature_range_modifier: 0.5,
         temperature_modifier: 3,
         unlock_text: "You can just barely make out the overgrown remains of a old trail leading off into a swampy field as an ill omen passes over you",
         name: "Swampland fields",
@@ -1806,6 +1807,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         leave_text: "Slink away to some higher, dryer ground",
         parent_location: locations["Swampland fields"],
         temperature_modifier: 5.5,
+        temperature_range_modifier: 0.5,
         first_reward: {
             xp: 20000,
         },
@@ -1813,30 +1815,25 @@ There's another gate on the wall in front of you, but you have a strange feeling
 			xp: 10000,
         },
         rewards_with_clear_requirement: [
-          {
-                  required_clear_count: 3,
-                  locations: [{location: "Swampland tribe"}]
-          }
+            {
+                required_clear_count: 3,
+                locations: [{location: "Swampland tribe"}]
+            }
         ]
-        });
+    });
     locations["Swampland fields"].connected_locations.push({location: locations["The swamplands"], custom_text: "Wander randomly in the swamplands", travel_time: 45});
 
     locations["Swampland tribe"] = new Location({
         connected_locations: [{location: locations["Swampland fields"], custom_text: "Leave the safety of the settlement and return to the [Swampland fields]", travel_time: 90, travel_time_skills: ["Scrambling", "Running"]}], 
         getDescription: function() {
-            if(locations["The swamplands"].enemy_groups_killed >= 20 * locations["The swamplands"].enemy_count) { 
-                return "Very small fortified settlement, built on a stretch of dry, stable ground. There are a few small huts and a single building built into the back of the encampment. As small as the settlement is, the fortifications surrounding it suggest that it once was larger";
-            } else if(locations["The swamplands"].enemy_groups_killed >= 6 * locations["The swamplands"].enemy_count) {
-                return "Very small fortified settlement, built on a stretch of dry, stable ground. There are a few small huts with stalls build into them, and a lone building lies in the back of the encampment";
-            } else {
-                return "Very small fortified settlement, built on a stretch of dry, stable ground. It's surrounded by swampy fields, most of them infested by dangerous creatures. It's surprising there's anyone living here at all, although you don't see anyone at the moment"; 
-            }
+            return "Very small fortified settlement, built on a stretch of dry, stable ground. There are a few small huts and a single building built into the back of the encampment. As small as the settlement is, the fortifications surrounding it suggest that it once was larger";
         },
         getBackgroundNoises: function() {
             let noises = ["*You hear some rustling*", "*The hum of insects buzz in your ear*", "*Gnats and mosquitos pick at your exposed skin*", "*fwoosh* *thump*", "*gurgle gurgle*", "*snap* *crunch*", "*You hear the rythmic swish-swash of something swimming nearby*"];
             return noises;
         },
         temperature_modifier: 2,
+        temperature_range_modifier: 0.5,
         dialogues: ["swampland chief", "swampland cook", "swampland tailor", "swampland tanner"],
         traders: ["swampland trader", "swampland trader 2"],
         market_region: "Swamp",
@@ -1855,6 +1852,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 woodworking: 2,
             }
         },
+        entrance_rewards: {
+            quests: ["In Times of Need"],
+        }
     });
     locations["Swampland fields"].connected_locations.push({location: locations["Swampland tribe"], travel_time: 90, travel_time_skills: ["Scrambling", "Running"]});
 	
@@ -1869,6 +1869,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             sleeping_xp_per_tick: 3
         },
         temperature_modifier: 1.5,
+        temperature_range_modifier: 0.5,
         dialogues: ["swampland scout"],
         is_under_roof: true,
     });

@@ -3876,7 +3876,7 @@ function update_displayed_textline_answer({text, is_description}) {
         document.getElementById("dialogue_answer_div").innerText =  "*"+text+"*";
         document.getElementById("dialogue_answer_div").classList.remove("italic");
     } else {
-        document.getElementById("dialogue_answer_div").innerText = '"'+text+'"';
+        document.getElementById("dialogue_answer_div").innerText = text;
         document.getElementById("dialogue_answer_div").classList.add("italic");
     }
 }

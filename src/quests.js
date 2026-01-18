@@ -92,6 +92,10 @@ const questManager = {
         return quest_id in active_quests;
     },
 
+    isQuestFinished(quest_id) {
+        return quests[quest_id].is_finished;
+    },
+
     finishQuest({quest_id, only_unlocks, is_from_loading, skip_rewards}) {
 
         if(this.isQuestActive(quest_id)) {
@@ -102,10 +106,12 @@ const questManager = {
             delete active_quests[quest_id];
             if(!quests[quest_id].is_hidden) {
                 update_displayed_quest(quest_id);
+                if(!is_from_loading) {
+                    log_message(`Finished a quest: "${quests[quest_id].getQuestName()}"`);
+                }
             }
 
             if(!skip_rewards) {
-                
                 process_rewards({rewards: quests[quest_id].quest_rewards, source_type: "Quest", source_name: quests[quest_id].getQuestName(), only_unlocks: only_unlocks, is_from_loading});
             }
         }
@@ -458,33 +464,25 @@ const questManager = {
         quest_name: "In Times of Need",
         display_priority: 9,
         getQuestDescription: ()=>{
-            if(!quests["In Times of Need"].quest_tasks[9].is_finished) {    //update upon completion of final task
+            if(quests["In Times of Need"].quest_tasks[quests["In Times of Need"].quest_tasks.length-1].is_finished) {    //update upon completion of final task
                 return "You helped the snakefang tribe in their time of need";
-            } else if(!quests["In Times of Need"].quest_tasks[1].is_finished) {
-                return "You accepted the chief's request to ask around and see how you could assist the tribe";
+            } else if(quests["In Times of Need"].quest_tasks[0].is_finished) {
+                return `You accepted the chief's "request" to ask around and see how you could assist the tribe`;
             } else {
                 return "You should introduce yourself to whomever is in charge";
             }
         },
         questline: "In Times of Need",
         quest_tasks: [
-            new QuestTask({
-                task_condition: {
-                    all: {
-                        enter_location: { //enter the tribe to start the quest, speak to the chief to formally accept the quest
-                            "Swampland tribe": {
-                                target: 1, 
-                            },
-                        }
-                    }
-                }
-			}), //"Introduce yourself to the village elder?"
-            new QuestTask({task_description: "Ask around and see how you can help"}), //crab delivery part 1
-            new QuestTask({task_description: "Bring the cook 60 pieces of fresh crab meat"}), //crab delivery part 2
+            new QuestTask({is_hidden: true}), //Gained on entry
+            new QuestTask({task_description: "Ask around and see how you can help"}), //From talking to chief
+            new QuestTask({task_description: "Bring the cook 60 pieces of fresh crab meat"}), //From talking to cook
+            new QuestTask({is_hidden: true}), //filler after bringing meat, before being told to talk to tailor
             new QuestTask({task_description: "Speak to the tailor and see how you can help"}), //flax delivery part 1
             new QuestTask({task_description: "Bring the tailor 200 bundles of fresh flax"}), //flax delivery part 2
             new QuestTask({task_description: "Speak to the tanner and see how you can help"}), //tanner delivery part 1
             new QuestTask({task_description: "Bring the tanner 60 pieces of alligator skin"}), //tanner delivery part 2
+            new QuestTask({is_hidden: true}), //filler after bringing alligator skin, before being told to bring snake skin
             new QuestTask({task_description: "Bring the tanner 60 pieces of giant snake skin"}), //tanner delivery part 3
             new QuestTask({task_description: "Report to the chief"}), //properly finishes the quest, rewards come in dialogue
         ]

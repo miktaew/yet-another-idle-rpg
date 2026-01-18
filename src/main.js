@@ -770,7 +770,7 @@ function finish_game_action({action_key, conditions_status, dialogue_key}){
             if(!action.repeatable) {
                 lock_action({dialogue_key, location_key: current_location.id, action_key});
             }
-            process_rewards({rewards: action.rewards, source_type: "action"});
+            process_rewards({rewards: action.rewards, source_type: "action", source_name: dialogue_key || current_location.id});
             is_won = true;
         } else {
             //random loss
@@ -1183,7 +1183,7 @@ function start_textline(textline_key){
     const dialogue = dialogues[current_dialogue];
     const textline = dialogue.textlines[textline_key];
 
-    process_rewards({rewards: textline.rewards, source_type: "textline", inform_textline: false})
+    process_rewards({rewards: textline.rewards, source_type: "textline", inform_textline: false, source_name: current_dialogue})
 
     if(textline.otherUnlocks) {
         textline.otherUnlocks();
@@ -2250,8 +2250,9 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
                     dialogues[rewards.textlines[i].dialogue].textlines[rewards.textlines[i].lines[j]].is_unlocked = true;
                 }
             }
-            if(any_unlocked && inform_textline && inform_overall && !rewards.textlines[i].skip_message) {
-                log_message(`You should talk to ${rewards.textlines[i].dialogue}`, "dialogue_unlocked");
+            if(any_unlocked && inform_textline && inform_overall && !rewards.textlines[i].skip_message && source_name !== rewards.textlines[i].dialogue) {
+
+                log_message(`You should talk to ${dialogues[rewards.textlines[i].dialogue].getName({is_mofu_mofu_enabled: global_flags.is_mofu_mofu_enabled})}`, "dialogue_unlocked");
                 //maybe do this only when there's just 1 dialogue with changes?
             }
         }
@@ -2377,7 +2378,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
 
     if(rewards.quests) {
         for(let i = 0; i < rewards.quests.length; i++) {
-            if(!questManager.isQuestActive(rewards.quests[i])) {
+            if(!questManager.isQuestActive(rewards.quests[i]) && !questManager.isQuestFinished(rewards.quests[i])) {
                 questManager.startQuest({quest_id: rewards.quests[i]});
                 if(inform_overall) {
                     //log_message(`Received a new quest: ${quests[rewards.quests[i]].getQuestName()}`);

@@ -265,7 +265,7 @@ const translations = {
 	"swampchief meet": "Hel-",
         "swampchief meet answ": "Intruder! How bold of you to walk so brashly through our grounds! Bold and foolish! To so bluntly insult the honor of the chief of the Snake Fang Tribe! Raise your blade! There is no sport in killing an unarmed foe!",
         "swampchief explain": "Wait! I'm not your enemy! I was passing through the swamp and saw the fortifications!",
-        "swampchief explain answ": "\n[*The chief holds for a moment, before relaxing his stance and raising his trident away]*\n "
+        "swampchief explain answ": "*[The chief holds for a moment, before relaxing his stance and raising his trident away]*\n\n"
 			+"A fool in shoddy garb. You aren't even worth bloodying my spear for. Begone from my sight. We have nothing to offer you, no quarter to give, and no supply to barter. Leave us, and do not return.",
         "swampchief help": "Perhaps you don't have anything to offer, but maybe I can offer to help your people?",
         "swampchief help answ": "And for what would we need the help of a stranger from the beyond the bog? Feh! If you wish to pay fealty to our strength, we'll take your tribute. Now begone from my sight.",
