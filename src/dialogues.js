@@ -1076,12 +1076,12 @@ class DialogueAction extends GameAction {
                 text: "swampchief accept answ",
                 is_unlocked: false,
                 rewards: {
+                    quest_progress: [{quest_id: "In Times of Need", task_index: 10}],   //finishes the quest
                     textlines: [{dialogue: "swampland chief", lines: ["swampchief generic"]}],
                     locations: [{location: "Longhouse"}],
                     items: ["Snake fang ring"],
                     traders: [{trader: "swampland trader 2"}],
-                    //activities: [{location: "Swampland tribe", activity: "crafting"}], //todo
-                    quest_progress: [{quest_id: "In Times of Need", task_index: 10}],   //finishes the quest
+                    crafting: ["Swampland tribe"],
                     locks: {
                         traders: ["swampland trader"],
                     }

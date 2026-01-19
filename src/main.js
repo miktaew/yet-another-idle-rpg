@@ -2290,6 +2290,13 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         });
     }
 
+    if(rewards.crafting) {
+        for(let i = 0; i < rewards.crafting.length; i++) {
+            locations[rewards.crafting[i]].crafting.is_unlocked = true;
+            log_message(`You can now use a crafting station in ${locations[rewards.crafting[i]].name}`, "activity_unlocked");
+        }
+    }
+
     if(rewards.global_activities) {
         for(let i = 0; i < rewards.global_activities?.length; i++) {
                 unlock_global_activity({activity_id: rewards.global_activities[i]});
@@ -3298,6 +3305,9 @@ function create_save() {
             }
             if(locations[key].housing?.is_unlocked) {
                 save_data["locations"][key].housing_unlocked = true;
+            }
+            if(locations[key].crafting?.is_unlocked) {
+                save_data["locations"][key].crafting_unlocked = true;
             }
         }); //save locations' (and their activities'/actions') unlocked status and their killcounts
 
@@ -4323,10 +4333,17 @@ function load(save_data) {
                             unlocked_beds[key] = true;
                         }
                     }
-                } else if(locations[key].housing?.is_unlocked){ {
+                } else if(locations[key].housing?.is_unlocked){ 
                     unlocked_beds[key] = true;
                 }
 
+                if(save_data.locations[key].crafting_unlocked) {
+                    if(!Object.keys(locations[key].crafting).length) {
+                        console.warn(`Location "${locations[key].name}" was saved as having a crafting unlocked, but it no longer has this mechanic and was skipped!`);
+                        any_warnings = true;
+                    } else {
+                        locations[key].crafting.is_unlocked = true;
+                    }
                 }
 
             } else {

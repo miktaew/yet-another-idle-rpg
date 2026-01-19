@@ -40,6 +40,8 @@
 
         housing: [String] //an array with location keys
 
+        crafting: [String] //an array with location keys
+
         activities: [
             {
                 activity: String //activity key
