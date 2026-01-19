@@ -1960,7 +1960,7 @@ class DialogueAction extends GameAction {
                 description: "",
                 action_text: "",
                 success_text: "swampscout help answ",
-                repeatable: true,
+                repeatable: false,
                 failure_texts: {
                     unable_to_begin: ["swampscout help not"],
                 },
