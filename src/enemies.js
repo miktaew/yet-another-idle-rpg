@@ -259,7 +259,7 @@ class Enemy {
         name: "Direwolf hunter",
         description: "A powerful wild wolf variant of unmatched ferocity, the strongest and heaviest out of all direwolves",
         xp_value: 30,
-        rank: 8,
+        rank: 7,
         tags: ["living", "beast"],
         stats: {health: 2000, attack: 240, agility: 130, dexterity: 80, intuition: 90, magic: 0, attack_speed: 1.1, defense: 40},
         loot_list: [
@@ -307,7 +307,7 @@ class Enemy {
         name: "Forest bear",
         description: "A mighty and dangerous predator with thick skin, sharp teeth, and dangerous claws",
         xp_value: 60,
-        rank: 9,
+        rank: 8,
         tags: ["living", "beast"],
         stats: {health: 6000, attack: 600, agility: 160, dexterity: 200, intuition: 200, magic: 0, attack_speed: 0.8, defense: 500},
         loot_list: [
@@ -322,11 +322,11 @@ class Enemy {
         name: "Frog",
         description: "A huge beast with muscular legs and a mouth large enough to swallow a direwolf whole",
         xp_value: 80,
-        rank: 9,
+        rank: 8,
         tags: ["living", "beast"],
         stats: {health: 8000, attack: 500, agility: 120, dexterity: 200, intuition: 200, magic: 0, attack_speed: 0.8, defense: 500},
         loot_list: [
-            {item_name: "Frog meat", chance: 0.24},
+            {item_name: "Frog meat", chance: 0.08},
             {item_name: "Frog hide", chance: 0.05},
             {item_name: "Weak monster bone", chance: 0.05},
         ],
