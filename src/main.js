@@ -1722,7 +1722,7 @@ function do_character_combat_action({target, attack_power, target_count}) {
             damage_dealt = Math.round(10*damage_dealt * character.stats.full.crit_multiplier)/10;
             critted = true;
             total_crits_done++;
-            
+            add_xp_to_skill({skill: skills['Perception'], xp_to_add: 1/target_count}); //gains unaffected by damage nor by enemy xp value
         }
         else {
             critted = false;

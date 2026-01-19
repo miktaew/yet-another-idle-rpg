@@ -489,6 +489,7 @@ function format_skill_rewards(milestone){
                                         },
                                         xp_multipliers: {
                                             category_Combat: 1.05,
+                                            Perception: 1.1,
                                         }
                                     },
                                     12: {
@@ -773,6 +774,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                                                         Evasion: 1.1,
                                                         "Shield blocking": 1.1,
                                                         Combat: 1.1,
+                                                        Perception: 1.1,
                                                     },
                                                     stats: {
                                                         intuition: {flat: 1},
@@ -841,7 +843,8 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                                                 intuition: {flat: 1},
                                             },
                                             xp_multipliers: {
-                                                "Presence sensing": 1.05
+                                                "Presence sensing": 1.05,
+                                                Perception: 1.1,
                                             }
 
                                             },
@@ -863,7 +866,8 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                                             xp_multipliers: {
                                                 "Presence sensing": 1.2,
                                                 Evasion: 1.05,
-                                                "Shield blocking": 1.05, 
+                                                "Shield blocking": 1.05,
+                                                Perception: 1.1,
                                             },
                                             stats: {
                                                 intuition: {multiplier: 1.05},
@@ -902,7 +906,8 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                             intuition: {flat: 1},
                         },
                         xp_multipliers: {
-                            "Combat": 1.1
+                            "Combat": 1.1,
+                            Perception: 1.1,
                         }
 
                         },
@@ -923,17 +928,20 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                         xp_multipliers: {
                             hero: 1.05,
                             "Night vision": 1.2,
+                            Perception: 1.1,
                         }
                     },
                     10: {
                         xp_multipliers: {
                             all_skill: 1.05,
                             "Night vision": 1.2,
+                            Perception: 1.2,
                         }
                     },
                     12: {
                         xp_multipliers: {
                             all: 1.05,
+                            Perception: 1.1,
                         },
                         stats: {
                             intuition: {multiplier: 1.1},
@@ -966,6 +974,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                     "Literacy": 1.05,
                     "Persistence": 1.05,
                     "Fortitude": 1.05,
+                    Perception: 1.1,
                 }
             },
             3: {
@@ -996,6 +1005,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
             10: {
                 xp_multipliers: {
                     all: 1.05,
+                    Perception: 1.1,
                 }
             },
             12: {    
@@ -2020,6 +2030,9 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                         multiplier: 1.03,
                     }
                 },
+                xp_multipliers: {
+                    Perception: 1.1, //because when climbing you need to find things that you can hold to, right?
+                }
             },
             12: {
                 stats: {
@@ -2415,14 +2428,70 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     skills["Perception"] = new Skill({
         names: {0: "Perception"}, 
         description: "Better grasp on your senses allows you to notice small and hidden things, as well as to discern the true nature of what you obsere",
-        
+        base_xp_cost: 200,
+        visibility_treshold: 100,
+        xp_scaling: 1.8,
+        max_level: 40,
         category: "Character",
-        max_level_coefficient: 2,
         get_effect_description: ()=> {
-            return ``;
+            return `Increases critical hit chance by ${Math.min(skills["Perception"].max_level, get_total_skill_level("Perception"))} points`;
         },
         milestones: {
-            //todo when skill is in use somewhere
+            1: {
+                stats: {
+                    intuition: {flat: 2},
+                    dexterity: {flat: 2},
+                },
+                xp_multipliers: {
+                    all: 1.1,
+                }
+            },
+            3: {
+                stats: {
+                    intuition: {flat: 2},
+                    dexterity: {flat: 2},
+                    crit_multiplier: {flat: 0.1},
+                },
+            },
+            5: {
+                xp_multipliers: {
+                    Herbalism: 1.1,
+                    Fishing: 1.1,
+                }
+            },
+            7: {
+                stats: {
+                    intuition: {flat: 2},
+                    dexterity: {multiplier: 1.1},
+                    crit_multiplier: {flat: 0.1},
+                },
+            },
+            10: {
+                xp_multipliers: {
+                    Herbalism: 1.2,
+                    Fishing: 1.2,
+                    hero: 1.1,
+                }
+            },
+            15: {
+                stats: {
+                    intuition: {flat: 5},
+                    dexterity: {multiplier: 1.1},
+                    crit_multiplier: {flat: 0.2},
+                },
+            },
+            20: {
+                xp_multipliers: {
+                    Herbalism: 1.2,
+                    Fishing: 1.2,
+                    hero: 1.2,
+                },
+                stats: {
+                    intuition: {flat: 10},
+                    dexterity: {multiplier: 1.1},
+                    crit_multiplier: {flat: 0.2},
+                },
+            }
         }
     }); 
     skills["Literacy"] = new Skill({
@@ -2686,7 +2755,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                     },
                                     
                                 }
-                            });  
+    });  
 })();
 
 //miscellaneous skills
@@ -2723,6 +2792,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 xp_multipliers: {
                     "Literacy": 1.05,
                     "Persistence": 1.05,
+                    Perception: 1.05,
                 },
             },
             7: {
@@ -2741,6 +2811,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 xp_multipliers: {
                     "Literacy": 1.05,
                     "Persistence": 1.05,
+                    Perception: 1.1,
                 },
                 
             }

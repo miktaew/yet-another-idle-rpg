@@ -2547,11 +2547,29 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 random_loss: [
                     "You look around for some time, but end up with nothing. Keep searching!",
                 ],
+                conditional_loss: [
+                    "You are not perceptive enough for this...",
+                ]
             },
+            conditions: [
+                {
+                    skills: {
+                        "Perception": 1,
+                    }
+                },
+                {
+                    skills: {
+                        "Perception": 5,
+                    }
+                }
+            ],
             attempt_duration: 15,
-            success_chances: [0.5],
+            success_chances: [0.5, 1],
             rewards: {
                 actions: [{location: "Village", action: "carry grain"}, {location: "Village", action: "pull cart"}, {location: "Village", action: "convince horse"}],
+                skill_xp: {
+                    Perception: 100,
+                }
             },
         }),
         "carry grain": new GameAction({
@@ -2847,11 +2865,29 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 random_loss: [
                     "You search for some time, but end up with nothing. Next time you will try a slightly different direction",
                 ],
+                conditional_loss: [
+                    "You are not perceptive enough for this...",
+                ]
             },
+            conditions: [
+                {
+                    skills: {
+                        "Perception": 1,
+                    }
+                },
+                {
+                    skills: {
+                        "Perception": 8,
+                    }
+                }
+            ],
             attempt_duration: 90,
-            success_chances: [0.5],
+            success_chances: [0.5, 1],
             rewards: {
                 locations: [{location: "Forest clearing"}],
+                skill_xp: {
+                    Perception: 100,
+                }
             },
         }),
         "follow the trail": new GameAction({
@@ -2882,11 +2918,29 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 random_loss: [
                     "At some point you got distracted and lost your way",
                 ],
+                conditional_loss: [
+                    "You are not perceptive enough for this...",
+                ]
             },
             attempt_duration: 180,
-            success_chances: [0.4],
+            success_chances: [0.4, 1],
+            conditions: [
+                {
+                    skills: {
+                        "Perception": 1,
+                    }
+                },
+                {
+                    skills: {
+                        "Perception": 10,
+                    }
+                }
+            ],
             rewards: {
                 locations: [{location: "Bears' den"}],
+                skill_xp: {
+                    Perception: 200,
+                }
             },
             unlock_text: "At some point during your fights you notice a direwolf with terrible scars, clearly inflicted by an even larger predator. What could have it been?",
         }),
@@ -3093,13 +3147,15 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 {
                     skills: {
                         "Swimming": 10,
-                        "Breathing": 10
+                        "Breathing": 10,
+                        Perception: 1,
                     }
                 },
                 {
                     skills: {
                         "Swimming": 25,
-                        "Breathing": 25
+                        "Breathing": 25,
+                        Perception: 10,
                     }
                 }
             ],
@@ -3108,7 +3164,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_chances: [0.2, 1],
             rewards: {
                 locations: [{ location: "Frogs" }],
-                skill_xp: { Swimming: 100, Breathing: 100 },
+                skill_xp: { Swimming: 500, Breathing: 500, Perception: 500, },
             },
       }),
       "search2": new GameAction({
@@ -3129,13 +3185,15 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 {
                   skills: {
                         "Swimming": 10,
-                        "Breathing": 10
+                        "Breathing": 10,
+                        Perception: 2,
                     }
                 },
                 {
                     skills: {
                         "Swimming": 25,
-                        "Breathing": 25
+                        "Breathing": 25,
+                        Perception: 10,
                     }
                 }
             ],
@@ -3144,7 +3202,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_chances: [0.2, 1],
             rewards: {
                 action: [{ location: "Forest lake", action: "mining" }],
-                skill_xp: { Swimming: 200, Breathing: 200 },
+                skill_xp: { Swimming: 800, Breathing: 800, Perception: 800, },
             },
         })
     },	
