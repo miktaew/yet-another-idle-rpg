@@ -1140,8 +1140,8 @@ class DialogueAction extends GameAction {
                         {dialogue: "swampland cook", action: "swampcook deliver"}
                     ],
                     quest_progress: [{quest_id: "In Times of Need", task_index: 1}],
-                    locks_lines: ["swampcook help"],
                 },
+                locks_lines: ["swampcook help"],
             }),
             "swampcook know": new Textline({
                 name: "swampcook know",
@@ -1828,6 +1828,9 @@ class DialogueAction extends GameAction {
                         {category: "butchering", subcategory: "items", recipe_id: "Piece of snakeskin leather"},
                         {category: "butchering", subcategory: "items", recipe_id: "Turtle shellplate"},
                     ],
+                    locks: {
+                        textlines: [{dialogue: "swampland chief", lines: ["swampchief mid help"]}],
+                    }
                 },
                 locks_lines: ["swamptanner deliver 2"],
             }),
