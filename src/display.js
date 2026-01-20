@@ -21,7 +21,7 @@ import { format_time, current_game_time, seasons } from "./game_time.js";
 import { book_stats, item_templates, Weapon, Armor, Shield, rarity_multipliers, getItemRarity, getItemFromKey } from "./items.js";
 import { favourite_locations, get_location_type_penalty, location_types, locations } from "./locations.js";
 import { enemy_killcount, enemy_tag_to_skill_mapping, enemy_templates } from "./enemies.js";
-import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price, format_working_time, task_type_names, celsius_to_fahrenheit, is_a_older_than_b } from "./misc.js"
+import { expo, format_reading_time, stat_names, get_hit_chance, round_item_price, format_working_time, task_type_names, celsius_to_fahrenheit, is_a_older_than_b, select_outline_class } from "./misc.js"
 //import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
 import { effect_templates } from "./active_effects.js";
@@ -201,13 +201,13 @@ const equipment_slots_divs = {head: document.getElementById("head_slot"), torso:
 };
 
 const rarity_colors = {
-    trash: "lightgray",
-    common: "white",
-    uncommon: "lightgreen",
-    rare: "blue",
-    epic: "pink",
-    legendary: "purple",
-    mythical: "orange"
+    trash: "#d3d3d3",
+    common: "#ffffff",
+    uncommon: "#90ee90",
+    rare: "#0000ff",
+    epic: "#ffc0cb",
+    legendary: "#800080",
+    mythical: "#ffa500"
 }
 
 const crafting_pages = {}
@@ -324,15 +324,19 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
 
         if(!item.ignore_quality) {
             if(!options.skip_quality && options?.quality?.length == 2) {
-                item_tooltip += `<br><br><b>Quality: <span style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${options.quality[0]}% </span> - <span style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${options.quality[1]}% </span>`;
-                item_tooltip += `<br>[<span style="color: ${rarity_colors[item.getRarity(options.quality[0])]}">${item.getRarity(options.quality[0])}</span>-<span style="color: ${rarity_colors[item.getRarity(options.quality[1])]}">${item.getRarity(options.quality[1])}</span>] </b>`;
+                const outline_class_1 = select_outline_class(rarity_colors[item.getRarity(options.quality[0])]);
+                const outline_class_2 = select_outline_class(rarity_colors[item.getRarity(options.quality[1])]);
+                item_tooltip += `<br><br><b>Quality: <span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${options.quality[0]}% </span> - <span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${options.quality[1]}% </span>`;
+                item_tooltip += `<br>[<span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}">${item.getRarity(options.quality[0])}</span>-<span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}">${item.getRarity(options.quality[1])}</span>] </b>`;
             } else {
-                item_tooltip += `<br><br><b style="color: ${rarity_colors[item.getRarity(quality)]}">Quality: ${quality}% [${item.getRarity(quality)}]</b>`;
+                const outline_class = select_outline_class(rarity_colors[item.getRarity(quality)]);
+                item_tooltip += `<br><br><b class="${outline_class}" style="color: ${rarity_colors[item.getRarity(quality)]}">Quality: ${quality}% [${item.getRarity(quality)}]</b>`;
             }
         }
 
         if(item.tags.unique) {
-            item_tooltip += `<br><br><b class="item_unique">Unique</b>`
+            const outline_class = select_outline_class("##800080");
+            item_tooltip += `<br><br><b class="item_unique ${outline_class}">Unique</b>`;
         }
 
 
@@ -476,10 +480,13 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
         }
 
         if(!options.skip_quality && options?.quality?.length == 2) {
-            item_tooltip += `<br><br><b>Quality: <span style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${options.quality[0]}% </span> - <span style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${options.quality[1]}% </span>`;
-            item_tooltip += `<br>[<span style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${item.getRarity(options.quality[0])}</span> - <span style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${item.getRarity(options.quality[1])}</span>]</b>`;
+            const outline_class_1 = select_outline_class(rarity_colors[item.getRarity(options.quality[0])]);
+            const outline_class_2 = select_outline_class(rarity_colors[item.getRarity(options.quality[1])]);
+            item_tooltip += `<br><br><b>Quality: <span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${options.quality[0]}% </span> - <span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${options.quality[1]}% </span>`;
+            item_tooltip += `<br>[<span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${item.getRarity(options.quality[0])}</span> - <span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${item.getRarity(options.quality[1])}</span>]</b>`;
         } else {
-            item_tooltip += `<br><br><b style="color: ${rarity_colors[item.getRarity(quality)]}">Quality: ${quality}% [${item.getRarity(quality)}]</b>`;
+            const outline_class = select_outline_class(rarity_colors[item.getRarity(quality)]);
+            item_tooltip += `<br><br><b class="${outline_class}" style="color: ${rarity_colors[item.getRarity(quality)]}">Quality: ${quality}% [${item.getRarity(quality)}]</b>`;
         }
         if(item.component_tier) {
             item_tooltip += `<br><br>Component tier: ${item.component_tier}`;

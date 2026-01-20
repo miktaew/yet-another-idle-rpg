@@ -685,6 +685,14 @@ input[type=checkbox], input[type=radio] {
 	left: var(--item_tooltip_left);
 } 
 
+.outline_white {
+	text-shadow: -1px -1px 0 #ffffff, 1px -1px 0 #ffffff, -1px 1px 0 #ffffff, 1px 1px 0 #ffffff;
+}
+
+.outline_black {
+	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
 .recipe_tooltip {
 	top: var(--recipe_tooltip_top);
 	left: var(--recipe_tooltip_left);
@@ -962,7 +970,7 @@ input[type=checkbox], input[type=radio] {
 
 .item_unique {
 	font-weight:1000;
-	color: purple;
+	color: #800080;
 	font-style: italic;
 }
 

@@ -184,9 +184,56 @@ function celsius_to_fahrenheit(num) {
     return 32 + Math.round(10*num*9/5)/10;
 }
 
+function hex_to_rgb(hex) {
+    let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : {};
+}
+
+function calculate_luminance({r, g, b}) {
+    const red = 0.2126;
+    const green = 0.7152;
+    const blue = 0.0722;
+    const gamma = 2.4;
+
+    let a = [r, g, b].map((v) => {
+            v /= 255;
+            return v <= 0.03928
+            ? v / 12.92
+            : Math.pow((v + 0.055) / 1.055, gamma);
+        }
+    );
+    return a[0] * red + a[1] * green + a[2] * blue;
+}
+
+function calculate_contrast(color_a, color_b) {
+    let luminance_1 = calculate_luminance(hex_to_rgb(color_a));
+    let luminance_2 = calculate_luminance(hex_to_rgb(color_b));
+    let brightest = Math.max(luminance_1, luminance_2);
+    let darkest = Math.min(luminance_1, luminance_2);
+    return (brightest + 0.05) / (darkest + 0.05);
+}
+
+function select_outline_class(color_hex) {
+    const black_outline_class = "outline_black";
+    const white_outline_class = "outline_white";
+
+    const contrast_with_black = calculate_contrast(color_hex, "#000000");
+    const contrast_with_white = calculate_contrast(color_hex, "#ffffff");
+    if(contrast_with_black > contrast_with_white) {
+        return black_outline_class;
+    } else {
+        return white_outline_class;
+    }
+}
+
 export { expo, format_reading_time, format_working_time, 
         get_hit_chance, round_item_price,
         compare_game_version, is_a_older_than_b,
         stat_names, task_type_names, skill_consumable_tags, crafting_tags_to_skills,
-        celsius_to_fahrenheit
+        celsius_to_fahrenheit,
+        select_outline_class
     };
