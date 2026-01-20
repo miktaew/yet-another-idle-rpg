@@ -210,6 +210,11 @@ const rarity_colors = {
     mythical: "#ffa500"
 }
 
+const rarity_outlines = {};
+Object.keys(rarity_colors).forEach(rarity => {
+    rarity_outlines[rarity] = select_outline_class(rarity_colors[rarity]);
+});
+
 const crafting_pages = {}
 
 let selected_crafting_category;
@@ -324,19 +329,18 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
 
         if(!item.ignore_quality) {
             if(!options.skip_quality && options?.quality?.length == 2) {
-                const outline_class_1 = select_outline_class(rarity_colors[item.getRarity(options.quality[0])]);
-                const outline_class_2 = select_outline_class(rarity_colors[item.getRarity(options.quality[1])]);
+                const outline_class_1 = rarity_outlines[item.getRarity(options.quality[0])];
+                const outline_class_2 = rarity_outlines[item.getRarity(options.quality[1])];
                 item_tooltip += `<br><br><b>Quality: <span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${options.quality[0]}% </span> - <span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${options.quality[1]}% </span>`;
                 item_tooltip += `<br>[<span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}">${item.getRarity(options.quality[0])}</span>-<span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}">${item.getRarity(options.quality[1])}</span>] </b>`;
             } else {
-                const outline_class = select_outline_class(rarity_colors[item.getRarity(quality)]);
+                const outline_class = rarity_outlines[item.getRarity(quality)];
                 item_tooltip += `<br><br><b class="${outline_class}" style="color: ${rarity_colors[item.getRarity(quality)]}">Quality: ${quality}% [${item.getRarity(quality)}]</b>`;
             }
         }
 
         if(item.tags.unique) {
-            const outline_class = select_outline_class("##800080");
-            item_tooltip += `<br><br><b class="item_unique ${outline_class}">Unique</b>`;
+            item_tooltip += `<br><br><b class="item_unique outline_white">Unique</b>`;
         }
 
 
@@ -480,12 +484,12 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
         }
 
         if(!options.skip_quality && options?.quality?.length == 2) {
-            const outline_class_1 = select_outline_class(rarity_colors[item.getRarity(options.quality[0])]);
-            const outline_class_2 = select_outline_class(rarity_colors[item.getRarity(options.quality[1])]);
+            const outline_class_1 = rarity_outlines[item.getRarity(options.quality[0])];
+            const outline_class_2 = rarity_outlines[item.getRarity(options.quality[1])];
             item_tooltip += `<br><br><b>Quality: <span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${options.quality[0]}% </span> - <span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${options.quality[1]}% </span>`;
             item_tooltip += `<br>[<span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${item.getRarity(options.quality[0])}</span> - <span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${item.getRarity(options.quality[1])}</span>]</b>`;
         } else {
-            const outline_class = select_outline_class(rarity_colors[item.getRarity(quality)]);
+            const outline_class = rarity_outlines[item.getRarity(quality)];
             item_tooltip += `<br><br><b class="${outline_class}" style="color: ${rarity_colors[item.getRarity(quality)]}">Quality: ${quality}% [${item.getRarity(quality)}]</b>`;
         }
         if(item.component_tier) {
