@@ -1574,9 +1574,7 @@ class DialogueAction extends GameAction {
                         {dialogue: "swampland cook", lines: ["swampcook know", "swampcook kazoku"]},
                     ],
                     locks: {
-                        textlines: [
-                            {dialogue: "swampland chief", lines: ["swampchief mid help"]},
-                        ]
+                        textlines: {"swampland chief": ["swampchief mid help"]},
                     }
                 },
                 locks_lines: ["swampcook deliver", "swampcook obaru"],
@@ -1829,7 +1827,7 @@ class DialogueAction extends GameAction {
                         {category: "butchering", subcategory: "items", recipe_id: "Turtle shellplate"},
                     ],
                     locks: {
-                        textlines: [{dialogue: "swampland chief", lines: ["swampchief mid help"]}],
+                        textlines: {"swampland chief": ["swampchief mid help"]},
                     }
                 },
                 locks_lines: ["swamptanner deliver 2"],
@@ -1837,7 +1835,7 @@ class DialogueAction extends GameAction {
         },
         getDescription: ()=>{ 
             if(dialogues["swampland tanner"].actions["swamptanner deliver 2"].is_finished) {
-                return "swampchief description 3";
+                return "swamptanner description 3";
             } else if (dialogues["swampland tanner"].actions["swamptanner deliver 1"].is_finished) {
                 return "swamptanner description 2";
             } else {
