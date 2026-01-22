@@ -28,3 +28,5 @@ For modding purposes, it's recommended to at the very least take a look at the d
 Please keep in mind that the default branch you will see here is the `master` branch, while the one that's hosted is the `gh-pages` branch; on dev, the former might often have code that does yet not correspond to what you will see while playing
 
 Consider also calling `Verify_Game_Objects()` in the console, which is a custom built-in tool that will go through most of the content, checking things like properties having acceptable values, or references to other objects being correct. While neither infallible nor covering *everything*, it might save you a lot of time and annoyance.
+
+If you make an actual mod, it will be highly appreciated if you either make it as a fork of either repository, or if you at least let me know about its existence.

@@ -18,14 +18,14 @@
         <meta name="description" content="A text-based idle RPG game inspired by Proto23, with heavy focus on progression through skill leveling, created by Miktaew.">
         <meta name="author" content="Miktaew">
         <meta property="og:title" content="Yet Another Idle RPG">
-        <meta property="og:description" content="A text-based idle RPG game inspired by Proto23, with heavy focus on progression through skill leveling, created by Miktaew.">
+        <meta property="og:description" content="A text-based idle RPG game inspired by Proto23, with heavy focus on progression through skill leveling, created by Miktaew. Known as Nya-iRPG, yairpg, or sometimes just yair.">
         <meta property="og:image" content="https://miktaew.github.io/yet-another-idle-rpg-dev/resources/img/bigger_icon.png">
         <script type="application/ld+json">
         {
             "@context": "https://schema.org",
             "@type": "WebPage",
             "headline": "Yet Another Idle RPG",
-            "description": "A text-based idle RPG game inspired by Proto23, with heavy focus on progression through skill leveling, created by Miktaew.",
+            "description": "A text-based idle RPG game inspired by Proto23, with heavy focus on progression through skill leveling, created by Miktaew. Known as Nya-iRPG, yairpg, or sometimes just yair.",
             "image": "https://miktaew.github.io/yet-another-idle-rpg-dev/resources/img/bigger_icon.png",
             "author": {
                 "@type": "Person",
@@ -1007,9 +1007,10 @@
                     <input type="checkbox" id="options_log_gathering_result" name="options_log_gathering_result" value="options_log_gathering_result" onclick = "option_log_gathering_result()" checked>
                     <label for="options_log_gathering_result">Log total gathered materials on gathering finish</label>
                 </div>
-                <div class="options_choice">
+                <div class="options_choice options_choice_range">
                     <label for="options_expo_threshold">Use scientific notation for values over:</label>
-                    <input type="number" id="options_expo_threshold" name="options_expo_threshold" min="0" onchange="option_expo_threshold()" value="1e9">
+                    <input type="range" id="options_expo_threshold" name="options_expo_threshold" min="3" max="18" onchange="option_expo_threshold()" value="9" oninput="this.nextElementSibling.value = '1e'+this.value">
+                    <output>1e9</output>
                 </div>
                 <div class="options_choice">
                     <input type="checkbox" id="options_use_uncivilised_temperature_scale" name="options_use_uncivilised_temperature_scale" value="options_use_uncivilised_temperature_scale" onclick = "option_use_uncivilised_temperature_scale()">

@@ -513,13 +513,9 @@ input[type=checkbox], input[type=radio] {
 	left: 5px;
 	font-size: 20px;
  }
-
- #options_choices input {
-	outline: 1px solid black;
- }
  
  #options_expo_threshold {
-	width: 100px;
+	width: 160px;
  }
  
  .options_choice {
@@ -527,6 +523,14 @@ input[type=checkbox], input[type=radio] {
 	width: fit-content;
 	border: 2px solid gray;
 	padding: 3px;
+ }
+ .options_choice:not(.options_choice_range) input {
+	outline: 1px solid black;
+ }
+
+ .options_choice_range input {
+	accent-color: rgb(255, 255, 255);
+	background-color: red;
  }
 
  .options_button {
@@ -1062,12 +1066,12 @@ input[type=checkbox], input[type=radio] {
 	.stat_value {
 		text-align: right;
 		display: inline-block;
-		width: 65px;
+		width: 63px;
 	}
 
 	.stat_name {
 		display: inline-block;
-		width: 98px;
+		width: 100px;
 		padding-left: 4px;
 	}
 	.loot_name {

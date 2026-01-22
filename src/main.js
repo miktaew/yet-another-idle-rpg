@@ -425,11 +425,12 @@ function option_log_gathering_result(option) {
 function option_expo_threshold(option) {
     const input = document.getElementById("options_expo_threshold");
 
-    options.expo_threshold = input.value || option || 0;
+    options.expo_threshold = option || input.value || 0;
 
     if(option !== undefined) {
         input.value = option;
     }
+    input.nextElementSibling.value = '1e'+options.expo_threshold;
 }
 
 function option_use_uncivilised_temperature_scale(option) {

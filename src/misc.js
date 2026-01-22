@@ -57,7 +57,7 @@ function expo(number, precision = 3)
 
     if(number == 0) {
         return 0;
-    } else if(number >= options.expo_threshold || number < 0.01) {
+    } else if(number >= 10**options.expo_threshold || number < 0.01) {
         return number.toExponential(precision).replace(/[+-]/g,"");
     } else if(number > 10) {
         return Math.round(number).toLocaleString();
