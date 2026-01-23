@@ -1723,9 +1723,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Waterfall basin"] = new Location({ 
         connected_locations: [{location: locations["Lake beach"], custom_text: "Climb up the cliffside and return to the [Lake beach]", travel_time: 80, travel_time_skills: ["Climbing"]}], 
         getDescription: function() {
-            if(locations["Crab spawning grounds"].enemy_groups_killed >= 10 * locations["Crab spawning grounds"].enemy_count) { 
+            if(locations["Crab spawning grounds"].enemy_groups_killed >= 6 * locations["Crab spawning grounds"].enemy_count) { 
                 return "The waterfall at the bottom of the lake. Cool rushing waters and a sense of serene harmony make the area ideal for training your mind and body. Large crabs almost indistinguishable from the stone can be found along the shore of the basin. Off in the distance, you can just barely make out the overgrown remains of a old trail leading off into a swampy field";
-            } else if(locations["Crab spawning grounds"].enemy_groups_killed >= 5 * locations["Crab spawning grounds"].enemy_count) {
+            } else if(locations["Crab spawning grounds"].enemy_groups_killed >= 3 * locations["Crab spawning grounds"].enemy_count) {
                 return "The waterfall at the bottom of the lake. Large crabs almost indistinguishable from the stone inhabit the shore. The sound of roaring water echoing through the rock shelters provides a calming noise that you figure would make it easier to focus your mind";
             } else {
                 return "The waterfall at the bottom of the lake. Large crabs almost indistinguishable from the stone inhabit the shore and nearby rock shelters. You consider that the cool rushing waters from overhead might be an good way to train your body to endure tougher situations";

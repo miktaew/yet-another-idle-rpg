@@ -4311,7 +4311,7 @@ book_stats["Shellfish desires"] = new BookData({
     });
 	
     //TODO made them tier 2 and 3 for now, but are hard enough to get that they could be bumped to tier 4?
-    item_templates["Fried frog meat"] = new Material({
+    item_templates["Fried frog meat"] = new UsableItem({
         name: "Fried frog meat",
         description: "Tastes a bit like bird, and a bit like fish",
         value: 50,

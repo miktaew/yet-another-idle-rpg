@@ -858,6 +858,16 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_skill: "Butchering",
         recipe_level: [12,25],
     });
+    butchering_recipes.items["Piece of frog leather"] = new ItemRecipe({
+        name: "Piece of frog leather",
+        recipe_type: "material",
+        materials: [{ material_id: "Frog hide", count: 4 },
+                    { material_id: "Belmart leaf", count: 4 }],
+        result: {result_id: "Piece of frog leather", count: 1},
+        success_chance: [0.2,1],
+        recipe_level: [12,25],
+        recipe_skill: "Butchering",
+    });
     butchering_recipes.items["Piece of alligator leather"] = new ItemRecipe({
         name: "Piece of alligator leather",
         is_unlocked: false,
@@ -887,16 +897,6 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         success_chance: [0.1,1],
         recipe_skill: "Butchering",
         recipe_level: [27,37],
-    });
-    butchering_recipes.items["Piece of frog leather"] = new ItemRecipe({
-        name: "Piece of frog leather",
-        recipe_type: "material",
-        materials: [{ material_id: "Frog hide", count: 4 },
-                    { material_id: "Belmart leaf", count: 4 }],
-        result: {result_id: "Piece of frog leather", count: 1},
-        success_chance: [0.2,1],
-        recipe_level: [12,25],
-        recipe_skill: "Butchering",
     });
 
     butchering_recipes.items["Processed rat pelt"] = new ItemRecipe({
@@ -1288,33 +1288,51 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [10,15],
         recipe_skill: "Cooking",
     });
-    cooking_recipes.items["Crab bisque"] = new ItemRecipe({
-        name: "Crab bisque",
-        is_unlocked: false,
+    cooking_recipes.items["Fish skewer"] = new ItemRecipe({
+        name: "Fish skewer",
         recipe_type: "usable",
-        materials: [{material_id: "Crab meat", count: 3},
-                    {material_id: "Cooking herbs", count: 1},
-                    {material_id: "Wild potato", count: 2},
-                    {material_id: "Wild onion", count: 1},
-                    {material_id: "Glass bottle", count: 1}
-                ], 
-        result: {result_id: "Crab bisque", count: 1},
-        success_chance: [0.4,1],
-        recipe_level: [20,30],
+        materials: [{material_type: "small fish", count: 5}], 
+        result: {result_id: "Fish skewer", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [1,10],
         recipe_skill: "Cooking",
     });
-    cooking_recipes.items["Clam broth"] = new ItemRecipe({
-        name: "Clam broth",
-        is_unlocked: false,
+    cooking_recipes.items["Fried fish"] = new ItemRecipe({
+        name: "Fried fish",
         recipe_type: "usable",
-        materials: [{material_id: "Clam", count: 3},
-                    {material_id: "Cooking herbs", count: 1},
-                    {material_id: "Wild garlic", count: 1},
-                    {material_id: "Glass bottle", count: 1}
-                ], 
-        result: {result_id: "Clam broth", count: 1},
+        materials: [{material_type: "medium fish", count: 1}], 
+        result: {result_id: "Fried fish", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [7,15],
+        recipe_skill: "Cooking",
+    });
+    cooking_recipes.items["Fish steak"] = new ItemRecipe({
+        name: "Fish steak",
+        recipe_type: "usable",
+        materials: [{material_id: "Fish fillet", count: 1},
+                    {material_id: "Cooking herbs", count: 1}], 
+        result: {result_id: "Fish steak", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [7,15],
+        recipe_skill: "Cooking",
+    });
+    cooking_recipes.items["Fried frog meat"] = new ItemRecipe({
+        name: "Fried frog meat",
+        recipe_type: "usable",
+        materials: [{material_id: "Frog meat", count: 2}], 
+        result: {result_id: "Fried frog meat", count: 1},
         success_chance: [0.4,1],
-        recipe_level: [20,30],
+        recipe_level: [12,20],
+        recipe_skill: "Cooking",
+    });
+    cooking_recipes.items["Kingsized frog legs"] = new ItemRecipe({
+        name: "Kingsized frog legs",
+        recipe_type: "usable",
+        materials: [{ material_id: "Frog meat", count: 2},
+                    { material_id: "Cooking herbs", count: 2}], 
+        result: {result_id: "Kingsized frog legs", count: 1},
+        success_chance: [0.5,1],
+        recipe_level: [15,25],
         recipe_skill: "Cooking",
     });
     cooking_recipes.items["Alligator jerky"] = new ItemRecipe({
@@ -1347,20 +1365,6 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [25,35],
         recipe_skill: "Cooking",
     });
-    cooking_recipes.items["Turtle soup"] = new ItemRecipe({
-        name: "Turtle soup",
-        is_unlocked: false,
-        recipe_type: "usable",
-        materials: [{material_id: "Turtle meat", count: 1},
-                    {material_id: "Cooking herbs", count: 1},
-                    {material_id: "Wild potato", count: 1},
-                    {material_id: "Glass bottle", count: 1}
-                ], 
-        result: {result_id: "Turtle soup", count: 1},
-        success_chance: [0.4,1],
-        recipe_level: [20,30],
-        recipe_skill: "Cooking",
-    });
     cooking_recipes.items["Swampland skewer"] = new ItemRecipe({
         name: "Swampland skewer",
         is_unlocked: false,
@@ -1375,6 +1379,49 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Swampland skewer", count: 1},
         success_chance: [0.3,1],
         recipe_level: [27,37],
+        recipe_skill: "Cooking",
+    });
+    cooking_recipes.items["Crab bisque"] = new ItemRecipe({
+        name: "Crab bisque",
+        is_unlocked: false,
+        recipe_type: "usable",
+        materials: [{material_id: "Crab meat", count: 3},
+                    {material_id: "Cooking herbs", count: 1},
+                    {material_id: "Wild potato", count: 2},
+                    {material_id: "Wild onion", count: 1},
+                    {material_id: "Glass bottle", count: 1}
+                ], 
+        result: {result_id: "Crab bisque", count: 1},
+        success_chance: [0.4,1],
+        recipe_level: [20,30],
+        recipe_skill: "Cooking",
+    });
+    cooking_recipes.items["Clam broth"] = new ItemRecipe({
+        name: "Clam broth",
+        is_unlocked: false,
+        recipe_type: "usable",
+        materials: [{material_id: "Clam", count: 3},
+                    {material_id: "Cooking herbs", count: 1},
+                    {material_id: "Wild garlic", count: 1},
+                    {material_id: "Glass bottle", count: 1}
+                ], 
+        result: {result_id: "Clam broth", count: 1},
+        success_chance: [0.4,1],
+        recipe_level: [20,30],
+        recipe_skill: "Cooking",
+    });
+    cooking_recipes.items["Turtle soup"] = new ItemRecipe({
+        name: "Turtle soup",
+        is_unlocked: false,
+        recipe_type: "usable",
+        materials: [{material_id: "Turtle meat", count: 1},
+                    {material_id: "Cooking herbs", count: 1},
+                    {material_id: "Wild potato", count: 1},
+                    {material_id: "Glass bottle", count: 1}
+                ], 
+        result: {result_id: "Turtle soup", count: 1},
+        success_chance: [0.4,1],
+        recipe_level: [20,30],
         recipe_skill: "Cooking",
     });
     cooking_recipes.items["Basin gumbo"] = new ItemRecipe({
@@ -1396,55 +1443,6 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Basin gumbo", count: 1},
         success_chance: [0.1,1],
         recipe_level: [35,60],
-        recipe_skill: "Cooking",
-    });
-
-    cooking_recipes.items["Fish skewer"] = new ItemRecipe({
-        name: "Fish skewer",
-        recipe_type: "usable",
-        materials: [{material_type: "small fish", count: 5}], 
-        result: {result_id: "Fish skewer", count: 1},
-        success_chance: [0.5,1],
-        recipe_level: [1,10],
-        recipe_skill: "Cooking",
-    });
-    cooking_recipes.items["Fried fish"] = new ItemRecipe({
-        name: "Fried fish",
-        recipe_type: "usable",
-        materials: [{material_type: "medium fish", count: 1}], 
-        result: {result_id: "Fried fish", count: 1},
-        success_chance: [0.5,1],
-        recipe_level: [7,15],
-        recipe_skill: "Cooking",
-    });
-    cooking_recipes.items["Fish steak"] = new ItemRecipe({
-        name: "Fish steak",
-        recipe_type: "usable",
-        materials: [{material_id: "Fish fillet", count: 1},
-                    {material_id: "Cooking herbs", count: 1}], 
-        result: {result_id: "Fish steak", count: 1},
-        success_chance: [0.5,1],
-        recipe_level: [7,15],
-        recipe_skill: "Cooking",
-    });
-
-    cooking_recipes.items["Fried frog meat"] = new ItemRecipe({
-        name: "Fried frog meat",
-        recipe_type: "usable",
-        materials: [{material_id: "Frog meat", count: 2}], 
-        result: {result_id: "Fried frog meat", count: 1},
-        success_chance: [0.4,1],
-        recipe_level: [12,20],
-        recipe_skill: "Cooking",
-    });
-    cooking_recipes.items["Kingsized frog legs"] = new ItemRecipe({
-        name: "Kingsized frog legs",
-        recipe_type: "usable",
-        materials: [{ material_id: "Frog meat", count: 2},
-                    { material_id: "Cooking herbs", count: 2}], 
-        result: {result_id: "Kingsized frog legs", count: 1},
-        success_chance: [0.5,1],
-        recipe_level: [15,25],
         recipe_skill: "Cooking",
     });
     
