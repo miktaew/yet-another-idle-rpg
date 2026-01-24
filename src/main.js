@@ -4052,16 +4052,37 @@ function load(save_data) {
 
         if(is_a_older_than_b(save_data["game version"], "v0.5.1")) {
             //compatibility for some dialogues
+
             process_rewards({
                 rewards: {
-                        textlines: [{dialogue: "village guard", lines: ["serious", "hi", "tips 2"]},
-                                    {dialogue: "village elder", lines: ["crab rumors"]},
-                                    //crab could be done the classic way (via one of repeatable textlines), but since this is alredy being done anyway...
-                        ],
-                    },
+                    textlines: [{dialogue: "village elder", lines: ["crab rumors"]}]
+                },
                 inform_overall: false,
             });
+
+            if(dialogues["village guard"].textlines["hello"].is_finished) {
+                process_rewards({
+                    rewards: {
+                        textlines: [
+                            {dialogue: "village elder", lines: ["about guard"]},
+                            {dialogue: "old craftsman", lines: ["about guard"]},
+                            {dialogue: "village millers", lines: ["about guard"]},
+                        ],
+                    },
+                    inform_overall: false,
+                });
+            }
+
+            if(dialogues["village guard"].textlines["wide"].is_finished) {
+                process_rewards({
+                    rewards: {
+                        textlines: [{dialogue: "village guard", lines: ["hi", "tips 2", "serious", "teach more"]}]
+                    },
+                    inform_overall: false,
+                });
+            }
         }
+
 
         Object.keys(save_data.traders).forEach(function(trader) { 
             let trader_item_list = [];
