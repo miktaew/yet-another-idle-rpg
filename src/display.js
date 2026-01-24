@@ -4685,8 +4685,21 @@ function create_new_bestiary_entry(enemy_name) {
     bestiary_list.appendChild(bestiary_entry_divs[enemy_name]);
 
     //sorts bestiary_list div by enemy rank
-    [...bestiary_list.children].sort((a,b)=>parseInt(a.getAttribute("data-bestiary_rank")) - parseInt(b.getAttribute("data-bestiary_rank")))
-                                .forEach(node=>bestiary_list.appendChild(node));
+    [...bestiary_list.children].sort((a,b)=> {
+        const rank_a = parseInt(a.getAttribute("data-bestiary_rank"));
+        const rank_b = parseInt(b.getAttribute("data-bestiary_rank"));
+        if(rank_a != rank_b) {
+            return rank_a - rank_b;
+        } else {
+            const name_a = a.querySelector(".bestiary_entry_name").innerText;
+            const name_b = b.querySelector(".bestiary_entry_name").innerText;
+            if(name_a > name_b) {
+                return 1;
+            } else {
+                return -1;
+            }
+        }
+    }).forEach(node=>bestiary_list.appendChild(node));
 }
 
 function create_bestiary_entry_content(enemy_name) {

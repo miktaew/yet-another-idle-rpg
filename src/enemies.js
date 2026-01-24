@@ -158,7 +158,7 @@ class Enemy {
         name: "Elite wolf rat",
         description: "Rat with size of a dog, much more ferocious than its relatives",
         xp_value: 4,
-        rank: 1,
+        rank: 2,
         size: enemy_sizes.SMALL,
         tags: ["living", "beast", "wolf rat"],
         stats: {health: 80, attack: 32, agility: 30, dexterity: 24, intuition: 24, magic: 0, attack_speed: 1.5, defense: 8},
@@ -199,7 +199,7 @@ class Enemy {
 
     enemy_templates["Starving wolf"] = new Enemy({
         name: "Starving wolf", description: "A big, wild and hungry canine", 
-        xp_value: 3,
+        xp_value: 5,
         rank: 2,
         tags: ["living", "beast"],
         stats: {health: 200, attack: 22, agility: 34, dexterity: 34, intuition: 32, magic: 0, attack_speed: 1, defense: 12},
@@ -213,7 +213,7 @@ class Enemy {
     enemy_templates["Young wolf"] = new Enemy({
         name: "Young wolf",
         description: "A small, wild canine",
-        xp_value: 3,
+        xp_value: 5,
         rank: 2,
         tags: ["living", "beast"],
         stats: {health: 150, attack: 25, agility: 34, dexterity: 30, intuition: 24, magic: 0, attack_speed: 1.4, defense: 6},
@@ -227,7 +227,7 @@ class Enemy {
     enemy_templates["Wolf"] = new Enemy({
         name: "Wolf",
         description: "A large, wild canine",
-        xp_value: 6,
+        xp_value: 8,
         rank: 3,
         tags: ["living", "beast"],
         stats: {health: 250, attack: 40, agility: 50, dexterity: 50, intuition: 40, magic: 0, attack_speed: 1.3, defense: 20},

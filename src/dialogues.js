@@ -275,7 +275,14 @@ class DialogueAction extends GameAction {
                 rewards: {
                     locations: [{location: "Forest road"}, {location: "Infested field"}, {location: "Nearby cave"}],
                     dialogues: ["village guard", "old craftsman"],
+                    textlines: [{dialogue: "village elder", lines: ["about guard"]}],
                 },
+            }),
+            "about guard": new Textline({
+                name: "elder about guard",
+                text: "elder about guard answ",
+                is_unlocked: false,
+                locks_lines: ["about guard"],
             }),
             "new tunnel": new Textline({
                 name: "elder tunnel",
@@ -349,7 +356,7 @@ class DialogueAction extends GameAction {
                 name: "craftsman hello",
                 text: "craftsman hello answ",
                 rewards: {
-                    textlines: [{dialogue: "old craftsman", lines: ["learn", "leave"]}],
+                    textlines: [{dialogue: "old craftsman", lines: ["learn", "leave", "about guard"]}],
                 },
                 locks_lines: ["hello"],
             }),
@@ -399,6 +406,12 @@ class DialogueAction extends GameAction {
                 text: "craftsman remind 4 answ",
                 is_unlocked: false,
             }),
+            "about guard": new Textline({
+                name: "craftsman about guard",
+                text: "craftsman about guard answ",
+                is_unlocked: false,
+                locks_lines: ["about guard"],
+            }),
         },
         description: "craftsman description",
     });
@@ -411,7 +424,7 @@ class DialogueAction extends GameAction {
                 name: "guard hello",
                 text: "guard hello answ",
                 rewards: {
-                    textlines: [{dialogue: "village guard", lines: ["tips", "job"]}],
+                    textlines: [{dialogue: "village guard", lines: ["tips", "job", "hi"]}],
                 },
                 locks_lines: ["hello"],
             }),
@@ -464,7 +477,10 @@ class DialogueAction extends GameAction {
                 },
                 locks_lines: ["quick"],
                 rewards: {
-                    stances: ["quick"]
+                    stances: ["quick"],
+                    skill_xp: {
+                        Combat: 100,
+                    }
                 }
             }),
             "heavy": new Textline({
@@ -478,7 +494,10 @@ class DialogueAction extends GameAction {
                 },
                 locks_lines: ["heavy"],
                 rewards: {
-                    stances: ["heavy"]
+                    stances: ["heavy"],
+                    skill_xp: {
+                        Combat: 100,
+                    }
                 }
             }),
             "wide": new Textline({
@@ -488,8 +507,17 @@ class DialogueAction extends GameAction {
                 locks_lines: ["wide"],
                 rewards: {
                     stances: ["wide"],
-                    textlines: [{dialogue: "village guard", lines: ["serious", "hi", "tips 2"]}],
+                    textlines: [{dialogue: "village guard", lines: ["serious", "hi", "tips 2", "teach more"]}],
+                    skill_xp: {
+                        Combat: 100,
+                    }
                 }
+            }),
+            "teach more": new Textline({
+                name: "guard teach more",
+                is_unlocked: false,
+                text: "guard teach more answ",
+                locks_lines: ["teach more"],
             }),
             "serious": new Textline({
                 name: "guard serious",
@@ -501,7 +529,6 @@ class DialogueAction extends GameAction {
                 name: "guard tips 2",
                 is_unlocked: false,
                 text: "guard tips 2 answ",
-                locks_lines: ["tips 2"],
                 rewards: {
                     textlines: [{dialogue: "village guard", lines: ["scars"]}],
                 }
@@ -529,7 +556,9 @@ class DialogueAction extends GameAction {
             "try to pat": new DialogueAction({
                 action_id: "try to pat",
                 is_unlocked: false,
+                repeatable: true,
                 starting_text: "guard try",
+                floating_click_effects: ['(ノ= ⩊ = )ノ', '( ´･･)ﾉ'],
                 description: "",
                 action_text: "",
                 success_text: "guard try answ",
@@ -548,9 +577,15 @@ class DialogueAction extends GameAction {
                 name: "millers hello",
                 text: "millers hello answ",
                 rewards: {
-                    textlines: [{dialogue: "village millers", lines: ["how", "young"]}],
+                    textlines: [{dialogue: "village millers", lines: ["how", "young", "about guard"]}],
                 },
                 locks_lines: ["hello"],
+            }),
+            "about guard": new Textline({
+                name: "millers about guard",
+                text: "millers about guard answ",
+                is_unlocked: false,
+                locks_lines: ["about guard"],
             }),
             "how": new Textline({
                 is_unlocked: false,

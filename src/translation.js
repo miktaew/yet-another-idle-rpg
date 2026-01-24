@@ -73,6 +73,9 @@ const translations = {
         "elder cave clear answ": `Then I can't call you "too weak" anymore, can I? You are free to leave whenever you want, but still, be careful. You might also want to ask the guard for some tips about the outside. She used to be an adventurer.`,
         "elder leave 4": "Can I leave the village?",
         "elder leave 4 answ": "You are strong enough, you can leave and come whenever you want.",
+        "elder about guard": "So what's the story of that village guard girl?",
+        "elder about guard answ": "Mhm... She left the village as but a kid, looking to become a famous adventurer. She returned over a decade later, covered in scars and unwilling to speak of what she went through."
+                                 +" It's a pity that she never gained the fame she dreamt of, but at least she became strong enough to keep her home safe.",
         "elder tunnel": "I found an even deeper tunnel in the cave",
         "elder tunnel answ": "The what? I have a very bad feeling about this... You better avoid it until you get better equipment and some solid shield, I can bet it's gonna be a lot more dangerous.",
         "elder training": "I think I went far enough with basic training, do you have any other suggestions?",
@@ -115,8 +118,10 @@ const translations = {
         "craftsman remind 3 answ": "Ahh, there's multiple ways of that. You can gain them from fallen foes, you can gather them around, or you can even buy them if you have some spare coin.",
         "craftsman remind 4": "How do I get better at crafting?",
         "craftsman remind 4 answ": "Ahh, there aren't any secrets, you just need to keep practicing it. Just don't spend your entire life working on same louse materials, try to work on stronger stuff when you feel confident. There's a limit to how much you can learn by working with rat leather, isn't there?",
+        "craftsman about guard": "So what's the story of that village guard girl?",
+        "craftsman about guard answ": "Ahhh, our little warrioress... She once wanted to be an adventurer, but I believe it didn't work out for her. Hard work is not enough when talent is lacking nor can it allow one to conquer fate, I'm afraid. Still, she's a good girl and keeps us safe now.",
         //
-        "guard description": "You see a woman in light armor, with a spear in her hand and two daggers on her belt. There's a scar across her face.",
+        "guard description": "You see a woman in a light armor, with a spear in her hand and two daggers on her belt. There's a scar across her face.",
         "guard hello": "Hello?",
         "guard hello answ": "Hello. I see you are finally leaving, huh?",
         "guard job": "Do you maybe have any jobs for me?",
@@ -152,6 +157,8 @@ const translations = {
         "guard pats answ": "[She smiles and pats your head a few more times]",
         "guard try": "[Try to pat her head]",
         "guard try answ": '[Nuh uh. She pats your head instead~~~]',
+        "guard teach more": "Can you teach me something more?",
+        "guard teach more answ": "I'm sorry, but no, that will have to be enough. Trust me, I'm generally a terrible teacher, I know that from experience. It will be better for you to not get any bad habits because of me.",
         //
         "millers description": "You see two teenagers with mischievous looks on their faces. It's only with great deal of effort that you manage to recognize them both as males. One of them has red hair, the other gray.",
         "millers hello": "Hello there",
@@ -182,6 +189,10 @@ const translations = {
         "millers kiss more answ": "[Red] Hmmm... should we? \n[Gray] Maybe some other time. \n[Red] You heard him~",
         "millers how2": "So, how's it going?",
         "millers how2 answ": "[Red] Kinda boring, but at least company is good. \n[Gray] What he said.",
+        "millers about guard": "Do you know anything about that girl who guards the village?",
+        "millers about guard answ": "[Red] Sure, she's like one of strongest in the world. \n[Gray] What he says, she was among strongest adventurers on the entire continent, but then retired and came back home."
+                                +" \n[Red] No idea why though. And no one here knows or realizes, that's a bit silly~ \n[Gray] When they hear there was a powerful adventurer of same name and looks as her, fools just assume that it's a pure coincidence and a completely different person."
+                                +" \n[Red] She doesn't seem to care much about it, probably prefers peace and quiet.",
         //
         "g guard description": "You see a massive man in a steel chainmail, with a spear in his hand and a sword on his belt.",
         "g guard hello": "Hello, can I get in?",
@@ -529,6 +540,7 @@ const translations = {
         "craftsman learn answ": "Ahh, that's great. Well then... \n*[Old man spends some time explaining all the important basics of crafting and providing"
                 +" you with tips, his large fingers proving to be as nimble as they seemed]*\n"
                 + "Ahh, and before I forget, here, take these. They will be helpful for gathering necessary materials.",
+        "craftsman about guard answ": "Ahhh, our fierce she-wolf... She once wanted to be an adventurer, but I believe it didn't work out for her. Hard work is not enough when talent is lacking nor can it allow one to conquer fate. Still, she's a good girl and keeps us safe now.",
         //
         "guard description": "You see a tall woman in light armor, with a spear in her hand and two daggers on her belt. "
                 +"Her sharp fuzzy ears rotate every now and then towards any new sound, while her fluffy tail remains motionless. There's a scar across her face."
@@ -558,6 +570,9 @@ const translations = {
         "millers reject mean answ": "[Cat] Whatever you say~",
         "millers kiss more answ": "[Cat] Hmmm... should we? \n[Mouse] Maybe some other time. \n[Mouse] You heard him~",
         "millers how2 answ": "[Cat] Kinda boring, but at least company is good. \n[Mouse] What he said.",
+        "millers about guard answ": "[Cat] Sure, she's like one of strongest in the world. \n[Mouse] What he says, she was among strongest adventurers on the entire continent, but then retired and came back home."
+                                +" \n[Cat] No idea why though. And no one here knows or realizes, that's a bit silly~ \n[Mouse] When they hear there was a powerful adventurer, a wolf of same name and looks as her, fools just assume that it's a pure coincidence and a completely different person."
+                                +" \n[Cat] She doesn't seem to care much about it, probably prefers peace and quiet.",
         //
         "g guard description": "You see a massive, hairy man with round ears and a tiny tail. He's clad in a steel chainmail, with a spear in his hand and an axe on his belt.",
         //

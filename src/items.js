@@ -1047,7 +1047,7 @@ book_stats["ABC for kids"] = new BookData({
     literacy_xp_rate: 1,
     bonuses: {
         xp_multipliers: {
-            all: 1.1,
+            all: 1.2,
         }
     },
 });
@@ -1057,7 +1057,7 @@ book_stats["Old combat manual"] = new BookData({
     literacy_xp_rate: 1,
     bonuses: {
         xp_multipliers: {
-            Combat: 1.2,
+            Combat: 1.5,
         }
     },
 });
@@ -1067,7 +1067,7 @@ book_stats["Twist liek a snek"] = new BookData({
     literacy_xp_rate: 1,
     bonuses: {
         xp_multipliers: {
-            Evasion: 1.2,
+            Evasion: 1.5,
         },
         multipliers: {
             agility: 1.1,
@@ -1092,7 +1092,7 @@ book_stats["Medicine for dummies"] = new BookData({
     },
     bonuses: {
         xp_multipliers: {
-            Medicine: 1.2,
+            Medicine: 1.5,
         },
     }
 });
@@ -1113,7 +1113,7 @@ book_stats["Ode to Whimsy, and other poems"] = new BookData({
     literacy_xp_rate: 4,
     bonuses: {
         xp_multipliers: {
-            all: 1.1,
+            all: 1.2,
         }
     },
 });
@@ -1149,7 +1149,7 @@ book_stats["Shellfish desires"] = new BookData({
     },
     bonuses: {
         xp_multipliers: {
-            Cooking: 1.2,
+            Cooking: 1.5,
         },
     }
 });
