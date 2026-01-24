@@ -94,6 +94,9 @@
                 item: String //item key
                 count: Number //item count
             }
+            //OR
+            String // item key; 
+            // just that, count will be defaulted to 1; can be mixed, e.g. items: ["Fresh bread", {item: "Stale bread", count:5 }]
         ]
         
         move_to: {

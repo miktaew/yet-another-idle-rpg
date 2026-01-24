@@ -2446,11 +2446,18 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
 
     if(rewards.items && !only_unlocks) {
         for(let i = 0; i < rewards.items.length; i++) {
-            const item = item_templates[rewards.items[i]];
-            //log_message(`${character.name} obtained "${item.getName()} x${rewards.items[i].count||1}"`);
-            //add_to_character_inventory([{item_key: item.getInventoryKey(), count: rewards.items[i].count}]);
-            log_message(`${character.name} obtained "${item.getName()} x1"`);
-            add_to_character_inventory([{item_key: item.getInventoryKey(), count: 1}]);
+            let item;
+            let count;
+            if(typeof rewards.items[i] === "string") {
+                item = item_templates[rewards.items[i]];
+                count = 1;
+            } else {
+                item = item_templates[rewards.items[i].item];
+                count = rewards.items[i].count || 1;
+            }
+            
+            log_message(`${character.name} obtained "${item.getName()} x${count}"`);
+            add_to_character_inventory([{item_key: item.getInventoryKey(), count}]);
         }
     }
 
