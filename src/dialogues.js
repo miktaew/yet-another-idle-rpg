@@ -1,7 +1,6 @@
 "use strict";
 
 import { GameAction } from "./actions.js";
-import { capitalize_first_letter } from "./display.js";
 
 const dialogues = {};
 
@@ -21,7 +20,7 @@ class Dialogue {
         getDescription = ()=>{return this.description;},
         location_name
     })  {
-        this.name = name; //displayed name, e.g. "Village elder"
+        this.name = name; //displayed name, e.g. "Village elder"; if id is not provided, name must match the key dialogue has in dialogues object
         this.getName = getName;
         this.id = id || this.name;
         this.starting_text = starting_text;
@@ -35,17 +34,6 @@ class Dialogue {
         this.getDescription = getDescription;
 
         this.location_name = location_name; //this is purely informative and wrong value shouldn't cause any actual issues
-
-        //definitions use .locks_lines property instead of doing it through rewards because it's just simpler, but it's actually handled through rewards so it gets moved there
-        Object.keys(this.textlines).forEach(textline_key => {
-            const textline = this.textlines[textline_key];
-            if(textline.locks_lines) {
-                if(!textline.rewards.locks.textlines[this.id]) {
-                    textline.rewards.locks.textlines[this.id] = [];
-                }
-                textline.rewards.locks.textlines[this.id].push(...textline.locks_lines);
-            }
-        });
     }
 }
 
@@ -68,6 +56,7 @@ class Textline {
                             },
                 branches_into = [],
                 locks_lines = [], //for lines to be locked in same dialogue
+                //it's a simplified version of doing rewards: {locks: textlines: {...blah blah blah, values from it are actually autofilled in that form in a script at the end of this file
                 otherUnlocks,
                 required_flags,
                 display_conditions = [],
@@ -283,6 +272,9 @@ class DialogueAction extends GameAction {
                 text: "elder about guard answ",
                 is_unlocked: false,
                 locks_lines: ["about guard"],
+                rewards: {
+                    items: ["Fresh bread", {item: "Fresh bread", count: 5}],
+                }
             }),
             "new tunnel": new Textline({
                 name: "elder tunnel",
@@ -2078,5 +2070,25 @@ class DialogueAction extends GameAction {
     });
     */
 })();
+
+
+//setup ids
+Object.keys(dialogues).forEach(dialogue_key => {
+    const dial = dialogues[dialogue_key];
+    dialogues[dialogue_key].id = dialogue_key;
+    if(!dialogues[dialogue_key].getName()) {
+        dialogues[dialogue_key].name = dialogue_key;
+    }
+
+    Object.keys(dial.textlines).forEach(textline_key => {
+        const textline = dial.textlines[textline_key];
+        if(textline.locks_lines) {
+            if(!textline.rewards.locks.textlines[dialogue_key]) {
+                textline.rewards.locks.textlines[dialogue_key] = [];
+            }
+            textline.rewards.locks.textlines[dialogue_key].push(...textline.locks_lines);
+        }
+    });
+});
 
 export {dialogues};
