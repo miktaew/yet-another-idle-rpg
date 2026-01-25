@@ -3424,10 +3424,10 @@ function update_displayed_stats() {
     } else {
         atk = Math.round(10*atk)/10;
     }
-    attack_stats.children[0].innerHTML = `Atk: ${atk}`;
-    attack_stats.children[1].innerHTML = `Spd: ${Math.round(character.get_attack_speed()*100)/100}`;
-    attack_stats.children[2].innerHTML = `AP:  ${Math.round(ap)}`;
-    attack_stats.children[4].innerHTML = `Def: ${Math.round(character.stats.full.defense)} `;
+    attack_stats.children[0].innerText = `Atk: ${atk}`;
+    attack_stats.children[1].innerText = `Spd: ${Math.round(character.get_attack_speed()*100)/100}`;
+    attack_stats.children[2].innerText = `AP:  ${Math.round(ap)}`;
+    attack_stats.children[4].innerText = `Def: ${Math.round(character.stats.full.defense)} `;
 }
 
 function update_stat_description(stat) {
@@ -3456,16 +3456,35 @@ function update_bar_tooltips(){
  * health bar tooltip, max health only
  */
 function update_health_bar_tooltip() {
-    health_tooltip_div.innerHTML = "<b>Max health:</b> " + Math.round(character.stats.full.max_health) + "<br>";
-    health_tooltip_div.innerHTML += create_stat_breakdown("max_health");
+    let html_content = "<b>Max health:</b> " + Math.round(character.stats.full.max_health) + "<br>";
+    html_content += create_stat_breakdown("max_health");
 
-    health_tooltip_div.innerHTML += "<br>------------------------<br><b>Health regen (flat):</b> " + Math.round(10*character.stats.full.health_regeneration_flat)/10 + "<br>";
-    health_tooltip_div.innerHTML += create_stat_breakdown("health_regeneration_flat");
+    if(character.stats.full.health_regeneration_flat) {
+        html_content += "<br>------------------------<br><b>Health regen (flat):</b> " + Math.round(10*character.stats.full.health_regeneration_flat)/10 + "<br>";
+        html_content += create_stat_breakdown("health_regeneration_flat");
+    }
 
-    health_tooltip_div.innerHTML += "<br>------------------------<br><b>Health regen (%):</b> " + Math.round(10*character.stats.full.health_regeneration_percent)/10 + "<br>";
-    health_tooltip_div.innerHTML += create_stat_breakdown("health_regeneration_percent");
+    if(character.stats.full.health_regeneration_percent) {
+        html_content += "<br>------------------------<br><b>Health regen (%):</b> " + Math.round(10*character.stats.full.health_regeneration_percent)/10 + "<br>";
+        html_content += create_stat_breakdown("health_regeneration_percent");
+    }
+
+    if(character.stats.full.health_loss_flat) {
+        html_content += "<br>------------------------<br><b>Health loss (flat):</b> " + Math.round(10*character.stats.full.health_loss_flat)/10 + "<br>";
+        html_content += create_stat_breakdown("health_loss_flat");
+    }
+
+    if(character.stats.full.health_loss_percent) {
+        html_content += "<br>------------------------<br><b>Health loss (%):</b> " + Math.round(10*character.stats.full.health_loss_percent)/10 + "<br>";
+        html_content += create_stat_breakdown("health_loss_percent");
+    }
+
+    const health_recovery_balance = character.stats.full.health_regeneration_flat + character.stats.full.health_loss_flat + character.stats.full.max_health * (character.stats.full.health_regeneration_percent + character.stats.full.health_loss_percent);
+
+    html_content += "<br>------------------------<br><b>Total health balance:</b> " + Math.round(10*health_recovery_balance)/10 + "<br>";
+
+    health_tooltip_div.innerHTML = html_content;
 }
-
 
 /**
  * stamina bar tooltip, max and efficiency only
@@ -3474,29 +3493,46 @@ function update_stamina_bar_tooltip() {
     stamina_tooltip_div.innerHTML = "<b>Max stamina:</b> " + Math.round(character.stats.full.max_stamina) + "<br>";
     stamina_tooltip_div.innerHTML += create_stat_breakdown("max_stamina");
 
-    stamina_tooltip_div.innerHTML += "<br>------------------------<br><b>Stamina efficiency:</b> " + Math.round(100*character.stats.full.stamina_efficiency)/100 + "<br>";
-    stamina_tooltip_div.innerHTML += create_stat_breakdown("stamina_efficiency");
+    if(character.stats.full.stamina_efficiency != 1) {
+        stamina_tooltip_div.innerHTML += "<br>------------------------<br><b>Stamina efficiency:</b> " + Math.round(100*character.stats.full.stamina_efficiency)/100 + "<br>";
+        stamina_tooltip_div.innerHTML += create_stat_breakdown("stamina_efficiency");
+    }
 
-    stamina_tooltip_div.innerHTML += "<br>------------------------<br><b>Stamina regen (flat):</b> " + Math.round(10*character.stats.full.stamina_regeneration_flat)/10 + "<br>";
-    stamina_tooltip_div.innerHTML += create_stat_breakdown("stamina_regeneration_flat");
+    if(character.stats.full.stamina_regeneration_flat) {
+        stamina_tooltip_div.innerHTML += "<br>------------------------<br><b>Stamina regen (flat):</b> " + Math.round(10*character.stats.full.stamina_regeneration_flat)/10 + "<br>";
+        stamina_tooltip_div.innerHTML += create_stat_breakdown("stamina_regeneration_flat");
+    }
 
-    stamina_tooltip_div.innerHTML += "<br>------------------------<br><b>Stamina regen (%):</b> " + Math.round(10*character.stats.full.stamina_regeneration_percent)/10 + "<br>";
-    stamina_tooltip_div.innerHTML += create_stat_breakdown("stamina_regeneration_percent");
+    if(character.stats.full.stamina_regeneration_percent) {
+        stamina_tooltip_div.innerHTML += "<br>------------------------<br><b>Stamina regen (%):</b> " + Math.round(10*character.stats.full.stamina_regeneration_percent)/10 + "<br>";
+        stamina_tooltip_div.innerHTML += create_stat_breakdown("stamina_regeneration_percent");
+    }
 }
 
 function update_xp_bar_tooltip() {
 
-    xp_bar_tooltip_div.innerHTML = "<b>Global xp multiplier:</b> " + Math.round(100*character.xp_bonuses.total_multiplier.all)/100 + "<br>";
-    xp_bar_tooltip_div.innerHTML += create_xp_bonus_breakdown("all", false);
 
-    xp_bar_tooltip_div.innerHTML += "<br>------------------------<br><b>Hero xp multiplier:</b> " + Math.round(100*character.xp_bonuses.total_multiplier.hero)/100 
-                                    + " (with global: " + Math.round(get_hero_xp_gain()*100)/100 +")<br>";
-    xp_bar_tooltip_div.innerHTML += create_xp_bonus_breakdown("hero", false);
+    let html_content = "";
+    if(character.xp_bonuses.total_multiplier.all != 1) {
+        html_content += "<b>Global xp multiplier:</b> " + Math.round(100*character.xp_bonuses.total_multiplier.all)/100 + "<br>";
+        html_content += create_xp_bonus_breakdown("all", false);
+    } else {
+        html_content += "<b>No global xp multipliers</b><br>";
+    }
 
-    xp_bar_tooltip_div.innerHTML += "<br>------------------------<br><b>Skill xp multiplier:</b> " + Math.round(100*character.xp_bonuses.total_multiplier.all_skill)/100
-                                    + " (with global: " + Math.round(get_skills_overall_xp_gain()*100)/100 +")<br>";
-    xp_bar_tooltip_div.innerHTML += create_xp_bonus_breakdown("all_skill", false);
+    if(character.xp_bonuses.total_multiplier.hero != 1) {
+        html_content += "<br>------------------------<br><b>Hero xp multiplier:</b> " + Math.round(100*character.xp_bonuses.total_multiplier.hero)/100 
+                                        + " (with global: " + Math.round(get_hero_xp_gain()*100)/100 +")<br>";
+        html_content += create_xp_bonus_breakdown("hero", false);
+    }
 
+    if(character.xp_bonuses.total_multiplier.all_skill != 1) {
+        html_content += "<br>------------------------<br><b>Skill xp multiplier:</b> " + Math.round(100*character.xp_bonuses.total_multiplier.all_skill)/100
+                                        + " (with global: " + Math.round(get_skills_overall_xp_gain()*100)/100 +")<br>";
+        html_content += create_xp_bonus_breakdown("all_skill", false);
+    }
+
+    xp_bar_tooltip_div.innerHTML = html_content;
 }
 
 /**
