@@ -191,7 +191,7 @@ const translations = {
         "millers how2 answ": "[Red] Kinda boring, but at least company is good. \n[Gray] What he said.",
         "millers about guard": "Do you know anything about that girl who guards the village?",
         "millers about guard answ": "[Red] Sure, she's like one of strongest in the world. \n[Gray] What he says, she was among strongest adventurers on the entire continent, but then retired and came back home."
-                                +" \n[Red] No idea why though. And no one here knows or realizes, that's a bit silly~ \n[Gray] When they hear there was a powerful adventurer of same name and looks as her, fools just assume that it's a pure coincidence and a completely different person."
+                                +" \n[Red] No idea why though. And no one here knows or realizes, that's sooooo stupid~ \n[Gray] When they hear there was a powerful adventurer of same name and looks as her, fools just assume that it's a pure coincidence and a completely different person."
                                 +" \n[Red] She doesn't seem to care much about it, probably prefers peace and quiet.",
         //
         "g guard description": "You see a massive man in a steel chainmail, with a spear in his hand and a sword on his belt.",
@@ -571,7 +571,7 @@ const translations = {
         "millers kiss more answ": "[Cat] Hmmm... should we? \n[Mouse] Maybe some other time. \n[Mouse] You heard him~",
         "millers how2 answ": "[Cat] Kinda boring, but at least company is good. \n[Mouse] What he said.",
         "millers about guard answ": "[Cat] Sure, she's like one of strongest in the world. \n[Mouse] What he says, she was among strongest adventurers on the entire continent, but then retired and came back home."
-                                +" \n[Cat] No idea why though. And no one here knows or realizes, that's a bit silly~ \n[Mouse] When they hear there was a powerful adventurer, a wolf of same name and looks as her, fools just assume that it's a pure coincidence and a completely different person."
+                                +" \n[Cat] No idea why though. And no one here knows or realizes, that's sooooo stupid~ \n[Mouse] When they hear there was a powerful adventurer, a wolf of same name and looks as her, fools just assume that it's a pure coincidence and a completely different person."
                                 +" \n[Cat] She doesn't seem to care much about it, probably prefers peace and quiet.",
         //
         "g guard description": "You see a massive, hairy man with round ears and a tiny tail. He's clad in a steel chainmail, with a spear in his hand and an axe on his belt.",
