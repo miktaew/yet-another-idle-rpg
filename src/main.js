@@ -712,7 +712,7 @@ function start_game_action(action_key, event) {
     }
 
     if(game_action.attempt_duration > 0) {
-        let current_iterations = 0;
+        let current_iterations = game_action.keep_progress?game_action.accumulated_progress:0;
         const total_iterations = game_action.attempt_duration/0.1;
 
         game_action_interval = setInterval(()=>{
@@ -722,6 +722,9 @@ function start_game_action(action_key, event) {
             }
 
             current_iterations++;
+            if(game_action.keep_progress) {
+                game_action.accumulated_progress = current_iterations;
+            }
             update_game_action_progress_bar(current_iterations/total_iterations);
         }, 1000*0.1/tickrate);
     } else {
@@ -771,6 +774,8 @@ function finish_game_action({action_key, conditions_status, dialogue_key}){
             result_message = action.success_text;
             if(!action.repeatable) {
                 lock_action({dialogue_key, location_key: current_location.id, action_key});
+            } else {
+                action.completion_count++;
             }
             process_rewards({rewards: action.rewards, source_type: "action", source_name: dialogue_key || current_location.id});
             is_won = true;
@@ -3306,6 +3311,12 @@ function create_save() {
 
                         if(locations[key].actions[action_key].is_unlocked) {
                             save_data["locations"][key]["actions"][action_key].is_unlocked = true;
+                            if(locations[key].actions[action_key].keep_progress) {
+                                save_data["locations"][key]["actions"][action_key].accumulated_progress = locations[key].actions[action_key].accumulated_progress;
+                            }
+                            if(locations[key].actions[action_key].repeatable) {
+                                save_data["locations"][key]["actions"][action_key].completion_count = locations[key].actions[action_key].completion_count;
+                            }
                         }
                         if(locations[key].actions[action_key].is_finished) {
                             save_data["locations"][key]["actions"][action_key].is_finished = true;
@@ -3353,6 +3364,13 @@ function create_save() {
                 Object.keys(dialogues[dialogue].actions).forEach(action_key => {
                     save_data["dialogues"][dialogue].actions[action_key] = {is_unlocked: dialogues[dialogue].actions[action_key].is_unlocked,
                                                                 is_finished: dialogues[dialogue].actions[action_key].is_finished};
+
+                    if(dialogues[dialogue].actions[action_key].keep_progress) {
+                        save_data["dialogues"][dialogue].actions[action_key].accumulated_progress = dialogues[dialogue].actions[action_key].accumulated_progress;
+                    }
+                    if(dialogues[dialogue].actions[action_key].repeatable) {
+                        save_data["dialogues"][dialogue].actions[action_key].completion_count = dialogues[dialogue].actions[action_key].completion_count;
+                    }
                 });
             }
         }); //save dialogues' and their textlines' unlocked/finished statuses
@@ -4054,6 +4072,13 @@ function load(save_data) {
                     if(dialogues[dialogue].actions[action_key]) {
                         dialogues[dialogue].actions[action_key].is_unlocked = save_data.dialogues[dialogue].actions[action_key].is_unlocked;
                         dialogues[dialogue].actions[action_key].is_finished = save_data.dialogues[dialogue].actions[action_key].is_finished;
+
+                        if(dialogues[dialogue].actions[action_key].keep_progress && save_data.dialogues[dialogue].actions[action_key].accumulated_progress) {
+                            dialogues[dialogue].actions[action_key].accumulated_progress = save_data.dialogues[dialogue].actions[action_key].accumulated_progress;
+                        }
+                        if(dialogues[dialogue].actions[action_key].repeatable) {
+                            dialogues[dialogue].actions[action_key].completion_count = save_data.dialogues[dialogue].actions[action_key].completion_count || 0;
+                        }
                     } else {
                         console.warn(`Textline "${action_key}" in dialogue "${dialogue}" couldn't be found!`);
                         any_warnings = true;
@@ -4349,6 +4374,12 @@ function load(save_data) {
                     Object.keys(save_data.locations[key].actions).forEach(action_key => {
                         if(save_data.locations[key].actions[action_key].is_unlocked) {
                             locations[key].actions[action_key].is_unlocked = true;
+                            if(locations[key].actions[action_key].keep_progress && save_data.locations[key].actions[action_key].accumulated_progress) {
+                                locations[key].actions[action_key].accumulated_progress = save_data.locations[key].actions[action_key].accumulated_progress;
+                            }
+                            if(locations[key].actions[action_key].repeatable) {
+                                locations[key].actions[action_key].completion_count = save_data.locations[key].actions[action_key].completion_count || 0;
+                            }
                         }
 
                         if(save_data.locations[key].actions[action_key].is_finished) {

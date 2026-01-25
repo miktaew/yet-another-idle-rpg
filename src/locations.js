@@ -2581,8 +2581,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
             failure_texts: {
                 unable_to_begin: ["You try for a bit, but you quickly realize you are not fit enough for this task."],
             },
+            check_conditions_on_finish: false,
             attempt_duration: 480,
             success_chances: [1],
+            keep_progress: true,
             conditions: [
                 {
                     stats: {
@@ -2609,8 +2611,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
             failure_texts: {
                 unable_to_begin: ["You try and try, but it won't budge"],
             },
+            check_conditions_on_finish: false,
             attempt_duration: 60,
             success_chances: [1],
+            keep_progress: true,
             conditions: [
                 {
                     stats: {

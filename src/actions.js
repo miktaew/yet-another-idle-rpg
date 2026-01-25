@@ -21,6 +21,7 @@ class GameAction{
         rewards = {},
         attempt_duration = 0,
         success_chances = [1,1],
+        keep_progress = false,
         is_unlocked = false,
         repeatable = false,
         check_conditions_on_finish = true,
@@ -57,14 +58,22 @@ class GameAction{
 
         this.display_conditions = display_conditions;
         
-        this.check_conditions_on_finish = check_conditions_on_finish; //means an action with duration can be attempted even if conditions are not met
+        this.check_conditions_on_finish = check_conditions_on_finish; 
+        //means an action with duration can be attempted even if conditions are not met;
+        //setting it to false will check them on start instead
         this.rewards = rewards; //{unlocks, money, items,move_to}?
         this.attempt_duration = attempt_duration; //0 means instantaneous, otherwise there's a progress bar
         this.success_chances = success_chances; 
         //chances to succeed; to guarantee that multiple attempts will be needed, just make a few consecutive actions with same text
+        this.keep_progress = keep_progress;
+        //will make progress persist through leaving the action and through save/load; 
+        //should be used only for actions that guarantee success if conditions are met, to not encourage save scumming
+        this.accumulated_progress = 0;
+
         this.is_unlocked = is_unlocked;
         this.is_finished = false; //really same as is_locked but with a more fitting name
         this.repeatable = repeatable;
+        this.completion_count = 0; //only used for repeatables
         this.unlock_text = unlock_text;
     }
 

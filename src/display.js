@@ -3291,7 +3291,10 @@ function update_item_recipe_visibility() {
 function create_location_action_tooltip(location_action) {
     const action_tooltip = document.createElement("div");
     action_tooltip.classList.add("job_tooltip","location_action_tooltip");
-    action_tooltip.innerHTML = location_action.description;
+    action_tooltip.innerText = location_action.description;
+    if(location_action.keep_progress) {
+        action_tooltip.innerText += "\n\nPausing this task will not waste your progress";
+    }
 
     return action_tooltip;
 }
