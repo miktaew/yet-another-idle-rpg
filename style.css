@@ -72,6 +72,8 @@
 	--actions_div_top_combat: 640px;
 	--actions_div_top: var(--actions_div_top_default);
 
+	--completed_quest_display: "block";
+
 	--export_button_tooltip_top: 0px;
 	--export_button_tooltip_left: 0px;
 
@@ -2033,6 +2035,14 @@ i {
 		padding-top: 5px;
 		margin-bottom: 5px;
 	}
+	#quest_hiding_div {
+		bottom: 0px;
+		text-align: right;
+		position: absolute;
+		border-top: 1px solid white;
+		width: 385px;
+		padding-right: 15px;
+	}
 		.quest_div {
 			border: 1px solid white;
 			margin-left: 1px;
@@ -2046,6 +2056,7 @@ i {
 			}
 			.quest_finished {
 				color: silver;
+				display: var(--completed_quest_display);
 			}
 			.quest_finished .quest_name_div{
 				text-decoration: line-through;
@@ -2103,8 +2114,11 @@ i {
 
 			#data_box_div, #books_box_div, #bestiary_box_div, #quests_box_div{
 				width: 100%;
-				height: 284px;
 				overflow-y: scroll;
+			}
+
+			#data_box_div, #books_box_div, #bestiary_box_div{
+				height: 284px;
 			}
 
 			#data_box_div, #books_box_div, #bestiary_box_div{
@@ -2113,6 +2127,7 @@ i {
 
 			#quests_box_div {
 				display: block;
+				height: 263px;
 			}
 
 				.bestiary_entry_div, .data_entry, .anthology_entry_div {

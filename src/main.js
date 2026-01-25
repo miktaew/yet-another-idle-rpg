@@ -94,7 +94,8 @@ import { end_activity_animation,
          create_floating_effect,
          booklist_entry_divs,
          do_enemy_onstart_animation,
-         update_location_kill_count
+         update_location_kill_count,
+         change_completed_quest_visibility
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -3234,6 +3235,8 @@ function create_save() {
         save_data.rain_counter = rain_counter;
         save_data.cold_status_counters = cold_status_counters;
 
+        save_data.are_finished_quests_hidden = document.getElementById("quest_hiding_button").checked;
+
         Object.keys(character.inventory).forEach(key =>{
             save_data["character"].inventory[key] = {count: character.inventory[key].count};
         });
@@ -3594,6 +3597,9 @@ function load(save_data) {
 
         options.expo_threshold = save_data.options?.expo_threshold;
         option_expo_threshold(options.expo_threshold);
+
+        document.getElementById("quest_hiding_button").checked = save_data.are_finished_quests_hidden;
+        change_completed_quest_visibility();
 
         //compatibility for old saves, can be removed at some point
         const is_from_before_eco_rework = compare_game_version("v0.3.5", save_data["game version"]) == 1;
@@ -5439,6 +5445,8 @@ window.option_skip_play_button = option_skip_play_button;
 window.option_mofu_mofu_mode = option_mofu_mofu_mode;
 window.option_do_enemy_onhit_animations = option_do_enemy_onhit_animations;
 window.option_expo_threshold = option_expo_threshold;
+
+window.change_completed_quest_visibility = change_completed_quest_visibility;
 
 window.getDate = get_date;
 

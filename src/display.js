@@ -144,6 +144,7 @@ const inventory_switch = document.getElementById("switch_to_inventory")
 
 const quest_entry_divs = {};
 const quest_list = document.getElementById("quest_list");
+const quest_hiding_button = document.getElementById("quest_hiding_button");
 
 const data_entry_divs = {
                             reputation: document.getElementById("data_tab_reputation_div"),
@@ -5197,6 +5198,14 @@ function update_displayed_quest_tasks(quest_id) {
     //might need to go deeper with tasks if their content becomes foldable
 }
 
+function change_completed_quest_visibility() {
+    if(quest_hiding_button.checked) {
+        document.documentElement.style.setProperty("--completed_quest_display", "none");
+    } else {
+        document.documentElement.style.setProperty("--completed_quest_display", "block");
+    }
+}
+
 function start_rain_animation() {
     start_background_animation("rain");
 }
@@ -5460,7 +5469,7 @@ export {
     update_location_icon, update_location_kill_count,
     skill_list,
     update_booklist_entry, booklist_entry_divs,
-    add_quest_to_display, update_displayed_quest, update_displayed_quest_task, 
+    add_quest_to_display, update_displayed_quest, update_displayed_quest_task, change_completed_quest_visibility,
     start_rain_animation, start_snow_animation, start_stars_animation, stop_background_animation,
     update_displayed_total_price,
     skill_category_order,
