@@ -573,12 +573,6 @@ class DialogueAction extends GameAction {
                 },
                 locks_lines: ["hello"],
             }),
-            "about guard": new Textline({
-                name: "millers about guard",
-                text: "millers about guard answ",
-                is_unlocked: false,
-                locks_lines: ["about guard"],
-            }),
             "how": new Textline({
                 is_unlocked: false,
                 name: "millers how",
@@ -686,6 +680,12 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 name: "millers how2",
                 text: "millers how2 answ",
+            }),
+            "about guard": new Textline({
+                name: "millers about guard",
+                text: "millers about guard answ",
+                is_unlocked: false,
+                locks_lines: ["about guard"],
             }),
         },
         description: "millers description",
