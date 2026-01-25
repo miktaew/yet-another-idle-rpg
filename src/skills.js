@@ -2428,8 +2428,8 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     skills["Perception"] = new Skill({
         names: {0: "Perception"}, 
         description: "Better grasp on your senses allows you to notice small and hidden things, as well as to discern the true nature of what you observe",
-        base_xp_cost: 200,
-        visibility_treshold: 100,
+        base_xp_cost: 100,
+        visibility_treshold: 80,
         xp_scaling: 1.8,
         max_level: 40,
         category: "Character",
