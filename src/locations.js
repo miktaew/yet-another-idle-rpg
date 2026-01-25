@@ -848,7 +848,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         enemy_stat_variation: 0.2,
         parent_location: locations["Eastern mill"],
         first_reward: {
-            xp: 60,
+            xp: 40,
         },
         repeatable_reward: {
             textlines: [{dialogue: "village millers", lines: ["cleared storage"]}],
@@ -942,12 +942,12 @@ function get_location_type_penalty(type, stage, stat, category) {
         temperature_range_modifier: 0.7,
         is_under_roof: true,
         first_reward: {
-            xp: 20,
+            xp: 30,
         },
         repeatable_reward: {
             textlines: [{dialogue: "village elder", lines: ["cleared room"]}],
             locations: [{location: "Cave depths"}],
-            xp: 10,
+            xp: 15,
             activities: [{location:"Nearby cave", activity:"weightlifting"}, {location:"Nearby cave", activity:"mining"}, {location:"Village", activity:"balancing"}],
         },
         rewards_with_clear_requirement: [
@@ -975,11 +975,11 @@ function get_location_type_penalty(type, stage, stat, category) {
         leave_text: "Climb out",
         parent_location: locations["Nearby cave"],
         first_reward: {
-            xp: 60,
+            xp: 100,
         },
         repeatable_reward: {
             textlines: [{dialogue: "village elder", lines: ["cleared cave"]}],
-            xp: 30,
+            xp: 50,
         },
         rewards_with_clear_requirement: [
             {
@@ -1004,11 +1004,11 @@ function get_location_type_penalty(type, stage, stat, category) {
         leave_text: "Retreat for now",
         parent_location: locations["Nearby cave"],
         first_reward: {
-            xp: 100,
+            xp: 120,
         },
         repeatable_reward: {
             locations: [{location: "Pitch black tunnel"}],
-            xp: 50,
+            xp: 60,
             activities: [{location:"Nearby cave", activity:"mining2"}],
         },
         is_temperature_static: false,
@@ -1028,11 +1028,11 @@ function get_location_type_penalty(type, stage, stat, category) {
         leave_text: "Retreat for now",
         parent_location: locations["Nearby cave"],
         first_reward: {
-            xp: 200,
+            xp: 520,
             messages: ["As you descend deeper and deeper, a sudden thought strikes you - what if you instead tried going up?"],
         },
         repeatable_reward: {
-            xp: 100,
+            xp: 260,
             global_activities: ["climbing"],
             actions: [{location: "Nearby cave", action: "climb the mountain"}],
         },
@@ -1060,10 +1060,10 @@ function get_location_type_penalty(type, stage, stat, category) {
         leave_text: "Get away",
         parent_location: locations["Nearby cave"],
         first_reward: {
-            xp: 500,
+            xp: 2000,
         },
         repeatable_reward: {
-            xp: 250,
+            xp: 1000,
             activities: [{location:"Nearby cave", activity:"meditating"}, {location:"Nearby cave", activity:"mining3"}],
             actions: [{action: "open the gate", location:"Nearby cave"}],
             quest_progress: [
@@ -1096,10 +1096,10 @@ function get_location_type_penalty(type, stage, stat, category) {
         leave_text: "Run away...",
         parent_location: locations["Nearby cave"],
         first_reward: {
-            xp: 2500,
+            xp: 4000,
         },
         repeatable_reward: {
-            xp: 1250,
+            xp: 2000,
             locations: [{location: "Mysterious depths"}],
             quest_progress: [
                 {quest_id: "The Infinite Rat Saga", task_index: 2},
@@ -1155,10 +1155,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         name: "Forest", 
         parent_location: locations["Forest road"],
         first_reward: {
-            xp: 100,
+            xp: 60,
         },
         repeatable_reward: {
-            xp: 50,
+            xp: 30,
             locations: [{location:"Deep forest"}],
             activities: [{location:"Forest road", activity: "herbalism"}],
         },
@@ -1203,10 +1203,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         types: [{type: "open", stage: 2, xp_gain: 3}],
         parent_location: locations["Forest road"],
         first_reward: {
-            xp: 500,
+            xp: 1000,
         },
         repeatable_reward: {
-            xp: 250,
+            xp: 500,
             textlines: [{dialogue: "farm supervisor", lines: ["defeated boars"]}],
             activities: [{location: "Forest road", activity: "woodcutting2"}],
         }
@@ -1226,11 +1226,11 @@ There's another gate on the wall in front of you, but you have a strange feeling
         types: [{type: "narrow", stage: 2, xp_gain: 5}, {type: "dark", stage: 2, xp_gain: 5}],
         parent_location: locations["Forest road"],
         first_reward: {
-            xp: 2000,
+            xp: 1000,
             items: ["Warrior's necklace"],
         },
         repeatable_reward: {
-            xp: 1000,
+            xp: 500,
         },
         rewards_with_clear_requirement: [
             {
@@ -1252,17 +1252,16 @@ There's another gate on the wall in front of you, but you have a strange feeling
         description: "A dark, smelly cave in the heart of the forest, with massive bones spread around the entrance",
         enemies_list: ["Forest bear"],
         enemy_count: 20,
-        enemy_group_size: [1,1],
         is_unlocked: false,
         enemy_stat_variation: 0.2,
         name: "Bears' den", 
         types: [{type: "narrow", stage: 2, xp_gain: 10}, {type: "dark", stage: 2, xp_gain: 10}],
         parent_location: locations["Forest road"],
         first_reward: {
-            xp: 4000,
+            xp: 500,
         },
         repeatable_reward: {
-            xp: 2000,
+            xp: 250,
         },
         temperature_range_modifier: 0.8,
         is_under_roof: true,
@@ -1284,10 +1283,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         name: "Red ant nest",
         parent_location: locations["Forest road"],
         first_reward: {
-            xp: 2000,
+            xp: 6000,
         },
         repeatable_reward: {
-            xp: 1000,
+            xp: 3000,
         },
         temperature_range_modifier: 0.7,
         is_under_roof: true,
@@ -1377,7 +1376,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         name: "Red ant nest",
         parent_location: locations["Town farms"],
         first_reward: {
-            xp: 1000,
+            xp: 4000,
         },
         repeatable_reward: {
             locks: {
@@ -1405,7 +1404,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         name: "Red ant nest",
         parent_location: locations["Town farms"],
         first_reward: {
-            xp: 1000,
+            xp: 4000,
         },
         repeatable_reward: {
             locks: {
@@ -1433,7 +1432,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         name: "Red ant nest",
         parent_location: locations["Town farms"],
         first_reward: {
-            xp: 1000,
+            xp: 4000,
         },
         repeatable_reward: {
             locks: {
@@ -1579,11 +1578,11 @@ There's another gate on the wall in front of you, but you have a strange feeling
         types: [{type: "open", stage: 1, xp_gain: 5}, {type: "thin air", stage: 1, xp_gain: 3}],
         parent_location: locations["Mountain camp"],
         first_reward: {
-            xp: 2000,
+            xp: 1000,
             flags: ["is_strength_proved"],
         },
         repeatable_reward: {
-            xp: 1000,
+            xp: 500,
         },
         temperature_modifier: -2,
     });
@@ -1641,10 +1640,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         parent_location: locations["Riverbank"],
         temperature_range_modifier: 0.5,
         first_reward: {
-            xp: 1000,
+            xp: 1800,
         },
         repeatable_reward: {
-			xp: 500,
+			xp: 900,
         },
         rewards_with_clear_requirement: [
             {
@@ -1754,10 +1753,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         parent_location: locations["Waterfall basin"],
         temperature_modifier: 1,
         first_reward: {
-            xp: 10000,
+            xp: 4000,
         },
         repeatable_reward: {
-			xp: 5000,
+			xp: 2000,
         },
         rewards_with_clear_requirement: [
             {
@@ -1809,10 +1808,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         temperature_modifier: 5.5,
         temperature_range_modifier: 0.5,
         first_reward: {
-            xp: 20000,
+            xp: 8000,
         },
         repeatable_reward: {
-			xp: 10000,
+			xp: 4000,
         },
         rewards_with_clear_requirement: [
             {
@@ -1895,10 +1894,10 @@ There's another gate on the wall in front of you, but you have a strange feeling
         types: [{type: "aquatic", stage: 1, xp_gain: 1}, {type: "open", stage: 1, xp_gain: 1}],
         parent_location: locations["Forest lake"],
         first_reward: {
-            xp: 2000,
+            xp: 1600,
         },
         repeatable_reward: {
-            xp: 1000,
+            xp: 800,
             actions: [
                 //{location: "Forest lake", action: "search2"} //locked as the reward doesn't really have any uses yet
             ],
