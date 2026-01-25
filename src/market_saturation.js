@@ -270,10 +270,10 @@ function get_item_value_with_market_saturation({value, group_key, group_tier, re
  */
 function add_to_sold({group_key, group_tier, count, region}) {
     if(!loot_sold_count[region][group_key]) {
-        loot_sold_count[region][group_key] = new Array(group_tier+1).fill().map(x => ({sold: 0, recovered: 0}));
+        loot_sold_count[region][group_key] = new Array(group_tier+1).fill().map(() => ({sold: 0, recovered: 0}));
     }
     if(!loot_sold_count[region][group_key][group_tier]) {
-        loot_sold_count[region][group_key].push(...new Array(group_tier+1-loot_sold_count[region][group_key].length).fill().map(x => ({sold: 0, recovered: 0})));
+        loot_sold_count[region][group_key].push(...new Array(group_tier+1-loot_sold_count[region][group_key].length).fill().map(() => ({sold: 0, recovered: 0})));
     }
 
     loot_sold_count[region][group_key][group_tier].sold += (count || 1);
