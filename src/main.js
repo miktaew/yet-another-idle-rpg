@@ -5503,13 +5503,13 @@ play_button.addEventListener("click", hide_loading_screen);
 
 
 //check if there's an existing save file, otherwise just do some initial setup
-if(!is_on_dev() && save_key in localStorage || (is_on_dev() && dev_save_key in localStorage || is_on_dev() && !("skip_live_import" in localStorage) && save_key in localStorage )) {
+if(!is_on_dev() && save_key in localStorage || is_on_dev() && (dev_save_key in localStorage || !("skip_live_import" in localStorage) && save_key in localStorage )) {
     load_from_localstorage();
     update_character_stats();
     update_displayed_xp_bonuses();
 } else {
     set_loading_screen_versions();
-    add_to_character_inventory([{item_id: "Cheap iron sword", quality: 40}, 
+    add_to_character_inventory([{item_id: "Cheap iron sword", quality: 40},
                                 {item_id: "Cheap leather pants", quality: 40},
                                 {item_id: "Stale bread", count: 5},
                             ]);
@@ -5524,6 +5524,8 @@ if(!is_on_dev() && save_key in localStorage || (is_on_dev() && dev_save_key in l
     create_displayed_crafting_recipes();
     change_location({location_id: "Village", skip_travel_time: true});
     questManager.startQuest({quest_id: "Lost memory"});
+
+    last_rewarded_export = Date.now() - 1000*60*60*16; //reduces timer by 16 hours, making first reward export appear in 4 hours from starting
 }
 
 
