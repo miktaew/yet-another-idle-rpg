@@ -3776,8 +3776,8 @@ function load(save_data) {
                         const item = getItem({components, quality:quality*quality_mult, equip_slot, item_type: "EQUIPPABLE"});
                         equip_item(item, true);
                     }
-                } else if(save_data.character.equipment[key].equip_slot === "arti'fact" || save_data.character.equipment[key].tags?.tool) {
-                    equip_item(getItem(save_data.character.equipment[key]), true);
+                } else if(save_data.character.equipment[key].equip_slot === "artifact" || save_data.character.equipment[key].tags?.tool) {
+                    equip_item(getItem({...item_templates[save_data.character.equipment[key].id]}), true);
                 } else { //armor
                     
                     const {quality, equip_slot} = save_data.character.equipment[key];
@@ -3786,8 +3786,7 @@ function load(save_data) {
                         //compatibility for armors from before v0.4.3
                         const item = getItem({...item_templates[save_data.character.equipment[key].components.internal.replace(" [component]","")], quality:quality*quality_mult});
                         equip_item(item, true);
-                    }
-                    else if(save_data.character.equipment[key].components) {
+                    } else if(save_data.character.equipment[key].components) {
                         let components = save_data.character.equipment[key].components;
                         if(!item_templates[components.internal]){
                             console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);

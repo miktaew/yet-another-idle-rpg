@@ -241,6 +241,7 @@ class ItemComponent extends Item {
         this.item_type = "COMPONENT";
         this.component_tier = item_data.component_tier || 1;
         this.component_stats = item_data.component_stats || {};
+        this.component_bonus_skill_levels = item_data.component_bonus_skill_levels || {};
         this.tags["component"] = true;
         this.quality = Math.round(item_data.quality) || 100;
     }
@@ -271,6 +272,10 @@ class ItemComponent extends Item {
 
     getStats() {
         return this.component_stats;
+    }
+
+    getBonusSkillLevels() {
+        return this.component_bonus_skill_levels;
     }
 }
 
@@ -382,7 +387,7 @@ class Equippable extends Item {
     constructor(item_data) {
         super(item_data);
         this.item_type = "EQUIPPABLE";
-        this.bonus_skill_levels = item_data.bonus_skill_levels || {};
+        this.base_bonus_skill_levels = item_data.base_bonus_skill_levels;
 
         this.quality = Math.round(Number(item_data.quality)) || 100;
 
@@ -497,8 +502,53 @@ class Equippable extends Item {
         return stats;
     }
 
-    getBonusSkillLevels() {
-        return this.bonus_skill_levels;
+    getBonusSkillLevels(quality) {
+        if(!quality) {
+            if(!this.bonus_skill_levels) {
+                this.bonus_skill_levels = this.calculateBonusSkillLevels(this.quality);
+            }
+            return this.bonus_skill_levels;
+        } else {
+            return this.calculateBonusSkillLevels(quality);
+        }
+    }
+
+    calculateBonusSkillLevels(quality) {
+        let skill_bonus = {};
+
+        if(this.components) {
+            //iterate over components
+            const components = Object.values(this.components).map(comp => item_templates[comp]).filter(comp => comp);
+            for(let i = 0; i < components.length; i++) {
+                Object.keys(components[i].component_bonus_skill_levels).forEach(skill => {
+                    skill_bonus[skill] = (skill_bonus[skill] || 0) + components[i].component_bonus_skill_levels[skill];
+                });
+            }
+
+            //iterate over stats and apply rarity bonus if possible
+            Object.keys(skill_bonus).forEach(skill => {
+                if(skill_bonus[skill]){
+                    if(skill_bonus[skill] > 0) {
+                        skill_bonus[skill] = Math.round(skill_bonus[skill] * rarity_multipliers[this.getRarity(quality)]);
+                    } else {
+                        skill_bonus[skill] = Math.round(skill_bonus[skill]);
+                    }
+                }
+            });
+        } else { //no components, only needs to apply quality to already present stats
+            if( this.base_bonus_skill_levels) console.log(this, item_templates[this.id]);
+            
+            const used_bonus = this.component_bonus_skill_levels || this.base_bonus_skill_levels || {};
+            Object.keys(used_bonus).forEach(skill => {
+                if(used_bonus[skill] > 0) {
+                    skill_bonus[skill] = Math.round(used_bonus[skill] * rarity_multipliers[this.getRarity(quality)]);
+                } else {
+                    skill_bonus[skill] = Math.round(used_bonus[skill]);
+                }
+            });
+        }
+
+        return skill_bonus;
     }
 }
 
@@ -530,9 +580,6 @@ class Tool extends Equippable {
         if(!this.id) {
             this.id = this.getName();
         }
-    }
-    getStats() {
-        return {};
     }
 }
 
@@ -632,6 +679,7 @@ class Armor extends Equippable {
             this.tags["armor component"] = true;
             this.tags["clothing"] = true;
             this.component_stats = item_data.component_stats || {};
+            this.component_bonus_skill_levels = item_data.component_bonus_skill_levels || {};
             delete this.components;
 
             if(!item_data.name) {
@@ -2987,7 +3035,7 @@ book_stats["Shellfish desires"] = new BookData({
                 flat: 1,
             }
         },
-        bonus_skill_levels: {
+        component_bonus_skill_levels: {
             "Swimming": 1,
         }
     });
@@ -3069,7 +3117,7 @@ book_stats["Shellfish desires"] = new BookData({
                 flat: 1,
             }
         },
-        bonus_skill_levels: {
+        component_bonus_skill_levels: {
             "Swimming": 1,
         }
     });
@@ -3114,7 +3162,7 @@ book_stats["Shellfish desires"] = new BookData({
             cold_tolerance: {
                     flat: 1,
             }
-        }
+        },
     });
     item_templates["Snakeskin hat"] = new Armor({
         name: "Snakeskin hat",
@@ -3151,7 +3199,7 @@ book_stats["Shellfish desires"] = new BookData({
                 flat: 1,
             }
         },
-        bonus_skill_levels: {
+        component_bonus_skill_levels: {
             "Swimming": 1,
         }
     });
@@ -3217,7 +3265,7 @@ book_stats["Shellfish desires"] = new BookData({
                 flat: 1,
             }
         },
-        bonus_skill_levels: {
+        component_bonus_skill_levels: {
             "Swimming": 2,
         }
     });
@@ -3333,7 +3381,7 @@ book_stats["Shellfish desires"] = new BookData({
                 flat: 1,
             }
         },
-        bonus_skill_levels: {
+        component_bonus_skill_levels: {
             "Swimming": 2,
         }
     });
@@ -4052,7 +4100,7 @@ book_stats["Shellfish desires"] = new BookData({
         description: "A decent pickaxe made of iron, strong enough for most ores",
         value: 1000,
         equip_slot: "pickaxe",
-        bonus_skill_levels: {
+        base_bonus_skill_levels: {
             "Mining": 3,
         }
     });
@@ -4062,7 +4110,7 @@ book_stats["Shellfish desires"] = new BookData({
         description: "A decent axe made of iron, hard and sharp enough for most of trees, even if they will still require an effort",
         value: 1000,
         equip_slot: "axe",
-        bonus_skill_levels: {
+        base_bonus_skill_levels: {
             "Woodcutting": 3,
         }
     });
@@ -4072,7 +4120,7 @@ book_stats["Shellfish desires"] = new BookData({
         description: "A decent sickle made of iron, sharp enough for most of plants",
         value: 1000,
         equip_slot: "sickle",
-        bonus_skill_levels: {
+        base_bonus_skill_levels: {
             "Herbalism": 3,
         }
     });
@@ -4082,7 +4130,7 @@ book_stats["Shellfish desires"] = new BookData({
         description: "A decent shovel made of iron, solid enough for most of your digging needs",
         value: 1000,
         equip_slot: "shovel",
-        bonus_skill_levels: {
+        base_bonus_skill_levels: {
             "Digging": 3,
         }
     });
