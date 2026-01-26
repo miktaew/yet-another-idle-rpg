@@ -2685,7 +2685,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             conditions: [
                 {
                     stats: {
-                        strength: 150,
+                        strength: 200,
                     }
                 }
             ],
