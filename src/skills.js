@@ -680,7 +680,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
     skills["Heavy strike"] = new Skill({
                                 names: {0: "Crushing force"}, 
                                 parent_skill: "Stance mastery",
-                                description: "A powerful and dangerous technique that abandons speed in favor of overwhelmingly strong attacks", 
+                                description: "A powerful and dangerous technique that abandons speed in favor of overwhelmingly strong attacks",
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
                                 category: "Stance",
@@ -691,7 +691,8 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
     skills["Wide swing"] = new Skill({ 
                                 names: {0: "Broad arc"}, 
                                 parent_skill: "Stance mastery",
-                                description: "A special technique that allows striking multiple enemies at once, although at a cost of lower damage", 
+                                description: "A special technique that allows striking multiple enemies at once, although at a cost of lower overall efficiency." 
+                                            +" Slightly reduces xp and loot.",
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
                                 category: "Stance",
@@ -702,7 +703,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
     skills["Defensive measures"] = new Skill({
                                 names: {0: "Defensive measures"}, 
                                 parent_skill: "Stance mastery",
-                                description: "A careful technique focused much more on defense than on attacking", 
+                                description: "A careful technique focused much more on defense than on attacking",
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
                                 category: "Stance",
@@ -713,7 +714,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
     skills["Berserker's stride"] = new Skill({ 
                                 names: {0: "Berserker's stride"}, 
                                 parent_skill: "Stance mastery",
-                                description: "A wild and dangerous technique that focuses on dealing as much damage as possible, while completely ignoring own defense", 
+                                description: "A wild and dangerous technique that focuses on dealing as much damage as possible, while completely ignoring own defense",
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
                                 category: "Stance",
@@ -724,7 +725,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
     skills["Flowing water"] = new Skill({
                                 names: {0: "Flowing water"}, 
                                 parent_skill: "Stance mastery",
-                                description: "A wild and dangerous technique that focuses on dealing as much damage as possible, while completely ignoring own defense", 
+                                description: "A wild and dangerous technique that focuses on dealing as much damage as possible, while completely ignoring own defense",
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
                                 category: "Stance",
