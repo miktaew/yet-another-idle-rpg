@@ -989,24 +989,28 @@ function create_trade_buttons() {
     return trade_buttons;
 }
 
-function sort_displayed_inventory({sort_by = "name", target = "character", change_direction = false}) {
+function sort_displayed_inventory({sort_by, target = "character", change_direction = false}) {
     let plus;
     let minus;
     if(target === "trader") {
-        if(change_direction){
-            if(sort_by && sort_by === trader_inventory_sorting) {
-                if(trader_inventory_sorting_direction === "asc") {
-                    trader_inventory_sorting_direction = "desc";
+        if(sort_by){
+            if(change_direction) {
+                if(sort_by === trader_inventory_sorting) {
+                    if(trader_inventory_sorting_direction === "asc") {
+                        trader_inventory_sorting_direction = "desc";
+                    } else {
+                        trader_inventory_sorting_direction = "asc";
+                    }
                 } else {
-                    trader_inventory_sorting_direction = "asc";
-                }
-            } else {
-                if(sort_by === "price") {
-                    trader_inventory_sorting_direction = "desc";
-                } else {
-                    trader_inventory_sorting_direction = "asc";
+                    if(sort_by === "price") {
+                        trader_inventory_sorting_direction = "desc";
+                    } else {
+                        trader_inventory_sorting_direction = "asc";
+                    }
                 }
             }
+        } else {
+            sort_by = trader_inventory_sorting;
         }
 
         target = trader_inventory_div;
@@ -1015,41 +1019,48 @@ function sort_displayed_inventory({sort_by = "name", target = "character", chang
         trader_inventory_sorting = sort_by || "name";
 
     } else if(target === "character") {
-        if(change_direction){
-            if(sort_by && sort_by === character_inventory_sorting) {
-                if(character_inventory_sorting_direction === "asc") {
-                    character_inventory_sorting_direction = "desc";
+        if(sort_by) {
+            if(change_direction){
+                if(sort_by === character_inventory_sorting) {
+                    if(character_inventory_sorting_direction === "asc") {
+                        character_inventory_sorting_direction = "desc";
+                    } else {
+                        character_inventory_sorting_direction = "asc";
+                    }
                 } else {
-                    character_inventory_sorting_direction = "asc";
-                }
-            } else {
-                if(sort_by === "price") {
-                    character_inventory_sorting_direction = "desc";
-                } else {
-                    character_inventory_sorting_direction = "asc";
+                    if(sort_by === "price") {
+                        character_inventory_sorting_direction = "desc";
+                    } else {
+                        character_inventory_sorting_direction = "asc";
+                    }
                 }
             }
+        } else {
+            sort_by = character_inventory_sorting;
         }
-
         target = inventory_div;
         plus = character_inventory_sorting_direction==="asc"?1:-1;
         minus = character_inventory_sorting_direction==="asc"?-1:1;
         character_inventory_sorting = sort_by || "name";
     } else if(target === "storage"){
-        if(change_direction){
-            if(sort_by && sort_by === storage_sorting) {
-                if(storage_sorting_direction === "asc") {
-                    storage_sorting_direction = "desc";
+        if(sort_by) {
+            if(change_direction){
+                if(sort_by === storage_sorting) {
+                    if(storage_sorting_direction === "asc") {
+                        storage_sorting_direction = "desc";
+                    } else {
+                        storage_sorting_direction = "asc";
+                    }
                 } else {
-                    storage_sorting_direction = "asc";
-                }
-            } else {
-                if(sort_by === "price") {
-                    storage_sorting_direction = "desc";
-                } else {
-                    storage_sorting_direction = "asc";
+                    if(sort_by === "price") {
+                        storage_sorting_direction = "desc";
+                    } else {
+                        storage_sorting_direction = "asc";
+                    }
                 }
             }
+        } else {
+            sort_by = storage_sorting;
         }
 
         target = storage_inventory_div;
@@ -1060,6 +1071,7 @@ function sort_displayed_inventory({sort_by = "name", target = "character", chang
         console.warn(`Something went wrong, no such inventory as '${target}'`);
         return;
     }
+
     [...target.children].sort((a,b) => {
         //equipped items on top
         if(a.classList.contains("equipped_item_control") && !b.classList.contains("equipped_item_control")) {
@@ -1119,7 +1131,7 @@ function sort_displayed_inventory({sort_by = "name", target = "character", chang
         */
         
         //other items by properties, name or otherwise by value
-        if (sort_by === "type") {
+        if(sort_by === "type") {
             //slot
             
             if(slot_a != slot_b) { 
@@ -1168,7 +1180,7 @@ function sort_displayed_inventory({sort_by = "name", target = "character", chang
             //...otherwise, fall back to sorting by name
         }
 
-        if (sort_by === "name" || sort_by === "type") {
+        if(sort_by === "name" || sort_by === "type") {
 
             const name_a = a.children[0].children[0].children[1].innerText.toLowerCase().replaceAll('"',"");
             const name_b = b.children[0].children[0].children[1].innerText.toLowerCase().replaceAll('"',"");
@@ -1339,7 +1351,7 @@ function update_displayed_trader_inventory({item_key, trader_sorting="name", sor
  * if item_key/equip_slot is passed, it will instead only update the display of that one item
  * 
  */
-function update_displayed_character_inventory({item_key, equip_slot, character_sorting="name", sorting_direction="asc", was_anything_new_added=false, is_trade=false, skip_sorting=false} = {}) {    
+function update_displayed_character_inventory({item_key, equip_slot, character_sorting, sorting_direction="asc", was_anything_new_added=false, is_trade=false, skip_sorting=false} = {}) {    
     //removal of unneeded divs
     if(!item_key){
         Object.keys(item_divs).forEach(div_key => {

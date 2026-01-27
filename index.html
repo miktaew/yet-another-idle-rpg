@@ -1333,7 +1333,6 @@
             }
 
             function sortCharacterInventory(option) {
-                character_sorting = option;
                 sort_displayed_inventory({sort_by: option, target: "character", change_direction: true})
             }
 
@@ -1460,7 +1459,7 @@
                         } else {
                             //is usable -> use
                             use_item(clicked_element.parentNode.parentNode.getAttribute("data-character_item"));
-                            update_displayed_character_inventory(character_sorting);
+                            update_displayed_character_inventory();
                         }
                     } else if(clicked_element.classList.contains("item_auto_use_button")) {
                         //is auto use button, grab key, read id, change fav status

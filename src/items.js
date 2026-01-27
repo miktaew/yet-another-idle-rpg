@@ -535,9 +535,7 @@ class Equippable extends Item {
                     }
                 }
             });
-        } else { //no components, only needs to apply quality to already present stats
-            if( this.base_bonus_skill_levels) console.log(this, item_templates[this.id]);
-            
+        } else { //no components, only needs to apply quality to already present stats            
             const used_bonus = this.component_bonus_skill_levels || this.base_bonus_skill_levels || {};
             Object.keys(used_bonus).forEach(skill => {
                 if(used_bonus[skill] > 0) {
