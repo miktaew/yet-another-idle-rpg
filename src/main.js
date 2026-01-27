@@ -261,6 +261,7 @@ const options = {
     mofu_mofu_mode: true,
     do_enemy_onhit_animations: true,
     expo_threshold: 1e9,
+    hide_max_level_skills: false,
 };
 
 let message_log_filters = {
@@ -504,6 +505,21 @@ function option_do_enemy_onhit_animations(option) {
         options.do_enemy_onhit_animations = true;
     } else {
         options.do_enemy_onhit_animations = false;
+    }
+    
+    if(option !== undefined) {
+        checkbox.checked = option;
+    }
+}
+
+function option_hide_max_level_skills(option) {
+    const checkbox = document.getElementById("options_hide_max_level_skills");
+    if(checkbox.checked || option) {
+        options.hide_max_level_skills = true;
+        document.documentElement.style.setProperty('--maxxed_skill_display', 'none');
+    } else {
+        options.hide_max_level_skills = false;
+        document.documentElement.style.setProperty('--maxxed_skill_display', 'block');
     }
     
     if(option !== undefined) {
@@ -3616,6 +3632,9 @@ function load(save_data) {
         options.expo_threshold = save_data.options?.expo_threshold;
         option_expo_threshold(options.expo_threshold);
 
+        options.hide_max_level_skills = save_data.options?.hide_max_level_skills;
+        option_hide_max_level_skills(options.hide_max_level_skills);
+
         document.getElementById("quest_hiding_button").checked = save_data.are_finished_quests_hidden;
         change_completed_quest_visibility();
 
@@ -5475,6 +5494,7 @@ window.option_skip_play_button = option_skip_play_button;
 window.option_mofu_mofu_mode = option_mofu_mofu_mode;
 window.option_do_enemy_onhit_animations = option_do_enemy_onhit_animations;
 window.option_expo_threshold = option_expo_threshold;
+window.option_hide_max_level_skills = option_hide_max_level_skills;
 
 window.change_completed_quest_visibility = change_completed_quest_visibility;
 
