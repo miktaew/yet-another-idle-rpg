@@ -1447,13 +1447,14 @@ function update_displayed_character_inventory({item_key, equip_slot, character_s
                 tooltip_div.replaceWith(create_item_tooltip(character.inventory[inventory_key].item, {}, is_trade));
 
                 //grab and update price div, do it for all as trading can affect prices of multiple items
-                const price_span = item_divs[inventory_key].getElementsByClassName("item_value")[0];
-                if(is_trade) {
-                    price_span.innerHTML =  `${format_money(round_item_price(character.inventory[inventory_key].item.getValue({region: current_location.market_region})), true)}`;
-                } else {
-                    price_span.innerHTML =  `${format_money(round_item_price(character.inventory[inventory_key].item.getBaseValue()), true)}`;
+                if(!character.inventory[inventory_key].item.tags.unsellable) {
+                    const price_span = item_divs[inventory_key].getElementsByClassName("item_value")[0];
+                    if(is_trade) {
+                        price_span.innerHTML =  `${format_money(round_item_price(character.inventory[inventory_key].item.getValue({region: current_location.market_region})), true)}`;
+                    } else {
+                        price_span.innerHTML =  `${format_money(round_item_price(character.inventory[inventory_key].item.getBaseValue()), true)}`;
+                    }
                 }
-           
             }
         });
 
@@ -1687,8 +1688,8 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
     item_div.appendChild(create_item_tooltip(target_item, options, is_trade));
 
     item_control_div.classList.add(`${item_class}_control`, `${target_class_name}_control`, `${target_class_name}_${target_item.item_type.toLowerCase()}`);
-    item_control_div.setAttribute(`data-${target_class_name}`, `${target_item.getInventoryKey()}`)
-    item_control_div.setAttribute("data-item_count", `${item_count}`)
+    item_control_div.setAttribute(`data-${target_class_name}`, `${target_item.getInventoryKey()}`);
+    item_control_div.setAttribute("data-item_count", `${item_count}`);
     item_control_div.setAttribute("data-item_value", `${target_item.getBaseValue()}`); //is only used as sorting param
     item_control_div.appendChild(item_div);
 
@@ -1729,14 +1730,19 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
             }
         }
     } 
-    
-    item_additional.appendChild(create_trade_buttons());
 
-    let item_value_span = document.createElement("span");
-    item_value_span.innerHTML = `${format_money(round_item_price(target_item.getValue({region: current_location?.market_region, multiplier: price_multiplier})), true)}`;
-    item_value_span.classList.add("item_value", "item_controls");
-    item_additional.appendChild(item_value_span);
-    item_control_div.appendChild(item_additional);
+    if(!target_item.tags.unsellable) {
+        item_additional.appendChild(create_trade_buttons());
+        let item_value_span = document.createElement("span");
+        item_value_span.innerHTML = `${format_money(round_item_price(target_item.getValue({region: current_location?.market_region, multiplier: price_multiplier})), true)}`;
+        item_value_span.classList.add("item_value", "item_controls");
+        item_additional.appendChild(item_value_span);
+        item_control_div.appendChild(item_additional);
+    } else {
+        item_control_div.setAttribute("data-unsellable", "true");
+    }
+
+    
 
     if(typeof trade_index !== "undefined") {
         item_control_div.classList.add('item_to_trade');
