@@ -1731,18 +1731,19 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
         }
     } 
 
+    let item_value_span = document.createElement("span");
+    item_value_span.classList.add("item_value", "item_controls");
+
     if(!target_item.tags.unsellable) {
         item_additional.appendChild(create_trade_buttons());
-        let item_value_span = document.createElement("span");
         item_value_span.innerHTML = `${format_money(round_item_price(target_item.getValue({region: current_location?.market_region, multiplier: price_multiplier})), true)}`;
-        item_value_span.classList.add("item_value", "item_controls");
-        item_additional.appendChild(item_value_span);
-        item_control_div.appendChild(item_additional);
     } else {
         item_control_div.setAttribute("data-unsellable", "true");
+        item_value_span.innerHTML = ``;
     }
 
-    
+    item_additional.appendChild(item_value_span);
+    item_control_div.appendChild(item_additional);
 
     if(typeof trade_index !== "undefined") {
         item_control_div.classList.add('item_to_trade');
