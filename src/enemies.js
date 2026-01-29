@@ -115,6 +115,18 @@ class Enemy {
     }
 }
 
+const enemy_abilites = {
+    bufotoxin(duration) {
+        let statuses = ["Irritation", "Confusion", "Hallucinations",
+            "Weak necrotizing venom", "Mild necrotizing venom",
+            "Paralysing poison", "Infected lungs", "Convulsive poison"];
+
+        add_active_effect(
+            statuses[Math.floor(Math.random() * statuses.length)],
+            duration);
+    }
+};
+
 //regular enemies
 (function(){
     /*
@@ -339,39 +351,18 @@ class Enemy {
                 add_active_effect("Sticky", 30);
             } else if (roll < 0.3) {
                 log_message("The frog's attack leaves some of its toxins on you!");
-                switch (Math.floor(Math.random() * 3)) {
-                    case 0: add_active_effect("Irritation", 10); 
-                            break;
-                    case 1: add_active_effect("Confusion", 10); 
-                            break;
-                    case 2: add_active_effect("Hallucinations", 10); 
-                            break;
-                }
+                enemy_abilites.bufotoxin(10);
             }
         },
         on_damaged: (character) => {
             let roll = Math.random();
             if (character.equipment.weapon == null && roll < 0.2) {
                 log_message("Touching the frog with your bare hands leaves them covered in toxins!");
-                switch (Math.floor(Math.random() * 3)) {
-                    case 0: add_active_effect("Irritation", 10); 
-                            break;
-                    case 1: add_active_effect("Confusion", 10); 
-                            break;
-                    case 2: add_active_effect("Hallucinations", 10); 
-                            break;
-                }
+                enemy_abilites.bufotoxin(10);
             }
             else if (character.equipment.weapon != null && roll < 0.05) {
                 log_message("Striking the frog causes some toxins to splash on you!");
-                switch (Math.floor(Math.random() * 3)) {
-                    case 0: add_active_effect("Irritation", 10); 
-                            break;
-                    case 1: add_active_effect("Confusion", 10); 
-                            break;
-                    case 2: add_active_effect("Hallucinations", 10);
-                            break;
-                }
+                enemy_abilites.bufotoxin(10);
             }
         },
     });

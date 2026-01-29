@@ -1877,7 +1877,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
   
     locations["Forest lake"] = new Location({
         connected_locations: [{location: locations["Forest road"], travel_time: 120}],
-        description: "Far away from civilization, the forest opens up to an unspoiled lake. Nestled between a small cliff where it receives water from a rocky waterfall, and a dense canopy leading to what must be the forest's heart, it serves as a respite for the local animals - and now, yourself.",
+        description: "Far away from civilization, the forest opens up to an unspoiled lake. Nestled between a small cliff where it receives water from a rocky waterfall, and a dense canopy leading to what must be the forest's heart, it serves as a respite for the local animals - and now, yourself",
         name: "Forest lake",
         getBackgroundNoises: () => ["*Mosquitoes buzzing*", "*Frogs croaking*", "*something splashes in the water*", "*an animal comes out to drink*", "Quack", "Quack!"],
         is_unlocked: false,
@@ -2064,7 +2064,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Forest den traversal"] = new Challenge_zone({
         description: "A relatively large cave in the depths of the forest, filled with hordes of direwolves. You are trying to find out what's on the other side.",
         enemies_list: ["Direwolf"],
-        enemy_count: 1,
+        enemy_count: 50,
         enemy_group_size: [2,3],
         enemy_groups_list: [{enemies: ["Direwolf hunter"]}],
         predefined_lineup_on_nth_group: 4,
@@ -3169,8 +3169,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 locations: [{ location: "Frogs" }],
                 skill_xp: { Swimming: 500, Breathing: 500, Perception: 500, },
             },
-      }),
-      "search2": new GameAction({
+        }),
+        "search2": new GameAction({
             action_id: "search2",
             action_name: "Finish exploring the bottom of the lake",
             starting_text: "Finish exploring the bottom of the lake",
@@ -3207,7 +3207,23 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 action: [{ location: "Forest lake", action: "mining" }],
                 skill_xp: { Swimming: 800, Breathing: 800, Perception: 800, },
             },
-        })
+        }),
+        "gaze": new GameAction({
+            action_id: "gaze",
+            action_name: "Follow where the river leads",
+            starting_text: "Follow where the river leads",
+            description: "...into the darker forest...",
+            action_text: "Exploring",
+            success_text: "[TBD]",
+            failure_texts: {
+                conditional_loss: ["You need to get more used to water and have lung capacity to go that deep"],
+                random_loss: [`You may have felt like you can already brave anything this forest can throw at you. But the part stretching before you is more imposing than anything you've seen so far.<br><br>
+The river coming from the lake vanishes in darkness as the foliage is too dense to let in light. The trees there are growing larger, denser... More ancient.<br><br>
+You try to make make out the details of what looks like a bird flying in the distance. It has four legs...`],
+            },
+            is_unlocked: true,
+            success_chances: [0,0],
+        }),
     },	
     locations["Longhouse"].actions = {
         "learn forage": new GameAction({
