@@ -601,7 +601,7 @@ function format_skill_rewards(milestone){
                                     max_level_bonus: 0.2,
                                     category: "Combat",
                                     get_effect_description: ()=> {
-                                        return `Increases block chance by flat ${Math.round(get_total_level_bonus("Shield blocking")*1000)/10}%. Increases blocked damage by ${Math.round(get_total_level_bonus("Shield blocking")*5000)/10}%`;
+                                        return `Increases block chance by flat ${Math.round(get_total_level_bonus("Shield blocking")*1000)/10}%. Increases blocked damage by ${Math.round(get_total_level_bonus("Shield blocking")*5000)/10}%, and blocks ${get_total_skill_level("Shield blocking")}% of attack damage before other calculations.`;
                                     }});
     
      skills["Unarmed"] = new Skill({ 

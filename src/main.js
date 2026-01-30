@@ -1625,6 +1625,9 @@ function do_enemy_combat_action(enemy_id) {
     
     if(character.equipment["off-hand"]?.offhand_type === "shield") { //HAS SHIELD
         if(character.stats.full.block_chance > Math.random()) {//BLOCKED THE ATTACK
+
+            damages_dealt = damages_dealt.map(x => x*(1-get_total_skill_level("Shield blocking")/100));
+
             add_xp_to_skill({skill: skills["Shield blocking"], xp_to_add: attacker.xp_value/enemy_count_xp_mod});
             const blocked = character.equipment["off-hand"].getShieldStrength() * (character.equipment["off-hand"].tags.ignore_skill?1:character.stats.total_multiplier.block_strength);
 
