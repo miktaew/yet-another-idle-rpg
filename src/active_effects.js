@@ -311,6 +311,54 @@ class ActiveEffect {
         },
         tags: { "debuff": true },
     });
+
+    effect_templates["Weak necrotizing venom"] = new ActiveEffect({
+        name: "Weak necrotizing venom",
+        effects: {
+            stats: {
+                health_loss_flat: {flat: -5},
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+    });
+    effect_templates["Mild necrotizing venom"] = new ActiveEffect({
+        name: "Mild necrotizing venom",
+        effects: {
+            stats: {
+                health_loss_flat: {flat: -15},
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+    });
+    effect_templates["Paralysing poison"] = new ActiveEffect({
+        name: "Paralysing poison",
+        effects: {
+            stats: {
+                attack_speed: { multiplier: 0.5 }
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+    });
+    effect_templates["Infected lungs"] = new ActiveEffect({
+        name: "Infected lungs",
+        effects: {
+            stats: {
+                stamina_efficiency: { multiplier: 0.5 }
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+    });
+    effect_templates["Convulsive poison"] = new ActiveEffect({
+        name: "Convulsive poison",
+        description: "Hands are trembling, making it hard to strike with precision",
+        effects: {
+            stats: {
+                dexterity: { multiplier: 0.5 },
+                crit_rate: { multiplier: 0.5 }
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+    });
 })();
 
 effect_templates["Recovering"] = new ActiveEffect({
