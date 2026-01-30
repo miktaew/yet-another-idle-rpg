@@ -579,6 +579,18 @@ function format_skill_rewards(milestone){
                                         xp_multipliers: {
                                             Equilibrium: 1.05,
                                         }
+                                    },
+                                    15: {
+                                        stats: {
+                                            "agility": {flat: 5},
+                                        },
+                                    },
+                                    20: {
+                                        xp_multipliers: {
+                                            Climbing: 1.2,
+                                            Swimming: 1.2,
+                                            Running: 1.2,
+                                        }
                                     }
                                 }
                             });
@@ -650,6 +662,21 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                                                 "dexterity": {flat: 2},
                                                 "agility": {flat: 2},
                                             }
+                                        },
+                                        15: {
+                                            stats: {
+                                                "strength": {flat: 5},
+                                                "dexterity": {flat: 5},
+                                                "agility": {flat: 5},
+                                            }
+                                        },
+                                        20: {
+                                            xp_multipliers: {
+                                                Breathing: 1.1,
+                                                Equilibrium: 1.1,
+                                                Weightlifting: 1.1,
+                                                Running: 1.1,
+                                            },
                                         },
                                     }});
 })();
@@ -780,6 +807,19 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                                                     stats: {
                                                         intuition: {flat: 1},
                                                     }
+                                                },
+                                                15: {
+                                                    xp_multipliers: {
+                                                        category_Combat: 1.1,
+                                                    },
+                                                    stats: {
+                                                        intuition: {flat: 3},
+                                                    }
+                                                },
+                                                20: {
+                                                    xp_multipliers: {
+                                                        all_skill: 1.2,
+                                                    }
                                                 }
                                             }
                                         });
@@ -813,6 +853,21 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                                                     Evasion: 1.1,
                                                     "Shield blocking": 1.1,
                                                     Combat: 1.1,
+                                                }
+                                            },
+                                            15: {
+                                                xp_multipliers: {
+                                                    Equilibrium: 1.1,
+                                                },
+                                                stats: {
+                                                    agility: {flat: 5},
+                                                }
+                                            },
+                                            20: {
+                                                xp_multipliers: {
+                                                    Evasion: 1.2,
+                                                    "Shield blocking": 1.2,
+                                                    Combat: 1.2,
                                                 }
                                             }
                                         }
@@ -924,7 +979,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                     },
                     7: {
                         stats: {
-                            intuition: {flat: 1},
+                            intuition: {flat: 2},
                         },
                         xp_multipliers: {
                             hero: 1.05,
@@ -943,6 +998,27 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                         xp_multipliers: {
                             all: 1.05,
                             Perception: 1.1,
+                        },
+                        stats: {
+                            intuition: {
+                                flat: 5,
+                                multiplier: 1.05,
+                            },
+                        }
+                    },
+                    15: {
+                        xp_multipliers: {
+                            all_skill: 1.05,
+                            "Night vision": 1.2, //if it's somehow not maxxed out by this point
+                            Perception: 1.1,
+                        },
+                    },
+                    20: {
+                        xp_multipliers: {
+                            all: 1.1,
+                            Perception: 1.1,
+                            Combat: 1.1,
+                            "Spatial awareness": 1.1,
                         },
                         stats: {
                             intuition: {multiplier: 1.1},
@@ -1011,12 +1087,28 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
             },
             12: {    
                 stats: {
-                    intuition: {multiplier: 1.2},
+                    intuition: {multiplier: 1.05},
                 },
                 xp_multipliers: {
                     "Literacy": 1.05,
                     "Persistence": 1.05,
                     "Fortitude": 1.05,
+                }
+            },
+            15: {    
+                stats: {
+                    intuition: {flat: 5, multiplier: 1.05},
+                },
+            },
+            20: {    
+                stats: {
+                    intuition: {multiplier: 1.1},
+                },
+                xp_multipliers: {
+                    all: 1.1,
+                    Literacy: 1.1,
+                    Persistence: 1.1,
+                    Fortitude: 1.1,
                 }
             },
         }
@@ -1075,14 +1167,14 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                         flat: 0.2,
                     },
                     stamina_efficiency: {
-                        multiplier: 1.1,
+                        multiplier: 1.05,
                     }
                 },
             },
             10: {
 				stats: {
                     attack_speed: {
-                        multiplier: 1.02,
+                        multiplier: 1.01,
                     },
                 },
             },
@@ -1122,13 +1214,9 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
             },
             20: {
 				stats: {
-                    attack_speed: {
-                        multiplier: 1.03},
-                    stamina_regeneration_flat: {
-                        flat: 0.3},
-                    stamina_efficiency: {
-                        multiplier: 1.1
-                    }
+                    attack_speed: { multiplier: 1.02},
+                    stamina_regeneration_flat: { flat: 0.3},
+                    stamina_efficiency: { multiplier: 1.05 },
                 },
             },
         }
@@ -1588,7 +1676,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                             },
                                             xp_multipliers: {
                                                 all: 1.1,
-                                                "Meditation": 1.1,
+                                                "Meditation": 1.2,
                                             }
                                         }
                                     }
@@ -1679,6 +1767,23 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                     all: 1.05,
                     "Presence sensing": 1.1,
                 }
+            },
+            15: {
+                xp_multipliers: {
+                    all: 1.1,
+                }
+            },
+            20: {
+                stats: {
+                    "intuition": {
+                        multiplier: 1.05,
+                    }
+                },
+                xp_multipliers: {
+                    all_skill: 1.1,
+                    "Presence sensing": 1.2,
+                    Sleeping: 1.2,
+                }
             }
         },
         get_effect_description: ()=> {
@@ -1764,6 +1869,32 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                 "Swimming alternative unlock"
                             ]
                         }
+            },
+            15: {
+                stats: {
+                    agility: {
+                        flat: 3
+                    },
+                    max_stamina: {
+                        flat: 5
+                    }
+                },
+                xp_multipliers: {
+                    "Breathing": 1.1,
+                },
+            },
+            20: {
+                stats: {
+                    agility: {
+                        multiplier: 1.05,
+                    },
+                    max_stamina: {
+                        multiplier: 1.1,
+                    }
+                },
+                xp_multipliers: {
+                    "Breathing": 1.2,
+                },
             }
         },
         get_effect_description: ()=> {
@@ -1843,6 +1974,27 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                 "Swimming alternative unlock"
                             ]
                         }
+            },
+            15: {
+                stats: {
+                    strength: {
+                        flat: 2
+                    },
+                    max_stamina: {
+                        flat: 5
+                    }
+                },
+            },
+            20: {
+                stats: {
+                    strength: {
+                        flat: 5,
+                        multiplier: 1.05
+                    },
+                    max_stamina: {
+                        flat: 20,
+                    },
+                },
             }
         },
         get_effect_description: ()=> {
@@ -1914,6 +2066,32 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                         flat: 10,
                     }
                 }
+            },
+            15: {
+                stats: {
+                    agility: {
+                        flat: 2,
+                    },
+                    max_stamina: {
+                        flat: 10,
+                    }
+                },
+                xp_multipliers: {
+                    "Breathing": 1.1,
+                }
+            },
+            20: {
+                stats: {
+                    agility: {
+                        multiplier: 1.05,
+                    },
+                    stamina_efficiency: {
+                        multiplier: 1.05,
+                    }
+                },
+                xp_multipliers: {
+                    "Breathing": 1.2,
+                }
             }
         },
         get_effect_description: ()=> {
@@ -1974,6 +2152,20 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 stats: {
                     agility: {flat: 1},
                     strength: {flat: 1},
+                }
+            },
+            15: {
+                stats: {
+                    agility: {flat: 5},
+                    strength: {flat: 5},
+                }
+            },
+            20: {
+                stats: {
+                    intuition: {multiplier: 1.05},
+                },
+                xp_multipliers: {
+                    "Unarmed": 1.2,
                 }
             }
         },
@@ -2042,6 +2234,26 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                     },
                     agility: {
                         flat: 2
+                    }
+                }
+            },
+            15: {
+                stats: {
+                    agility: {
+                        multiplier: 1.05,
+                    },
+                    max_stamina: {
+                        multiplier: 1.05,
+                    }
+                }
+            },
+            20: {
+                stats: {
+                    strength: {
+                        multiplier: 1.05,
+                    },
+                    intuition: {
+                        flat: 3,
                     }
                 }
             }
@@ -2297,6 +2509,21 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 xp_multipliers: {
                     "Fortitude": 1.05,
                 }
+            },
+            15: {
+                stats: {
+                    max_health: {multiplier: 1.1},
+                    unarmed_power: {flat: 1},
+                },
+            },
+            20: {
+                stats: {
+                    max_health: {multiplier: 1.1},
+                },
+                xp_multipliers: {
+                    Fortitude: 1.2,
+                    Persistence: 1.2,
+                }
             }
         }
     }); 
@@ -2341,6 +2568,20 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
             12: {
                 stats: {
                     max_health: {multiplier: 1.02},
+                }
+            },
+            15: {
+                stats: {
+                    max_health: {multiplier: 1.05},
+                }
+            },
+            20: {
+                stats: {
+                    max_health: {multiplier: 1.02},
+                },
+                xp_multipliers: {
+                    "Iron skin": 1.2,
+                    Persistence: 1.2,
                 }
             }
         }
@@ -2414,13 +2655,24 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                     hero: 1.05,
                 }
             },
-            14: {
+            15: {
                 stats: {
                     stamina_efficiency: {multiplier: 1.1},
                 },
                 xp_multipliers: {
                     all_skill: 1.05,
                     "Strength of mind": 1.05,
+                }
+            },
+            20: {
+                stats: {
+                    stamina_efficiency: {multiplier: 1.1},
+                    max_stamina: {flat: 10},
+                    heat_tolerance: {flat: 1},
+                    cold_tolerance: {flat: 1},
+                },
+                xp_multipliers: {
+                    all: 1.1,
                 }
             }
         },
@@ -2593,7 +2845,28 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 xp_multipliers: {
                     "Regeneration": 1.1,
                 }
-            }
+            },
+            15: {
+                xp_multipliers: {
+                    Regeneration: 1.1,
+                    Weightlifting: 1.1,
+                    Running: 1.1,
+                    Climbing: 1.1,
+                    Swimming: 1.1,
+                }
+            },
+            20: {
+                stats: {
+                    stamina_regeneration_flat: {
+                        flat: 0.2,
+                    },
+                    cold_tolerance: {flat: 1},
+                },
+                xp_multipliers: {
+                    hero: 1.1,
+                    Regeneration: 1.2,
+                }
+            },
         }
     });
     skills["Breathing"] = new Skill({
@@ -2660,23 +2933,36 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                     agility: {
                         flat: 2
                     },
-                    stamina_regeneration_flat: {
-                        flat: 0.1,
-                    }
                 },
                 xp_multipliers: {
                     Running: 1.1,
                     Meditation: 1.1,
                 }
             }, 
-            14: {
+            15: {
                 xp_multipliers: {
                     Running: 1.1,
                     Meditation: 1.1,
                 },
                 stats: {
                     attack_speed: {
-                        multiplier: 1.03,
+                        multiplier: 1.02,
+                    },
+                    stamina_efficiency: {
+                        multiplier: 1.05,
+                    },
+                    stamina_regeneration_flat: {
+                        flat: 0.1,
+                    }
+                }
+            },
+            20: {
+                xp_multipliers: {
+                    category_Activity: 1.2,
+                },
+                stats: {
+                    attack_speed: {
+                        multiplier: 1.02,
                     },
                     stamina_efficiency: {
                         multiplier: 1.05,
@@ -2751,10 +3037,23 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                         stats: {
                                             health_regeneration_flat: {
                                                 flat: 0.4,
-                                            }
+                                            },
+                                            max_health: {
+                                                flat: 40,
+                                            },
                                         }
                                     },
-                                    
+                                    20: {
+                                        stats: {
+                                            max_health: {
+                                                multiplier: 1.1,
+                                            }
+                                        },
+                                        xp_multipliers: {
+                                            "Iron skin": 1.2,
+                                            Fortitude: 1.2,
+                                        }
+                                    },
                                 }
     });  
 })();
@@ -2810,11 +3109,22 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                     },
                 },
                 xp_multipliers: {
-                    "Literacy": 1.05,
-                    "Persistence": 1.05,
+                    Literacy: 1.05,
+                    Persistence: 1.05,
                     Perception: 1.1,
                 },
-                
+            },
+            15: {
+                stats: {
+                    intuition: {
+                        flat: 5
+                    },
+                },
+                xp_multipliers: {
+                    Literacy: 1.1,
+                    Persistence: 1.1,
+                    Perception: 1.1,
+                },
             }
         }
     });
