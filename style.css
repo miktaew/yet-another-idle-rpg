@@ -7,6 +7,9 @@
 	--equipment_display: inline-block;
 	--consumables_display: inline-block;
 	--other_display: inline-block;
+	--faved_equipment_display: inline-block;
+	--faved_consumables_display: inline-block;
+	--faved_other_display: inline-block;
 
 	--inventory_div_display: block;
 	--character_combat_div_display: none;
@@ -624,6 +627,23 @@ input[type=checkbox], input[type=radio] {
 	background-color: var(--active_button_color);
 }
 
+.item_fav_div {
+	width: fit-content;
+	display: inline-block;
+}
+
+.item_fav_div:hover {
+	cursor: pointer;
+}
+
+.item_fav_div i {
+	font-size: 16px;
+}
+
+.inventory_item_name, .equipped_item_name {
+	display: inline-block;
+}
+
 .inventory_item_control {
 	border-bottom: 1px dotted white;
 	width: 383px;
@@ -938,7 +958,7 @@ input[type=checkbox], input[type=radio] {
 	padding: 3px;
 	padding-left: 5px;
 	padding-right: 5px;
-	min-width: 85.4px; /* ouch */
+	min-width: 60.7px; /* ouch */
 	text-align: center;
 	outline: 1px solid white;
 	margin: 1px;
@@ -963,6 +983,7 @@ input[type=checkbox], input[type=radio] {
 	font-style: italic;
 }
 
+
 .character_item_equippable {
 	display: var(--equipment_display);
 }
@@ -973,6 +994,18 @@ input[type=checkbox], input[type=radio] {
 
 .character_item_other, .character_item_loot, .character_item_material, .character_item_component {
 	display: var(--other_display);
+}
+
+.character_item_equippable.character_item_faved {
+	display: var(--faved_equipment_display);
+}
+
+.character_item_usable.character_item_faved, .character_item_book.character_item_faved {
+	display: var(--faved_consumables_display);
+}
+
+.character_item_other.character_item_faved, .character_item_loot.character_item_faved, .character_item_material.character_item_faved, .character_item_component.character_item_faved {
+	display: var(--faved_other_display);
 }
 
 .item_unique {

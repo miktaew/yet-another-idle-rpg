@@ -143,6 +143,7 @@
                         <div id = "inventory_show_equipment" class = "inventory_control_button" onclick = "showOnlyEquipment()"> Equipment </div>
                         <div id = "inventory_show_consumable" class = "inventory_control_button" onclick = "showOnlyConsumables()"> Usable </div>
                         <div id = "inventory_show_other" class = "inventory_control_button" onclick = "showOnlyOther()"> Other </div> 
+                        <div id = "inventory_show_favs" class = "inventory_control_button" onclick = "showOnlyFavs()"> Favs </div> 
                     </div>
                 </div>
 
@@ -1080,22 +1081,41 @@
                 document.documentElement.style.setProperty('--equipment_display', 'inline-block');
                 document.documentElement.style.setProperty('--consumables_display', 'inline-block');
                 document.documentElement.style.setProperty('--other_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_equipment_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_consumables_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_other_display', 'inline-block');
             }
             function showOnlyEquipment() {
                 document.documentElement.style.setProperty('--equipment_display', 'inline-block');
                 document.documentElement.style.setProperty('--consumables_display', 'none');
                 document.documentElement.style.setProperty('--other_display', 'none');
+                document.documentElement.style.setProperty('--faved_equipment_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_consumables_display', 'none');
+                document.documentElement.style.setProperty('--faved_other_display', 'none');
             }
             function showOnlyConsumables() {
                 document.documentElement.style.setProperty('--equipment_display', 'none');
                 document.documentElement.style.setProperty('--consumables_display', 'inline-block');
                 document.documentElement.style.setProperty('--other_display', 'none');
-
+                document.documentElement.style.setProperty('--faved_equipment_display', 'none');
+                document.documentElement.style.setProperty('--faved_consumables_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_other_display', 'none');
             }
             function showOnlyOther() {
                 document.documentElement.style.setProperty('--equipment_display', 'none');
                 document.documentElement.style.setProperty('--consumables_display', 'none');
                 document.documentElement.style.setProperty('--other_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_equipment_display', 'none');
+                document.documentElement.style.setProperty('--faved_consumables_display', 'none');
+                document.documentElement.style.setProperty('--faved_other_display', 'inline-block');
+            }
+            function showOnlyFavs() {
+                document.documentElement.style.setProperty('--equipment_display', 'none');
+                document.documentElement.style.setProperty('--consumables_display', 'none');
+                document.documentElement.style.setProperty('--other_display', 'none');
+                document.documentElement.style.setProperty('--faved_equipment_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_consumables_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_other_display', 'inline-block');
             }
 
             function showAllTraderItems() {
@@ -1470,6 +1490,12 @@
                         const item_id = JSON.parse(clicked_element.parentNode.parentNode.dataset.character_item).id;
                         change_consumable_favourite_status(item_id);
                         clicked_element.classList.toggle("item_auto_use_button_active");
+                    } else if(clicked_element.classList.contains("item_fav_div") || clicked_element.classList.contains("item_fav_icon")) {
+                        let target = clicked_element;
+                        if(clicked_element.classList.contains("item_fav_icon")) {
+                            target = clicked_element.parentNode;
+                        }
+                        change_item_favourite_status(target, clicked_element.parentNode.parentNode.parentNode.dataset.character_item);
                     }
                 }
 
@@ -1938,6 +1964,10 @@
                         return;
                     }
 
+                    if(clicked_element.classList.contains("item_fav_div") || clicked_element.classList.contains("item_fav_div")) {
+                        return;
+                    }
+
                     if(clicked_element.classList.contains("equip_item_button") || clicked_element.classList.contains("unequip_item_button")) {
                         return;
                     }
@@ -2003,6 +2033,10 @@
                         return;
                     }
 
+                    if(clicked_element.classList.contains("item_fav_div") || clicked_element.classList.contains("item_fav_div")) {
+                        return;
+                    }
+
                     if(clicked_element.classList.contains("equip_item_button") || clicked_element.classList.contains("unequip_item_button")) {
                         return;
                     }
@@ -2055,7 +2089,7 @@
                 //for stuff where any number can be active
                 document.getElementById("message_controls").addEventListener("click", manage_active_buttons);
                 function manage_active_buttons(event) {
-                    var clicked_element = event.target;
+                    let clicked_element = event.target;
                     if(clicked_element.children.length == 0) {
                         if(clicked_element.classList.contains("active_selection_button")) {
                             clicked_element.classList.remove("active_selection_button");

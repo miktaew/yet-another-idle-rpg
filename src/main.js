@@ -15,7 +15,6 @@ import { character,
          equip_item_from_inventory, unequip_item, equip_item,
          update_character_stats,
          get_skill_xp_gain, 
-         get_total_skill_coefficient,
          get_total_skill_level,
          time_until_wet,
          cold_status_temperatures,
@@ -95,7 +94,8 @@ import { end_activity_animation,
          booklist_entry_divs,
          do_enemy_onstart_animation,
          update_location_kill_count,
-         change_completed_quest_visibility
+         change_completed_quest_visibility,
+         update_fav_display
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -238,6 +238,9 @@ const faved_stances = {};
 
 const favourite_consumables = {};
 //consumables that are to be used automatically if their effect runs out
+
+const favourite_items = {};
+//items to be displayed with "show faves" option in inventory
 
 const tickrate = 1;
 //how many ticks per second
@@ -3133,6 +3136,26 @@ function change_consumable_favourite_status(item_id) {
     }
 }
 
+function add_item_to_favourites(item_key) {
+    favourite_items[item_key] = true;
+}
+
+function remove_item_from_favourites(item_key) {
+    delete favourite_items[item_key];
+}
+
+function change_item_favourite_status(target, item_key) {
+    if(favourite_items[item_key]) {
+        remove_item_from_favourites(item_key);
+        update_fav_display(target, false);
+    } else {
+        add_item_to_favourites(item_key);
+        update_fav_display(target, true);
+    }
+
+    update_displayed_character_inventory({item_key});
+}
+
 function add_active_effect(effect_key, duration){
     let do_not_apply_because_stronger_is_active = false; //readable names are good, right?
     Object.keys(active_effects).forEach(effect => {
@@ -3272,6 +3295,7 @@ function create_save() {
         //});
 
         save_data["favourite_consumables"] = favourite_consumables;
+        save_data["favourite_items"] = favourite_items;
 
         save_data["recipes"] = {};
         Object.keys(recipes).forEach(category => {
@@ -3654,6 +3678,9 @@ function load(save_data) {
         Object.keys(save_data.favourite_consumables || {}).forEach(key => {
             favourite_consumables[key] = true;
         });
+        Object.keys(save_data.favourite_items || {}).forEach(key =>{
+            favourite_items[key] = true;
+        })
 
         /*
         Object.keys(save_data.character.reputation || {}).forEach(rep_region => {
@@ -5458,6 +5485,8 @@ window.get_character_money = character.get_character_money;
 
 window.use_item = use_item;
 window.change_consumable_favourite_status = change_consumable_favourite_status;
+window.change_item_favourite_status = change_item_favourite_status;
+window.update_fav_display = update_fav_display;
 
 window.do_enemy_combat_action = do_enemy_combat_action;
 
@@ -5646,5 +5675,6 @@ export { current_enemies,
         process_rewards,
         travel_times,
         language,
-        add_active_effect
+        add_active_effect,
+        favourite_items
 };

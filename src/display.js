@@ -14,7 +14,8 @@ import { current_enemies, options,
     unlocked_beds,
     favourite_consumables,
     travel_times, 
-    language} from "./main.js";
+    language,
+    favourite_items} from "./main.js";
 import { dialogues } from "./dialogues.js";
 import { activities } from "./activities.js";
 import { format_time, current_game_time, seasons } from "./game_time.js";
@@ -1182,8 +1183,8 @@ function sort_displayed_inventory({sort_by, target = "character", change_directi
 
         if(sort_by === "name" || sort_by === "type") {
 
-            const name_a = a.children[0].children[0].children[1].innerText.toLowerCase().replaceAll('"',"");
-            const name_b = b.children[0].children[0].children[1].innerText.toLowerCase().replaceAll('"',"");
+            const name_a = a.children[0].children[1].children[1].innerText.toLowerCase().replaceAll('"',"");
+            const name_b = b.children[0].children[1].children[1].innerText.toLowerCase().replaceAll('"',"");
             if(name_a > name_b) {
                 return plus;
             } else if(name_a < name_b) {
@@ -1681,6 +1682,22 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
     }
 
     item_name_div.classList.add(`${item_class}_name`);
+
+    if(target === "character") {
+        const item_faving_div = document.createElement("div");
+        item_faving_div.classList.add("item_fav_div");
+        const icon = document.createElement("i");
+        icon.classList.add("material-icons", "item_fav_icon");
+        if(favourite_items[key]) {
+            icon.innerText = 'star';
+        } else {
+            icon.innerText = 'star_border';
+        }
+        item_faving_div.appendChild(icon);
+
+        item_div.appendChild(item_faving_div);
+    }
+
     item_div.appendChild(item_name_div);
 
     item_div.classList.add(`${item_class}`, `${target_class_name}`, `item_${target_item.item_type.toLowerCase()}`);
@@ -1773,6 +1790,21 @@ function update_displayed_equipment() {
         }
         equipment_slots_divs[key].appendChild(eq_tooltip);
     });
+}
+
+/**
+ * updates displayed star icon to match whether target is in favs or not
+ * @param {HTMLDivElement} node 
+ * @param {Boolean} is_fav 
+ */
+function update_fav_display(node, is_fav) {
+    if(is_fav) {
+        node.children[0].innerText = "star";
+        node.parentNode.parentNode.classList.add("character_item_faved");
+    } else {
+        node.children[0].innerText = "star_border";
+        node.parentNode.parentNode.classList.remove("character_item_faved");
+    }
 }
 
 function update_displayed_book(book_id) {
@@ -5535,5 +5567,6 @@ export {
     update_displayed_reputation,
     hide_loading_screen, set_loading_screen_versions, set_loading_screen_errors_warning, 
     set_loading_screen_progress, hide_loading_text, show_play_button, set_loading_screen_warnings_warning, set_play_button_text,
-    create_floating_effect
+    create_floating_effect,
+    update_fav_display
 }
