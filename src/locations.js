@@ -688,7 +688,8 @@ function get_location_type_penalty(type, stage, stat, category) {
                     agility: {multiplier: 0.75},
                     dexterity: {multiplier: 0.75},
                     stamina_efficiency: {multiplier: 0.75},
-                }
+                },
+                applied_effects: [{effect: "Wet", duration: 30}]
             },
             2: {
                 description: "With most of your body submerged, it's hard to move",
@@ -699,7 +700,8 @@ function get_location_type_penalty(type, stage, stat, category) {
                     dexterity: { multiplier: 0.5 },
                     attack_speed: {multiplier: 0.5 },
                     stamina_efficiency: { multiplier: 0.5 },
-                }
+                },
+                applied_effects: [{effect: "Wet", duration: 30}]
             },
             3: {
                 description: "Fully underwater and with no ground under your feet, the moves you learned on land will help you little",
@@ -709,7 +711,8 @@ function get_location_type_penalty(type, stage, stat, category) {
                     dexterity: {multiplier: 0.1},
                     attack_speed: {multiplier: 0.25},
                     stamina_efficiency: {multiplier: 0.25}
-                }
+                },
+                applied_effects: [{effect: "Wet", duration: 30}]
             },
             4: {
                 description: "Crushed by the immense pressure of the oceanic abyss",
@@ -720,7 +723,8 @@ function get_location_type_penalty(type, stage, stat, category) {
                     attack_speed: {multiplier: 0.1},
                     stamina_efficiency: {multiplier: 0.1},
                     health_loss_flat: {flat: -1000},
-                }
+                },
+                applied_effects: [{effect: "Wet", duration: 30}]
             }
         }
     });
@@ -1268,6 +1272,38 @@ There's another gate on the wall in front of you, but you have a strange feeling
     });
 
     locations["Forest road"].connected_locations.push({location: locations["Bears' den"], custom_text: "Enter the [Bears' den]", travel_time: 180});
+
+    locations["Forest lake"] = new Location({
+        connected_locations: [{location: locations["Forest road"], travel_time: 120}],
+        description: "Far away from civilization, the forest opens up to an unspoiled lake. Nestled between a small cliff where it receives water from a rocky waterfall, and a dense canopy leading to what must be the forest's heart, it serves as a respite for the local animals - and now, yourself",
+        name: "Forest lake",
+        getBackgroundNoises: () => ["*Mosquitoes buzzing*", "*Frogs croaking*", "*something splashes in the water*", "*an animal comes out to drink*", "Quack", "Quack!"],
+        is_unlocked: false,
+    });
+    locations["Forest road"].connected_locations.push({ location: locations["Forest lake"], travel_time: 120 });
+
+    locations["Frogs"] = new Combat_zone({
+        description: "Battling at the lake's edge",
+        enemies_list: ["Frog"],
+        enemy_count: 50,
+        is_unlocked: false,
+        enemy_stat_variation: 0.2,
+        name: "Frogs",
+        types: [{type: "aquatic", stage: 1, xp_gain: 5}, {type: "open", stage: 1, xp_gain: 5}],
+        parent_location: locations["Forest lake"],
+        first_reward: {
+            xp: 1600,
+        },
+        repeatable_reward: {
+            xp: 800,
+            actions: [
+                //{location: "Forest lake", action: "search2"} //locked as the reward doesn't really have any uses yet
+            ],
+        },
+        temperature_range_modifier: 0.8,
+        is_under_roof: false,
+    });
+    locations["Forest lake"].connected_locations.push({location: locations["Frogs"], custom_text: "Challenge the apex predator"});
 
     locations["Forest ant nest"] = new Combat_zone({ 
         description: "A labyrinthine nest of red ants", 
@@ -1874,38 +1910,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
     });
 
     locations["Swampland tribe"].connected_locations.push({location: locations["Longhouse"], travel_time: 5});
-  
-    locations["Forest lake"] = new Location({
-        connected_locations: [{location: locations["Forest road"], travel_time: 120}],
-        description: "Far away from civilization, the forest opens up to an unspoiled lake. Nestled between a small cliff where it receives water from a rocky waterfall, and a dense canopy leading to what must be the forest's heart, it serves as a respite for the local animals - and now, yourself",
-        name: "Forest lake",
-        getBackgroundNoises: () => ["*Mosquitoes buzzing*", "*Frogs croaking*", "*something splashes in the water*", "*an animal comes out to drink*", "Quack", "Quack!"],
-        is_unlocked: false,
-    });
-    locations["Forest road"].connected_locations.push({ location: locations["Forest lake"], travel_time: 120 });
-
-    locations["Frogs"] = new Combat_zone({
-        description: "Battling at the lake's edge",
-        enemies_list: ["Frog"],
-        enemy_count: 50,
-        is_unlocked: false,
-        enemy_stat_variation: 0.2,
-        name: "Frogs",
-        types: [{type: "aquatic", stage: 1, xp_gain: 1}, {type: "open", stage: 1, xp_gain: 1}],
-        parent_location: locations["Forest lake"],
-        first_reward: {
-            xp: 1600,
-        },
-        repeatable_reward: {
-            xp: 800,
-            actions: [
-                //{location: "Forest lake", action: "search2"} //locked as the reward doesn't really have any uses yet
-            ],
-        },
-        temperature_range_modifier: 0.8,
-        is_under_roof: false,
-    });
-    locations["Forest lake"].connected_locations.push({location: locations["Frogs"], custom_text: "Challenge the apex predator"});
 })();
 
 
@@ -2083,7 +2087,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
         is_under_roof: true,
     });
     locations["Forest road"].connected_locations.push({location: locations["Forest den traversal"], custom_text: "Try to get to the other side of the [Forest den]", travel_time: 90});
-
 })();
 
 //add activities
