@@ -81,7 +81,7 @@ class Textline {
         this.rewards.items = rewards.items || [];
         
         this.display_conditions = [display_conditions];
-        this.required_flags = required_flags;
+        this.required_flags = required_flags; //generally could be handled via display_conditions but offers a bit more freedom allowing a condition of /not/ having a flag too
 
         this.locks_lines = locks_lines;
 
@@ -271,6 +271,7 @@ class DialogueAction extends GameAction {
                 name: "elder about guard",
                 text: "elder about guard answ",
                 is_unlocked: false,
+                required_flags: {yes: ["is_guard_met"]},
                 locks_lines: ["about guard"],
             }),
             "new tunnel": new Textline({
@@ -399,6 +400,7 @@ class DialogueAction extends GameAction {
                 name: "craftsman about guard",
                 text: "craftsman about guard answ",
                 is_unlocked: false,
+                required_flags: {yes: ["is_guard_met"]},
                 locks_lines: ["about guard"],
             }),
         },
@@ -414,6 +416,7 @@ class DialogueAction extends GameAction {
                 text: "guard hello answ",
                 rewards: {
                     textlines: [{dialogue: "village guard", lines: ["tips", "job", "hi"]}],
+                    flags: ["is_guard_met"],
                 },
                 locks_lines: ["hello"],
             }),
@@ -682,6 +685,7 @@ class DialogueAction extends GameAction {
                 name: "millers about guard",
                 text: "millers about guard answ",
                 is_unlocked: false,
+                required_flags: {yes: ["is_guard_met"]},
                 locks_lines: ["about guard"],
             }),
         },
