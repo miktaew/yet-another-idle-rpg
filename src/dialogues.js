@@ -272,9 +272,6 @@ class DialogueAction extends GameAction {
                 text: "elder about guard answ",
                 is_unlocked: false,
                 locks_lines: ["about guard"],
-                rewards: {
-                    items: ["Fresh bread", {item: "Fresh bread", count: 5}],
-                }
             }),
             "new tunnel": new Textline({
                 name: "elder tunnel",
