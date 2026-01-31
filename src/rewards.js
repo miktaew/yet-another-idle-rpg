@@ -27,6 +27,7 @@
             {
                 lines: [String] //an array with textline keys
                 dialogue: String //dialogue key
+                skip_message: Boolean //to NOT log an unlock message
             }
         ]
         
