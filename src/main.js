@@ -4139,7 +4139,6 @@ function load(save_data) {
 
         if(is_a_older_than_b(save_data["game version"], "v0.5.1")) {
             //compatibility for some dialogues
-
             process_rewards({
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["crab rumors"]}]
@@ -4150,6 +4149,7 @@ function load(save_data) {
             if(dialogues["village guard"].textlines["hello"].is_finished) {
                 process_rewards({
                     rewards: {
+                        flags: ["is_guard_met"],
                         textlines: [
                             {dialogue: "village elder", lines: ["about guard"]},
                             {dialogue: "old craftsman", lines: ["about guard"]},
@@ -4169,7 +4169,6 @@ function load(save_data) {
                 });
             }
         }
-
 
         Object.keys(save_data.traders).forEach(function(trader) { 
             let trader_item_list = [];
