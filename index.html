@@ -4,7 +4,7 @@
         <link rel = "stylesheet" href = "style.css">
         
         <script type="module" src="resources/js/HackTimer/HackTimer.min.js"></script>
-        <script type='module' src="dist/bundle.js?version=v0.5.1"></script>
+        <script type='module' src="dist/bundle.js?version=v0.5.1.1"></script>
         <!--script type="module" src="src/main.js"></script-->
 
         <!--Icons-->
@@ -78,7 +78,7 @@
                                 
                             </div>
                         </div>
-                        <div id = "character_xp_value" class="outline_black">
+                        <div id = "character_xp_value" class="outline_black_static">
                         </div>
                         <div id="character_xp_tooltip" class="character_bar_tooltip">
                         </div>
@@ -89,7 +89,7 @@
                             <div id = "character_stamina_bar_current">
                             </div>
                         </div>
-                        <div id = "character_stamina_value" class="outline_black">
+                        <div id = "character_stamina_value" class="outline_black_static">
                             
                         </div>
                         <div id="character_stamina_tooltip" class="character_bar_tooltip">
@@ -100,7 +100,7 @@
                             <div id = "character_mana_bar_current">
                             </div>
                         </div>
-                        <div id = "character_mana_value" class="outline_black">
+                        <div id = "character_mana_value" class="outline_black_static">
                             0/0 mana
                         </div>
                         <div id="character_mana_tooltip" class="character_bar_tooltip">
@@ -112,7 +112,7 @@
                             <div id = "character_healthbar_current">
                             </div>
                         </div>
-                        <div id = "character_health_value" class="outline_black">
+                        <div id = "character_health_value" class="outline_black_static">
                         </div>
                         <div id="character_health_tooltip" class="character_bar_tooltip">
                         </div>
@@ -994,6 +994,14 @@
                     <label for="options_textsize">Increase size of text in dialogues</label>
                 </div>
                 <div class="options_choice">
+                    <input type="checkbox" id="options_bar_outline" name="options_bar_outline" onclick = "option_use_text_outlines_for_bars()" checked>
+                    <label for="options_bar_outline">Text outline on xp/stamina/mana/health bars</label>
+                </div>
+                <div class="options_choice">
+                    <input type="checkbox" id="options_tooltip_outline" name="options_tooltip_outline" onclick = "option_use_text_outlines_for_tooltips()" checked>
+                    <label for="options_tooltip_outline">Text outline in item tooltips</label>
+                </div>
+                <div class="options_choice">
                     <input type="checkbox" id="options_bed_return" name="options_bed_return" onclick = "option_bed_return()" checked>
                     <label for="options_bed_return">Return to last bed upon defeat</label>
                 </div>
@@ -1522,7 +1530,7 @@
                         }
                         
                         //calculate vertical position so it doesnt go under bottom edge
-                        const tooltip_height = hovered_element.children[0].children[1].scrollHeight;
+                        const tooltip_height = hovered_element.children[0].children[2].scrollHeight;
 
                         const body = document.getElementsByTagName("body")[0];
                         const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
@@ -1531,6 +1539,7 @@
                             window.innerHeight - tooltip_height - item_tooltip_margin + window.scrollY + 10 - (scrollbar_X_visible?10:0);
                         
                         if(event.pageY > bottom_edge_position) {
+                            
                             document.documentElement.style.setProperty('--item_tooltip_top', `${bottom_edge_position - 400}px`);
                         } else {
                             document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 400}px`);
@@ -1538,7 +1547,6 @@
                         tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
                 }
-
 
                 const storage_div = document.getElementById("storage_div");
                 ///////////////////////
@@ -1972,10 +1980,6 @@
                         return;
                     }
 
-                    if(clicked_element.dataset.unsellable) {
-                        return;
-                    }
-
                     let number_to_move = 1;
 
                     if(clicked_element.classList.contains("trade_ammount_button")){
@@ -1984,6 +1988,10 @@
 
                     clicked_element = retarget_clicked_to_class(clicked_element, ["inventory_item_control"], ["global_content"]);
                     if(!clicked_element) {
+                        return;
+                    }
+
+                    if(clicked_element.dataset.unsellable) {
                         return;
                     }
 
@@ -2033,7 +2041,7 @@
                         return;
                     }
 
-                    if(clicked_element.classList.contains("item_fav_div") || clicked_element.classList.contains("item_fav_div")) {
+                    if(clicked_element.classList.contains("item_fav_div") || clicked_element.classList.contains("item_fav_div") || clicked_element.classList.contains("item_fav_icon")) {
                         return;
                     }
 

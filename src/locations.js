@@ -683,7 +683,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             1: {
                 description: "Wading in water up to your knees restrict your movement",
                 related_skill: "Swimming",
-                scaling_lvl: 20,
+                scaling_lvl: 30,
                 effects: {
                     agility: {multiplier: 0.75},
                     dexterity: {multiplier: 0.75},
@@ -694,7 +694,7 @@ function get_location_type_penalty(type, stage, stat, category) {
             2: {
                 description: "With most of your body submerged, it's hard to move",
                 related_skill: "Swimming",
-                scaling_lvl: 30,
+                scaling_lvl: 40,
                 effects: {
                     agility: {multiplier: 0.5},
                     dexterity: { multiplier: 0.5 },
@@ -3222,7 +3222,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 conditional_loss: ["You need to get more used to water and have lung capacity to go that deep"],
                 random_loss: [`You may have felt like you can already brave anything this forest can throw at you. But the part stretching before you is more imposing than anything you've seen so far.<br><br>
 The river coming from the lake vanishes in darkness as the foliage is too dense to let in light. The trees there are growing larger, denser... More ancient.<br><br>
-You try to make make out the details of what looks like a bird flying in the distance. It has four legs...`],
+You try to make make out the details of what looks like a bird flying in the distance. It has four legs... [tbc]`],
             },
             is_unlocked: true,
             success_chances: [0,0],

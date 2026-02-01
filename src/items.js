@@ -4031,7 +4031,7 @@ book_stats["Shellfish desires"] = new BookData({
 (function(){
     item_templates["Warrior's necklace"] = new Amulet({
         value: 1000,
-        tags: {unique: true},
+        tags: {unique: true, unsellable: true},
         stats: {
             attack_power: {
                 multiplier: 1.1,
@@ -4048,7 +4048,7 @@ book_stats["Shellfish desires"] = new BookData({
 (function(){
     item_templates["Snake fang ring"] = new Ring({
         value: 2000,
-        tags: {unique: true},
+        tags: {unique: true, unsellable: true},
         stats: {
             crit_multiplier: {
                 multiplier: 1.3,

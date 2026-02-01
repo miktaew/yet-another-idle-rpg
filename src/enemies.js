@@ -336,7 +336,7 @@ const enemy_abilites = {
         xp_value: 80,
         rank: 8,
         tags: ["living", "beast"],
-        stats: {health: 8000, attack: 500, agility: 120, dexterity: 200, intuition: 200, magic: 0, attack_speed: 0.8, defense: 500},
+        stats: {health: 8000, attack: 500, agility: 250, dexterity: 300, intuition: 200, magic: 0, attack_speed: 0.8, defense: 500},
         loot_list: [
             {item_name: "Frog meat", chance: 0.08},
             {item_name: "Frog hide", chance: 0.05},
@@ -345,23 +345,23 @@ const enemy_abilites = {
         size: enemy_sizes.LARGE,
         on_hit: (character) => {
             let roll = Math.random();
-            if(roll < 0.2) {
+            if(roll < 0.1) {
                 //todo: add some category for these messages
-                log_message("The frog's long tongue leaves you covered in sticky saliva!");
+                log_message("The frog's long tongue leaves you covered in sticky saliva!", "hero_attacked");
                 add_active_effect("Sticky", 30);
-            } else if (roll < 0.3) {
-                log_message("The frog's attack leaves some of its toxins on you!");
+            } else if (roll < 0.2) {
+                log_message("The frog's attack leaves some of its toxins on you!", "hero_attacked");
                 enemy_abilites.bufotoxin(10);
             }
         },
         on_damaged: (character) => {
             let roll = Math.random();
-            if (character.equipment.weapon == null && roll < 0.2) {
-                log_message("Touching the frog with your bare hands leaves them covered in toxins!");
+            if (character.equipment.weapon == null && roll < 0.1) {
+                log_message("Touching the frog with your bare hands leaves them covered in toxins!", "hero_attacked");
                 enemy_abilites.bufotoxin(10);
             }
             else if (character.equipment.weapon != null && roll < 0.05) {
-                log_message("Striking the frog causes some toxins to splash on you!");
+                log_message("Striking the frog causes some toxins to splash on you!", "hero_attacked");
                 enemy_abilites.bufotoxin(10);
             }
         },
@@ -375,6 +375,12 @@ const enemy_abilites = {
         tags: ["living", "insect"],
         stats: {health: 600, attack: 4, agility: 100, dexterity: 200, intuition: 100, magic: 0, attack_speed: 1.5, attack_count: 30, defense: 10},
         size: enemy_sizes.SMALL,
+        loot_list: [
+            {item_name: "Oneberry", chance: 0.005},
+            {item_name: "Golmoon leaf", chance: 0.005},
+            {item_name: "Belmart leaf", chance: 0.005},
+            {item_name: "Piece of wood", chance: 0.005},
+        ],
     });
 
     enemy_templates["Red ant queen"] = new Enemy({
@@ -531,7 +537,7 @@ const enemy_abilites = {
         rank: 11,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 25000, attack: 250, agility: 350, dexterity: 580, intuition: 50, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 3500},
+        stats: {health: 30000, attack: 250, agility: 450, dexterity: 600, intuition: 70, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 4000},
     });
 
 	enemy_templates["Enraged giant crab"] = new Enemy({     //not working at present, not sure where the problem is
@@ -542,7 +548,7 @@ const enemy_abilites = {
         rank: 11,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 18000, attack: 400, agility: 350, dexterity: 680, intuition: 70, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 750},
+        stats: {health: 22000, attack: 400, agility: 450, dexterity: 700, intuition: 100, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 2000},
         loot_list: [{item_name: "Giant crab claw", chance: 1}],
     });
 

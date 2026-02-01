@@ -2696,7 +2696,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                     dexterity: {flat: 2},
                 },
                 xp_multipliers: {
-                    all: 1.1,
+                    all: 1.05,
                 }
             },
             3: {

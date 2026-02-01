@@ -250,7 +250,7 @@ const tickrate = 1;
 const global_xp_multiplier = 1;
 
 //stuff from options panel
-const options = {
+const game_options = {
     uniform_text_size_in_action: false,
     auto_return_to_bed: true,
     remember_message_log_filters: false,
@@ -258,7 +258,7 @@ const options = {
     combat_disable_autoswitch: false,
     log_every_gathering_period: true,
     log_total_gathering_gain: true,
-    auto_use_when_longest_runs_out: true,
+    auto_use_when_longest_runs_out: true, //this can't actually be changed by a player; despite the name, it actually decides whether to first use longest-duration item or shortest-duration item?
     use_uncivilised_temperature_scale: false, //true -> swap Celsius for Fahrenheit
     do_background_animations: false,
     skip_play_button: false, //not really skips, just automatically clicks it right after loading
@@ -266,6 +266,8 @@ const options = {
     do_enemy_onhit_animations: true,
     expo_threshold: 1e9,
     hide_max_level_skills: false,
+    use_text_outlines_for_tooltips: true,
+    use_text_outlines_for_bars: true,
 };
 
 let message_log_filters = {
@@ -308,10 +310,10 @@ function option_uniform_textsize(option) {
     //doesn't really force same textsize, just changes some variables so they match
     const checkbox = document.getElementById("options_textsize");
     if(checkbox.checked || option) {
-        options.uniform_text_size_in_action = true;    
+        game_options.uniform_text_size_in_action = true;    
         document.documentElement.style.setProperty('--options_action_textsize', '20px');
     } else {
-        options.uniform_text_size_in_action = false;
+        game_options.uniform_text_size_in_action = false;
         document.documentElement.style.setProperty('--options_action_textsize', '16px');
     }
 
@@ -324,19 +326,19 @@ function option_bed_return(option) {
     const checkbox = document.getElementById("options_bed_return");
 
     if(option !== undefined) {
-        options.auto_return_to_bed = option;
+        game_options.auto_return_to_bed = option;
         checkbox.checked = option;
     } else {
-        options.auto_return_to_bed = checkbox.checked;
+        game_options.auto_return_to_bed = checkbox.checked;
     }
 }
 
 function option_remember_filters(option) {
     const checkbox = document.getElementById("options_save_messagelog_settings");
     if(checkbox.checked || option) {
-        options.remember_message_log_filters = true;
+        game_options.remember_message_log_filters = true;
     } else {
-        options.remember_message_log_filters = false;
+        game_options.remember_message_log_filters = false;
     }
 
     if(option !== undefined) {
@@ -390,9 +392,9 @@ function option_combat_autoswitch(option) {
     const checkbox = document.getElementById("options_dont_autoswitch_to_combat");
 
     if(checkbox.checked || option) {
-        options.disable_combat_autoswitch = true;
+        game_options.disable_combat_autoswitch = true;
     } else {
-        options.disable_combat_autoswitch = false;
+        game_options.disable_combat_autoswitch = false;
     }
 
     if(option !== undefined) {
@@ -404,9 +406,9 @@ function option_log_all_gathering(option) {
     const checkbox = document.getElementById("options_log_all_gathering");
 
     if(checkbox.checked || option) {
-        options.log_every_gathering_period = true;
+        game_options.log_every_gathering_period = true;
     } else {
-        options.log_every_gathering_period = false;
+        game_options.log_every_gathering_period = false;
     }
 
     if(option !== undefined) {
@@ -418,9 +420,9 @@ function option_log_gathering_result(option) {
     const checkbox = document.getElementById("options_log_gathering_result");
 
     if(checkbox.checked || option) {
-        options.log_total_gathering_gain = true;
+        game_options.log_total_gathering_gain = true;
     } else {
-        options.log_total_gathering_gain = false;
+        game_options.log_total_gathering_gain = false;
     }
 
     if(option !== undefined) {
@@ -431,20 +433,20 @@ function option_log_gathering_result(option) {
 function option_expo_threshold(option) {
     const input = document.getElementById("options_expo_threshold");
 
-    options.expo_threshold = option || input.value || 0;
+    game_options.expo_threshold = option || input.value || 0;
 
     if(option !== undefined) {
         input.value = option;
     }
-    input.nextElementSibling.value = '1e'+options.expo_threshold;
+    input.nextElementSibling.value = '1e'+game_options.expo_threshold;
 }
 
 function option_use_uncivilised_temperature_scale(option) {
     const checkbox = document.getElementById("options_use_uncivilised_temperature_scale");
     if(checkbox.checked || option) {
-        options.use_uncivilised_temperature_scale = true;
+        game_options.use_uncivilised_temperature_scale = true;
     } else {
-        options.use_uncivilised_temperature_scale = false;
+        game_options.use_uncivilised_temperature_scale = false;
     }
 
     if(option !== undefined) {
@@ -457,9 +459,9 @@ function option_use_uncivilised_temperature_scale(option) {
 function option_do_background_animations(option) {
     const checkbox = document.getElementById("options_do_background_animations");
     if(checkbox.checked || option) {
-        options.do_background_animations = true;
+        game_options.do_background_animations = true;
     } else {
-        options.do_background_animations = false;
+        game_options.do_background_animations = false;
         stop_background_animation();
         
         window.removeEventListener("resize", start_snow_animation);
@@ -475,9 +477,9 @@ function option_do_background_animations(option) {
 function option_skip_play_button(option) {
     const checkbox = document.getElementById("options_skip_play_button");
     if(checkbox.checked || option) {
-        options.skip_play_button = true;
+        game_options.skip_play_button = true;
     } else {
-        options.skip_play_button = false;
+        game_options.skip_play_button = false;
     }
     
     if(option !== undefined) {
@@ -493,11 +495,11 @@ function option_mofu_mofu_mode(option) {
     }
 
     if(checkbox.checked) {
-        options.mofu_mofu_mode = true;
+        game_options.mofu_mofu_mode = true;
         global_flags.is_mofu_mofu_enabled = true;
         language = languages.mofu_english;
     } else {
-        options.mofu_mofu_mode = false;
+        game_options.mofu_mofu_mode = false;
         global_flags.is_mofu_mofu_enabled = false;
         language = languages.english;
     }
@@ -506,9 +508,9 @@ function option_mofu_mofu_mode(option) {
 function option_do_enemy_onhit_animations(option) {
     const checkbox = document.getElementById("options_do_enemy_onhit_animations");
     if(checkbox.checked || option) {
-        options.do_enemy_onhit_animations = true;
+        game_options.do_enemy_onhit_animations = true;
     } else {
-        options.do_enemy_onhit_animations = false;
+        game_options.do_enemy_onhit_animations = false;
     }
     
     if(option !== undefined) {
@@ -519,11 +521,49 @@ function option_do_enemy_onhit_animations(option) {
 function option_hide_max_level_skills(option) {
     const checkbox = document.getElementById("options_hide_max_level_skills");
     if(checkbox.checked || option) {
-        options.hide_max_level_skills = true;
+        game_options.hide_max_level_skills = true;
         document.documentElement.style.setProperty('--maxxed_skill_display', 'none');
     } else {
-        options.hide_max_level_skills = false;
+        game_options.hide_max_level_skills = false;
         document.documentElement.style.setProperty('--maxxed_skill_display', 'block');
+    }
+    
+    if(option !== undefined) {
+        checkbox.checked = option;
+    }
+}
+
+function option_use_text_outlines_for_tooltips(option) {
+    const checkbox = document.getElementById("options_tooltip_outline");
+    if(checkbox.checked || option) {
+        game_options.use_text_outlines_for_tooltips = true;
+        document.documentElement.style.setProperty('--outline_white', document.documentElement.style.getPropertyValue("--outline_white_default"));
+        document.documentElement.style.setProperty('--outline_black', document.documentElement.style.getPropertyValue("--outline_white_default"));
+    } else {
+        game_options.use_text_outlines_for_tooltips = false;
+        document.documentElement.style.setProperty('--outline_white', '0');
+        document.documentElement.style.setProperty('--outline_black', '0');
+    }
+    
+    if(option !== undefined) {
+        checkbox.checked = option;
+    }
+}
+
+function option_use_text_outlines_for_bars(option) {
+    const checkbox = document.getElementById("options_bar_outline");
+    if(checkbox.checked || option) {
+        game_options.use_text_outlines_for_bars = true;
+        document.getElementById("character_xp_value").classList.add("outline_black_static");
+        document.getElementById("character_stamina_value").classList.add("outline_black_static");
+        document.getElementById("character_mana_value").classList.add("outline_black_static");
+        document.getElementById("character_health_value").classList.add("outline_black_static");
+    } else {
+        game_options.use_text_outlines_for_bars = false;
+        document.getElementById("character_xp_value").classList.remove("outline_black_static");
+        document.getElementById("character_stamina_value").classList.remove("outline_black_static");
+        document.getElementById("character_mana_value").classList.remove("outline_black_static");
+        document.getElementById("character_health_value").classList.remove("outline_black_static");
     }
     
     if(option !== undefined) {
@@ -680,7 +720,7 @@ function end_activity() {
         add_money_to_character(current_activity.earnings);
     }
 
-    if(current_activity.gathered_materials && options.log_total_gathering_gain) {
+    if(current_activity.gathered_materials && game_options.log_total_gathering_gain) {
         const loot = []; 
         Object.keys(current_activity.gathered_materials).forEach(mat_key => {
             loot.push({item_key: mat_key, count: current_activity.gathered_materials[mat_key]});
@@ -1345,7 +1385,7 @@ function set_new_combat({enemies} = {}) {
 
     //attach loops and animations
     for(let i = 0; i < current_enemies.length; i++) {
-        if(options.do_enemy_onhit_animations) {
+        if(game_options.do_enemy_onhit_animations) {
             do_enemy_onstart_animation(i);
         }
         
@@ -1744,7 +1784,7 @@ function do_character_combat_action({target, attack_power, target_count}) {
         }
         //small randomization by up to 20%, then bonus from skill
 
-        if(options.do_enemy_onhit_animations) {
+        if(game_options.do_enemy_onhit_animations) {
             const enemy_id = current_enemies.findIndex(enemy => enemy===target);
             do_enemy_onhit_animation(enemy_id);
         }
@@ -1842,7 +1882,7 @@ function kill_player({is_combat = true} = {}) {
         log_message(character.name + " has lost consciousness", "hero_defeat");
 
         update_displayed_health();
-        if(options.auto_return_to_bed && last_location_with_bed) {
+        if(game_options.auto_return_to_bed && last_location_with_bed) {
             change_location({location_id: last_location_with_bed});
             start_sleeping();
         } else {
@@ -3492,7 +3532,7 @@ function create_save() {
         save_data["last_combat_location"] = last_combat_location;
         save_data["last_location_with_bed"] = last_location_with_bed;
 
-        save_data["options"] = options;
+        save_data["options"] = game_options;
 
         save_data["stances"] = {};
         Object.keys(stances).forEach(stance => {
@@ -3592,7 +3632,7 @@ function load(save_data) {
                 language = save_data.language;
             } else {
                 console.warn(`Language ${save_data.language} could not be found.`);
-                if(options.mofu_mofu_mode) {
+                if(game_options.mofu_mofu_mode) {
                     language = languages.mofu_english;
                 } else {
                     language = languages.english;
@@ -3621,47 +3661,53 @@ function load(save_data) {
         last_location_with_bed = save_data.last_location_with_bed;
         last_combat_location = save_data.last_combat_location;
 
-        options.uniform_text_size_in_action = save_data.options?.uniform_text_size_in_action;
-        option_uniform_textsize(options.uniform_text_size_in_action);
+        game_options.uniform_text_size_in_action = save_data.options?.uniform_text_size_in_action;
+        option_uniform_textsize(game_options.uniform_text_size_in_action);
 
-        options.auto_return_to_bed = save_data.options?.auto_return_to_bed;
-        option_bed_return(options.auto_return_to_bed);
+        game_options.auto_return_to_bed = save_data.options?.auto_return_to_bed;
+        option_bed_return(game_options.auto_return_to_bed);
 
-        options.disable_combat_autoswitch = save_data.options?.disable_combat_autoswitch;
-        option_combat_autoswitch(options.disable_combat_autoswitch);
+        game_options.disable_combat_autoswitch = save_data.options?.disable_combat_autoswitch;
+        option_combat_autoswitch(game_options.disable_combat_autoswitch);
 
-        options.remember_message_log_filters = save_data.options?.remember_message_log_filters;
+        game_options.remember_message_log_filters = save_data.options?.remember_message_log_filters;
         if(save_data.message_filters) {
             Object.keys(message_log_filters).forEach(filter => {
                 message_log_filters[filter] = save_data.message_filters[filter] ?? true;
             })
         }
 
-        option_remember_filters(options.remember_message_log_filters);
+        option_remember_filters(game_options.remember_message_log_filters);
 
-        options.log_every_gathering_period = save_data.options?.log_every_gathering_period;
-        option_log_all_gathering(options.log_every_gathering_period);
+        game_options.log_every_gathering_period = save_data.options?.log_every_gathering_period;
+        option_log_all_gathering(game_options.log_every_gathering_period);
 
-        options.log_total_gathering_gain = save_data.options?.log_total_gathering_gain;
-        option_log_gathering_result(options.log_total_gathering_gain);
+        game_options.log_total_gathering_gain = save_data.options?.log_total_gathering_gain;
+        option_log_gathering_result(game_options.log_total_gathering_gain);
 
-        options.do_background_animations = save_data.options?.do_background_animations;
-        option_do_background_animations(options.do_background_animations);
+        game_options.do_background_animations = save_data.options?.do_background_animations;
+        option_do_background_animations(game_options.do_background_animations);
 
-        options.skip_play_button = save_data.options?.skip_play_button;
-        option_skip_play_button(options.skip_play_button);
+        game_options.skip_play_button = save_data.options?.skip_play_button;
+        option_skip_play_button(game_options.skip_play_button);
 
-        options.mofu_mofu_mode = save_data.options?.mofu_mofu_mode;
-        option_mofu_mofu_mode(options.mofu_mofu_mode);
+        game_options.mofu_mofu_mode = save_data.options?.mofu_mofu_mode;
+        option_mofu_mofu_mode(game_options.mofu_mofu_mode);
 
-        options.do_enemy_onhit_animations = save_data.options?.do_enemy_onhit_animations;
-        option_do_enemy_onhit_animations(options.do_enemy_onhit_animations);
+        game_options.do_enemy_onhit_animations = save_data.options?.do_enemy_onhit_animations;
+        option_do_enemy_onhit_animations(game_options.do_enemy_onhit_animations);
 
-        options.expo_threshold = save_data.options?.expo_threshold;
-        option_expo_threshold(options.expo_threshold);
+        game_options.expo_threshold = save_data.options?.expo_threshold;
+        option_expo_threshold(game_options.expo_threshold);
 
-        options.hide_max_level_skills = save_data.options?.hide_max_level_skills;
-        option_hide_max_level_skills(options.hide_max_level_skills);
+        game_options.hide_max_level_skills = save_data.options?.hide_max_level_skills;
+        option_hide_max_level_skills(game_options.hide_max_level_skills);
+
+        game_options.use_text_outlines_for_tooltips = save_data.options?.use_text_outlines_for_tooltips;
+        option_use_text_outlines_for_tooltips(game_options.use_text_outlines_for_tooltips);
+
+        game_options.use_text_outlines_for_bars = save_data.options?.use_text_outlines_for_bars;
+        option_use_text_outlines_for_bars(game_options.use_text_outlines_for_bars);
 
         document.getElementById("quest_hiding_button").checked = save_data.are_finished_quests_hidden;
         change_completed_quest_visibility();
@@ -4788,8 +4834,8 @@ function load(save_data) {
         change_location({location_id: save_data["current location"], skip_travel_time: true, do_quest_events: false, skip_combat: true});
 
         //temperature is location dependent so display setting is loaded after location is set
-        options.use_uncivilised_temperature_scale = save_data.options?.use_uncivilised_temperature_scale;
-        option_use_uncivilised_temperature_scale(options.use_uncivilised_temperature_scale);
+        game_options.use_uncivilised_temperature_scale = save_data.options?.use_uncivilised_temperature_scale;
+        option_use_uncivilised_temperature_scale(game_options.use_uncivilised_temperature_scale);
 
         //set activity if any saved
         if(save_data.current_activity) {
@@ -5052,7 +5098,7 @@ function update() {
                         rain_counter++;
                 }
 
-                if(!was_raining && options.do_background_animations) {
+                if(!was_raining && game_options.do_background_animations) {
 
                     window.removeEventListener("resize", start_stars_animation);
 
@@ -5067,7 +5113,7 @@ function update() {
                     }
                 }
 
-                was_raining = true && options.do_background_animations;
+                was_raining = true && game_options.do_background_animations;
             } else {
                 //not raining
 
@@ -5080,13 +5126,13 @@ function update() {
                 //not in rain -> sky visible
                 if(!was_starry && is_night()) {
 
-                    if(options.do_background_animations) {
+                    if(game_options.do_background_animations) {
                         window.addEventListener("resize", start_stars_animation);
                         window.removeEventListener("resize", start_snow_animation);
                         window.removeEventListener("resize", start_rain_animation);
                         start_stars_animation();
                     }
-                    was_starry = true && options.do_background_animations;
+                    was_starry = true && game_options.do_background_animations;
                 } else if(was_starry && !is_night()) {
                     stop_background_animation();
                     window.removeEventListener("resize", start_stars_animation);
@@ -5150,7 +5196,7 @@ function update() {
                 }
 
                 const effects = item_templates[item_id].effects.sort((a,b) => {
-                    if(options.auto_use_when_longest_runs_out) {
+                    if(game_options.auto_use_when_longest_runs_out) {
                         return b.duration-a.duration;
                     } else {
                          return a.duration-b.duration;
@@ -5237,7 +5283,7 @@ function update() {
                     }
 
                     if(items.length > 0) {
-                        if(options.log_every_gathering_period) {
+                        if(game_options.log_every_gathering_period) {
                             log_loot({loot_list: items});
                         }
 
@@ -5527,6 +5573,8 @@ window.option_mofu_mofu_mode = option_mofu_mofu_mode;
 window.option_do_enemy_onhit_animations = option_do_enemy_onhit_animations;
 window.option_expo_threshold = option_expo_threshold;
 window.option_hide_max_level_skills = option_hide_max_level_skills;
+window.option_use_text_outlines_for_tooltips = option_use_text_outlines_for_tooltips;
+window.option_use_text_outlines_for_bars = option_use_text_outlines_for_bars;
 
 window.change_completed_quest_visibility = change_completed_quest_visibility;
 
@@ -5629,7 +5677,7 @@ function add_all_active_effects(duration){
 update_displayed_equipment();
 sort_displayed_inventory({sort_by: "name", target: "character"});
 
-if(options.skip_play_button) {
+if(game_options.skip_play_button) {
     play_button.click();
 }
 
@@ -5669,7 +5717,7 @@ export { current_enemies,
         last_location_with_bed, 
         last_combat_location, 
         current_stance, selected_stance,
-        faved_stances, options,
+        faved_stances, game_options,
         global_flags,
         character_equip_item,
         unlocked_beds,
@@ -5679,5 +5727,5 @@ export { current_enemies,
         travel_times,
         language,
         add_active_effect,
-        favourite_items
+        favourite_items, remove_item_from_favourites
 };

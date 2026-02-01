@@ -63,7 +63,7 @@
 
 <div id="header">Click on blocks to unfold their content</div>
 
-<button type="button" class="collapsible">v0.5.1 </button>
+<button type="button" class="collapsible">v0.5.1  [testing release: 31/01/2026]</button>
 <div class="content"><pre>
 v0.5.1
     - added a new early game quest in the village, obtained after <span class="spoiler"> clearing first cave area </span>; 
@@ -74,6 +74,7 @@ v0.5.1
     - added a tiny star icon left of each item in inventory, allowing adding them to favourites for display purposes (inventory filtering)
     - courtesy of OnonokiNonon:
         * added a new lategame area (forest lake) with new enemies, new crafting materials, and new training spots
+        * added fishing
         * game options now include configurable threshold for switching display of values from raw number to scientific form
     - courtesy of BD Jim:
         * added a few new endgame areas (swampland region) with new enemies, new crafting materials, and new training spots
@@ -119,6 +120,23 @@ v0.5.1
     - combat modifiers from skills for specific enemy types are no longer hardcoded, instead skills come with a method that returns their modifiers ( .get_stat_modifiers ),
         and a tag-to-skills mapping is defined in enemies.js
     - item rewards now actually work in the form given in rewards.js
+
+v0.5.1.1
+    - reduced xp multiplier from 1st 'Perception' milestone x1.1 -> x1.05
+    - increased skill lvl needed to fully remove penalties in 'aquatic' areas
+    - buffed most of the stats on an endgame boss, as it was balanced before new milestones were added
+    - buffed agility/dexterity on frogs for same reason; slightly reduced their chances to apply debuffs
+    - 'Warrior's necklace' and 'Snake fang ring' are now unsellable
+    - ants gained small chance of dropping forest herbs and tier 2 wood
+    - now only items that are neither equipment nor components remain marked as favourite after being removed from inventory
+    
+    - updated text on a certain placeholder action to make it clear that it's in fact a placeholder
+    - outlines can now be disabled in options panel
+    - reduced the size of the options panel
+    
+    - fixed a bug with display of faved items not working
+    - fixed a bug where it was possible to attempt to fav an item that was not yet in inventory (marked for buying from trader)
+    - fixed a bug with storage not being sorted correctly
 </pre></div>
 
 <button type="button" class="collapsible">v0.5.0 - The Whimsy Edition: Quests, Weather, kemonomimi, and a lot of other things  [testing release: 28/11/2025 / main release: 30/12/2025] </button>

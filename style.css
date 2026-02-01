@@ -88,6 +88,11 @@
 	--tooltip_background_color: rgba(92, 92, 92, 0.97);
 
 	--onclick_button_color: rgb(75, 99, 145);
+
+	--outline_white: -1px -1px 0 #ffffff, 1px -1px 0 #ffffff, -1px 1px 0 #ffffff, 1px 1px 0 #ffffff;
+	--outline_white_default: var(var(--outline_white));
+	--outline_black: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+	--outline_black_default: var(var(--outline_black));
 }
 
 body {
@@ -486,7 +491,7 @@ input[type=checkbox], input[type=radio] {
 	display: var(--options_display);
 	position: fixed;
 	background-image: var(--options_gradient);
-	width: 600px;
+	width: max-content;
 	height: fit-content;
 	border: 4px solid blueviolet;
 	z-index: 20;
@@ -494,17 +499,17 @@ input[type=checkbox], input[type=radio] {
 	left: 10px;
  }
 
- @media only screen and (max-height: 600px) {
+ @media only screen and (max-height: 720px) {
 	#options_panel {
 		position: absolute;
-		top: 405px;
+		top: 100px;
 	}
 }
 
  #close_options {
 	position: absolute;
 	font-size: 40px;
-	left: 548px;
+	right: 3px;
 	top: 2px;
 	width: 50px;
 	height: 50px;
@@ -517,7 +522,7 @@ input[type=checkbox], input[type=radio] {
  #options_choices {
 	position: relative;
 	left: 5px;
-	font-size: 20px;
+	font-size: 16px;
  }
  
  #options_expo_threshold {
@@ -525,7 +530,7 @@ input[type=checkbox], input[type=radio] {
  }
  
  .options_choice {
-	margin: 10px;
+	margin: 5px;
 	width: fit-content;
 	border: 2px solid gray;
 	padding: 3px;
@@ -713,10 +718,14 @@ input[type=checkbox], input[type=radio] {
 } 
 
 .outline_white {
-	text-shadow: -1px -1px 0 #ffffff, 1px -1px 0 #ffffff, -1px 1px 0 #ffffff, 1px 1px 0 #ffffff;
+	text-shadow: var(--outline_white);
 }
 
 .outline_black {
+	text-shadow: var(--outline_black);
+}
+
+.outline_black_static {
 	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
 }
 

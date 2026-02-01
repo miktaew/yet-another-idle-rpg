@@ -4,7 +4,7 @@ import { traders } from "./traders.js";
 import { current_trader, to_buy, to_sell } from "./trade.js";
 import { skills, get_unlocked_skill_rewards, get_next_skill_milestone } from "./skills.js";
 import { character, get_skill_xp_gain, get_hero_xp_gain, get_skills_overall_xp_gain, get_total_skill_coefficient, get_total_skill_level, get_effect_with_bonuses, cold_status_temperatures, get_character_cold_tolerance, lowest_tolerable_temperature, get_skill_xp_gain_bonus, tool_slots } from "./character.js";
-import { current_enemies, options, 
+import { current_enemies, game_options, 
     can_work, current_location, 
     active_effects, enough_time_for_earnings, 
     get_current_book, last_location_with_bed, 
@@ -217,7 +217,7 @@ Object.keys(rarity_colors).forEach(rarity => {
     rarity_outlines[rarity] = select_outline_class(rarity_colors[rarity]);
 });
 
-const crafting_pages = {}
+const crafting_pages = {};
 
 let selected_crafting_category;
 let selected_crafting_subcategory;
@@ -333,10 +333,12 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
             if(!options.skip_quality && options?.quality?.length == 2) {
                 const outline_class_1 = rarity_outlines[item.getRarity(options.quality[0])];
                 const outline_class_2 = rarity_outlines[item.getRarity(options.quality[1])];
+                
                 item_tooltip += `<br><br><b>Quality: <span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${options.quality[0]}% </span> - <span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${options.quality[1]}% </span>`;
                 item_tooltip += `<br>[<span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}">${item.getRarity(options.quality[0])}</span>-<span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}">${item.getRarity(options.quality[1])}</span>] </b>`;
             } else {
                 const outline_class = rarity_outlines[item.getRarity(quality)];
+                
                 item_tooltip += `<br><br><b class="${outline_class}" style="color: ${rarity_colors[item.getRarity(quality)]}">Quality: ${quality}% [${item.getRarity(quality)}]</b>`;
             }
         }
@@ -488,10 +490,12 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
         if(!options.skip_quality && options?.quality?.length == 2) {
             const outline_class_1 = rarity_outlines[item.getRarity(options.quality[0])];
             const outline_class_2 = rarity_outlines[item.getRarity(options.quality[1])];
+            
             item_tooltip += `<br><br><b>Quality: <span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${options.quality[0]}% </span> - <span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${options.quality[1]}% </span>`;
             item_tooltip += `<br>[<span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${item.getRarity(options.quality[0])}</span> - <span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${item.getRarity(options.quality[1])}</span>]</b>`;
         } else {
-            const outline_class = rarity_outlines[item.getRarity(quality)];
+            let outline_class = rarity_outlines[item.getRarity(quality)];
+            
             item_tooltip += `<br><br><b class="${outline_class}" style="color: ${rarity_colors[item.getRarity(quality)]}">Quality: ${quality}% [${item.getRarity(quality)}]</b>`;
         }
         if(item.component_tier) {
@@ -1389,7 +1393,7 @@ function update_displayed_character_inventory({item_key, equip_slot, character_s
         const item_count = character.inventory[item_key].count;
 
         was_anything_new_added = trader_item_divs[item_key];
-        const item_div = create_inventory_item_div({key: item_key, item_count, target: "character", is_trade: true});
+        const item_div = create_inventory_item_div({key: item_key, item_count, target: "character", is_trade: is_trade});
 
         if(item_divs[item_key]) {
             item_divs[item_key].replaceWith(item_div);
@@ -1501,7 +1505,7 @@ function update_displayed_character_inventory({item_key, equip_slot, character_s
     }
 }
 
-function update_displayed_storage_inventory({item_key, storage_sorting="name", sorting_direction="asc", was_anything_new_added=false} = {}) {
+function update_displayed_storage_inventory({item_key, sorting_direction="asc", was_anything_new_added=false} = {}) {
 
     //removal of unneeded divs
     if(!item_key){
@@ -1550,7 +1554,7 @@ function update_displayed_storage_inventory({item_key, storage_sorting="name", s
     }
     
     if(!item_key && was_anything_new_added) {
-        sort_displayed_inventory({target: "storage", sort_by: storage_sorting, direction: sorting_direction});
+        sort_displayed_inventory({target: "storage", direction: sorting_direction});
     }
 }
 
@@ -1688,10 +1692,13 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
         item_faving_div.classList.add("item_fav_div");
         const icon = document.createElement("i");
         icon.classList.add("material-icons", "item_fav_icon");
-        if(favourite_items[key]) {
-            icon.innerText = 'star';
-        } else {
-            icon.innerText = 'star_border';
+        if(!is_trade) {
+            if(favourite_items[key]) {
+                icon.innerText = 'star';
+                item_control_div.classList.add("character_item_faved");
+            } else {
+                icon.innerText = 'star_border';
+            }
         }
         item_faving_div.appendChild(icon);
 
@@ -2517,7 +2524,7 @@ function update_displayed_combat_location(location) {
     enemy_count_div.style.display = "block";
     combat_div.style.display = "block";
 
-    if(!options.disable_combat_autoswitch) {
+    if(!game_options.disable_combat_autoswitch) {
         combat_switch.click();
         combat_switch.classList.add("active_selection_button");
         inventory_switch.classList.remove("active_selection_button");
@@ -3710,9 +3717,9 @@ function update_displayed_time() {
 
 function update_displayed_temperature() {
     const temperature = get_current_temperature_smoothed();
-    let displayed_temperature = options.use_uncivilised_temperature_scale?celsius_to_fahrenheit(temperature):temperature;
+    let displayed_temperature = game_options.use_uncivilised_temperature_scale?celsius_to_fahrenheit(temperature):temperature;
 
-    const temperature_unit = options.use_uncivilised_temperature_scale?"°F":"°C";
+    const temperature_unit = game_options.use_uncivilised_temperature_scale?"°F":"°C";
 
     //whether temperature is low enough to give any cold effect
     const is_cold = temperature < (cold_status_temperatures[0]-get_character_cold_tolerance())?true:false;
@@ -3751,7 +3758,7 @@ function create_temperature_tooltip() {
     const tooltip = document.createElement("div");
 
     tooltip.id = "temperature_tooltip";
-    if(!options.use_uncivilised_temperature_scale) {
+    if(!game_options.use_uncivilised_temperature_scale) {
          tooltip.innerHTML = `Lowest tolerable temperature: <strong>${Math.round(10*(lowest_tolerable_temperature - get_character_cold_tolerance()))/10}</strong>`;
         tooltip.innerHTML += `<br>(<strong>${lowest_tolerable_temperature}</strong> base minus <strong>${Math.round(10*get_character_cold_tolerance())/10}</strong> cold protection)<br>`;
         tooltip.innerHTML += create_stat_breakdown("cold_tolerance");
