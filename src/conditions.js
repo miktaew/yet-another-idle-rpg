@@ -66,7 +66,7 @@ const process_conditions = (conditions, character) => {
         met = 0;
         return met;
     } else if(conditions[1]?.money && conditions[1].money > conditions[0].money && character.money < conditions[1].money) {
-        met *= (character.money - conditions[0].money)/(conditions[1].money - conditions[0].money);
+        met *= (1 + character.money - conditions[0].money)/(conditions[1].money - conditions[0].money);
     }
 
     if(!met) {
@@ -78,7 +78,7 @@ const process_conditions = (conditions, character) => {
             if(get_total_skill_level(skill_id) < conditions[0].skills[skill_id]) {
                 met = 0;
             } else if(conditions[1]?.skills && conditions[1].skills[skill_id] > conditions[0].skills[skill_id] && get_total_skill_level(skill_id) < conditions[1].skills[skill_id]) {
-                met *= (get_total_skill_level(skill_id) - conditions[0].skills[skill_id])/(conditions[1].skills[skill_id] - conditions[0].skills[skill_id]);
+                met *= (1+get_total_skill_level(skill_id) - conditions[0].skills[skill_id])/(conditions[1].skills[skill_id] - conditions[0].skills[skill_id]);
             }
         });
     }
@@ -88,7 +88,7 @@ const process_conditions = (conditions, character) => {
             met = 0;
             return met;
         } else if(conditions[1]?.hero_level && conditions[1].hero_level > character.xp.current_level) {
-            met *= (character.xp.current_level - conditions[0].hero_level)/(conditions[1].hero_level - conditions[0].hero_level);
+            met *= (1 + character.xp.current_level - conditions[0].hero_level)/(conditions[1].hero_level - conditions[0].hero_level);
         }
     }
 
@@ -160,7 +160,7 @@ const process_conditions = (conditions, character) => {
                 met = 0;
                 return met;
             } else if(conditions[1]?.reputation && conditions[1].reputation[rep_region] > conditions[0].reputation[rep_region] && character.reputation[rep_region] < conditions[1].reputation[rep_region]) {
-                met *= (character.reputation[rep_region] - conditions[0].reputation[rep_region])/(conditions[1].reputation[rep_region] - conditions[0].reputation[rep_region]);
+                met *= (1 + character.reputation[rep_region] - conditions[0].reputation[rep_region])/(conditions[1].reputation[rep_region] - conditions[0].reputation[rep_region]);
             }
         });
     }

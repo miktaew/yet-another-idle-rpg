@@ -695,14 +695,16 @@ function remove_from_character_inventory(items) {
                 } else if(favourite_items[items[i].item_key]){
                         const item = getItemFromKey(items[i].item_key);
                         if(item.tags.component || item.tags.equippable) {
-                                remove_item_from_favourites(items[i].item_key);
+                                if(!(character.equipment[item.equip_slot].getInventoryKey() === item.getInventoryKey())) {
+                                        remove_item_from_favourites(items[i].item_key);
+                                }
                         }
                 }
         }
 }
 
 /**
- * @description equips passed item, doesn't do anything more with it;
+ * @description equips passed item, doesn't do anything more with it; updates inventory display and equipment display
  * don't call this one directly (except for when loading save data), but via equip_item_from_inventory()
  * @param: game item object
  */
@@ -710,7 +712,6 @@ function equip_item(item, skip_sorting) {
 
         if(!item) {
                 update_displayed_equipment();
-                update_displayed_character_inventory({skip_sorting});
                 character.stats.add_all_equipment_bonus();
                 
                 update_character_stats();

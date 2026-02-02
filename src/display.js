@@ -1403,8 +1403,16 @@ function update_displayed_character_inventory({item_key, equip_slot, character_s
             inventory_div.appendChild(item_div);
         }
     } else if(equip_slot){
-        //equipped item
-        item_divs[equip_slot] = create_inventory_item_div({key: equip_slot, target: "character", is_equipped: true, is_trade});
+        //specific item slot to be updated
+        const equip_div = create_inventory_item_div({key: equip_slot, target: "character", is_equipped: true, is_trade});
+
+        if(item_divs[equip_slot]) {
+            item_divs[equip_slot].replaceWith(equip_div);
+            item_divs[equip_slot] = equip_div;
+        } else {
+            item_divs[equip_slot] = equip_div;
+            inventory_div.appendChild(equip_div);
+        }
     } else {
         //inventory items
         Object.keys(character.inventory).forEach(inventory_key => {
@@ -1566,7 +1574,7 @@ function exit_displayed_storage() {
 /**
  * creates a single item div for hero/trader, used to fill displayed inventories
  * @param {Object} params
- * @param {String} params.key 
+ * @param {String} params.key inventory key /or/ equip slot if is_equipped
  * @param {Number} params.item_count
  * @param {String} params.target character/trader/storage
  * @param {Boolean} params.is_equipped
@@ -1595,6 +1603,7 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
 
     if(is_equipped) {
         target_item = character.equipment[key];
+        key = target_item.getInventoryKey();
         item_count = item_count ?? 1;
         item_class = "equipped_item";
         target_class_name = "character_item";
@@ -1834,7 +1843,7 @@ function update_displayed_book(book_id) {
  * sets visibility of divs for enemies (based on how many there are in current combat),
  * and enemies' AP / EP
  * 
- * called when new enemies get loaded
+ * called when new enemies get loaded and when player stats change
  */
 function update_displayed_enemies() {
     for(let i = 0; i < 8; i++) { //go to max enemy count

@@ -1319,7 +1319,10 @@ function change_stance({stance_id, is_temporary = false}) {
     current_stance = stances[stance_id];
 
     update_character_stats();
-    reset_combat_loops(true); //param will be used to award 'Persistence' xp only when change was due to low stamina and not to a player click
+    if(current_enemies) {
+        reset_combat_loops(true); //param will be used to award 'Persistence' xp only when change was due to low stamina and not to a player click
+        update_displayed_enemies();
+    }
 }
 
 /**
@@ -3074,6 +3077,7 @@ function character_equip_item(item_key) {
     equip_item_from_inventory(item_key);
     if(current_enemies) {
         reset_combat_loops(true);
+        update_displayed_enemies();
     } else if(current_location.tags.safe_zone) {
         //update resource gathering tooltips in case there's a skill lvl bonus change
         //done on any change as of now, but could be slightly optimized
@@ -3089,7 +3093,7 @@ function character_unequip_item(item_slot) {
     unequip_item(item_slot);
     if(current_enemies) {
         reset_combat_loops(true);
-        //set_new_combat({enemies: current_enemies});
+        update_displayed_enemies();
     }
 }
 
@@ -3189,7 +3193,7 @@ function remove_item_from_favourites(item_key) {
 }
 
 function change_item_favourite_status(target, item_key) {
-    if(favourite_items[item_key]) {
+    if(item_key in favourite_items) {
         remove_item_from_favourites(item_key);
         update_fav_display(target, false);
     } else {
@@ -3197,7 +3201,17 @@ function change_item_favourite_status(target, item_key) {
         update_fav_display(target, true);
     }
 
-    update_displayed_character_inventory({item_key});
+    if(character.inventory[item_key]) {
+        //it's in inventory, update display in inventory
+        update_displayed_character_inventory({item_key});
+    } 
+
+
+    const equip_slot = getItemFromKey(item_key).equip_slot;
+    if(equip_slot && character.equipment[equip_slot]?.getInventoryKey() === item_key) {
+        //it's in equips, update equipment part of inventory display
+        update_displayed_character_inventory({equip_slot});
+    }
 }
 
 function add_active_effect(effect_key, duration){

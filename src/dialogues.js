@@ -289,7 +289,7 @@ class DialogueAction extends GameAction {
                     textlines: [{dialogue: "village elder", lines: ["crab where"]}],
                 },
                 display_conditions: {
-                    hero_level: 35,
+                    hero_level: 25,
                 },
                 locks_lines: ["crab rumors"],
             }),
