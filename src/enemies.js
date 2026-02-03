@@ -537,7 +537,7 @@ const enemy_abilites = {
         rank: 11,
         size: enemy_sizes.LARGE,
         tags: ["living", "beast", "aquatic"],
-        stats: {health: 30000, attack: 250, agility: 450, dexterity: 600, intuition: 70, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 4000},
+        stats: {health: 30000, attack: 250, agility: 600, dexterity: 1000, intuition: 70, magic: 0, attack_speed: 1.3, attack_count: 2, defense: 4000},
     });
 
 	enemy_templates["Enraged giant crab"] = new Enemy({     //not working at present, not sure where the problem is

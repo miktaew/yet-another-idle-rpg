@@ -2220,24 +2220,25 @@ function create_location_choices({location, category, is_combat = false}) {
             }
 
             const job_tooltip = document.createElement("div");
+            let job_tooltip_content = "";
             job_tooltip.classList.add("job_tooltip");
             if(!location.activities[key].infinite){
                 if(location.activities[key].availability_time) {
-                    job_tooltip.innerHTML = `Available from ${location.activities[key].availability_time.start} to ${location.activities[key].availability_time.end} <br>`;
+                    job_tooltip_content = `Available from ${location.activities[key].availability_time.start} to ${location.activities[key].availability_time.end} <br>`;
                 }
                 if(location.activities[key].availability_seasons) {
                     if(location.activities[key].availability_seasons.length === 3) {
                         const unavailable_seasons = seasons.filter(x => !location.activities[key].availability_seasons.includes(x));
-                        job_tooltip.innerHTML += `Not available during ${unavailable_seasons.toString().replaceAll(",",", ")} <br>`;
+                        job_tooltip_content += `Not available during ${unavailable_seasons.toString().replaceAll(",",", ")} <br>`;
                     } else {
-                        job_tooltip.innerHTML += `Available during ${location.activities[key].availability_seasons.toString().replaceAll(",",", ")} <br>`;
+                        job_tooltip_content += `Available during ${location.activities[key].availability_seasons.toString().replaceAll(",",", ")} <br>`;
                     }
                 }
             }
-            job_tooltip.innerHTML += `Pays ${format_money(location.activities[key].get_payment())} per every ` +  
+            job_tooltip_content += `Pays ${format_money(location.activities[key].get_payment())} per every ` +  
                     `${format_working_time(location.activities[key].working_period)} worked`;
             
-
+            job_tooltip.innerHTML = job_tooltip_content;
             activity_div.appendChild(job_tooltip);
     
             activity_div.innerHTML += `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + location.activities[key].starting_text;
@@ -3375,23 +3376,27 @@ function create_gathering_tooltip(location_activity) {
     gathering_tooltip.classList.add("job_tooltip");
     gathering_tooltip.dataset.job_tooltip = location_activity.activity_id;
 
+    console.log(/d/);
+
     const {gathering_time_needed, gained_resources} = location_activity.getActivityEfficiency();
 
     let skill_names = "";
+    let tooltip_content = "";
     for(let i = 0; i < activities[location_activity.activity_name].base_skills_names.length; i++) {
         skill_names += skills[activities[location_activity.activity_name].base_skills_names[i]].name();
     }
 
     if(location_activity.gained_resources.scales_with_skill) {
-        gathering_tooltip.innerHTML = `<span class="activity_efficiency_info">Efficiency scaling:<br>"${skill_names}" skill lvl ${location_activity.gained_resources.skill_required[0]} to ${location_activity.gained_resources.skill_required[1]}</span><br><br>`;
+        tooltip_content = `<span class="activity_efficiency_info">Efficiency scaling:<br>"${skill_names}" skill lvl ${location_activity.gained_resources.skill_required[0]} to ${location_activity.gained_resources.skill_required[1]}</span><br><br>`;
     }
 
-    gathering_tooltip.innerHTML += `Every ${format_time({time: {minutes: gathering_time_needed}, round: false})}, chance to find:`;
+    tooltip_content += `Every ${format_working_time(gathering_time_needed)}, chance to find:`;
     for(let i = 0; i < gained_resources.length; i++) {
         const name = item_templates[gained_resources[i].name].getName();
-        gathering_tooltip.innerHTML += `<br>x${gained_resources[i].count[0]===gained_resources[i].count[1]?gained_resources[i].count[0]:`${gained_resources[i].count[0]}-${gained_resources[i].count[1]}`} "${name}" at ${Math.round(100*gained_resources[i].chance)}%`;
+        tooltip_content += `<br>x${gained_resources[i].count[0]===gained_resources[i].count[1]?gained_resources[i].count[0]:`${gained_resources[i].count[0]}-${gained_resources[i].count[1]}`} "${name}" at ${Math.round(100*gained_resources[i].chance)}%`;
     }
 
+    gathering_tooltip.innerHTML = tooltip_content;
     return gathering_tooltip;
 }
 
@@ -3416,17 +3421,19 @@ function update_gathering_tooltip(activity) {
     const {gathering_time_needed, gained_resources} = activity.getActivityEfficiency();
 
     let skill_names = "";
+    let tooltip_content = "";
     for(let i = 0; i < activities[activity.activity_name].base_skills_names.length; i++) {
         skill_names += skills[activities[activity.activity_name].base_skills_names[i]].name();
     }
 
     if(activity.gained_resources.scales_with_skill) {
-        gathering_tooltip.innerHTML = `<span class="activity_efficiency_info">Efficiency scaling:<br>"${skill_names}" skill lvl ${activity.gained_resources.skill_required[0]} to ${activity.gained_resources.skill_required[1]}</span><br><br>`;
+        tooltip_content = `<span class="activity_efficiency_info">Efficiency scaling:<br>"${skill_names}" skill lvl ${activity.gained_resources.skill_required[0]} to ${activity.gained_resources.skill_required[1]}</span><br><br>`;
     }
-    gathering_tooltip.innerHTML += `Every ${format_working_time(gathering_time_needed)}, chance to find:`;
+    tooltip_content += `Every ${format_working_time(gathering_time_needed)}, chance to find:`;
     for(let i = 0; i < gained_resources.length; i++) {
-        gathering_tooltip.innerHTML += `<br>x${gained_resources[i].count[0]===gained_resources[i].count[1]?gained_resources[i].count[0]:`${gained_resources[i].count[0]}-${gained_resources[i].count[1]}`} "${gained_resources[i].name}" at ${Math.round(100*gained_resources[i].chance)}%`;
+        tooltip_content += `<br>x${gained_resources[i].count[0]===gained_resources[i].count[1]?gained_resources[i].count[0]:`${gained_resources[i].count[0]}-${gained_resources[i].count[1]}`} "${gained_resources[i].name}" at ${Math.round(100*gained_resources[i].chance)}%`;
     }
+    gathering_tooltip.innerHTML = tooltip_content;
 }
 
 function update_displayed_health() { //call it when using healing items, resting or getting hit
