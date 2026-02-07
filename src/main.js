@@ -2358,9 +2358,9 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
     }
 
     if(rewards.housing) {
-        Object.keys(rewards.housing).forEach(location_key => {
-            locations[location_key].housing.is_unlocked = true;
-        });
+        for(let i = 0; i < rewards.housing.length; i++){
+            locations[rewards.housing[i]].housing.is_unlocked = true;
+        }
     }
 
     if(rewards.crafting) {
@@ -4542,6 +4542,21 @@ function load(save_data) {
                 if(save_data["current location"] === "Lake camp") {
                     save_data["current location"] = "Lake beach";
                 }
+            }
+        }
+
+        if(is_a_older_than_b(save_data["game version"], "v0.5.1.5")) {
+            if(last_location_with_bed === "Lake camp") {
+                last_location_with_bed = "Lake beach";
+            }
+
+            if(locations["Lake beach"].actions["create lake camp"].is_finished) {
+                process_rewards({
+                    rewards: {
+                        housing: ["Lake beach"],
+                    }, 
+                    inform_overall: false
+                });
             }
         }
 
