@@ -2455,10 +2455,10 @@ book_stats["Shellfish desires"] = new BookData({
         name: "Alligator leather helmet armor",
         description: "Strong alligator leather, ready to be used as a part of a helmet",
         component_type: "helmet exterior",
-        value: 800,
+        value: 900,
         component_tier: 5,
         full_armor_name: "Alligator helmet",
-        defense_value: 8,
+        defense_value: 7,
         component_stats: {
             cold_tolerance: {
                 flat: -.5,
@@ -2519,7 +2519,7 @@ book_stats["Shellfish desires"] = new BookData({
         value: 1600,
         component_tier: 5,
         full_armor_name: "Alligator armor",
-        defense_value: 16,
+        defense_value: 12,
         component_stats: {
             cold_tolerance: {
                 flat: -.5,
@@ -2573,10 +2573,10 @@ book_stats["Shellfish desires"] = new BookData({
         name: "Alligator leather greaves",
         description: "Greaves made of alligator leather. Just attach them onto some pants and you are ready to go",
         component_type: "leg armor exterior",
-        value: 800,
+        value: 900,
         component_tier: 5,
         full_armor_name: "Alligator armored pants",
-        defense_value: 8,
+        defense_value: 7,
         component_stats: {
             cold_tolerance: {
                 flat: -.5,
@@ -2615,10 +2615,10 @@ book_stats["Shellfish desires"] = new BookData({
         name: "Alligator leather glove armor",
         description: "Pieces of alligator leather shaped for gloves",
         component_type: "glove exterior",
-        value: 800,
+        value: 900,
         component_tier: 5,
         full_armor_name: "Alligator gloves",
-        defense_value: 8,
+        defense_value: 7,
 		component_stats: {
             cold_tolerance: {
                 flat: -.5,
@@ -2657,10 +2657,10 @@ book_stats["Shellfish desires"] = new BookData({
         name: "Alligator leather shoe armor",
         description: "Pieces of alligator leather shaped for shoes",
         component_type: "shoes exterior",
-        value: 800,
+        value: 900,
         component_tier: 5,
         full_armor_name: "Alligator shoes",
-        defense_value: 8,
+        defense_value: 7,
 		component_stats: {
             cold_tolerance: {
                 flat: -.5,
@@ -2712,7 +2712,7 @@ book_stats["Shellfish desires"] = new BookData({
         name: "Turtleshell helmet armor",
         description: "Best way to keep your head in one piece",
         component_type: "helmet exterior",
-        value: 620,
+        value: 900,
         component_tier: 5,
         full_armor_name: "Turtleshell platemail helmet",
         defense_value: 13,
@@ -2770,7 +2770,7 @@ book_stats["Shellfish desires"] = new BookData({
         name: "Turtleshell chestplate",
         description: "Basic turtle shellplate mail. Nowhere near as strong as a plate armor",
         component_type: "chestplate exterior",
-        value: 1220,
+        value: 1400,
         component_tier: 5,
         full_armor_name: "Turtleshell platemail armor",
         defense_value: 26,
@@ -2828,7 +2828,7 @@ book_stats["Shellfish desires"] = new BookData({
         name: "Turtleshell greaves",
         description: "Greaves made of turtle shellplate. Just attach them onto some pants and you are ready to go",
         component_type: "leg armor exterior",
-        value: 620,
+        value: 1200,
         component_tier: 5,
         full_armor_name: "Turtleshell platemail pants",
         defense_value: 13,
@@ -2886,7 +2886,7 @@ book_stats["Shellfish desires"] = new BookData({
         name: "Turtleshell glove",
         description: "Turtle shellplate in a form ready to be applied onto a glove",
         component_type: "glove exterior",
-        value: 620,
+        value: 1200,
         component_tier: 5,
         full_armor_name: "Turtleshell platemail gloves",
         defense_value: 13,
@@ -2895,7 +2895,7 @@ book_stats["Shellfish desires"] = new BookData({
                 multiplier: 0.97,
             },
             agility: {
-                multiplier: 0.90,
+                multiplier: 0.9,
             }
         }
     });
@@ -2938,7 +2938,7 @@ book_stats["Shellfish desires"] = new BookData({
         name: "Turtleshell shoes",
         description: "Turtle shellplate in a form ready to be applied onto a pair of shoes",
         component_type: "shoes exterior",
-        value: 620,
+        value: 1200,
         component_tier: 5,
         full_armor_name: "Turtleshell platemail shoes",
         defense_value: 13,
@@ -2947,7 +2947,7 @@ book_stats["Shellfish desires"] = new BookData({
                 multiplier: 0.97,
             },
             agility: {
-                multiplier: 0.90,
+                multiplier: 0.9,
             }
         }
     });
@@ -3001,7 +3001,7 @@ book_stats["Shellfish desires"] = new BookData({
     item_templates["Snakeskin vest"] = new Armor({
         name: "Snakeskin vest",
         description: "Comfortable snakeskin vest, offering decent protection",
-        value: 900,
+        value: 1200,
         component_type: "chestplate interior",
         base_defense: 7,
         component_tier: 5,
@@ -3010,7 +3010,7 @@ book_stats["Shellfish desires"] = new BookData({
                 multiplier: 1.02,
             },
             agility: {
-                multiplier: 1.02,
+                multiplier: 1.05,
             },
             cold_tolerance: {
                 flat: -.5,
@@ -3023,7 +3023,7 @@ book_stats["Shellfish desires"] = new BookData({
         description: "Comfortable leather vest, slippery enough to make enemy blows slide off",
         value: 700,
         component_type: "chestplate interior",
-        base_defense: 3,
+        base_defense: 4,
         component_tier: 4,
         component_stats: {
             agility: {
@@ -3083,7 +3083,7 @@ book_stats["Shellfish desires"] = new BookData({
     item_templates["Snakeskin leggings"] = new Armor({
         name: "Snakeskin leggings",
         description: "Solid snakeskin leggings",
-        value: 900,
+        value: 1200,
         component_type: "leg armor interior",
         base_defense: 7,
         component_tier: 5,
@@ -3092,7 +3092,7 @@ book_stats["Shellfish desires"] = new BookData({
                 multiplier: 1.01,
             },
             agility: {
-                multiplier: 1.01,
+                multiplier: 1.05,
             },
             cold_tolerance: {
                 flat: -.5,
@@ -3165,7 +3165,7 @@ book_stats["Shellfish desires"] = new BookData({
     item_templates["Snakeskin hat"] = new Armor({
         name: "Snakeskin hat",
         description: "A solid snakeskin hat to protect your head",
-        value: 900,
+        value: 1200,
         component_type: "helmet interior",
         base_defense: 7,
         component_tier: 5,
@@ -3174,7 +3174,7 @@ book_stats["Shellfish desires"] = new BookData({
                 multiplier: 1.02,
             },
             agility: {
-                multiplier: 1.02,
+                multiplier: 1.03,
             },
             cold_tolerance: {
                 flat: -.5,
@@ -3231,16 +3231,16 @@ book_stats["Shellfish desires"] = new BookData({
     item_templates["Snakeskin gloves"] = new Armor({
         name: "Snakeskin gloves",
         description: "Strong snakeskin gloves, perfect for handling rough and sharp objects",
-        value: 900,
+        value: 1200,
         component_type: "glove interior",
         base_defense: 6,
         component_tier: 5,
         component_stats: {
             attack_speed: {
-                multiplier: 1.01,
+                multiplier: 1.02,
             },
             dexterity: {
-                multiplier: 1.01,
+                multiplier: 1.02,
             },
             cold_tolerance: {
                 flat: -.5,
@@ -3344,7 +3344,7 @@ book_stats["Shellfish desires"] = new BookData({
     item_templates["Snakeskin boots"] = new Armor({
         name: "Snakeskin boots",
         description: "Strong boots made of snakeskin, a must have for any traveler",
-        value: 900,
+        value: 1200,
         component_type: "shoes interior",
         base_defense: 6,
         component_tier: 5,
@@ -3373,7 +3373,7 @@ book_stats["Shellfish desires"] = new BookData({
                 multiplier: 1.05,
             },
             agility: {
-                multiplier: 1.25,
+                multiplier: 1.15,
             },
             cold_tolerance: {
                 flat: 1,
@@ -3484,10 +3484,10 @@ book_stats["Shellfish desires"] = new BookData({
         component_tier: 4,
         component_stats: {
             attack_speed: {
-                multiplier: 1.04,
+                multiplier: 1.02,
             },
             agility: {
-                multiplier: 1.05,
+                multiplier: 1.03,
             },
             cold_tolerance: {
                 flat: 0.4,
@@ -3517,10 +3517,10 @@ book_stats["Shellfish desires"] = new BookData({
         component_tier: 4,
         component_stats: {
             attack_speed: {
-                multiplier: 1.03,
+                multiplier: 1.02,
             },
             dexterity: {
-                multiplier: 1.03,
+                multiplier: 1.02,
             },
             cold_tolerance: {
                 flat: 0.4,
@@ -3607,7 +3607,7 @@ book_stats["Shellfish desires"] = new BookData({
     });
     item_templates["Batrachian cape"] = new Cape({
         name: "Batrachian cape", 
-        description: "A waterproof cape made from frogskin",
+        description: "A slippery cape made from frogskin. Technically waterproof, but doesn't cover your entire body.",
         value: 1000,
         item_tier: 4,
         base_defense: 4,
@@ -3699,7 +3699,7 @@ book_stats["Shellfish desires"] = new BookData({
             internal: "Linen leggings",
             external: "Alligator leather greaves",
         }
-    });	
+    });
 	
 	item_templates["Turtleshell platemail armor"] = new Armor({
         components: {

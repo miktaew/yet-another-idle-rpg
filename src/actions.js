@@ -42,13 +42,16 @@ class GameAction{
         if(!this.failure_texts.unable_to_begin) {
             this.failure_texts.unable_to_begin = [];
         }
-        /*  conditional_loss - conditions not met
+        /*  conditional_loss - conditions are checked at the end and were not met
             random_loss - conditions (at least 1st part) were met, but didn't roll high enough on success chance
+            unable_to_begin - .required are not fullfilled
         */
         this.success_text = success_text; //text displayed on success
                                           //if action is supposed to be "impossible" for narrative purposes, just make it finish without unlocks and with text that says it failed
         
-        this.required = required; //things needed to be able to make an attempt
+        this.required = required; 
+        //things needed to be able to make an attempt
+        //uses similar format as conditions, but is a single object instead of an array of up to two
         //{stats, skills, items_by_id: {'item_id': {count, remove_on_success?, remove_on_fail?}}, money: {Number, remove_on_success?, remove_on_fail?}}
         if(conditions.length > 2) {
             throw new Error('LocationAction cannot have more than 2 sets of conditions!');

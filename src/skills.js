@@ -2526,7 +2526,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 }
             }
         }
-    }); 
+    });
     skills["Fortitude"] = new Skill({
         category: "Combat",
         names: {0: "Fortitude"},
@@ -2585,7 +2585,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 }
             }
         }
-    }); 
+    });
 })();
 
 //character skills and resistances
@@ -2746,7 +2746,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 },
             }
         }
-    }); 
+    });
     skills["Literacy"] = new Skill({
         names: {0: "Literacy"}, 
         description: "Ability to read and understand written text",
@@ -2778,7 +2778,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 }
             }
         }
-    }); 
+    });
     skills["Medicine"] = new Skill({
         names: {0: "Medicine"}, 
         description: "Create better medicaments and improve your skill at treating wounds",

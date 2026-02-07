@@ -1042,6 +1042,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [5,15],
         recipe_skill: "Smelting",
     });
+    /*
     smelting_recipes.items["Silver ingot"] = new ItemRecipe({
         name: "Silver ingot",
         recipe_type: "material",
@@ -1051,6 +1052,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [7,17],
         recipe_skill: "Smelting",
     });
+    */
     smelting_recipes.items["Steel ingot (inefficient)"] = new ItemRecipe({
         name: "Steel ingot (inefficient)",
         recipe_type: "material",
@@ -1147,7 +1149,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         success_chance: [0.5,1],
         recipe_level: [5,12],
         recipe_skill: "Butchering",
-    }); 
+    });
     butchering_recipes.items["Pristine mountain goat horn"] = new ItemRecipe({
         name: "Pristine mountain goat horn",
         recipe_type: "material",
@@ -1165,7 +1167,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         success_chance: [0.5,1],
         recipe_level: [13,20],
         recipe_skill: "Butchering",
-    }); 
+    });
     butchering_recipes.items["Giant crab claw"] = new ItemRecipe({
         name: "Giant crab claw",
         recipe_type: "material",
@@ -1174,7 +1176,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         success_chance: [0.3,1],
         recipe_level: [18,25],
         recipe_skill: "Butchering",
-    }); 
+    });
 
     alchemy_recipes.items["Potash"] = new ItemRecipe({
         name: "Potash",

@@ -58,6 +58,7 @@ const process_conditions = (conditions, character) => {
     let met = 1;
 
     if(conditions.length == 0) {
+        //no conditions mean nothing to fail
         return 1;
     }
 

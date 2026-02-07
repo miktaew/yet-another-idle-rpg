@@ -558,7 +558,7 @@ function create_effect_tooltip({effect_name, duration, add_bonus=false}) {
     tooltip.classList.add("active_effect_tooltip");
 
     const name_span = document.createElement("span");
-    name_span.classList.add("active_effect_name"); 
+    name_span.classList.add("active_effect_name");
     name_span.innerHTML = `'${effect.name}' : `;
     const duration_span = document.createElement("span");
     duration_span.classList.add("active_effect_duration");
@@ -3375,9 +3375,7 @@ function create_gathering_tooltip(location_activity) {
     const gathering_tooltip = document.createElement("div");
     gathering_tooltip.classList.add("job_tooltip");
     gathering_tooltip.dataset.job_tooltip = location_activity.activity_id;
-
-    console.log(/d/);
-
+    
     const {gathering_time_needed, gained_resources} = location_activity.getActivityEfficiency();
 
     let skill_names = "";
@@ -4394,7 +4392,7 @@ function create_new_skill_bar(skill) {
     skill_tooltip.appendChild(tooltip_xp);
     skill_tooltip.appendChild(tooltip_xp_gain);
     skill_tooltip.appendChild(tooltip_desc);
-    skill_tooltip.appendChild(tooltip_effect); 
+    skill_tooltip.appendChild(tooltip_effect);
     skill_tooltip.appendChild(tooltip_milestones);
     skill_tooltip.appendChild(tooltip_next);
 

@@ -270,7 +270,7 @@ class Combat_zone {
                 newEnemy = new Enemy({...enemy, stats: {...enemy.stats, attack_count: enemy.stats.attack_count || 1}});
             }
             newEnemy.is_alive = true;
-            enemies.push(newEnemy); 
+            enemies.push(newEnemy);
         }
         return enemies;
     }
@@ -1710,15 +1710,32 @@ There's another gate on the wall in front of you, but you have a strange feeling
 
     locations["Lake beach"] = new Location({ 
         connected_locations: [{location: locations["Riverbank"], custom_text: "Go back along the path you've made to the [Riverbank]", travel_time: 180, travel_time_skills: ["Scrambling"]}], 
-        description: "The winding river lead to a peaceful lake on the edge of the forest overlooking a great basin. The surface of the lake ripples from the current of the river feeding into it. Animals occasionally come up and lap at the edge of the lake before running back off into the woods. On the far end, the lake feeds into a waterfall",
         getBackgroundNoises: function() {
             let noises = [];
             if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
                 noises.push("*You hear the roar of rushing water nearby*", "*The hum of insects buzz in your ear*", "*Birds are singing, flowers are blooming...*");
             } else {
+                if(locations["Lake beach"].housing.is_unlocked) {
+                    noises.push("*The fire crackles in the middle of your camp*");
+                }
                 noises.push("*You hear the roar of rushing water nearby*", "*The hum of insects buzz in your ear*");
             }
             return noises;
+        },
+        getDescription: () => {
+            if(locations["Lake beach"].housing.is_unlocked) {
+                return "The winding river lead to a peaceful lake on the edge of the forest overlooking a great basin. The surface of the lake ripples from the current of the river feeding into it."
+                        +" Animals occasionally come up and lap at the edge of the lake before running back off into the woods. On the far end, the lake feeds into a waterfall."
+                        +" In the remains of the giant crab's nest, you have a pleasant little encampment. With a crackling firepit and comfortable cot, it was created by you to be the perfect lakeside rest and relaxation spot";
+            } else {
+                return "The winding river lead to a peaceful lake on the edge of the forest overlooking a great basin. The surface of the lake ripples from the current of the river feeding into it."
+                        +" Animals occasionally come up and lap at the edge of the lake before running back off into the woods. On the far end, the lake feeds into a waterfall";
+            }
+        },
+        housing: {
+            is_unlocked: false,
+            sleeping_xp_per_tick: 8,
+            text_to_sleep: "Take a nap on the cot",
         },
         temperature_modifier: 1.5,
         unlock_text: "It's just a shame no one will ever believe you caught one ~this~ big",        //intended to show up after beating the giant crab for the second time, playing off the old "fisherman lying about the size of his catch" trope
@@ -1728,32 +1745,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Riverbank"].connected_locations.push({location: locations["Lake beach"], custom_text: "Go to the [Lake beach]",  travel_time: 180, travel_time_skills: ["Scrambling"]});
   
     locations["Further downstream"].connected_locations.push({location: locations["Lake beach"], custom_text: "Go to the [Lake beach]", travel_time: 240}); //Pretty sure "Further downstream" should be locked by this point, but if it's not or if it gets unlocked, it should reconnect I suppose
-
-
-    locations["Lake camp"] = new Location({
-        connected_locations: [{location: locations["Lake beach"], custom_text: "Go back out to the [Lake beach]", travel_time: 5}],
-        description: "A pleasant little encampment built in the remains of the giant crab's nest. With a crackling firepit and comfortable cot, it was created by you to be the perfect lakeside rest and relaxation spot",
-        name: "Lake camp",
-        housing: {
-            is_unlocked: true,
-            sleeping_xp_per_tick: 8,
-            text_to_sleep: "Take a nap on the cot",
-        },
-        is_unlocked: false,
-        getBackgroundNoises: function() {
-            let noises = [];
-            if(current_game_time.hour > 4 && current_game_time.hour <= 20) {
-                noises.push("*You hear the roar of rushing water nearby*", "*The hum of insects buzz in your ear*", "*Birds are singing, flowers are blooming...*");
-            } else {
-                noises.push("*You hear the roar of rushing water nearby*", "*The hum of insects echoes across the lakebed*", "*The fire crackles in the middle of your camp*");
-            }
-            return noises;
-        },
-        temperature_range_modifier: 0.8,
-        temperature_modifier: 1,
-    });
-    locations["Lake beach"].connected_locations.push({location: locations["Lake camp"], custom_text: "Go to your camp on the lakeside", travel_time: 5});
-
 
     locations["Waterfall basin"] = new Location({ 
         connected_locations: [{location: locations["Lake beach"], custom_text: "Climb up the cliffside and return to the [Lake beach]", travel_time: 80, travel_time_skills: ["Climbing"]}], 
@@ -2411,7 +2402,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             infinite: false,
             availability_seasons: ["Spring", "Summer", "Autumn"],
             skill_xp_per_tick: 7,
-            is_unlocked: true,
+            is_unlocked: false,
             applied_effects: [{effect: "Wet", duration: 30}],
         }),
         "sand": new LocationActivity({
@@ -2587,14 +2578,12 @@ There's another gate on the wall in front of you, but you have a strange feeling
             attempt_duration: 480,
             success_chances: [1],
             keep_progress: true,
-            conditions: [
-                {
-                    stats: {
-                        strength: 20,
-                        max_stamina: 80,
-                    }
-                },
-            ],
+            required: {
+                stats: {
+                    strength: 20,
+                    max_stamina: 80,
+                }
+            },
             rewards: {
                 move_to: {location: "Eastern mill"},
                 skill_xp: {Weightlifting: 300},
@@ -2617,13 +2606,11 @@ There's another gate on the wall in front of you, but you have a strange feeling
             attempt_duration: 60,
             success_chances: [1],
             keep_progress: true,
-            conditions: [
-                {
+            required: {
                     stats: {
                         strength: 45,
                     }
-                },
-            ],
+            },
             rewards: {
                 move_to: {location: "Eastern mill"},
                 skill_xp: {Weightlifting: 300},
@@ -3006,9 +2993,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             failure_texts: {
                 unable_to_begin: ["You can't do that without a shovel!"],
             },
-            conditions: [{
+            required: {
                 tools_by_slot: ["shovel"],
-            }],
+            },
             rewards: {
                 locations: [{location: "Forest ant nest"}],
                 move_to: {location: "Forest road"},
@@ -3018,6 +3005,37 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
     };
     locations["Lake beach"].actions = {
+        "create lake camp": new GameAction({
+            action_id: "create lake camp",
+            starting_text: "Establish a camp on top of the giant crab's nest",
+            description: "Set a cot, fire pit, and storage chest here to establish a new camp site. It will be necessary both for resting in this area and for further exploration",
+            action_text: "Building a camp",
+            success_text: "After a few hours of hard work, your beachside camp is ready. You can rest here instead of returning back to the village",
+            conditions: [
+                {
+                    items_by_id: {"Camping supplies": {count: 1, remove: true}},
+                }
+            ],
+            is_unlocked: true,
+            check_conditions_on_finish: false,
+            failure_texts: {
+                conditional_loss: ["It's going to be hard to make a camp without camping supplies!"],
+            },
+            attempt_duration: 120,
+            success_chances: [1],
+            rewards: {
+                housing: ["Lake beach"],
+                activities: [
+                    {location:"Lake beach", activity: "swimming"}, 
+                    {location:"Lake beach", activity: "sand"}, 
+                ],
+                actions: [
+                    {location:"Lake beach", action: "rappel waterfall"},
+                    {location:"Lake beach", action: "create lake climbing"},
+                    {location:"Lake beach", action: "create lake weightlifting"},
+                ],
+            },
+        }),
         "rappel waterfall": new GameAction({
             action_id: "rappel waterfall",
             starting_text: "Try to rappel down the cliffside next to the waterfall",
@@ -3054,7 +3072,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 },
                 },
             ],
-            is_unlocked: true,
+            is_unlocked: false,
             attempt_duration: 180,
             success_chances: [0.45, 1],
             rewards: {
@@ -3064,29 +3082,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     "Climbing": 50000,
                 }
             }
-        }),
-        "create lake camp": new GameAction({
-            action_id: "create lake camp",
-            starting_text: "Establish a camp on top of the giant crab's nest",
-            description: "Set a cot, fire pit, and storage chest here to establish a new camp site. It will be necessary if you are going to rest in the area",
-            action_text: "Building a camp",
-            success_text: "After a few hours of hard work, your beachside camp is ready. You can rest here instead of returning back to the village",
-            conditions: [
-                {
-                    items_by_id: {"Camping supplies": {count: 1, remove: true}},
-                }
-            ],
-            is_unlocked: true,
-            check_conditions_on_finish: false,
-            failure_texts: {
-                conditional_loss: ["It's going to be hard to make a camp without camping supplies!"],
-            },
-            attempt_duration: 120,
-            success_chances: [1],
-            rewards: {
-                locations: [{location: "Lake camp"}],
-                move_to: {location: "Lake camp"},
-            },
         }),
         "create lake climbing": new GameAction({
             action_id: "create lake climbing",
@@ -3099,7 +3094,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     items_by_id: {"Coil of rope": {count: 1, remove: true}},
                 },
             ],
-            is_unlocked: true,
+            is_unlocked: false,
             check_conditions_on_finish: false,
             failure_texts: {
                 conditional_loss: ["It's going to be hard to rappel without a rope!"],
@@ -3121,7 +3116,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     items_by_id: {"Coil of rope": {count: 1, remove: true}},
                 },
             ],
-            is_unlocked: true,
+            is_unlocked: false,
             check_conditions_on_finish: false,
             failure_texts: {
                 conditional_loss: ["You're going to need some rope before you wrap anything!"],

@@ -273,7 +273,7 @@ const questManager = {
         quest_name: "Lost memory",
         display_priority: 0,
         getQuestDescription: ()=>{
-            const completed_tasks =  quests["Lost memory"].getCompletedTaskCount(); 
+            const completed_tasks =  quests["Lost memory"].getCompletedTaskCount();
             if(completed_tasks == 0) {
                 return "You woke up in some village and you have no idea how you got here or who you are. Just what could have happened?";
             } else if(completed_tasks == 1) {

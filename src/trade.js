@@ -427,7 +427,7 @@ function calculate_total_values() {
         traded_groups.selling[traded_group_key] = [];
 
         if(to_sell.groups[traded_group_key].needs_resort) {
-            to_sell.groups[traded_group_key].sorted = to_sell.groups[traded_group_key].unsorted.sort((a,b) => sort_traded_items(a,b)); 
+            to_sell.groups[traded_group_key].sorted = to_sell.groups[traded_group_key].unsorted.sort((a,b) => sort_traded_items(a,b));
 
             to_sell.groups[traded_group_key].needs_resort = false;
         }

@@ -1023,7 +1023,7 @@ function do_resting() {
     }
 
     if(character.stats.full.stamina < character.stats.full.max_stamina) {
-        const resting_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/120, 2)); 
+        const resting_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/120, 2));
         //todo: scale it with skill as well
 
         character.stats.full.stamina += (resting_stamina_ammount);
@@ -1043,7 +1043,7 @@ function do_sleeping() {
     }
 
     if(character.stats.full.stamina < character.stats.full.max_stamina) {
-        const sleeping_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/30, 5) * (1 + get_total_skill_level("Sleeping")/skills["Sleeping"].max_level)); 
+        const sleeping_stamina_ammount = Math.round(Math.max(character.stats.full.max_stamina/30, 5) * (1 + get_total_skill_level("Sleeping")/skills["Sleeping"].max_level));
 
         character.stats.full.stamina += (sleeping_stamina_ammount);
         if(character.stats.full.stamina > character.stats.full.max_stamina) {
@@ -1444,7 +1444,7 @@ function do_enemy_attack_loop(enemy_id, count, is_new = false) {
 
     clearTimeout(enemy_attack_loops[enemy_id]);
     enemy_attack_loops[enemy_id] = setTimeout(() => {
-        enemy_timers[enemy_id][0] = Date.now(); 
+        enemy_timers[enemy_id][0] = Date.now();
         enemy_timer_variance_accumulator[enemy_id] += ((enemy_timers[enemy_id][0] - enemy_timers[enemy_id][1]) - enemy_attack_cooldowns[enemy_id]*1000/(60*tickrate));
 
         enemy_timers[enemy_id][1] = Date.now();
@@ -1541,7 +1541,7 @@ function do_character_attack_loop({base_cooldown, actual_cooldown, attack_power,
 
     clear_character_attack_loop();
     character_attack_loop = setTimeout(() => {
-        character_timers[0] = Date.now(); 
+        character_timers[0] = Date.now();
         character_timer_variance_accumulator += ((character_timers[0] - character_timers[1]) - actual_cooldown*1000/(60*tickrate));
 
         character_timers[1] = Date.now();
@@ -1778,7 +1778,7 @@ function do_character_combat_action({target, attack_power, target_count}) {
             //if has weapon
             damage_dealt = Math.round(10 * damage_modifier * hero_base_damage * (1.2 - Math.random() * 0.4))/10;
 
-            add_xp_to_skill({skill: skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]], xp_to_add: target.xp_value*groupsize_xp_multiplier/target_count}); 
+            add_xp_to_skill({skill: skills[weapon_type_to_skill[character.equipment.weapon.weapon_type]], xp_to_add: target.xp_value*groupsize_xp_multiplier/target_count});
 
         } else {
             //if has no weapon
@@ -2749,7 +2749,7 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                     log_message(msg, "crafting");
                 }
 
-                leveled = add_xp_to_skill({skill: recipe_skill, xp_to_add: xp_to_add, cap_gained_xp: false, use_bonus: false}); 
+                leveled = add_xp_to_skill({skill: recipe_skill, xp_to_add: xp_to_add, cap_gained_xp: false, use_bonus: false});
                 //no cap, as it was already capped; skip bonus as it was already added
                 Object.keys(item_templates[result_id].tags).forEach(tag => {
                     const skill_id = crafting_tags_to_skills[tag];
@@ -2863,7 +2863,7 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                     const to_add = [];
                     for(let i = 0; i < crafted_qualities.length; i++ ) {
                         const new_key = JSON.stringify({...parsed_key, quality: crafted_qualities[i]});
-                        to_add.push({item_key: new_key, count: all_crafted[crafted_qualities[i]]}); 
+                        to_add.push({item_key: new_key, count: all_crafted[crafted_qualities[i]]});
                     }
                     add_to_character_inventory(to_add);
 
@@ -2974,7 +2974,7 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                         const to_add = [];
                         for(let i = 0; i < crafted_qualities.length; i++ ) {
                             const new_key = JSON.stringify({...parsed_key, quality: crafted_qualities[i]});
-                            to_add.push({item_key: new_key, count: all_crafted[crafted_qualities[i]]}); 
+                            to_add.push({item_key: new_key, count: all_crafted[crafted_qualities[i]]});
                         }
                         add_to_character_inventory(to_add);
 
@@ -4174,7 +4174,7 @@ function load(save_data) {
                         any_warnings = true;
                         return;
                     }
-                }); 
+                });
             }
             if(save_data.dialogues[dialogue].actions) {  
                 Object.keys(save_data.dialogues[dialogue].actions).forEach(action_key => {
@@ -4193,7 +4193,7 @@ function load(save_data) {
                         any_warnings = true;
                         return;
                     }
-                }); 
+                });
             }
         }); //load for dialogues and their textlines and actions their unlocked/finished status
 
@@ -4393,7 +4393,7 @@ function load(save_data) {
                     });
                     
                 }
-                traders[trader].refresh(); 
+                traders[trader].refresh();
                 traders[trader].inventory = {};
                 add_to_trader_inventory(trader, trader_item_list);
 
@@ -4531,6 +4531,17 @@ function load(save_data) {
             //unlock status was swapped from local activity to global activity, so a need for this
             if(locations["Nearby cave"].activities["climbing"].is_unlocked) {
                 activities["climbing"].is_unlocked = true;
+            }
+        }
+
+        if(is_a_older_than_b(save_data["game version"], "v0.5.1.4")) {
+            //lake camp was fused with lake beach
+            if(save_data.locations["Lake camp"]?.is_unlocked) {
+                locations["Lake beach"].housing.is_unlocked = true;
+
+                if(save_data["current location"] === "Lake camp") {
+                    save_data["current location"] = "Lake beach";
+                }
             }
         }
 
@@ -5052,7 +5063,7 @@ function update_effect_durations({time_in_minutes = 1, is_travel}) {
 
 function update() {
     setTimeout(() => {
-        end_date = Date.now(); 
+        end_date = Date.now();
         //basically when previous tick ends, used for timer smoothing
 
         time_variance_accumulator += ((end_date - start_date) - 1000/tickrate);
