@@ -808,6 +808,20 @@ function update_character_stats() {
         update_displayed_stamina_efficiency();
         
         //update_displayed_mana();
+
+        //update display of shields in case the changes affected block strength
+        Object.keys(character.inventory).forEach(inv_key => {
+                //update equippable/useable/book item
+                const item = getItemFromKey(inv_key);
+                if(item.tags.shield) {
+                        update_displayed_character_inventory({item_key: inv_key});
+                }
+        });
+
+        if(character.equipment["off-hand"]) {
+                update_displayed_equipment();
+                update_displayed_character_inventory({equip_slot: "off-hand"});
+        }
 }
 
 /**

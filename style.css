@@ -78,7 +78,7 @@
 
 	--completed_quest_display: "block";
 
-	--export_button_tooltip_top: 0px;
+	--export_button_tooltip_bottom: 0px;
 	--export_button_tooltip_left: 0px;
 
 	--options_action_textsize: 16px;
@@ -408,7 +408,7 @@ input[type=checkbox], input[type=radio] {
 
  #save_to_file_button:hover #export_button_tooltip{
 	display: block;
-	top: var(--export_button_tooltip_top);
+	bottom: var(--export_button_tooltip_bottom);
 	left: var(--export_button_tooltip_left);
  }
 

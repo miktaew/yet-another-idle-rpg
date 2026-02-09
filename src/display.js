@@ -1007,11 +1007,7 @@ function sort_displayed_inventory({sort_by, target = "character", change_directi
                         trader_inventory_sorting_direction = "asc";
                     }
                 } else {
-                    if(sort_by === "price") {
-                        trader_inventory_sorting_direction = "desc";
-                    } else {
-                        trader_inventory_sorting_direction = "asc";
-                    }
+                    trader_inventory_sorting_direction = "asc";
                 }
             }
         } else {
@@ -1033,11 +1029,7 @@ function sort_displayed_inventory({sort_by, target = "character", change_directi
                         character_inventory_sorting_direction = "asc";
                     }
                 } else {
-                    if(sort_by === "price") {
-                        character_inventory_sorting_direction = "desc";
-                    } else {
-                        character_inventory_sorting_direction = "asc";
-                    }
+                    character_inventory_sorting_direction = "asc";
                 }
             }
         } else {
@@ -1057,11 +1049,7 @@ function sort_displayed_inventory({sort_by, target = "character", change_directi
                         storage_sorting_direction = "asc";
                     }
                 } else {
-                    if(sort_by === "price") {
-                        storage_sorting_direction = "desc";
-                    } else {
-                        storage_sorting_direction = "asc";
-                    }
+                    storage_sorting_direction = "asc";
                 }
             }
         } else {
@@ -1072,6 +1060,8 @@ function sort_displayed_inventory({sort_by, target = "character", change_directi
         plus = storage_sorting_direction==="asc"?1:-1;
         minus = storage_sorting_direction==="asc"?-1:1;
         storage_sorting = sort_by || "name";
+
+        console.log(sort_by, plus);
     } else {
         console.warn(`Something went wrong, no such inventory as '${target}'`);
         return;
@@ -1144,14 +1134,14 @@ function sort_displayed_inventory({sort_by, target = "character", change_directi
             }
 
             //usable
-            if (a.classList.contains("character_item_usable") != b.classList.contains("character_item_usable")) {
-                return b.classList.contains("character_item_usable") - a.classList.contains("character_item_usable");
+            if(a.classList.contains("character_item_usable") != b.classList.contains("character_item_usable")) {
+                return b.classList.contains("character_item_usable") > a.classList.contains("character_item_usable") ? plus : minus;
             }
-            if (a.classList.contains("trader_item_usable") != b.classList.contains("trader_item_usable")) {
-                return b.classList.contains("trader_item_usable") - a.classList.contains("trader_item_usable");
+            if(a.classList.contains("trader_item_usable") != b.classList.contains("trader_item_usable")) {
+                return b.classList.contains("trader_item_usable") > a.classList.contains("trader_item_usable") ? plus : minus;
             }
-            if (a.classList.contains("storage_item_usable") != b.classList.contains("storage_item_usable")) {
-                return b.classList.contains("storage_item_usable") - a.classList.contains("storage_item_usable");
+            if(a.classList.contains("storage_item_usable") != b.classList.contains("storage_item_usable")) {
+                return b.classList.contains("storage_item_usable") > a.classList.contains("storage_item_usable") ? plus : minus;
             }
 
             let item_template_a = null;
@@ -1186,9 +1176,8 @@ function sort_displayed_inventory({sort_by, target = "character", change_directi
         }
 
         if(sort_by === "name" || sort_by === "type") {
-
-            const name_a = a.children[0].children[1].children[1].innerText.toLowerCase().replaceAll('"',"");
-            const name_b = b.children[0].children[1].children[1].innerText.toLowerCase().replaceAll('"',"");
+            const name_a = (a.querySelector(".inventory_item_name") || a.querySelector(".equipped_item_name")).innerText.toLowerCase().replaceAll('"',"");
+            const name_b = (b.querySelector(".inventory_item_name") || b.querySelector(".equipped_item_name")).innerText.toLowerCase().replaceAll('"',"");
             if(name_a > name_b) {
                 return plus;
             } else if(name_a < name_b) {
@@ -1225,7 +1214,6 @@ function sort_displayed_inventory({sort_by, target = "character", change_directi
                 return minus;
             }
         }
-
     }).forEach(node => target.appendChild(node));
 }
 
@@ -1386,7 +1374,6 @@ function update_displayed_character_inventory({item_key, equip_slot, character_s
             }
         });
     }
-
     //creation of missing divs and updating of others
     if(item_key) {
         //specific item to be updated
@@ -1579,6 +1566,7 @@ function exit_displayed_storage() {
  * @param {String} params.target character/trader/storage
  * @param {Boolean} params.is_equipped
  * @param {Number} params.trade_index index in to_buy/to_sell
+ * @param {Boolean} params.is_trade true => item is either in trader or being traded (affects display, skipping some elements)
  * @returns 
  */
 function create_inventory_item_div({key, item_count, target, is_equipped, trade_index, is_trade = false}) {
@@ -1701,7 +1689,7 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
         item_faving_div.classList.add("item_fav_div");
         const icon = document.createElement("i");
         icon.classList.add("material-icons", "item_fav_icon");
-        if(!is_trade) {
+        if(typeof trade_index === "undefined") {
             if(favourite_items[key]) {
                 icon.innerText = 'star';
                 item_control_div.classList.add("character_item_faved");
@@ -1884,14 +1872,17 @@ function update_displayed_enemies() {
             }
 
             //enemies_div.children[i].children[0].children[1].innerHTML = `AP : ${Math.round(ap)} | EP : ${Math.round(ep)}`;
-            enemies_div.children[i].children[0].children[1].children[0].innerHTML = `Atk: ${current_enemies[i].stats.attack}dmg`;
+
+            let html_string = `Atk: ${current_enemies[i].stats.attack}dmg`;
+            
             if(current_enemies[i].stats.attack_count > 1) {
-                enemies_div.children[i].children[0].children[1].children[0].innerHTML+=` x${current_enemies[i].stats.attack_count}`;
+                html_string +=` x${current_enemies[i].stats.attack_count}`;
             }
-            enemies_div.children[i].children[0].children[1].children[1].innerHTML = `Spd: ${disp_speed}`;
-            enemies_div.children[i].children[0].children[1].children[2].innerHTML = `Hit: ${Math.min(100,Math.max(0,Math.round(100*hit_chance)))}%`; //100% if shield!
-            enemies_div.children[i].children[0].children[1].children[3].innerHTML = `Ddg: ${Math.min(100,Math.max(0,Math.round(100*evasion_chance)))}%`;
-            enemies_div.children[i].children[0].children[1].children[4].innerHTML = `Def: ${current_enemies[i].stats.defense}`;
+            enemies_div.children[i].children[0].children[1].children[0].innerText = html_string;
+            enemies_div.children[i].children[0].children[1].children[1].innerText = `Spd: ${disp_speed}`;
+            enemies_div.children[i].children[0].children[1].children[2].innerText = `Hit: ${Math.min(100,Math.max(0,Math.round(100*hit_chance)))}%`; //100% if shield!
+            enemies_div.children[i].children[0].children[1].children[3].innerText = `Ddg: ${Math.min(100,Math.max(0,Math.round(100*evasion_chance)))}%`;
+            enemies_div.children[i].children[0].children[1].children[4].innerText = `Def: ${current_enemies[i].stats.defense}`;
 
         } else {
             enemies_div.children[i].children[0].style.display = "none"; //just hide it

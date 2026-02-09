@@ -54,7 +54,7 @@ function start_trade(trader_key) {
     current_trader = trader_key;
     
     update_displayed_trader();
-    update_displayed_character_inventory({is_trade: true});
+    update_displayed_character_inventory();
 }
 
 function cancel_trade() {
@@ -66,7 +66,7 @@ function cancel_trade() {
     to_sell.groups = {};
     to_sell.value = 0;
 
-    update_displayed_character_inventory({is_trade: true});
+    update_displayed_character_inventory();
     update_displayed_trader_inventory();
 }
 

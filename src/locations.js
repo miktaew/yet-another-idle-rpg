@@ -1093,7 +1093,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         enemy_count: 50, 
         types: [{type: "dark", stage: 3, xp_gain: 5}, {type: "narrow", stage: 2, xp_gain: 5}, {type: "eldritch", stage: 1, xp_gain: 1}],
         enemies_list: ["Wall rat"],
-        enemy_group_size: [4,4],
+        enemy_group_size: [4,4], //4, because they are on all 4 sides - left, right, above, below
         enemy_stat_variation: 0.2,
         is_unlocked: false,
         name: "Writhing tunnel", 

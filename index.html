@@ -4,7 +4,7 @@
         <link rel = "stylesheet" href = "style.css">
         
         <script type="module" src="resources/js/HackTimer/HackTimer.min.js"></script>
-        <script type='module' src="dist/bundle.js?version=v0.5.1.5"></script>
+        <script type='module' src="dist/bundle.js?version=v0.5.1.6"></script>
         <!--script type="module" src="src/main.js"></script-->
 
         <!--Icons-->
@@ -1462,6 +1462,12 @@
                 return clicked_element;
             }
 
+            const displayHeight = () => Math.max(
+                                document.body.offsetHeight,
+                                document.documentElement.clientHeight,
+                                document.documentElement.offsetHeight
+                            );
+            
             function prepareGame() { //called on body loaded
                 document.getElementById("changelog_button").children[0].innerHTML = get_game_version();
 
@@ -1954,8 +1960,11 @@
 
                 //export button tooltip (reward timer)
                 save_to_file_button.addEventListener('mousemove', (event) => {
-                    document.documentElement.style.setProperty('--export_button_tooltip_top', `${event.pageY-930}px`);
-                    document.documentElement.style.setProperty('--export_button_tooltip_left', `${event.pageX}px`);
+                     if(Date.now() >= tooltip_wait) {
+                        document.documentElement.style.setProperty('--export_button_tooltip_bottom', `${displayHeight() - event.pageY}px`);
+                        document.documentElement.style.setProperty('--export_button_tooltip_left', `${event.pageX}px`);
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
+                    }
                 });
 
                 //move clicked items to proper list

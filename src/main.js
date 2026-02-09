@@ -264,7 +264,7 @@ const game_options = {
     skip_play_button: false, //not really skips, just automatically clicks it right after loading
     mofu_mofu_mode: true,
     do_enemy_onhit_animations: true,
-    expo_threshold: 1e9,
+    expo_threshold: 9,
     hide_max_level_skills: false,
     use_text_outlines_for_tooltips: true,
     use_text_outlines_for_bars: true,
