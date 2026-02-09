@@ -1061,7 +1061,6 @@ function sort_displayed_inventory({sort_by, target = "character", change_directi
         minus = storage_sorting_direction==="asc"?-1:1;
         storage_sorting = sort_by || "name";
 
-        console.log(sort_by, plus);
     } else {
         console.warn(`Something went wrong, no such inventory as '${target}'`);
         return;
