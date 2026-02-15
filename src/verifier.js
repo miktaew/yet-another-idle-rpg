@@ -10,6 +10,7 @@ import { traders } from "./traders.js";
 import { quests } from "./quests.js";
 import { market_region_mapping } from "./market_saturation.js";
 import { translations } from "./translation.js";
+import { recipes } from "./crafting_recipes.js";
 
 const trc = 1000000; //time rounding precision
 
@@ -59,6 +60,15 @@ function Verify_Game_Objects() {
                     });
                 }
             })
+        }
+
+        if(item.effects) {
+            for(let i = 0; i < item.effects.length; i++) {
+                if(!effect_templates[item.effects[i].effect]) {
+                    console.error(`Item "${key}" refers to a non-existent effect "${item.effects[i].effect}"`);
+                    has_issue = true;
+                }
+            }
         }
 
         item_results[0]++;
@@ -208,6 +218,11 @@ function Verify_Game_Objects() {
                 }   
             });
         } else if(location.tags["Combat zone"]) {
+
+            if(location.parent_location == undefined) {
+                console.error(`Combat location "${key}" refers to a non-existent parent"`);
+                has_issue = true;
+            }
 
             for(let i = 0; i < location.enemies_list?.length; i++) {
                 if(!enemy_templates[location.enemies_list[i]]) {
@@ -359,6 +374,59 @@ function Verify_Game_Objects() {
         console.log(`Finished verifying dialogues in: ${Math.round(trc*(end_time-start_time))/trc}s\nFound issue in ${dialogue_results[1]} out of ${dialogue_results[0]}`);
     } else {
         console.log(`Finished verifying ${dialogue_results[0]} dialogues in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
+    }
+
+    start_time = performance.now();
+    let recipes_results = [0,0];
+    console.log("Began verifying recipes.");
+    Object.keys(recipes).forEach(recipe_category => {
+        Object.keys(recipes[recipe_category]).forEach(recipe_subcategory => {
+            for(const [key, value] of Object.entries(recipes[recipe_category][recipe_subcategory])) {
+            let has_issue = false;
+            if(!skills[value.recipe_skill]) {
+                has_issue = true;
+                console.error(`Recipe "${recipe_category}" -> "${recipe_subcategory}" -> "${key}" refers to nonexistent skill "${value.recipe_skill}"`);
+            }
+
+            if(recipe_subcategory === "items"){
+                if(!item_templates[value.result.result_id]) {
+                    has_issue = true;
+                    console.error(`Recipe "${recipe_category}" -> "${recipe_subcategory}" -> "${key}" creates nonexistent item "${value.result.result_id}"`);
+                }
+
+                for(let i = 0; i < value.materials.length; i++) {
+                    if(value.materials[i].material_id && !item_templates[value.materials[i].material_id]) {
+                        has_issue = true;
+                        console.error(`Recipe "${recipe_category}" -> "${recipe_subcategory}" -> "${key}" uses nonexistent material "${value.materials[i].material_id}"`);
+                    }
+                }
+                
+            } else if(value.recipe_type === "componentless" || value.recipe_type === "component") {
+                for(let i = 0; i < value.materials.length; i++) {
+                    if(value.materials[i].material_id && !item_templates[value.materials[i].material_id]) {
+                        has_issue = true;
+                        console.error(`Recipe "${recipe_category}" -> "${recipe_subcategory}" -> "${key}" uses nonexistent material "${value.materials[i].material_id}"`);
+                    }
+                    if(!item_templates[value.materials[i].result_id]) {
+                        has_issue = true;
+                        console.error(`Recipe "${recipe_category}" -> "${recipe_subcategory}" -> "${key}" creates nonexistent item "${value.materials[i].result_id}"`);
+                    }
+                }
+            }
+
+            recipes_results[0]++;
+            recipes_results[1]+=has_issue;
+            results[0]++;
+            results[1]+=has_issue;
+        }
+        });
+    });
+
+    end_time = performance.now();
+    if(recipes_results[1] > 0) {
+        console.log(`Finished verifying recipes in: ${Math.round(trc*(end_time-start_time))/trc}s\nFound issue in ${recipes_results[1]} out of ${recipes_results[0]}`);
+    } else {
+        console.log(`Finished verifying ${recipes_results[0]} recipes in: ${Math.round(trc*(end_time-start_time))/trc}s\nNo issues were found.`);
     }
 
     let overall_end_time = performance.now();

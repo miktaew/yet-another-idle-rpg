@@ -11,9 +11,10 @@ class ActiveEffect {
      * @param {Number} effect_data.duration
      * @param {Object} effect_data.effects {stats}
      */
-    constructor({name, id, duration, effects, tags, potency, group_tags, affected_by_travel = true}) {
+    constructor({name, id, description = null, duration, effects, tags, potency, group_tags, affected_by_travel = true}) {
         this.name = name;
-        this.id = id || name;
+        this.id = id;
+        this.description = description;
         this.duration = duration ?? 0;
         this.effects = effects;
         if(!this.effects.bonus_skill_levels) {
@@ -220,6 +221,144 @@ class ActiveEffect {
         },
         tags: {"debuff": true, "poison": true},
     });
+	effect_templates["Tough meat meal"] = new ActiveEffect({
+        name: "Tough meat meal",
+        effects: {
+            stats: {
+                stamina_regeneration_flat: {flat: .5},
+                health_regeneration_flat: {flat: .1},
+            }
+        },
+        tags: {"buff": true, "food": true},
+    });
+		effect_templates["Simple seafood soup"] = new ActiveEffect({
+        name: "Simple seafood soup",
+        effects: {
+            stats: {
+                stamina_regeneration_flat: {flat: 1.5},
+                health_regeneration_flat: {flat: .5},
+            }
+        },
+        tags: {"buff": true, "food": true},
+    });
+		effect_templates["Varied meat meal"] = new ActiveEffect({
+        name: "Varied meat meal",
+        effects: {
+            stats: {
+                stamina_regeneration_flat: {flat: 2},
+                health_regeneration_flat: {flat: 1},
+            }
+        },
+        tags: {"buff": true, "food": true},
+    });
+		effect_templates["Varied seafood meal"] = new ActiveEffect({
+        name: "Varied seafood meal",
+        effects: {
+            xp_multipliers: {
+                all: 1.25
+            }
+        },
+        tags: {"buff": true, "food": true},
+});
+})();
+
+
+//combat effects
+(()=>{
+    effect_templates["Irritation"] = new ActiveEffect({
+        name: "Irritation",
+        description: "Sensations caused by a foreign substance are making it difficult to concentrate",
+        effects: {
+            stats: {
+                intuition: {multiplier: 0.75},
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+        group_tags: {psychedelic: 1}
+    });
+    effect_templates["Confusion"] = new ActiveEffect({
+        name: "Confusion",
+        description: "An intoxicating substance is making you unable to think clearly",
+        effects: {
+            stats: {
+                intuition: {multiplier: 0.5},
+            }
+        },
+        tags: {"debuff": true, "poison": true},
+        group_tags: {psychedelic: 2}
+        });
+    effect_templates["Hallucinations"] = new ActiveEffect({
+        name: "Hallucinations",
+        description: "A psychedelic substance is making it hard to tell what's real",
+        effects: {
+            stats: {
+                intuition: {multiplier: 0.25},
+            }
+        },
+        tags: {"debuff": true, "poison": true},
+        group_tags: {psychedelic: 3}
+    });
+
+    effect_templates["Sticky"] = new ActiveEffect({
+        name: "Sticky",
+        description: "Covered in a sticky substance that restricts your movements",
+        effects: {
+            stats: {
+                dexterity: { multiplier: 0.75 },
+                agility: { multiplier: 0.75 },
+                attack_speed: { multiplier: 0.75 }
+            }
+        },
+        tags: { "debuff": true },
+    });
+
+    effect_templates["Weak necrotizing venom"] = new ActiveEffect({
+        name: "Weak necrotizing venom",
+        effects: {
+            stats: {
+                health_loss_flat: {flat: -5},
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+    });
+    effect_templates["Mild necrotizing venom"] = new ActiveEffect({
+        name: "Mild necrotizing venom",
+        effects: {
+            stats: {
+                health_loss_flat: {flat: -15},
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+    });
+    effect_templates["Paralysing poison"] = new ActiveEffect({
+        name: "Paralysing poison",
+        effects: {
+            stats: {
+                attack_speed: { multiplier: 0.5 }
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+    });
+    effect_templates["Infected lungs"] = new ActiveEffect({
+        name: "Infected lungs",
+        effects: {
+            stats: {
+                stamina_efficiency: { multiplier: 0.5 }
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+    });
+    effect_templates["Convulsive poison"] = new ActiveEffect({
+        name: "Convulsive poison",
+        description: "Hands are trembling, making it hard to strike with precision",
+        effects: {
+            stats: {
+                dexterity: { multiplier: 0.5 },
+                crit_rate: { multiplier: 0.5 }
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+    });
 })();
 
 effect_templates["Recovering"] = new ActiveEffect({
@@ -245,6 +384,8 @@ effect_templates["Spark of Inspiration"] = new ActiveEffect({
     affected_by_travel: false,
 });
 
-
+Object.keys(effect_templates).forEach(effect_key => {
+    effect_templates[effect_key].id = effect_key;
+});
 
 export {effect_templates, ActiveEffect};

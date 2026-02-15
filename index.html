@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <HTML lang="en">
     <head>
-        <link rel = "stylesheet" href = "style.css">
+        <link rel = "stylesheet" href = "style.css?version=v0.5.1.6">
         
         <script type="module" src="resources/js/HackTimer/HackTimer.min.js"></script>
-        <script type='module' src="dist/bundle.js?version=v0.5.0.28"></script>
+        <script type='module' src="dist/bundle.js?version=v0.5.1.6"></script>
         <!--script type="module" src="src/main.js"></script-->
 
         <!--Icons-->
@@ -18,14 +18,14 @@
         <meta name="description" content="A text-based idle RPG game inspired by Proto23, with heavy focus on progression through skill leveling, created by Miktaew.">
         <meta name="author" content="Miktaew">
         <meta property="og:title" content="Yet Another Idle RPG">
-        <meta property="og:description" content="A text-based idle RPG game inspired by Proto23, with heavy focus on progression through skill leveling, created by Miktaew.">
+        <meta property="og:description" content="A text-based idle RPG game inspired by Proto23, with heavy focus on progression through skill leveling, created by Miktaew. Known as Nya-iRPG, yairpg, or sometimes just yair.">
         <meta property="og:image" content="https://miktaew.github.io/yet-another-idle-rpg-dev/resources/img/bigger_icon.png">
         <script type="application/ld+json">
         {
             "@context": "https://schema.org",
             "@type": "WebPage",
             "headline": "Yet Another Idle RPG",
-            "description": "A text-based idle RPG game inspired by Proto23, with heavy focus on progression through skill leveling, created by Miktaew.",
+            "description": "A text-based idle RPG game inspired by Proto23, with heavy focus on progression through skill leveling, created by Miktaew. Known as Nya-iRPG, yairpg, or sometimes just yair.",
             "image": "https://miktaew.github.io/yet-another-idle-rpg-dev/resources/img/bigger_icon.png",
             "author": {
                 "@type": "Person",
@@ -78,7 +78,7 @@
                                 
                             </div>
                         </div>
-                        <div id = "character_xp_value">
+                        <div id = "character_xp_value" class="outline_black_static">
                         </div>
                         <div id="character_xp_tooltip" class="character_bar_tooltip">
                         </div>
@@ -89,7 +89,7 @@
                             <div id = "character_stamina_bar_current">
                             </div>
                         </div>
-                        <div id = "character_stamina_value">
+                        <div id = "character_stamina_value" class="outline_black_static">
                             
                         </div>
                         <div id="character_stamina_tooltip" class="character_bar_tooltip">
@@ -100,7 +100,7 @@
                             <div id = "character_mana_bar_current">
                             </div>
                         </div>
-                        <div id = "character_mana_value">
+                        <div id = "character_mana_value" class="outline_black_static">
                             0/0 mana
                         </div>
                         <div id="character_mana_tooltip" class="character_bar_tooltip">
@@ -112,7 +112,7 @@
                             <div id = "character_healthbar_current">
                             </div>
                         </div>
-                        <div id = "character_health_value">
+                        <div id = "character_health_value" class="outline_black_static">
                         </div>
                         <div id="character_health_tooltip" class="character_bar_tooltip">
                         </div>
@@ -143,6 +143,7 @@
                         <div id = "inventory_show_equipment" class = "inventory_control_button" onclick = "showOnlyEquipment()"> Equipment </div>
                         <div id = "inventory_show_consumable" class = "inventory_control_button" onclick = "showOnlyConsumables()"> Usable </div>
                         <div id = "inventory_show_other" class = "inventory_control_button" onclick = "showOnlyOther()"> Other </div> 
+                        <div id = "inventory_show_favs" class = "inventory_control_button" onclick = "showOnlyFavs()"> Favs </div> 
                     </div>
                 </div>
 
@@ -549,6 +550,13 @@
                             </div>
                         </div>
                     </div>
+                    <div id = "clear_count_div">
+                        <div id = "clear_count_content">
+                            <div style = "display:inline-block;"> 
+                                Clears: [0]
+                            </div>
+                        </div>
+                    </div>
                     <div id = "enemy_count_div">
                         <div id = "enemy_count_content">
                             <div style = "display:inline-block;"> 
@@ -736,6 +744,11 @@
                             <div id = "quest_list">
 
                             </div>
+                            <div id = "quest_hiding_div">
+                                <label for="quest_hiding_button">Hide completed</label>
+                                <input type="checkbox" id="quest_hiding_button" name="quest_hiding_button" value="quest_hiding_button" onclick = "changeCompletedQuestVisibility()" >
+                                
+                            </div>
                         </div>
                         <div id = "bestiary_box_div">
                             <div id = "bestiary_list">
@@ -920,6 +933,7 @@
                             <div class = "equipment_slot_div" id = "pickaxe_slot"> pickaxe </div>
                             <div class = "equipment_slot_div" id = "sickle_slot"> sickle </div>
                             <div class = "equipment_slot_div" id = "shovel_slot"> shovel </div>
+                            <div class = "equipment_slot_div" id = "fishing_slot"> fishing rod </div>
                         </div>
                     </div>
                     <div id = "character_control_div" class="activable_buttons">
@@ -976,47 +990,64 @@
         <div id="options_panel" data-nosnippet>
             <div id="options_choices">
                 <div class="options_choice">
-                    <input type="checkbox" id="options_textsize" name="options_textsize" value="options_textsize" onclick = "option_uniform_textsize()" >
+                    <input type="checkbox" id="options_textsize" name="options_textsize" onclick = "option_uniform_textsize()" >
                     <label for="options_textsize">Increase size of text in dialogues</label>
                 </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_bed_return" name="options_bed_return" value="options_bed_return" onclick = "option_bed_return()" checked>
+                    <input type="checkbox" id="options_bar_outline" name="options_bar_outline" onclick = "option_use_text_outlines_for_bars()" checked>
+                    <label for="options_bar_outline">Text outline on xp/stamina/mana/health bars</label>
+                </div>
+                <div class="options_choice">
+                    <input type="checkbox" id="options_tooltip_outline" name="options_tooltip_outline" onclick = "option_use_text_outlines_for_tooltips()" checked>
+                    <label for="options_tooltip_outline">Text outline in item tooltips</label>
+                </div>
+                <div class="options_choice">
+                    <input type="checkbox" id="options_bed_return" name="options_bed_return" onclick = "option_bed_return()" checked>
                     <label for="options_bed_return">Return to last bed upon defeat</label>
                 </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_save_messagelog_settings" name="options_save_messagelog_settings" value="options_save_messagelog_settings" onclick = "option_remember_filters()">
+                    <input type="checkbox" id="options_save_messagelog_settings" name="options_save_messagelog_settings" onclick = "option_remember_filters()">
                     <label for="options_save_messagelog_settings">Remember message log filters</label>
                 </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_dont_autoswitch_to_combat" name="options_dont_autoswitch_to_combat" value="options_dont_autoswitch_to_combat" onclick = "option_combat_autoswitch()">
+                    <input type="checkbox" id="options_dont_autoswitch_to_combat" name="options_dont_autoswitch_to_combat" onclick = "option_combat_autoswitch()">
                     <label for="options_dont_autoswitch_to_combat">Don't autoswitch out from inventory when starting combat</label>
                 </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_log_all_gathering" name="options_log_all_gathering" value="options_log_all_gathering" onclick = "option_log_all_gathering()" checked>
+                    <input type="checkbox" id="options_log_all_gathering" name="options_log_all_gathering" onclick = "option_log_all_gathering()" checked>
                     <label for="options_log_all_gathering">Log gathered materials for every gathering period</label>
                 </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_log_gathering_result" name="options_log_gathering_result" value="options_log_gathering_result" onclick = "option_log_gathering_result()" checked>
+                    <input type="checkbox" id="options_log_gathering_result" name="options_log_gathering_result" onclick = "option_log_gathering_result()" checked>
                     <label for="options_log_gathering_result">Log total gathered materials on gathering finish</label>
                 </div>
+                <div class="options_choice options_choice_range">
+                    <label for="options_expo_threshold">Use scientific notation for values over:</label>
+                    <input type="range" id="options_expo_threshold" name="options_expo_threshold" min="3" max="18" onchange="option_expo_threshold()" value="9" oninput="this.nextElementSibling.value = '1e'+this.value">
+                    <output>1e9</output>
+                </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_use_uncivilised_temperature_scale" name="options_use_uncivilised_temperature_scale" value="options_use_uncivilised_temperature_scale" onclick = "option_use_uncivilised_temperature_scale()">
+                    <input type="checkbox" id="options_use_uncivilised_temperature_scale" name="options_use_uncivilised_temperature_scale" onclick = "option_use_uncivilised_temperature_scale()">
                     <label for="options_use_uncivilised_temperature_scale">Use Fahrenheit instead of Celsius</label>
                 </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_do_background_animations" name="options_do_background_animations" value="options_do_background_animations" onclick = "option_do_background_animations()">
+                    <input type="checkbox" id="options_hide_max_level_skills" name="options_hide_max_level_skills" onclick = "option_hide_max_level_skills()">
+                    <label for="options_hide_max_level_skills">Hide max level skills</label>
+                </div>
+                <div class="options_choice">
+                    <input type="checkbox" id="options_do_background_animations" name="options_do_background_animations" onclick = "option_do_background_animations()">
                     <label for="options_do_background_animations">Enable rain/snow/stars animations</label>
                 </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_do_enemy_onhit_animations" name="options_do_enemy_onhit_animations" value="options_do_enemy_onhit_animations" onclick = "option_do_enemy_onhit_animations()" checked>
+                    <input type="checkbox" id="options_do_enemy_onhit_animations" name="options_do_enemy_onhit_animations" onclick = "option_do_enemy_onhit_animations()" checked>
                     <label for="options_do_enemy_onhit_animations">Enable on-hit / on-appear animations for enemies</label>
                 </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_skip_play_button" name="options_skip_play_button" value="options_skip_play_button" onclick = "option_skip_play_button()">
+                    <input type="checkbox" id="options_skip_play_button" name="options_skip_play_button" onclick = "option_skip_play_button()">
                     <label for="options_skip_play_button">Automatically skip the loading screen</label>
                 </div>
                 <div class="options_choice">
-                    <input type="checkbox" id="options_mofu_mofu_mode" name="options_mofu_mofu_mode" value="options_mofu_mofu_mode" onclick = "option_mofu_mofu_mode()" checked>
+                    <input type="checkbox" id="options_mofu_mofu_mode" name="options_mofu_mofu_mode" onclick = "option_mofu_mofu_mode()" checked>
                     <label for="options_mofu_mofu_mode">Enable the mofu mofu</label>
                 </div>
 
@@ -1036,6 +1067,13 @@
         </canvas>
 
         <script>
+            document.addEventListener("keydown", function(e) {
+                if (e.keyCode === 83 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)) {
+                    e.preventDefault();
+                    saveProgress();
+                }
+            }, false);
+
             function openOptions() {
                 if(document.documentElement.style.getPropertyValue("--options_display") !== "block") {
                     document.documentElement.style.setProperty('--options_display', 'block');
@@ -1051,22 +1089,41 @@
                 document.documentElement.style.setProperty('--equipment_display', 'inline-block');
                 document.documentElement.style.setProperty('--consumables_display', 'inline-block');
                 document.documentElement.style.setProperty('--other_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_equipment_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_consumables_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_other_display', 'inline-block');
             }
             function showOnlyEquipment() {
                 document.documentElement.style.setProperty('--equipment_display', 'inline-block');
                 document.documentElement.style.setProperty('--consumables_display', 'none');
                 document.documentElement.style.setProperty('--other_display', 'none');
+                document.documentElement.style.setProperty('--faved_equipment_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_consumables_display', 'none');
+                document.documentElement.style.setProperty('--faved_other_display', 'none');
             }
             function showOnlyConsumables() {
                 document.documentElement.style.setProperty('--equipment_display', 'none');
                 document.documentElement.style.setProperty('--consumables_display', 'inline-block');
                 document.documentElement.style.setProperty('--other_display', 'none');
-
+                document.documentElement.style.setProperty('--faved_equipment_display', 'none');
+                document.documentElement.style.setProperty('--faved_consumables_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_other_display', 'none');
             }
             function showOnlyOther() {
                 document.documentElement.style.setProperty('--equipment_display', 'none');
                 document.documentElement.style.setProperty('--consumables_display', 'none');
                 document.documentElement.style.setProperty('--other_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_equipment_display', 'none');
+                document.documentElement.style.setProperty('--faved_consumables_display', 'none');
+                document.documentElement.style.setProperty('--faved_other_display', 'inline-block');
+            }
+            function showOnlyFavs() {
+                document.documentElement.style.setProperty('--equipment_display', 'none');
+                document.documentElement.style.setProperty('--consumables_display', 'none');
+                document.documentElement.style.setProperty('--other_display', 'none');
+                document.documentElement.style.setProperty('--faved_equipment_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_consumables_display', 'inline-block');
+                document.documentElement.style.setProperty('--faved_other_display', 'inline-block');
             }
 
             function showAllTraderItems() {
@@ -1213,6 +1270,10 @@
                 document.documentElement.style.setProperty('--character_combat_div_display', 'none');
             }
 
+            function changeCompletedQuestVisibility() {
+                change_completed_quest_visibility();
+            }
+
             let in_trade = false;
             let in_storage = false;
             let total_price;
@@ -1304,7 +1365,6 @@
             }
 
             function sortCharacterInventory(option) {
-                character_sorting = option;
                 sort_displayed_inventory({sort_by: option, target: "character", change_direction: true})
             }
 
@@ -1402,6 +1462,12 @@
                 return clicked_element;
             }
 
+            const displayHeight = () => Math.max(
+                                document.body.offsetHeight,
+                                document.documentElement.clientHeight,
+                                document.documentElement.offsetHeight
+                            );
+            
             function prepareGame() { //called on body loaded
                 document.getElementById("changelog_button").children[0].innerHTML = get_game_version();
 
@@ -1431,13 +1497,19 @@
                         } else {
                             //is usable -> use
                             use_item(clicked_element.parentNode.parentNode.getAttribute("data-character_item"));
-                            update_displayed_character_inventory(character_sorting);
+                            update_displayed_character_inventory();
                         }
                     } else if(clicked_element.classList.contains("item_auto_use_button")) {
                         //is auto use button, grab key, read id, change fav status
                         const item_id = JSON.parse(clicked_element.parentNode.parentNode.dataset.character_item).id;
                         change_consumable_favourite_status(item_id);
                         clicked_element.classList.toggle("item_auto_use_button_active");
+                    } else if(clicked_element.classList.contains("item_fav_div") || clicked_element.classList.contains("item_fav_icon")) {
+                        let target = clicked_element;
+                        if(clicked_element.classList.contains("item_fav_icon")) {
+                            target = clicked_element.parentNode;
+                        }
+                        change_item_favourite_status(target, clicked_element.parentNode.parentNode.parentNode.dataset.character_item);
                     }
                 }
 
@@ -1464,7 +1536,7 @@
                         }
                         
                         //calculate vertical position so it doesnt go under bottom edge
-                        const tooltip_height = hovered_element.children[0].children[1].scrollHeight;
+                        const tooltip_height = hovered_element.children[0].children[2].scrollHeight;
 
                         const body = document.getElementsByTagName("body")[0];
                         const scrollbar_X_visible = (body.scrollWidth - body.clientWidth) > 0;
@@ -1473,6 +1545,7 @@
                             window.innerHeight - tooltip_height - item_tooltip_margin + window.scrollY + 10 - (scrollbar_X_visible?10:0);
                         
                         if(event.pageY > bottom_edge_position) {
+                            
                             document.documentElement.style.setProperty('--item_tooltip_top', `${bottom_edge_position - 400}px`);
                         } else {
                             document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 400}px`);
@@ -1480,7 +1553,6 @@
                         tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
                 }
-
 
                 const storage_div = document.getElementById("storage_div");
                 ///////////////////////
@@ -1557,7 +1629,7 @@
                 trader_inventory_div.addEventListener('mouseenter', (event) => {
                     document.documentElement.style.setProperty('--item_tooltip_top', `${event.pageY - 370}px`);
                     document.documentElement.style.setProperty('--item_tooltip_left', `${event.pageX - 370}px`);
-                }); 
+                });
                 //prevents trader item tooltip from initially appearing in wrong spot on some occassions
 
                 //item slots / worn equipment tooltips
@@ -1580,7 +1652,7 @@
                 crafting_window.addEventListener('mouseenter', (event) => {
                     document.documentElement.style.setProperty('--recipe_tooltip_top', `${event.pageY - 370}px`);
                     document.documentElement.style.setProperty('--recipe_tooltip_left', `${event.pageX - 370}px`);
-                }); 
+                });
 
                 crafting_window.addEventListener('mousemove', move_recipe_tooltip, false);
                 function move_recipe_tooltip(event) {
@@ -1873,14 +1945,14 @@
                             effects_tooltip.style.top = event.pageY - 300 + "px";
                             effects_tooltip.style.maxHeight = Math.max(20,max_height) + "px";
 
-                            const gap = 5; //4px of gap + 1px of margin top
+                            const gap = 11; //4px of gap + 1px of margin + ...something?
                             let total_height = 0;
                             for(let i = 0 ; i < elems.length; i++) {
                                 total_height += elems[i].offsetHeight+gap;
                             }
 
                             const columns = Math.min(elems.length, Math.ceil(total_height / (max_height+4)));
-                            effects_tooltip.style.width = (columns * 210 || 120)+ "px";
+                            effects_tooltip.style.width = (columns * 222 || 120)+ "px";
                         } 
                         tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
                     }
@@ -1888,9 +1960,12 @@
 
                 //export button tooltip (reward timer)
                 save_to_file_button.addEventListener('mousemove', (event) => {
-                    document.documentElement.style.setProperty('--export_button_tooltip_top', `${event.pageY-930}px`);
-                    document.documentElement.style.setProperty('--export_button_tooltip_left', `${event.pageX}px`);
-                }); 
+                     if(Date.now() >= tooltip_wait) {
+                        document.documentElement.style.setProperty('--export_button_tooltip_bottom', `${displayHeight() - event.pageY}px`);
+                        document.documentElement.style.setProperty('--export_button_tooltip_left', `${event.pageX}px`);
+                        tooltip_wait = Date.now() + 1000 / tooltip_move_ticks;
+                    }
+                });
 
                 //move clicked items to proper list
                 inventory_div.addEventListener('click', (event)=>move_trade_item(event, "character"), false);
@@ -1906,6 +1981,10 @@
                         return;
                     }
 
+                    if(clicked_element.classList.contains("item_fav_div") || clicked_element.classList.contains("item_fav_div")) {
+                        return;
+                    }
+
                     if(clicked_element.classList.contains("equip_item_button") || clicked_element.classList.contains("unequip_item_button")) {
                         return;
                     }
@@ -1918,6 +1997,10 @@
 
                     clicked_element = retarget_clicked_to_class(clicked_element, ["inventory_item_control"], ["global_content"]);
                     if(!clicked_element) {
+                        return;
+                    }
+
+                    if(clicked_element.dataset.unsellable) {
                         return;
                     }
 
@@ -1964,6 +2047,10 @@
                     let clicked_element = event.target;
 
                     if(clicked_element.isEqualNode(storage_div) || clicked_element.isEqualNode(inventory_div)) {
+                        return;
+                    }
+
+                    if(clicked_element.classList.contains("item_fav_div") || clicked_element.classList.contains("item_fav_div") || clicked_element.classList.contains("item_fav_icon")) {
                         return;
                     }
 
@@ -2019,7 +2106,7 @@
                 //for stuff where any number can be active
                 document.getElementById("message_controls").addEventListener("click", manage_active_buttons);
                 function manage_active_buttons(event) {
-                    var clicked_element = event.target;
+                    let clicked_element = event.target;
                     if(clicked_element.children.length == 0) {
                         if(clicked_element.classList.contains("active_selection_button")) {
                             clicked_element.classList.remove("active_selection_button");

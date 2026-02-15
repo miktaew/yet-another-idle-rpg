@@ -129,6 +129,13 @@ class Gathering extends Training {
         base_skills_names: ["Climbing"],
         is_unlocked: false,
     });
+    activities["enduring"] = new Training({
+        name: "enduring",
+        action_text: "Withstanding the elements",
+        description: "An advanced technique that hardens your resolve more than your body",
+        base_skills_names: ["Persistence"],
+        is_unlocked: true,
+    });
 })();
 
 //resource gatherings
@@ -177,6 +184,16 @@ class Gathering extends Training {
         description: "Take care of animals",
         base_skills_names: ["Animal handling"],
         is_unlocked: true,
+    });
+
+    activities["fishing"] = new Gathering({
+        name: "fishing",
+        action_text: "Waiting for a bite",
+        description: "Try to catch some fish",
+        base_skills_names: ["Fishing"],
+        is_unlocked: true,
+        required_tool_type: "fishing_pole",
+        getBackgroundNoises: () => ["*Nothing bites*", "*You feel a light tug, but no bite*", "*The fish escapes before you can reel it in*", "*The fish steals your bait*", "*Your catch gets swiped by a bigger fish*", "*Your catch gets swiped by a passing bird*", "*Your catch flies away*"]
     });
 })();
 

@@ -27,6 +27,7 @@
             {
                 lines: [String] //an array with textline keys
                 dialogue: String //dialogue key
+                skip_message: Boolean //to NOT log an unlock message
             }
         ]
         
@@ -39,6 +40,8 @@
         ] 
 
         housing: [String] //an array with location keys
+
+        crafting: [String] //an array with location keys
 
         activities: [
             {
@@ -65,7 +68,7 @@
         ] 
         
         reputation: {
-            "region": Number //flat value of rep gained
+            "region": Number //flat value of rep gained, should match one of market_region keys if it's supposed to affect any trade
         }
 
         quests: [
@@ -92,6 +95,9 @@
                 item: String //item key
                 count: Number //item count
             }
+            //OR
+            String // item key; 
+            // just that, count will be defaulted to 1; can be mixed, e.g. items: ["Fresh bread", {item: "Stale bread", count:5 }]
         ]
         
         move_to: {

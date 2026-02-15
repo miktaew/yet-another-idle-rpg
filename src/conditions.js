@@ -24,6 +24,8 @@ import { global_flags } from "./main.js";
             "skill_id": Number //required level
         ],
 
+        hero_level: Number //required hero level
+
         items_by_id: 
         [
             {
@@ -56,6 +58,7 @@ const process_conditions = (conditions, character) => {
     let met = 1;
 
     if(conditions.length == 0) {
+        //no conditions mean nothing to fail
         return 1;
     }
 
@@ -64,7 +67,7 @@ const process_conditions = (conditions, character) => {
         met = 0;
         return met;
     } else if(conditions[1]?.money && conditions[1].money > conditions[0].money && character.money < conditions[1].money) {
-        met *= (character.money - conditions[0].money)/(conditions[1].money - conditions[0].money);
+        met *= (1 + character.money - conditions[0].money)/(conditions[1].money - conditions[0].money);
     }
 
     if(!met) {
@@ -76,9 +79,18 @@ const process_conditions = (conditions, character) => {
             if(get_total_skill_level(skill_id) < conditions[0].skills[skill_id]) {
                 met = 0;
             } else if(conditions[1]?.skills && conditions[1].skills[skill_id] > conditions[0].skills[skill_id] && get_total_skill_level(skill_id) < conditions[1].skills[skill_id]) {
-                met *= (get_total_skill_level(skill_id) - conditions[0].skills[skill_id])/(conditions[1].skills[skill_id] - conditions[0].skills[skill_id]);
+                met *= (1+get_total_skill_level(skill_id) - conditions[0].skills[skill_id])/(conditions[1].skills[skill_id] - conditions[0].skills[skill_id]);
             }
         });
+    }
+
+    if(conditions[0].hero_level) {
+        if(character.xp.current_level < conditions[0].hero_level) {
+            met = 0;
+            return met;
+        } else if(conditions[1]?.hero_level && conditions[1].hero_level > character.xp.current_level) {
+            met *= (1 + character.xp.current_level - conditions[0].hero_level)/(conditions[1].hero_level - conditions[0].hero_level);
+        }
     }
 
     if(!met) {
@@ -149,7 +161,7 @@ const process_conditions = (conditions, character) => {
                 met = 0;
                 return met;
             } else if(conditions[1]?.reputation && conditions[1].reputation[rep_region] > conditions[0].reputation[rep_region] && character.reputation[rep_region] < conditions[1].reputation[rep_region]) {
-                met *= (character.reputation[rep_region] - conditions[0].reputation[rep_region])/(conditions[1].reputation[rep_region] - conditions[0].reputation[rep_region]);
+                met *= (1 + character.reputation[rep_region] - conditions[0].reputation[rep_region])/(conditions[1].reputation[rep_region] - conditions[0].reputation[rep_region]);
             }
         });
     }

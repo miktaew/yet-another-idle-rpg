@@ -9,15 +9,15 @@ import { update_displayed_character_inventory, update_displayed_equipment,
          update_displayed_skill_level, 
          update_displayed_xp_bonuses, 
          update_displayed_stamina_efficiency} from "./display.js";
-import { active_effects, current_location, current_stance, favourite_consumables, remove_consumable_from_favourites } from "./main.js";
+import { active_effects, current_location, current_stance, favourite_consumables, favourite_items, remove_consumable_from_favourites, remove_item_from_favourites } from "./main.js";
 import { current_game_time, is_night } from "./game_time.js";
-import { item_templates } from "./items.js";
+import { getItemFromKey, item_templates } from "./items.js";
 import { skill_consumable_tags } from "./misc.js";
 
 const base_block_chance = 0.75; //+20 from the skill
 const base_xp_cost = 10;
 
-const tool_slots = ["axe", "pickaxe", "sickle", "shovel"];
+const tool_slots = ["axe", "pickaxe", "sickle", "shovel", "fishing_pole"];
 
 
 //stupid little thing for a stupid easter egg
@@ -101,9 +101,9 @@ class Hero extends InventoryHaver {
                         }
                 };
                 this.reputation = { //effects would go up to 1000?
-                        village: 0,
-                        slums: 0,
-                        town: 0,
+                        Village: 0,
+                        Slums: 0,
+                        Town: 0,
                 };
                 this.bonus_skill_levels = {
                         full: {
@@ -142,6 +142,7 @@ class Hero extends InventoryHaver {
                         pickaxe: null,
                         sickle: null,
                         shovel: null,
+                        fishing_pole: null
                 };
                 this.money = 0;
                 this.xp = {
@@ -401,7 +402,6 @@ character.stats.add_weapon_type_bonuses = function() {
 /**
  * add all non-milestone stat bonuses from skills
  * called in update_stats()
- * only a few skills really matter here
  */
 character.stats.add_all_skill_level_bonus = function() {
         character.stats.flat.skills.defense = get_total_level_bonus("Iron skin");
@@ -429,6 +429,8 @@ character.stats.add_all_skill_level_bonus = function() {
         character.stats.multiplier.skills.intuition = get_total_skill_coefficient({scaling_type: "multiplicative", skill_id: "Meditation"});
 
         character.stats.flat.skills.unarmed_power = skills["Unarmed"].current_level * 0.1;
+
+        character.stats.flat.skills.crit_rate = Math.min(skills["Perception"].max_level, get_total_skill_level("Perception"))/100;
 
         character.stats.add_weapon_type_bonuses();
         character.stats.flat.skills.cold_tolerance = 0.5 * get_total_skill_level("Cold resistance");
@@ -499,10 +501,32 @@ character.get_character_heat_tolerance = function(){
  * full stat recalculation, call whenever something changes
  */
 character.update_stats = function () {
-    const missing_health = Math.max((character.stats.full["max_health"] - character.stats.full["health"]), 0) || 0;   
-    const missing_stamina = Math.max((character.stats.full["max_stamina"] - character.stats.full["stamina"]), 0) || 0;   
-    const missing_mana = Math.max((character.stats.full["max_mana"] - character.stats.full["mana"]), 0) || 0;   
-    //to avoid fully restoring all whenever this function is called
+        const missing_health = Math.max((character.stats.full["max_health"] - character.stats.full["health"]), 0) || 0;   
+        const missing_stamina = Math.max((character.stats.full["max_stamina"] - character.stats.full["stamina"]), 0) || 0;   
+        const missing_mana = Math.max((character.stats.full["max_mana"] - character.stats.full["mana"]), 0) || 0;   
+        //to avoid fully restoring all whenever this function is called
+
+        Object.keys(character.bonus_skill_levels.full).forEach(bonus_target => {
+                if(bonus_target.includes("category_")) {
+                        return;
+                        //this does not get calculated separately as it will instead be included individually for each skill
+                }
+                
+                const category = "category_"+skills[bonus_target].category;
+                character.bonus_skill_levels.full[bonus_target] = 
+                        (character.bonus_skill_levels.flat.equipment[bonus_target] || 0) 
+                        + (character.bonus_skill_levels.flat.active_effects[bonus_target] || 0) 
+                        + (character.bonus_skill_levels.flat.skills[bonus_target] || 0)
+                        + (character.bonus_skill_levels.flat.equipment[category] || 0) 
+                        + (character.bonus_skill_levels.flat.active_effects[category] || 0) 
+                        + (character.bonus_skill_levels.flat.skills[category] || 0);
+                
+                const bonus = character.bonus_skill_levels.full[bonus_target];
+
+                if(bonus != 0){
+                        update_displayed_skill_level(skills[bonus_target]);
+                }        
+        });
 
     character.stats.add_all_skill_level_bonus();
     character.stats.add_all_stance_bonus();
@@ -576,25 +600,6 @@ character.update_stats = function () {
         }
     });
 
-    Object.keys(character.bonus_skill_levels.full).forEach(bonus_target => {
-        if(bonus_target.includes("category_")) {
-                return;
-        }
-        const category = "category_"+skills[bonus_target].category;
-        character.bonus_skill_levels.full[bonus_target] = 
-                  (character.bonus_skill_levels.flat.equipment[bonus_target] || 0) 
-                + (character.bonus_skill_levels.flat.active_effects[bonus_target] || 0) 
-                + (character.bonus_skill_levels.flat.skills[bonus_target] || 0)
-                + (character.bonus_skill_levels.flat.equipment[category] || 0) 
-                + (character.bonus_skill_levels.flat.active_effects[category] || 0) 
-                + (character.bonus_skill_levels.flat.skills[category] || 0);
-        
-        const bonus = character.bonus_skill_levels.full[bonus_target];
-
-        if(bonus != 0){
-                update_displayed_skill_level(skills[bonus_target]);
-        }        
-    });
 }
 
 character.get_stamina_multiplier = function () {
@@ -627,7 +632,7 @@ character.wears_armor = function () {
  * @param {*}
  * @returns [actual damage taken; Boolean if character should faint] 
  */
-character.take_damage = function ({damage_values, can_faint = true, give_skill_xp = true}) {
+character.take_damage = function ({damage_values, can_faint = true, give_skill_xp = true, defense_modifier = 0}) {
         /*
         TODO:
                 - damage types: "physical", "elemental", "magic"
@@ -641,7 +646,7 @@ character.take_damage = function ({damage_values, can_faint = true, give_skill_x
                 if(val < 1) {
                         return Math.max(Math.ceil(10*val)/10, 0);
                 } else {
-                        return Math.ceil(10*Math.max(val - character.stats.full.defense, val*0.05, 1))/10;
+                        return Math.ceil(10*Math.max(val - (character.stats.full.defense + defense_modifier), val*0.05, 1))/10;
                 }
         });
         const damage_taken = damage_values.reduce((a,b)=>a+b);
@@ -655,7 +660,7 @@ character.take_damage = function ({damage_values, can_faint = true, give_skill_x
         }
 
         if(give_skill_xp) {
-                //TODO give xp to resistance skills when taking damge
+                //TODO once they are added, give xp to resistance skills when taking damage
         }
 
         return {damage_taken, fainted};
@@ -685,15 +690,23 @@ function remove_from_character_inventory(items) {
                 if(character.inventory[items[i].item_key]) {
                         continue;
                 }
+
                 const {id} = JSON.parse(items[i].item_key);
                 if(id && item_templates[id].tags.usable && favourite_consumables[id]) {
                         remove_consumable_from_favourites(id);
+                } else if(favourite_items[items[i].item_key]){
+                        const item = getItemFromKey(items[i].item_key);
+                        if(item.tags.component || item.tags.equippable) {
+                                if(!(character.equipment[item.equip_slot].getInventoryKey() === item.getInventoryKey())) {
+                                        remove_item_from_favourites(items[i].item_key);
+                                }
+                        }
                 }
         }
 }
 
 /**
- * @description equips passed item, doesn't do anything more with it;
+ * @description equips passed item, doesn't do anything more with it; updates inventory display and equipment display
  * don't call this one directly (except for when loading save data), but via equip_item_from_inventory()
  * @param: game item object
  */
@@ -701,11 +714,9 @@ function equip_item(item, skip_sorting) {
 
         if(!item) {
                 update_displayed_equipment();
-                update_displayed_character_inventory({skip_sorting});
                 character.stats.add_all_equipment_bonus();
                 
                 update_character_stats();
-                return;
         } else {
                 const prev_item = character.equipment[item.equip_slot];
                 unequip_item(item.equip_slot, true);
@@ -753,6 +764,10 @@ function unequip_item(item_slot, already_calculated=false) {
         }
 }
 
+/**
+ * Updates display of related skills
+ * @param {*} item 
+ */
 function manage_changed_skill_bonuses(item) {
         const bonus_skill_levels = Object.keys(item.getBonusSkillLevels());
         if(bonus_skill_levels.length > 0) {
@@ -793,6 +808,20 @@ function update_character_stats() {
         update_displayed_stamina_efficiency();
         
         //update_displayed_mana();
+
+        //update display of shields in case the changes affected block strength
+        Object.keys(character.inventory).forEach(inv_key => {
+                //update equippable/useable/book item
+                const item = getItemFromKey(inv_key);
+                if(item.tags.shield) {
+                        update_displayed_character_inventory({item_key: inv_key});
+                }
+        });
+
+        if(character.equipment["off-hand"]) {
+                update_displayed_equipment();
+                update_displayed_character_inventory({equip_slot: "off-hand"});
+        }
 }
 
 /**

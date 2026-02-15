@@ -54,7 +54,7 @@ function start_trade(trader_key) {
     current_trader = trader_key;
     
     update_displayed_trader();
-    update_displayed_character_inventory({is_trade: true});
+    update_displayed_character_inventory();
 }
 
 function cancel_trade() {
@@ -66,7 +66,7 @@ function cancel_trade() {
     to_sell.groups = {};
     to_sell.value = 0;
 
-    update_displayed_character_inventory({is_trade: true});
+    update_displayed_character_inventory();
     update_displayed_trader_inventory();
 }
 
@@ -427,7 +427,7 @@ function calculate_total_values() {
         traded_groups.selling[traded_group_key] = [];
 
         if(to_sell.groups[traded_group_key].needs_resort) {
-            to_sell.groups[traded_group_key].sorted = to_sell.groups[traded_group_key].unsorted.sort((a,b) => sort_traded_items(a,b)); 
+            to_sell.groups[traded_group_key].sorted = to_sell.groups[traded_group_key].unsorted.sort((a,b) => sort_traded_items(a,b));
 
             to_sell.groups[traded_group_key].needs_resort = false;
         }
@@ -511,7 +511,7 @@ function calculate_total_values() {
                                         stop_multiplier_at: Math.max(0,sold_saturation-bought_saturation-to_buy.groups[traded_group_key].sorted[i].count),
                                         count: to_buy.groups[traded_group_key].sorted[i].count,
                                         region: current_location.market_region,
-                                        price_multiplier: traders[current_trader].getProfitMargin(),
+                                        price_multiplier: traders[current_trader].getProfitMargin(current_location.market_region),
                                         is_selling: false,
                                     });
 
@@ -537,7 +537,7 @@ function calculate_total_values() {
  * @returns total value of items, including character haggling skill and trader profit margin
  */
 function get_item_value(selected_item) {
-    const profit_margin = traders[current_trader].getProfitMargin();
+    const profit_margin = traders[current_trader].getProfitMargin(current_location.market_region);
 
     const item = getItemFromKey(selected_item.item_key);
 

@@ -92,6 +92,10 @@ const questManager = {
         return quest_id in active_quests;
     },
 
+    isQuestFinished(quest_id) {
+        return quests[quest_id].is_finished;
+    },
+
     finishQuest({quest_id, only_unlocks, is_from_loading, skip_rewards}) {
 
         if(this.isQuestActive(quest_id)) {
@@ -102,10 +106,12 @@ const questManager = {
             delete active_quests[quest_id];
             if(!quests[quest_id].is_hidden) {
                 update_displayed_quest(quest_id);
+                if(!is_from_loading) {
+                    log_message(`Finished a quest: "${quests[quest_id].getQuestName()}"`);
+                }
             }
 
             if(!skip_rewards) {
-                
                 process_rewards({rewards: quests[quest_id].quest_rewards, source_type: "Quest", source_name: quests[quest_id].getQuestName(), only_unlocks: only_unlocks, is_from_loading});
             }
         }
@@ -267,7 +273,7 @@ const questManager = {
         quest_name: "Lost memory",
         display_priority: 0,
         getQuestDescription: ()=>{
-            const completed_tasks =  quests["Lost memory"].getCompletedTaskCount(); 
+            const completed_tasks =  quests["Lost memory"].getCompletedTaskCount();
             if(completed_tasks == 0) {
                 return "You woke up in some village and you have no idea how you got here or who you are. Just what could have happened?";
             } else if(completed_tasks == 1) {
@@ -300,7 +306,7 @@ const questManager = {
     });
 })();
 
-//Side quests
+//General side quests
 (()=>{
     quests["It won't mill itself"] = new Quest({
         quest_name: "It won't mill itself",
@@ -321,7 +327,7 @@ const questManager = {
             money: 500,
             xp: 250,
             reputation: {
-                village: 100,
+                Village: 100,
             }
         }
     });
@@ -336,7 +342,7 @@ const questManager = {
             money: 6000,
             xp: 5000,
             reputation: {
-                town: 40,
+                Town: 40,
             }
         }
     });
@@ -372,7 +378,7 @@ const questManager = {
             money: 5000,
             xp: 50000, //50k
             reputation: {
-                town: 60,
+                Town: 60,
             }
         }
     });
@@ -432,6 +438,57 @@ const questManager = {
         ],
     });
 })();
+
+
+//Swampland expansion quests
+(()=>{
+    quests["Giant Enemy Crab"] = new Quest({            //reference to the old "Sony E3 2006 / Giant Enemy Crab" meme
+        quest_name: "Giant Enemy Crab",
+        display_priority: 9,
+        getQuestDescription: ()=>{
+            if(quests["Giant Enemy Crab"].quest_tasks[1].is_finished) {
+                return "You slew the giant crab nesting at the lake beach. With your task completed, you might as well explore the region further.";
+            } else if(quests["Giant Enemy Crab"].quest_tasks[0].is_finished) {
+                return "You managed to chase the giant crab away, but if you don't finish it off soon, it'll just nest somewhere else and be a problem for somebody else later. And even if someone did find it, would they be strong enough to defeat it? Better just to take care of it yourself now";
+            } else {
+                return "The elder gave you his blessing to investigate the rumors of enormous crab nests somewhere down river. Or was it an enormous crab's nest? Or was it some enormous crabs' nest? Either way, he reminded you to prepare for the journey ahead";
+            }
+        },
+        questline: "Giant Enemy Crab",
+        quest_tasks: [
+            new QuestTask({task_description: "Investigate down the river"}), //beat the crab once
+            new QuestTask({task_description: "Track down the giant crab"}), //beat the crab twice
+        ]
+    });
+    quests["In Times of Need"] = new Quest({
+        quest_name: "In Times of Need",
+        display_priority: 9,
+        getQuestDescription: ()=>{
+            if(quests["In Times of Need"].quest_tasks[quests["In Times of Need"].quest_tasks.length-1].is_finished) {    //update upon completion of final task
+                return "You helped the snakefang tribe in their time of need";
+            } else if(quests["In Times of Need"].quest_tasks[0].is_finished) {
+                return `You accepted the chief's "request" to ask around and see how you could assist the tribe`;
+            } else {
+                return "You should introduce yourself to whomever is in charge";
+            }
+        },
+        questline: "In Times of Need",
+        quest_tasks: [
+            new QuestTask({is_hidden: true}), //Gained on entry
+            new QuestTask({task_description: "Ask around and see how you can help"}), //From talking to chief
+            new QuestTask({task_description: "Bring the cook 60 pieces of fresh crab meat"}), //From talking to cook
+            new QuestTask({is_hidden: true}), //filler after bringing meat, before being told to talk to tailor
+            new QuestTask({task_description: "Speak to the tailor and see how you can help"}), //flax delivery part 1
+            new QuestTask({task_description: "Bring the tailor 200 bundles of fresh flax"}), //flax delivery part 2
+            new QuestTask({task_description: "Speak to the tanner and see how you can help"}), //tanner delivery part 1
+            new QuestTask({task_description: "Bring the tanner 60 pieces of alligator skin"}), //tanner delivery part 2
+            new QuestTask({is_hidden: true}), //filler after bringing alligator skin, before being told to bring snake skin
+            new QuestTask({task_description: "Bring the tanner 60 pieces of giant snake skin"}), //tanner delivery part 3
+            new QuestTask({task_description: "Report to the chief"}), //properly finishes the quest, rewards come in dialogue
+        ]
+    });
+})();
+
 
 /*
 quests["Test quest"] = new Quest({

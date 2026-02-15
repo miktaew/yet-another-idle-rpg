@@ -42,7 +42,7 @@ function Game_Time(new_time) {
         }
     }
 
-    this.goUp(0); 
+    this.goUp(0);
     //just in case someone passes a value that's not exactly correct, in a situation where it won't ever get incremented so it won't automatically fix
     //e.g. in weather when grabbing date for next weather, as a change in month would not be reflected and adding a manual recalculation there would be just stupid
 

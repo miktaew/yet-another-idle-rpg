@@ -15,7 +15,7 @@
             200-246%    legendary      orange     x2
             247-250%    mythical       ????       x2.5
 
-            quality affects only attack/defense/max block, while additional multiplier affects all positive stats 
+            quality affects only attack/defense/max block, while additional multiplier affects all positive stats
             (i.e flat bonuses over 0 and multiplicative bonuses over 1)
 
     basic idea for weapons:
@@ -28,7 +28,7 @@
         long handles (spears) have higher attack multiplier and lower attack speed (so they counter the effects of the short blades), plus an additional built-in x1.5 attack multiplier
         medium handles (axes/blunt weapons) have them average
         short handles have lowest attack multiplier
-        
+
         so, as a result, attack damage goes blunt > axe > spear > sword > dagger
         and attack speed goes               dagger > sword > spear > axe > blunt
         which kinda makes spears very average, but they also get bonus crit so whatever
@@ -81,7 +81,7 @@ function getItemRarity(quality) {
     else if(quality < 200) rarity = "epic";
     else if(quality < 246) rarity = "legendary";
     else rarity = "mythical";
-    
+
     return rarity;
 }
 
@@ -96,7 +96,7 @@ function getEquipmentValue({components, quality = 100}) {
 class Item {
     constructor({name,
                 description,
-                value = 0, 
+                value = 0,
                 tags = {},
                 market_saturation_group,
                 saturates_market,
@@ -174,7 +174,7 @@ class Item {
         quality = quality || this.quality || 100;
         if(!this.saturates_market || !region) {
             return this.getBaseValue({quality, multiplier});
-        } else {  
+        } else {
             return this.getValueWithSaturation(region, multiplier);
         }
     }
@@ -190,7 +190,7 @@ class Item {
      * @param {Object} param0
      * @param {Number} param0.additional_traded_count
      * @param {Number} param0.price_multiplier from trader profit margin
-     * @returns 
+     * @returns
      */
     getValueOfMultiple({additional_traded_count = 0, count, region, price_multiplier = 1, is_selling = true, stop_multiplier_at = Infinity}) {
         if(!this.saturates_market) {
@@ -241,6 +241,7 @@ class ItemComponent extends Item {
         this.item_type = "COMPONENT";
         this.component_tier = item_data.component_tier || 1;
         this.component_stats = item_data.component_stats || {};
+        this.component_bonus_skill_levels = item_data.component_bonus_skill_levels || {};
         this.tags["component"] = true;
         this.quality = Math.round(item_data.quality) || 100;
     }
@@ -265,12 +266,16 @@ class ItemComponent extends Item {
         else if(quality < 200) rarity = "epic";
         else if(quality < 246) rarity = "legendary";
         else rarity = "mythical";
-        
+
         return rarity;
     }
 
     getStats() {
         return this.component_stats;
+    }
+
+    getBonusSkillLevels() {
+        return this.component_bonus_skill_levels;
     }
 }
 
@@ -323,7 +328,7 @@ class ShieldComponent extends ItemComponent {
             this.market_saturation_group = {group_key: group_key_prefix+"handle", group_tier: this.component_tier-1};
         }
         //properties below only matter for shield type component
-        this.shield_strength = item_data.shield_strength; 
+        this.shield_strength = item_data.shield_strength;
         this.shield_name = item_data.shield_name || item_data.name;
 
         this.tags["shield component"] = true;
@@ -382,7 +387,7 @@ class Equippable extends Item {
     constructor(item_data) {
         super(item_data);
         this.item_type = "EQUIPPABLE";
-        this.bonus_skill_levels = item_data.bonus_skill_levels || {};
+        this.base_bonus_skill_levels = item_data.base_bonus_skill_levels;
 
         this.quality = Math.round(Number(item_data.quality)) || 100;
 
@@ -497,8 +502,51 @@ class Equippable extends Item {
         return stats;
     }
 
-    getBonusSkillLevels() {
-        return this.bonus_skill_levels;
+    getBonusSkillLevels(quality) {
+        if(!quality) {
+            if(!this.bonus_skill_levels) {
+                this.bonus_skill_levels = this.calculateBonusSkillLevels(this.quality);
+            }
+            return this.bonus_skill_levels;
+        } else {
+            return this.calculateBonusSkillLevels(quality);
+        }
+    }
+
+    calculateBonusSkillLevels(quality) {
+        let skill_bonus = {};
+
+        if(this.components) {
+            //iterate over components
+            const components = Object.values(this.components).map(comp => item_templates[comp]).filter(comp => comp);
+            for(let i = 0; i < components.length; i++) {
+                Object.keys(components[i].component_bonus_skill_levels).forEach(skill => {
+                    skill_bonus[skill] = (skill_bonus[skill] || 0) + components[i].component_bonus_skill_levels[skill];
+                });
+            }
+
+            //iterate over stats and apply rarity bonus if possible
+            Object.keys(skill_bonus).forEach(skill => {
+                if(skill_bonus[skill]){
+                    if(skill_bonus[skill] > 0) {
+                        skill_bonus[skill] = Math.round(skill_bonus[skill] * rarity_multipliers[this.getRarity(quality)]);
+                    } else {
+                        skill_bonus[skill] = Math.round(skill_bonus[skill]);
+                    }
+                }
+            });
+        } else { //no components, only needs to apply quality to already present stats            
+            const used_bonus = this.component_bonus_skill_levels || this.base_bonus_skill_levels || {};
+            Object.keys(used_bonus).forEach(skill => {
+                if(used_bonus[skill] > 0) {
+                    skill_bonus[skill] = Math.round(used_bonus[skill] * rarity_multipliers[this.getRarity(quality)]);
+                } else {
+                    skill_bonus[skill] = Math.round(used_bonus[skill]);
+                }
+            });
+        }
+
+        return skill_bonus;
     }
 }
 
@@ -530,9 +578,6 @@ class Tool extends Equippable {
         if(!this.id) {
             this.id = this.getName();
         }
-    }
-    getStats() {
-        return {};
     }
 }
 
@@ -573,8 +618,8 @@ class Shield extends Equippable {
 
     calculateShieldStrength(quality) {
         return Math.round(
-            10 * Math.ceil(10*item_templates[this.components.shield_base].shield_strength 
-            * (item_templates[this.components.handle].component_stats?.block_strength?.multiplier || 1) 
+            10 * Math.ceil(10*item_templates[this.components.shield_base].shield_strength
+            * (item_templates[this.components.handle].component_stats?.block_strength?.multiplier || 1)
             * (quality/100) * rarity_multipliers[this.getRarity(quality)]))/100;
     }
 
@@ -594,11 +639,11 @@ class Armor extends Equippable {
     */
    /**
     * Takes either {components} or {stats}, with {components} having higher priority. Lack of {components} assumes item is a wearable internal part (clothing)
-    * @param {*} item_data 
+    * @param {*} item_data
     */
     constructor(item_data) {
         super(item_data);
-        
+
         if(item_data.components) {
             if(!item_templates[item_data.components.internal]) {
                 throw new Error(`No such internal armor element as: ${item_data.components.internal}`);
@@ -625,15 +670,16 @@ class Armor extends Equippable {
             }
 
             this.market_saturation_group = {group_key: group_key_prefix+"armor", group_tier: this.getItemTier()-1};
-            
-        } else { 
+
+        } else {
             //no components, assumed to be the internal part (clothing)
             this.tags["component"] = true;
             this.tags["armor component"] = true;
             this.tags["clothing"] = true;
             this.component_stats = item_data.component_stats || {};
+            this.component_bonus_skill_levels = item_data.component_bonus_skill_levels || {};
             delete this.components;
-            
+
             if(!item_data.name) {
                 throw new Error(`Component-less item needs to be provided a name!`);
             }
@@ -683,8 +729,8 @@ class Armor extends Equippable {
 
     calculateDefense(quality) {
         if(this.components) {
-            return Math.ceil(((item_templates[this.components.internal].defense_value || item_templates[this.components.internal].base_defense ||0) + 
-                                        (item_templates[this.components.external]?.defense_value || 0 )) 
+            return Math.ceil(((item_templates[this.components.internal].defense_value || item_templates[this.components.internal].base_defense ||0) +
+                                        (item_templates[this.components.external]?.defense_value || 0 ))
                                         * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality || this.quality)]
             );
         } else {
@@ -730,23 +776,23 @@ class Weapon extends Equippable {
         }
         this.components.handle = item_data.components.handle; //only the name
 
-        if(item_templates[this.components.handle].component_type === "long handle" 
+        if(item_templates[this.components.handle].component_type === "long handle"
         && (item_templates[this.components.head].component_type === "short blade" || item_templates[this.components.head].component_type === "long blade")) {
             //long handle + short/long blade = spear
             this.weapon_type = "spear";
-        } else if(item_templates[this.components.handle].component_type === "medium handle" 
+        } else if(item_templates[this.components.handle].component_type === "medium handle"
         && item_templates[this.components.head].component_type === "axe head") {
             //medium handle + axe head = axe
             this.weapon_type = "axe";
-        } else if(item_templates[this.components.handle].component_type === "medium handle" 
+        } else if(item_templates[this.components.handle].component_type === "medium handle"
         && item_templates[this.components.head].component_type === "hammer head") {
             //medium handle + hammer head = hammer
             this.weapon_type = "hammer";
-        } else if(item_templates[this.components.handle].component_type === "short handle" 
+        } else if(item_templates[this.components.handle].component_type === "short handle"
         && item_templates[this.components.head].component_type === "short blade") {
             //short handle + short blade = dagger
             this.weapon_type = "dagger";
-        } else if(item_templates[this.components.handle].component_type === "short handle" 
+        } else if(item_templates[this.components.handle].component_type === "short handle"
         && item_templates[this.components.head].component_type === "long blade") {
             //short handle + long blade = sword
             this.weapon_type = "sword";
@@ -776,7 +822,7 @@ class Weapon extends Equippable {
 
     calculateAttackPower(quality) {
         return Math.ceil(
-            (item_templates[this.components.head].attack_value + item_templates[this.components.handle].attack_value 
+            (item_templates[this.components.head].attack_value + item_templates[this.components.handle].attack_value
                 + (item_templates[this.components.handle].component_stats?.attack_power?.flat || 0))
             * item_templates[this.components.head].attack_multiplier * item_templates[this.components.handle].attack_multiplier
             * (item_templates[this.components.handle].component_stats?.attack_power?.multiplier || 1)
@@ -816,7 +862,7 @@ class Cape extends Equippable {
 
         this.market_saturation_group = {group_key: group_key_prefix+"cape", group_tier: this.getItemTier()-1};
     }
-    
+
 
     getDefense(quality) {
         if(!quality) {
@@ -842,6 +888,24 @@ class Amulet extends Equippable {
         this.ignore_quality = true;
 
         this.tags["amulet"] = true;
+        if(!this.id) {
+            this.id = this.getName();
+        }
+    }
+
+    getStats(){
+        return this.stats;
+    }
+}
+class Ring extends Equippable {
+    constructor(item_data) {
+        super(item_data);
+        this.equip_slot = "ring";
+        this.stats = item_data.stats;
+
+        this.ignore_quality = true;
+
+        this.tags["ring"] = true;
         if(!this.id) {
             this.id = this.getName();
         }
@@ -889,7 +953,7 @@ class Book extends Item {
     }
 
     /**
-     * 
+     *
      * @returns {Number} total time needed to read the book
      */
     getReadingTime() {
@@ -899,7 +963,7 @@ class Book extends Item {
     }
 
     /**
-     * 
+     *
      * @returns {Number} remaining time needed to read the book (total time minus accumulated time)
      */
     getRemainingTime() {
@@ -921,7 +985,7 @@ class Book extends Item {
 }
 
 /**
- * @param {Object} item_data 
+ * @param {Object} item_data
  * @param {Object} item_data.item_type
  * @returns {Item} item of proper type, created with item_data
  */
@@ -939,11 +1003,14 @@ function getItem(item_data) {
                 case "pickaxe":
                 case "sickle":
                 case "shovel":
+                case "fishing_pole":
                     return new Tool(item_data);
                 case "cape":
                     return new Cape(item_data);
                 case "amulet":
                     return new Amulet(item_data);
+                case "ring":
+                    return new Ring(item_data);
                 default:
                     return new Armor(item_data);
             }
@@ -954,11 +1021,11 @@ function getItem(item_data) {
         case "OTHER":
             return new OtherItem(item_data);
         case "COMPONENT":
-            if(item_data.tags["weapon component"]) 
+            if(item_data.tags["weapon component"])
                 return new WeaponComponent(item_data);
-            else if(item_data.tags["armor component"]) 
+            else if(item_data.tags["armor component"])
                 return new ArmorComponent(item_data);
-            else if(item_data.tags["shield component"]) 
+            else if(item_data.tags["shield component"])
                 return new ShieldComponent(item_data);
             else throw new Error(`Item ${item_data.name} has a wrong component type`);
         case "MATERIAL":
@@ -969,12 +1036,12 @@ function getItem(item_data) {
 }
 
 /**
- * @param {String} item_data 
+ * @param {String} item_data
  * @returns {Item} item of proper type, created based on item_key
  */
 function getItemFromKey(key) {
     let {id, components, quality} = JSON.parse(key);
-    if(id && !quality) { 
+    if(id && !quality) {
         if(item_templates[id]) {
             return getItem(item_templates[id]);
         } else {
@@ -1026,7 +1093,7 @@ book_stats["ABC for kids"] = new BookData({
     literacy_xp_rate: 1,
     bonuses: {
         xp_multipliers: {
-            all: 1.1,
+            all: 1.2,
         }
     },
 });
@@ -1036,7 +1103,7 @@ book_stats["Old combat manual"] = new BookData({
     literacy_xp_rate: 1,
     bonuses: {
         xp_multipliers: {
-            Combat: 1.2,
+            Combat: 1.5,
         }
     },
 });
@@ -1046,11 +1113,11 @@ book_stats["Twist liek a snek"] = new BookData({
     literacy_xp_rate: 1,
     bonuses: {
         xp_multipliers: {
-            Evasion: 1.2,
+            Evasion: 1.5,
         },
         multipliers: {
             agility: 1.1,
-        } 
+        }
     },
 });
 
@@ -1065,10 +1132,13 @@ book_stats["Medicine for dummies"] = new BookData({
             {category: "alchemy", subcategory: "items", recipe_id: "Healing powder"},
             {category: "alchemy", subcategory: "items", recipe_id: "Healing potion"},
         ],
+        skill_xp: {
+            "Medicine": 20,
+        }
     },
     bonuses: {
         xp_multipliers: {
-            Medicine: 1.2,
+            Medicine: 1.5,
         },
     }
 });
@@ -1089,7 +1159,7 @@ book_stats["Ode to Whimsy, and other poems"] = new BookData({
     literacy_xp_rate: 4,
     bonuses: {
         xp_multipliers: {
-            all: 1.1,
+            all: 1.2,
         }
     },
 });
@@ -1104,7 +1174,29 @@ book_stats["A Glint On The Sand"] = new BookData({
             {category: "crafting", subcategory: "items", recipe_id: "Glass phial"},
             {category: "crafting", subcategory: "items", recipe_id: "Glass bottle"},
         ],
-        activities: [{location: "Village", activity: "sand"}]
+        activities: [
+            {location: "Village", activity: "sand"},
+            {location: "Lake beach", activity: "sand"}
+		]
+    }
+	
+});
+
+book_stats["Shellfish desires"] = new BookData({
+    required_time: 420,
+    literacy_xp_rate: 6,
+    rewards: {
+        recipes: [
+            {category: "cooking", subcategory: "items", recipe_id: "Crab bisque"},
+            {category: "cooking", subcategory: "items", recipe_id: "Clam broth"},
+            {category: "cooking", subcategory: "items", recipe_id: "Turtle soup"},
+            {category: "cooking", subcategory: "items", recipe_id: "Basin gumbo"},
+        ],
+    },
+    bonuses: {
+        xp_multipliers: {
+            Cooking: 1.5,
+        },
     }
 });
 
@@ -1115,88 +1207,88 @@ book_stats["A Glint On The Sand"] = new BookData({
         description: "The simplest book on the market",
         value: 100,
     });
-
     item_templates["Old combat manual"] = new Book({
         name: "Old combat manual",
         description: "Old book about combat, worn and outdated, but might still contain something useful",
         value: 200,
     });
-
     item_templates["Twist liek a snek"] = new Book({
         name: "Twist liek a snek",
         description: "This book has a terrible grammar, seemingly written by some uneducated bandit, but despite that it quite well details how to properly evade attacks",
         value: 200,
     });
-
     item_templates["Medicine for dummies"] = new Book({
         name: "Medicine for dummies",
         description: "A simple book about healing, describing how to create some basic medicines",
         value: 320,
     });
-
     item_templates["Butchering and you"] = new Book({
         name: "Butchering and you",
         description: "An introductory book to animal butchering, that goes into further detail on how to make a use of animal parts, especially hides and bones",
         value: 240,
     });
-
     item_templates["Ode to Whimsy, and other poems"] = new Book({
         name: "Ode to Whimsy, and other poems",
         description: "A short and wonderful book of poetry that fills one with appreciation for life",
         value: 200,
     });
-
     item_templates["A Glint On The Sand"] = new Book({
-        id: "A Glint On The Sand",
         name: "A Glint On The Sand",
         description: "This books recounts a tale of shipwrecked crew accidentally discovering glassmaking while cooking on a beach. More importantly, it details the processees and materials necessary to manufacture glass",
         value: 300
     });
+    item_templates["Shellfish desires"] = new Book({
+        name: "Shellfish desires",
+        description: "A cookbook detailing various methods of cleaning and preparing crab, clam, snail, turtle, and other aquatic animals",
+        value: 1620
+    });
+	
 })();
 
 //miscellaneous, and useless loot:
 (function(){
     item_templates["Rat fang"] = new OtherItem({
-        name: "Rat fang", 
-        description: "Fang of a huge rat, not very sharp, but can still pierce a human skin if enough force is applied", 
+        name: "Rat fang",
+        description: "Fang of a huge rat, not very sharp, but can still pierce a human skin if enough force is applied",
         value: 8,
         material_type: "animal tooth",
     });
-
     item_templates["Wolf fang"] = new OtherItem({
-        name: "Wolf fang", 
+        name: "Wolf fang",
         description: "Fang of a wild wolf. Somewhat sharp, still not very useful. Maybe if it had a bit better quality...",
         value: 12,
         material_type: "animal tooth",
     });
-
     item_templates["Boar tusk"] = new Material({
-        name: "Boar tusk", 
+        name: "Boar tusk",
         description: "Tusk of a wild boar. Visibly worn and not very sharp",
         value: 20,
     });
-
     item_templates["Rat meat chunks"] = new OtherItem({
-        name: "Rat meat chunks", 
-        description: "Eww", 
+        name: "Rat meat chunks",
+        description: "Eww",
         value: 8,
     });
 
+    item_templates["Fish fillet"] = new OtherItem({
+        name: "Fish fillet", 
+        description: "Cuts of meat from a fish that was too big to eat whole", 
+        value: 30,
+    });
+
     item_templates["Glass phial"] = new OtherItem({
-        name: "Glass phial", 
-        description: "Small glass phial, a perfect container for a potion", 
+        name: "Glass phial",
+        description: "Small glass phial, a perfect container for a potion",
         value: 10,
     });
-
     item_templates["Glass bottle"] = new OtherItem({
-        name: "Glass bottle", 
-        description: "A glass bottle, perfect for carrying a drink around", 
+        name: "Glass bottle",
+        description: "A glass bottle, perfect for carrying a drink around",
         value: 20,
     });
-
     item_templates["Camping supplies"] = new OtherItem({
-        name: "Camping supplies", 
-        description: "Bedroll, tent, small chest, and generally just anything that could be needed to establish a camp", 
+        name: "Camping supplies",
+        description: "Bedroll, tent, small chest, and generally just anything that could be needed to establish a camp",
         value: 2000,
     });
     item_templates["Coil of rope"] = new OtherItem({
@@ -1204,12 +1296,12 @@ book_stats["A Glint On The Sand"] = new BookData({
         description: "A nice, long coil of rope, for whatever use you might find (although you have a feeling it will only be very situational)",
         value: 400,
     });
-
     item_templates["Mountain goat horn"] = new OtherItem({
         name: "Mountain goat horn",
         description: "A curved and sturdy horn of a mountain goat. While not very useful in itself, it makes for a nice decoration",
         value: 30,
     });
+	
 })();
 
 //lootable materials
@@ -1225,6 +1317,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         value: 10,
         material_type: "pelt",
     });
+	
     item_templates["High quality wolf fang"] = new Material({
         name: "High quality wolf fang",
         description: "Fang of a wild wolf. Very sharp, undamaged and surprisingly clean",
@@ -1237,7 +1330,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         value: 20,
         material_type: "pelt",
     });
-
+	
     item_templates["Boar hide"] = new Material({
         name: "Boar hide",
         description: "Thick hide of a wild boar. Too stiff for clothing, but might be useful for an armor",
@@ -1255,7 +1348,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         value: 25,
         material_type: "miscellaneous",
     });
-
+	
     item_templates["Bear hide"] = new Material({
         description: "A strong hide of a wild bear, so strong that even steel struggles against it",
         value: 50,
@@ -1266,25 +1359,24 @@ book_stats["A Glint On The Sand"] = new BookData({
         value: 50,
     });
     item_templates["Sharp bear claw"] = new Material({
-        description: "Large and dangerous of a wild bear, sharp enough to easily cut through meat",
+        description: "Large and dangerous claw of a wild bear, sharp enough to easily cut through meat",
         value: 80,
         material_type: "miscellaneous",
     });
-
     item_templates["Weak monster bone"] = new Material({
         name: "Weak monster bone",
         description: "Mutated and dark bone of a monster. While on the weaker side, it's still very strong and should be useful for crafting after some processing",
         value: 30,
         material_type: "bone",
     });
-
+	
     item_templates["Goat meat"] = new Material({
         name: "Goat meat",
         description: "Lean meat of a goat, it's pretty tough and needs to be cooked for a long time",
         value: 25,
     });
     item_templates["Mountain goat hide"] = new Material({
-        name: "Mountain goat hide", 
+        name: "Mountain goat hide",
         description: "Thick hide of a mountain goat hide. Not as strong as boar hide, but this one can actually be turned into clothes after some processing",
         value: 30,
         material_type: "pelt",
@@ -1294,6 +1386,71 @@ book_stats["A Glint On The Sand"] = new BookData({
         description: "Curved and sturdy horn of a mountain goat. It's noticeably bigger than average and seems to be even sturdier",
         value: 70,
         material_type: "miscellaneous",
+    });
+	
+    item_templates["Crab meat"] = new Material({
+        name: "Crab meat",
+        description: "A sandy shell filled with crab meat. It needs to be cleaned before it can be cooked",
+        value: 20,
+    });
+    item_templates["Crab claw"] = new Material({
+        name: "Crab claw",
+        description: "A large claw of a crab, covered in abrasions and barnicles, but it makes a nice souvenier",
+        value: 40,
+    });
+    item_templates["Giant crab claw"] = new Material({
+        description: "A large claw of a crab in pristine condition, still sharp and strong enough to take a finger off",
+        value: 100,
+        material_type: "miscellaneous",
+    });
+	
+    item_templates["Alligator meat"] = new Material({
+        name: "Alligator meat",
+        description: "A lean chunk of alligator meat. It's tough, with a strange but not unappealing smell",
+        value: 40,
+    });
+    item_templates["Alligator skin"] = new Material({
+        name: "Alligator skin",
+        description: "Rough, scaly hide of an alligator. Deceptively strong and flexible, but uncomfortable to touch and terrible at keeping the cold at bay",
+        value: 50,
+        material_type: "pelt",
+    });
+	
+    item_templates["Turtle meat"] = new Material({
+        name: "Turtle meat",
+        description: "A lean cut of turtle meat. It's tender and versatile, but difficult to prepare",
+        value: 40,
+    });
+    item_templates["Turtle shell"] = new Material({
+        name: "Turtle shell",
+        description: "A dense, thick turtle shell. It's stronger than steel, but too bulky to work with",
+        value: 30,
+        material_type: "pelt",
+    });
+	
+    item_templates["Giant snake meat"] = new Material({
+        name: "Giant snake meat",
+        description: "A lean cut of snake meat. It's rubbery, and looks difficult to cook",
+        value: 40,
+    });
+    item_templates["Giant snake skin"] = new Material({
+        name: "Giant snake skin",
+        description: "Smooth, scaly hide of a giant snake. Very durable, but very thin and a poor insulator",
+        value: 50,
+        material_type: "pelt",
+    });
+	
+
+    item_templates["Frog meat"] = new Material({
+        name: "Frog meat",
+        description: "Surprisingly tender meat from a frog",
+        value: 50,
+    });
+    item_templates["Frog hide"] = new Material({
+        name: "Frog hide", 
+        description: "Slippery hide of a giant frog. If you could remove the toxins from it, the leather could be put into good use",
+        value: 50,
+        material_type: "pelt",
     });
 
 })();
@@ -1307,15 +1464,21 @@ book_stats["A Glint On The Sand"] = new BookData({
         material_type: "raw metal",
     });
     item_templates["Iron ore"] = new Material({
-        name: "Iron ore", 
+        name: "Iron ore",
         description: "It has a decent iron content and can be smelt into market-quality iron",
         value: 5,
         material_type: "raw metal",
     });
     item_templates["Atratan ore"] = new Material({
         name: "Atratan ore",
-        description: "A dark-colored ore that's useless by itself but can be mixed with iron to create steel",
+        description: "A dark-colored ore said to have minuscule magical effects, but used almost excluvisely for refining all types of iron",
         value: 6,
+        material_type: "raw metal",
+    });
+    item_templates["Silver ore"] = new Material({
+        name: "Silver ore", 
+        description: "Peculiar for its ability to direct or disrupt magic",
+        value: 10,
         material_type: "raw metal",
     });
     item_templates["Coal"] = new Material({
@@ -1324,13 +1487,13 @@ book_stats["A Glint On The Sand"] = new BookData({
         value: 7,
         material_type: "coal",
     });
-
     item_templates["Charcoal"] = new Material({
         name: "Charcoal",
         description: "A flammable material with extremely high carbon content, created by strongly heating wood",
         value: 5,
         material_type: "coal",
     });
+	
     item_templates["Piece of rough wood"] = new Material({
         description: "Cheapest form of wood. There's a lot of bark and malformed pieces",
         value: 2,
@@ -1350,50 +1513,117 @@ book_stats["A Glint On The Sand"] = new BookData({
         value: 7,
         material_type: "raw wood",
     });
-
+	
     item_templates["Belmart leaf"] = new Material({
         description: "Small, round, dark-green leaves with with very good disinfectant properties",
         value: 8,
         material_type: "disinfectant herb",
     });
-
     item_templates["Golmoon leaf"] = new Material({
         description: "Big green-brown leaves that can be applied to wounds to speed up their healing",
         value: 8,
         material_type: "healing herb",
     });
-
     item_templates["Oneberry"] = new Material({
         description: "Small blue berries capable of stimulating body's natural healing",
         value: 8,
         material_type: "healing herb",
     });
-
     item_templates["Silver thistle"] = new Material({
         description: "Rare herb that usually grows high up in mountains, a potent healing ingredient",
         value: 20,
         material_type: "healing herb",
     });
-
+	
     item_templates["Cooking herbs"] = new Material({
         name: "Parsley, sage, rosemary and thyme",
         description: "A collection of various herbs commonly used to enhance the flavour and nutrition of dishes",
         value: 10,
         material_type: "culinary herb",
     });
-
     item_templates["Wool"] = new Material({
         description: "A handful of wool, raw and unprocessed",
         value: 8,
         material_type: "raw fabric",
     });
-    
     item_templates["Silica Sand"] = new Material({
         name: "Silica sand",
         description: "Sand made potent by the remains of countless generations of creatures that lived and died in the body of water it was taken from",
         value: 1
     });
+
+    item_templates["Flax"] = new Material({
+        name: "Flax",
+        description: "A bundle of flax, raw and unprocessed",
+        value: 14,
+        material_type: "raw fabric",
+    });
+    item_templates["Clam"] = new Material({
+        name: "Clam",
+        description: "Common shellfish found in the sand and mud around the lake shore. Can't be eaten raw",
+        value: 6,
+    });
+    item_templates["Wild onion"] = new Material({
+        name: "Wild onion",
+        description: "A wild root vegetable sometimes used to add flavor to dishes. Can't be eaten raw",
+        value: 20,
+    });
+    item_templates["Wild garlic"] = new Material({
+        name: "Wild garlic",
+        description: "A wild root vegetable known to possess anti-fungal properties, sometimes used to add flavor to dishes. Can't be eaten raw",
+        value: 20,
+        material_type: "culinary herb",
+    });
+    item_templates["Wild potato"] = new Material({
+        name: "Wild potato",
+        description: "A wild nutrient-rich stem tuber that can be used in a variety of dishes. Can't be eaten raw",
+        value: 20,
+    });
+	
+    item_templates["Ratfish"] = new Material({
+        name: "Ratfish",
+        description: "A small sweetwater fish, named after its unremarkable coloration and propensity to travel in large groups",
+        value: 5,
+        material_type: "small fish",
+    });
+
+    item_templates["Minnow"] = new Material({
+        name: "Minnow",
+        description: "One of the variety of small fish that inhabit rivers and streams",
+        value: 10,
+        material_type: "small fish",
+    });
+
+    item_templates["Mackerel shark"] = new Material({
+        name: "Mackerel shark",
+        description: "A shark small enough to fit in a stream. Makes up for its size with its feistiness and big mouth",
+        value: 50,
+        material_type: "medium fish",
+    });
+
+    item_templates["Trout"] = new Material({
+        name: "Trout",
+        description: "A fish large enough for a full meal and common in most rivers, making it a convenient source of food. So far, this has not effected their population",
+        value: 50,
+        material_type: "medium fish",
+    });
+
+    item_templates["Carp"] = new Material({
+        name: "Carp",
+        description: "It hasn't grown into any of its more powerful forms yet, so its meat is still fatty and plump",
+        value: 50,
+        material_type: "medium fish",
+    });
+
+    item_templates["Catfish"] = new Material({
+        name: "Catfish",
+        description: "A large fish with whiskers. Usually found near the bottom of lakes, where it feeds on ratfish and pretty much everything else it can hunt",
+        value: 200,
+        material_type: "large fish",
+    });
 })();
+
+
 
 //processed materials
 (function(){
@@ -1401,6 +1631,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         description: "Powdered bones and teeth, that can be used as an organic fertilizer",
         value: 100,
     }),
+	
     item_templates["Low quality iron ingot"] = new Material({
         description: "It has a lot of impurities, resulting in it being noticeably below the market standard",
         value: 10,
@@ -1411,9 +1642,21 @@ book_stats["A Glint On The Sand"] = new BookData({
         value: 20,
         material_type: "metal",
     });
+
     item_templates["Steel ingot"] = new Material({
         description: "Basic alloy of iron, harder and more resistant",
         value: 40,
+        material_type: "metal",
+    });
+    item_templates["Turtle shellplate"] = new Material({        //treated as a metal material/chainmail instead of leather
+        description: "Small, dense plates capable of reflecting mighty blows. Useless in their current form, but can be turned into something useful with enough effort and focus",
+        value: 60,
+        material_type: "metal",
+    });
+	
+    item_templates["Silver ingot"] = new Material({
+        description: "Too soft to use as weapon material, but has potential for use in magic tools",
+        value: 30,
         material_type: "metal",
     });
     item_templates["Piece of wolf rat leather"] = new Material({
@@ -1422,50 +1665,71 @@ book_stats["A Glint On The Sand"] = new BookData({
         material_type: "piece of leather",
     });
     item_templates["Processed rat pelt"] = new Material({
-        description: "Processed pelt of a huge rat. It's of a barely acceptable quality, but it's still a miracle with how terrible the basic material was", 
+        description: "Processed pelt of a huge rat. It's of a barely acceptable quality, but it's still a miracle with how terrible the basic material was",
         value: 15,
         material_type: "processed pelt",
     });
+	
     item_templates["Piece of wolf leather"] = new Material({
         description: "Somewhat strong, should offer some protection when turned into armor",
         value: 20,
         material_type: "piece of leather",
     });
     item_templates["Processed wolf pelt"] = new Material({
-        description: "Processed pelt of a wild wolf. It's a nice, stylish material",
+        description: "Processed pelt of a wild wolf. It's a nice, stylish material, with fur that's feels good to touch",
         value: 30,
         material_type: "processed pelt",
     });
+	
     item_templates["Piece of boar leather"] = new Material({
         description: "Thick and resistant leather, too stiff for clothes but perfect for armor",
         value: 30,
         material_type: "piece of leather",
     });
     item_templates["Processed boar hide"] = new Material({
-        description: "Processed hide of a wild boar. It's a rough, heavy material, but it's quite strong",
+        description: "Processed hide of a wild boar. It's a thick, heavy material, with short rough fur, but it's quite strong",
         value: 45,
         material_type: "processed pelt",
     });
+	
     item_templates["Piece of goat leather"] = new Material({
         description: "Thick and resistant, just barely elastic enough to be used for clothing",
         value: 40,
         material_type: "piece of leather"
     }),
     item_templates["Processed goat hide"] = new Material({
-        description: "Processed hide of a wild goat. It's a rough and resistant material",
+        description: "Processed hide of a wild goat. It's a resistant material, with short and rough fur",
         value: 60,
         material_type: "processed pelt",
     });
+	
     item_templates["Piece of bear leather"] = new Material({
         description: "Strong and resistant, but too thick for clothing",
         value: 60,
         material_type: "piece of leather"
-    }),
+    });
     item_templates["Processed bear hide"] = new Material({
-        description: "Strong, resistan, and warm",
+        description: "Strong, resistant, and warm, with fluffy fur",
         value: 90,
         material_type: "piece of leather"
     }),
+	
+	item_templates["Piece of alligator leather"] = new Material({
+        description: "Strong and flexible, but too uncomfortable to use as clothing",
+        value: 150,
+        material_type: "piece of leather"
+    }),
+    item_templates["Piece of snakeskin leather"] = new Material({
+        description: "Durable and thin, but a poor insulator",
+        value: 150,
+        material_type: "piece of leather"
+    }),
+
+    item_templates["Piece of frog leather"] = new Material({
+        description: "The toxins have been removed and the slime coagulated into a waxy coating",
+        value: 60,
+        material_type: "piece of leather"
+    });
     item_templates["Animal fat"] = new Material({
         description: "White, thick, oily substance, rendered from animal tissue",
         value: 40,
@@ -1476,6 +1740,12 @@ book_stats["A Glint On The Sand"] = new BookData({
         value: 8,
         material_type: "fabric",
     });
+	item_templates["Linen cloth"] = new Material({
+        description: "Bolt of durable and thin cloth that won't restrict mobility",
+        value: 14,
+        material_type: "fabric",
+    });
+
     item_templates["Iron chainmail"] = new Material({
         description: "Dozens of tiny iron rings linked together. Nowhere near a wearable form, turning it into armor will still take a lot of effort and focus",
         value: 12,
@@ -1486,6 +1756,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         value: 18,
         material_type: "chainmail",
     });
+	
     item_templates["Scraps of wolf rat meat"] = new Material({
         description: "Ignoring where they come from and all the attached diseases, they actually look edible. Just remember to cook it first",
         value: 8,
@@ -1496,30 +1767,26 @@ book_stats["A Glint On The Sand"] = new BookData({
         value: 6,
         material_type: "wood",
     });
-
     item_templates["Processed wood"] = new Material({
         description: "Average quality wood, ready to be used",
         value: 11,
         material_type: "wood",
     });
-
     item_templates["Processed ash wood"] = new Material({
         description: "High quality wood, just waiting to be turned into a piece of equipment",
         value: 20,
         material_type: "wood",
     });
-
     item_templates["Processed weak monster bone"] = new Material({
         description: "Polished and cleaned bones of a weak monster, just waiting to be turned into a piece of equipment",
         value: 40,
         material_type: "bone",
     });
-
+	
     item_templates["Potash"] = new Material({
         description: "An alchemical substance derived from plant ash, sought after for production of bleach, soap and glass",
         value: 25
     });
-
     item_templates["Raw Glass"] = new Material({
         name: "Raw glass",
         description: "Molten piece of glass, yet to be shaped into something useful",
@@ -1532,9 +1799,9 @@ book_stats["A Glint On The Sand"] = new BookData({
 (function(){
     //currently not in use and not obtainable
     item_templates["Basic spare parts"] = new OtherItem({
-        name: "Basic spare parts", 
+        name: "Basic spare parts",
         description: "Some cheap and simple spare parts, like bindings and screws, necessary for crafting equipment",
-        value: 30, 
+        value: 30,
         component_tier: 1,
     });
 }());
@@ -1598,6 +1865,7 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
+	
     item_templates["Cheap long iron blade"] = new WeaponComponent({
         name: "Cheap long iron blade", description: "Crude blade made of iron, with a perfect length for a sword",
         component_type: "long blade",
@@ -1655,6 +1923,7 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
+	
     item_templates["Cheap iron axe head"] = new WeaponComponent({
         name: "Cheap iron axe head", description: "A heavy axe head made of low quality iron",
         component_type: "axe head",
@@ -1689,6 +1958,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         component_tier: 3,
         attack_value: 22,
     });
+	
     item_templates["Cheap iron hammer head"] = new WeaponComponent({
         name: "Cheap iron hammer head", description: "A crude ball made of low quality iron, with a small hole for the handle",
         component_type: "hammer head",
@@ -1702,7 +1972,6 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
     item_templates["Iron hammer head"] = new WeaponComponent({
         name: "Iron hammer head", description: "A crude ball made of iron, with a small hole for the handle",
         component_type: "hammer head",
@@ -1729,14 +1998,13 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
+	
     item_templates["Simple short wooden hilt"] = new WeaponComponent({
         name: "Simple short wooden hilt", description: "A short handle for a sword or maybe a dagger",
         component_type: "short handle",
         value: 8,
         component_tier: 1,
     });
-
     item_templates["Short wooden hilt"] = new WeaponComponent({
         name: "Short wooden hilt", description: "A short handle for a sword or maybe a dagger",
         component_type: "short handle",
@@ -1748,7 +2016,6 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
     item_templates["Short ash wood hilt"] = new WeaponComponent({
         name: "Short ash wood hilt", description: "A short handle for a sword or maybe a dagger",
         component_type: "short handle",
@@ -1760,7 +2027,7 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
+	
     item_templates["Simple medium wooden handle"] = new WeaponComponent({
         name: "Simple medium wooden handle", description: "A medium handle for an axe or a hammer",
         component_type: "medium handle",
@@ -1772,14 +2039,12 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
     item_templates["Medium wooden handle"] = new WeaponComponent({
         name: "Medium wooden handle", description: "A medium handle for an axe or a hammer",
         component_type: "medium handle",
         value: 64,
         component_tier: 2,
     });
-
     item_templates["Medium ash wood handle"] = new WeaponComponent({
         name: "Medium ash wood handle", description: "A medium handle for an axe or a hammer",
         component_type: "medium handle",
@@ -1791,7 +2056,7 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
+	
     item_templates["Simple long wooden shaft"] = new WeaponComponent({
         name: "Simple long wooden shaft", description: "A long shaft for a spear, somewhat uneven",
         component_type: "long handle",
@@ -1803,9 +2068,8 @@ book_stats["A Glint On The Sand"] = new BookData({
             },
         }
     });
-
     item_templates["Long wooden shaft"] = new WeaponComponent({
-        name: "Long wooden shaft", 
+        name: "Long wooden shaft",
         description: "A long shaft for a spear, somewhat uneven",
         component_type: "long handle",
         value: 100,
@@ -1817,13 +2081,13 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Long ash wood shaft"] = new WeaponComponent({
-        name: "Long ash wood shaft", 
+        name: "Long ash wood shaft",
         description: "A long shaft for a spear",
         component_type: "long handle",
         value: 150,
         component_tier: 3,
     });
-
+	
     item_templates["Cheap short iron hilt"] = new WeaponComponent({
         name: "Cheap short iron hilt", description: "A short handle for a sword or maybe a dagger, heavy",
         component_type: "short handle",
@@ -1838,7 +2102,6 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
     item_templates["Short iron hilt"] = new WeaponComponent({
         name: "Short iron hilt", description: "A short handle for a sword or maybe a dagger, heavy",
         component_type: "short handle",
@@ -1850,7 +2113,6 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
     item_templates["Short steel hilt"] = new WeaponComponent({
         name: "Short steel hilt", description: "A short handle for a sword or maybe a dagger, heavy",
         component_type: "short handle",
@@ -1862,7 +2124,7 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
+	
     item_templates["Cheap medium iron handle"] = new WeaponComponent({
         name: "Cheap medium iron handle", description: "A medium handle for an axe or a hammer, very heavy",
         component_type: "medium handle",
@@ -1877,7 +2139,6 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
     item_templates["Medium iron handle"] = new WeaponComponent({
         name: "Medium iron handle", description: "A medium handle for an axe or a hammer, very heavy",
         component_type: "medium handle",
@@ -1892,7 +2153,6 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
     item_templates["Medium steel handle"] = new WeaponComponent({
         name: "Medium steel handle", description: "A medium handle for an axe or a hammer, very heavy",
         component_type: "medium handle",
@@ -1907,7 +2167,7 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
+	
     item_templates["Cheap long iron shaft"] = new WeaponComponent({
         name: "Cheap long iron shaft", description: "A long shaft for a spear, extremely heavy",
         component_type: "long handle",
@@ -1922,10 +2182,9 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
     item_templates["Long iron shaft"] = new WeaponComponent({
-        name: "Long iron shaft", 
-        description: "A long shaft for a spear,  extremely heavy",
+        name: "Long iron shaft",
+        description: "A long shaft for a spear, extremely heavy",
         component_type: "long handle",
         value: 128,
         component_tier: 2,
@@ -1938,9 +2197,8 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
     item_templates["Long steel shaft"] = new WeaponComponent({
-        name: "Long steel shaft", 
+        name: "Long steel shaft",
         description: "A long shaft for a spear, extremely heavy",
         component_type: "long handle",
         value: 192,
@@ -1954,7 +2212,7 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
+	
     item_templates["Short weak bone hilt"] = new WeaponComponent({
         name: "Short weak bone hilt", description: "A short handle for a sword or maybe a dagger, made of a weak monster's bone",
         component_type: "short handle",
@@ -1969,7 +2227,6 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         },
     });
-
     item_templates["Medium weak bone handle"] = new WeaponComponent({
         name: "Medium weak bone handle", description: "A medium handle for an axe or a hammer, made of a weak monster's bone",
         component_type: "medium handle",
@@ -1984,9 +2241,8 @@ book_stats["A Glint On The Sand"] = new BookData({
             },
         }
     });
-
     item_templates["Long weak bone shaft"] = new WeaponComponent({
-        name: "Long weak bone shaft", 
+        name: "Long weak bone shaft",
         description: "A long shaft for a spear, made of weak monster's bone",
         component_type: "long handle",
         value: 192,
@@ -1996,11 +2252,60 @@ book_stats["A Glint On The Sand"] = new BookData({
                 multiplier: 0.8,
             },
             attack_power: {
-                multiplier: 1.5,
+                multiplier: 1.25,
             }
         }
     });
-
+	
+    item_templates["Turtleshell hilt"] = new WeaponComponent({
+        name: "Turtleshell hilt",
+        description: "A short handle for a sword or maybe a dagger, made of turtle shellplate",
+        component_type: "short handle",
+        value: 140,
+        component_tier: 4,
+        component_stats: {
+            attack_speed: {
+                multiplier: 1.05,
+            },
+            attack_points: {
+                multiplier: 1.1,
+            }
+        }
+    });
+    item_templates["Turtleshell handle"] = new WeaponComponent({
+        name: "Turtleshell handle",
+        description: "A medium handle for an axe or a hammer, made of turtle shellplate",
+        component_type: "medium handle",
+        value: 190,
+        component_tier: 4,
+        component_stats: {
+            attack_points: {
+                multiplier: 1.1,
+            },
+            attack_power: {
+                multiplier: 1.1,
+            },
+        }
+    });
+    item_templates["Turtleshell shaft"] = new WeaponComponent({
+        name: "Turtleshell shaft",
+        description: "A long shaft for a spear, made of turtle shellplate",
+        component_type: "long handle",
+        value: 250,
+        component_tier: 4,
+        component_stats: {
+            attack_power: {
+                multiplier: 1.2,
+            },
+            attack_speed: {
+                multiplier: 0.95,
+            },
+            attack_points: {
+                multiplier: 1.1,
+            }
+        }
+    });
+	
 })();
 
 //weapons:
@@ -2023,7 +2328,7 @@ book_stats["A Glint On The Sand"] = new BookData({
             handle: "Long wooden shaft"
         }
     });
-
+	
     item_templates["Cheap iron dagger"] = new Weapon({
         components: {
             head: "Cheap short iron blade",
@@ -2042,7 +2347,7 @@ book_stats["A Glint On The Sand"] = new BookData({
             handle: "Short wooden hilt",
         }
     });
-
+	
     item_templates["Cheap iron sword"] = new Weapon({
         components: {
             head: "Cheap long iron blade",
@@ -2061,7 +2366,7 @@ book_stats["A Glint On The Sand"] = new BookData({
             handle: "Short wooden hilt",
         }
     });
-
+	
     item_templates["Cheap iron axe"] = new Weapon({
         components: {
             head: "Cheap iron axe head",
@@ -2080,7 +2385,7 @@ book_stats["A Glint On The Sand"] = new BookData({
             handle: "Medium wooden handle",
         }
     });
-
+	
     item_templates["Cheap iron battle hammer"] = new Weapon({
         components: {
             head: "Cheap iron hammer head",
@@ -2099,12 +2404,13 @@ book_stats["A Glint On The Sand"] = new BookData({
             handle: "Medium wooden handle",
         }
     });
+	
 })();
 
 //armor components:
 (function(){
     item_templates["Wolf leather helmet armor"] = new ArmorComponent({
-        name: "Wolf leather helmet armor", 
+        name: "Wolf leather helmet armor",
         description: "Strenghtened wolf leather, ready to be used as a part of a helmet",
         component_type: "helmet exterior",
         value: 240,
@@ -2117,9 +2423,8 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
     item_templates["Boar leather helmet armor"] = new ArmorComponent({
-        name: "Boar leather helmet armor", 
+        name: "Boar leather helmet armor",
         description: "Strong boar leather, ready to be used as a part of a helmet",
         component_type: "helmet exterior",
         value: 400,
@@ -2132,9 +2437,8 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
     item_templates["Bear leather helmet armor"] = new ArmorComponent({
-        name: "Bear leather helmet armor", 
+        name: "Bear leather helmet armor",
         description: "Strong bear leather, ready to be used as a part of a helmet",
         component_type: "helmet exterior",
         value: 600,
@@ -2147,7 +2451,21 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
+    item_templates["Alligator leather helmet armor"] = new ArmorComponent({
+        name: "Alligator leather helmet armor",
+        description: "Strong alligator leather, ready to be used as a part of a helmet",
+        component_type: "helmet exterior",
+        value: 900,
+        component_tier: 5,
+        full_armor_name: "Alligator helmet",
+        defense_value: 7,
+        component_stats: {
+            cold_tolerance: {
+                flat: -.5,
+            }
+        }
+    });
+	
     item_templates["Wolf leather chestplate armor"] = new ArmorComponent({
         id: "Wolf leather chestplate armor",
         name: "Wolf leather cuirass",
@@ -2193,7 +2511,22 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
+    item_templates["Alligator leather chestplate armor"] = new ArmorComponent({
+        id: "Alligator leather chestplate armor",
+        name: "Alligator leather cuirass",
+        description: "Strong cuirass made of alligator leather",
+        component_type: "chestplate exterior",
+        value: 1600,
+        component_tier: 5,
+        full_armor_name: "Alligator armor",
+        defense_value: 12,
+        component_stats: {
+            cold_tolerance: {
+                flat: -.5,
+            }
+        }
+    });
+	
     item_templates["Wolf leather greaves"] = new ArmorComponent({
         name: "Wolf leather greaves",
         description: "Greaves made of wolf leather. Just attach them onto some pants and you are ready to go",
@@ -2236,7 +2569,21 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
+    item_templates["Alligator leather greaves"] = new ArmorComponent({
+        name: "Alligator leather greaves",
+        description: "Greaves made of alligator leather. Just attach them onto some pants and you are ready to go",
+        component_type: "leg armor exterior",
+        value: 900,
+        component_tier: 5,
+        full_armor_name: "Alligator armored pants",
+        defense_value: 7,
+        component_stats: {
+            cold_tolerance: {
+                flat: -.5,
+            }
+        }
+    });
+	
     item_templates["Wolf leather glove armor"] = new ArmorComponent({
         name: "Wolf leather glove armor",
         description: "Pieces of wolf leather shaped for gloves",
@@ -2264,7 +2611,21 @@ book_stats["A Glint On The Sand"] = new BookData({
         full_armor_name: "Bear leather gloves",
         defense_value: 4,
     });
-
+    item_templates["Alligator leather glove armor"] = new ArmorComponent({
+        name: "Alligator leather glove armor",
+        description: "Pieces of alligator leather shaped for gloves",
+        component_type: "glove exterior",
+        value: 900,
+        component_tier: 5,
+        full_armor_name: "Alligator gloves",
+        defense_value: 7,
+		component_stats: {
+            cold_tolerance: {
+                flat: -.5,
+            }
+        }
+    });
+	
     item_templates["Wolf leather shoe armor"] = new ArmorComponent({
         name: "Wolf leather shoe armor",
         description: "Pieces of wolf leather shaped for shoes",
@@ -2292,7 +2653,21 @@ book_stats["A Glint On The Sand"] = new BookData({
         full_armor_name: "Bear leather shoes",
         defense_value: 4,
     });
-
+    item_templates["Alligator leather shoe armor"] = new ArmorComponent({
+        name: "Alligator leather shoe armor",
+        description: "Pieces of alligator leather shaped for shoes",
+        component_type: "shoes exterior",
+        value: 900,
+        component_tier: 5,
+        full_armor_name: "Alligator shoes",
+        defense_value: 7,
+		component_stats: {
+            cold_tolerance: {
+                flat: -.5,
+            }
+        }
+    });
+	
     item_templates["Iron chainmail helmet armor"] = new ArmorComponent({
         name: "Iron chainmail helmet armor",
         description: "Best way to keep your head in one piece",
@@ -2333,7 +2708,24 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
+    item_templates["Turtleshell helmet armor"] = new ArmorComponent({
+        name: "Turtleshell helmet armor",
+        description: "Best way to keep your head in one piece",
+        component_type: "helmet exterior",
+        value: 900,
+        component_tier: 5,
+        full_armor_name: "Turtleshell platemail helmet",
+        defense_value: 13,
+        component_stats: {
+            attack_speed: {
+                multiplier: 0.97,
+            },
+            agility: {
+                multiplier: 0.90,
+            }
+        }
+    });
+	
     item_templates["Iron chainmail vest"] = new ArmorComponent({
         name: "Iron chainmail vest",
         description: "Basic iron chainmail. Nowhere near as strong as a plate armor",
@@ -2374,7 +2766,24 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
+    item_templates["Turtleshell chestplate"] = new ArmorComponent({
+        name: "Turtleshell chestplate",
+        description: "Basic turtle shellplate mail. Nowhere near as strong as a plate armor",
+        component_type: "chestplate exterior",
+        value: 1400,
+        component_tier: 5,
+        full_armor_name: "Turtleshell platemail armor",
+        defense_value: 26,
+        component_stats: {
+            attack_speed: {
+                multiplier: 0.97,
+            },
+            agility: {
+                multiplier: 0.90,
+            }
+        }
+    });
+	
     item_templates["Iron chainmail greaves"] = new ArmorComponent({
         name: "Iron chainmail greaves",
         description: "Greaves made of iron chainmail. Just attach them onto some pants and you are ready to go",
@@ -2415,7 +2824,24 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
+    item_templates["Turtleshell greaves"] = new ArmorComponent({
+        name: "Turtleshell greaves",
+        description: "Greaves made of turtle shellplate. Just attach them onto some pants and you are ready to go",
+        component_type: "leg armor exterior",
+        value: 1200,
+        component_tier: 5,
+        full_armor_name: "Turtleshell platemail pants",
+        defense_value: 13,
+        component_stats: {
+            attack_speed: {
+                multiplier: 0.97,
+            },
+            agility: {
+                multiplier: 0.90,
+            }
+        }
+    });
+	
     item_templates["Iron chainmail glove"] = new ArmorComponent({
         name: "Iron chainmail glove",
         description: "Iron chainmail in a form ready to be applied onto a glove",
@@ -2456,7 +2882,24 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
+    item_templates["Turtleshell glove"] = new ArmorComponent({
+        name: "Turtleshell glove",
+        description: "Turtle shellplate in a form ready to be applied onto a glove",
+        component_type: "glove exterior",
+        value: 1200,
+        component_tier: 5,
+        full_armor_name: "Turtleshell platemail gloves",
+        defense_value: 13,
+        component_stats: {
+            attack_speed: {
+                multiplier: 0.97,
+            },
+            agility: {
+                multiplier: 0.9,
+            }
+        }
+    });
+	
     item_templates["Iron chainmail shoes"] = new ArmorComponent({
         name: "Iron chainmail shoes",
         description: "Iron chainmail in a form ready to be applied onto a pair of shoes",
@@ -2491,14 +2934,31 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
+    item_templates["Turtleshell shoes"] = new ArmorComponent({
+        name: "Turtleshell shoes",
+        description: "Turtle shellplate in a form ready to be applied onto a pair of shoes",
+        component_type: "shoes exterior",
+        value: 1200,
+        component_tier: 5,
+        full_armor_name: "Turtleshell platemail shoes",
+        defense_value: 13,
+        component_stats: {
+            attack_speed: {
+                multiplier: 0.97,
+            },
+            agility: {
+                multiplier: 0.9,
+            }
+        }
+    });
+	
 })();
 
 //clothing (functions both as weak armor and as an armor component) and capes:
 (function(){
     item_templates["Cheap leather vest"] = new Armor({
-        name: "Cheap leather vest", 
-        description: "Vest providing very low protection. Better not to know what's it made from", 
+        name: "Cheap leather vest",
+        description: "Vest providing very low protection. Better not to know what's it made from",
         value: 100,
         component_type: "chestplate interior",
         base_defense: 2,
@@ -2513,8 +2973,8 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Leather vest"] = new Armor({
-        name: "Leather vest", 
-        description: "Comfortable leather vest, offering a low protection",
+        name: "Leather vest",
+        description: "Comfortable leather vest, offering low protection",
         value: 300,
         component_type: "chestplate interior",
         base_defense: 2,
@@ -2526,8 +2986,8 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Goat leather vest"] = new Armor({
-        name: "Goat leather vest", 
-        description: "Comfortable leather vest, offering a mediocre protection",
+        name: "Goat leather vest",
+        description: "Comfortable leather vest, offering mediocre protection",
         value: 450,
         component_type: "chestplate interior",
         base_defense: 3,
@@ -2538,9 +2998,48 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
+    item_templates["Snakeskin vest"] = new Armor({
+        name: "Snakeskin vest",
+        description: "Comfortable snakeskin vest, offering decent protection",
+        value: 1200,
+        component_type: "chestplate interior",
+        base_defense: 7,
+        component_tier: 5,
+        component_stats: {
+            attack_speed: {
+                multiplier: 1.02,
+            },
+            agility: {
+                multiplier: 1.05,
+            },
+            cold_tolerance: {
+                flat: -.5,
+            }
+        }
+    });
+
+    item_templates["Batrachian vest"] = new Armor({
+        name: "Batrachian vest", 
+        description: "Comfortable leather vest, slippery enough to make enemy blows slide off",
+        value: 700,
+        component_type: "chestplate interior",
+        base_defense: 4,
+        component_tier: 4,
+        component_stats: {
+            agility: {
+                multiplier: 1.05,
+            },
+            cold_tolerance: {
+                flat: 1,
+            }
+        },
+        component_bonus_skill_levels: {
+            "Swimming": 1,
+        }
+    });
 
     item_templates["Cheap leather pants"] = new Armor({
-        name: "Cheap leather pants", 
+        name: "Cheap leather pants",
         description: "Leather pants made from cheapest resources available",
         value: 100,
         component_type: "leg armor interior",
@@ -2556,7 +3055,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Leather pants"] = new Armor({
-        name: "Leather pants", 
+        name: "Leather pants",
         description: "Solid leather pants",
         value: 300,
         component_type: "leg armor interior",
@@ -2569,7 +3068,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Goat leather pants"] = new Armor({
-        name: "Goat leather pants", 
+        name: "Goat leather pants",
         description: "Solid leather pants",
         value: 450,
         component_type: "leg armor interior",
@@ -2581,9 +3080,48 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
+    item_templates["Snakeskin leggings"] = new Armor({
+        name: "Snakeskin leggings",
+        description: "Solid snakeskin leggings",
+        value: 1200,
+        component_type: "leg armor interior",
+        base_defense: 7,
+        component_tier: 5,
+        component_stats: {
+            attack_speed: {
+                multiplier: 1.01,
+            },
+            agility: {
+                multiplier: 1.05,
+            },
+            cold_tolerance: {
+                flat: -.5,
+            }
+        }
+    });
+
+    item_templates["Batrachian pants"] = new Armor({
+        name: "Batrachian pants", 
+        description: "Slippery leather pants",
+        value: 700,
+        component_type: "leg armor interior",
+        base_defense: 3,
+        component_tier: 4,
+        component_stats: {
+            agility: {
+                multiplier: 1.05,
+            },
+            cold_tolerance: {
+                flat: 1,
+            }
+        },
+        component_bonus_skill_levels: {
+            "Swimming": 1,
+        }
+    });
 
     item_templates["Cheap leather hat"] = new Armor({
-        name: "Cheap leather hat", 
+        name: "Cheap leather hat",
         description: "A cheap leather hat to protect your head",
         value: 100,
         component_type: "helmet interior",
@@ -2598,9 +3136,8 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
     item_templates["Leather hat"] = new Armor({
-        name: "Leather hat", 
+        name: "Leather hat",
         description: "A nice leather hat to protect your head",
         value: 300,
         component_type: "helmet interior",
@@ -2612,9 +3149,8 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
     item_templates["Goat leather hat"] = new Armor({
-        name: "Goat leather hat", 
+        name: "Goat leather hat",
         description: "A solid leather hat to protect your head",
         value: 450,
         component_type: "helmet interior",
@@ -2624,11 +3160,50 @@ book_stats["A Glint On The Sand"] = new BookData({
             cold_tolerance: {
                     flat: 1,
             }
+        },
+    });
+    item_templates["Snakeskin hat"] = new Armor({
+        name: "Snakeskin hat",
+        description: "A solid snakeskin hat to protect your head",
+        value: 1200,
+        component_type: "helmet interior",
+        base_defense: 7,
+        component_tier: 5,
+        component_stats: {
+            attack_speed: {
+                multiplier: 1.02,
+            },
+            agility: {
+                multiplier: 1.03,
+            },
+            cold_tolerance: {
+                flat: -.5,
+            }
+        }
+    });
+
+    item_templates["Batrachian hat"] = new Armor({
+        name: "Batrachian hat", 
+        description: "A slippery leather hat to protect your head",
+        value: 700,
+        component_type: "helmet interior",
+        base_defense: 3,
+        component_tier: 4,
+        component_stats: {
+            agility: {
+                multiplier: 1.05,
+            },
+            cold_tolerance: {
+                flat: 1,
+            }
+        },
+        component_bonus_skill_levels: {
+            "Swimming": 1,
         }
     });
 
     item_templates["Leather gloves"] = new Armor({
-        name: "Leather gloves", 
+        name: "Leather gloves",
         description: "Strong leather gloves, perfect for handling rough and sharp objects",
         value: 300,
         component_type: "glove interior",
@@ -2641,7 +3216,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Goat leather gloves"] = new Armor({
-        name: "Goat leather gloves", 
+        name: "Goat leather gloves",
         description: "Strong leather gloves, perfect for handling rough and sharp objects",
         value: 450,
         component_type: "glove interior",
@@ -2651,6 +3226,45 @@ book_stats["A Glint On The Sand"] = new BookData({
             cold_tolerance: {
                 flat: 2,
             }
+        }
+    });
+    item_templates["Snakeskin gloves"] = new Armor({
+        name: "Snakeskin gloves",
+        description: "Strong snakeskin gloves, perfect for handling rough and sharp objects",
+        value: 1200,
+        component_type: "glove interior",
+        base_defense: 6,
+        component_tier: 5,
+        component_stats: {
+            attack_speed: {
+                multiplier: 1.02,
+            },
+            dexterity: {
+                multiplier: 1.02,
+            },
+            cold_tolerance: {
+                flat: -.5,
+            }
+        }
+    });
+
+    item_templates["Batrachian gloves"] = new Armor({
+        name: "Batrachian gloves", 
+        description: "Strong leather gloves, with membranes to help you swim",
+        value: 700,
+        component_type: "glove interior",
+        base_defense: 2,
+        component_tier: 4,
+        component_stats: {
+            agility: {
+                multiplier: 1.05,
+            },
+            cold_tolerance: {
+                flat: 1,
+            }
+        },
+        component_bonus_skill_levels: {
+            "Swimming": 2,
         }
     });
 
@@ -2670,9 +3284,8 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
     item_templates["Work shoes"] = new Armor({
-        name: "Work shoes", 
+        name: "Work shoes",
         description: "Work shoes made of a mix of leather and wool. While they provide no protection, they are very comfortable for moving around",
         value: 300,
         component_type: "shoes interior",
@@ -2690,10 +3303,9 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-
     item_templates["Leather shoes"] = new Armor({
-        name: "Leather shoes", 
-        description: "Solid shoes made of leather, a must have for any traveler", 
+        name: "Leather shoes",
+        description: "Solid shoes made of leather, a must have for any traveler",
         value: 300,
         component_type: "shoes interior",
         base_defense: 1,
@@ -2711,7 +3323,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Goat leather shoes"] = new Armor({
-        name: "Goat leather shoes", 
+        name: "Goat leather shoes",
         description: "Strong shoes made of leather, a must have for any traveler",
         value: 450,
         component_type: "shoes interior",
@@ -2727,6 +3339,48 @@ book_stats["A Glint On The Sand"] = new BookData({
             cold_tolerance: {
                 flat: 2,
             }
+        }
+    });
+    item_templates["Snakeskin boots"] = new Armor({
+        name: "Snakeskin boots",
+        description: "Strong boots made of snakeskin, a must have for any traveler",
+        value: 1200,
+        component_type: "shoes interior",
+        base_defense: 6,
+        component_tier: 5,
+        component_stats: {
+            attack_speed: {
+                multiplier: 1.05,
+            },
+            agility: {
+                multiplier: 1.25,
+            },
+            cold_tolerance: {
+                flat: -.5,
+            }
+        }
+    });
+
+    item_templates["Batrachian shoes"] = new Armor({
+        name: "Batrachian shoes", 
+        description: "Strong shoes made of frog leather, that let you slide along the ground",
+        value: 700,
+        component_type: "shoes interior",
+        base_defense: 2,
+        component_tier: 4,
+        component_stats: {
+            attack_speed: {
+                multiplier: 1.05,
+            },
+            agility: {
+                multiplier: 1.15,
+            },
+            cold_tolerance: {
+                flat: 1,
+            }
+        },
+        component_bonus_skill_levels: {
+            "Swimming": 2,
         }
     });
 
@@ -2749,9 +3403,28 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
+    item_templates["Linen vest"] = new Armor({
+        name: "Linen vest",
+        description: "A thin, breezy vest that won't get in your way, however it won't keep you warm and offers no protection from attacks",
+        value: 650,
+        component_type: "chestplate interior",
+        base_defense: 0,
+        component_tier: 4,
+        component_stats: {
+            attack_speed: {
+                multiplier: 1.04,
+            },
+            agility: {
+                multiplier: 1.05,
+            },
+            cold_tolerance: {
+                flat: 0.4,
+            }
+        }
+    });
 
     item_templates["Wool pants"] = new Armor({
-        name: "Wool pants", 
+        name: "Wool pants",
         description: "Nice woollen pants. Slightly itchy",
         value: 100,
         component_type: "leg armor interior",
@@ -2763,9 +3436,28 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
+    item_templates["Linen leggings"] = new Armor({
+        name: "Linen leggings",
+        description: "Nice linen leggings",
+        value: 450,
+        component_type: "leg armor interior",
+        base_defense: 0,
+        component_tier: 4,
+        component_stats: {
+            attack_speed: {
+                multiplier: 1.03,
+            },
+            agility: {
+                multiplier: 1.04,
+            },
+            cold_tolerance: {
+                flat: 0.4,
+            }
+        }
+    });
 
     item_templates["Wool hat"] = new Armor({
-        name: "Wool hat", 
+        name: "Wool hat",
         description: "Simple woollen hat to protect your head from cold",
         value: 300,
         component_type: "helmet interior",
@@ -2783,6 +3475,25 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
+    item_templates["Linen bandanna"] = new Armor({
+        name: "Linen bandanna",
+        description: "Simple linen bandanna to keep hair and sweat away from your eyes",
+        value: 650,
+        component_type: "helmet interior",
+        base_defense: 0,
+        component_tier: 4,
+        component_stats: {
+            attack_speed: {
+                multiplier: 1.02,
+            },
+            agility: {
+                multiplier: 1.03,
+            },
+            cold_tolerance: {
+                flat: 0.4,
+            }
+        }
+    });
 
     item_templates["Wool gloves"] = new Armor({
         name: "Wool gloves",
@@ -2797,9 +3508,28 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
+    item_templates["Linen gloves"] = new Armor({
+        name: "Linen gloves",
+        description: "Thin and tight, they help to maintain a grip on something, but they don't provide any protection",
+        value: 650,
+        component_type: "glove interior",
+        base_defense: 0,
+        component_tier: 4,
+        component_stats: {
+            attack_speed: {
+                multiplier: 1.02,
+            },
+            dexterity: {
+                multiplier: 1.02,
+            },
+            cold_tolerance: {
+                flat: 0.4,
+            }
+        }
+    });
 
     item_templates["Rat pelt cape"] = new Cape({
-        name: "Rat pelt cape", 
+        name: "Rat pelt cape",
         item_tier: 1,
         description: "It's a cape... made of wolf rat pelts. Only for poor or insane",
         value: 100,
@@ -2810,7 +3540,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Wolf pelt cape"] = new Cape({
-        name: "Wolf pelt cape", 
+        name: "Wolf pelt cape",
         description: "An elegant cape made from wolf pelts. Doesn't provide much protection, but is light enough to not hinder your movements",
         value: 400,
         item_tier: 2,
@@ -2822,7 +3552,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Boar hide cape"] = new Cape({
-        name: "Boar hide cape", 
+        name: "Boar hide cape",
         description: "A rough cape made from boar hides. Offers a nice protection, but is heavy and stiff",
         value: 700,
         item_tier: 3,
@@ -2840,7 +3570,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Goat hide cape"] = new Cape({
-        name: "Goat hide cape", 
+        name: "Goat hide cape",
         description: "A rough cape made from goat hides",
         value: 700,
         item_tier: 3,
@@ -2858,7 +3588,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Bear hide cape"] = new Cape({
-        name: "Bear hide cape", 
+        name: "Bear hide cape",
         description: "A thick, heavy, and warm furry cape, made from a bear hide",
         value: 1000,
         item_tier: 4,
@@ -2872,6 +3602,21 @@ book_stats["A Glint On The Sand"] = new BookData({
             },
             cold_tolerance: {
                 flat: 7,
+            }
+        }
+    });
+    item_templates["Batrachian cape"] = new Cape({
+        name: "Batrachian cape", 
+        description: "A slippery cape made from frogskin. Technically waterproof, but doesn't cover your entire body.",
+        value: 1000,
+        item_tier: 4,
+        base_defense: 4,
+        base_stats: {
+            agility: {
+                multiplier: 0.95,
+            },
+            cold_tolerance: {
+                flat: 4,
             }
         }
     });
@@ -2936,6 +3681,45 @@ book_stats["A Glint On The Sand"] = new BookData({
             external: "Steel chainmail greaves",
         }
     });
+	
+	item_templates["Alligator armor"] = new Armor({
+        components: {
+            internal: "Linen vest",
+            external: "Alligator leather chestplate armor",
+        }
+    });
+    item_templates["Alligator helmet"] = new Armor({
+        components: {
+            internal: "Linen bandanna",
+            external: "Alligator leather helmet armor",
+        }
+    });
+    item_templates["Alligator armored pants"] = new Armor({
+        components: {
+            internal: "Linen leggings",
+            external: "Alligator leather greaves",
+        }
+    });
+	
+	item_templates["Turtleshell platemail armor"] = new Armor({
+        components: {
+            internal: "Linen vest",
+            external: "Turtleshell chestplate",
+        }
+    });
+    item_templates["Turtleshell platemail helmet"] = new Armor({
+        components: {
+            internal: "Linen bandanna",
+            external: "Turtleshell helmet armor",
+        }
+    });
+    item_templates["Turtleshell platemail pants"] = new Armor({
+        components: {
+            internal: "Linen leggings",
+            external: "Turtleshell greaves",
+        }
+    });
+	
 })();
 
 //shield components:
@@ -2956,12 +3740,12 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
-    
+
     item_templates["Cheap wooden shield base"] = new ShieldComponent({
         name: "Cheap wooden shield base",
-        description: "Cheap shield component made of wood, basically just a few planks barely holding together", 
-        value: 16, 
-        shield_strength: 1, 
+        description: "Cheap shield component made of wood, basically just a few planks barely holding together",
+        value: 16,
+        shield_strength: 1,
         shield_name: "Cheap wooden shield",
         component_tier: 1,
         component_type: "shield base",
@@ -2974,7 +3758,7 @@ book_stats["A Glint On The Sand"] = new BookData({
 
     item_templates["Crude wooden shield base"] = new ShieldComponent({
         name: "Crude wooden shield base",
-        description: "A shield base of rather bad quality, but at least it won't fall apart by itself", 
+        description: "A shield base of rather bad quality, but at least it won't fall apart by itself",
         value: 32,
         shield_strength: 3,
         shield_name: "Crude wooden shield",
@@ -2988,7 +3772,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
     item_templates["Wooden shield base"] = new ShieldComponent({
         name: "Wooden shield base",
-        description: "Proper wooden shield base, although it could use some additional reinforcement", 
+        description: "Proper wooden shield base, although it could use some additional reinforcement",
         value: 80,
         shield_strength: 5,
         shield_name: "Wooden shield",
@@ -3002,7 +3786,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
     item_templates["Ash wood shield base"] = new ShieldComponent({
         name: "Ash wood shield base",
-        description: "Solid wooden shield base, although still nowhere near as resistant as metal", 
+        description: "Solid wooden shield base, although still nowhere near as resistant as metal",
         value: 120,
         shield_strength: 8,
         shield_name: "Ash wood shield",
@@ -3015,7 +3799,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Crude iron shield base"] = new ShieldComponent({
-        name: "Crude iron shield base", 
+        name: "Crude iron shield base",
         description: "Heavy shield base made of low quality iron",
         value: 128,
         shield_strength: 6,
@@ -3029,8 +3813,8 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Iron shield base"] = new ShieldComponent({
-        name: "Iron shield base", 
-        description: "Solid and strong shield base, although it's quite heavy", 
+        name: "Iron shield base",
+        description: "Solid and strong shield base, although it's quite heavy",
         value: 210,
         shield_strength: 10,
         shield_name: "Iron shield",
@@ -3043,8 +3827,8 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Steel shield base"] = new ShieldComponent({
-        name: "Steel shield base", 
-        description: "Mighty shield base, although it's quite heavy", 
+        name: "Steel shield base",
+        description: "Mighty shield base, although it's quite heavy",
         value: 300,
         shield_strength: 14,
         shield_name: "Steel shield",
@@ -3056,19 +3840,33 @@ book_stats["A Glint On The Sand"] = new BookData({
             }
         }
     });
+    item_templates["Turtleshell shield base"] = new ShieldComponent({
+        name: "Turtleshell shield base",
+        description: "Dense turtle shellplate base, although it's quite heavy",
+        value: 650,
+        shield_strength: 24,
+        shield_name: "Turtleshell shield",
+        component_tier: 5,
+        component_type: "shield base",
+        component_stats: {
+            attack_speed: {
+                multiplier: 0.75,
+            }
+        }
+    });
 
     item_templates["Basic shield handle"] = new ShieldComponent({
         id: "Basic shield handle",
-        name: "Crude wooden shield handle", 
-        description: "A simple handle for holding the shield", 
+        name: "Crude wooden shield handle",
+        description: "A simple handle for holding the shield",
         value: 10,
         component_tier: 1,
         component_type: "shield handle",
     });
 
     item_templates["Wooden shield handle"] = new ShieldComponent({
-        name: "Wooden shield handle", 
-        description: "A decent wooden handle for holding the shield", 
+        name: "Wooden shield handle",
+        description: "A decent wooden handle for holding the shield",
         value: 32,
         component_tier: 2,
         component_type: "shield handle",
@@ -3079,8 +3877,8 @@ book_stats["A Glint On The Sand"] = new BookData({
         }
     });
     item_templates["Ash wood shield handle"] = new ShieldComponent({
-        name: "Ash wood shield handle", 
-        description: "A solid wooden handle for holding the shield", 
+        name: "Ash wood shield handle",
+        description: "A solid wooden handle for holding the shield",
         value: 48,
         component_tier: 3,
         component_type: "shield handle",
@@ -3149,6 +3947,14 @@ book_stats["A Glint On The Sand"] = new BookData({
             handle: "Ash wood shield handle",
         }
     });
+	
+    item_templates["Turtleshell shield"] = new Shield({
+        components: {
+            shield_base: "Turtleshell shield base",
+            handle: "Ash wood shield handle",
+        }
+    });
+	
 })();
 
 //trinkets:
@@ -3205,19 +4011,53 @@ book_stats["A Glint On The Sand"] = new BookData({
             },
         }
     });
+
+    item_templates["Crab trophy"] = new Artifact({
+        name: "Crab trophy",
+        value: 650,
+        stats: {
+            attack_points: {
+                multiplier: 1.15,
+            },
+            defense: {
+                multiplier: 1.15,
+            },
+        }
+    });
+	
 })();
 
 //amulets:
 (function(){
     item_templates["Warrior's necklace"] = new Amulet({
         value: 1000,
-        tags: {unique: true},
+        tags: {unique: true, unsellable: true},
         stats: {
             attack_power: {
                 multiplier: 1.1,
             },
             attack_speed: {
                 multiplier: 1.1,
+            },
+        },
+    });
+})();
+
+
+//rings:
+(function(){
+    item_templates["Snake fang ring"] = new Ring({
+        value: 2000,
+        tags: {unique: true, unsellable: true},
+        stats: {
+            crit_multiplier: {
+                multiplier: 1.3,
+            },
+            crit_rate: {
+                multiplier: 1.2,
+            },
+            unarmed_power: {
+                flat: 1,
             },
         },
     });
@@ -3258,7 +4098,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         description: "A decent pickaxe made of iron, strong enough for most ores",
         value: 1000,
         equip_slot: "pickaxe",
-        bonus_skill_levels: {
+        base_bonus_skill_levels: {
             "Mining": 3,
         }
     });
@@ -3268,7 +4108,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         description: "A decent axe made of iron, hard and sharp enough for most of trees, even if they will still require an effort",
         value: 1000,
         equip_slot: "axe",
-        bonus_skill_levels: {
+        base_bonus_skill_levels: {
             "Woodcutting": 3,
         }
     });
@@ -3278,7 +4118,7 @@ book_stats["A Glint On The Sand"] = new BookData({
         description: "A decent sickle made of iron, sharp enough for most of plants",
         value: 1000,
         equip_slot: "sickle",
-        bonus_skill_levels: {
+        base_bonus_skill_levels: {
             "Herbalism": 3,
         }
     });
@@ -3288,9 +4128,16 @@ book_stats["A Glint On The Sand"] = new BookData({
         description: "A decent shovel made of iron, solid enough for most of your digging needs",
         value: 1000,
         equip_slot: "shovel",
-        bonus_skill_levels: {
+        base_bonus_skill_levels: {
             "Digging": 3,
         }
+    });
+
+    item_templates["Makeshift fishing pole"] = new Tool({
+        name: "Makeshift fishing pole",
+        description: "Little more than a piece of string tied to a stick, but sufficient to get a catch",
+        value: 10,
+        equip_slot: "fishing_pole",
     });
 })();
 
@@ -3305,7 +4152,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
 
     item_templates["Fresh bread"] = new UsableItem({
-        name: "Fresh bread", 
+        name: "Fresh bread",
         description: "Freshly baked bread, delicious",
         value: 40,
         effects: [{effect: "Basic meal", duration: 150}],
@@ -3314,8 +4161,8 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
 
     item_templates["Bread kwas"] = new UsableItem({
-        name: "Bread kwas", 
-        description: "Tastes like bread", 
+        name: "Bread kwas",
+        description: "Tastes like bread",
         value: 40,
         effects: [{effect: "Well hydrated", duration: 60}],
         recovery_chances: {"Glass bottle": 0.6},
@@ -3350,8 +4197,17 @@ book_stats["A Glint On The Sand"] = new BookData({
         tags: {"food": true},
     });
 
+    //supposed to be obtained by making clam broth, but multiple results from a recipe are not yet supported
+    item_templates["Cooked clam"] = new UsableItem({
+        name: "Boiled clam",
+        description: "Common shellfish found around the lake shore that has been boiled, not steamed",
+        value: 6,
+        effects: [{effect: "Basic meal", duration: 90}],
+        tags: {"food": true},
+    });
+
     item_templates["Weak healing powder"] = new UsableItem({
-        name: "Weak healing powder", 
+        name: "Weak healing powder",
         description: "Not very potent, but can still make body heal noticeably faster for quite a while",
         value: 40,
         effects: [{effect: "Weak healing powder", duration: 240}],
@@ -3359,7 +4215,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
 
     item_templates["Healing powder"] = new UsableItem({
-        name: "Healing powder", 
+        name: "Healing powder",
         description: "Not exactly powerful in its effects, but still makes the body heal noticeably faster and for a long time",
         value: 100,
         effects: [{effect: "Healing powder", duration: 300}],
@@ -3367,7 +4223,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
 
     item_templates["Oneberry juice"] = new UsableItem({
-        name: "Oneberry juice", 
+        name: "Oneberry juice",
         description: "Tastes kinda nice and provides a quick burst of healing",
         value: 80,
         effects: [{effect: "Weak healing potion", duration: 10}],
@@ -3375,15 +4231,15 @@ book_stats["A Glint On The Sand"] = new BookData({
         tags: {"medicine": true},
     });
     item_templates["Healing potion"] = new UsableItem({
-        name: "Healing potion", 
-        description: "Tastes nice at first but has a bitter aftertase. Povides a quick burst of healing",
+        name: "Healing potion",
+        description: "Tastes nice at first but has a bitter aftertaste. Provides a quick burst of healing",
         value: 200,
         effects: [{effect: "Healing potion", duration: 10}],
         recovery_chances: {"Glass phial": 0.75},
         tags: {"medicine": true},
     });
     item_templates["Healing balm"] = new UsableItem({
-        name: "Healing balm", 
+        name: "Healing balm",
         description: "Simply apply it to your wound and watch it heal",
         value: 120,
         effects: [{effect: "Weak healing balm", duration: 90}],
@@ -3391,7 +4247,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
 
     item_templates["Roasted rat meat"] = new UsableItem({
-        name: "Roasted rat meat", 
+        name: "Roasted rat meat",
         description: "Smell might be fine now, but it still seems like a bad idea to eat it",
         value: 10,
         effects: [{effect: "Cheap meat meal", duration: 45}, {effect: "Slight food poisoning", duration: 45}],
@@ -3399,7 +4255,7 @@ book_stats["A Glint On The Sand"] = new BookData({
     });
 
     item_templates["Roasted purified rat meat"] = new UsableItem({
-        name: "Roasted purified rat meat", 
+        name: "Roasted purified rat meat",
         description: "Smells alright and should be safe to eat, yet you still have some doubts",
         value: 20,
         effects: [{effect: "Cheap meat meal", duration: 45}],
@@ -3439,6 +4295,106 @@ book_stats["A Glint On The Sand"] = new BookData({
         tags: {"food": true},
     });
 
+    item_templates["Crab bisque"] = new UsableItem({
+        name: "Crab bisque",
+        description: "A smooth, creamy crab soup, lightly seasoned with fragrant herbs and vegetables",
+        value: 100,
+        effects: [{ effect: "Simple seafood soup", duration: 120 },
+                  { effect: "Hot meal", duration: 30 }],
+        tags: {"food": true},
+    });
+    item_templates["Clam broth"] = new UsableItem({
+        name: "Clam broth",
+        description: "Briny, flavorful, and tastes of the ocean. In a good way",
+        value: 100,
+        effects: [{ effect: "Simple seafood soup", duration: 90 },
+                  { effect: "Hot meal", duration: 30 }],
+        tags: {"food": true},
+    });
+    item_templates["Alligator jerky"] = new UsableItem({
+        name: "Alligator jerky",
+        description: "It's tough meat, but it'll keep you from going hungry for a long time",
+        value: 100,
+        effects: [{ effect: "Tough meat meal", duration: 300 }],
+        tags: {"food": true},
+    });
+    item_templates["Snake jerky"] = new UsableItem({
+        name: "Snake jerky",
+        description: "It's rubbery meat, but it'll keep you from going hungry for a long time",
+        value: 100,
+        effects: [{ effect: "Tough meat meal", duration: 300 }],
+        tags: {"food": true},
+    });
+    item_templates["Turtle jerky"] = new UsableItem({
+        name: "Turtle jerky",
+        description: "It's stringy meat, but it'll still keep you from going hungry for a long time",
+        value: 100,
+        effects: [{ effect: "Tough meat meal", duration: 300 }],
+        tags: {"food": true},
+    });
+    item_templates["Turtle soup"] = new UsableItem({
+        name: "Turtle soup",
+        description: "Tonight you dine on turtle soup",     //reference to a line said by Shredder in the old Teenaged Mutant Ninja Turtles cartoon
+        value: 100,
+        effects: [{ effect: "Simple seafood soup", duration: 120 },
+                  { effect: "Hot meal", duration: 45 }],
+        tags: {"food": true},
+    });
+    item_templates["Swampland skewer"] = new UsableItem({
+        name: "Swampland skewer",
+        description: "There's no better way to feed on the creatures of the swampland",
+        value: 100,
+        effects: [{ effect: "Varied meat meal", duration: 150 },
+                  { effect: "Hot meal", duration: 60 }],
+        tags: {"food": true},
+    });
+    item_templates["Basin gumbo"] = new UsableItem({
+        name: "Basin gumbo",
+        description: "An incredibly complex meal that's difficult to make, but it's got an indescribable taste",
+        value: 100,
+        effects: [{ effect: "Varied seafood meal", duration: 90 }],
+        tags: {"food": true},
+    });
+	
+    //TODO made them tier 2 and 3 for now, but are hard enough to get that they could be bumped to tier 4?
+    item_templates["Fried frog meat"] = new UsableItem({
+        name: "Fried frog meat",
+        description: "Tastes a bit like bird, and a bit like fish",
+        value: 50,
+        effects: [{effect: "Simple meat meal", duration: 120}],
+        tags: {"food": true},
+    });
+    item_templates["Kingsized frog legs"] = new UsableItem({
+        name: "Kingsized frog legs",
+        description: "The legs are agreed to be the best part, and when cooked with proper seasoning, considered a delicacy by some",
+        value: 100,
+        effects: [{effect: "Decent meat meal", duration: 120}],
+        tags: {"food": true},
+    });
+
+    item_templates["Fish skewer"] = new UsableItem({
+        name: "Fish skewer", 
+        description: "Several small fish cooked together on a stick. While none of them have much meat on them individually, together they make for a servicable meal",
+        value: 20,
+        effects: [{effect: "Cheap meat meal", duration: 45}],
+        tags: {"food": true},
+    });
+
+    item_templates["Fried fish"] = new UsableItem({
+        name: "Fried fish",
+        description: "A fish fried whole. A simple but fulfilling meal",
+        value: 40,
+        effects: [{effect: "Simple meat meal", duration: 60}],
+        tags: {"food": true},
+    });
+
+    item_templates["Fish steak"] = new UsableItem({
+        name: "Fish steak",
+        description: "Properly filleted and cooked. A much better experience than eating them whole",
+        value: 60,
+        effects: [{effect: "Decent meat meal", duration: 60}],
+        tags: {"food": true},
+    });
 })();
 
 //setup ids
@@ -3450,9 +4406,9 @@ Object.keys(item_templates).forEach(id => {
 });
 
 export {
-    item_templates, 
-    Item, OtherItem, UsableItem, 
-    Armor, Shield, Weapon, Cape, Artifact, Book, 
+    item_templates,
+    Item, OtherItem, UsableItem,
+    Armor, Shield, Weapon, Cape, Artifact, Book,
     Material, WeaponComponent, ArmorComponent, ShieldComponent,
     getItem, getItemFromKey,
     round_item_price, getArmorSlot, getEquipmentValue,

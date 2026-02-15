@@ -7,6 +7,9 @@
 	--equipment_display: inline-block;
 	--consumables_display: inline-block;
 	--other_display: inline-block;
+	--faved_equipment_display: inline-block;
+	--faved_consumables_display: inline-block;
+	--faved_other_display: inline-block;
 
 	--inventory_div_display: block;
 	--character_combat_div_display: none;
@@ -38,6 +41,7 @@
 	--job_tooltip_top: 0px;
 	--job_tooltip_left: 0px;
 
+	--maxxed_skill_display: block;
 	--skill_tooltip_top: 0px;
 	--skill_tooltip_left: 0px;
 	--enemy_div_display: block;
@@ -72,7 +76,9 @@
 	--actions_div_top_combat: 640px;
 	--actions_div_top: var(--actions_div_top_default);
 
-	--export_button_tooltip_top: 0px;
+	--completed_quest_display: "block";
+
+	--export_button_tooltip_bottom: 0px;
 	--export_button_tooltip_left: 0px;
 
 	--options_action_textsize: 16px;
@@ -82,6 +88,11 @@
 	--tooltip_background_color: rgba(92, 92, 92, 0.97);
 
 	--onclick_button_color: rgb(75, 99, 145);
+
+	--outline_white: -1px -1px 0 #ffffff, 1px -1px 0 #ffffff, -1px 1px 0 #ffffff, 1px 1px 0 #ffffff;
+	--outline_white_default: var(var(--outline_white));
+	--outline_black: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+	--outline_black_default: var(var(--outline_black));
 }
 
 body {
@@ -113,6 +124,10 @@ input[type=checkbox], input[type=radio] {
 	font-weight: bold;
 }
 
+.italic {
+	font-style: italic;
+}
+
 #loading_screen {
 	visibility: visible;
 	width: 100%;
@@ -127,8 +142,8 @@ input[type=checkbox], input[type=radio] {
 }
 
 	#loading_screen_game_title {
-		width: 910px;
-		font-size: 600%;
+		width: 950px;
+		font-size: 96px;
 		font-family:'Ink Free';
 		font-weight: bold;
 		position: fixed;
@@ -328,7 +343,7 @@ input[type=checkbox], input[type=radio] {
  }
 
  .message_hero_defeated {
-	 color:crimson;
+	 color: #ff3d44;
 	 font-weight: bold;
  }
 
@@ -341,10 +356,10 @@ input[type=checkbox], input[type=radio] {
  }
 
  .message_hero_attacked {
-	 color: crimson;
+	 color: #ff3d44;
  }
  .message_hero_attacked_critically, .message_critical {
-	 color: crimson;
+	 color: #ff3d44;
 	 font-weight: bold;
  }
 
@@ -393,7 +408,7 @@ input[type=checkbox], input[type=radio] {
 
  #save_to_file_button:hover #export_button_tooltip{
 	display: block;
-	top: var(--export_button_tooltip_top);
+	bottom: var(--export_button_tooltip_bottom);
 	left: var(--export_button_tooltip_left);
  }
 
@@ -476,25 +491,25 @@ input[type=checkbox], input[type=radio] {
 	display: var(--options_display);
 	position: fixed;
 	background-image: var(--options_gradient);
-	width: 600px;
+	width: max-content;
 	height: fit-content;
 	border: 4px solid blueviolet;
 	z-index: 20;
 	bottom: 50px;
-	left: 300px;
+	left: 10px;
  }
 
- @media only screen and (max-height: 600px) {
+ @media only screen and (max-height: 720px) {
 	#options_panel {
 		position: absolute;
-		top: 405px;
+		top: 100px;
 	}
 }
 
  #close_options {
 	position: absolute;
 	font-size: 40px;
-	left: 548px;
+	right: 3px;
 	top: 2px;
 	width: 50px;
 	height: 50px;
@@ -507,18 +522,26 @@ input[type=checkbox], input[type=radio] {
  #options_choices {
 	position: relative;
 	left: 5px;
-	font-size: 20px;
+	font-size: 16px;
  }
-
- #options_choices input {
-	outline: 1px solid black;
+ 
+ #options_expo_threshold {
+	width: 160px;
  }
  
  .options_choice {
-	margin: 10px;
+	margin: 5px;
 	width: fit-content;
 	border: 2px solid gray;
 	padding: 3px;
+ }
+ .options_choice:not(.options_choice_range) input {
+	outline: 1px solid black;
+ }
+
+ .options_choice_range input {
+	accent-color: rgb(255, 255, 255);
+	background-color: red;
  }
 
  .options_button {
@@ -609,6 +632,23 @@ input[type=checkbox], input[type=radio] {
 	background-color: var(--active_button_color);
 }
 
+.item_fav_div {
+	width: fit-content;
+	display: inline-block;
+}
+
+.item_fav_div:hover {
+	cursor: pointer;
+}
+
+.item_fav_div i {
+	font-size: 16px;
+}
+
+.inventory_item_name, .equipped_item_name {
+	display: inline-block;
+}
+
 .inventory_item_control {
 	border-bottom: 1px dotted white;
 	width: 383px;
@@ -676,6 +716,18 @@ input[type=checkbox], input[type=radio] {
 	top: var(--item_tooltip_top);
 	left: var(--item_tooltip_left);
 } 
+
+.outline_white {
+	text-shadow: var(--outline_white);
+}
+
+.outline_black {
+	text-shadow: var(--outline_black);
+}
+
+.outline_black_static {
+	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
 
 .recipe_tooltip {
 	top: var(--recipe_tooltip_top);
@@ -915,7 +967,7 @@ input[type=checkbox], input[type=radio] {
 	padding: 3px;
 	padding-left: 5px;
 	padding-right: 5px;
-	min-width: 85.4px; /* ouch */
+	min-width: 60.7px; /* ouch */
 	text-align: center;
 	outline: 1px solid white;
 	margin: 1px;
@@ -940,6 +992,7 @@ input[type=checkbox], input[type=radio] {
 	font-style: italic;
 }
 
+
 .character_item_equippable {
 	display: var(--equipment_display);
 }
@@ -952,9 +1005,21 @@ input[type=checkbox], input[type=radio] {
 	display: var(--other_display);
 }
 
+.character_item_equippable.character_item_faved {
+	display: var(--faved_equipment_display);
+}
+
+.character_item_usable.character_item_faved, .character_item_book.character_item_faved {
+	display: var(--faved_consumables_display);
+}
+
+.character_item_other.character_item_faved, .character_item_loot.character_item_faved, .character_item_material.character_item_faved, .character_item_component.character_item_faved {
+	display: var(--faved_other_display);
+}
+
 .item_unique {
 	font-weight:1000;
-	color: purple;
+	color: #800080;
 	font-style: italic;
 }
 
@@ -975,7 +1040,7 @@ input[type=checkbox], input[type=radio] {
 	padding: 3px;
 	margin-top: 1px;
 	height: fit-content;
-	width: 200px;
+	width: 210px;
 }
 .active_effect_name_and_duration {
 	width: 100%;
@@ -984,6 +1049,10 @@ input[type=checkbox], input[type=radio] {
 .active_effect_duration {
 	text-align: right;
 	float: right;
+}
+.active_effect_description {
+	margin-top: 5px;
+	margin-bottom: 10px;
 }
 
 .message_border { 
@@ -1042,12 +1111,12 @@ input[type=checkbox], input[type=radio] {
 	.stat_value {
 		text-align: right;
 		display: inline-block;
-		width: 65px;
+		width: 63px;
 	}
 
 	.stat_name {
 		display: inline-block;
-		width: 98px;
+		width: 100px;
 		padding-left: 4px;
 	}
 	.loot_name {
@@ -1106,12 +1175,11 @@ input[type=checkbox], input[type=radio] {
 
 .skill_bar_capped {
 	border: 2px solid rgb(0, 123, 32);
-	/*	border: 2px solid goldenrod;*/
+	display: var(--maxxed_skill_display);
 }
 
 	.skill_bar_capped .skill_bar_current {
 		background-color: rgb(0, 123, 32);
-		/*		background-color: goldenrod;*/
 		height: 8px;
 	}
 
@@ -1569,7 +1637,7 @@ i {
 	background-color: rgba(48, 0, 48, 0.596);
 }
 
-#location_actions_div :not(#action_end_div):hover #gathering_tooltip, .location_action_div :not(#action_end_div):hover #location_action_tooltip{
+#location_actions_div :not(#action_end_div):hover #gathering_tooltip, .location_action_div:hover .location_action_tooltip{
 	display: block;
 }
 
@@ -1946,25 +2014,31 @@ i {
 			text-align: left;
 		}		
 
-#enemy_count_div { 
-	width: 100%;
+#enemy_count_div, #clear_count_div { 
+	width: auto;
 	padding-top: 2px;
 	bottom: 0px;
 	position: absolute;
+	font-size: 17px;
 }
+
+#clear_count_div { 
+	left: 5px;
+}
+
+#enemy_count_div {
+	right: 5px;
+} 
 
 #enemy_count_content {
 	color: white;
-	width: 50%;
-	font-size: 17px;
+	width: 100%;
 	padding-right: 5px;
-	margin-left: auto;
 	text-align: right;
-	
 }
 
 #enemies_left_div {
-	width: 30px;
+	width: 80px;
 	display: inline-block;
 	text-align: right;
 }
@@ -2003,6 +2077,14 @@ i {
 		padding-top: 5px;
 		margin-bottom: 5px;
 	}
+	#quest_hiding_div {
+		bottom: 0px;
+		text-align: right;
+		position: absolute;
+		border-top: 1px solid white;
+		width: 385px;
+		padding-right: 15px;
+	}
 		.quest_div {
 			border: 1px solid white;
 			margin-left: 1px;
@@ -2016,6 +2098,7 @@ i {
 			}
 			.quest_finished {
 				color: silver;
+				display: var(--completed_quest_display);
 			}
 			.quest_finished .quest_name_div{
 				text-decoration: line-through;
@@ -2073,8 +2156,11 @@ i {
 
 			#data_box_div, #books_box_div, #bestiary_box_div, #quests_box_div{
 				width: 100%;
-				height: 284px;
 				overflow-y: scroll;
+			}
+
+			#data_box_div, #books_box_div, #bestiary_box_div{
+				height: 284px;
 			}
 
 			#data_box_div, #books_box_div, #bestiary_box_div{
@@ -2083,6 +2169,7 @@ i {
 
 			#quests_box_div {
 				display: block;
+				height: 263px;
 			}
 
 				.bestiary_entry_div, .data_entry, .anthology_entry_div {

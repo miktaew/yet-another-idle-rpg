@@ -63,6 +63,108 @@
 
 <div id="header">Click on blocks to unfold their content</div>
 
+<button type="button" class="collapsible">v0.5.1  [testing release: 31/01/2026 / main release: 15/02/2026]</button>
+<div class="content"><pre>
+v0.5.1
+    - added a new early game quest in the village, obtained after <span class="spoiler"> clearing the first cave area (Cave room) </span>
+            tweaked a related dialogue to make it clear that it's optional and not part of the <b> main </b> progression (although still encouraged)
+    - Ctrl+S can now be used to manually save the game (you can still do that by clicking the 'Save' button if that's what you prefer)
+    - implemented a new skill, "Perception", which increases crit chance; it gains 1 xp on performing a critical hit, but has lower xp cost scaling and relatively many xp bonuses; 
+        actions to search for something now scale with it (up to 100% success chance on sufficient level) and reward some "Perception" xp on success
+    - added a tiny star icon left of each item in inventory, allowing adding them to favourites for display purposes (inventory filtering)
+    - courtesy of OnonokiNonon:
+        * added a new lategame area (forest lake) with new enemies, new crafting materials, and new training spots
+        * added fishing
+        * game options now include configurable threshold for switching display of values from raw number to scientific form
+    - courtesy of BD Jim:
+        * added a few new endgame areas (swampland region) with new enemies, new crafting materials, and new training spots
+
+    - 'Shield blocking' now additionally provides a %-based dmg reduction scaling with skill level, applied before any other calculations
+    - expanded milestones of most of the skills
+    - locations now show their clear counts
+    - location enemy counts are now displayed in form of "enemies left / total enemies"
+    - modified most of xp rewards for clearing locations, setting them all around 40% of total xp value of enemies for first clear and 20% for subsequent clears (excluding group size modifier);
+        some ended up being greatly increased, other being greatly reduced, due to lack of consistency so far
+    - slightly increased strength required to open the mysterious gate
+    - updated some item tooltips, to clarify the difference between leather and processed hides/pelts
+    - 'Mountain camp' now counts as a roofed location (no rain)
+    - 'Medicine for dummies' now gives a tiny bit of 'Medicine' xp to make skill visible after the book is read
+    - reputation now affects merchant profit margins in same way 'Haggling' does, capping at 1000
+    - added a few more textlines to "Village guard"; learning stances from her now also rewards a little bit of "Combat" experience
+    - greatly buffed xp multipliers provided by books
+    - changed message colors for being hit/defeated a bit, to have slightly higher contrast against the background
+    - added contrasting outlines to some parts of item tooltips and to values on health/mana/stamina bars
+    - name of "suspicious guy" in "Slums" now changes after reaching far enough in his dialogue
+    - reduced attack power on 'long weak bone shaft'
+    - slightly increased xp values of wolves
+    - bestiary is now sorted alphabetically if enemies are of same rank
+    - completed quests can now be hidden (checkbox under quests)
+    - maxxed out skills can now be hidden (options panel)
+    - moved options panel to bottom-left corner
+    - export reward is no longer available instantly on new game, but after 4 hours instead
+
+    - temperatures and weather should now work properly for challenge zones
+    - tooltips for actions should now actually display
+    - fixed a minor display issue with book descriptions sometimes not updating properly when related skill first becomes visible
+    - fixed a bug with inventory sorting not always using the selected option
+
+    - expanded verifier to cover most of the recipes
+    - location types can now apply active effects
+    - components (and, as a result, component based equipment) now support bonus skill level mechanic (not in use anywhere)
+    - items can now be made impossible to sell by adding a tag "unsellable" (only handled on player side, based on assumption that they would not be obtained from trade) (not in use anywhere)
+    - conditions can now include hero level
+    - game actions can now keep their progress through stopping and through save/load (only applied to those where it makes sense)
+    - completion count of repeatable actions is now tracked (but not displayed)
+    - ids for locations, enemies, active effects, and recipes, are now autofilled from keys and no longer defaulted to names if id is not provided
+    - ammounts of gained resources in gathering activities can now be skipped if they are meant to always be at 1
+    - combat modifiers from skills for specific enemy types are no longer hardcoded, instead skills come with a method that returns their modifiers ( .get_stat_modifiers ),
+        and a tag-to-skills mapping is defined in enemies.js
+    - item rewards now actually work in the form given in rewards.js
+
+v0.5.1.1
+    - reduced xp multiplier from 1st 'Perception' milestone x1.1 -> x1.05
+    - increased skill lvl needed to fully remove penalties in 'aquatic' areas
+    - buffed most of the stats on an endgame boss, as it was balanced before new milestones were added
+    - buffed agility/dexterity on frogs for same reason; slightly reduced their chances to apply debuffs
+    - 'Warrior's necklace' and 'Snake fang ring' are now unsellable
+    - ants gained small chance of dropping forest herbs and tier 2 wood
+    - now only items that are neither equipment nor components remain marked as favourite after being removed from inventory
+    
+    - updated text on a certain placeholder action to make it clear that it's in fact a placeholder
+    - outlines can now be disabled in options panel
+    - reduced the size of the options panel
+    
+    - fixed a bug with display of faved items not working
+    - fixed a bug where it was possible to attempt to fav an item that was not yet in inventory (marked for buying from trader)
+    - fixed a bug with storage not being sorted correctly
+
+v0.5.1.2
+    - reduced requirements for endgame quest from lvl 35 to lvl 25
+    - items no longer lose favourite status upon being equipped
+
+    - fixed a minor bug with conditions requiring higher levels than they should
+    - fixed an old overlook with enemy hit/dodge chances not updating in combat (e.g. when changing gear or stance to something with more/less AP/EP)
+v0.5.1.3
+    - buffed hit/dodge on first stage of an endgame boss
+    - fixed a bug with tooltips for resource gathering
+v0.5.1.4
+    - merged 'Lake camp' into 'Lake beach'; actions, trainings, and further travel require first creating a camp in there
+    - fixed an issue with an error occuring upon failing any of mill-related actions
+    - tweaked stats and protection of equipment made from new materials
+    - removed some spammy console.log that remained from earlier tests
+    - removed silver ingot recipe, as silver is not yet obtainable; don't worry about the console warning
+    - changed order of how some things are calculated for hero stats to remove a minor issue with some stats not updating instantly
+v0.5.1.5
+    - fixed some issues created by merging of locations in previous patch
+v0.5.1.6
+    - fixed positioning of export button tooltip in some cases
+    - block strength in shield tooltips should now update correctly when anything that would affect it changes
+    - fixed minor issue with exponent threshold sometimes being saved incorrectly
+    - fixed a minor display issue upon adding item to trade and then cancelling
+    - fixed inventory sorting when sorting by name
+
+======= released to main    
+</pre></div>
 
 <button type="button" class="collapsible">v0.5.0 - The Whimsy Edition: Quests, Weather, kemonomimi, and a lot of other things  [testing release: 28/11/2025 / main release: 30/12/2025] </button>
 <div class="content"><pre>
@@ -317,7 +419,7 @@ v0.5.0.27
 ======= released to main
 
 v0.5.0.28
-    - fixed a bug with drop chances, where instead of penalty for attack target count, the size of enemy group was used instead, no matter how many were being attacked at once
+    - fixed a bug with drop chances, where penalty for attack target count used the size of enemy group instead, no matter how many were being attacked at once
     - fixed a bug where xp gains per tick for every book were being defaulted to 1 instead of using whatever values were assigned    
 </pre></div>
 <button type="button" class="collapsible">v0.4.6 - Actions (and some other things too) [testing release: 01/04/2025 / main release: 18/05/2025] </button>
