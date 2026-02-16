@@ -694,10 +694,11 @@ function remove_from_character_inventory(items) {
                 const {id} = JSON.parse(items[i].item_key);
                 if(id && item_templates[id].tags.usable && favourite_consumables[id]) {
                         remove_consumable_from_favourites(id);
-                } else if(favourite_items[items[i].item_key]){
+                } else if(favourite_items[items[i].item_key]) {
                         const item = getItemFromKey(items[i].item_key);
                         if(item.tags.component || item.tags.equippable) {
-                                if(!(character.equipment[item.equip_slot].getInventoryKey() === item.getInventoryKey())) {
+                                //check if item might be possibly equipped, if not then remove from favs
+                                if(!(character.equipment[item.equip_slot]?.getInventoryKey() === item.getInventoryKey())) {
                                         remove_item_from_favourites(items[i].item_key);
                                 }
                         }
