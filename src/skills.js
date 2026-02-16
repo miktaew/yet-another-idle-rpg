@@ -2004,6 +2004,10 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     });
     skills["Swimming"] = new Skill({
         description: "A nice, gentle, and relaxing exercise. Just remember to be careful",
+        get_effect_description: ()=> {
+            let value = get_total_skill_coefficient({skill_id:"Swimming",scaling_type:"multiplicative"})
+            return `Multiplies agility and stamina by ${Math.round(value*100)/100}. Reduces environmental penalty in aquatic areas.`;
+        },
         names: {0: "Swimming"},
         max_level: 50,
         category: "Activity",
@@ -2094,10 +2098,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                 }
             }
         },
-        get_effect_description: ()=> {
-            let value = get_total_skill_coefficient({skill_id:"Swimming",scaling_type:"multiplicative"})
-            return `Multiplies agility and stamina by ${Math.round(value*100)/100}`;
-        },
+        
     });
 
     skills["Equilibrium"] = new Skill({
