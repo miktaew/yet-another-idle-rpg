@@ -57,9 +57,17 @@ class Enemy {
         this.stats.max_health = stats.health;
         this.loot_list = loot_list;
         this.tags = {};
-        for(let i = 0; i <tags.length; i++) {
-            this.tags[tags[i]] = true;
+
+        if(tags.length) {
+            for(let i = 0; i < tags.length; i++) {
+                this.tags[tags[i]] = true;
+            }
+        } else if(Object.keys(tags).length) {
+            Object.keys(tags).forEach(tag => {
+                this.tags[tag] = true;
+            })
         }
+
         this.tags[size] = true;
 
         this.add_to_bestiary = add_to_bestiary; //generally set it false only for SOME of challenges and keep true for everything else

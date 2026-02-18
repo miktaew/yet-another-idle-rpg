@@ -1471,7 +1471,7 @@ book_stats["Shellfish desires"] = new BookData({
     });
     item_templates["Atratan ore"] = new Material({
         name: "Atratan ore",
-        description: "A dark-colored ore said to have minuscule magical effects, but used almost excluvisely for refining all types of iron",
+        description: "A dark-colored ore said to have minuscule magical effects, but used almost exclusively for refining all types of iron",
         value: 6,
         material_type: "raw metal",
     });
@@ -1515,7 +1515,7 @@ book_stats["Shellfish desires"] = new BookData({
     });
 	
     item_templates["Belmart leaf"] = new Material({
-        description: "Small, round, dark-green leaves with with very good disinfectant properties",
+        description: "Small, round, dark-green leaves with very good disinfectant properties",
         value: 8,
         material_type: "disinfectant herb",
     });

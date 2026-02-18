@@ -265,11 +265,11 @@ class Combat_zone {
                         defense: Math.round(enemy.stats.defense * (base - Math.random() * vary))
                     },
                 });
-
             } else {
                 newEnemy = new Enemy({...enemy, stats: {...enemy.stats, attack_count: enemy.stats.attack_count || 1}});
             }
             newEnemy.is_alive = true;
+
             enemies.push(newEnemy);
         }
         return enemies;
@@ -2522,6 +2522,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 ], 
                 time_period: [90, 45],
                 skill_required: [25, 35],
+                scales_with_skill: true,
             }
         }),
     };
