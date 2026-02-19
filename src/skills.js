@@ -1031,6 +1031,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
         names: {0: "Strength of mind"}, 
         description: "Resist and reject the unnatural influence. Turn your psyche into an iron fortress",
         category: "Environmental",
+        flavour_text: "Blessed is the mind too small for doubt.", //40k ref
         base_xp_cost: 400,
         max_level: 40,
         xp_scaling: 1.7,

@@ -265,11 +265,11 @@ class Combat_zone {
                         defense: Math.round(enemy.stats.defense * (base - Math.random() * vary))
                     },
                 });
-
             } else {
                 newEnemy = new Enemy({...enemy, stats: {...enemy.stats, attack_count: enemy.stats.attack_count || 1}});
             }
             newEnemy.is_alive = true;
+
             enemies.push(newEnemy);
         }
         return enemies;
@@ -369,10 +369,10 @@ class LocationActivity{
         this.gained_resources = gained_resources; 
         /*
             {
-                scales_with_skill: boolean, 
                 resources: [{name, ammount: [[min,max], [min,max]], chance: [min,max]}], 
                 time_period: [min,max], 
                 skill_required: [min_efficiency, max_efficiency]
+                scales_with_skill: deprecated, all checks are done through 'skill_required'
             }
         */
         //every 2-value array is oriented [starting_value, value_with_required_skill_level], except for subarrays of ammount (which are for randomizing gained item count) and for skill_required
@@ -380,7 +380,6 @@ class LocationActivity{
         //ammounts can be skipped if they are meant to be [[1,1],[1,1]] (auto-filled just below the comments)
         //value start scaling after reaching min_efficiency skill lvl, before that they are just all at min
         //skill required refers to level of every skill
-        //if scales_with_skill is false, scalings will be ignored and first value will be used
 
         for(let i = 0; i < this.gained_resources?.resources.length; i++) {
             if(!this.gained_resources.resources[i].ammount) {
@@ -391,7 +390,7 @@ class LocationActivity{
 
     getActivityEfficiency = function() {
         let skill_modifier = 1;
-        if(this.gained_resources.scales_with_skill){
+        if(this.gained_resources.skill_required && this.gained_resources.skill_required.length == 2){
             let skill_level_sum = 0;
             for(let i = 0; i < activities[this.activity_name].base_skills_names?.length; i++) {
                 skill_level_sum += Math.min(
@@ -2388,7 +2387,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             gained_resources: {
                 resources: [{name: "Flax", ammount: [[1,1], [1,3]], chance: [0.4, 0.8]}], 
                 time_period: [120, 60],
-                skill_required: [20, 30],
+                skill_required: [14, 21],
                 scales_with_skill: true,
             },
             require_tool: true,
@@ -2521,7 +2520,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     {name: "Cooking herbs", ammount: [[1,1], [1,2]], chance: [0.3, 0.6]}
                 ], 
                 time_period: [90, 45],
-                skill_required: [25, 35],
+                skill_required: [21, 28],
+                scales_with_skill: true,
             }
         }),
     };

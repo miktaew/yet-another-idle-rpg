@@ -876,7 +876,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Piece of alligator leather", count: 1},
         success_chance: [0.1,1],
         recipe_skill: "Butchering",
-        recipe_level: [25,35],
+        recipe_level: [22,30],
     });
     butchering_recipes.items["Piece of snakeskin leather"] = new ItemRecipe({
         name: "Piece of snakeskin leather",
@@ -886,7 +886,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Piece of snakeskin leather", count: 1},
         success_chance: [0.1,1],
         recipe_skill: "Butchering",
-        recipe_level: [25,35],
+        recipe_level: [22,30],
     });
     butchering_recipes.items["Turtle shellplate"] = new ItemRecipe({
         name: "Turtle shellplate",
@@ -961,7 +961,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Linen cloth", count: 1},
         success_chance: [0.1,1],
         recipe_skill: "Crafting",
-        recipe_level: [20,30],
+        recipe_level: [22,30],
     });
     crafting_recipes.items["Glass phial"] = new ItemRecipe({
         name: "Glass phial",
@@ -1344,7 +1344,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [{material_id: "Alligator meat", count: 2}],
         result: {result_id: "Alligator jerky", count: 1},
         success_chance: [0.3,1],
-        recipe_level: [25,35],
+        recipe_level: [22,30],
         recipe_skill: "Cooking",
     });
     cooking_recipes.items["Snake jerky"] = new ItemRecipe({
@@ -1354,7 +1354,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [{material_id: "Giant snake meat", count: 2}],
         result: {result_id: "Snake jerky", count: 1},
         success_chance: [0.3,1],
-        recipe_level: [25,35],
+        recipe_level: [22,30],
         recipe_skill: "Cooking",
     });
     cooking_recipes.items["Turtle jerky"] = new ItemRecipe({
@@ -1364,7 +1364,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [{material_id: "Turtle meat", count: 2}],
         result: {result_id: "Turtle jerky", count: 1},
         success_chance: [0.3,1],
-        recipe_level: [25,35],
+        recipe_level: [22,30],
         recipe_skill: "Cooking",
     });
     cooking_recipes.items["Swampland skewer"] = new ItemRecipe({
@@ -1395,7 +1395,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
                 ], 
         result: {result_id: "Crab bisque", count: 1},
         success_chance: [0.4,1],
-        recipe_level: [20,30],
+        recipe_level: [22,30],
         recipe_skill: "Cooking",
     });
     cooking_recipes.items["Clam broth"] = new ItemRecipe({
@@ -1409,7 +1409,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
                 ], 
         result: {result_id: "Clam broth", count: 1},
         success_chance: [0.4,1],
-        recipe_level: [20,30],
+        recipe_level: [22,30],
         recipe_skill: "Cooking",
     });
     cooking_recipes.items["Turtle soup"] = new ItemRecipe({
@@ -1423,7 +1423,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
                 ], 
         result: {result_id: "Turtle soup", count: 1},
         success_chance: [0.4,1],
-        recipe_level: [20,30],
+        recipe_level: [22,30],
         recipe_skill: "Cooking",
     });
     cooking_recipes.items["Basin gumbo"] = new ItemRecipe({
@@ -1552,7 +1552,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         materials: [{material_id: "Giant crab claw", count: 4}],
         result: {result_id: "Crab trophy", count: 1},
         success_chance: [0.3,1],
-        recipe_level: [20,30],
+        recipe_level: [22,30],
         recipe_skill: "Crafting",
     });
 })();
