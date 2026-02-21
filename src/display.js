@@ -3541,9 +3541,9 @@ function update_health_bar_tooltip() {
         html_content += create_stat_breakdown("health_loss_percent");
     }
 
-    const health_recovery_balance = character.stats.full.health_regeneration_flat + character.stats.full.health_loss_flat + character.stats.full.max_health * (character.stats.full.health_regeneration_percent + character.stats.full.health_loss_percent);
+    const health_recovery_balance = character.stats.full.health_regeneration_flat + character.stats.full.health_loss_flat + character.stats.full.max_health * (character.stats.full.health_regeneration_percent + character.stats.full.health_loss_percent)/100;
 
-    html_content += "<br>------------------------<br><b>Total health balance:</b> " + Math.round(10*health_recovery_balance)/10 + "<br>";
+    html_content += "<br>------------------------<br><b>Total health balance:</b> " + (health_recovery_balance>0?"+":"-") + Math.round(10*health_recovery_balance)/10 + "<br>";
 
     health_tooltip_div.innerHTML = html_content;
 }
