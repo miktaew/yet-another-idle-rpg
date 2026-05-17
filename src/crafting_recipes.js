@@ -1,7 +1,7 @@
 "use strict";
 
 import { character, get_total_skill_level } from "./character.js";
-import { Armor, ArmorComponent, Cape, Shield, ShieldComponent, Weapon, WeaponComponent, item_templates } from "./items.js";
+import { Armor, ArmorComponent, Cape, Shield, ShieldComponent, Weapon, WeaponComponent, Amulet, item_templates } from "./items.js";
 import { skills } from "./skills.js";
 import { clamp, random_range } from "./misc.js";
 
@@ -145,9 +145,12 @@ class ComponentRecipe extends ItemRecipe{
             } else if(result.tags["weapon component"]) {
 
                 return new WeaponComponent({...item_templates[result.id], quality: quality});
-            } else if(result.tags["shield component"]) {
+            } else if (result.tags["shield component"]) {
 
-                return new ShieldComponent({...item_templates[result.id], quality: quality});
+                return new ShieldComponent({ ...item_templates[result.id], quality: quality });
+            } else if (result.tags["amulet"]) {
+
+                return new Amulet({ ...item_templates[result.id], quality: quality });
             } else {
                 throw new Error(`Component recipe ${this.name} does not produce a valid result!`);
             }
@@ -823,7 +826,15 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         component_type: "shoes interior",
         recipe_skill: "Crafting",
     });
-    
+
+    crafting_recipes.equipment["Amulet"] = new ComponentRecipe({
+        name: "Amulet",
+        materials: [
+            {material_id: "Wool cloth", count: 5, result_id: "Wool scarf"}
+        ],
+        item_type: "Amulet",
+        recipe_skill: "Crafting",
+    });
 })();
 
 //componentless equipment (currently just capes)
@@ -1232,6 +1243,15 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [5,15],
         recipe_skill: "Crafting",
     });
+    crafting_recipes.items["Flax string"] = new ItemRecipe({
+        name: "Flax string",
+        recipe_type: "material",
+        materials: [{material_id: "Flax", count: 5}], 
+        result: {result_id: "Flax string", count: 1},
+        success_chance: [0.2,1],
+        recipe_level: [20,30],
+        recipe_skill: "Crafting",
+    });
 
     butchering_recipes.items["High quality wolf fang"] = new ItemRecipe({
         name: "High quality wolf fang",
@@ -1345,6 +1365,34 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [12, 22],
         recipe_skill: "Woodworking",
     });
+    woodworking_recipes.items["Hickory wood fishing pole"] = new ItemRecipe({
+        name: "Hickory wood fishing pole",
+        recipe_type: "equipment",
+        materials: [
+            { material_id: "Processed hickory wood", count: 4 },
+            //{ material_id: "Simple long wooden shaft", count: 1 },    //TODO
+            { material_id: "Flax string", count: 1 },
+            { material_id: "Metal fishing hook", count: 1 },
+        ],
+        result: { result_id: "Hickory wood fishing pole", count: 1 },
+        success_chance: [0.1, 1],
+        recipe_level: [17, 27],
+        recipe_skill: "Woodworking",
+    });
+    woodworking_recipes.items["Alchemical wood fishing pole"] = new ItemRecipe({
+        name: "Alchemical wood fishing pole",
+        recipe_type: "equipment",
+        materials: [
+            { material_id: "Alchemical Wood", count: 4 },
+            //{ material_id: "Simple long wooden shaft", count: 1 },    //TODO
+            { material_id: "Flax string", count: 1 },
+            { material_id: "Metal fishing hook", count: 1 },
+        ],
+        result: { result_id: "Alchemical wood fishing pole", count: 1 },
+        success_chance: [0.1, 1],
+        recipe_level: [22, 32],
+        recipe_skill: "Woodworking",
+    });
 })();
 
 //consumables
@@ -1404,7 +1452,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
                     { material_id: "Cooking herbs", count: 2}], 
         result: {result_id: "Goat stew", count: 1},
         success_chance: [0.4,1],
-        recipe_level: [15,25],
+        recipe_level: [12,22],
         recipe_skill: "Cooking",
     });
     cooking_recipes.items["Bread kwas"] = new ItemRecipe({
@@ -1596,6 +1644,16 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [5,15],
         recipe_skill: "Alchemy",
     });
+    alchemy_recipes.items["Potent healing powder"] = new ItemRecipe({
+        name: "Potent healing powder",
+        recipe_type: "usable",
+        is_unlocked: false,
+        materials: [{material_id: "Willow bark", count: 3}, {material_id: "Silver thistle", count: 3}],
+        result: {result_id: "Potent healing powder", count: 1},
+        success_chance: [0.1,1],
+        recipe_level: [10,20],
+        recipe_skill: "Alchemy",
+    });
     alchemy_recipes.items["Oneberry juice"] = new ItemRecipe({
         name: "Oneberry juice",
         recipe_type: "usable",
@@ -1632,6 +1690,18 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Healing balm", count: 1},
         success_chance: [0.1,1],
         recipe_level: [7,15],
+        recipe_skill: "Alchemy",
+    });
+    alchemy_recipes.items["Thick healing balm"] = new ItemRecipe({
+        name: "Thick healing balm",
+        recipe_type: "usable",
+        is_unlocked: false,
+        materials: [{material_id: "Healing balm", count: 1},
+                    {material_id: "Willow bark", count: 2},
+        ],
+        result: {result_id: "Thick healing balm", count: 2},
+        success_chance: [0.1,1],
+        recipe_level: [12,20],
         recipe_skill: "Alchemy",
     });
 
@@ -1720,16 +1790,6 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         success_chance: [0.1,1],
         recipe_skill: "Crafting",
         recipe_level: [10,20],
-    });
-
-    crafting_recipes.items["Wool scarf"] = new ItemRecipe({
-        name: "Wool scarf",
-        recipe_type: "equipment",
-        materials: [{material_id: "Wool cloth", count: 5}], 
-        result: {result_id: "Wool scarf", count: 1},
-        success_chance: [0.1,1],
-        recipe_skill: "Crafting",
-        recipe_level: [5,15],
     });
 })();
 

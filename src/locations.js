@@ -8,7 +8,7 @@ import { get_total_skill_level, get_skill_modifier, is_rat } from "./character.j
 import { GameAction } from "./actions.js";
 import { fill_market_regions, market_regions } from "./market_saturation.js";
 import { global_flags } from "./main.js";
-import { slerp } from "./misc.js";
+import { clamp, slerp } from "./misc.js";
 const locations = {}; //contains all the created locations
 const location_types = {};
 
@@ -376,6 +376,7 @@ class LocationActivity{
                 time_period: [min,max], 
                 skill_required: [min_efficiency, max_efficiency]
                 scales_with_skill: deprecated, all checks are done through 'skill_required'
+                roll_quality: boolean, whether dropped items have quality
             }
         */
         //every 2-value array is oriented [starting_value, value_with_required_skill_level], except for subarrays of ammount (which are for randomizing gained item count) and for skill_required
@@ -417,7 +418,19 @@ class LocationActivity{
             gained_resources.push({name: this.gained_resources.resources[i].name, count: [min,max], chance: chance});
         }
 
-        return {gathering_time_needed, gained_resources};
+        if (!this.gained_resources.roll_quality) {
+            return { gathering_time_needed, gained_resources };
+        }
+        else {
+            const skill = skills[activities[this.activity_name].base_skills_names[0]];
+            const quality_cap = Math.min(Math.round(100+2*get_total_skill_level(skill.skill_id)),200);
+            const quality = (3 * get_total_skill_level(skill.skill_id) - skill.max_level) + 130/* + (15 * tier)*/;
+            const quality_range = [
+                clamp(Math.round(quality - 15), 10, quality_cap),
+                clamp(Math.round(quality + 10), 10, quality_cap),
+            ];
+            return { gathering_time_needed, gained_resources, quality_range}
+        }
     }
 }
 
@@ -699,7 +712,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         name: "aquatic",
         stages: {
             1: {
-                description: "Wading in water up to your knees restrict your movement",
+                description: "Wading in water up to your knees restricts your movement",
                 related_skill: "Swimming",
                 scaling_lvl: 30,
                 effects: {
@@ -2261,7 +2274,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     {name: "Minnow", chance: [0.1, 0.5]},
                     {name: "Trout", chance: [0.01, 0.20]},
                     {name: "Mackerel shark", chance: [0.001, 0.05]}
-                ], 
+                ],
+                roll_quality: true,
                 time_period: [120, 30],
                 skill_required: [0, 10],
             },
@@ -2633,7 +2647,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     {name: "Cooking herbs", ammount: [[1,1], [1,2]], chance: [0.3, 0.6]}
                 ], 
                 time_period: [90, 45],
-                skill_required: [21, 28]
+                skill_required: [21, 28],
+                roll_quality: true,
             }
         }),
     };

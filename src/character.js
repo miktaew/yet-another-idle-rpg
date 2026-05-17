@@ -80,27 +80,39 @@ class Hero extends InventoryHaver {
                 this.name = "Hero";
                 this.titles = {};
                 this.stats = {
-                        full: {...this.base_stats}, 
-                        total_flat: {},
-                        total_multiplier: {},
-                        flat: {
-                                level: {},
-                                skills: {},
-                                equipment: {},
-                                skill_milestones: {},
-                                books: {},
-                                light_level: {},
-                                environment: {},
-                        },
-                        multiplier: {
-                                skills: {},
-                                skill_milestones: {},
-                                equipment: {},
-                                books: {},
-                                stance: {},
-                                light_level: {},
-                                environment: {},
-                        }
+                    full: {...this.base_stats}, 
+                    total_flat: {},
+                    total_multiplier: {},
+                    flat: {
+                            level: {},
+                            skills: {},
+                            equipment: {},
+                            skill_milestones: {},
+                            books: {},
+                            light_level: {},
+                            environment: {},
+                    },
+                    multiplier: {
+                            skills: {},
+                            skill_milestones: {},
+                            equipment: {},
+                            books: {},
+                            stance: {},
+                            light_level: {},
+                            environment: {},
+                    },
+                    get_health_regeneration_total() {
+                        return this.full.health_regeneration_flat + (this.full.max_health * this.full.health_regeneration_percent / 100);
+                    },
+                    get_health_loss_total() {
+                        return this.full.health_loss_flat + (this.full.max_health * this.full.health_loss_percent / 100);
+                    },
+                    get_stamina_regeneration_total() {
+                        return this.full.stamina_regeneration_flat + (this.full.max_stamina * this.full.stamina_regeneration_percent / 100);
+                    },
+                    get_mana_regeneration_total() {
+                        return this.full.mana_regeneration_flat + (this.full.max_mana * this.full.mana_regeneration_percent / 100);
+                    },
                 };
                 this.reputation = { //effects would go up to 1000?
                         Village: 0,

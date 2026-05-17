@@ -347,6 +347,10 @@ function create_item_tooltip(item, options = {}, is_trade = false) {
     return item_tooltip;
 }
 
+function round(number) {
+    return +number.toFixed(1);
+}
+
 /**
  * @param {Object} params
  * @param {Item} params.item
@@ -367,34 +371,32 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
         item_tooltip += `<br>${item.description}`; 
     }
 
+    let show_quality = item.quality && !options.skip_quality && item.use_quality;
     let quality = item.quality;
+    if (show_quality && options?.quality && options.quality[0]) {
+        quality = options.quality[0];
+    }
+
+    if(show_quality) {
+        if(options?.quality?.length == 2) {
+            const outline_class_1 = rarity_outlines[item.getRarity(options.quality[0])];
+            const outline_class_2 = rarity_outlines[item.getRarity(options.quality[1])];
+                
+            item_tooltip += `<br><br><b>Quality: <span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${options.quality[0]}% </span> - <span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${options.quality[1]}% </span>`;
+            item_tooltip += `<br>[<span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}">${item.getRarity(options.quality[0])}</span>-<span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}">${item.getRarity(options.quality[1])}</span>] </b>`;
+        } else {
+            const outline_class = rarity_outlines[item.getRarity(quality)];
+                
+            item_tooltip += `<br><br><b class="${outline_class}" style="color: ${rarity_colors[item.getRarity(quality)]}">Quality: ${quality}% [${item.getRarity(quality)}]</b>`;
+        }
+    }
+    if(item.tags.unique) {
+        item_tooltip += `<br><b class="item_unique outline_white">Unique</b>`;
+    }
 
     //add stats if can be equipped
-    if(item.item_type === "EQUIPPABLE"){ 
-        if(options?.quality && options.quality[0]) {
-            quality = options.quality[0];
-        }
-
-        if(!item.ignore_quality) {
-            if(!options.skip_quality && options?.quality?.length == 2) {
-                const outline_class_1 = rarity_outlines[item.getRarity(options.quality[0])];
-                const outline_class_2 = rarity_outlines[item.getRarity(options.quality[1])];
-                
-                item_tooltip += `<br><br><b>Quality: <span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${options.quality[0]}% </span> - <span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${options.quality[1]}% </span>`;
-                item_tooltip += `<br>[<span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}">${item.getRarity(options.quality[0])}</span>-<span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}">${item.getRarity(options.quality[1])}</span>] </b>`;
-            } else {
-                const outline_class = rarity_outlines[item.getRarity(quality)];
-                
-                item_tooltip += `<br><br><b class="${outline_class}" style="color: ${rarity_colors[item.getRarity(quality)]}">Quality: ${quality}% [${item.getRarity(quality)}]</b>`;
-            }
-        }
-
-        if(item.tags.unique) {
-            item_tooltip += `<br><br><b class="item_unique outline_white">Unique</b>`;
-        }
-
-
-        item_tooltip += `<br><br>Slot: <b>${item.equip_slot}</b>`;
+    if(item.item_type === "EQUIPPABLE") { 
+        item_tooltip += `<br>Slot: <b>${item.equip_slot}</b>`;
         if(item.equip_slot === "weapon") {
             item_tooltip += `<br>Type: <b>${item.weapon_type}</b>`;
         }
@@ -403,7 +405,8 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
             let component_description = `<br><br><span class="item_component_list">`;
             const components = Object.keys(item.components);
 
-            if(item.components) {
+            if (item.components) {
+                //TODO future proof by looping through all components, not just static 2
                 component_description += `[${item_templates[item.components[components[0]]].name}]`;
                 if(!item.components[components[1]]) {
                     component_description += `<br>+<br>no [${components[1]}]`;
@@ -416,21 +419,17 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
             item_tooltip += component_description;
         }
 
-        if(!options.skip_quality && options?.quality?.length == 2) {
+        if(show_quality && options?.quality?.length == 2) {
             if(item.getAttack) {
                 item_tooltip += 
-                    `<br><br>Attack: ${Math.round(10*item.getAttack(options.quality[0]), true)/10} - ${Math.round(10*item.getAttack(options.quality[1], true))/10}`;
+                    `<br><br>Attack: ${round(item.getAttack(options.quality[0]))} - ${round(item.getAttack(options.quality[1]))}`;
             } else if(item.getDefense) { 
                 item_tooltip += 
-                `<br><br>Defense: ${Math.round(10*item.getDefense(options.quality[0]))/10} - ${Math.round(10*item.getDefense(options.quality[1]))/10}`;
-            } else if(item.offhand_type === "shield") {
-                if(item.tags.ignore_skill) {
-                    item_tooltip += 
-                `<br><br>Can block up to: ${Math.round(10*item.getShieldStrength(options.quality[0]))/10} - ${Math.round(10*item.getShieldStrength(options.quality[1]))/10} damage [base: ${item.getShieldStrength(options.quality[0])}-${item.getShieldStrength(options.quality[1])}]`;
-                } else {
-                    item_tooltip += 
-                `<br><br>Can block up to: ${Math.round(10*item.getShieldStrength(options.quality[0])*(character.stats.total_multiplier.block_strength))/10} - ${Math.round(10*item.getShieldStrength(options.quality[1])*(character.stats.total_multiplier.block_strength))/10} damage [base: ${item.getShieldStrength(options.quality[0])}-${item.getShieldStrength(options.quality[1])}]`;
-                }
+                    `<br><br>Defense: ${round(item.getDefense(options.quality[0]))} - ${round(item.getDefense(options.quality[1]))}`;
+            } else if (item.offhand_type === "shield") {
+                const block_multiplier = item.tags.ignore_skill ? character.stats.total_multiplier.block_strength : 1;
+                item_tooltip += 
+                    `<br><br>Can block up to: ${round(item.getShieldStrength(options.quality[0])*block_multiplier)} - ${round(item.getShieldStrength(options.quality[1])*block_multiplier)} damage [base: ${item.getShieldStrength(options.quality[0])}-${item.getShieldStrength(options.quality[1])}]`;
             }
 
             const equip_stats_0 = item.getStats(options.quality[0]);
@@ -472,14 +471,14 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
             Object.keys(equip_stats).forEach(function(effect_key) {
 
                 if(equip_stats[effect_key].flat != null) {
-                    item_tooltip += 
+                        item_tooltip +=
                     `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: +${equip_stats[effect_key].flat}`;
-                }
+                    }
                 if(equip_stats[effect_key].multiplier != null) {
-                    item_tooltip += 
+                        item_tooltip +=
                     `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: x${equip_stats[effect_key].multiplier}`;
-                }
-            });
+                    }
+                });
         }
         const equip_bonus_skill_levels = item.getBonusSkillLevels();
         if(Object.keys(equip_bonus_skill_levels).length > 0) {
@@ -489,61 +488,12 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
             if(skill_key.includes("category_")) {
                 item_tooltip +=  `<br>${skill_key} skills level: +${equip_bonus_skill_levels[skill_key]}`;
             } else {
-                item_tooltip +=  `<br>${skills[skill_key].name()} level: +${equip_bonus_skill_levels[skill_key]}`;
+                item_tooltip += `<br>${skills[skill_key].name()} level: +${equip_bonus_skill_levels[skill_key]}`;
             }
         });
+    }
 
-        item_tooltip += "<br>";
-    } else if (item.item_type === "USABLE") {
-        item_tooltip += `<br>`;
-
-        if(item.effects.length > 0) {
-            item_tooltip += "<br>Effects: "
-        }
-        for(let i = 0; i < item.effects.length; i++) {
-            item_tooltip += create_effect_tooltip({effect_name: item.effects[i].effect, duration: item.effects[i].duration, add_bonus: true}).outerHTML;
-        }
-    } else if(item.item_type === "BOOK") {
-        if(!book_stats[item.name].is_finished) {
-            item_tooltip += `<br><br>Time to read: ${item.getRemainingTime()} minutes`;
-        }
-        else {
-            item_tooltip += `<br><br>Reading it provided ${character.name} with:`;
-            if(Object.keys(book_stats[item.name].bonuses).length > 0) {
-                item_tooltip += `<br>- ${format_book_bonuses(book_stats[item.name].bonuses)}`;
-            }
-            if(book_stats[item.name].rewards?.skills) {
-                if(book_stats[item.name].rewards.skills.length == 1) {
-                    item_tooltip += `<br>- a new skill`;
-                } else {
-                    item_tooltip += `<br>- new skills`;
-                }
-            }
-            if(book_stats[item.name].rewards?.recipes) {
-                if(book_stats[item.name].rewards.recipes.length == 1) {
-                    item_tooltip += `<br>- a new recipe`;
-                } else {
-                    item_tooltip += `<br>- new recipes`;
-                }
-            }
-        }
-        item_tooltip += "<br>";
-    } else if(item.tags.component) {
-        if(options?.quality && options.quality[0]) {
-            quality = options.quality[0];
-        }
-
-        if(!options.skip_quality && options?.quality?.length == 2) {
-            const outline_class_1 = rarity_outlines[item.getRarity(options.quality[0])];
-            const outline_class_2 = rarity_outlines[item.getRarity(options.quality[1])];
-            
-            item_tooltip += `<br><br><b>Quality: <span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${options.quality[0]}% </span> - <span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${options.quality[1]}% </span>`;
-            item_tooltip += `<br>[<span class="${outline_class_1}" style="color: ${rarity_colors[item.getRarity(options.quality[0])]}"> ${item.getRarity(options.quality[0])}</span> - <span class="${outline_class_2}" style="color: ${rarity_colors[item.getRarity(options.quality[1])]}"> ${item.getRarity(options.quality[1])}</span>]</b>`;
-        } else {
-            let outline_class = rarity_outlines[item.getRarity(quality)];
-            
-            item_tooltip += `<br><br><b class="${outline_class}" style="color: ${rarity_colors[item.getRarity(quality)]}">Quality: ${quality}% [${item.getRarity(quality)}]</b>`;
-        }
+    if (item.component_stats) {
         if(item.component_tier) {
             item_tooltip += `<br><br>Component tier: ${item.component_tier}`;
         }
@@ -570,23 +520,59 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
                 `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: x${item.component_stats[effect_key].multiplier}`;
             }
         });
-        item_tooltip += "<br>";
-    } else {
-        item_tooltip += "<br>";
     }
+
+    if(item?.base_size) {
+        item_tooltip += `<br><br>Size: ${item.getSize()}cm`;
+    }
+
+    if (item.effects?.length > 0) {
+        item_tooltip += "<br><br>Effects: "
+
+        for (let i = 0; i < item.effects.length; i++) {
+            item_tooltip += create_effect_tooltip({ effect_name: item.effects[i].effect, duration: item.effects[i].duration, add_bonus: true }).outerHTML;
+        }
+    }
+
+    if (item.item_type === "BOOK") {
+        if(!book_stats[item.name].is_finished) {
+            item_tooltip += `<br><br>Time to read: ${item.getRemainingTime()} minutes`;
+        }
+        else {
+            item_tooltip += `<br><br>Reading it provided ${character.name} with:`;
+            if(Object.keys(book_stats[item.name].bonuses).length > 0) {
+                item_tooltip += `<br>- ${format_book_bonuses(book_stats[item.name].bonuses)}`;
+            }
+            if(book_stats[item.name].rewards?.skills) {
+                if(book_stats[item.name].rewards.skills.length == 1) {
+                    item_tooltip += `<br>- a new skill`;
+                } else {
+                    item_tooltip += `<br>- new skills`;
+                }
+            }
+            if(book_stats[item.name].rewards?.recipes) {
+                if(book_stats[item.name].rewards.recipes.length == 1) {
+                    item_tooltip += `<br>- a new recipe`;
+                } else {
+                    item_tooltip += `<br>- new recipes`;
+                }
+            }
+        }
+    }
+
     if(item.material_type) {
-        item_tooltip += `<br>Material type: ${item.material_type}<br>`;
+        item_tooltip += `<br><br>Material type: ${item.material_type}`;
     }
 
     if(!item.tags.unique) {
         if(!options.skip_quality && options?.quality?.length == 2) { 
             //ignore quality, instead use quality passed as param
-            item_tooltip += `<br>Value: ${format_money(
+            item_tooltip += `<br><br>Value: ${format_money(
             round_item_price(
                 item[value_function]({quality:options.quality[0], region:current_location?.market_region})))} - ${format_money(round_item_price(item.getBaseValue({quality:options.quality[1]})
             ))}`;
         } else {
-            item_tooltip += `<br>Value: ${format_money(round_item_price(item[value_function]({quality, region:current_location?.market_region, multiplier: ((options && options.trader) ? traders[current_trader].getProfitMargin(current_location.market_region) : 1)})))}`;
+            item_tooltip += `<br><br>Value: ${format_money(round_item_price(item[value_function]({quality, region:current_location?.market_region, multiplier: ((options && options.trader) ? traders[current_trader].getProfitMargin(current_location.market_region) : 1)})))}`;
             if(item.saturates_market) {
                 item_tooltip += ` [originally ${format_money(round_item_price(item.getBaseValue({quality, region:current_location?.market_region}) * ((options && options.trader) ? traders[current_trader].getProfitMargin(current_location.market_region) : 1) || 1))}]`
             }
@@ -1252,6 +1238,9 @@ function sort_displayed_inventory({sort_by, target = "character", change_directi
                 if (item_template_a.component_tier != item_template_b.component_tier) { 
                     return item_template_a.component_tier > item_template_b.component_tier ? plus : minus;
                 }
+                if (item_template_a.item_tier != item_template_b.item_tier) { 
+                    return item_template_a.item_tier > item_template_b.item_tier ? plus : minus;
+                }
             }
 
             //...otherwise, fall back to sorting by name
@@ -1744,7 +1733,7 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
         }
     }
 
-    if("quality" in target_item) {
+    if(target_item.use_quality) {
         item_control_div.dataset.item_quality = target_item.quality;
     }
 
@@ -1795,7 +1784,11 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
         //
         item_name_div_content = `<span class = "item_category"></span> <span class = "item_name">${target_item.getName()}</span>`;
     }
-    
+
+    if (target_item.use_quality && target_item.quality) {
+        item_name_div_content += ` [<b class="${rarity_outlines[target_item.getRarity()]}" style="color: ${ rarity_colors[target_item.getRarity()] } ">${target_item.quality}%</b>]`;
+    }
+
     if(item_count > 1) {
         item_name_div_content += `<span class="item_count"> x${item_count}</span>`;
     } else {
@@ -3191,10 +3184,11 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
             tooltip += `<span style="color:red"><b>${name} x${character.inventory[item_templates[material.material_id].getInventoryKey()]?.count || 0}/${material.count}</b></span><br>`;
         }
 
-        const quality_range = recipe.get_quality_range(station_tier - item_templates[material.result_id].component_tier);
+        const result_tier = item_templates[material.result_id].component_tier ?? item_templates[material.result_id].item_tier;
+        const quality_range = recipe.get_quality_range(station_tier - result_tier);
 
-        const xp_val_1 = get_recipe_xp_value({category, subcategory, recipe_id, material_count: material.count, result_tier: item_templates[material.result_id].component_tier, rarity_multiplier: rarity_multipliers[getItemRarity(quality_range[0])]});
-        const xp_val_2 = get_recipe_xp_value({category, subcategory, recipe_id, material_count: material.count, result_tier: item_templates[material.result_id].component_tier, rarity_multiplier: rarity_multipliers[getItemRarity(quality_range[1])]});
+        const xp_val_1 = get_recipe_xp_value({category, subcategory, recipe_id, material_count: material.count, result_tier: result_tier, rarity_multiplier: rarity_multipliers[getItemRarity(quality_range[0])]});
+        const xp_val_2 = get_recipe_xp_value({category, subcategory, recipe_id, material_count: material.count, result_tier: result_tier, rarity_multiplier: rarity_multipliers[getItemRarity(quality_range[1])]});
 
         tooltip += `<br>XP value: ${xp_val_1} - ${xp_val_2}<br>`;
         tooltip += `<br>Result:<br><div class="recipe_result">${create_item_tooltip_content({item: item_templates[material.result_id], options: {quality: quality_range}})}</div>`;
@@ -3490,11 +3484,17 @@ function update_gathering_tooltip(activity) {
 }
 
 function update_displayed_health() { //call it when using healing items, resting or getting hit
-    current_health_value_div.innerText = Math.ceil(character.stats.full.health) + "/" + Math.ceil(character.stats.full.max_health) + " hp";
+    let total_regen = character.stats.get_health_regeneration_total() - character.stats.get_health_loss_total();
+    current_health_value_div.innerText = Math.ceil(character.stats.full.health) + "/" + Math.ceil(character.stats.full.max_health)
+        + (total_regen != 0 ? " (+" + expo(total_regen, 1) + "/s) " : "")
+        + " hp";
     current_health_bar.style.width = (character.stats.full.health*100/character.stats.full.max_health).toString() +"%";
 }
 function update_displayed_stamina() { //call it when eating, resting or fighting
-    current_stamina_value_div.innerText = Math.round(character.stats.full.stamina) + "/" + Math.round(character.stats.full.max_stamina) + " stamina";
+    let total_regen = character.stats.get_stamina_regeneration_total();
+    current_stamina_value_div.innerText = Math.round(character.stats.full.stamina) + "/" + Math.round(character.stats.full.max_stamina)
+        + (total_regen != 0 ? " (+" + expo(total_regen, 1) + "/s) " : "")
+        + "stamina";
     current_stamina_bar.style.width = (character.stats.full.stamina*100/character.stats.full.max_stamina).toString() +"%";
 }
 
@@ -3944,7 +3944,7 @@ function update_displayed_item_log() {
     let html_content = "<table id='item_log_table'><tr><th width='100%'>Item</th><th>Best</th><th>Total</th></tr>";
 
     Object.values(item_log.items).forEach(item => {
-        if(item_templates[item.id].components) {
+        if(!item_templates[item.id] || item_templates[item.id].components) {
             return;
             /*
             skip stuff with components 
@@ -3957,7 +3957,7 @@ function update_displayed_item_log() {
 
         html_content += `<tr><td>${name}</td ><td>`;
 
-        if(item.quality_highest > 0 && !item_templates[item.id].ignore_quality) {
+        if(item.quality_highest > 0 && item_templates[item.id].use_quality) {
             const color = rarity_colors[getItemRarity(item.quality_highest)];
             const outline_class = select_outline_class(color);
             //html_content += `${item.quality_lowest}-${item.quality_highest}%`;

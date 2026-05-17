@@ -158,6 +158,7 @@ class Item {
                 market_saturation_group,
                 saturates_market,
                 material_type = null,
+                use_quality = false,
                 quality = null,
                 rarity,
                 id = null, //passed only on loading, no need to provide it when creating new item objects as it will be filled automatically in that case
@@ -174,7 +175,8 @@ class Item {
         this.saturates_market = saturates_market ?? true;
 
         this.material_type = material_type;
-
+        
+        this.use_quality = use_quality;
         this.quality = quality;
         this.components = components; //meaningless unless it's an equippable that's /meant/ to have components
 
@@ -290,6 +292,37 @@ class Material extends OtherItem {
         super(item_data);
         this.item_type = "MATERIAL";
         this.tags["material"] = true;
+        this.quality = Math.round(item_data.quality) || null;
+
+        if (item_data.base_size) {
+            this.base_size = item_data.base_size;
+        }
+    }
+
+    getRarity(quality){
+        if(!quality) {
+            if(!this.rarity) {
+                this.rarity = getItemRarity(this.quality);
+            }
+            return this.rarity;
+        } else {
+            return getItemRarity(quality);
+        }
+    }
+
+    getSize(quality) {
+        if(!quality) {
+            if(!this.size_value) {
+                this.size_value = this.calculateSize(this.quality);
+            }
+            return this.size_value;
+        } else {
+            return this.calculateSize(quality);
+        }
+    }
+
+    calculateSize(quality) {
+        return Math.ceil((this.base_size * 10 || 0) / 10  * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality || this.quality)]);
     }
 }
 
@@ -301,6 +334,7 @@ class ItemComponent extends Item {
         this.component_stats = item_data.component_stats || {};
         this.component_bonus_skill_levels = item_data.component_bonus_skill_levels || {};
         this.tags["component"] = true;
+        this.use_quality = item_data.use_quality ?? true;
         this.quality = Math.round(item_data.quality) || 100;
     }
 
@@ -447,6 +481,7 @@ class Equippable extends Item {
         this.item_type = "EQUIPPABLE";
         this.base_bonus_skill_levels = item_data.base_bonus_skill_levels;
 
+        this.use_quality = item_data.use_quality ?? true;
         this.quality = Math.round(Number(item_data.quality)) || 100;
 
         this.tags["equippable"] = true;
@@ -463,7 +498,7 @@ class Equippable extends Item {
             return tier;
         } else if(this.component_tier) {
             return this.component_tier;
-        } else {
+        } else { 
             return 1;
         }
     }
@@ -665,7 +700,7 @@ class Artifact extends Equippable {
         super(item_data);
         this.equip_slot = "artifact";
         this.stats = item_data.stats;
-        this.ignore_quality = true;
+        this.use_quality = false;
 
         this.tags["artifact"] = true;
         if(!this.id) {
@@ -682,7 +717,7 @@ class Tool extends Equippable {
     constructor(item_data) {
         super(item_data);
         this.equip_slot = item_data.equip_slot; //tool type is same as equip slot (axe/pickaxe/herb sickle)
-        this.ignore_quality = true;
+        this.use_quality = false;
         this.tags["tool"] = true;
         this.tags[this.equip_slot] = true;
         if(!this.id) {
@@ -994,8 +1029,9 @@ class Amulet extends Equippable {
         super(item_data);
         this.equip_slot = "amulet";
         this.stats = item_data.stats;
+        this.item_tier = item_data.item_tier;
 
-        this.ignore_quality = true;
+        this.use_quality = item_data.use_quality ?? false;
 
         this.tags["amulet"] = true;
         if(!this.id) {
@@ -1012,8 +1048,8 @@ class Ring extends Equippable {
         super(item_data);
         this.equip_slot = "ring";
         this.stats = item_data.stats;
-
-        this.ignore_quality = true;
+        
+        this.use_quality = item_data.use_quality ?? false;
 
         this.tags["ring"] = true;
         if(!this.id) {
@@ -1141,6 +1177,7 @@ function getItem(item_data) {
         case "MATERIAL":
             return new Material(item_data);
         default:
+            console.log(item_data);
             throw new Error(`Wrong item type: ${item_data.item_type}`);
     }
 }
@@ -1238,8 +1275,10 @@ book_stats["Medicine for dummies"] = new BookData({
         recipes: [
             {category: "alchemy", subcategory: "items", recipe_id: "Weak healing powder"},
             {category: "alchemy", subcategory: "items", recipe_id: "Healing balm"},
+            {category: "alchemy", subcategory: "items", recipe_id: "Thick healing balm"},
             {category: "alchemy", subcategory: "items", recipe_id: "Oneberry juice"},
             {category: "alchemy", subcategory: "items", recipe_id: "Healing powder"},
+            {category: "alchemy", subcategory: "items", recipe_id: "Potent healing powder"},
             {category: "alchemy", subcategory: "items", recipe_id: "Healing potion"},
             {category: "alchemy", subcategory: "items", recipe_id: "Potion of sapping"}, //not a medicine, but has to be somewhere
         ],
@@ -1664,7 +1703,6 @@ book_stats["Wood for Witches"] = new BookData({
         value: 50,
         material_type: "raw wood",
     });
-    //right now mostly meant as an additional source of charcoal, hopefully more uses after magic and housing
     item_templates["Piece of willow wood"] = new Material({
         description: "Not suitable for weapons, but may have other uses",
         value: 5,
@@ -1751,12 +1789,16 @@ book_stats["Wood for Witches"] = new BookData({
     item_templates["Ratfish"] = new Material({
         name: "Ratfish",
         description: "A small sweetwater fish, named after its unremarkable coloration and propensity to travel in large groups",
+        use_quality: true,
+        base_size: 5,
         value: 5,
         material_type: "small fish",
     });
     item_templates["Minnow"] = new Material({
         name: "Minnow",
         description: "One of the variety of small fish that inhabit rivers and streams",
+        use_quality: true,
+        base_size: 10,
         value: 10,
         material_type: "small fish",
     });
@@ -1764,25 +1806,33 @@ book_stats["Wood for Witches"] = new BookData({
     item_templates["Mackerel shark"] = new Material({
         name: "Mackerel shark",
         description: "A shark small enough to fit in a stream. Makes up for its size with its feistiness and big mouth",
-        value: 50,
+        use_quality: true,
+        base_size: 35,
+        value: 85,
         material_type: "medium fish",
     });
     item_templates["Trout"] = new Material({
         name: "Trout",
         description: "A fish large enough for a full meal and common in most rivers, making it a convenient source of food. So far, this has not effected their population",
-        value: 50,
+        use_quality: true,
+        base_size: 60,
+        value: 110,
         material_type: "medium fish",
     });
 
     item_templates["Carp"] = new Material({
         name: "Carp",
         description: "It hasn't grown into any of its more powerful forms yet, so its meat is still fatty and plump",
-        value: 50,
+        use_quality: true,
+        base_size: 50,
+        value: 150,
         material_type: "medium fish",
     });
     item_templates["Catfish"] = new Material({
         name: "Catfish",
         description: "A large fish with whiskers. Usually found near the bottom of lakes, where it feeds on ratfish and pretty much everything else it can hunt",
+        use_quality: true,
+        base_size: 100,
         value: 200,
         material_type: "large fish",
     });
@@ -4186,11 +4236,13 @@ function add_gear() {
     (function () {
         item_templates["Wool scarf"] = new Amulet({
             value: 100,
+            item_tier: 2,
+            use_quality: true,
             stats: {
                 cold_tolerance: {
                     flat: 5,
                 }
-            },
+            }
         });
         item_templates["Warrior's necklace"] = new Amulet({
             value: 1000,
@@ -4319,6 +4371,24 @@ function add_gear() {
             equip_slot: "fishing_pole",
             base_bonus_skill_levels: {
                 "Fishing": 5,
+            }
+        });
+        item_templates["Hickory wood fishing pole"] = new Tool({
+            name: "Hickory wood fishing pole",
+            description: "A good fishing pole made out of quality materials",
+            value: 900,
+            equip_slot: "fishing_pole",
+            base_bonus_skill_levels: {
+                "Fishing": 7,
+            }
+        });
+        item_templates["Alchemical wood fishing pole"] = new Tool({
+            name: "Alchemical wood fishing pole",
+            description: "An excellent fishing pole made out of state-of-the-art materials",
+            value: 1400,
+            equip_slot: "fishing_pole",
+            base_bonus_skill_levels: {
+                "Fishing": 10,
             }
         });
     })();
@@ -4467,6 +4537,10 @@ function add_gear() {
     item_templates["Sinew string"] = new Material({
         description: "Tough, durable fiber, processed from animal tissue",
         value: 20,
+    });
+    item_templates["Flax string"] = new Material({
+        description: "Strong and durable linen fiber",
+        value: 35,
     });
     item_templates["Wool cloth"] = new Material({
         description: "Thick and warm, might possibly absorb some punches",
@@ -4661,12 +4735,18 @@ function add_gear() {
         effects: [{effect: "Weak healing powder", duration: 240}],
         tags: {"medicine": true},
     });
-
     item_templates["Healing powder"] = new UsableItem({
         name: "Healing powder",
         description: "Not exactly powerful in its effects, but still makes the body heal noticeably faster and for a long time",
         value: 100,
         effects: [{effect: "Healing powder", duration: 300}],
+        tags: {"medicine": true},
+    });
+    item_templates["Potent healing powder"] = new UsableItem({
+        name: "Potent healing powder",
+        description: "Makes the body heal significantly faster and for a long time",
+        value: 220,
+        effects: [{effect: "Potent healing powder", duration: 300}],
         tags: {"medicine": true},
     });
 
@@ -4698,6 +4778,13 @@ function add_gear() {
         description: "Simply apply it to your wound and watch it heal",
         value: 120,
         effects: [{effect: "Weak healing balm", duration: 90}],
+        tags: {"medicine": true},
+    });
+    item_templates["Thick healing balm"] = new UsableItem({
+        name: "Thick healing balm",
+        description: "Simply apply it to your wound and watch it quickly heal",
+        value: 300,
+        effects: [{effect: "Healing balm", duration: 90}],
         tags: {"medicine": true},
     });
 
@@ -4811,19 +4898,18 @@ function add_gear() {
         tags: {"food": true},
     });
 	
-    //TODO made them tier 2 and 3 for now, but are hard enough to get that they could be bumped to tier 4?
     item_templates["Fried frog meat"] = new UsableItem({
         name: "Fried frog meat",
         description: "Tastes a bit like bird, and a bit like fish",
-        value: 50,
-        effects: [{effect: "Simple meat meal", duration: 120}],
+        value: 100,
+        effects: [{effect: "Decent meat meal", duration: 120}],
         tags: {"food": true},
     });
     item_templates["Kingsized frog legs"] = new UsableItem({
         name: "Kingsized frog legs",
         description: "The legs are agreed to be the best part, and when cooked with proper seasoning, considered a delicacy by some",
-        value: 100,
-        effects: [{effect: "Decent meat meal", duration: 120}],
+        value: 200,
+        effects: [{effect: "Tasty meat meal", duration: 120}],
         tags: {"food": true},
     });
 
@@ -4873,7 +4959,7 @@ export {
     item_log,
     Item, OtherItem, UsableItem,
     Armor, Shield, Weapon, Cape, Artifact, Book,
-    Material, WeaponComponent, ArmorComponent, ShieldComponent,
+    Material, WeaponComponent, ArmorComponent, ShieldComponent, Amulet,
     getItem, getItemFromKey,
     round_item_price, getArmorSlot, getEquipmentValue,
     book_stats, BookData,

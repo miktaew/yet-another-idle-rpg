@@ -4065,8 +4065,8 @@ function load(save_data) {
                     }
                 } else if(quality) { //no comps but quality (clothing / artifact /)
                     const item_id = get_component_name(id);
-                    const new_item_key = item_templates[item_id].getInventoryKey();
-                    item_list.push({item_key: new_item_key, count: save_data.character.inventory[key].count, quality: quality});
+                    //const new_item_key = item_templates[item_id].getInventoryKey();
+                    item_list.push({item_id: item_id, count: save_data.character.inventory[key].count, quality: quality});
                 } else {
                     console.error(`Intentory key "${key}" from save on version "${save_data["game version"]} is incorrect!`);
                 }
@@ -5484,7 +5484,7 @@ function update() {
                 //ticks are varied for gathering activities, 1 second for most other activities
                 current_activity.gathering_time += 1;
                 if(current_activity.gathering_time >= current_activity.gathering_time_needed) { 
-                    const {gathering_time_needed, gained_resources} = current_activity.getActivityEfficiency();
+                    const {gathering_time_needed, gained_resources, quality_range} = current_activity.getActivityEfficiency();
                     const items = [];
 
                     //add xp
@@ -5507,8 +5507,14 @@ function update() {
                         for(let i = 0; i < gained_resources.length; i++) {
                             if(Math.random() > (1-gained_resources[i].chance)) {
                                 const count = random_range(gained_resources[i].count[0], gained_resources[i].count[1]);
-                            
-                                items.push({item_key: item_templates[gained_resources[i].name].getInventoryKey(), count: count});
+                                let quality = null;
+
+                                //quality
+                                if (quality_range) {
+                                    quality = Math.round(random_range(quality_range[0], quality_range[1]) / 4) * 4;
+                                }
+
+                                items.push({item_id: gained_resources[i].name, quality: quality, count: count});
 
                                 gathered_materials[gained_resources[i].name] = (gathered_materials[gained_resources[i].name] || 0) + count;
                             }

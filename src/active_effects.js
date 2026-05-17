@@ -144,6 +144,15 @@ class ActiveEffect {
         },
         tags: {"buff": true, "medicine": true},
     });
+    effect_templates["Potent healing powder"] = new ActiveEffect({
+        name: "Potent healing powder",
+        effects: {
+            stats: {
+                health_regeneration_flat: {flat: 9},
+            }
+        },
+        tags: {"buff": true, "medicine": true},
+    });
     effect_templates["Weak healing potion"] = new ActiveEffect({
         name: "Weak healing potion",
         effects: {
@@ -164,12 +173,32 @@ class ActiveEffect {
         },
         tags: {"buff": true, "medicine": true},
     });
+    effect_templates["Potent healing potion"] = new ActiveEffect({
+        name: "Potent healing potion",
+        effects: {
+            stats: {
+                health_regeneration_flat: {flat: 36},
+                health_regeneration_percent: {flat: 3},
+            }
+        },
+        tags: {"buff": true, "medicine": true},
+    });
     effect_templates["Weak healing balm"] = new ActiveEffect({
         name: "Weak healing balm",
         effects: {
             stats: {
                 health_regeneration_flat: {flat: 5},
                 health_regeneration_percent: {flat: 0.5},
+            }
+        },
+        tags: {"buff": true, "medicine": true},
+    });
+    effect_templates["Healing balm"] = new ActiveEffect({
+        name: "Healing balm",
+        effects: {
+            stats: {
+                health_regeneration_flat: {flat: 12},
+                health_regeneration_percent: {flat: 1},
             }
         },
         tags: {"buff": true, "medicine": true},
@@ -210,6 +239,16 @@ class ActiveEffect {
             stats: {
                 stamina_regeneration_flat: {flat: 2},
                 health_regeneration_flat: {flat: 2},
+            }
+        },
+        tags: {"buff": true, "food": true},
+    });
+    effect_templates["Tasty meat meal"] = new ActiveEffect({
+        name: "Tasty meat meal",
+        effects: {
+            stats: {
+                stamina_regeneration_flat: {flat: 3},
+                health_regeneration_flat: {flat: 3},
             }
         },
         tags: {"buff": true, "food": true},
