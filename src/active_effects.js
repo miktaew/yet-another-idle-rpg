@@ -410,6 +410,27 @@ class ActiveEffect {
         },
         tags: { "debuff": true, "poison": true },
     });
+
+    effect_templates["Dragonfly venom"] = new ActiveEffect({
+        name: "Dragonfly venom",
+        effects: {
+            stats: {
+                health_loss_flat: {flat: -10},
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+        group_tags: {dragonfly_venom: 1},
+    });
+    effect_templates["Dragonfly queen venom"] = new ActiveEffect({
+        name: "Dragonfly queen venom",
+        effects: {
+            stats: {
+                health_loss_flat: {flat: -20},
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+        group_tags: {dragonfly_venom: 2},
+    });
 })();
 
 effect_templates["Recovering"] = new ActiveEffect({

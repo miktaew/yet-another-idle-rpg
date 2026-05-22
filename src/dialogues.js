@@ -264,29 +264,39 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 locks_lines: ["bridge materials", "bridge finished"],
                 rewards: {
-                    //todo: money and rep
+                    //todo: rep from task
+                    money: 4000,
                     textlines: [{dialogue: "village elder", lines: ["other work 3"]}],
+                    quest_progress: [
+                        {quest_id: "Village expansion", task_index: 3},
+                    ]
                 },
             }),
 
             "other work 3": new Textline({
-                name: "elder fireflies",
-                text: "elder fireflies answ",
+                name: "elder dragonflies",
+                text: "elder dragonflies answ",
                 is_unlocked: false,
                 locks_lines: ["other work 3"],
                 rewards: {
-                    //todo: combat zone                    
+                    locations: [{location: "Infested woods"}],
+                    quest_progress: [
+                        {quest_id: "Village expansion", task_index: 4},
+                    ]                   
                 },
             }),
 
-            "fireflies killed": new Textline({
-                name: "elder fireflies killed",
-                text: "elder fireflies killed answ",
+            "dragonflies killed": new Textline({
+                name: "elder dragonflies killed",
+                text: "elder dragonflies killed answ",
                 is_unlocked: false,
-                locks_lines: ["fireflies killed"],
+                locks_lines: ["dragonflies killed"],
                 rewards: {
-                    //todo: money and rep
+                    //todo: money, rep from task
                     textlines: [{dialogue: "village elder", lines: ["further work"]}],
+                    quest_progress: [
+                        {quest_id: "Village expansion", task_index: 5},
+                    ]      
                 },
             }),
 

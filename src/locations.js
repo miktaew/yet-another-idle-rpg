@@ -765,13 +765,18 @@ function get_location_type_penalty(type, stage, stat, category) {
 (function(){ 
     locations["Village"] = new Location({ 
         getDescription: function() {
+            let base_text = "Medium-sized village, built at the foot of the mountains. It's surrounded by many fields, "
+            //todo: change text after bridge is built
             if(locations["Infested field"].enemy_groups_killed >= 5 * locations["Infested field"].enemy_count) { 
-                return "Medium-sized village, built next to a small and calm river at the foot of the mountains. It's surrounded by many fields, a few of them infested by huge rats, which, while an annoyance, don't seem possible to fully eradicate. Other than that, there's nothing interesting around";
+                base_text += "a few of them infested by huge rats, which, while an annoyance, don't seem possible to fully eradicate. ";
             } else if(locations["Infested field"].enemy_groups_killed >= 2 * locations["Infested field"].enemy_count) {
-                return "Medium-sized village, built next to a small and calm river at the foot of the mountains. It's surrounded by many fields, many of them infested by huge rats. Other than that, there's nothing interesting around";
+                base_text += "many of them infested by huge rats. ";
             } else {
-                return "Medium-sized village, built next to a small and calm river at the foot of the mountains. It's surrounded by many fields, most of them infested by huge rats. Other than that, there's nothing interesting around"; 
+                base_text += "most of them infested by huge rats. ";
             }
+
+            return base_text + `There is a relatively calm, somewhat small river near it with ${locations["Village"].actions["bridge construction"].is_finished?"a sturdy, impressive bridge over it":"no bridges over it"} ` 
+                             + ", and with some old structures on the other side, clearly not used for years if not longer. Other than that, there's nothing interesting around";
         },
         getBackgroundNoises: function() {
             let noises = ["*You hear some rustling*"];
@@ -932,6 +937,30 @@ function get_location_type_penalty(type, stage, stat, category) {
         ]
     });
     locations["Village"].connected_locations.push({location: locations["Infested field"], travel_time: 15});
+
+    locations["Infested woods"] = new Combat_zone({
+        description: "",
+        enemy_count: 40,
+        enemies_list: ["Huge dragonfly"],
+        enemy_groups_list: [{enemies: ["Dragonfly queen", "Huge dragonfly", "Huge dragonfly", "Huge dragonfly", "Huge dragonfly", "Huge dragonfly"]}],
+        predefined_lineup_on_nth_group: 5,
+        enemy_group_size: [6,6],
+        enemy_stat_variation: 0.2,
+        is_unlocked: false,
+        name: "Infested woods",
+        leave_text: "Run back towards the bridge and to the village",
+        parent_location: locations["Village"],
+        first_reward: {
+            xp: 1500,
+        },
+        repeatable_reward: {
+            textlines: [{dialogue: "village elder", lines: ["dragonflies killed"]}],
+            xp: 750,
+        },
+    });
+
+    locations["Village"].connected_locations.push({location: locations["Infested woods"], travel_time: 40});
+
 
     locations["Nearby cave"] = new Location({ 
         connected_locations: [{location: locations["Village"], custom_text: "Go outside and to the [Village]", travel_time: 60}], 
@@ -2841,6 +2870,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             rewards: {
                 skill_xp: {Digging: 500},
                 textlines: [{dialogue: "village elder", lines: ["finished digging"]}],
+                quest_progress: [
+                        {quest_id: "Village expansion", task_index: 0},
+                    ]
             }, 
         }),
         "bridge mat delivery": new GameAction({
@@ -2860,8 +2892,29 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 },
             },
             rewards: {
-                //action to build the bridge, needs to be added too
+                actions: [{location: "Village", action: "bridge construction"}]
             }, 
+        }),
+
+        "bridge construction": new GameAction({
+            action_id: "bridge construction",
+            starting_text: "Build the bridge",
+            description: "Join the workers building the bridge",
+            action_text: "Building",
+            success_text: "As you help craftsman place the final plank, both of you and the other workers take a few steps back to take a good, long, silent look at the finished bridge. "
+                        + "Then, first person finally starts cherring and everyone else follows almost instantly. It is a simple yet magnificient bridge for settlement of this size. "
+                        + "The bridge deck is constructed of sturdy, thick wooden planks, supported by an additional framework of beams that can withstand any load transported across it, "
+                        + "while also being easy to replace if necessary. The entire structure is supported by two robust stone pillars rising proudly from the water, thick and shaped to withstand any current, "
+                        + "no matter how swollen the river may become. The structure stands as a monument to careful planning and dedication and will serve as a gift to future generations.",
+            failure_texts: {},
+            attempt_duration: 720,
+            success_chances: [1],
+            rewards: {
+                quest_progress: [
+                        {quest_id: "Village expansion", task_index: 2},
+                    ]
+            },
+            keep_progress: true,
         }),
     };
     locations["Nearby cave"].actions = {

@@ -75,7 +75,8 @@ const english = {
                             +"may seem calm and safe to walk across, it becomes very dangerous after strong rain. We already tried making small bridges, but they wouldn't withstand "
                             +"the current when river is swollen. So... Our dear craftsman came up with a much better and solid project. He estimated we would need... What was it? 100 wooden logs for the deck of the bridge and 800 stone bricks for "
                             +"bridge pillars. I know it might seem too ambitious for our community, but it's intended to stand long enough so that future generations will still benefit from it. "
-                            +"We already have a group of volunteers for the work and our craftsman will lead it, so all that's needed is for you to get us the materials and then lend some help with construction.",
+                            +"We already have a group of volunteers for the work and our craftsman will lead it, so all that's needed is for you to get us the materials and then lend some help with construction. "
+                            +"If you haven't spoken with him yet, please do it soon, he will explain to you how to gather and use all kinds of materials.",
     "elder bridge materials": "What exact materials do I need for the bridge and where can I get them from?",
     "elder bridge materials answ": "Oh, of course, I should have explained it, shouldn't I? Craftsman said that regular average wood would be the best, being neither too weak nor hard to work with. You can "
                             +"gather this kind of stuff somewhere deeper in the forest, I'm sure. As for stone bricks, there's a spot near the cave entrance, just a bit to the north, where we used to mine "
@@ -84,12 +85,12 @@ const english = {
     "elder leave for materials materials answ": "I can't deny that you have a good point here, but no, I can't allow that until I can trust you are strong enough to resume traveling",
     "elder bridge finished": "The bridge is finished",
     "elder bridge finished answ": "Yes, I saw and heard enough to notice. Wonderful work, I'm really thankful for your help. Here, this is for you.",
-    "elder fireflies": "With bridge completed, what's next?",
-    "elder fireflies answ": "Some villagers already reported problems with huge fireflies on the other side of the river, and they even seem to have poison. Could you try dealing with them?",
-    "elder fireflies killed": "I destroyed fireflies in the vicinity, but there are some more nests further away",
-    "elder fireflies killed answ": "That's good enough, I doubt it would be possible to exterminate them, just like the rats won't ever completely leave.",
-    "elder further work": "Are there more projects now that fireflies are gone?",
-    "elder further work answ": "Not yet, but maybe in time [tbc]",
+    "elder dragonflies": "With bridge completed, what's next?",
+    "elder dragonflies answ": "Some villagers already tried working on the old buildings on the other side of the river and reported problems with huge dragonflies, and those even seem to have some kind of poison. Could you try dealing with them?",
+    "elder dragonflies killed": "I destroyed dragonflies in the vicinity, but there might be  more nests further away",
+    "elder dragonflies killed answ": "That's good enough, I doubt it would be possible to exterminate them, just like the rats won't ever completely leave.",
+    "elder further work": "Are there more projects now that dragonflies are gone?",
+    "elder further work answ": "Not yet, but hopefully soon [tbc]",
     //
     "craftsman description": "You see an old man who clearly experienced a lot in life. He's wearing some handmade accessories. Despite his age, his fingers seem exceptionally nimble.",
             "mofu#craftsman description": "You see an old man with a medium length white tail, who clearly experienced a lot in life. His hair is composed of a black and a white part, with the former very dulled by age. He's wearing some handmade accessories. Despite his age and his massive hands, his fingers seem exceptionally nimble.",

@@ -298,7 +298,7 @@ const enemy_abilites = {
         name: "Boar",
         description: "A big wild creature, with thick skin and large tusks",
         xp_value: 10,
-        rank: 4,
+        rank: 5,
         tags: ["living", "beast"],
         stats: {health: 600, attack: 50, agility: 30, dexterity: 50, intuition: 60, magic: 0, attack_speed: 1, defense: 35},
         loot_list: [
@@ -314,7 +314,7 @@ const enemy_abilites = {
         name: "Warthog",
         description: "A large, aggressive porcine creature with a tough hide and large tusks",
         xp_value: 30,
-        rank: 5,
+        rank: 8,
         tags: ["living", "beast"],
         stats: {health: 12000, attack: 600, agility: 80, dexterity: 800, intuition: 100, magic: 0, attack_speed: 0.6, defense: 600},
         loot_list: [
@@ -371,7 +371,7 @@ const enemy_abilites = {
         ],
         size: enemy_sizes.LARGE,
         on_hit: (character) => {
-            let roll = Math.random();
+            const roll = Math.random();
             if(roll < 0.1) {
                 //todo: add some category for these messages
                 log_message("The frog's long tongue leaves you covered in sticky saliva!", "hero_attacked");
@@ -382,7 +382,7 @@ const enemy_abilites = {
             }
         },
         on_damaged: (character) => {
-            let roll = Math.random();
+            const roll = Math.random();
             if (character.equipment.weapon == null && roll < 0.1) {
                 log_message("Touching the frog with your bare hands leaves them covered in toxins!", "hero_attacked");
                 enemy_abilites.bufotoxin(10);
@@ -418,6 +418,40 @@ const enemy_abilites = {
         tags: ["living", "insect"],
         stats: {health: 200, attack: 20, agility: 50, dexterity: 200, intuition: 100, magic: 0, attack_speed: 0.5, defense: 20},
         size: enemy_sizes.SMALL,
+    });
+
+    enemy_templates["Huge dragonfly"] = new Enemy({
+        name: "Huge dragonfly",
+        description: "A huge, hostile dragonfly, with a nasty poisoned stinger",
+        xp_value: 15,
+        rank: 6,
+        tags: ["living", "insect"],
+        stats: {health: 300, attack: 40, agility: 200, dexterity: 150, intuition: 100, magic: 0, attack_speed: 1.5, defense: 5},
+        size: enemy_sizes.SMALL,
+        on_hit: () => {
+            const roll = Math.random();
+            if(roll < 0.2) {
+                log_message("The dragonfly quickly stabs you with its stinger and retreats", "hero_attacked");
+                add_active_effect("Dragonfly venom", 10);
+            }
+        },
+    });
+
+    enemy_templates["Dragonfly queen"] = new Enemy({
+        name: "Dragonfly queen",
+        description: "An exceptionally huge, hostile dragonfly, with a nasty poisoned stinger",
+        xp_value: 30,
+        rank: 6,
+        tags: ["living", "insect"],
+        stats: {health: 800, attack: 80, agility: 280, dexterity: 200, intuition: 100, magic: 0, attack_speed: 1.1, defense: 10},
+        size: enemy_sizes.SMALL,
+        on_hit: () => {
+            const roll = Math.random();
+            if(roll < 0.2) {
+                log_message("The dragonfly queen quickly stabs you with its large stinger and retreats", "hero_attacked");
+                add_active_effect("Dragonfly queen venom", 10);
+            }
+        },
     });
 
     enemy_templates["Slums thug"] = new Enemy({
