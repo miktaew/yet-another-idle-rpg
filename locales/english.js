@@ -34,6 +34,9 @@ const english = {
     "elder cleared 1 answ": "You did? That's good. How about a stronger target? Nearby cave is just full of this vermin. Try yourself against whatever occupies the frontal room, and then also the deeper parts. "
                     +"Before that, maybe get some sleep? Some folks prepared that shack over there for you. It's clean, it's dry, and it will give you some privacy. "
                     +"Oh, and before I forget, our old craftsman wanted to talk to you.",
+    "elder cleared 1 alt":  "I cleared the field, just as you asked me to",
+    "elder cleared 1 alt answ": "You did? That's good. How about a stronger target? Nearby cave is just full of this vermin. Try yourself against whatever occupies the frontal room, and then also the deeper parts. "
+                    +"Before that, maybe get some sleep? Some folks prepared that shack over there for you. It's clean, it's dry, and it will give you some privacy. ",
     "elder leave 3": "Can I leave the village?",
     "elder leave 3 answ":  "You still need to get stronger.",
     "elder room clear": "I dealt with some rats in the cave, but is there anything else to help with?",

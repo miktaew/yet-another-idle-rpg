@@ -249,6 +249,7 @@ class DialogueAction extends GameAction {
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["leave for materials"]}],
                     activities: [{location:"Village", activity: "mining"}],
+                    dialogues: ["old craftsman"], //if somehow it wasn't unlocked yet
                 }
             }),
             "leave for materials": new Textline({
@@ -326,7 +327,19 @@ class DialogueAction extends GameAction {
                     textlines: [{dialogue: "village elder", lines: ["ask to leave 3"]}],
                     dialogues: ["old craftsman"],
                 },
-                locks_lines: ["ask to leave 2", "cleared field"],
+                locks_lines: ["ask to leave 2", "cleared field", "cleared field alt"],
+                required_flags: {no: ["is_gathering_unlocked"]},
+            }),
+            "cleared field alt": new Textline({ //if gathering is already unlocked, as that means player already met the craftsman
+                name: "elder cleared 1 alt",
+                text: "elder cleared 1 alt answ",
+                is_unlocked: false,
+                rewards: {
+                    locations: [{location: "Nearby cave"}, {location: "Infested field"}, {location: "Shack"}],
+                    textlines: [{dialogue: "village elder", lines: ["ask to leave 3"]}],
+                },
+                locks_lines: ["ask to leave 2", "cleared field", "cleared field alt"],
+                required_flags: {yes: ["is_gathering_unlocked"]},
             }),
             "ask to leave 3": new Textline({
                 name: "elder leave 3",

@@ -765,7 +765,7 @@ function get_location_type_penalty(type, stage, stat, category) {
 (function(){ 
     locations["Village"] = new Location({ 
         getDescription: function() {
-            let base_text = "Medium-sized village, built at the foot of the mountains. It's surrounded by many fields, "
+            let base_text = "Medium-sized village, built at the foot of the mountains, with rocks preventing any expansions towards north. It's surrounded by many fields, "
             //todo: change text after bridge is built
             if(locations["Infested field"].enemy_groups_killed >= 5 * locations["Infested field"].enemy_count) { 
                 base_text += "a few of them infested by huge rats, which, while an annoyance, don't seem possible to fully eradicate. ";
@@ -775,7 +775,7 @@ function get_location_type_penalty(type, stage, stat, category) {
                 base_text += "most of them infested by huge rats. ";
             }
 
-            return base_text + `There is a relatively calm, somewhat small river near it with ${locations["Village"].actions["bridge construction"].is_finished?"a sturdy, impressive bridge over it":"no bridges over it"} ` 
+            return base_text + `There is a relatively calm, somewhat small river south of it with ${locations["Village"].actions["bridge construction"].is_finished?"a sturdy, impressive bridge over it":"no bridges over it"} ` 
                              + ", and with some old structures on the other side, clearly not used for years if not longer. Other than that, there's nothing interesting around";
         },
         getBackgroundNoises: function() {
@@ -917,7 +917,7 @@ function get_location_type_penalty(type, stage, stat, category) {
         },
         repeatable_reward: {
             textlines: [
-                {dialogue: "village elder", lines: ["cleared field"]},
+                {dialogue: "village elder", lines: ["cleared field", "cleared field alt",]},
             ],
             xp: 5,
         },
