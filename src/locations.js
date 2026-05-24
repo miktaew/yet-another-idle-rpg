@@ -345,6 +345,7 @@ class LocationActivity{
         this.is_unlocked = is_unlocked;
         this.unlock_text = unlock_text;
         this.working_period = working_period; //if exists -> time that needs to be worked to earn anything; only for jobs
+        this.gathering_time_needed = working_period;
         this.infinite = infinite; //if true -> can be done 24/7, otherwise requires availability time/season
 
         if(availability_time && availability_seasons) {

@@ -168,7 +168,7 @@ function format_time({time, long_names, round=true}) { //{time, long_names?}
     let formatted_time = '';
     if(time.years > 0) {
         const used_term = time.years == 1?"year":"years";
-        formatted_time += long_names? `${time.year} ${used_term} ` : `${time.year}Y`;
+        formatted_time += long_names? `${time.years} ${used_term} ` : `${time.years}Y`;
     }
     if(time.months > 0) {
         const used_term = time.months == 1?"month":"months";

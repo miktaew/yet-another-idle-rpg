@@ -156,13 +156,14 @@ class TradeItem {
         location_name: "Village",
         trade_text: "Trade on the village market",
         unlock_message: "You can now visit the village market",
+        profit_margin: 4,
     });
     traders["suspicious trader"] = new Trader({
         name: "suspicious trader",
         inventory_template: "Basic plus",
         is_unlocked: true,
         location_name: "Slums",
-        profit_margin: 5,
+        profit_margin: 6,
     });
     traders["suspicious trader 2"] = new Trader({
         name: "suspicious trader 2",
@@ -170,7 +171,7 @@ class TradeItem {
         inventory_template: "Intermediate",
         is_unlocked: false,
         location_name: "Slums",
-        profit_margin: 4, //rise back to 5 once reputation impact is implemented
+        profit_margin: 6,
     });
     traders["swampland trader"] = new Trader({
         name: "swampland trader",

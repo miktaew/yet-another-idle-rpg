@@ -690,7 +690,8 @@ function end_activity_animation(remove) {
         return;
     }
 
-    message_to_add = message_to_add.replaceAll("%HeroName%", character.name).replaceAll("<br>","\n");
+    message_to_add = message_to_add.replaceAll("%HeroName%", character.name).replaceAll("\n","<br>");
+    //message_to_add = message_to_add.replaceAll("%HeroName%", character.name).replaceAll("<br>","\n");
 
     let message = document.createElement("div");
     message.classList.add("message_common");
@@ -838,7 +839,8 @@ function end_activity_animation(remove) {
     }
         
     message.classList.add(class_to_add, group_to_add);
-    message.innerText = message_to_add;
+    set_HTML(message, message_to_add);
+    //message.innerText = message_to_add;
     insert_HTML(message, "<div class='message_border'> </>");
 
     if(dynamic_loot_message_types[message_type] && game_options.do_dynamic_loot_message) {
@@ -2329,7 +2331,6 @@ function create_location_choices({location, category, is_combat = false}) {
             }
             job_tooltip_content += `Pays ${format_money(location.activities[key].get_payment())} per every ` +  
                     `${format_working_time(location.activities[key].gathering_time_needed)} worked`;
-            
             insert_HTML(job_tooltip, job_tooltip_content)
             activity_div.appendChild(job_tooltip);
     
