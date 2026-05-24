@@ -4256,6 +4256,19 @@ function add_gear() {
                 },
             },
         });
+        item_templates["Old ram's horn"] = new Amulet({
+            value: 1000,
+            tags: {unique: true, unsellable: true},
+            description: "An unwieldy amulet made of an old ram's horn. You can almost feel its original owner's desire to protect his group.",
+            stats: {
+                attack_power: {
+                    multiplier: 1.1,
+                },
+                defense: {
+                    multiplier: 1.15,
+                },
+            },
+        });
     })();
 
     //rings:

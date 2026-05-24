@@ -97,9 +97,16 @@ const questManager = {
     },
 
     finishQuest({quest_id, only_unlocks, is_from_loading, skip_rewards}) {
-
         if(this.isQuestActive(quest_id)) {
-            let quest = quests[quest_id];
+            const quest = quests[quest_id];
+
+            if(is_from_loading) {
+                for(let i = 0; i < quest.quest_tasks.length; i++) {
+                    //get unlocks from all tasks
+                    this.finishQuestTask({quest_id, task_index: i, only_unlocks: true, skip_warning: true, skip_message: true, is_from_loading, allowed_to_finish_quest: false});
+                }
+            }
+
             if(!quest.is_repeatable) {
                 quest.is_finished = true;
             }
@@ -117,7 +124,7 @@ const questManager = {
         }
     },
 
-    finishQuestTask({quest_id, task_index, only_unlocks, skip_warning = false, allowed_to_finish_quest = true, skip_message = false}) {
+    finishQuestTask({quest_id, task_index, only_unlocks, skip_warning = false, allowed_to_finish_quest = true, skip_message = false, is_from_loading = false}) {
         if(this.isQuestActive(quest_id)) {
             let quest = quests[quest_id];
             quest.quest_tasks[task_index].is_finished = true;
@@ -133,12 +140,11 @@ const questManager = {
                 }
             }
 
-            process_rewards({rewards: quest.quest_tasks[task_index].task_rewards, source_type: "Quest", source_name: quests[quest_id].getQuestName(), only_unlocks: only_unlocks});
+            process_rewards({rewards: quest.quest_tasks[task_index].task_rewards, source_type: "QuestTask", source_name: quests[quest_id].getQuestName(), only_unlocks: only_unlocks, is_from_loading});
 
             const remaining_tasks = active_quests[quest_id].quest_tasks.filter(task => !task.is_finished);
             if(allowed_to_finish_quest && remaining_tasks.length == 0) { //no more tasks
-                this.finishQuest({quest_id: quest_id});
-                
+                this.finishQuest({quest_id: quest_id, only_unlocks: only_unlocks});
             }
 
         } else {
@@ -340,11 +346,11 @@ const questManager = {
         },
         quest_tasks: [
             new QuestTask({task_description: "Dig the melioration channel"}), //finished by completing the dig
-            new QuestTask({is_hidden: true}), //finished by talking after finishing digging
+            new QuestTask({is_hidden: true, task_rewards: {reputation: {Village: 20}}}), //finished by talking after finishing digging
             new QuestTask({task_description: "Gather matherials (Wood log x200, Stone brick x800) and then help constructing the new bridge"}), //finished by constructing the bridge
-            new QuestTask({is_hidden: true}), //finished by reporting afterwards
+            new QuestTask({is_hidden: true, task_rewards: {reputation: {Village: 120}}}), //finished by reporting afterwards
             new QuestTask({is_hidden: true}), //finished by asking for further work
-            new QuestTask({task_description: "Clear out huge dragonflies and then report back"}), //finished by reporting afterwards
+            new QuestTask({task_description: "Clear out huge dragonflies and then report back", task_rewards: {reputation: {Village: 20}}}), //finished by reporting afterwards
             new QuestTask({task_description: "[To be continued]"}), //tbc, duh
         ],
         quest_rewards: {
@@ -356,6 +362,7 @@ const questManager = {
         quest_description: "The farm supervisor is in a dire need of 50 packs of bonemeal, and he needs the entire order delivered in one go.",
         quest_tasks: [
             new QuestTask({task_description: "Bring 50 packs of bonemeal"}),
+            
         ],
         quest_rewards: {
             money: 6000,

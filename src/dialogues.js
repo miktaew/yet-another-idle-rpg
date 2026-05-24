@@ -293,7 +293,7 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 locks_lines: ["dragonflies killed"],
                 rewards: {
-                    //todo: money, rep from task
+                    money: 800,
                     textlines: [{dialogue: "village elder", lines: ["further work"]}],
                     quest_progress: [
                         {quest_id: "Village expansion", task_index: 5},
@@ -365,7 +365,7 @@ class DialogueAction extends GameAction {
                 text: "elder cave clear answ",
                 is_unlocked: false,
                 rewards: {
-                    textlines: [{dialogue: "village elder", lines: ["ask to leave 4", "crab rumors"]}],
+                    textlines: [{dialogue: "village elder", lines: ["ask to leave 4", "crab rumors", "amulet"]}],
                     locations: [{location: "Forest road"}, {location: "Infested field"}, {location: "Nearby cave"}],
                     dialogues: ["village guard"],
                     quest_progress: [
@@ -381,7 +381,19 @@ class DialogueAction extends GameAction {
                 rewards: {
                     locations: [{location: "Forest road"}, {location: "Infested field"}, {location: "Nearby cave"}],
                     dialogues: ["village guard", "old craftsman"],
-                    textlines: [{dialogue: "village elder", lines: ["about guard"]}],
+                    textlines: [{dialogue: "village elder", lines: ["about guard", "amulet"]}],
+                },
+            }),
+            "amulet": new Textline({
+                name: "elder amulet",
+                text: "elder amulet answ",
+                is_unlocked: false,
+                locks_lines: ["amulet"],
+                rewards: {
+                    items: ["Old ram's horn"],
+                },
+                display_conditions: {
+                    reputation: {Village: 400},
                 },
             }),
             "about guard": new Textline({
@@ -1162,7 +1174,7 @@ class DialogueAction extends GameAction {
                 attempt_duration: 0,
                 success_chances: [1],
                 rewards: {
-                    money: 2000,
+                    money: 2500,
                 },
             }),
         },

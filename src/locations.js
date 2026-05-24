@@ -776,7 +776,8 @@ function get_location_type_penalty(type, stage, stat, category) {
             }
 
             return base_text + `There is a relatively calm, somewhat small river south of it with ${locations["Village"].actions["bridge construction"].is_finished?"a sturdy, impressive bridge over it":"no bridges over it"} ` 
-                             + ", and with some old structures on the other side, clearly not used for years if not longer. Other than that, there's nothing interesting around";
+                             + `, and with some old structures on the other side, clearly not used for years if not longer. `
+                             + `Many villagers seem to have nothing to do ${locations["Infested woods"].enemy_groups_killed >= locations["Infested woods"].enemy_count?"but it's less than it used to be, with some already occupied on the other side of the river.":"and are just sitting around."}`;
         },
         getBackgroundNoises: function() {
             let noises = ["*You hear some rustling*"];

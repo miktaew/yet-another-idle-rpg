@@ -4845,7 +4845,7 @@ function load(save_data) {
                     //active => at least 1 task is unfinished and its specifics matter
                     for(let i = 0; i < save_data["quests"][quest].task_status.length-1; i++) {
                         //set all but last to finished
-                        quests[quest].quest_tasks[i].is_finished = true;
+                        questManager.finishQuestTask({quest_id: quest, task_index: i, only_unlocks: true, skip_warning: true, skip_message: true, is_from_loading: true});
                     }
 
                     //set progress of the first unfinished task

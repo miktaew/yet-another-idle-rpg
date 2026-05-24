@@ -47,7 +47,8 @@ const english = {
     "elder leave 4 answ": "You are strong enough, you can leave and come whenever you want.",
     "elder about guard": "So what's the story of that village guard girl?",
     "elder about guard answ": "Mhm... She left the village as but a kid, looking to become a famous adventurer. She returned over a decade later, covered in scars and unwilling to speak of what she went through."
-                                +" It's a pity that she never gained the fame she dreamt of, but at least she became strong enough to keep her home safe.",
+                                +" It's a pity that she never gained the fame she dreamt of, but at least she became strong enough to keep her home safe. Even that aside, I'm glad she came back. Many leave looking for better lives and"
+                                +" we never hear from them again.",
     "elder tunnel": "I found an even deeper tunnel in the cave",
     "elder tunnel answ": "The what? I have a very bad feeling about this... You better avoid it until you get better equipment and some solid shield, I can bet it's gonna be a lot more dangerous.",
     "elder training": "I think I went far enough with basic training, do you have any other suggestions?",
@@ -94,6 +95,10 @@ const english = {
     "elder dragonflies killed answ": "That's good enough, I doubt it would be possible to exterminate them, just like the rats won't ever completely leave.",
     "elder further work": "Are there more projects now that dragonflies are gone?",
     "elder further work answ": "Not yet, but hopefully soon [tbc]",
+    "elder amulet": "Why are you looking at me like that?",
+    "elder amulet answ": "Ah, sorry for startling you. I'm just thankful for all your help in the village, it means a lot to an old man like me, so I wanted you to have this. It's an amulet made of a horn of one of rams from the first flock of sheep that was ever under my care. Please, keep it and be strong.",
+    "mofu#elder amulet answ": "Ah, sorry for startling you. I'm just thankful for all your help in the village, it means a lot to an old man like me, so I wanted you to have this. It's an amulet made of a horn I shed many long years ago, back in my prime. Please, keep it and be strong.",
+    
     //
     "craftsman description": "You see an old man who clearly experienced a lot in life. He's wearing some handmade accessories. Despite his age, his fingers seem exceptionally nimble.",
             "mofu#craftsman description": "You see an old man with a medium length white tail, who clearly experienced a lot in life. His hair is composed of a black and a white part, with the former very dulled by age. He's wearing some handmade accessories. Despite his age and his massive hands, his fingers seem exceptionally nimble.",
