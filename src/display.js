@@ -681,7 +681,7 @@ function end_activity_animation(remove) {
 }
 
 /**
- * writes message to the message log; automatically swaps any "\<br\>" for "\n" and "%HeroName%" for player character name
+ * writes message to the message log; automatically swaps "%HeroName%" for player character name
  * @param {String} message_to_add text to display
  * @param {String} message_type used for adding proper class to html element
  */
