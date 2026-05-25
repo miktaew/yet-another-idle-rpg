@@ -12,9 +12,9 @@ class QuestTask {
         task_condition = {}, 
         //conditions for task to be completed; can be skipped if it's meant to be achieved via some rewards object  
         task_rewards = {}, //generally skipped in favour of quest reward but could sometimes have something?
-        is_hidden = false, //keep it false most of the time, but could be used as a fake way of making quests with no visible requirement for progress
+        is_hidden = false, //keep it false most of the time, but can be used as a way of making quests with no visible requirement for progress
         is_finished = false,
-        
+        skip_message = false, //mostly for hidden tasks to be fully hidden instead of mentioning some vague progress
     })
     {
         this.task_description = task_description;
@@ -22,6 +22,7 @@ class QuestTask {
         this.task_rewards = task_rewards;
         this.is_hidden = is_hidden;
         this.is_finished = is_finished;
+        this.skip_message = skip_message;
 
         Object.keys(this.task_condition).forEach(task_group => {
             Object.keys(this.task_condition[task_group]).forEach(task_type => {
@@ -134,7 +135,7 @@ const questManager = {
                 if(!skip_message) {
                     if(!quests[quest_id].quest_tasks[task_index].is_hidden) {
                         log_message(`Finished a task for a quest: "${quests[quest_id].getQuestName()}"`);
-                    } else {
+                    } else if(!quests[quest_id].quest_tasks[task_index].skip_message){
                         log_message(`Made some progress in quest: "${quests[quest_id].getQuestName()}"`);
                     }
                 }
@@ -346,10 +347,11 @@ const questManager = {
         },
         quest_tasks: [
             new QuestTask({task_description: "Dig the melioration channel"}), //finished by completing the dig
-            new QuestTask({is_hidden: true, task_rewards: {reputation: {Village: 20}}}), //finished by talking after finishing digging
-            new QuestTask({task_description: "Gather matherials (Wood log x200, Stone brick x800) and then help constructing the new bridge"}), //finished by constructing the bridge
-            new QuestTask({is_hidden: true, task_rewards: {reputation: {Village: 120}}}), //finished by reporting afterwards
-            new QuestTask({is_hidden: true}), //finished by asking for further work
+            new QuestTask({is_hidden: true, task_rewards: {reputation: {Village: 20}}, skip_message: true}), //finished by talking after finishing digging
+            new QuestTask({is_hidden: true, skip_message: true}), //finished by asking for next work after digging
+            new QuestTask({task_description: "Gather matherials (Wood log x100, Stone brick x500) and then help constructing the new bridge"}), //finished by constructing the bridge
+            new QuestTask({is_hidden: true, task_rewards: {reputation: {Village: 120}}, skip_message: true}), //finished by reporting afterwards
+            new QuestTask({is_hidden: true, skip_message: true}), //finished by asking for further work
             new QuestTask({task_description: "Clear out huge dragonflies and then report back", task_rewards: {reputation: {Village: 20}}}), //finished by reporting afterwards
             new QuestTask({task_description: "[To be continued]"}), //tbc, duh
         ],

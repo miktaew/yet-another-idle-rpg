@@ -77,7 +77,7 @@ const english = {
     "elder other work 2": "So what else did you have for me to do? More digging?",
     "elder other work 2 answ": "No, no, no more digging, I believe. There is however something very important. See, we don't really have any good way of crossing the river and while it "
                             +"may seem calm and safe to walk across, it becomes very dangerous after strong rain. We already tried making small bridges, but they wouldn't withstand "
-                            +"the current when river is swollen. So... Our dear craftsman came up with a much better and solid project. He estimated we would need... What was it? 100 wooden logs for the deck of the bridge and 800 stone bricks for "
+                            +"the current when river is swollen. So... Our dear craftsman came up with a much better and solid project. He estimated we would need... What was it? 100 wooden logs for the deck of the bridge and 500 stone bricks for "
                             +"bridge pillars. I know it might seem too ambitious for our community, but it's intended to stand long enough so that future generations will still benefit from it. "
                             +"We already have a group of volunteers for the work and our craftsman will lead it, so all that's needed is for you to get us the materials and then lend some help with construction. "
                             +"If you haven't spoken with him yet, please do it soon, he will explain to you how to gather and use all kinds of materials.",
@@ -94,7 +94,7 @@ const english = {
     "elder dragonflies killed": "I destroyed dragonflies in the vicinity, but there might be  more nests further away",
     "elder dragonflies killed answ": "That's good enough, I doubt it would be possible to exterminate them, just like the rats won't ever completely leave.",
     "elder further work": "Are there more projects now that dragonflies are gone?",
-    "elder further work answ": "Not yet, but hopefully soon [tbc]",
+    "elder further work answ": "Not yet, but hopefully soon.",
     "elder amulet": "Why are you looking at me like that?",
     "elder amulet answ": "Ah, sorry for startling you. I'm just thankful for all your help in the village, it means a lot to an old man like me, so I wanted you to have this. It's an amulet made of a horn of one of rams from the first flock of sheep that was ever under my care. Please, keep it and be strong.",
     "mofu#elder amulet answ": "Ah, sorry for startling you. I'm just thankful for all your help in the village, it means a lot to an old man like me, so I wanted you to have this. It's an amulet made of a horn I shed many long years ago, back in my prime. Please, keep it and be strong.",

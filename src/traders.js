@@ -258,6 +258,12 @@ class TradeItem {
 
             new TradeItem({item_name: "Camping supplies", count: [1,3], chance: 1}),
             new TradeItem({item_name: "Coil of rope", count: [1,3], chance: 1}),
+
+
+            new TradeItem({item_name: "Old pickaxe", count: [1], chance: 1}),
+            new TradeItem({item_name: "Old axe", count: [1], chance: 1}),
+            new TradeItem({item_name: "Old sickle", count: [1], chance: 1}),
+            new TradeItem({item_name: "Old shovel", count: [1], chance: 1}),
     ];
 
     inventory_templates["Basic plus"] = 

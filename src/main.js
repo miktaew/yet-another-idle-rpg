@@ -2107,7 +2107,7 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 if(current_location?.connected_locations && !current_activity) {
                     Object.keys(current_location.activities).forEach(activity_key => {
                         if(activities[current_location.activities[activity_key].activity_name].base_skills_names.includes(skill.skill_id)) {
-                            update_gathering_tooltip(activities[activity_key]);
+                            update_gathering_tooltip(current_location.activities[activity_key]);
                         }
                     });
                 }
@@ -2583,7 +2583,7 @@ function unlock_location({location, skip_message}) {
         location.is_unlocked = true;
         was_unlocked = true;
         if(!skip_message) {
-            const message = location.unlock_text || `Unlocked location ${location.name}`;
+            const message = location.unlock_text || `Unlocked location "${location.name}"`;
             log_message(message, "location_unlocked");
         }
 
@@ -4351,11 +4351,11 @@ function load(save_data) {
                 process_rewards({
                     rewards: {
                         locks: {
-                            textlines: [{dialogue:"village elder", lines: ["leave for materials"]}]
+                            textlines: {"village elder": ["leave for materials"]}
                         }
                     },
                     inform_overall: false,
-                })
+                });
             }
         }
 

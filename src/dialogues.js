@@ -199,10 +199,10 @@ class DialogueAction extends GameAction {
                 locks_lines: ["money"],
                 rewards: {
                     activities: [{location: "Village", activity: "fieldwork"}],
-                    textlines: [{dialogue: "village elder", lines: ["other work"]}],
                 }
             }),
             "other work": new Textline({
+                //unlocked by same dialogue that unlocks cave, but hidden behind lvl 9 farming req
                 name: "elder other work",
                 text: "elder other work answ",
                 is_unlocked: false,
@@ -236,7 +236,7 @@ class DialogueAction extends GameAction {
                 rewards: {
                     actions: [{location: "Village", action: "bridge mat delivery"}],
                     quest_progress: [
-                        {quest_id: "Village expansion", task_index: 1},
+                        {quest_id: "Village expansion", task_index: 2},
                     ],
                     textlines: [{dialogue: "village elder", lines: ["bridge materials"]}],
                 },
@@ -248,7 +248,8 @@ class DialogueAction extends GameAction {
                 locks_lines: ["bridge materials"],
                 rewards: {
                     textlines: [{dialogue: "village elder", lines: ["leave for materials"]}],
-                    activities: [{location:"Village", activity: "mining"}],
+                    activities: [{location:"Nearby cave", activity: "mining stone"}],
+                    locations: [{location:"Nearby cave"}], //if somehow it wasn't unlocked yet
                     dialogues: ["old craftsman"], //if somehow it wasn't unlocked yet
                 }
             }),
@@ -269,7 +270,7 @@ class DialogueAction extends GameAction {
                     money: 4000,
                     textlines: [{dialogue: "village elder", lines: ["other work 3"]}],
                     quest_progress: [
-                        {quest_id: "Village expansion", task_index: 3},
+                        {quest_id: "Village expansion", task_index: 4},
                     ]
                 },
             }),
@@ -282,7 +283,7 @@ class DialogueAction extends GameAction {
                 rewards: {
                     locations: [{location: "Infested woods"}],
                     quest_progress: [
-                        {quest_id: "Village expansion", task_index: 4},
+                        {quest_id: "Village expansion", task_index: 5},
                     ]                   
                 },
             }),
@@ -296,14 +297,14 @@ class DialogueAction extends GameAction {
                     money: 800,
                     textlines: [{dialogue: "village elder", lines: ["further work"]}],
                     quest_progress: [
-                        {quest_id: "Village expansion", task_index: 5},
+                        {quest_id: "Village expansion", task_index: 6},
                     ]      
                 },
             }),
 
             "further work": new Textline({
                 name: "elder further work",
-                text: "elder further work",
+                text: "elder further work answ",
                 is_unlocked: false,
                 //doesn't lock itself for now; to be updated with lock, unlocks, and different text when more stuff is added on the other side of river
             }),
@@ -324,7 +325,7 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 rewards: {
                     locations: [{location: "Nearby cave"}, {location: "Infested field"}, {location: "Shack"}],
-                    textlines: [{dialogue: "village elder", lines: ["ask to leave 3"]}],
+                    textlines: [{dialogue: "village elder", lines: ["ask to leave 3", "other work"]}],
                     dialogues: ["old craftsman"],
                 },
                 locks_lines: ["ask to leave 2", "cleared field", "cleared field alt"],

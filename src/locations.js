@@ -2267,18 +2267,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
             },
             require_tool: true,
         }),
-        "mining": new LocationActivity({
-            activity_name: "mining",
-            starting_text: "Make stone bricks",
-            skill_xp_per_tick: 0.5,
-            is_unlocked: false,
-            gained_resources: {
-                resources: [{name: "Stone brick", ammount: [[0,1], [1,1]], chance: [0.5, 1]}],
-                time_period: [60, 20],
-                skill_required: [0, 10],
-            },
-            require_tool: true,
-        }),
         "sand": new LocationActivity({
             activity_id: "sand",
             activity_name: "digging",
@@ -2333,6 +2321,18 @@ There's another gate on the wall in front of you, but you have a strange feeling
             skill_xp_per_tick: 4,
             is_unlocked: false,
             unlock_text: "As you finish fighting your enemies and it becomes quiet, you feel a strange sense of tranquility. This spot in front of the mysterious gate, surrounded by calm and darkness, seems perfect to sit down and focus your mind"
+        }),
+        "mining stone": new LocationActivity({
+            activity_name: "mining",
+            starting_text: "Make stone bricks",
+            skill_xp_per_tick: 0.5,
+            is_unlocked: false,
+            gained_resources: {
+                resources: [{name: "Stone brick", ammount: [[0,1], [1,1]], chance: [0.5, 1]}],
+                time_period: [60, 20],
+                skill_required: [0, 10],
+            },
+            require_tool: true,
         }),
         "mining": new LocationActivity({
             activity_name: "mining",
@@ -2856,11 +2856,11 @@ There's another gate on the wall in front of you, but you have a strange feeling
         "dig canal": new GameAction({
             action_id: "dig canal",
             starting_text: "Dig the melioration channel",
-            description: "Just gotta swing your shovel a lot",
+            description: "Just gotta swing your shovel a lot, it will take quite a long while",
             action_text: "Digging",
             success_text: "Task took quite a while and a few breaks, but it is finally done",
             failure_texts: {
-                unable_to_begin: ["You should get a shovel first. Perhaps the craftsman has a spare one?"],
+                unable_to_begin: ["You should get a shovel first. Perhaps someone has a spare one, or maybe you can buy one from the village market?"],
             },
             check_conditions_on_finish: false,
             attempt_duration: 600,
@@ -2870,7 +2870,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 tools_by_slot: ["shovel"],
             },
             rewards: {
-                skill_xp: {Digging: 500},
+                skill_xp: {Digging: 100},
                 textlines: [{dialogue: "village elder", lines: ["finished digging"]}],
                 quest_progress: [
                         {quest_id: "Village expansion", task_index: 0},
@@ -2904,7 +2904,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             description: "Join the workers building the bridge",
             action_text: "Building",
             success_text: "As you help craftsman place the final plank, both of you and the other workers take a few steps back to take a good, long, silent look at the finished bridge. "
-                        + "Then, first person finally starts cherring and everyone else follows almost instantly. It is a simple yet magnificient bridge for settlement of this size. "
+                        + "Then, first person finally starts cheering and everyone else follows almost instantly. It is a simple yet magnificient bridge for settlement of this size. "
                         + "The bridge deck is constructed of sturdy, thick wooden planks, supported by an additional framework of beams that can withstand any load transported across it, "
                         + "while also being easy to replace if necessary. The entire structure is supported by two robust stone pillars rising proudly from the water, thick and shaped to withstand any current, "
                         + "no matter how swollen the river may become. The structure stands as a monument to careful planning and dedication and will serve as a gift to future generations.",
@@ -2913,8 +2913,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_chances: [1],
             rewards: {
                 quest_progress: [
-                        {quest_id: "Village expansion", task_index: 2},
-                    ]
+                        {quest_id: "Village expansion", task_index: 3},
+                    ],
+                textlines: [{dialogue: "village elder", lines: ["bridge finished"]}],
             },
             keep_progress: true,
         }),

@@ -746,8 +746,9 @@ const crafting_component_manager = {
                         description,
                         component_type: material.types[i],
                         value: item_value,
-                        name_prefix: capitalize_first_letter(material.name || material_key),
+                        //name_prefix: capitalize_first_letter(material.name || material_key),
                         component_tier: material.tier,
+                        shield_name: capitalize_first_letter(material.name || material_key) + " shield",
 
                         shield_strength: Math.floor(
                             (1+(material.strength)/50)**2 * (1+(material.tier-1)/4)**2 * (1+(material.tier-2)/10)**2 * (1+(material.weight-30)/150)**2
