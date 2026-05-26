@@ -687,10 +687,13 @@ character.get_character_money = function () {
 /**
  * @param {Array} items [{item_key or item_id, count},...] 
  */
-function add_to_character_inventory(items) {
+function add_to_character_inventory(items, skip_item_log) {
     const was_anything_new_added = character.add_to_inventory(items);
 
-    item_log.log_items(items);
+    if(!skip_item_log) {
+        item_log.log_items(items);
+    }
+    
 
     update_displayed_character_inventory({ was_anything_new_added });
     update_displayed_item_log();
@@ -770,7 +773,7 @@ function equip_item(item, skip_sorting) {
 function unequip_item(item_slot, already_calculated=false) {
         if(character.equipment[item_slot] != null) {
                 const item = character.equipment[item_slot];
-                add_to_character_inventory([{item_key: item.getInventoryKey()}]);
+                add_to_character_inventory([{item_key: item.getInventoryKey()}], true);
                 character.equipment[item_slot] = null;
                 update_displayed_equipment();
                 update_displayed_character_inventory();
