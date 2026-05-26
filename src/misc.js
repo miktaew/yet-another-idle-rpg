@@ -244,6 +244,16 @@ function select_outline_class(color_hex) {
 }
 
 /**
+ * removes trailing period if present, otherwise returns unchanged value
+ * @param {String} target_text 
+ * @returns 
+ */
+function rtp(target_text) {
+    return target_text[target_text.length - 1] === "."? target_text.slice(0,-1) : target_text;
+
+}
+
+/**
  * for loading older saves
  */
 const component_name_mapping = {
@@ -332,5 +342,6 @@ export {
         celsius_to_fahrenheit,
         select_outline_class,
         component_name_mapping, get_component_name,
-        get_item_mapping
+        get_item_mapping,
+        rtp
     };

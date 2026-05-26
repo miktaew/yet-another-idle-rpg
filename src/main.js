@@ -100,7 +100,7 @@ import { end_activity_animation,
          set_light_based_background_color,
          unsassign_dynamic_loot_message,
         } from "./display.js";
-import { compare_game_version, crafting_tags_to_skills, get_component_name, get_hit_chance, is_a_older_than_b, get_item_mapping, random_range, skill_consumable_tags } from "./misc.js";
+import { compare_game_version, crafting_tags_to_skills, get_component_name, get_hit_chance, is_a_older_than_b, get_item_mapping, random_range, skill_consumable_tags, rtp } from "./misc.js";
 import { stances } from "./combat_stances.js";
 import { get_recipe_xp_value, get_component_stats, recipes } from "./crafting_recipes.js";
 import { game_version, get_game_version } from "./game_version.js";
@@ -929,7 +929,7 @@ function unlock_global_activity({activity_id}) {
         
         let message = "";
         if(activities[activity_id].unlock_text) {
-           message = activities[activity_id].unlock_text+":\n";
+           message = rtp(activities[activity_id].unlock_text)+":\n";
         }
         log_message(message + `Gained the ability of "${activities[activity_id].name}"`, "activity_unlocked");
     }

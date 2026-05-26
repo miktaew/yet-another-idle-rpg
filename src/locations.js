@@ -2686,7 +2686,6 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 ], 
                 time_period: [90, 45],
                 skill_required: [21, 28],
-                roll_quality: true,
             }
         }),
     };
@@ -2828,13 +2827,13 @@ There's another gate on the wall in front of you, but you have a strange feeling
             conditions: [
                 {
                     skills: {
-                        "Weightlifting": 30,
+                        "Weightlifting": 21,
                     }
                 },
             ],
             display_conditions: {
                 skills: {
-                    "Weightlifting": 30,
+                    "Weightlifting": 24,
                 }
             },
             rewards: {

@@ -1225,15 +1225,6 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         recipe_level: [7,20],
         recipe_skill: "Cooking",
     });
-    butchering_recipes.items["Sinew"] = new ItemRecipe({
-        name: "Sinew",
-        recipe_type: "material",
-        materials: [{material_type: "raw meat", count: 2}], 
-        result: {result_id: "Sinew", count: 1},
-        success_chance: [0.1,1],
-        recipe_level: [10,20],
-        recipe_skill: "Butchering",
-    });
     crafting_recipes.items["Sinew string"] = new ItemRecipe({
         name: "Sinew string",
         recipe_type: "material",
@@ -1296,6 +1287,15 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
         result: {result_id: "Giant crab claw", count: 1},
         success_chance: [0.3,1],
         recipe_level: [18,25],
+        recipe_skill: "Butchering",
+    });
+    butchering_recipes.items["Sinew"] = new ItemRecipe({
+        name: "Sinew",
+        recipe_type: "material",
+        materials: [{material_type: "raw meat", count: 2}], 
+        result: {result_id: "Sinew", count: 1},
+        success_chance: [0.1,1],
+        recipe_level: [10,20],
         recipe_skill: "Butchering",
     });
 
