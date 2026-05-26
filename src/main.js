@@ -734,7 +734,7 @@ function end_activity() {
     if(current_activity.gathered_materials) {
         const loot = []; 
         Object.keys(current_activity.gathered_materials).forEach(mat_key => {
-            loot.push({item_key: mat_key, count: current_activity.gathered_materials[mat_key]});
+            loot.push({item_id: mat_key, count: current_activity.gathered_materials[mat_key]});
         });
 
         process_current_loot({loot_list: loot});
@@ -5536,7 +5536,7 @@ function update() {
                             
 
                             for(let i = 0; i < items.length; i++) {
-                                current_activity.gathered_materials[items[i].item_key] = (current_activity.gathered_materials[items[i].item_key] + items[i].count || items[i].count);
+                                current_activity.gathered_materials[items[i].item_id] = (current_activity.gathered_materials[items[i].item_id] + items[i].count || items[i].count);
                             }
                         
                             add_to_character_inventory(items);

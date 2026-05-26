@@ -2960,7 +2960,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         max_level_coefficient: 10,
         get_effect_description: ()=> {
             let value = get_total_skill_coefficient({skill_id:"Poison resistance",scaling_type:"multiplicative"});
-            return `Multiplies effects of poisons by ${Math.round(value*100)/100}`;
+            return `Divides effects of poisons by ${Math.round(value*100)/100}`;
         },
         milestones: {
             3: {
