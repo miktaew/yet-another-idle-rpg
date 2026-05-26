@@ -332,6 +332,7 @@ class LocationActivity{
                  availability_seasons,
                  gained_skills, //{skill_1: xp_gain, skill_2: xp_gain, ...}
                  skill_xp_per_tick = 1, //only used for default skills (attached to activity of activity_name key in activities)
+                 xp_given_per_working_period = true, //true => xp  every working period, false => xp every in-game minute
                  unlock_text,
                  gained_resources,
                  require_tool = false,
@@ -345,7 +346,6 @@ class LocationActivity{
         this.is_unlocked = is_unlocked;
         this.unlock_text = unlock_text;
         this.working_period = working_period; //if exists -> time that needs to be worked to earn anything; only for jobs
-        this.gathering_time_needed = working_period;
         this.infinite = infinite; //if true -> can be done 24/7, otherwise requires availability time/season
 
         if(availability_time && availability_seasons) {
@@ -432,6 +432,13 @@ class LocationActivity{
             ];
             return { gathering_time_needed, gained_resources, quality_range}
         }
+    }
+}
+
+class LocationGatheringActivity extends LocationActivity{
+    constructor(data) {
+        super(data);
+        this.xp_given_per_working_period = false;
     }
 }
 
@@ -2211,7 +2218,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             working_period: 60*2,
             availability_time: {start: 6, end: 20},
             availability_seasons: ["Spring","Summer","Autumn"],
-            skill_xp_per_tick: 1, 
+            skill_xp_per_tick: 1,
         }),
         "running": new LocationActivity({
             activity_name: "running",
@@ -2255,7 +2262,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             working_period: 60*2,
             skill_xp_per_tick: 1
         }),
-        "woodcutting": new LocationActivity({
+        "woodcutting": new LocationGatheringActivity({
             activity_name: "woodcutting",
             starting_text: "Gather wood on the outskirts",
             skill_xp_per_tick: 1,
@@ -2267,7 +2274,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             },
             require_tool: true,
         }),
-        "sand": new LocationActivity({
+        "sand": new LocationGatheringActivity({
             activity_id: "sand",
             activity_name: "digging",
             starting_text: "Dredge up some sand from the riverbed",
@@ -2281,7 +2288,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             require_tool: true,
             unlock_text: "You realize that the river near the village might contain the type of sand you need",
         }),
-        "fishing": new LocationActivity({
+        "fishing": new LocationGatheringActivity({
             activity_name: "fishing",
             starting_text: "Try fishing in the river",
             availability_seasons: ["Spring", "Summer", "Autumn"],
@@ -2322,7 +2329,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             unlock_text: "As you finish fighting your enemies and it becomes quiet, you feel a strange sense of tranquility. This spot in front of the mysterious gate, surrounded by calm and darkness, seems perfect to sit down and focus your mind"
         }),
-        "mining stone": new LocationActivity({
+        "mining stone": new LocationGatheringActivity({
             activity_name: "mining",
             starting_text: "Make stone bricks",
             skill_xp_per_tick: 0.5,
@@ -2334,7 +2341,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             },
             require_tool: true,
         }),
-        "mining": new LocationActivity({
+        "mining": new LocationGatheringActivity({
             activity_name: "mining",
             starting_text: "Mine the strange looking iron vein",
             skill_xp_per_tick: 1,
@@ -2346,7 +2353,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             },
             unlock_text: "As you clear the area of wolf rats, you notice a vein of an iron ore",
         }),
-        "mining2": new LocationActivity({
+        "mining2": new LocationGatheringActivity({
             activity_name: "mining",
             starting_text: "Mine the deeper iron vein",
             skill_xp_per_tick: 5,
@@ -2358,7 +2365,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             },
             unlock_text: "Going deeper, you find a vein of an iron ore that seems to be of much higher quality",
         }),
-        "mining3": new LocationActivity({
+        "mining3": new LocationGatheringActivity({
             activity_name: "mining",
             starting_text: "Mine the atratan vein",
             skill_xp_per_tick: 12,
@@ -2377,7 +2384,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             starting_text: "Go for a run through the forest",
             skill_xp_per_tick: 4,
         }),
-        "woodcutting": new LocationActivity({
+        "woodcutting": new LocationGatheringActivity({
             activity_name: "woodcutting",
             starting_text: "Gather wood from nearby trees",
             skill_xp_per_tick: 5,
@@ -2388,7 +2395,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 skill_required: [7, 19]
             },
         }),
-        "woodcutting2": new LocationActivity({
+        "woodcutting2": new LocationGatheringActivity({
             activity_name: "woodcutting",
             starting_text: "Gather wood from sturdy trees",
             skill_xp_per_tick: 12,
@@ -2400,7 +2407,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             },
             unlock_text: "Finishing your fight, you notice that the trees on the side of the clearing look really healthy and sturdy, they could be a useful material.",
         }),
-        "herbalism": new LocationActivity({
+        "herbalism": new LocationGatheringActivity({
             activity_name: "herbalism",
             starting_text: "Gather useful herbs throughout the forest",
             skill_xp_per_tick: 2,
@@ -2418,7 +2425,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
     };
     locations["Carya Canyon"].activities = {
-        "woodcutting": new LocationActivity({
+        "woodcutting": new LocationGatheringActivity({
             activity_name: "woodcutting",
             starting_text: "Gather wood from the resilient trees",
             skill_xp_per_tick: 16,
@@ -2431,7 +2438,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             },
             unlock_text: "Crossing the canyon, you discover that the trees on the other side are extremely tough.",
         }),
-        "herbalism": new LocationActivity({
+        "herbalism": new LocationGatheringActivity({
             activity_name: "herbalism",
             starting_text: "Search for herbs growing around the canyon",
             skill_xp_per_tick: 5,
@@ -2449,7 +2456,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
     };
     locations["Town outskirts"].activities = {
-        "herbalism": new LocationActivity({
+        "herbalism": new LocationGatheringActivity({
             activity_name: "herbalism",
             starting_text: "Search for useful herbs by the roadside",
             skill_xp_per_tick: 4,
@@ -2478,7 +2485,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             availability_seasons: ["Spring", "Summer", "Autumn"],
             skill_xp_per_tick: 2,
         }),
-        "animal care": new LocationActivity({
+        "animal care": new LocationGatheringActivity({
             activity_name: "animal care",
             starting_text: "Take care of local sheep in exchange for some wool",
             skill_xp_per_tick: 3,
@@ -2501,7 +2508,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         }),
     };
     locations["Mountain camp"].activities = {
-        "herbalism": new LocationActivity({
+        "herbalism": new LocationGatheringActivity({
             activity_name: "herbalism",
             starting_text: "Search for useful herbs on the mountainside",
             skill_xp_per_tick: 6,
@@ -2530,7 +2537,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     }
 	
     locations["Riverbank"].activities = {
-        "herbalism": new LocationActivity({
+        "herbalism": new LocationGatheringActivity({
             activity_name: "herbalism",
             starting_text: "Harvest flax from around the riverbank",
             skill_xp_per_tick: 9,
@@ -2554,7 +2561,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             applied_effects: [{effect: "Wet", duration: 30}],
         }),
-        "sand": new LocationActivity({
+        "sand": new LocationGatheringActivity({
             activity_id: "sand",
             activity_name: "digging",
             starting_text: "Dig for clams around the lake beach",
@@ -2604,7 +2611,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: true,
             applied_effects: [{ effect: "Wet", duration: 30 }],
         }),
-        "woodcutting": new LocationActivity({
+        "woodcutting": new LocationGatheringActivity({
             activity_name: "woodcutting",
             starting_text: "Harvest wood from the weeping willows",
             skill_xp_per_tick: 10,
@@ -2615,7 +2622,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 skill_required: [12, 25]
             }
         }),
-        "mining": new LocationActivity({
+        "mining": new LocationGatheringActivity({
             activity_name: "mining",
             starting_text: "Mine the the shiny underwater vein",
             skill_xp_per_tick: 1,
@@ -2627,7 +2634,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             },
             unlock_text: "You discover a vein of silver at the bottom of the lake!",
         }),
-        "fishing": new LocationActivity({
+        "fishing": new LocationGatheringActivity({
             activity_name: "fishing",
             starting_text: "Try fishing in the lake",
             skill_xp_per_tick: 4,
@@ -2665,7 +2672,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
     };
 	
     locations["Swampland tribe"].activities = {
-        "herbalism": new LocationActivity({
+        "herbalism": new LocationGatheringActivity({
             activity_name: "herbalism",
             starting_text: "Forage for wild herbs and vegetables in the swamplands",
             skill_xp_per_tick: 14,

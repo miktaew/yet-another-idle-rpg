@@ -3313,6 +3313,20 @@ function add_active_effect(effect_key, duration, was_xp_added){
     return old_duration < active_effects[effect_key].duration;
 }
 
+function add_xp_to_activity_skills() {
+    if(current_activity.gained_skills) {
+        const gained_skills = current_activity.gained_skills;
+        Object.keys(gained_skills).forEach(skill_key => {
+            add_xp_to_skill({skill: skills[skill_key], xp_to_add: gained_skills[skill_key]});
+        });
+    } else {
+        const skill_names = activities[current_activity.activity_name].base_skills_names;
+        for (let i = 0; i < skill_names?.length; i++) {
+            add_xp_to_skill({skill: skills[skill_names[i]], xp_to_add: current_activity.skill_xp_per_tick[i]});
+        }
+    }
+}
+
 /**
  * Handles preliminary management of quest events, simplifying work by automatically providing all the additional data
  * @param {Object} quest_event_data 
@@ -5483,21 +5497,18 @@ function update() {
 
                 //ticks are varied for gathering activities, 1 second for most other activities
                 current_activity.gathering_time += 1;
+
+                if(!current_activity.xp_given_per_working_period) {
+                    add_xp_to_activity_skills();
+                }
+
                 if(current_activity.gathering_time >= current_activity.gathering_time_needed) { 
                     const {gathering_time_needed, gained_resources, quality_range} = current_activity.getActivityEfficiency();
                     const items = [];
 
                     //add xp
-                    if(current_activity.gained_skills) {
-                        const gained_skills = current_activity.gained_skills;
-                        Object.keys(gained_skills).forEach(skill_key => {
-                            add_xp_to_skill({skill: skills[skill_key], xp_to_add: gained_skills[skill_key]});
-                        });
-                    } else {
-                        const skill_names = activities[current_activity.activity_name].base_skills_names;
-                        for (let i = 0; i < skill_names?.length; i++) {
-                            add_xp_to_skill({skill: skills[skill_names[i]], xp_to_add: current_activity.skill_xp_per_tick[i]});
-                        }
+                    if(current_activity.xp_given_per_working_period) {
+                        add_xp_to_activity_skills();
                     }
 
                     //add resource drops (if defined)

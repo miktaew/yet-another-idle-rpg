@@ -2329,8 +2329,9 @@ function create_location_choices({location, category, is_combat = false}) {
                     }
                 }
             }
+            const {gathering_time_needed} =  location.activities[key].getActivityEfficiency();
             job_tooltip_content += `Pays ${format_money(location.activities[key].get_payment())} per every ` +  
-                    `${format_working_time(location.activities[key].gathering_time_needed)} worked`;
+                    `${format_working_time(gathering_time_needed)} worked`;
             insert_HTML(job_tooltip, job_tooltip_content)
             activity_div.appendChild(job_tooltip);
     
@@ -4227,7 +4228,7 @@ function update_displayed_ongoing_activity(current_activity) {
             const percent_xp = is_maxed ? "Max" : `${Math.floor(10000 * skill.current_xp / skill.xp_to_next_lvl) / 100}%`
             const curr_xp = is_maxed ? "Max" : `${Math.floor(skill.current_xp)}`;
             const needed_xp = is_maxed ? "Max" : `${Math.ceil(skill.xp_to_next_lvl)}`;
-            const time_needed = Math.ceil((needed_xp - curr_xp) / (xp_rate * get_skill_xp_gain(skill.skill_id))) * current_activity.gathering_time_needed;
+            const time_needed = Math.ceil((needed_xp - curr_xp) / (xp_rate * get_skill_xp_gain(skill.skill_id))) * (current_activity.xp_given_per_working_period?current_activity.gathering_time_needed:1);
 
             action_xp_div.innerText += ` ${skill.name()} (${percent_xp}  [${expo(curr_xp)} / ${expo(needed_xp)}])`;
             insert_HTML(action_xp_div, `<br>Next level in ${format_reading_time(time_needed)} (${format_time({ time: { minutes: time_needed / 60 }, long_names: true })}realtime)`);
