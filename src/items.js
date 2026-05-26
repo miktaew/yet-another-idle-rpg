@@ -554,7 +554,7 @@ class Equippable extends Item {
             Object.keys(stats).forEach(stat => {
                 if(stats[stat].multiplier) {
                     if(!this.tags["weapon"] && stat === "attack_speed") {
-                        //special treatment for atk spd when not on weapon, since this stat is way too powerful
+                        //special treatment for atk spd when not on weapon, since this stat would be too powerful otherwise
                         if(stats[stat].multiplier > 1) {
                             //multiply value over 1 by rarity
                             stats[stat].multiplier = Math.round(100 * (1+(stats[stat].multiplier-1) * rarity_multipliers[this.getRarity(quality)]))/100;
@@ -595,8 +595,14 @@ class Equippable extends Item {
                 }
 
                 if(stats[stat].flat){
+                    
                     if(stats[stat].flat > 0) {
-                        stats[stat].flat = Math.round(100 * stats[stat].flat * rarity_multipliers[this.getRarity(quality)])/100;
+                        if(stat === "crit_rate") {
+                            //special treatment for crit rate as otherwise it would be too good
+                            stats[stat].flat = Math.round(100 * stats[stat].flat * rarity_multipliers[this.getRarity(quality)]**0.5)/100;
+                        } else {
+                            stats[stat].flat = Math.round(100 * stats[stat].flat * rarity_multipliers[this.getRarity(quality)])/100;
+                        }
                     } else {
                         stats[stat].flat = Math.round(100 * stats[stat].flat)/100;
                     }

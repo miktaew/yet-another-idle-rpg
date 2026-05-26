@@ -647,12 +647,12 @@ const crafting_component_manager = {
 
                     if(material.types[i] === component_types.SHORT_BLADE) {
                         //CRIT BONUS FOR SHORT BLADES
-                        let crit_bonus = 0.05 * material.tier;
-                        if(component_stats.crit_bonus?.flat) {
-                            component_stats.crit_bonus.flat += crit_bonus;
+                        let crit_rate = Math.round(100 * 0.05 * (material.tier)**0.6)/100; //scaling with tier **0.6 to reduce it on higher ranks
+                        if(component_stats.crit_rate?.flat) {
+                            component_stats.crit_rate.flat += crit_rate;
                         } else {
-                            if(!component_stats.crit_bonus) component_stats.crit_bonus = {};
-                            component_stats.crit_bonus.flat = crit_bonus;
+                            if(!component_stats.crit_rate) component_stats.crit_rate = {};
+                            component_stats.crit_rate.flat = crit_rate;
                         }
                     } else if(material.types[i] === component_types.LONG_BLADE) {
                         //AP BONUS FOR LONG BLADES 
@@ -665,12 +665,12 @@ const crafting_component_manager = {
                         }
 
                         //SMALLER CRIT BONUS FOR SHORT BLADES
-                        let crit_bonus = 0.02 * material.tier;
-                        if(component_stats.crit_bonus?.flat) {
-                            component_stats.crit_bonus.flat += crit_bonus;
+                        let crit_rate = Math.round(100 * 0.02 * (material.tier)**0.6)/100;
+                        if(component_stats.crit_rate?.flat) {
+                            component_stats.crit_rate.flat += crit_rate;
                         } else {
-                            if(!component_stats.crit_bonus) component_stats.crit_bonus = {};
-                            component_stats.crit_bonus.flat = crit_bonus;
+                            if(!component_stats.crit_rate) component_stats.crit_rate = {};
+                            component_stats.crit_rate.flat = crit_rate;
                         }
                     }
                     
