@@ -261,7 +261,7 @@ const component_name_mapping = {
     "Short wooden hilt" : "Wooden short handle",
     "Short ash wood hilt" : "Ash wood short handle",
     "Short weak bone hilt" : "Weak bone short handle",
-    "Cheap short iron hilt" : "Cheap iron wooden short handle",
+    "Cheap short iron hilt" : "Cheap iron short handle",
     "Short iron hilt" : "Iron short handle",
     "Short steel hilt" : "Steel short handle",
     "Turtleshell hilt": "Turtleshell short handle",
