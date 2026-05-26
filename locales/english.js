@@ -13,12 +13,12 @@ const english = {
     "elder remember answ": "Some of our people found you unconscious in the forest, wounded and with nothing but pants and an old sword, so they brought you to our village. "
             + "It would seem you were on your way to a nearby town when someone attacked you and hit you really hard in the head.",
     "elder who": "Who are you?",
-    "elder who answ": "I'm the unofficial leader of this village. If you have any questions, come to me",
+    "elder who answ": "I'm the unofficial leader of this village. If you have any questions, come to me.",
     "elder leave 1": "Great... Thank you for help, but I think I should go there then. Maybe it will help me remember more.",
     "elder leave 1 answ": "Nearby lands are dangerous and you are still too weak to leave. Do you plan on getting ambushed again?",
     "elder need to": "But I want to leave",
     "elder need to answ": "You first need to recover, to get some rest and maybe also training, as you seem rather frail... Well, you know what? Killing a few wolf rats could be a good exercise. "
-                    +"You could help us clear some field of them, how about that?",
+                    +"You could help us clear some fields of them, how about that?",
     "elder eq": "Is there any way I could get a weapon and proper clothes?",
     "elder eq answ": "We don't have anything to spare, but you can check out our market. Just go over there *[points a direction]*, then turn right. It's nowhere near what you can find in a town, but people always have some gear, food, and other useful stuff to sell. "
                     +"If you need money, try selling some rat remains there. Fangs, tails or pelts, people will buy them all. I have no idea what they do with this stuff...",
@@ -29,7 +29,7 @@ const english = {
     "elder rats": "Are wolf rats a big issue?",
     "elder rats answ": "Oh yes, quite a big one. Not literally, no, though they are much larger than normal rats... "
                     +"They are a nasty vermin that's really hard to get rid of. And with their numbers they can be seriously life-threatening. "
-                    +"Only in a group though, single wolf rat is not much of a threat",
+                    +"Only in a group though, a single wolf rat is not much of a threat",
     "elder cleared 1":  "I cleared the field, just as you asked me to",
     "elder cleared 1 answ": "You did? That's good. How about a stronger target? Nearby cave is just full of this vermin. Try yourself against whatever occupies the frontal room, and then also the deeper parts. "
                     +"Before that, maybe get some sleep? Some folks prepared that shack over there for you. It's clean, it's dry, and it will give you some privacy. "
@@ -50,7 +50,7 @@ const english = {
                                 +" It's a pity that she never gained the fame she dreamt of, but at least she became strong enough to keep her home safe. Even that aside, I'm glad she came back. Many leave looking for better lives and"
                                 +" we never hear from them again.",
     "elder tunnel": "I found an even deeper tunnel in the cave",
-    "elder tunnel answ": "The what? I have a very bad feeling about this... You better avoid it until you get better equipment and some solid shield, I can bet it's gonna be a lot more dangerous.",
+    "elder tunnel answ": "The what? I have a very bad feeling about this... You better avoid it until you get better equipment and a solid shield, I can bet it's gonna be a lot more dangerous.",
     "elder training": "I think I went far enough with basic training, do you have any other suggestions?",
     "elder training answ 1": "You did? Well, let me think... You could try swimming in the river nearby if you haven't done that yet, just remember not to do it in cold weather. Or you could try some wall climbing, but be sure to start with low heights to be safe.",
     "elder training answ 2": "You did? Well, let me think... Swimming in the river nearby would be a good exercise, but it's mostly frozen now in winter. You could try some wall climbing though, but be sure to start with low heights to be safe.",
@@ -91,19 +91,19 @@ const english = {
     "elder bridge finished answ": "Yes, I saw and heard enough to notice. Wonderful work, I'm really thankful for your help. Here, this is for you.",
     "elder dragonflies": "With bridge completed, what's next?",
     "elder dragonflies answ": "Some villagers already tried working on the old buildings on the other side of the river and reported problems with huge dragonflies, and those even seem to have some kind of poison. Could you try dealing with them?",
-    "elder dragonflies killed": "I destroyed dragonflies in the vicinity, but there might be  more nests further away",
+    "elder dragonflies killed": "I destroyed dragonflies in the vicinity, but there might be more nests further away",
     "elder dragonflies killed answ": "That's good enough, I doubt it would be possible to exterminate them, just like the rats won't ever completely leave.",
     "elder further work": "Are there more projects now that dragonflies are gone?",
     "elder further work answ": "Not yet, but hopefully soon.",
     "elder amulet": "Why are you looking at me like that?",
-    "elder amulet answ": "Ah, sorry for startling you. I'm just thankful for all your help in the village, it means a lot to an old man like me, so I wanted you to have this. It's an amulet made of a horn of one of rams from the first flock of sheep that was ever under my care. Please, keep it and be strong.",
+    "elder amulet answ": "Ah, sorry for startling you. I'm just thankful for all your help in the village, it means a lot to an old man like me, so I wanted you to have this. It's an amulet made of a horn of one of the rams from the first flock of sheep that was ever under my care. Please, keep it and be strong.",
     "mofu#elder amulet answ": "Ah, sorry for startling you. I'm just thankful for all your help in the village, it means a lot to an old man like me, so I wanted you to have this. It's an amulet made of a horn I shed many long years ago, back in my prime. Please, keep it and be strong.",
     
     //
     "craftsman description": "You see an old man who clearly experienced a lot in life. He's wearing some handmade accessories. Despite his age, his fingers seem exceptionally nimble.",
             "mofu#craftsman description": "You see an old man with a medium length white tail, who clearly experienced a lot in life. His hair is composed of a black and a white part, with the former very dulled by age. He's wearing some handmade accessories. Despite his age and his massive hands, his fingers seem exceptionally nimble.",
     "craftsman hello": "Hello, I heard you wanted to talk to me?",
-    "craftsman hello answ": "Ahh, good to see you traveler. I just thought of a little something that could be of help for someone like you. See, young people this days "+
+    "craftsman hello answ": "Ahh, good to see you, traveler. I just thought of a little something that could be of help for someone like you. See, young people these days "+
             "don't care about the good old art of crafting and prefer to buy everything from the store, but I have a feeling that you just might be different. "+
             "Would you like a quick lesson?",
     "craftsman learn": "Sure, I'm in no hurry.",
@@ -122,14 +122,14 @@ const english = {
     "craftsman remind 2 answ": "Ahh, that's simple, you just need more experience. This alone will be a great boon to your efforts. For equipment, you might also want to start with better components. "+
             "After all, even with the most perfect assembling you can't turn a bent blade into a legendary sword.",
     "craftsman remind 3": "Could you remind me how to get crafting materials?",
-    "craftsman remind 3 answ": "Ahh, there's multiple ways of that. You can gain them from fallen foes, you can gather them around, or you can even buy them if you have some spare coin.",
+    "craftsman remind 3 answ": "Ahh, there's multiple ways to do that. You can gain them from fallen foes, you can gather them around, or you can even buy them if you have some spare coin.",
     "craftsman remind 4": "How do I get better at crafting?",
     "craftsman remind 4 answ": "Ahh, there aren't any secrets, you just need to keep practicing it. Just don't spend your entire life working with the same lousy materials, try to work on stronger stuff when you feel confident. There's a limit to how much you can learn by working with rat leather, isn't there?",
     "craftsman about guard": "So what's the story of that village guard girl?",
     "craftsman about guard answ": "Ahhh, our little warrioress... She once wanted to be an adventurer, but I believe it didn't work out for her. Hard work is not enough when talent is lacking nor can it allow one to conquer fate, I'm afraid. Still, she's a good girl and keeps us safe now.",
     "mofu#craftsman about guard answ": "Ahhh, our fierce she-wolf... She once wanted to be an adventurer, but I believe it didn't work out for her. Hard work is not enough when talent is lacking nor can it allow one to conquer fate. Still, she's a good girl and keeps us safe now.",
     //
-    "guard description": "You see a woman in a light armor, with a spear in her hand and two daggers on her belt. There's a scar across her face.",
+    "guard description": "You see a woman in a set of light armor, with a spear in her hand and two daggers on her belt. There's a scar across her face.",
     "mofu#guard description": "You see a tall woman in light armor, with a spear in her hand and two daggers on her belt. "
             +"Her sharp fuzzy ears rotate every now and then towards any new sound, while her fluffy tail remains motionless. There's a scar across her face."
             +" When she spots you, she looks at you as if you were prey, but then her expression softens a lot.",
@@ -137,7 +137,7 @@ const english = {
     "guard hello answ": "Hello. I see you are finally leaving, huh?",
     
     "guard job": "Do you maybe have any jobs for me?",
-    "guard job answ": "You are somewhat combat capable now, so how about you help me and the boys on patrolling? Not much happens, but it pays better than working on fields",
+    "guard job answ": "You are somewhat combat capable now, so how about you help me and the boys on patrolling? Not much happens, but it pays better than working on the fields",
     "guard tips": "Can you give me any tips for the journey?",
     "guard tips answ": "First and foremost, don't rush. It's fine to spend some more time here, to better prepare yourself. "
             +"There's a lot of dangerous animals out there, much stronger than those annoying rats, and in worst case you might even run into some bandits. "
@@ -160,7 +160,7 @@ const english = {
     "mofu#guard hi answ": "Hey there. I heard you've been helping around a lot, good job cutie~ \n "
                             +"*[As she says that, she bends forward and pats your head a few times with a surprisingly gentle touch, her tail slightly wagging]*",
     "guard tips 2": "Can you give me any training tips?",
-    "guard tips 2 answ": "It's not always best to focus on singular skill, you might learn more if you come back to training after getting more experienced in other aspects and finding new insights."
+    "guard tips 2 answ": "It's not always best to focus on a singular skill, you might learn more if you come back to training after getting more experienced in other aspects and finding new insights."
                             +" There are also some unconventional training styles that I heard of, like fighting with no weapons or with no armor whatsoever, but I wouldn't recommend it to you, cutie."
                         +" It's enough that one of us is covered in ugly scars.",
     "guard scars": "I don't think your scar is ugly",
@@ -175,7 +175,7 @@ const english = {
     "guard teach more": "Can you teach me something more?",
     "guard teach more answ": "I'm sorry, but no, that will have to be enough. Trust me, I'm generally a terrible teacher, I know that from experience. It will be better for you to not get any bad habits because of me.",
     //
-    "millers description": "You see two teenagers with mischievous looks on their faces. It's only with great deal of effort that you manage to recognize them both as males. One of them has red hair, the other gray.",
+    "millers description": "You see two teenagers with mischievous looks on their faces. It's only with a great deal of effort that you manage to recognize them both as males. One of them has red hair, the other gray.",
     "mofu#millers description": "You see two teenagers with mischievous looks on their faces. One has cat ears and a fluffy tail, the other mouse ears and a tail with barely any hair on it. It's only with great deal of effort that you manage to recognize them both as males. The cat has red hair, the mouse gray.",
     
     "millers hello": "Hello there",
@@ -212,8 +212,8 @@ const english = {
     "mofu#millers kiss cat answ": "*[Cat teen slowly approaches you from the side and gives a gentle smooch on your cheek with his tail brushing against your legs,"
             +" then steps back with a smirk]*",
     "millers kiss both": "How about... both of you?",
-    "millers kiss both answ": "*[The two slowly approach you from both sides and you receive two simultanous gentle smooches, one of each of your cheek, after which they take a step back]*",
-    "mofu#millers kiss both answ": "*[The two slowly approach you from both sides and you receive two simultanous gentle smooches, one of each of your cheek with their"
+    "millers kiss both answ": "*[The two slowly approach you from both sides and you receive two simultaneous gentle smooches, one of each of your cheek, after which they take a step back]*",
+    "mofu#millers kiss both answ": "*[The two slowly approach you from both sides and you receive two simultaneous gentle smooches, one of each of your cheek with their"
             +" tails brushing against your legs, after which they take a step back]*",
     "millers reject nice": "I appreciate the offer, but I'm not interested in that kind of thing",
     "millers reject nice answ": "[Red] Oh well, that's a pity~",
@@ -228,16 +228,16 @@ const english = {
     "millers how2 answ": "[Red] Kinda boring, but at least company is good. \n[Gray] What he said.",
     "mofu#millers how2 answ": "[Cat] Kinda boring, but at least company is good. \n[Mouse] What he said.",
     "millers about guard": "Do you know anything about that girl who guards the village?",
-    "millers about guard answ": "[Red] Nope, nothing. She just happens to be exactly same in very single aspect, as far as oral descriptions go, as one the continent's top ten adventurers who retired just before she returned."
+    "millers about guard answ": "[Red] Nope, nothing. She just happens to be exactly same in every single aspect, as far as oral descriptions go, as one of the continent's top ten adventurers who retired just before she returned."
                             +" \n[Gray] Obviously it's a total coincidence, right? *[The two exchange amused looks]*"
                             +" \n[Red] Jokes aside, no one here besides us managed to make that connection, that's just sooo stupid~"
                             +" \n[Gray] When they hear how there was a powerful adventurer who happens to match her perfectly, they all just assume that it's a pure coincidence and a completely different person."
-                            +" \n[Red] She doesn't seem to care much about it, probably prefers peace and quiet. Let her have them, I'm sure she went through a lot, and with her here we can feel safer than ever.",
-    "mofu#millers about guard answ": "[Cat] Nope, nothing. She just happens to be exactly same in very single aspect, as far as oral descriptions go, as one the continent's top ten adventurers who retired just before she returned."
+                            +" \n[Red] She doesn't seem to care much about it, probably prefers peace and quiet. Let her have that, I'm sure she went through a lot, and with her here we can feel safer than ever.",
+    "mofu#millers about guard answ": "[Cat] Nope, nothing. She just happens to be exactly same in every single aspect, as far as oral descriptions go, as one of the continent's top ten adventurers who retired just before she returned."
                             +" \n[Mouse] Obviously it's a total coincidence, right? Two completely unrelated wolves. *[The two exchange amused looks]*"
                             +" \n[Cat] Jokes aside, no one here besides us managed to make that connection, that's just sooo stupid~"
                             +" \n[Mouse] When they hear how there was a powerful adventurer who happens to match her perfectly, they all just assume that it's a pure coincidence and a completely different person."
-                            +" \n[Cat] She doesn't seem to care much about it, probably prefers peace and quiet. Let her have them, I'm sure she went through a lot, and with her here we can feel safer than ever.",
+                            +" \n[Cat] She doesn't seem to care much about it, probably prefers peace and quiet. Let her have that, I'm sure she went through a lot, and with her here we can feel safer than ever.",
     //
     "g guard description": "You see a massive man in a steel chainmail, with a spear in his hand and a sword on his belt.",
     "mofu#g guard description": "You see a massive, hairy man with round ears and a tiny tail. He's clad in a steel chainmail, with a spear in his hand and an axe on his belt.",
@@ -283,9 +283,9 @@ const english = {
     "mofu#old description 1": "With some safety returned to the area, more folk are now out on the streets. One of them, an elderly tanuki lady, is looking at you.",
     "mofu#old description 2": "You see a gentle elderly tanuki lady with warm look in her eyes",
     "old hello": "[Let her approach you.]",
-    "old hello answ": "Hello young warrior. I understand it is you who we have to thank for freeing us from those thugs. Few these days have the gumption, and even fewer the strength to take them on. Well done! Such heroism deserves a reward, and while none of us have much to offer as you can see, but the least I can do is make sure our hero doesn't go hungry. Would you care to join me for dinner?",
+    "old hello answ": "Hello young warrior. I understand it is you who we have to thank for freeing us from those thugs. Few these days have the gumption, and even fewer the strength to take them on. Well done! Such heroism deserves a reward, and while none of us have much to offer as you can see, the least I can do is make sure our hero doesn't go hungry. Would you care to join me for dinner?",
     "old dinner": "[Accept the offer.]",
-    "old dinner answ": "[You join the woman in her shack for a humble, yet satisfying meal. While the main ingredients are simple, they are well flavoured and garnished with herbs.]",
+    "old dinner answ": "[You join the woman in her shack for a humble, yet satisfying meal. While the main ingredients are simple, they are well flavored and garnished with herbs.]",
     "old ingredients": "[Compliment the food and ask where she gets ingredients.]",
     "old ingredients answ": "Surprised? Live here long enough, and you learn how to get by without a lot of pricey things. No, I'm not talking about stealing - I may be poor, but I still have my pride! No, I'm talking about the plants that grow all around. Most people pass them by, without realizing how useful they can be. Ha! Maybe there IS another way I can reward you! I can teach you what to look for, if you're interested.",
     //
@@ -304,8 +304,8 @@ const english = {
     "sup fight": "Do you have any task that requires some good old violence?",
     "sup fight answ": "Actually yes. There's that annoying group of boars that keep destroying our fields. "
         + "They don't do enough damage to cause any serious problems, but I would certainly be calmer if someone took care of them. "
-        + "Go to the forest and search for a clearing in north, that's where they usually roam when they aren't busy eating our crops. "
-        + "I will of course pay you for that. 4 silver coins is most I can offer, I'm running on a strict budget here.",
+        + "Go to the forest and search for a clearing to the north, that's where they usually roam when they aren't busy eating our crops. "
+        + "I will of course pay you for that. 4 silver coins is the most I can offer, I'm running on a strict budget here.",
     "sup things": "How are things around here?",
     "sup things answ": "Nothing to complain about. Trouble is rare, pay is good, and the soil is as fertile as my wife!",
     "sup defeated boars": "I took care of those boars",
@@ -342,7 +342,7 @@ const english = {
     "swampchief explain answ": "*[The chief holds for a moment, before relaxing his stance and raising his trident away]*\n\n"
         +"A fool in shoddy garb. You aren't even worth bloodying my spear for. Begone from my sight. We have nothing to offer you, no quarter to give, and no supply to barter. Leave us, and do not return.",
     "swampchief help": "Perhaps you don't have anything to offer, but maybe I can offer to help your people?",
-    "swampchief help answ": "And for what would we need the help of a stranger from the beyond the bog? Feh! If you wish to pay fealty to our strength, we'll take your tribute. Now begone from my sight.",
+    "swampchief help answ": "And for what would we need the help of a stranger from beyond the bog? Feh! If you wish to pay fealty to our strength, we'll take your tribute. Now begone from my sight.",
     "swampchief mid help": "I'm going to ask around and see how I can-",
     "swampchief mid help answ": "I did not ask, stranger. Be gone from my sight before I change my mind.",
     "swampchief report": "I've been helping out around the tribe.",
@@ -361,15 +361,15 @@ const english = {
     "swampchief generic answ": "Challenging, honored friend, in these harsh and dangerous times. But maybe we can make it through if we all band together.",
 	//
     "swampcook description 1": "As you get closer to the cook's workhut, you're met with a distinctive tune bellowed loudly and an acrid smell emanating from inside. Bracing your nose, you approach to find a short fellow nearly obscured by hanging meats, moving between a rack larger than he is housing thin cuts suspended between grated slats and a large cauldron build into a workbench covered in large slabs of rough leather in various stages of processing. You're surprised to find that he was the source of the singing. Noticing your approach, he stops his song and turns to address you with a smile on his face.", //before accepted task
-    "swampcook description 2": "You approach the cooks's workhut, finding him standing outside next to a small smokehouse in between splitting logs. As before, you can both smell the leather the cook is processing and hear the song that he is singing long before you see him.", //before finishing delivery
-    "swampcook description 3": "As you approach the workhut, you absentmindedly sing along to the cook's song. He notices your singing before turning to you and giving a big nod with a toothy grin before resuming his work.", //after finishing delivery
+    "swampcook description 2": "You approach the cook's workhut, finding him standing outside next to a small smokehouse in between splitting logs. As before, you can both smell the leather the cook is processing and hear the song that he is singing long before you see him.", //before finishing delivery
+    "swampcook description 3": "As you approach the workhut, you absent-mindedly sing along to the cook's song. He notices your singing before turning to you and giving a big nod with a toothy grin before resuming his work.", //after finishing delivery
 	"mofu#swampcook description 1": "As you get closer to the cook's workhut, you're met with a distinctive tune bellowed loudly and an acrid smell emanating from inside."
             +" Bracing your nose, you approach to find a short fellow nearly obscured by hanging meats,"
             +" moving between a rack larger than he is housing thin cuts suspended between grated slats and a large cauldron build into a workbench covered in large slabs"
             +" of rough leather in various stages of processing."
             +" You're surprised to find that he was the source of the singing."
             +" Noticing your approach, he stops his song and turns to address you with a smile on his face, somehow managing to not hit anything with his scaly tail.",
-    "mofu#swampcook description 3": "As you approach the workhut, you absentmindedly sing along to the cook's song."
+    "mofu#swampcook description 3": "As you approach the workhut, you absent-mindedly sing along to the cook's song."
             +" He notices your singing before turning to you and giving a big nod with a toothy grin before resuming his work, his large tail once again somehow not hitting anything.",
     "swampcook greeting1": "Hello. I'm trying to find ways to... pay tribute?",
     "swampcook greeting1 answ": "A-ha~! Tribute! Ha-ha~! Very funny, obaru! There is no need to pay tribute to a snake's fangs!", //"Obaru" - in this context means child; stranger; person with no relevance
@@ -408,7 +408,7 @@ const english = {
     "swampcook surroundend": "I've learned enough about the ares surrounding the swamplands.",
     "swampcook surroundend answ": "A-ha~! Maybe you will see those lands some day!",
 	"swampcook chief": "What can you tell me about the head of the snake?",
-    "swampcook chief answ": "A-ha~! Very strong! Very agressive! Quick to bite!",
+    "swampcook chief answ": "A-ha~! Very strong! Very aggressive! Quick to bite!",
     "swampcook chief1": "Are you ~just~ telling me about snakes?",
     "swampcook chief1 answ": "Ha~! Silly kazoku! No! Snake's head used to be calmer! But now a new head!",
     "swampcook chief2": `A... new head? What happened to the "old" head, then?`,
@@ -598,7 +598,7 @@ const english = {
         +" A hunt across the bog with naught but ghosts to watch over us... ...as the snakes bore down on us...",
     "swampscout lore7": "I'm sorry all that happened.",
     "swampscout lore7 answ": "I thought myself strong. I thought that... to live meant to be strong. To stand up to... death. But now... Everything that lives is destined to end."
-        +" To live in pain, in... a neverending spiral of life and death...", //reference to the opening of Nier: Automata
+        +" To live in pain, in... a never-ending spiral of life and death...", //reference to the opening of Nier: Automata
     "swampscout lore8": "Wow...",
     "swampscout lore8 answ": "*[The scout listlessly turns her head towards you]*\n\n"
         +"I'm sorry. I just met you and I'm rambling about... this of all things. We can talk about something... else. I've spent a lot of time in the..."
