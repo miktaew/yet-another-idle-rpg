@@ -2103,8 +2103,10 @@ function update_displayed_normal_location(location) {
         open_storage_div.id = "open_storage_div";
         open_storage_div.setAttribute('onclick', 'openStorage()');
 
-        action_div.appendChild(start_sleeping_div);
-        action_div.appendChild(open_storage_div);
+        location_choice_divs["sleeping"] = start_sleeping_div;
+        location_choice_divs["storage"] = open_storage_div;
+        //action_div.appendChild(start_sleeping_div);
+        //action_div.appendChild(open_storage_div);
     }
     
     ////////////////////////////////////

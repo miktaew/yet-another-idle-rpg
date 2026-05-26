@@ -737,7 +737,7 @@ function end_activity() {
             loot.push({item_id: mat_key, count: current_activity.gathered_materials[mat_key]});
         });
 
-        process_current_loot({loot_list: loot});
+        process_current_loot({loot_list: loot, is_summary: true});
     }
     end_activity_animation(); //clears the "animation"
     current_activity = null;
@@ -2547,7 +2547,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
     }
 }
 
-function process_current_loot({loot_list, is_combat}) {
+function process_current_loot({loot_list, is_combat, is_summary}) {
     current_loot.recent = {};
 
     loot_list.forEach(loot_list_entry => {
@@ -2562,7 +2562,7 @@ function process_current_loot({loot_list, is_combat}) {
         }
     });
     
-    log_loot({loot_list: current_loot, is_combat, is_dynamic: game_options.do_dynamic_loot_message});
+    log_loot({loot_list: current_loot, is_combat, is_dynamic: game_options.do_dynamic_loot_message, is_a_summary: is_summary && !game_options.do_dynamic_loot_message});
 }
 
 function clear_loot_information() {

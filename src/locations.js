@@ -2335,7 +2335,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
             skill_xp_per_tick: 0.5,
             is_unlocked: false,
             gained_resources: {
-                resources: [{name: "Stone brick", ammount: [[0,1], [1,1]], chance: [0.5, 1]}],
+                resources: [{name: "Stone brick", ammount: [[1,1], [1,1]], chance: [0.2, 1]}],
                 time_period: [60, 20],
                 skill_required: [0, 10],
             },

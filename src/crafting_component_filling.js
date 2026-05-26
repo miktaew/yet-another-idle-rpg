@@ -686,6 +686,7 @@ const crafting_component_manager = {
                         attack_value: Math.floor(attack_value),
                                     
                         component_stats: {
+                            ...component_stats,
                             attack_speed: {
                                 multiplier: attack_speed,
                             },
