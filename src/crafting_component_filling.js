@@ -777,7 +777,7 @@ const crafting_component_manager = {
                             } else {
                                 agility_multiplier = Math.round(100*(1 - (material_count*(material.weight-50))/2500))/100;
                             }
-                            attack_speed_multiplier = Math.max(1,(1+(material.tier-1)/100) * (1+(50-material.weight)/500));
+                            attack_speed_multiplier = Math.round(100*Math.max(1,(1+(material.tier-1)/100) * (1+(50-material.weight)/500)))/100;
                         }
 
                         cold_tolerance_bonus = (material.warmth-100)/20;
