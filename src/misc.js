@@ -68,14 +68,15 @@ function slerp(arr, t) {
 function expo(number, precision = 3)
 {
     number = Number.parseFloat(number);
+    let abs_number = Math.abs(number);
 
-    if(number == 0) {
+    if(abs_number == 0) {
         return 0;
-    } else if(number >= 10**game_options.expo_threshold || number < 0.01) {
-        return number.toExponential(precision).replace(/[+-]/g,"");
-    } else if(number > 10) {
+    } else if(abs_number >= 10**game_options.expo_threshold || abs_number < 0.01) {
+        return abs_number.toExponential(precision).replace(/[+-]/g,"");
+    } else if(abs_number > 10) {
         return Math.round(number).toLocaleString();
-    } else if(number > 1) {
+    } else if(abs_number > 1) {
         return (Math.round(number * 10) / 10).toLocaleString();
     } else {
         return (Math.round(number * 100) / 100).toLocaleString();
@@ -292,6 +293,9 @@ const component_name_mapping = {
     "Alligator leather glove armor": "Alligator glove armor",
     "Alligator leather shoe armor": "Alligator shoe armor",
     "Alligator leather armor": "Alligator armor",
+
+    "Iron chainmail shoes": "Iron chainmail shoe armor",
+    "Iron chainmail glove": "Iron chainmail glove armor",
 
     "Steel chainmail shoes": "Steel chainmail shoe armor",
     "Steel chainmail glove": "Steel chainmail glove armor",

@@ -3488,9 +3488,10 @@ function update_gathering_tooltip(activity) {
 }
 
 function update_displayed_health() { //call it when using healing items, resting or getting hit
-    let total_regen = character.stats.get_health_regeneration_total() - character.stats.get_health_loss_total();
+    let total_regen = character.stats.get_health_regeneration_total() + character.stats.get_health_loss_total();
+    let sign = total_regen > 0 ? "+":"";
     current_health_value_div.innerText = Math.ceil(character.stats.full.health) + "/" + Math.ceil(character.stats.full.max_health)
-        + (total_regen != 0 ? " (+" + expo(total_regen, 1) + "/s) " : "")
+        + (total_regen != 0 ? " ("+ sign + expo(total_regen, 1) + "/s) " : "")
         + " hp";
     current_health_bar.style.width = (character.stats.full.health*100/character.stats.full.max_health).toString() +"%";
 }

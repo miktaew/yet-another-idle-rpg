@@ -29,6 +29,8 @@ const translationManager = {
             if(global_flags.is_mofu_mofu_enabled) {
                 const key = "mofu#" + text_id;
                 return translations[language][key] || translations[language][text_id];
+            } else {
+                return translations[language][text_id];
             }
         }
     }

@@ -84,7 +84,8 @@
 	--options_action_textsize: 16px;
 	--location_name_div_width: 270px;
 
-	--active_button_color: #435270;
+	--active_button_color: #4d5e80;
+    --hovered_button_color: rgb(48, 57, 77);
 	--tooltip_background_color: rgba(92, 92, 92, 0.97);
 
 	--onclick_button_color: rgb(75, 99, 145);
@@ -1481,6 +1482,10 @@ i {
 	flex-wrap: wrap;
 }
 
+.activable_buttons :hover {
+    background-color: var(--hovered_button_color);
+}
+
 .character_sorting_button {
 	float: left;
 	flex-grow: 1;
@@ -2523,8 +2528,9 @@ i {
 			margin: 1px;
 			cursor: pointer;
 		}
-		.message_control_button:hover {
-			background-color: var(--active_button_color);
+		.message_control_button:hover:not(.active_selection_button) {
+			background-color: var(--hovered_button_color);
+            outline: 1px solid gray;
 		}
 	.message_combat {
 		display: var(--message_combat_display);

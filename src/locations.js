@@ -332,7 +332,7 @@ class LocationActivity{
                  availability_seasons,
                  gained_skills, //{skill_1: xp_gain, skill_2: xp_gain, ...}
                  skill_xp_per_tick = 1, //only used for default skills (attached to activity of activity_name key in activities)
-                 xp_given_per_working_period = true, //true => xp  every working period, false => xp every in-game minute
+                 xp_given_per_working_period = false, //true => xp every working period, false => xp every in-game minute
                  unlock_text,
                  gained_resources,
                  require_tool = false,
@@ -438,7 +438,7 @@ class LocationActivity{
 class LocationGatheringActivity extends LocationActivity{
     constructor(data) {
         super(data);
-        this.xp_given_per_working_period = false;
+        this.xp_given_per_working_period = true;
     }
 }
 

@@ -737,7 +737,7 @@ const crafting_component_manager = {
                         component_tier: material.tier,
                         component_stats: {
                              block_strength: {
-                                multiplier: 1+Math.floor((material.tier-1)*0.75*10)/10,
+                                multiplier: 1+Math.floor((material.tier-1)*2)/10,
                             }
                         }
                     });
@@ -760,7 +760,7 @@ const crafting_component_manager = {
                                 multiplier: Math.min(1,Math.floor(100*(1-((material.weight-50)/200)))/100)
                             },
                             attack_power: Math.min(1,Math.floor(100*(1-((material.weight-50)/250)))/100)
-                        }
+                        },
                     });
                 } else if(ALL_INTERIORS.includes(material.types[i])) {
 
