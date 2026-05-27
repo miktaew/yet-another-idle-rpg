@@ -438,7 +438,7 @@ function format_skill_rewards(milestone){
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
                                 get_effect_description: ()=> {
-                                    return `Multiplies AP by ${Math.round(get_total_skill_coefficient({skill_id:"Combat",scaling_type:"multiplicative"})*1000)/1000}`;
+                                    return `AP by ${Math.round(get_total_skill_coefficient({skill_id:"Combat",scaling_type:"multiplicative"})*1000)/1000}`;
                                 }});
     
     skills["Pest killer"] = new Skill({
@@ -805,7 +805,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                                 category: "Stance",
                                 max_level: 30,
                                 get_effect_description: ()=> {
-                                    return `Improves efficiency of the 'Defensive Measures' stance`;
+                                    return `Improves efficiency of the "Defensive Measures" stance`;
                                 }});
     skills["Berserker's stride"] = new Skill({ 
                                 names: {0: "Berserker's stride"}, 
@@ -816,7 +816,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                                 category: "Stance",
                                 max_level: 30,
                                 get_effect_description: ()=> {
-                                    return `Improves efficiency of the 'Berserker's Stride' stance`;
+                                    return `Improves efficiency of the "Berserker's Stride" stance`;
                                 }});                  
     skills["Flowing water"] = new Skill({
                                 names: {0: "Flowing water"}, 
@@ -827,7 +827,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                                 category: "Stance",
                                 max_level: 30,
                                 get_effect_description: ()=> {
-                                    return `Improves efficiency of the 'Flowing Water' stance`;
+                                    return `Improves efficiency of the "Flowing Water" stance`;
                                 }});         
                                
 })();
@@ -1008,7 +1008,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                 max_level: 20,
                 category: "Environmental",
                 get_effect_description: () => {
-                    return `Reduces environmental penalty in extremly dark areas`;
+                    return `Reduces environmental penalty in extremely dark areas`;
                 },
                 milestones: {
                     1: {
@@ -1579,7 +1579,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                 category: "Weapon",
                                 description: "Ability to cast spells with magic staffs, increases damage dealt", 
                                 get_effect_description: ()=> {
-                                    return `Multiplies damage dealth with staffs by ${Math.round(get_total_skill_coefficient({skill_id:"Staffs",scaling_type:"multiplicative"})*1000)/1000}`;
+                                    return `Multiplies damage dealt with staffs by ${Math.round(get_total_skill_coefficient({skill_id:"Staffs",scaling_type:"multiplicative"})*1000)/1000}`;
                                 },
                                 max_level_coefficient: 8});
 })();
@@ -1864,7 +1864,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         },
         get_effect_description: ()=> {
             let value = get_total_skill_coefficient({skill_id:"Meditation",scaling_type:"multiplicative"})
-            return `Multiplies intuition ${Math.round(value*100)/100}`;
+            return `Multiplies intuition by ${Math.round(value*100)/100}`;
         },
     });                  
     skills["Running"] = new Skill({
@@ -2840,7 +2840,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     });
     skills["Perception"] = new Skill({
         names: {0: "Perception"}, 
-        description: "Better grasp on your senses allows you to notice small and hidden things, as well as to discern the true nature of what you observe",
+        description: "A better grasp on your senses allows you to notice small and hidden things, as well as to discern the true nature of what you observe",
         base_xp_cost: 100,
         visibility_treshold: 80,
         xp_scaling: 1.8,
