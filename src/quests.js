@@ -33,7 +33,7 @@ class QuestTask {
         });
     }
 }
-
+    
 class Quest {
     constructor({
                 quest_name, //for display, can be skipped if getQuestName covers all possibilites
@@ -349,7 +349,7 @@ const questManager = {
             new QuestTask({task_description: "Dig the melioration channel"}), //finished by completing the dig
             new QuestTask({is_hidden: true, task_rewards: {reputation: {Village: 20}}, skip_message: true}), //finished by talking after finishing digging
             new QuestTask({is_hidden: true, skip_message: true}), //finished by asking for next work after digging
-            new QuestTask({task_description: "Gather matherials (Wood log x100, Stone brick x500) and then help constructing the new bridge"}), //finished by constructing the bridge
+            new QuestTask({task_description: "Gather materials (Wood log x100, Stone brick x500) and then help constructing the new bridge"}), //finished by constructing the bridge
             new QuestTask({is_hidden: true, task_rewards: {reputation: {Village: 120}}, skip_message: true}), //finished by reporting afterwards
             new QuestTask({is_hidden: true, skip_message: true}), //finished by asking for further work
             new QuestTask({task_description: "Clear out huge dragonflies and then report back", task_rewards: {reputation: {Village: 20}}}), //finished by reporting afterwards
@@ -483,7 +483,7 @@ const questManager = {
             } else if(quests["Giant Enemy Crab"].quest_tasks[0].is_finished) {
                 return "You managed to chase the giant crab away, but if you don't finish it off soon, it'll just nest somewhere else and be a problem for somebody else later. And even if someone did find it, would they be strong enough to defeat it? Better just to take care of it yourself now";
             } else {
-                return "The elder gave you his blessing to investigate the rumors of enormous crab nests somewhere down river. Or was it an enormous crab's nest? Or was it some enormous crabs' nest? Either way, he reminded you to prepare for the journey ahead";
+                return "The elder gave you his blessing to investigate the rumors of enormous crab nests somewhere downriver. Or was it an enormous crab's nest? Or was it some enormous crabs' nest? Either way, he reminded you to prepare for the journey ahead";
             }
         },
         questline: "Giant Enemy Crab",
