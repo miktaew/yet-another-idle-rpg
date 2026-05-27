@@ -438,7 +438,7 @@ function format_skill_rewards(milestone){
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
                                 get_effect_description: ()=> {
-                                    return `AP by ${Math.round(get_total_skill_coefficient({skill_id:"Combat",scaling_type:"multiplicative"})*1000)/1000}`;
+                                    return `Multiplies AP by ${Math.round(get_total_skill_coefficient({skill_id:"Combat",scaling_type:"multiplicative"})*1000)/1000}`;
                                 }});
     
     skills["Pest killer"] = new Skill({
