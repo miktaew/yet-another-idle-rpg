@@ -3271,7 +3271,7 @@ function update_displayed_component_choice({category, subcategory, recipe_id, co
 
     const component_selections_div = crafting_pages[category][subcategory].querySelector(`[data-recipe_id='${recipe_id}']`).children[1].children;
 
-    for (var i = 0; i < recipe.components.length; i++) {
+    for (let i = 0; i < recipe.components.length; i++) {
         clear_HTML_content(component_selections_div[i].children[1]);
 
         const components = Object.values(character.inventory)
