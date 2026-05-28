@@ -108,7 +108,7 @@ const material_properties = {
     "cheap leather": {
         tier: 1,
         weight: 60,
-        strength: 100,
+        strength: 70,
         handling: 50,
         warmth: 110,
         types: [
@@ -156,7 +156,7 @@ const material_properties = {
             ...ALL_EXTERIORS,
         ],
     },
-    "leather": { //this is wolf leather too
+    "leather": { //this is wolf leather too, but different stats for interiors
         tier: 2,
         weight: 60,
         strength: 70,
@@ -771,7 +771,7 @@ const crafting_component_manager = {
 
                         if(material.types[i] ===  component_types.SHOE_INTERIOR) {
                             agility_multiplier = 1 + material.tier * 0.05;
-                            attack_speed_multiplier = 1.1 + Math.round((material.tier-1)*4)/100;
+                            attack_speed_multiplier = Math.round(100*(1.1 + (material.tier-1)*4)/100)/100;
                         } else {
                             if(material.types[i] ===  component_types.GLOVE_INTERIOR) {
                                 dexterity_multiplier = 1 + Math.round(material.tier * 0.05 * material.handling)/100;

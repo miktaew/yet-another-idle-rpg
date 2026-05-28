@@ -3248,10 +3248,18 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
     return tooltip;
 }
 
+
 /**
+ * 
  * updates the list of selectable components for equipment crafting;
  * generally called for the recipe that was just used
- * component_keys is used for automatically selecting two comps
+ * @param {Object} data
+ * @param {Object} data.category
+ * @param {Object} data.subcategory
+ * @param {Object} data.recipe_id
+ * @param {Object} data.component_keys used to automatically select components with passed keys (to keep them selected after crafting was performed and display was reloaded)
+ * 
+ * @returns 
  */
 function update_displayed_component_choice({category, subcategory, recipe_id, component_keys = {}}) {
     const recipe_div = crafting_pages[category][subcategory].querySelector(`[data-recipe_id="${recipe_id}"]`);
@@ -3293,12 +3301,12 @@ function update_displayed_component_choice({category, subcategory, recipe_id, co
                 toggle_exclusive_class({element: item_div, siblings_only: true, class_name: "selected_component"});
                 const components = [];
                 const component_1_key = recipe_div.children[1].children[0].children[1].querySelector(".selected_component")?.dataset.item_key;
-                if(component_1_key) {
+                if(component_1_key && character.inventory[component_1_key]) {
                     components.push(character.inventory[component_1_key]);
                 }
 
                 const component_2_key = recipe_div.children[1].children[1].children[1].querySelector(".selected_component")?.dataset.item_key;
-                if(component_2_key) {
+                if(component_2_key && character.inventory[component_2_key]) {
                     components.push(character.inventory[component_2_key]);
                 }
                 update_recipe_tooltip({category, subcategory, recipe_id, components});
