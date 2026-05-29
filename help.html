@@ -1,53 +1,59 @@
 <!DOCTYPE html>
 <html>
-<body>
-    <head>
-        <style>
-            body {
-                font-family: Arial, Helvetica, sans-serif;
-            }
-            .collapsible {
-                background-color: #eee;
-                color: #444;
-                cursor: pointer;
-                padding: 18px;
-                width: 100%;
-                border: none;
-                text-align: left;
-                outline: none;
-                font-weight: bold;
-                font-size: 16px;
-                border-top: 1px solid gray;
-            }
-            .collapsible:hover, .collapsible.active {
-                background-color: #ccc;
-            }
-            .content {
-                padding: 0 18px;
-                display: none;
-                overflow: hidden;
-                background-color: #f1f1f1;
-            }
+<head>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .collapsible {
+            background-color: #eee;
+            color: #444;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-weight: bold;
+            font-size: 16px;
+            border-top: 1px solid gray;
+        }
+        .collapsible:hover, .collapsible.active {
+            background-color: #ccc;
+        }
+        .content {
+            padding: 0 18px;
+            display: none;
+            overflow: hidden;
+            background-color: #f1f1f1;
+        }
 
-            #header {
-                background-color: #eee;
-                color: #444;
-                font-size: 20px;
-                padding: 18px;
-                width: fit-content;
-                border: none;
-                text-align: left;
-                outline: none;
-                font-weight: bold;
-                margin-bottom: 20px;
-                font-family: sans-serif;
-            }
+        #content_blocks {
+            overflow-y: scroll;
+            border: 4px solid black;
+        }
 
-            .separated { 
-                border-top: 4px solid gray;
-            }
-        </style>
-    </head>
+        #header {
+            background-color: #eee;
+            color: #444;
+            font-size: 20px;
+            padding: 18px;
+            width: fit-content;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-family: sans-serif;
+        }
+
+        .separated { 
+            border-top: 4px solid gray;
+        }
+    </style>
+</head>
+<body onload = "resize_blocks()">
+    
 
 <h2>Remember to export!</h2>
 <br>
@@ -57,7 +63,7 @@
 <div id="header">Click on blocks to unfold their content</div>
 
 <h3> Before reading the content below, please keep in mind that the less mysteries there are, the less fun it might become (or maybe not, depends entirely on you!)</h3>
-<br><br>
+
 
 <div id="content_blocks">
     <button type="button" class="collapsible">Where does current game content end?</button>
@@ -320,8 +326,34 @@
             <li><a href="https://23html.github.io" target="_blank">Proto23</a> by Corc, a source of inspiration and the sole reason this project was started. Go check it out!</li>
             <li><a href="https://github.com/turuslan/HackTimer" target="_blank">HackTimer</a> by Turuslan, used to avoid slowdowns when tab is inactive</li> 
             <li>Material Icons and Symbols by Google</li>
-            <li>OnonokiNonon for contributing content and improvements, BD Jim for contributing content (let's expand this list in the future!) </li>
+            <li>
+                <dl>
+                    <dt>All the amazing contributors</dt>
+                    <dd>
+                        - OnonokiNonon for content and improvements, too much to list it all!
+                    </dd>
+                    <dd>
+                        - BD Jim for content (swampland)
+                    </dd>
+                    <dd>
+                        - Bram-Nordvegr for content (Carya canyon)
+                    </dd>
+                    <dd>
+                        - Erlemar for content (new gathering spot in aforementioned area)
+                    </dd>
+                    <dd>
+                        - Mercurius for a tweak to prevent a potential memory leak
+                    </dd>
+                    <dd>
+                        - Nicholas Biles for text tweaks/fixes
+                    </dd>
+                    <dd>
+                        - SardineMilk (yummy) for text tweaks/fixes
+                    </dd>
+                </dl>
+            </li>
             <li>Big big big thanks to all the wonderful Ko-fi supporters!</li>
+
         </ul>
     </div>
     <button type="button" class="collapsible separated">Supporting the game</button>
@@ -361,6 +393,15 @@
             }
         }
     });
+
+    window.addEventListener("resize", resize_blocks);
+
+    function resize_blocks() {
+        let target_height = window.innerHeight - document.getElementById("content_blocks").offsetTop - 16;
+
+        console.log(target_height);
+        document.getElementById("content_blocks").style.height = target_height + "px";
+    }
     
 </script>
 

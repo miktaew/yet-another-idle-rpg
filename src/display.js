@@ -471,8 +471,9 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
             Object.keys(equip_stats).forEach(function(effect_key) {
 
                 if(equip_stats[effect_key].flat != null) {
+                    const sign = equip_stats[effect_key].flat > 0?"+":"";
                         item_tooltip +=
-                    `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: +${equip_stats[effect_key].flat}`;
+                    `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: ${sign}${equip_stats[effect_key].flat}`;
                     }
                 if(equip_stats[effect_key].multiplier != null) {
                         item_tooltip +=
@@ -3496,17 +3497,18 @@ function update_gathering_tooltip(activity) {
 }
 
 function update_displayed_health() { //call it when using healing items, resting or getting hit
-    let total_regen = character.stats.get_health_regeneration_total() + character.stats.get_health_loss_total();
-    let sign = total_regen > 0 ? "+":"";
+    const total_regen = character.stats.get_health_regeneration_total() + character.stats.get_health_loss_total();
+    const sign = total_regen > 0 ? "+":"";
     current_health_value_div.innerText = Math.ceil(character.stats.full.health) + "/" + Math.ceil(character.stats.full.max_health)
         + (total_regen != 0 ? " ("+ sign + expo(total_regen, 1) + "/s) " : "")
         + " hp";
     current_health_bar.style.width = (character.stats.full.health*100/character.stats.full.max_health).toString() +"%";
 }
 function update_displayed_stamina() { //call it when eating, resting or fighting
-    let total_regen = character.stats.get_stamina_regeneration_total();
+    const total_regen = character.stats.get_stamina_regeneration_total();
+    const sign = total_regen > 0 ? "+":"";
     current_stamina_value_div.innerText = Math.round(character.stats.full.stamina) + "/" + Math.round(character.stats.full.max_stamina)
-        + (total_regen != 0 ? " (+" + expo(total_regen, 1) + "/s) " : "")
+        + (total_regen != 0 ? " (" + sign + expo(total_regen, 1) + "/s) " : "")
         + "stamina";
     current_stamina_bar.style.width = (character.stats.full.stamina*100/character.stats.full.max_stamina).toString() +"%";
 }

@@ -771,7 +771,7 @@ const crafting_component_manager = {
 
                         if(material.types[i] ===  component_types.SHOE_INTERIOR) {
                             agility_multiplier = 1 + material.tier * 0.05;
-                            attack_speed_multiplier = Math.round(100*(1.1 + (material.tier-1)*4)/100)/100;
+                            attack_speed_multiplier = Math.round(100*(1.1 + (material.tier-1)*4/100))/100;
                         } else {
                             if(material.types[i] ===  component_types.GLOVE_INTERIOR) {
                                 dexterity_multiplier = 1 + Math.round(material.tier * 0.05 * material.handling)/100;
