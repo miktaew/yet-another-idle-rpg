@@ -4007,6 +4007,11 @@ function load(save_data) {
             equip_item(null, true);
         }
 
+        if(save_data.item_log) {
+            item_log.items = save_data.item_log;
+        }
+        update_displayed_item_log();
+
         const item_list = [];
 
         Object.keys(save_data.character.inventory).forEach(key => {
@@ -4181,7 +4186,8 @@ function load(save_data) {
                 }
             }
         }); //add all loaded items to list
-        add_to_character_inventory(item_list); // and then to inventory
+        const skip_item_log = !is_a_older_than_b(save_data["game version"], "v0.5.5.9");
+        add_to_character_inventory(item_list, skip_item_log); // and then to inventory
 
         const storage_item_list = [];
         if(save_data.player_storage) {
@@ -5042,15 +5048,6 @@ function load(save_data) {
                 }
             })
         }
-
-        if (save_data.item_log) {
-            item_log.items = save_data.item_log;
-        }
-        //else {
-        //    item_log.items = {};    //overwrite so as not duplicate entries every time the save is loaded
-        //    item_log.first_run();
-        //}
-        update_displayed_item_log();
 
         update_character_stats();
         update_displayed_character_inventory();

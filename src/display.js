@@ -513,8 +513,9 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
 
         Object.keys(item.component_stats).forEach(function(effect_key) {
             if(item.component_stats[effect_key].flat != null) {
+                const sign = item.component_stats[effect_key].flat > 0?"+":"";
                 item_tooltip += 
-                `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: +${item.component_stats[effect_key].flat}`;
+                `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: ${sign}${item.component_stats[effect_key].flat}`;
             }
             if(item.component_stats[effect_key].multiplier != null) {
                 item_tooltip += 
@@ -565,7 +566,7 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
         item_tooltip += `<br><br>Material type: ${item.material_type}`;
     }
 
-    if(!item.tags.unique) {
+    if(!item.tags.unique && item.getBaseValue()) {
         if(!options.skip_quality && options?.quality?.length == 2) { 
             //ignore quality, instead use quality passed as param
             item_tooltip += `<br><br>Value: ${format_money(
@@ -3179,7 +3180,7 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
         tooltip += `<br>Result: <br><div class="recipe_result">${create_item_tooltip_content({item: item_templates[recipe.getResult().result_id], options: {skip_quality: true, anchor_tooltip: true}})}</div>`;
     } else if(!components) {
         //some component
-        let name = obscure_name(item_templates[material.material_id].getName());
+        let name = obscure_name(material.material_id);
 
         //TODO maybe allow material type?
         tooltip += `Material required:<br>`;
@@ -3452,8 +3453,7 @@ function create_gathering_tooltip(location_activity) {
     tooltip_content += `Every ${format_working_time(gathering_time_needed)}, chance to find:`;
     for(let i = 0; i < gained_resources.length; i++) {
         const count = gained_resources[i].count;
-        const name = item_templates[gained_resources[i].name].getName();
-        tooltip_content += `<br>x${count[0]===count[1]?count[0]:`${count[0]}-${count[1]}`} "${obscure_name(name)}" at ${Math.round(100*gained_resources[i].chance)}%`;
+        tooltip_content += `<br>x${count[0]===count[1]?count[0]:`${count[0]}-${count[1]}`} "${obscure_name(gained_resources[i].name)}" at ${Math.round(100*gained_resources[i].chance)}%`;
     }
 
     set_HTML(gathering_tooltip, tooltip_content);

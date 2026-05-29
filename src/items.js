@@ -97,6 +97,7 @@ const item_log = {
         this.items[item_id].number += number;
         this.items[item_id].quality_highest = Math.max(this.items[item_id].quality_highest, quality);
         this.items[item_id].quality_lowest = Math.min(this.items[item_id].quality_lowest, quality);
+        
     },
 
     is_known(item_id) {
@@ -153,7 +154,7 @@ function getEquipmentValue({components, quality = 100}) {
 class Item {
     constructor({name,
                 description,
-                value = 0,
+                value = 10,
                 tags = {},
                 market_saturation_group,
                 saturates_market,
@@ -4228,7 +4229,7 @@ function add_gear() {
         item_templates["Simple dream catcher"] = new Artifact({
             name: "Simple dream catcher",
             description: "Sinew netting stretched over a willow hoop. You don't know how it works or what it does, but it makes you feel safer. It's design came to you in a dream",
-            value: 0,
+            value: 10,
             stats: {},
             base_bonus_skill_levels: {
                 "Sleeping": 2,

@@ -1,5 +1,5 @@
 "use strict";
-import { Armor, ArmorComponent, item_log, item_templates, ShieldComponent, WeaponComponent } from "./items.js";
+import { Armor, ArmorComponent, item_templates, ShieldComponent, WeaponComponent } from "./items.js";
 import { capitalize_first_letter } from "./display.js";
 
 /*
@@ -378,6 +378,7 @@ const material_properties = {
         tier: 5,
         weight: 130,
         strength: 100,
+        warmth: 80,
         name: "white",
         types: [
             ...ALL_WEAPON_HEADS,
@@ -410,6 +411,7 @@ const material_properties = {
         tier: 5,
         weight: 80,
         strength: 110,
+        warmth: 80,
         name: "black",
         types: [
             ...ALL_WEAPON_HEADS,
@@ -825,8 +827,7 @@ const crafting_component_manager = {
                             1 - (material_count*(material.weight-50))/2500
                         ))/100);
 
-                        cold_tolerance_bonus = (material.warmth-100)/20;
-                        
+                        cold_tolerance_bonus = ((material.warmth || 100) - 100)/20;
 
                         if(agility_multiplier !== 1) {
                             add_properties(component_stats, {agility: {multiplier: agility_multiplier}});
