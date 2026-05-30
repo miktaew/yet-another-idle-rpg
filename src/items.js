@@ -1258,6 +1258,18 @@ book_stats["Wood for Witches"] = new BookData({
     }
 });
 
+book_stats["Counting Mice"] = new BookData({
+    required_time: 90,
+    literacy_xp_rate: 1,
+    bonuses: {
+        xp_multipliers: {
+            Sleeping: 1.25,
+            Haggling: 1.05,
+        },
+    }
+
+});
+
 //books
 (()=>{
     item_templates["ABC for kids"] = new Book({
@@ -1304,6 +1316,11 @@ book_stats["Wood for Witches"] = new BookData({
         name: "Wood for Witches",
         description: "A dusty old tome explaining how to treat wood with alchemy to produce stronger wood",
         value: 2000
+    });
+    item_templates["Counting Mice"] = new Book({
+        name: "Counting Mice",
+        description: "A simple book on how to count using mice and other animals for refence on how to do simple addition",
+        value: 120
     });
 	
 })();
