@@ -2309,10 +2309,11 @@ function create_location_choices({location, category, is_combat = false}) {
 
             activity_div.classList.add("activity_div", "location_choice");
             activity_div.setAttribute("data-activity", key);
-            activity_div.setAttribute("onclick", "start_activity(this.getAttribute('data-activity'));");
+            
 
             if(can_work(location.activities[key])) {
                 activity_div.classList.add("start_activity");
+                activity_div.setAttribute("onclick", "start_activity(this.getAttribute('data-activity'));");
             } else {
                 activity_div.classList.add("activity_unavailable");
             }
@@ -2336,7 +2337,7 @@ function create_location_choices({location, category, is_combat = false}) {
             const {gathering_time_needed} =  location.activities[key].getActivityEfficiency();
             job_tooltip_content += `Pays ${format_money(location.activities[key].get_payment())} per every ` +  
                     `${format_working_time(gathering_time_needed)} worked`;
-            insert_HTML(job_tooltip, job_tooltip_content)
+            insert_HTML(job_tooltip, job_tooltip_content);
             activity_div.appendChild(job_tooltip);
     
             insert_HTML(activity_div, `<i class="material-icons location_choice_icon">check_box_outline_blank</i> ` + location.activities[key].starting_text);
@@ -2387,10 +2388,11 @@ function create_location_choices({location, category, is_combat = false}) {
 
             activity_div.classList.add("activity_div", "start_activity", "location_choice");
             activity_div.setAttribute("data-activity", key);
-            activity_div.setAttribute("onclick", "start_activity(this.getAttribute('data-activity'));");
+            
 
             if(can_work(location.activities[key])) {
                 activity_div.classList.add("start_activity");
+                activity_div.setAttribute("onclick", "start_activity(this.getAttribute('data-activity'));");
             } else {
                 activity_div.classList.add("activity_unavailable");
             }
@@ -3446,7 +3448,7 @@ function create_gathering_tooltip(location_activity) {
         skill_names += skills[activities[location_activity.activity_name].base_skills_names[i]].name();
     }
 
-    if(location_activity.gained_resources.scales_with_skill) {
+    if(location_activity.gained_resources.skill_required) {
         tooltip_content += `<span class="activity_efficiency_info">Efficiency scaling:<br>"${skill_names}" skill lvl ${location_activity.gained_resources.skill_required[0]} to ${location_activity.gained_resources.skill_required[1]}</span><br><br>`;
     }
 
@@ -3486,7 +3488,7 @@ function update_gathering_tooltip(activity) {
         skill_names += skills[activities[activity.activity_name].base_skills_names[i]].name();
     }
 
-    if(activity.gained_resources.scales_with_skill) {
+    if(activity.gained_resources.skill_required) {
         tooltip_content = `<span class="activity_efficiency_info">Efficiency scaling:<br>"${skill_names}" skill lvl ${activity.gained_resources.skill_required[0]} to ${activity.gained_resources.skill_required[1]}</span><br><br>`;
     }
     tooltip_content += `Every ${format_working_time(gathering_time_needed)}, chance to find:`;
