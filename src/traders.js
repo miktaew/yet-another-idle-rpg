@@ -336,6 +336,7 @@ class TradeItem {
             new TradeItem({item_name: "Medicine for dummies", count: [1], chance: 0.6}),
             new TradeItem({item_name: "Ode to Whimsy, and other poems", count: [1], chance: 0.4}),
             new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 0.4}),
+            new TradeItem({item_name: "Counting Mice", count: [1], chance: 0.9}),
 
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
             new TradeItem({item_name: "Glass bottle", count: [4,8], chance: 1}),
@@ -424,7 +425,8 @@ class TradeItem {
         new TradeItem({item_name: "Medicine for dummies", count: [1], chance: 1}),
         new TradeItem({item_name: "Ode to Whimsy, and other poems", count: [1], chance: 0.4}),
         new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 0.4}),
-		new TradeItem({item_name: "Wood for Witches", count: [1], chance: 0.2}),
+        new TradeItem({item_name: "Wood for Witches", count: [1], chance: 0.2}),
+        new TradeItem({item_name: "Counting Mice", count: [1], chance: 0.9}),
 
         new TradeItem({item_name: "Glass phial", count: [10,16], chance: 1}),
         new TradeItem({item_name: "Glass bottle", count: [6,12], chance: 1}),
@@ -437,7 +439,7 @@ class TradeItem {
         new TradeItem({item_name: "Iron chopping axe", count: [1], chance: 1}),
         new TradeItem({item_name: "Iron shovel", count: [1], chance: 1}),
     ];
-	
+
 	inventory_templates["Swamp"] = 
     [
             new TradeItem({item_name: "Alligator jerky", count: [1,2]}),
@@ -471,10 +473,10 @@ class TradeItem {
 
             new TradeItem({item_name: "Shellfish desires", count: [1], chance: 0.5}),
 
-			new TradeItem({item_name: "Healing balm", count: [1,2], chance: 0.15}),
-			new TradeItem({item_name: "Healing powder", count: [1,3], chance: 0.2}),
-			new TradeItem({item_name: "Healing potion", count: [1,3], chance: 0.25}),
-			
+            new TradeItem({item_name: "Healing balm", count: [1,2], chance: 0.15}),
+            new TradeItem({item_name: "Healing powder", count: [1,3], chance: 0.2}),
+            new TradeItem({item_name: "Healing potion", count: [1,3], chance: 0.25}),
+
             new TradeItem({item_name: "Oneberry", count: [1,4], chance: 0.1}),
             new TradeItem({item_name: "Silver thistle", count: [1,3], chance: 0.1}),
             new TradeItem({item_name: "Golmoon leaf", count: [1,3], chance: 0.1}),
