@@ -1898,7 +1898,6 @@ class DialogueAction extends GameAction {
                     recipes: [{category: "crafting", subcategory: "items", recipe_id: "Linen cloth"}],
                     dialogues: ["swampland tanner"],
                 },
-                locks_lines: ["swamptailor deliver"],
             }),
         },
         getDescription: ()=>{
@@ -1970,7 +1969,6 @@ class DialogueAction extends GameAction {
                     quest_progress: [{quest_id: "In Times of Need", task_index: 7}], 
                     textlines: [{dialogue: "swampland tanner", lines: ["swamptanner known"]}],
                 },
-                locks_lines: ["swamptanner deliver 1"],
             }),
             "swamptanner deliver 2": new DialogueAction({
                 action_id: "swamptanner deliver 2",
@@ -1999,7 +1997,6 @@ class DialogueAction extends GameAction {
                         textlines: {"swampland chief": ["swampchief mid help"]},
                     }
                 },
-                locks_lines: ["swamptanner deliver 2"],
             }),
         },
         getDescription: ()=>{ 

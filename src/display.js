@@ -2119,6 +2119,7 @@ function update_displayed_normal_location(location) {
             return false;
         } else {
             let lines_available = false;
+            let actions_available = false;
             Object.keys(dialogues[dialogue].textlines).forEach(line => {
                 if(lines_available) {
                     return;
@@ -2126,7 +2127,14 @@ function update_displayed_normal_location(location) {
                     lines_available = dialogues[dialogue].textlines[line].is_unlocked && !dialogues[dialogue].textlines[line].is_finished;
                 }
             });
-            return lines_available;
+            Object.keys(dialogues[dialogue].actions).forEach(action => {
+                if(actions_available) {
+                    return;
+                } else {
+                    actions_available = dialogues[dialogue].actions[action].is_unlocked && !dialogues[dialogue].actions[action].is_finished;
+                }
+            });
+            return lines_available || actions_available;
         }
     });
 
@@ -2269,8 +2277,12 @@ function create_location_choices({location, category, is_combat = false}) {
             const lines_available = Object.values(dialogues[location.dialogues[i]].textlines).filter(textline => {
                 return textline.is_unlocked && !textline.is_finished;
             }).length;
+
+            const actions_available = Object.values(dialogues[location.dialogues[i]].actions).filter(action => {
+                return action.is_unlocked && !action.is_finished;
+            }).length;
             
-            if(!lines_available) {
+            if(!lines_available && !actions_available) {
                 continue;
             }
             
