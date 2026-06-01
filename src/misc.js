@@ -65,14 +65,21 @@ function slerp(arr, t) {
     return arr[0] * (arr[1] / arr[0]) ** t;
 }
 
-function expo(number, precision = 3)
+/**
+ * returns formatted number with exponent (e.g. 2.026e3)
+ * @param {Number} number 
+ * @param {Number} precision 
+ * @param {Number} treshold if provided, will be used instead of what's selected in game options
+ * @returns 
+ */
+function expo({number, precision = 3, treshold})
 {
     number = Number.parseFloat(number);
     let abs_number = Math.abs(number);
 
     if(abs_number == 0) {
         return 0;
-    } else if(abs_number >= 10**game_options.expo_threshold || abs_number < 0.01) {
+    } else if(abs_number >= 10**(treshold || game_options.expo_threshold) || abs_number < 0.01) {
         return abs_number.toExponential(precision).replace(/[+-]/g,"");
     } else if(abs_number > 10) {
         return Math.round(number).toLocaleString();

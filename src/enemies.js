@@ -310,22 +310,6 @@ const enemy_abilites = {
         size: enemy_sizes.MEDIUM,
     });
 
-    enemy_templates["Warthog"] = new Enemy({
-        name: "Warthog",
-        description: "A large, aggressive porcine creature with a tough hide and large tusks",
-        xp_value: 30,
-        rank: 8,
-        tags: ["living", "beast"],
-        stats: {health: 12000, attack: 600, agility: 80, dexterity: 800, intuition: 100, magic: 0, attack_speed: 0.6, defense: 600},
-        loot_list: [
-            {item_name: "Boar hide", chance: 0.08},
-            {item_name: "Boar meat", chance: 0.1},
-            {item_name: "Boar tusk", chance: 0.05},
-            {item_name: "High quality boar tusk", chance: 0.005},
-        ],
-        size: enemy_sizes.LARGE,
-    });
-
     enemy_templates["Angry mountain goat"] = new Enemy({
         name: "Angry mountain goat",
         description: "It's a mountain goat and it's angry",
@@ -611,6 +595,22 @@ const enemy_abilites = {
         tags: ["living", "beast", "aquatic"],
         stats: {health: 22000, attack: 400, agility: 450, dexterity: 700, intuition: 100, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 2000},
         loot_list: [{item_name: "Giant crab claw", chance: 1}],
+    });
+    enemy_templates["Warthog"] = new Enemy({
+        name: "Warthog",
+        description: "A large, aggressive porcine creature with a tough hide and large tusks",
+        xp_value: 30,
+        add_to_bestiary: false,
+        rank: 8,
+        tags: ["living", "beast"],
+        stats: {health: 12000, attack: 600, agility: 80, dexterity: 800, intuition: 100, magic: 0, attack_speed: 0.6, defense: 600},
+        loot_list: [
+            {item_name: "Boar hide", chance: 0.08},
+            {item_name: "Boar meat", chance: 0.1},
+            {item_name: "Boar tusk", chance: 0.05},
+            {item_name: "High quality boar tusk", chance: 0.005},
+        ],
+        size: enemy_sizes.LARGE,
     });
 
 })();

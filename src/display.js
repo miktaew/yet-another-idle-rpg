@@ -3514,7 +3514,7 @@ function update_displayed_health() { //call it when using healing items, resting
     const total_regen = character.stats.get_health_regeneration_total() + character.stats.get_health_loss_total();
     const sign = total_regen > 0 ? "+":"";
     current_health_value_div.innerText = Math.ceil(character.stats.full.health) + "/" + Math.ceil(character.stats.full.max_health)
-        + (total_regen != 0 ? " ("+ sign + expo(total_regen, 1) + "/s) " : "")
+        + (total_regen != 0 ? " ("+ sign + expo({number: total_regen, precision: 1}) + "/s) " : "")
         + " hp";
     current_health_bar.style.width = (character.stats.full.health*100/character.stats.full.max_health).toString() +"%";
 }
@@ -3522,7 +3522,7 @@ function update_displayed_stamina() { //call it when eating, resting or fighting
     const total_regen = character.stats.get_stamina_regeneration_total();
     const sign = total_regen > 0 ? "+":"";
     current_stamina_value_div.innerText = Math.round(character.stats.full.stamina) + "/" + Math.round(character.stats.full.max_stamina)
-        + (total_regen != 0 ? " (" + sign + expo(total_regen, 1) + "/s) " : "")
+        + (total_regen != 0 ? " (" + sign + expo({number: total_regen, precision: 1}) + "/s) " : "")
         + "stamina";
     current_stamina_bar.style.width = (character.stats.full.stamina*100/character.stats.full.max_stamina).toString() +"%";
 }
@@ -3920,7 +3920,7 @@ function update_displayed_character_xp(did_level = false) {
         charaxter_xp_value
     */
     character_xp_div.children[0].children[0].style.width = `${100*character.xp.current_xp/character.xp.xp_to_next_lvl}%`;
-    character_xp_div.children[1].innerText = `${expo(character.xp.current_xp)} / ${expo(character.xp.xp_to_next_lvl)} xp`;
+    character_xp_div.children[1].innerText = `${expo({number: character.xp.current_xp})} / ${expo({number: character.xp.xp_to_next_lvl})} xp`;
 
     if(did_level) {
         character_level_div.innerText = `Level: ${character.xp.current_level}`;
@@ -3994,7 +3994,7 @@ function update_displayed_item_log() {
             //skip the lowest and show just the highest, seems better for display purposes?
         }
 
-        html_content += `</td><td>${item.number}</td></tr>`;
+        html_content += `</td><td>${item.number < 1e6? item.number : expo({number: item.number, precision: 2, treshold: 6})}</td></tr>`;
         //html_content += `</td><td>${item.number}</td>${create_item_tooltip(item_templates[item.id]).outerHTML}</tr>`;
     });
 
@@ -4257,7 +4257,7 @@ function update_displayed_ongoing_activity(current_activity) {
             const needed_xp = is_maxed ? "Max" : `${Math.ceil(skill.xp_to_next_lvl)}`;
             const time_needed = Math.ceil((needed_xp - curr_xp) / (xp_rate * get_skill_xp_gain(skill.skill_id))) * (current_activity.xp_given_per_working_period?current_activity.gathering_time_needed:1);
 
-            action_xp_div.innerText += ` ${skill.name()} (${percent_xp}  [${expo(curr_xp)} / ${expo(needed_xp)}])`;
+            action_xp_div.innerText += ` ${skill.name()} (${percent_xp}  [${expo({number: curr_xp})} / ${expo({number: needed_xp})}])`;
             insert_HTML(action_xp_div, `<br>Next level in ${format_reading_time(time_needed)} (${format_time({ time: { minutes: time_needed / 60 }, long_names: true })}realtime)`);
         }
     }
@@ -4568,7 +4568,7 @@ function update_displayed_skill_bar(skill, leveled_up=true) {
     if (skill.current_xp !== "Max") {
         skill_bar_divs[skill.category][skill.skill_id].children[0].classList.remove("skill_bar_capped");
         skill_bar_divs[skill.category][skill.skill_id].children[0].children[0].children[1].innerText = `${100*Math.floor(skill.current_xp/skill.xp_to_next_lvl*1000)/1000}%`;
-        skill_bar_divs[skill.category][skill.skill_id].children[0].children[2].children[0].innerText = `${expo(skill.current_xp)} / ${expo(skill.xp_to_next_lvl)}`;
+        skill_bar_divs[skill.category][skill.skill_id].children[0].children[2].children[0].innerText = `${expo({number: skill.current_xp})} / ${expo({number: skill.xp_to_next_lvl})}`;
 
     } else {
         skill_bar_divs[skill.category][skill.skill_id].children[0].classList.add("skill_bar_capped");
