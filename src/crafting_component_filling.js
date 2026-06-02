@@ -595,9 +595,9 @@ const add_properties = (target, properties) => {
                 target[property][subproperty] = properties[property][subproperty];
             } else {
                 if(subproperty === "flat") {
-                    target[property][subproperty] = Math.round(100*(properties[property][subproperty] + target[property][subproperty]));
+                    target[property][subproperty] = Math.round(100*(properties[property][subproperty] + target[property][subproperty]))/100;
                 } else if(subproperty === "multiplier") {
-                    target[property][subproperty] = Math.round(100*(properties[property][subproperty] * target[property][subproperty]));
+                    target[property][subproperty] = Math.round(100*(properties[property][subproperty] * target[property][subproperty]))/100;
                 }
             }
         });

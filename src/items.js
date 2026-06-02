@@ -1723,7 +1723,7 @@ book_stats["Counting Mice"] = new BookData({
         material_type: "raw wood",
     });
     item_templates["Hickory wood log"] = new Material({
-        description: "A very strong wood log, it should work great almost anything",
+        description: "A very strong wood log, it should work great for almost anything",
         value: 50,
         material_type: "raw wood",
     });
