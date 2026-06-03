@@ -1209,7 +1209,7 @@ function get_recipe_xp_value({category, subcategory, recipe_id, material_count, 
     smelting_recipes.items["Charcoal"] = new ItemRecipe({
         name: "Charcoal",
         recipe_type: "material",
-        materials: [{material_type: "raw wood", count: 5}],
+        materials: [{material_type: "raw wood", count: 1}],
         result: {result_id: "Charcoal", count: 1},
         success_chance: [0.4,1],
         recipe_level: [1,10],

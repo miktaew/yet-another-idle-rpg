@@ -1730,7 +1730,7 @@ book_stats["Counting Mice"] = new BookData({
     item_templates["Piece of willow wood"] = new Material({
         description: "Not suitable for weapons, but may have other uses",
         value: 5,
-        material_type: "raw wood",
+        //material_type: "raw wood", //too easy to obtain compared to wood logs
     });
 
     item_templates["Stone brick"] = new Material({
