@@ -42,14 +42,14 @@ class Hero extends InventoryHaver {
         constructor() {
                 super();
                 this.base_stats = {
-                        max_health: 50, 
-                        health: 50,
+                        max_health: 60, 
+                        health: 60,
                         health_regeneration_flat: 0, //in combat
                         health_regeneration_percent: 0, //in combat
                         health_loss_flat: 0, //despite the name, it's values below 0 that mean actual health loss
                         health_loss_percent: 0,
-                        max_stamina: 50,
-                        stamina: 50,
+                        max_stamina: 40,
+                        stamina: 40,
                         stamina_regeneration_flat: 0, //in combat
                         stamina_regeneration_percent: 0, //in combat
                         stamina_efficiency: 1,
@@ -58,8 +58,8 @@ class Hero extends InventoryHaver {
                         mana_regeneration_flat: 0, //in combat //currently useless
                         mana_regeneration_percent: 0, //in combat //currently useless
                         mana_efficiency: 1, //currently useless
-                        strength: 10, 
-                        agility: 10, 
+                        strength: 12, 
+                        agility: 8,
                         dexterity: 10, 
                         intuition: 10,
                         magic: 0, 

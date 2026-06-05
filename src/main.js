@@ -279,6 +279,8 @@ const game_options = {
     hide_max_level_skills: false,
     use_text_outlines_for_tooltips: true,
     use_text_outlines_for_bars: true,
+
+    stop_crafting_on_material_change: true, //not yet in use
 };
 
 let message_log_filters = {
@@ -2508,12 +2510,14 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         for(let i = 0; i < rewards.items.length; i++) {
             let item;
             let count;
+            let quality;
             if(typeof rewards.items[i] === "string") {
                 item = item_templates[rewards.items[i]];
                 count = 1;
             } else {
                 item = item_templates[rewards.items[i].item];
                 count = rewards.items[i].count || 1;
+                item.quality = rewards.items[i].quality;
             }
             
             log_message(`%HeroName% obtained "${item.getName()} x${count}"`);
@@ -5848,7 +5852,8 @@ if(!is_on_dev() && save_key in localStorage || is_on_dev() && (dev_save_key in l
     update_displayed_xp_bonuses();
 } else {
     set_loading_screen_versions();
-    add_to_character_inventory([{item_id: "Cheap iron sword", quality: 40},
+    add_to_character_inventory([
+                                //{item_id: "Cheap iron sword", quality: 50},
                                 {item_id: "Cheap leather pants", quality: 40},
                                 {item_id: "Stale bread", count: 5},
                             ]);

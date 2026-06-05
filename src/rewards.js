@@ -95,6 +95,7 @@
             {
                 item: String //item key
                 count: Number //item count
+                quality: //item quality, skipped if it's not gear/component/fish
             }
             //OR
             String // item key; 

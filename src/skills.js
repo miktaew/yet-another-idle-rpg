@@ -3228,15 +3228,15 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                 milestones: {
                                     1: {
                                         stats: {
-                                            max_health: {
-                                                flat: 10,
+                                            health_regeneration_flat: {
+                                                flat: 0.1,
                                             }
                                         }
                                     },
                                     3: {
                                         stats: {
                                             max_health: {
-                                                flat: 10,
+                                                flat: 20,
                                             }
                                         }
                                     },
@@ -3274,7 +3274,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                     15: {
                                         stats: {
                                             health_regeneration_flat: {
-                                                flat: 0.4,
+                                                flat: 0.3,
                                             },
                                             max_health: {
                                                 flat: 40,

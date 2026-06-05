@@ -505,7 +505,7 @@ const weight_impact_on_speed_per_type = {
     "short blade": 0.5,
     "long blade": 2,
     "axe head": 4,
-    "hammer head": 5,
+    "hammer head": 6,
 };
 
 /**

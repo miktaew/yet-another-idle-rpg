@@ -2269,8 +2269,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: true,
             gained_resources: {
                 resources: [{name: "Rough wood log", ammount: [[1,1], [1,1]], chance: [0.5, 1]}, {name: "Tree sap", ammount: [[1,1], [1,1]], chance: [0.01, 0.1]}], 
-                time_period: [40, 20],
-                skill_required: [0, 12]
+                time_period: [30, 10],
+                skill_required: [0, 15]
             },
             require_tool: true,
         }),
@@ -2282,8 +2282,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [{ name: "Silica Sand", ammount: [[1, 1], [1, 3]], chance: [0.4, 1.0] }],
-                time_period: [120, 60],
-                skill_required: [0, 10]
+                time_period: [60, 30],
+                skill_required: [0, 15]
             },
             require_tool: true,
             unlock_text: "You realize that the river near the village might contain the type of sand you need",
@@ -2302,8 +2302,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     {name: "Mackerel shark", chance: [0.001, 0.05]}
                 ],
                 roll_quality: true,
-                time_period: [120, 30],
-                skill_required: [0, 10],
+                time_period: [80, 20],
+                skill_required: [0, 15],
             },
             require_tool: true,
         })
@@ -2336,8 +2336,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Stone brick", ammount: [[1,1], [1,1]], chance: [0.2, 1]}],
-                time_period: [60, 20],
-                skill_required: [0, 10],
+                time_period: [40, 10],
+                skill_required: [0, 15],
             },
             require_tool: true,
         }),
@@ -2348,8 +2348,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Low quality iron ore", ammount: [[1,1], [1,3]], chance: [0.4, 1]}], 
-                time_period: [60, 30],
-                skill_required: [0, 13]
+                time_period: [40, 15],
+                skill_required: [0, 15]
             },
             unlock_text: "As you clear the area of wolf rats, you notice a vein of an iron ore",
         }),
@@ -2360,8 +2360,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Iron ore", ammount: [[1,1], [1,3]], chance: [0.3, 1]}],
-                time_period: [90, 40],
-                skill_required: [7, 21]
+                time_period: [90, 20],
+                skill_required: [7, 24]
             },
             unlock_text: "Going deeper, you find a vein of an iron ore that seems to be of much higher quality",
         }),
@@ -2372,8 +2372,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Atratan ore", ammount: [[1,1], [1,3]], chance: [0.3, 1]}],
-                time_period: [120, 60],
-                skill_required: [12, 28]
+                time_period: [120, 40],
+                skill_required: [12, 30]
             },
             unlock_text: "As you finish the fight and get a time to look around, you notice a metal vein of different color than iron. You recall another ore called Atratan, this must be it.",
         }),
@@ -2391,8 +2391,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Wood log", ammount: [[1,1], [1,1]], chance: [0.3, 1]}, {name: "Tree sap", ammount: [[1,1], [1,1]], chance: [0.01, 0.1]}],
-                time_period: [120, 60],
-                skill_required: [7, 19]
+                time_period: [120, 30],
+                skill_required: [7, 22]
             },
         }),
         "woodcutting2": new LocationGatheringActivity({
@@ -2402,8 +2402,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Ash wood log", ammount: [[1,1], [1,1]], chance: [0.3, 1]}, {name: "Tree sap", ammount: [[1,1], [1,1]], chance: [0.01, 0.1]}],
-                time_period: [180, 90],
-                skill_required: [12, 27]
+                time_period: [120, 45],
+                skill_required: [12, 30]
             },
             unlock_text: "Finishing your fight, you notice that the trees on the side of the clearing look really healthy and sturdy, they could be a useful material.",
         }),
@@ -2418,8 +2418,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     {name: "Golmoon leaf", chance: [0.1, 0.7]},
                     {name: "Belmart leaf", chance: [0.1, 0.7]}
                 ], 
-                time_period: [120, 45],
-                skill_required: [0, 10]
+                time_period: [120, 20],
+                skill_required: [0, 15]
             },
             require_tool: true,
         }),
@@ -2432,8 +2432,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Hickory wood log", ammount: [[1,1], [1,1]], chance: [0.3, 1]}, {name: "Tree sap", ammount: [[1,1], [1,1]], chance: [0.01, 0.1]}],
-                time_period: [180, 90],
-                skill_required: [20, 32],
+                time_period: [120, 45],
+                skill_required: [20, 35],
                 scales_with_skill: true,
             },
             unlock_text: "Crossing the canyon, you discover that the trees on the other side are extremely tough.",
@@ -2448,7 +2448,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     {name: "Belmart leaf", ammount: [[1,1], [1,2]], chance: [0.2, 1]},
                     {name: "Golmoon leaf", chance: [0.05, 0.4]},
                 ],
-                time_period: [125, 52],
+                time_period: [120, 30],
                 skill_required: [10, 25],
             },
             require_tool: true,
@@ -2465,7 +2465,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 resources: [
                     {name: "Cooking herbs", ammount: [[1,1], [2,4]], chance: [0.1, 1]},
                 ], 
-                time_period: [120, 30],
+                time_period: [120, 20],
                 skill_required: [5, 20]
             },
             require_tool: true,
@@ -2494,8 +2494,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 resources: [
                     {name: "Wool", ammount: [[1,1], [1,3]], chance: [0.1, 1]},
                 ], 
-                time_period: [120, 60],
-                skill_required: [0, 10]
+                time_period: [120, 30],
+                skill_required: [0, 15]
             },
         }),
     };
@@ -2517,7 +2517,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 resources: [
                     { name: "Silver thistle", chance: [0.1, 1] },
                 ],
-                time_period: [120, 60],
+                time_period: [120, 40],
                 skill_required: [7, 24]
             },
             require_tool: true,
@@ -2544,8 +2544,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Flax", ammount: [[1,1], [1,3]], chance: [0.4, 1]}], 
-                time_period: [120, 60],
-                skill_required: [14, 24]
+                time_period: [120, 40],
+                skill_required: [12, 27]
             },
             require_tool: true,
         }),
@@ -2569,8 +2569,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [{ name: "Clam", ammount: [[1, 3], [1, 3]], chance: [0.34, 1.0] }],
-                time_period: [60, 30],
-                skill_required: [10, 20]
+                time_period: [60, 20],
+                skill_required: [10, 22]
             },
             require_tool: true,
         }),
@@ -2629,8 +2629,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Silver ore", ammount: [[1,1], [1,3]], chance: [0.3, 0.7]}],
-                time_period: [100, 50],
-                skill_required: [10, 20]
+                time_period: [120, 30],
+                skill_required: [10, 22]
             },
             unlock_text: "You discover a vein of silver at the bottom of the lake!",
         }),
@@ -2647,7 +2647,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     { name: "Catfish", chance: [0.01, 0.1] }
                 ],
                 time_period: [120, 30],
-                skill_required: [10, 20],
+                skill_required: [10, 22],
             },
             require_tool: true,
         }),
@@ -2684,8 +2684,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     {name: "Wild potato", ammount: [[1,1], [1,2]], chance: [0.3, 0.6]},
                     {name: "Cooking herbs", ammount: [[1,1], [1,2]], chance: [0.3, 0.6]}
                 ], 
-                time_period: [90, 45],
-                skill_required: [21, 28],
+                time_period: [90, 30],
+                skill_required: [21, 30],
             }
         }),
     };
@@ -3542,8 +3542,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_text: "[TBD]",
             failure_texts: {
                 conditional_loss: ["You need to get more used to water and have lung capacity to go that deep"],
-                random_loss: [`You may have felt like you can already brave anything this forest can throw at you. But the part stretching before you is more imposing than anything you've seen so far.<br><br>
-The river coming from the lake vanishes in darkness as the foliage is too dense to let in light. The trees there are growing larger, denser... More ancient.<br><br>
+                random_loss: [`You may have felt like you can already brave anything this forest can throw at you. But the part stretching before you is more imposing than anything you've seen so far.\n\n
+The river coming from the lake vanishes in darkness as the foliage is too dense to let in light. The trees there are growing larger, denser... More ancient.\n\n
 You try to make make out the details of what looks like a bird flying in the distance. It has four legs... [tbc]`],
             },
             is_unlocked: true,

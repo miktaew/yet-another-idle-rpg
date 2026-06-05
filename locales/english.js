@@ -18,9 +18,19 @@ const english = {
     "elder leave 1 answ": "Nearby lands are dangerous and you are still too weak to leave. Do you plan on getting ambushed again?",
     "elder need to": "But I want to leave",
     "elder need to answ": "You first need to recover, to get some rest and maybe also training, as you seem rather frail... Well, you know what? Killing a few wolf rats could be a good exercise. "
-                    +"You could help us clear some fields of them, how about that?",
-    "elder eq": "Is there any way I could get a weapon and proper clothes?",
-    "elder eq answ": "We don't have anything to spare, but you can check out our market. Just go over there *[points a direction]*, then turn right. It's nowhere near what you can find in a town, but people always have some gear, food, and other useful stuff to sell. "
+                    +"You could help us clear some fields of them, how about that? I can provide you with some spare weapon, I believe",
+    "elder starting gear": "About the spare weapon...",
+    "elder starting gear answ": "Yes? What kind would you prefer? A dagger, a sword, a spear? Or maybe an axe or a hammer? The last two might be a bit too slow to swing, but it's all up to you.",
+    "elder dagger": "I would like a dagger, being fast seems to be the best choice",
+    "elder sword": "I would like a sword, for a good swing speed and decent damage",
+    "elder spear": "I would like a spear, for perfect balance between the two",
+    "elder axe": "I would like an axe, for solid damage from every strike",
+    "elder hammer": "I would like a hammer, for devastating attacks even if it's very slow",
+    "elder none": "I think I prefer fighting with no weapon",
+    "elder weapon answ": "Here it is, good luck! And remember that you don't need to stick to it forever",
+    "elder weapon none answ": "No weapon? That doesn't sound like a good idea, but it is your choice as I said...",
+    "elder eq": "Is there any way I could get a better weapon and proper clothes?",
+    "elder eq answ": "We don't have anything more to spare, but you can check out our market. Just go over there *[points a direction]*, then turn right. It's nowhere near what you can find in a town, but people always have some gear, food, and other useful stuff to sell. "
                     +"If you need money, try selling some rat remains there. Fangs, tails or pelts, people will buy them all. I have no idea what they do with this stuff...",
     "elder leave 2": "Can I leave the village?",
     "elder leave 2 answ":  "We talked about this, you are still too weak",

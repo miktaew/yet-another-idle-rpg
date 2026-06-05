@@ -173,7 +173,7 @@ class DialogueAction extends GameAction {
                 text: "elder need to answ",
                 is_unlocked: false,
                 rewards: {
-                    textlines: [{dialogue: "village elder", lines: ["rats", "ask to leave 2", "equipment"]}],
+                    textlines: [{dialogue: "village elder", lines: ["rats", "ask to leave 2", "starting gear"]}],
                     locations: [{location: "Infested field"}],
                     activities: [{location:"Village", activity:"weightlifting"}, {location:"Village",activity:"running"}],
                     quest_progress: [
@@ -181,6 +181,82 @@ class DialogueAction extends GameAction {
                     ]
                 },
                 locks_lines: ["need to"],
+            }),
+            "starting gear": new Textline({
+                name: "elder starting gear",
+                text: "elder starting gear answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "village elder", lines: ["equipment", "dagger", "sword", "spear", "axe", "hammer", "none"]}],
+                },
+                branches_into: ["dagger", "sword", "spear", "axe", "hammer", "none"],
+            }),
+            "dagger": new Textline({
+                name: "elder dagger",
+                text: "elder weapon answ",
+                is_unlocked: false,
+                is_branch_only: true,
+                locks_lines: ["starting gear"],
+                rewards: {
+                    items: [
+                        {item: "Cheap iron dagger", quality: 50},
+                    ]
+                }
+            }),
+            "sword": new Textline({
+                name: "elder sword",
+                text: "elder weapon answ",
+                is_unlocked: false,
+                is_branch_only: true,
+                locks_lines: ["starting gear"],
+                rewards: {
+                    items: [
+                        {item: "Cheap iron sword", quality: 50},
+                    ]
+                }
+            }),
+            "spear": new Textline({
+                name: "elder spear",
+                text: "elder weapon answ",
+                is_unlocked: false,
+                is_branch_only: true,
+                locks_lines: ["starting gear"],
+                rewards: {
+                    items: [
+                        {item: "Cheap iron spear", quality: 50},
+                    ]
+                }
+            }),
+            "axe": new Textline({
+                name: "elder axe",
+                text: "elder weapon answ",
+                is_unlocked: false,
+                is_branch_only: true,
+                locks_lines: ["starting gear"],
+                rewards: {
+                    items: [
+                        {item: "Cheap iron axe", quality: 50},
+                    ]
+                }
+            }),
+            "hammer": new Textline({
+                name: "elder hammer",
+                text: "elder weapon answ",
+                is_unlocked: false,
+                is_branch_only: true,
+                locks_lines: ["starting gear"],
+                rewards: {
+                    items: [
+                        {item: "Cheap iron battle hammer", quality: 50},
+                    ]
+                }
+            }),
+            "none": new Textline({
+                name: "elder none",
+                text: "elder weapon none answ",
+                is_unlocked: false,
+                is_branch_only: true,
+                locks_lines: ["starting gear"],
             }),
             "equipment": new Textline({
                 name: "elder eq",
