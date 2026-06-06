@@ -973,13 +973,12 @@ class Weapon extends Equippable {
     }
 
     calculateAttackPower(quality) {
-        return Math.ceil(
-            (item_templates[this.components.head].attack_value + item_templates[this.components.handle].attack_value
-                + (item_templates[this.components.handle].component_stats?.attack_power?.flat || 0))
-            * item_templates[this.components.head].attack_multiplier * item_templates[this.components.handle].attack_multiplier
-            * (item_templates[this.components.handle].component_stats?.attack_power?.multiplier || 1)
-            * (quality/100) * rarity_multipliers[this.getRarity(quality)]
-        );
+        const _attack = (item_templates[this.components.head].attack_value + item_templates[this.components.handle].attack_value
+                        + (item_templates[this.components.handle].component_stats?.attack_power?.flat || 0))
+                        * item_templates[this.components.head].attack_multiplier * item_templates[this.components.handle].attack_multiplier
+                        * (item_templates[this.components.handle].component_stats?.attack_power?.multiplier || 1)
+                        * (quality/100) * rarity_multipliers[this.getRarity(quality)]
+        return Math.abs(_attack)<10?Math.ceil(10*_attack)/10:Math.ceil(_attack);
     }
 
     getName() {

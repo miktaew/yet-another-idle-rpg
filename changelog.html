@@ -114,7 +114,7 @@ v0.5.5
         * refactoring of code related to activities
         * refactoring of crafting code:
             - areas can have different crafting categories available
-            - recipes that use material types (e.g. charcoal) can mix ingredients
+            - recipes that use material types can mix ingredients
             - component recipes appear permanently after discovering their material
         * added cooking stations to mountain camp and to lake camp
         * made it possible for materials to have quality (currently used on fish)
@@ -201,11 +201,17 @@ v0.5.5.14
 
 v0.5.5.15
     - reduced minimum gathering times on most of gathering activities, reduced maximum gathering times on some of them, both in exchange for slightly increased level needed for maximum efficiency
-    - added hp regen on first 'Regeneration' milestone, reduced one of later milestones by same ammount
+    - added hp regen on first 'Regeneration' milestone, reduced hp regen on one of later milestones by same ammount
     - increased base health 50->60 and base strength 10->12, reduced base stamina 50->40 and base agility 10->8
     - reduced defense on 'Starving wolf rat' and 'Wolf rat' both by 1
     - item rewards can now have quality specificed
     - instead of starting with a sword, player can get a free starting weapon of any type from early dialogue with village elder, at 50% quality instead of 40% the sword had
+
+v0.5.5.16
+    - type-based multicrafting will now once again stop when current material depletes to the point where it alone is not enough, but clicking again will mix it with next material in line
+        e.g. if charcoal still required 5 wood and you had 13 'Rough wood log' and 12 'Wood log', first click would craft 2 (using 10 'Rough wood logs')
+        and second click would craft 3 (using remaining 3 'Rough wood logs' and the 12 'Wood logs')
+    - weapons with attack lower than 10 now have it rounded to one decimal place instead of to integer
 </pre></div>
 
 

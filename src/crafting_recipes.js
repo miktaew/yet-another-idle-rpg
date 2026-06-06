@@ -4,6 +4,7 @@ import { character, get_total_skill_level } from "./character.js";
 import { Armor, ArmorComponent, Cape, Shield, ShieldComponent, Weapon, WeaponComponent, Amulet, item_templates } from "./items.js";
 import { skills } from "./skills.js";
 import { clamp, random_range } from "./misc.js";
+import { game_options } from "./main.js";
 
 const crafting_recipes = {items: {}, components: {}, equipment: {}};
 const cooking_recipes = {items: {}};
@@ -105,7 +106,7 @@ class ItemRecipe extends Recipe {
         let amount = Infinity;
         let materials = [];
         for (let i = 0; i < this.materials.length; i++) {
-            let material = find_recipe_material(this.materials[i]);
+            let material = find_recipe_material({material: this.materials[i], needed_count: this.materials[i].count});
             amount = Math.floor(Math.min(material.count / this.materials[i].count, amount));
             materials.push(material);
 
@@ -267,14 +268,19 @@ class EquipmentRecipe extends Recipe {
 }
 
 /**
- * @param {material_id/material_type, count, result_id?} material
+ * @description Finds and returns how much of a provided material (by id or by key) is available for recipe, together with references to it
+ * @param {Object} data
+ * @param {Object} data.material material_id/material_type, count, result_id?
+ * @param {Boolean} data.ignore_stop ignores the optional stop when material changes, used for display purposes
+ * @param {Number} data.needed_count only used when stopping on material change is enabled
  * @returns { count, items[] } - items: [{item_key, count, item_id (if no key), quality (optional if no key)},...] - same as inventory
  */
-function find_recipe_material(material) {
+function find_recipe_material({material, ignore_stop, needed_count}) {
     let count = 0;
     let items = [];
 
     if (material.material_id) {
+        //grab count of material with provided id
         const material_id = material.material_id;
         const key = item_templates[material_id].getInventoryKey();
         if (character.inventory[key]) {
@@ -282,16 +288,50 @@ function find_recipe_material(material) {
             count = character.inventory[key].count;
             items = [character.inventory[key]];
         }
-        return { count, items };
-    }
+        
+    } else if(material.material_type) {
 
-    Object.values(character.inventory)
-        .filter(item => (material.material_id && item.id === material.material_id) || (material.material_type && item.item.material_type === material.material_type))
-        .sort((a,b) => a.item.getBaseValue()-b.item.getBaseValue())
-        .forEach(item => {
-            count += item.count;
-            items.push(item);
-        });
+        if(game_options.stop_crafting_on_material_change && !ignore_stop) {
+            //crafting stops when material changes
+
+            //grab material of provided type, sorted by price 
+            const materials = Object.values(character.inventory)
+                .filter(item => (material.material_type && item.item.material_type === material.material_type))
+                .sort((a,b) => a.item.getBaseValue()-b.item.getBaseValue());
+                
+            if(materials[0]) {
+                let current_mat = materials[0];
+
+                count = current_mat.count;
+                items.push(current_mat);
+                //add it to list either way, no matter if it's enough
+            
+                let i = 1;
+                while(count < needed_count && materials[i]) {
+                    /*
+                    there is not enough, check next cheapest, add it, and so on
+                    this way:
+                        if there's enough of first mat, on click it will only use first mat
+                        if there's not enough of first mat, on click it will use first mat and next mat, and so on, until it has enough
+                    */
+                    current_mat = materials[i];
+                    count += current_mat.count;
+                    items.push(current_mat);
+                    i++;
+                }
+            }
+        
+        } else {
+            //grab total count of all materials of desired type
+            Object.values(character.inventory)
+                .filter(item => (material.material_type && item.item.material_type === material.material_type))
+                .sort((a,b) => a.item.getBaseValue()-b.item.getBaseValue())
+                .forEach(item => {
+                    count += item.count;
+                    items.push(item);
+            });
+        }
+    }
 
     return { count, items };
 }

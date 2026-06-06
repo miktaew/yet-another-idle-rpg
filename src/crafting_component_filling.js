@@ -685,7 +685,7 @@ const crafting_component_manager = {
                         value: item_value,
                         name_prefix: capitalize_first_letter(material.name || material_key),
                         component_tier: material.tier,
-                        attack_value: Math.floor(attack_value),
+                        attack_value: Math.abs(attack_value)<10?Math.floor(attack_value*10)/10:Math.floor(attack_value),
                                     
                         component_stats: {
                             ...component_stats,

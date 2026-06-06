@@ -923,14 +923,6 @@ function clear_message_log() {
 }
 
 /**
- * updates the dynamic loot message
- */
-function update_displayed_current_loot() {
-    //todo: a dynamically recreated message at the >bottom< of the message log
-    //with separate message group, always at bottom, recreated every time with total loot as overall and new gains written like this: (+1)
-}
-
-/**
  * @param {Array} loot_list [{item, count},...] 
  */
 function log_loot({loot_list, is_combat=false, is_a_summary=false, is_dynamic=false}) {
@@ -3170,7 +3162,7 @@ function create_recipe_tooltip_content({category, subcategory, recipe_id, materi
         const success_chance = Math.round(100*recipe.get_success_chance(station_tier));
         tooltip += `Success rate: <b><span style="color:${success_chance > 74?"lime":success_chance>49?"yellow":success_chance>24?"orange":"red"}">${success_chance}%</span></b><br><br>Materials required:<br>`;
         for (let i = 0; i < recipe.materials.length; i++) {
-            const material = find_recipe_material(recipe.materials[i]);
+            const material = find_recipe_material({material: recipe.materials[i], ignore_stop: true});
 
             //base type
             let main_name = recipe.materials[i].material_type ? "Any " + recipe.materials[i].material_type + ":" : obscure_name(recipe.materials[i].material_id);
@@ -3313,7 +3305,6 @@ function update_displayed_component_choice({category, subcategory, recipe_id, co
             item_div.appendChild(create_item_tooltip(components[j].item, {class_name: "recipe_tooltip"}));
             
             item_div.addEventListener("click", () => {
-                //TODO loop
                 toggle_exclusive_class({element: item_div, siblings_only: true, class_name: "selected_component"});
                 const components = [];
                 const component_1_key = recipe_div.children[1].children[0].children[1].querySelector(".selected_component")?.dataset.item_key;
@@ -3359,12 +3350,12 @@ function update_displayed_material_choice({category, subcategory, recipe_id, ref
     for (let i = 0; i < recipe.materials.length; i++) {
         const material_recipe = recipe.materials[i];
 
-        //hide undiscovered recipes
+        //hide recipes which use undiscovered materials
         if (!item_log.is_known(material_recipe.material_id)) {
             continue;
         }
 
-        const material = find_recipe_material(material_recipe); //TODO currently doesn't support item types or items with quality
+        const material = find_recipe_material({materia: material_recipe, ignore_stop: true}); //TODO currently doesn't support items with quality
 
         const item_div = document.createElement("div");
         const name_span = document.createElement("span");
