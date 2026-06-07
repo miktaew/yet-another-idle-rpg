@@ -863,7 +863,7 @@ function end_activity_animation(remove) {
     
 }
 
-function unsassign_dynamic_loot_message() {
+function unassign_dynamic_loot_message() {
     dynamic_loot_message = null;
 }
 
@@ -3355,7 +3355,7 @@ function update_displayed_material_choice({category, subcategory, recipe_id, ref
             continue;
         }
 
-        const material = find_recipe_material({materia: material_recipe, ignore_stop: true}); //TODO currently doesn't support items with quality
+        const material = find_recipe_material({material: material_recipe, ignore_stop: true}); //TODO currently doesn't support items with quality
 
         const item_div = document.createElement("div");
         const name_span = document.createElement("span");
@@ -5718,5 +5718,5 @@ export {
     update_displayed_item_log,
     set_HTML,
     set_light_based_background_color,
-    unsassign_dynamic_loot_message
+    unassign_dynamic_loot_message
 }

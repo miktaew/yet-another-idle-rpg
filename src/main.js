@@ -98,7 +98,7 @@ import { end_activity_animation,
          update_fav_display,
          update_displayed_item_log,
          set_light_based_background_color,
-         unsassign_dynamic_loot_message,
+         unassign_dynamic_loot_message,
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_component_name, get_hit_chance, is_a_older_than_b, get_item_mapping, random_range, skill_consumable_tags, rtp } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -2579,7 +2579,7 @@ function clear_loot_information() {
     //called whenever changing a location or stopping an activity
     current_loot.recent = {};
     current_loot.total = {};
-    unsassign_dynamic_loot_message();
+    unassign_dynamic_loot_message();
 }
 
 /**
