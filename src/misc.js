@@ -57,8 +57,14 @@ function clamp(x, min, max) {
     return Math.max(Math.min(x, max), min);
 }
 
+/**
+ * 
+ * @param {Number} min 
+ * @param {Number} max 
+ * @returns "random" integer in provided range, min and max both included
+ */
 function random_range(min, max) {
-    return Math.floor(Math.random() * (max-min) + min);
+    return Math.round(Math.random() * (max-min) + min);
 }
 
 function slerp(arr, t) {
