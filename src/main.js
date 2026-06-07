@@ -280,7 +280,7 @@ const game_options = {
     use_text_outlines_for_tooltips: true,
     use_text_outlines_for_bars: true,
 
-    stop_crafting_on_material_change: true, //not yet in use
+    stop_crafting_on_material_change: true, //not changeable
 };
 
 let message_log_filters = {

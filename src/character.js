@@ -886,6 +886,12 @@ function get_total_skill_level(skill_id) {
         return skills[skill_id].current_level + (character.bonus_skill_levels.full[skill_id] || 0);
 }
 
+/**
+ * 
+ * @param {String} skill_id 
+ * @param {Array<Number>} level_range 
+ * @returns basically level / level_required, but scaled from minimum level instead of from 0
+ */
 function get_skill_modifier(skill_id, level_range) {
     return Math.min(1, Math.max(0, (get_total_skill_level(skill_id) - level_range[0] + 1) / (level_range[1] - level_range[0] + 1)));
 }

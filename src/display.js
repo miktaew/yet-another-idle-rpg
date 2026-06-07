@@ -5718,6 +5718,5 @@ export {
     update_displayed_item_log,
     set_HTML,
     set_light_based_background_color,
-    update_displayed_current_loot,
     unsassign_dynamic_loot_message
 }

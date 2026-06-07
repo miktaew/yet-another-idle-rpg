@@ -4,13 +4,13 @@ const english = {
     "elder hello": "Hello?",
     "elder hello answ": "Hello. Glad to see you got better",
     "elder head hurts": "My head hurts.. What happened?",
-    "elder head hurts answ": "Some of our people found you unconscious in the forest, wounded and with nothing but pants and an old sword, so they brought you to our village. "
+    "elder head hurts answ": "Some of our people found you unconscious in the forest, wounded and with nothing but pants, so they brought you to our village. "
             + "It would seem you were on your way to a nearby town when someone attacked you and hit you really hard in the head.",
     "elder where": "Where am I?",
-    "elder where answ": "Some of our people found you unconscious in the forest, wounded and with nothing but pants and an old sword, so they brought you to our village. "
+    "elder where answ": "Some of our people found you unconscious in the forest, wounded and with nothing but pants, so they brought you to our village. "
             + "It would seem you were on your way to a nearby town when someone attacked you and hit you really hard in the head.",
     "elder remember": "I don't remember how I got here, what happened?",
-    "elder remember answ": "Some of our people found you unconscious in the forest, wounded and with nothing but pants and an old sword, so they brought you to our village. "
+    "elder remember answ": "Some of our people found you unconscious in the forest, wounded and with nothing but pants, so they brought you to our village. "
             + "It would seem you were on your way to a nearby town when someone attacked you and hit you really hard in the head.",
     "elder who": "Who are you?",
     "elder who answ": "I'm the unofficial leader of this village. If you have any questions, come to me.",
