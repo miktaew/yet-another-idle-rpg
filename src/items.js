@@ -323,7 +323,7 @@ class Material extends OtherItem {
     }
 
     calculateSize(quality) {
-        return Math.ceil((this.base_size * 10 || 0) / 10  * (quality/100 || this.quality/100) * rarity_multipliers[this.getRarity(quality || this.quality)]);
+        return Math.ceil((this.base_size * 10 || 0) / 10  * (quality/100 || this.quality/100 || 1) * (rarity_multipliers[this.getRarity(quality || this.quality)] || 1));
     }
 }
 

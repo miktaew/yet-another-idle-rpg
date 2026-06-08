@@ -2648,6 +2648,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
                 ],
                 time_period: [120, 30],
                 skill_required: [10, 22],
+                roll_quality: true,
             },
             require_tool: true,
         }),
