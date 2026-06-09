@@ -848,6 +848,7 @@ function end_activity_animation(remove) {
     if(dynamic_loot_message_types[message_type] && game_options.do_dynamic_loot_message) {
         if(dynamic_loot_message) {
             dynamic_loot_message.remove();
+            message_count.message_loot--; //count gets increased in the other place, so this is necessary to balance it, otherwise messages start disappearing
         }
 
         dynamic_loot_message = message;
