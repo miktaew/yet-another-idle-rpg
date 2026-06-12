@@ -828,6 +828,15 @@ function end_activity_animation(remove) {
             break;
     }
 
+    if(dynamic_loot_message_types[message_type] && game_options.do_dynamic_loot_message) {
+        if(dynamic_loot_message) {
+            dynamic_loot_message.remove();
+            message_count.message_loot--; //count gets increased in the other place, so this is necessary to balance it (since the actual message number stays unchanged in this case)
+        }
+
+        dynamic_loot_message = message;
+    }
+
     if(group_to_add === "message_combat" && message_count.message_combat > 80
     || group_to_add === "message_loot" && message_count.message_loot > 28
     || group_to_add === "message_unlocks" && message_count.message_unlocks > 40
@@ -838,21 +847,13 @@ function end_activity_animation(remove) {
         // find first child with specified group
         // delete it
         message_log.removeChild(message_log.getElementsByClassName(group_to_add)[0]);
+        message_count[group_to_add]--;
     }
         
     message.classList.add(class_to_add, group_to_add);
     set_HTML(message, message_to_add);
     //message.innerText = message_to_add;
     insert_HTML(message, "<div class='message_border'> </>");
-
-    if(dynamic_loot_message_types[message_type] && game_options.do_dynamic_loot_message) {
-        if(dynamic_loot_message) {
-            dynamic_loot_message.remove();
-            message_count.message_loot--; //count gets increased in the other place, so this is necessary to balance it, otherwise messages start disappearing
-        }
-
-        dynamic_loot_message = message;
-    }
 
     message_log.appendChild(message);
 
