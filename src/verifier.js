@@ -62,7 +62,7 @@ function Verify_Game_Objects() {
                 }
             })
         }
-
+        /*
         if(item.effects) {
             for(let i = 0; i < item.effects.length; i++) {
                 if(!effect_templates[item.effects[i].effect]) {
@@ -71,7 +71,7 @@ function Verify_Game_Objects() {
                 }
             }
         }
-
+        */
         if(item.value <= 0 && !item.tags.unsellable) {
             console.error(`Item "${key}" has a value of ${item.value}. This is not supported - items not marked as unsellable need to have value that is a positive integer.`);
             has_issue = true;

@@ -309,7 +309,41 @@ class ActiveEffect {
             }
         },
         tags: {"buff": true, "food": true},
-});
+    });
+    effect_templates["Sweet dessert"] = new ActiveEffect({
+        name: "Sweet dessert",
+        effects: {
+            xp_multipliers: {
+                all: 1.05,
+            },
+            stats: {
+                strength: {multiplier: 1.05},
+                agility: {multiplier: 1.05},
+                stamina_regeneration_flat: {flat: 1},
+            }
+        },
+        tags: {"buff": true, "food": true},
+    });
+    effect_templates["Tipsy"] = new ActiveEffect({
+        name: "Tipsy",
+        effects: {
+            stats: {
+                agility: {multiplier: 1.1},
+                dexterity: {multiplier: 0.8},
+            }
+        },
+        tags: {"debuff": true, "poison": true},
+    });
+    effect_templates["Coffee"] = new ActiveEffect({
+        name: "Coffee",
+        effects: {
+            stats: {
+                agility: {multiplier: 1.1},
+                dexterity: {multiplier: 1.1},
+            }
+        },
+        tags: {"buff": true, "food": true},
+    });
 })();
 
 

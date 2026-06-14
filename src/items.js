@@ -4972,6 +4972,35 @@ function add_gear() {
         effects: [{effect: "Decent meat meal", duration: 60}],
         tags: {"food": true},
     });
+
+    item_templates["Apple pie"] = new UsableItem({
+        name: "Apple pie",
+        description: "A nice pie with a delightful crust and filled to the brim with delicious apple pieces",
+        value: 100,
+        effects: [{effect: "Sweet dessert", duration: 180}],
+        tags: {"food": true},
+    });
+    item_templates["Carrot cake"] = new UsableItem({
+        name: "Carrot cake",
+        description: "A moist carrot cake, with raisins and nuts, topped with cream cheese frosting",
+        value: 100,
+        effects: [{effect: "Sweet dessert", duration: 180}],
+        tags: {"food": true},
+    });
+    item_templates["Cider"] = new UsableItem({
+        name: "Cider",
+        description: "Fermented apple juice with a slightly sweet, tart, and refreshing aroma",
+        value: 100,
+        effects: [{effect: "Well hydrated", duration: 120}, {effect: "Tipsy", duration: 30}],
+        tags: {"food": true},
+    });
+    item_templates["Black coffee"] = new UsableItem({
+        name: "Black coffee",
+        description: "Steaming mug of hot, bitter coffee",
+        value: 100,
+        effects: [{effect: "Coffee", duration: 150}],
+        tags: {"food": true},
+    });
 })();
 
 //setup ids

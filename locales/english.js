@@ -1,4 +1,5 @@
 const english = {
+    //VILLAGE ELDER
     "elder description": "You see an older man with white hair, but with a still strong posture as if still ready to fight if need be. He eyes you with curiosity.",
     "mofu#elder description": "You see an older man with curly white hair and dull, heavy horns. Despite his years, he stands with a strong posture, ready to ram any threat to the village. He eyes you with curiosity.",
     "elder hello": "Hello?",
@@ -109,7 +110,7 @@ const english = {
     "elder amulet answ": "Ah, sorry for startling you. I'm just thankful for all your help in the village, it means a lot to an old man like me, so I wanted you to have this. It's an amulet made of a horn of one of the rams from the first flock of sheep that was ever under my care. Please, keep it and be strong.",
     "mofu#elder amulet answ": "Ah, sorry for startling you. I'm just thankful for all your help in the village, it means a lot to an old man like me, so I wanted you to have this. It's an amulet made of a horn I shed many long years ago, back in my prime. Please, keep it and be strong.",
     
-    //
+    //VILLAGE CRAFTSMAN
     "craftsman description": "You see an old man who clearly experienced a lot in life. He's wearing some handmade accessories. Despite his age, his fingers seem exceptionally nimble.",
             "mofu#craftsman description": "You see an old man with a medium length white tail, who clearly experienced a lot in life. His hair is composed of a black and a white part, with the former very dulled by age. He's wearing some handmade accessories. Despite his age and his massive hands, his fingers seem exceptionally nimble.",
     "craftsman hello": "Hello, I heard you wanted to talk to me?",
@@ -138,7 +139,8 @@ const english = {
     "craftsman about guard": "So what's the story of that village guard girl?",
     "craftsman about guard answ": "Ahhh, our little warrioress... She once wanted to be an adventurer, but I believe it didn't work out for her. Hard work is not enough when talent is lacking nor can it allow one to conquer fate, I'm afraid. Still, she's a good girl and keeps us safe now.",
     "mofu#craftsman about guard answ": "Ahhh, our fierce she-wolf... She once wanted to be an adventurer, but I believe it didn't work out for her. Hard work is not enough when talent is lacking nor can it allow one to conquer fate. Still, she's a good girl and keeps us safe now.",
-    //
+    
+    //VILLAGE GUARD
     "guard description": "You see a woman in a set of light armor, with a spear in her hand and two daggers on her belt. There's a scar across her face.",
     "mofu#guard description": "You see a tall woman in light armor, with a spear in her hand and two daggers on her belt. "
             +"Her sharp fuzzy ears rotate every now and then towards any new sound, while her fluffy tail remains motionless. There's a scar across her face."
@@ -184,10 +186,11 @@ const english = {
     "guard try answ": '[Nuh uh. She pats your head instead~~~]',
     "guard teach more": "Can you teach me something more?",
     "guard teach more answ": "I'm sorry, but no, that will have to be enough. Trust me, I'm generally a terrible teacher, I know that from experience. It will be better for you to not get any bad habits because of me.",
-    //
+    
+    //VILLAGE MILLERS
     "millers description": "You see two teenagers with mischievous looks on their faces. It's only with a great deal of effort that you manage to recognize them both as males. One of them has red hair, the other gray.",
     "mofu#millers description": "You see two teenagers with mischievous looks on their faces. One has cat ears and a fluffy tail, the other mouse ears and a tail with barely any hair on it. It's only with great deal of effort that you manage to recognize them both as males. The cat has red hair, the mouse gray.",
-    
+
     "millers hello": "Hello there",
     "millers hello answ": "[Red] Hi~! \n [Gray]: Hello",
     "mofu#millers hello answ": "[Cat] Hi~! \n [Mouse]: Hello",
@@ -248,12 +251,14 @@ const english = {
                             +" \n[Cat] Jokes aside, no one here besides us managed to make that connection, that's just sooo stupid~"
                             +" \n[Mouse] When they hear how there was a powerful adventurer who happens to match her perfectly, they all just assume that it's a pure coincidence and a completely different person."
                             +" \n[Cat] She doesn't seem to care much about it, probably prefers peace and quiet. Let her have that, I'm sure she went through a lot, and with her here we can feel safer than ever.",
-    //
+    
+    //TOWN GUARD / GATE GUARD
     "g guard description": "You see a massive man in a steel chainmail, with a spear in his hand and a sword on his belt.",
     "mofu#g guard description": "You see a massive, hairy man with round ears and a tiny tail. He's clad in a steel chainmail, with a spear in his hand and an axe on his belt.",
     "g guard hello": "Hello, can I get in?",
     "g guard hello answ": "The town is currently closed to everyone who isn't a citizen or a merchant guild's member. No exceptions.",
-    //
+    
+    //SUSPICIOUS GUY / PUPPY
     "sus description 1": "You see a young man in shabby clothes and with messy hair, who keeps looking around. He appears to have some nervous ticks, or maybe he's just really stressed. He notices you and stares.",
     "sus description 2": "You see a young man in shabby clothes and with messy hair, who keeps calmly looking around. The moment he notices you, he appears to get calmer.",
     "mofu#sus description 1": "You see a young man in shabby clothes and with messy hair, who keeps looking around. He appears to have some nervous ticks, or maybe he's just really"
@@ -287,7 +292,8 @@ const english = {
     "sus headpat answ": "[He smiles like a little puppy]",
     //line above: theoretically reachable if someone disables mofu mofu while in dialogue?
     "mofu#sus headpat answ": "[He smiles like a little puppy, his tail wagging a lot faster]",
-    //
+    
+    //OLD LADY OF SLUMS
     "old description 1": "With some safety returned to the area, more folk are now out on the streets. One of them, an elderly lady, is looking at you.",
     "old description 2": "You see a gentle elderly lady with warm look in her eyes",
     "mofu#old description 1": "With some safety returned to the area, more folk are now out on the streets. One of them, an elderly tanuki lady, is looking at you.",
@@ -298,7 +304,8 @@ const english = {
     "old dinner answ": "[You join the woman in her shack for a humble, yet satisfying meal. While the main ingredients are simple, they are well flavored and garnished with herbs.]",
     "old ingredients": "[Compliment the food and ask where she gets ingredients.]",
     "old ingredients answ": "Surprised? Live here long enough, and you learn how to get by without a lot of pricey things. No, I'm not talking about stealing - I may be poor, but I still have my pride! No, I'm talking about the plants that grow all around. Most people pass them by, without realizing how useful they can be. Ha! Maybe there IS another way I can reward you! I can teach you what to look for, if you're interested.",
-    //
+    
+    //FARM SUPERVISOR
     "sup hello": "Hello",
     "sup hello answ": "Hello stranger",
     "sup work":  "Do you have any work with decent pay?",
@@ -337,7 +344,19 @@ const english = {
     "sup description": "You see a well dressed man with a notebook on his belt and a hat on his head. Despite seeming more like a scribe, he's buff and tanned.",
     "mofu#sup description": "You see a well dressed man with a notebook on his belt and a hat on his head, awkwardly placed between a pair of antlers."
             +" Despite seeming more like a scribe, he's buff and tanned.",
-    //
+
+    //NEKOMIMI PROPRIETRESS (NEKOMIMI CAFE)
+    "nekomimi proprietress description": "lorem ipsum",
+    "proprietress hi": "lorem ipsum",
+    "proprietress hi answ": "lorem ipsum",
+    "proprietress offer": "lorem ipsum",
+    "proprietress offer answ": "lorem ipsum",
+    "proprietress special": "lorem ipsum",
+    "proprietress special answ": "lorem ipsum",
+    "proprietress puns": "lorem ipsum",
+    "proprietress puns answ": "lorem ipsum",
+    
+    //SWAMPCHIEF
     "swampchief description 1": "Looking around the encampment, you see a large hut framed by banners and lit torches. You approach the hut, calling out in greeting, but getting no response. As you step closer, you see a large man in thick scaly armor wielding a great trident emerge. He points the trident at you as he takes a firm stance.",
     "mofu#swampchief description 1": "Looking around the encampment, you see a large hut framed by banners and lit torches."
             +" You approach the hut, calling out in greeting, but getting no response."

@@ -27,7 +27,7 @@ class Dialogue {
         this.getStartingText = getStartingText;
         this.ending_text = ending_text; //text shown on option to finish talking
         this.is_unlocked = is_unlocked;
-        this.is_finished = is_finished; //separate bool to remove dialogue option if it's finished
+        this.is_finished = is_finished; //separate bool to hide dialogue option if it's considered to be finished
         this.textlines = textlines; //all the lines in dialogue
         this.actions = actions;
         this.description = description;
@@ -1257,6 +1257,47 @@ class DialogueAction extends GameAction {
         },
         description: "sup description",
     });
+
+    dialogues["nekomimi proprietress"] = new Dialogue({
+        name: "proprietress",
+        is_unlocked: true,
+        description: "nekomimi proprietress description",
+        textlines: {
+            "hi": new Textline({
+                name: "proprietress hi",
+                text: "proprietress hi answ",
+                is_unlocked: true,
+                rewards: {
+                    textlines: [{dialogue: "nekomimi proprietress", lines: ["offer"]}],
+                },
+                locks_lines: ["hi"],
+            }),
+            "offer": new Textline({
+                name: "proprietress offer",
+                text: "proprietress offer answ",
+                rewards: {
+                    textlines: [{dialogue: "nekomimi proprietress", lines: ["special", "puns"]}],
+                    //todo: unlock trade
+                },
+                locks_lines: ["offer"],
+            }),
+            "special": new Textline({
+                name: "proprietress special",
+                text: "proprietress special answ",
+                rewards: {
+                    //todo: unlock paid action
+                },
+                locks_lines: ["special"],
+            }),
+            "puns": new Textline({
+                name: "proprietress puns",
+                text: "proprietress puns answ",
+                locks_lines: ["puns"],
+            }),
+        }
+
+    });
+
     dialogues["swampland chief"] = new Dialogue({
         //lizard like everyone in triber, aggressive and proud
         name: "swampland chief",

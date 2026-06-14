@@ -15,7 +15,6 @@ class Trader extends InventoryHaver {
                 display_name,
                 trade_text,
                 unlock_message = null,
-                location_name,
                 refresh_time = 4,
                 refresh_shift = 0,
                 inventory_template,
@@ -28,7 +27,6 @@ class Trader extends InventoryHaver {
         this.display_name = display_name || name;
         this.trade_text = trade_text || `Trade with ${this.display_name}`;
         this.unlock_message = unlock_message,
-        this.location_name = location_name;
         this.last_refresh = -1;  
         //just the day_count from game_time at which trader was supposedly last refreshed
 
@@ -153,7 +151,6 @@ class TradeItem {
         name: "village trader",
         inventory_template: "Basic",
         is_unlocked: false,
-        location_name: "Village",
         trade_text: "Trade on the village market",
         unlock_message: "You can now visit the village market",
         profit_margin: 4,
@@ -162,7 +159,6 @@ class TradeItem {
         name: "suspicious trader",
         inventory_template: "Basic plus",
         is_unlocked: true,
-        location_name: "Slums",
         profit_margin: 6,
     });
     traders["suspicious trader 2"] = new Trader({
@@ -170,22 +166,31 @@ class TradeItem {
         display_name: "suspicious trader",
         inventory_template: "Intermediate",
         is_unlocked: false,
-        location_name: "Slums",
         profit_margin: 6,
     });
     traders["swampland trader"] = new Trader({
         name: "swampland trader",
         inventory_template: "Swamp",
         is_unlocked: true,
-        location_name: "Swampland tribe",
         profit_margin: 7,
     });
     traders["swampland trader 2"] = new Trader({
         name: "swampland trader",
         inventory_template: "Swamp plus",
         is_unlocked: false,
-        location_name: "Swampland tribe",
         profit_margin: 5,
+    });
+    traders["nekomimi trader"] = new Trader({
+        name: "nekomimi cafe trader",
+        inventory_template: "Cafe trader",
+        is_unlocked: false,
+        profit_margin: 20, //it's the kind of place where you pay for the company as much as for the food
+    });
+    traders["cat cafe trader"] = new Trader({
+        name: "cat cafe trader",
+        inventory_template: "Cafe trader",
+        is_unlocked: false,
+        profit_margin: 18, //it's the kind of place where you pay for the company as much as for the food, but slightly less
     });
 })();
 
@@ -482,6 +487,17 @@ class TradeItem {
             new TradeItem({item_name: "Golmoon leaf", count: [1,3], chance: 0.1}),
             new TradeItem({item_name: "Belmart leaf", count: [1,3], chance: 0.1}),
     ];
+
+    inventory_templates["Cat cafe"] = 
+    [
+        new TradeItem({item_name: "Fresh bread", count: [2,5]}), //for clients with simpler taste
+        new TradeItem({item_name: "Bread kwas", count: [8,12]}),
+        new TradeItem({item_name: "Cooked clam", count: [4,6]}),
+        new TradeItem({item_name: "Crab bisque", count: [4,6]}),
+        new TradeItem({item_name: "Kingsized frog legs", count: [4,6]}),
+        new TradeItem({item_name: "Fish steak", count: [4,6]}),
+        
+    ]
 
 })();
 export { traders, inventory_templates, TradeItem };

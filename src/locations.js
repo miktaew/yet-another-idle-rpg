@@ -1638,7 +1638,13 @@ There's another gate on the wall in front of you, but you have a strange feeling
         name: "Town square",
         is_unlocked: false,
         getBackgroundNoises: function() {
-            let noises = [];
+            let noises = [
+                "*Horse neighs*", "Violets, lovely violets for sale!", "*Some idiot falls of a roof, luckily it's not high enough to cause any serious injury", 
+                //IFYKYK
+
+                "Newspaper, newest newspaper!", "Fresh bread, only here!", "Bread fresher than on the stale next to me, come and try!",
+                "*Water cascades from the fountain in the center*", "*Pigeon stares at you*", "*A group of pigeons lands on the fountain*",
+            ];
             return noises;
         },
     });
@@ -1652,11 +1658,14 @@ There's another gate on the wall in front of you, but you have a strange feeling
     locations["Cat cafe"] = new Location({ 
         connected_locations: [{location: locations["Town square"], travel_time: 4}],
         description: `A cat café in the center of town. There are multiple kitties of all kinds, but two females especially catch your eyes
- - a chubby mackerel tabby with a white belly and neck, and a slender tortoishell that seems blind on the right eye. There's a single worker in the café, a person of ambiguous gender with with long ponytail and glasses.`,
+ - a chubby mackerel tabby with a white belly and neck, and a slender tortoishell that seems blind on the right eye. There's a single worker in the café, a person of ambiguous gender with long ponytail and glasses.`,
         name: "Cat café",
         is_unlocked: true,
         getBackgroundNoises: function() {
-            let noises = ["Meow", "Nya", "Mrrr", "Mrrrp meow", "*A cat jumps on your lap*", "*A cat brushes on your leg*"];
+            let noises = [
+                "Meow", "Nya", "Mrrr", "Mrrrp meow", "Mrrrp mrrrp",
+                "*A cat jumps on your lap*", "*A cat brushes on your leg*", "*A cat begins washing itself right next to you*", "*A cat bumps you with its head for no reason*"
+            ];
             return noises;
         },
         is_under_roof: true,
@@ -1664,7 +1673,108 @@ There's another gate on the wall in front of you, but you have a strange feeling
         static_temperature: 20,
     });
 
-    locations["Town square"].connected_locations.push({location: locations["Cat cafe"], travel_time: 4});
+    locations["Nekomimi cafe"] = new Location({
+        connected_locations: [{location: locations["Town square"], travel_time: 4}],
+        description: `A nekomimi café in the center of town. Multiple catboys and catgirls are busy with a mix of work and silliness, sometimes properly serving drinks and snacks and sometimes just acting the way their four legged equivalents tend to do.`,
+        name: "Nekomimi café",
+        is_unlocked: true,
+        getBackgroundNoises: function() {
+            let noises = [
+                "Meow", "Nya", "Mrrr", "Mrrrp meow", "Mrrrp mrrrp",
+                "*A catboy's tail brushes against you*", "*A catgirl winks at you*", "*You see someone get scratched after behaving improperly*",
+                "*Two catgirls bump into each other while carrying dishes and both manage to perfectly recover without spilling or dropping anything*",
+                "*You hear a client desperately try to encourage a catboy to put on a maid dress*",
+            ];
+            return noises;
+        },
+        dialogues: ["nekomimi proprietress"],
+        display_conditions: {
+            flags: ["is_mofu_mofu_enabled"]
+        },
+        is_under_roof: true,
+        is_temperature_static: true,
+        static_temperature: 20,
+    });
+
+    locations["Antique store"] = new Location({
+        connected_locations: [{location: locations["Town square"], travel_time: 4}],
+        description: `An old but well kept store on the side of the central square, with a huge collection of antiques inside, most of them apparently not for sale as this place also `
+                    + `functions as a private museum. There are paintings, furniture, ancient weapons and armors, as well as some things you cannot even recognize.`,
+        name: "Antique store",
+        is_unlocked: true,
+        getBackgroundNoises: function() {
+            let noises = [
+                "*Clock ticking*"
+            ];
+            return noises;
+        },
+        is_under_roof: true,
+        is_temperature_static: true,
+        static_temperature: 20,
+    });
+    locations["Adventurer's guild"] = new Location({
+        connected_locations: [{location: locations["Town square"], travel_time: 4}],
+        description: `A local home of a big and influential guild that brings together all the kinds of adventurers and mercenaries, making it easier to find work and to be recognized. `
+                    +`Building is well lit, with a crowd inside. People have all the kinds of equipment, some are alone and some are in groups. Some are waiting to report their most `
+                    +`recent achievements, while others are drinking and celebrating.`,
+        name: "Adventurer's guild",
+        is_unlocked: true,
+        getBackgroundNoises: function() {
+            let noises = [
+                "I tell you, I really met her once!", "Blergh...", "*Someone falls of a bench after drinking too much*",
+                "Don't be stupid, everyone knows the world is a cube", "I wanted to report...", "Congratulations, that's another task completed!",
+                "Gonna reach next rank soon, I hope", "That advancement exam was absurd...",
+                "After my next dungeon dive, I will seriously ask him to marry me", "Sorry? What's a death flag?",
+                "Haha, I did it!", "With this, I can finally retire! Or maybe... just one more...", "Anything is better than rats",
+                "Just one bite and all that was left of my team leader was a pair of bloodied legs... I'm never going back there, no way.",
+                "Give us drinks, we are celebrating!", "So, that one time we stumbled upon a pair of bloodied legs, just standing upright in front of a boss chamber...",
+                "I will never get idiots who dive in the dungeon, it's too risky", "Personally? I would rather do simple small requests my entire life than risk meeting one of those...",
+                "Right? And then I deliver it and they say nuh uh, this isn't what we asked for, but it was EXACTLY was they asked for",
+
+                "Remember what we talked about last time?", "Took me a few trips, but I actually saw them...", "...they maybe just reached adulthood, and yet...",
+                "...they were just rushing through floor after floor...", "...every spear stab was a kill...", "...every sword swing was a kill...", "...every strange spell was a kill...",
+                "...and they really were strange...", "...I'm serious, I've never seen magic like that...", "...it was as if shadows were alive...", "...actually, while I didn't see that one...",
+                "...my teammate swears shadows detached from the wall...", "...and then they took a shape of a spike...", "...one thrust, and the floor boss was gone...",
+
+                "Okay, so like, imagine a kobold...", "Okay, and now, imagine three kobolds. In a trenchcoat...", "That's a classic, right?", "Now imagine three fat rats in a trenchcoat, pretending to be a kobold",
+                "And now... Imagine three of those, too dumb to realize they are all the same...", "Standing on top of one another, wearing one larger trenchcoat...", "No, I'm serious!",
+                "I swear, my cousin's brother's dog's groomer's aunt's husband saw it happen with his own eyes!",
+            ];
+            if(!global_flags.is_mofu_mofu_enabled) {
+                noises.push("...but you know the craziest thing?", "I swear that two of them had cat tails...", "I wasn't drunk, they had cat tails and cat ears...", "...the other two seemed human though");
+            } else {
+                noises.push("It was two nekomimi, boy and girl...", "...and then also two humans were with them...");
+            }
+            noises.push("...I really don't get how they aren't famous yet, but...", "...I really think they could even fight HER...","...yes, of course as a team and not alone...", "...too bad she retired to who knows where.");
+            return noises;
+        },
+        is_under_roof: true,
+        is_temperature_static: true,
+        static_temperature: 20,
+    });
+    locations["Mages guild"] = new Location({
+        connected_locations: [{location: locations["Town square"], travel_time: 4}],
+        description: `A nekomimi café in the center of town. Multiple catboys and catgirls are busy with a mix of work and silliness, sometimes properly serving drinks and snacks and sometimes just acting the way their four legged equivalents tend to do.`,
+        name: "Mages guild",
+        is_unlocked: false,
+        getBackgroundNoises: function() {
+            let noises = [
+            ];
+            return noises;
+        },
+        is_under_roof: true,
+        is_temperature_static: true,
+        static_temperature: 20,
+    });
+
+    locations["Town square"].connected_locations.push(
+        {location: locations["Cat cafe"], travel_time: 4},
+        {location: locations["Nekomimi cafe"], travel_time: 4},
+        {location: locations["Adventurer's guild"], travel_time: 4},
+        {location: locations["Mages guild"], travel_time: 4},
+        {location: locations["Antique store"], travel_time: 4}
+
+    );
 
     locations["Mountain path"] = new Location({
         connected_locations: [{location: locations["Nearby cave"], custom_text: "Climb down to [Nearby Cave]", travel_time: 20, travel_time_skills: ["Climbing"]}],
@@ -2368,7 +2478,7 @@ There's another gate on the wall in front of you, but you have a strange feeling
         "mining3": new LocationGatheringActivity({
             activity_name: "mining",
             starting_text: "Mine the atratan vein",
-            skill_xp_per_tick: 12,
+            skill_xp_per_tick: 16,
             is_unlocked: false,
             gained_resources: {
                 resources: [{name: "Atratan ore", ammount: [[1,1], [1,3]], chance: [0.3, 1]}],
@@ -3016,13 +3126,30 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     "You looked under rocks and between the bushes, but you found nothing. Keep looking!", 
                     "You looked and looked, but you couldn't find anything. Rest a bit and go back to it!",
                 ],
+                conditional_loss: [
+                    "You are not perceptive enough for this...",
+                ]
             },
-            conditions: [],
+            conditions: [
+                {
+                    skills: {
+                        "Perception": 1,
+                    }
+                },
+                {
+                    skills: {
+                        "Perception": 12,
+                    }
+                }
+            ],
             is_unlocked: true,
             attempt_duration: 60,
-            success_chances: [0.6],
+            success_chances: [0.1, 1],
             rewards: {
                 locations: [{location: "Fight the angry mountain goat"}],
+                skill_xp: {
+                    Perception: 150,
+                }
             },
         }),
     };
@@ -3066,14 +3193,31 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     "You looked under rocks and between the bushes, but you found nothing. Keep looking!", 
                     "You looked and looked, but you couldn't find anything. Rest a bit and go back to it!",
                 ],
+                conditional_loss: [
+                    "You are not perceptive enough for this...",
+                ]
             },
-            conditions: [],
+            conditions: [
+                {
+                    skills: {
+                        "Perception": 1,
+                    }
+                },
+                {
+                    skills: {
+                        "Perception": 12,
+                    }
+                }
+            ],
             is_unlocked: true,
             attempt_duration: 60,
-            success_chances: [0.6],
+            success_chances: [0.1, 1],
             rewards: {
                 locations: [{location: "Gentle mountain slope"}],
-                actions: [{location:"Mountain camp", action: "explore2"}]
+                actions: [{location:"Mountain camp", action: "explore2"}],
+                skill_xp: {
+                    Perception: 150,
+                }
             },
         }),
         "explore2": new GameAction({
@@ -3088,7 +3232,8 @@ There's another gate on the wall in front of you, but you have a strange feeling
                     "You looked and looked, but you couldn't find anything. Rest a bit and go back to it!",
                 ],
                 conditional_loss: [
-                    "You spot a lot of curious plants. You have a hunch that at least some of them must be useful for something, but you fail to recognize any of them. If only you knew more about herbs..."
+                    "You spot a lot of curious plants. You have a hunch that at least some of them must be useful for something, but you fail to recognize any of them. If only you knew more about herbs...",
+                    "You fail to notice anything interesting",
                 ]
             },
             conditions: [
@@ -3096,11 +3241,13 @@ There's another gate on the wall in front of you, but you have a strange feeling
                         
                     skills: {
                             "Herbalism": 6,
+                            Perception: 1,
                         },
                 },
                 {
                         skills: {
                             "Herbalism": 10,
+                            Perception: 12,
                         },
                 }
             ],
@@ -3109,6 +3256,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_chances: [0.5],
             rewards: {
                 activities: [{location:"Mountain camp", activity:"herbalism"}],
+                skill_xp: {
+                    Perception: 150,
+                }
             },
         }),
     }
@@ -3192,6 +3342,9 @@ There's another gate on the wall in front of you, but you have a strange feeling
             success_chances: [0.7],
             rewards: {
                 locations: [{location: "Carya Canyon"}],
+                skill_xp: {
+                    Perception: 200,
+                }
             },
             unlock_text: "While fighting the boars, you heard a strange noise from the north. What could it be?"
         }),
