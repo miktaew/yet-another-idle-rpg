@@ -4022,7 +4022,6 @@ function load(save_data) {
             if(is_JSON(key)) {
                 //case where this is False is left as compatibility for saves before v0.4.4
                 let {id, components, quality} = JSON.parse(key);
-                
                 if(id && !quality) { 
                     //id is just a key of item_templates
                     //if it's present, item is "simple" (no components)
@@ -4267,8 +4266,7 @@ function load(save_data) {
                         }
                     } else if(quality) { //no comps but quality (clothing / artifact?)
                         const item_id = get_component_name(id);
-                        const new_item_key = item_templates[item_id].getInventoryKey();
-                        storage_item_list.push({item_key: new_item_key, count: save_data.player_storage.inventory[key].count, quality: quality});
+                        storage_item_list.push({item_id: item_id, count: save_data.player_storage.inventory[key].count, quality: quality});
                     } else {
                         console.error(`Intentory key "${key}" from save on version "${save_data["game version"]} is incorrect!`);
                     }
@@ -4473,8 +4471,7 @@ function load(save_data) {
                                 }
                             } else if(quality) { //no comps but quality (clothing / artifact?)
                                 const item_id = get_component_name(id);
-                                const new_item_key = item_templates[item_id].getInventoryKey();
-                                trader_item_list.push({item_key: new_item_key, count: save_data.traders[trader].inventory[key].count, quality});
+                                trader_item_list.push({item_id: item_id, count: save_data.traders[trader].inventory[key].count, quality});
                             } else {
                                 console.error(`Intentory key "${key}" from save on version "${save_data["game version"]} is incorrect!`);
                             }
