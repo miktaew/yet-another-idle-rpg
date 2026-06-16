@@ -3334,12 +3334,17 @@ There's another gate on the wall in front of you, but you have a strange feeling
             conditions: [
                 {
                     skills: {
+                        "Perception": 5
+                    }
+                },
+                {
+                    skills: {
                         "Perception": 15
                     }
                 }
             ],
             attempt_duration: 180,
-            success_chances: [0.7],
+            success_chances: [0.2, 1],
             rewards: {
                 locations: [{location: "Carya Canyon"}],
                 skill_xp: {

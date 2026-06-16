@@ -2342,6 +2342,11 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
     if(rewards.housing) {
         for(let i = 0; i < rewards.housing.length; i++){
             locations[rewards.housing[i]].housing.is_unlocked = true;
+
+            if(favourite_locations[rewards.housing[i]]) {
+                //unfavourite the location as it will be added to fast travel anyways due to having housing=true
+                remove_location_from_favourites({location_id: rewards.housing[i]});
+            }
         }
     }
 
@@ -5034,7 +5039,9 @@ function load(save_data) {
         if(save_data.favourite_locations) {
             Object.keys(save_data.favourite_locations).forEach(location_key => {
                 if(locations[location_key]) {
-                    favourite_locations[location_key] = true;
+                    if(Object.keys(locations[location_key].housing).length == 0) { //tiny little check that's not even worth including a version comparison in it
+                        favourite_locations[location_key] = true;
+                    }
                 } else {
                     console.warn(`Saved favourite locations included "${location_key}", which is not a valid location id`);
                     any_warnings = true;
@@ -5517,8 +5524,6 @@ function update() {
 
                     //add resource drops (if defined)
                     if (gained_resources) {
-                        update_gathering_tooltip(current_activity);
-
                         for(let i = 0; i < gained_resources.length; i++) {
                             if(Math.random() > (1-gained_resources[i].chance)) {
                                 const count = random_range(gained_resources[i].count[0], gained_resources[i].count[1]);
@@ -5545,8 +5550,9 @@ function update() {
                         
                             add_to_character_inventory(items);
                         }
-                    }
 
+                        update_gathering_tooltip(current_activity);
+                    }
 
                     //if job: payment
                     if (activities[current_activity.activity_name].type === "JOB") {
