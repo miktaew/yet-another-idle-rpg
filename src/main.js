@@ -5039,7 +5039,7 @@ function load(save_data) {
         if(save_data.favourite_locations) {
             Object.keys(save_data.favourite_locations).forEach(location_key => {
                 if(locations[location_key]) {
-                    if(Object.keys(locations[location_key].housing).length == 0) { //tiny little check that's not even worth including a version comparison in it
+                    if(Object.keys(locations[location_key].housing || {}).length == 0) { //tiny little check that's not even worth including a version comparison in it
                         favourite_locations[location_key] = true;
                     }
                 } else {
