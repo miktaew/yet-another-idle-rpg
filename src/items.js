@@ -4879,6 +4879,7 @@ function add_gear() {
         value: 100,
         effects: [{ effect: "Simple seafood soup", duration: 120 },
                   { effect: "Hot meal", duration: 30 }],
+        recovery_chances: {"Glass bottle": 0.6},
         tags: {"food": true},
     });
     item_templates["Clam broth"] = new UsableItem({

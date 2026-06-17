@@ -32,6 +32,10 @@ function get_crafting_quality_caps(skill_name) {
     }
 }
 
+function round_quality(quality, precision) {
+    return Math.round(quality/precision)*precision;
+}
+
 class Recipe {
     constructor({
         name,
@@ -54,6 +58,7 @@ class Recipe {
         this.getResult = getResult || function(){return this.result};
         this.recipe_level = recipe_level;
         this.recipe_skill = recipe_skill;
+        this.quality_precision = 4;
     }
 
     get_success_chance(station_tier=1) {
@@ -67,15 +72,15 @@ class Recipe {
         if (component_quality) {
             const quality = (3 * get_total_skill_level(this.recipe_skill) - skill.max_level) + 50 + component_quality + (10 * tier);
             return [
-                clamp(Math.round(quality - 15), 10, this.get_quality_cap()),
-                clamp(Math.round(quality + 15), 10, this.get_quality_cap())
+                round_quality(clamp(Math.round(quality - 15), 10, this.get_quality_cap()), this.quality_precision),
+                round_quality(clamp(Math.round(quality + 15), 10, this.get_quality_cap()), this.quality_precision)
             ];
         }
         else {
             const quality = (3 * get_total_skill_level(this.recipe_skill) - skill.max_level) + 130 + (15 * tier);
             return [
-                clamp(Math.round(quality - 15), 10, this.get_quality_cap()),
-                clamp(Math.round(quality + 10), 10, this.get_quality_cap()),
+                round_quality(clamp(Math.round(quality - 15), 10, this.get_quality_cap()), this.quality_precision),
+                round_quality(clamp(Math.round(quality + 10), 10, this.get_quality_cap()), this.quality_precision)
             ];
         }
     }
@@ -168,7 +173,7 @@ class ComponentRecipe extends ItemRecipe{
 
     roll_quality(tier = 0) {
         const quality_range = this.get_quality_range(tier);
-        return Math.round(random_range(quality_range[0], quality_range[1])/4)*4;
+        return round_quality(random_range(quality_range[0], quality_range[1]),this.quality_precision);
     }
 }
 
@@ -198,7 +203,7 @@ class ComponentlessEquipRecipe extends ItemRecipe{
 
     roll_quality(tier = 0) {
         const quality_range = this.get_quality_range(tier);
-        return Math.round(random_range(quality_range[0], quality_range[1])/4)*4;
+        return round_quality(random_range(quality_range[0], quality_range[1]),this.quality_precision);
     }
 }
 
@@ -216,6 +221,7 @@ class EquipmentRecipe extends Recipe {
         super({name, id, is_unlocked, recipe_type: "equipment", result, getResult: null, recipe_level: [1,1], recipe_skill, success_rate: [1,1]})
         this.components = components;
         this.item_type = item_type;
+        this.quality_precision = 2;
         this.getResult = function (components, station_tier = 1) {
             const component_stats = get_component_stats(components);
             let quality = this.roll_quality(component_stats.weighted_quality, station_tier - component_stats.max_tier);
@@ -263,7 +269,7 @@ class EquipmentRecipe extends Recipe {
 
     roll_quality(component_quality, tier = 0) {
         const quality_range = this.get_quality_range(tier, component_quality);
-        return Math.round(random_range(quality_range[0], quality_range[1])/2)*2;
+        return round_quality(random_range(quality_range[0], quality_range[1]),this.quality_precision);
     }
 }
 
