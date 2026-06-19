@@ -210,7 +210,7 @@ class Skill {
                             } else {
                                 
                                 if(xp_multiplier.includes("category_")) {
-                                    name = xp_multiplier.replace("category_", " skills");
+                                    name = xp_multiplier.replace("category_", "") + " skills";
                                 } else {
                                     name = xp_multiplier.replace("_"," ");
                                 }
