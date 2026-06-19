@@ -4829,7 +4829,7 @@ function add_gear() {
         description: "Smell might be fine now, but it still seems like a bad idea to eat it",
         value: 10,
         effects: [{effect: "Cheap meat meal", duration: 45}, {effect: "Slight food poisoning", duration: 45}],
-        tags: {"food": true},
+        tags: {"food": true, poison: true},
     });
 
     item_templates["Roasted purified rat meat"] = new UsableItem({

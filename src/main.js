@@ -2810,13 +2810,11 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 
                 if(attempted_crafting_ammount < ammount_that_can_be_crafted) {
                     use_recipe(target, ammount_that_can_be_crafted - attempted_crafting_ammount);
-                } else {
-                    update_item_recipe_visibility();
-                    update_item_recipe_tooltips();
                 }
                 
-                //do those two whether success or fail since materials get used either way
-
+                update_item_recipe_visibility();
+                update_item_recipe_tooltips();
+                
                 if(leveled) {
                     //reload all recipe tooltips of matching category, except it's kinda pointless if reload happens anyway?
                 }
