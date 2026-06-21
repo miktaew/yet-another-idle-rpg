@@ -1,5 +1,5 @@
 "use strict";
-import { current_game_time, Game_Time } from "./game_time.js";
+import { current_game_time, Game_Time, is_night, night_time } from "./game_time.js";
 import { current_location } from "./main.js";
 import { celsius_to_fahrenheit } from "./misc.js";
 
@@ -196,6 +196,62 @@ function is_raining() {
     return rain_cycle[current_game_time.day_count%13] < 0;
 }
 
+function get_current_light_level() {
+    let light_level;
+    if(current_location?.types && current_location.types.filter(t => t.type === "dark").length > 0) {
+        light_level = get_current_light_level_for_roofed_location();
+    } else {
+        //calc based on how far it is from night start/end with 30 minute shift (if night ends at 4, calculate from 3:30, reaching max light level at 4:30)
+
+        const time_dif_from_start = night_time.start*60 - (current_game_time.hour*60+current_game_time.minute) + 30;
+        const time_dif_from_end = current_game_time.hour*60 + current_game_time.minute - night_time.end*60 + 30;
+
+        let time_difference;
+        if(time_dif_from_end > 0 && time_dif_from_end < 60) {
+            time_difference = time_dif_from_end;
+        } else if(time_dif_from_start > 0 && time_dif_from_start < 60) {
+            time_difference = time_dif_from_start;
+        } else {
+            time_difference = current_game_time.hour >= night_time.start ? 0 : current_game_time.hour >= night_time.end ? 60 : 0;
+        }
+        light_level = 40 + time_difference; //technically (time_difference/60) * some scaling duration, but that value is currently also 60
+    }
+
+    return light_level;
+}
+
+function get_current_light_level_for_roofed_location() {
+    let light_level = 100;
+    let end_loop = false;
+    for(let i = 0; i < current_location.types.length; i++) {
+        if(end_loop) { 
+            break;
+        }
+
+        if(current_location.types[i].type === "dark") {
+            switch(current_location.types[i].stage) {
+                case 1:
+                    light_level = 40;
+                    end_loop = true;
+                    break;
+                case 2:
+                    light_level = 20;
+                    end_loop = true;
+                    break;
+                case 3:
+                    light_level = 0;
+                    end_loop = true;
+                    break;
+                default:
+                    light_level = 100;
+                    end_loop = true;
+                    break;
+            }
+        }
+    }
+    return light_level;
+}
+
 export {
-    get_current_temperature_smoothed, is_raining,
+    get_current_temperature_smoothed, is_raining, get_current_light_level, get_current_light_level_for_roofed_location,
 };

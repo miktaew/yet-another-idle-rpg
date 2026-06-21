@@ -11,7 +11,7 @@ class ActiveEffect {
      * @param {Number} effect_data.duration
      * @param {Object} effect_data.effects {stats}
      */
-    constructor({name, id, description = null, duration, effects, tags, potency, group_tags, affected_by_travel = true}) {
+    constructor({name, id, description = null, duration, effects, tags, potency, group_tags, affected_by_travel = true, base_xp_value = 1}) {
         this.name = name;
         this.id = id;
         this.description = description;
@@ -24,6 +24,7 @@ class ActiveEffect {
             this.effects.stats = {};
         }
         this.affected_by_travel = affected_by_travel;
+        this.base_xp_value = base_xp_value; //used only for xp gains on effects from sources other than consumables, with xp gains being affected by duration
         this.tags = tags || {};
         this.group_tags = group_tags || {}; //used for grouping and prioritizing highest in group; instead of simple 'true', values are Numbers with higher = more important
         this.tags["effect"] = true;
@@ -143,6 +144,15 @@ class ActiveEffect {
         },
         tags: {"buff": true, "medicine": true},
     });
+    effect_templates["Potent healing powder"] = new ActiveEffect({
+        name: "Potent healing powder",
+        effects: {
+            stats: {
+                health_regeneration_flat: {flat: 9},
+            }
+        },
+        tags: {"buff": true, "medicine": true},
+    });
     effect_templates["Weak healing potion"] = new ActiveEffect({
         name: "Weak healing potion",
         effects: {
@@ -163,6 +173,16 @@ class ActiveEffect {
         },
         tags: {"buff": true, "medicine": true},
     });
+    effect_templates["Potent healing potion"] = new ActiveEffect({
+        name: "Potent healing potion",
+        effects: {
+            stats: {
+                health_regeneration_flat: {flat: 36},
+                health_regeneration_percent: {flat: 3},
+            }
+        },
+        tags: {"buff": true, "medicine": true},
+    });
     effect_templates["Weak healing balm"] = new ActiveEffect({
         name: "Weak healing balm",
         effects: {
@@ -172,6 +192,26 @@ class ActiveEffect {
             }
         },
         tags: {"buff": true, "medicine": true},
+    });
+    effect_templates["Healing balm"] = new ActiveEffect({
+        name: "Healing balm",
+        effects: {
+            stats: {
+                health_regeneration_flat: {flat: 12},
+                health_regeneration_percent: {flat: 1},
+            }
+        },
+        tags: {"buff": true, "medicine": true},
+    });
+    effect_templates["Potion of sapping"] = new ActiveEffect({
+        name: "Potion of sapping",
+        effects: {
+            stats: {
+                stamina_regeneration_flat: {flat: -5},
+                stamina_regeneration_percent: {flat: -5},
+            }
+        },
+        //not tagged as poison/debuff since its supposed to be from a utility item (quick way to reduce stamina)
     });
 
     effect_templates["Cheap meat meal"] = new ActiveEffect({
@@ -199,6 +239,16 @@ class ActiveEffect {
             stats: {
                 stamina_regeneration_flat: {flat: 2},
                 health_regeneration_flat: {flat: 2},
+            }
+        },
+        tags: {"buff": true, "food": true},
+    });
+    effect_templates["Tasty meat meal"] = new ActiveEffect({
+        name: "Tasty meat meal",
+        effects: {
+            stats: {
+                stamina_regeneration_flat: {flat: 3},
+                health_regeneration_flat: {flat: 3},
             }
         },
         tags: {"buff": true, "food": true},
@@ -231,7 +281,7 @@ class ActiveEffect {
         },
         tags: {"buff": true, "food": true},
     });
-		effect_templates["Simple seafood soup"] = new ActiveEffect({
+	effect_templates["Simple seafood soup"] = new ActiveEffect({
         name: "Simple seafood soup",
         effects: {
             stats: {
@@ -241,7 +291,7 @@ class ActiveEffect {
         },
         tags: {"buff": true, "food": true},
     });
-		effect_templates["Varied meat meal"] = new ActiveEffect({
+	effect_templates["Varied meat meal"] = new ActiveEffect({
         name: "Varied meat meal",
         effects: {
             stats: {
@@ -251,7 +301,7 @@ class ActiveEffect {
         },
         tags: {"buff": true, "food": true},
     });
-		effect_templates["Varied seafood meal"] = new ActiveEffect({
+	effect_templates["Varied seafood meal"] = new ActiveEffect({
         name: "Varied seafood meal",
         effects: {
             xp_multipliers: {
@@ -259,7 +309,41 @@ class ActiveEffect {
             }
         },
         tags: {"buff": true, "food": true},
-});
+    });
+    effect_templates["Sweet dessert"] = new ActiveEffect({
+        name: "Sweet dessert",
+        effects: {
+            xp_multipliers: {
+                all: 1.05,
+            },
+            stats: {
+                strength: {multiplier: 1.05},
+                agility: {multiplier: 1.05},
+                stamina_regeneration_flat: {flat: 1},
+            }
+        },
+        tags: {"buff": true, "food": true},
+    });
+    effect_templates["Tipsy"] = new ActiveEffect({
+        name: "Tipsy",
+        effects: {
+            stats: {
+                agility: {multiplier: 1.1},
+                dexterity: {multiplier: 0.8},
+            }
+        },
+        tags: {"debuff": true, "poison": true},
+    });
+    effect_templates["Coffee"] = new ActiveEffect({
+        name: "Coffee",
+        effects: {
+            stats: {
+                agility: {multiplier: 1.1},
+                dexterity: {multiplier: 1.1},
+            }
+        },
+        tags: {"buff": true, "food": true},
+    });
 })();
 
 
@@ -274,7 +358,7 @@ class ActiveEffect {
             }
         },
         tags: { "debuff": true, "poison": true },
-        group_tags: {psychedelic: 1}
+        group_tags: {psychedelic: 1},
     });
     effect_templates["Confusion"] = new ActiveEffect({
         name: "Confusion",
@@ -285,8 +369,8 @@ class ActiveEffect {
             }
         },
         tags: {"debuff": true, "poison": true},
-        group_tags: {psychedelic: 2}
-        });
+        group_tags: {psychedelic: 2},
+    });
     effect_templates["Hallucinations"] = new ActiveEffect({
         name: "Hallucinations",
         description: "A psychedelic substance is making it hard to tell what's real",
@@ -296,7 +380,7 @@ class ActiveEffect {
             }
         },
         tags: {"debuff": true, "poison": true},
-        group_tags: {psychedelic: 3}
+        group_tags: {psychedelic: 3},
     });
 
     effect_templates["Sticky"] = new ActiveEffect({
@@ -310,6 +394,7 @@ class ActiveEffect {
             }
         },
         tags: { "debuff": true },
+        base_xp_value: 2,
     });
 
     effect_templates["Weak necrotizing venom"] = new ActiveEffect({
@@ -358,6 +443,27 @@ class ActiveEffect {
             }
         },
         tags: { "debuff": true, "poison": true },
+    });
+
+    effect_templates["Dragonfly venom"] = new ActiveEffect({
+        name: "Dragonfly venom",
+        effects: {
+            stats: {
+                health_loss_flat: {flat: -10},
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+        group_tags: {dragonfly_venom: 1},
+    });
+    effect_templates["Dragonfly queen venom"] = new ActiveEffect({
+        name: "Dragonfly queen venom",
+        effects: {
+            stats: {
+                health_loss_flat: {flat: -20},
+            }
+        },
+        tags: { "debuff": true, "poison": true },
+        group_tags: {dragonfly_venom: 2},
     });
 })();
 

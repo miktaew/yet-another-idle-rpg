@@ -27,7 +27,7 @@ class Dialogue {
         this.getStartingText = getStartingText;
         this.ending_text = ending_text; //text shown on option to finish talking
         this.is_unlocked = is_unlocked;
-        this.is_finished = is_finished; //separate bool to remove dialogue option if it's finished
+        this.is_finished = is_finished; //separate bool to hide dialogue option if it's considered to be finished
         this.textlines = textlines; //all the lines in dialogue
         this.actions = actions;
         this.description = description;
@@ -51,11 +51,11 @@ class Textline {
                             stances: [],
                             flags: [],
                             items: [],
-                            locks: {textlines: {}}, //for lines to be locked in diferent dialogues and possibly for other stuff
+                            locks: {},
                             //reputation reward from textlines is currently not supported
                             },
                 branches_into = [],
-                locks_lines = [], //for lines to be locked in same dialogue
+                locks_lines = [], //for lines to be locked in >same< dialogue
                 //it's a simplified version of doing rewards: {locks: textlines: {...blah blah blah, values from it are actually autofilled in that form in a script at the end of this file
                 otherUnlocks,
                 required_flags,
@@ -173,7 +173,7 @@ class DialogueAction extends GameAction {
                 text: "elder need to answ",
                 is_unlocked: false,
                 rewards: {
-                    textlines: [{dialogue: "village elder", lines: ["rats", "ask to leave 2", "equipment"]}],
+                    textlines: [{dialogue: "village elder", lines: ["rats", "ask to leave 2", "starting gear"]}],
                     locations: [{location: "Infested field"}],
                     activities: [{location:"Village", activity:"weightlifting"}, {location:"Village",activity:"running"}],
                     quest_progress: [
@@ -181,6 +181,82 @@ class DialogueAction extends GameAction {
                     ]
                 },
                 locks_lines: ["need to"],
+            }),
+            "starting gear": new Textline({
+                name: "elder starting gear",
+                text: "elder starting gear answ",
+                is_unlocked: false,
+                rewards: {
+                    textlines: [{dialogue: "village elder", lines: ["equipment", "dagger", "sword", "spear", "axe", "hammer", "none"]}],
+                },
+                branches_into: ["dagger", "sword", "spear", "axe", "hammer", "none"],
+            }),
+            "dagger": new Textline({
+                name: "elder dagger",
+                text: "elder weapon answ",
+                is_unlocked: false,
+                is_branch_only: true,
+                locks_lines: ["starting gear"],
+                rewards: {
+                    items: [
+                        {item: "Cheap iron dagger", quality: 50},
+                    ]
+                }
+            }),
+            "sword": new Textline({
+                name: "elder sword",
+                text: "elder weapon answ",
+                is_unlocked: false,
+                is_branch_only: true,
+                locks_lines: ["starting gear"],
+                rewards: {
+                    items: [
+                        {item: "Cheap iron sword", quality: 50},
+                    ]
+                }
+            }),
+            "spear": new Textline({
+                name: "elder spear",
+                text: "elder weapon answ",
+                is_unlocked: false,
+                is_branch_only: true,
+                locks_lines: ["starting gear"],
+                rewards: {
+                    items: [
+                        {item: "Cheap iron spear", quality: 50},
+                    ]
+                }
+            }),
+            "axe": new Textline({
+                name: "elder axe",
+                text: "elder weapon answ",
+                is_unlocked: false,
+                is_branch_only: true,
+                locks_lines: ["starting gear"],
+                rewards: {
+                    items: [
+                        {item: "Cheap iron axe", quality: 50},
+                    ]
+                }
+            }),
+            "hammer": new Textline({
+                name: "elder hammer",
+                text: "elder weapon answ",
+                is_unlocked: false,
+                is_branch_only: true,
+                locks_lines: ["starting gear"],
+                rewards: {
+                    items: [
+                        {item: "Cheap iron battle hammer", quality: 50},
+                    ]
+                }
+            }),
+            "none": new Textline({
+                name: "elder none",
+                text: "elder weapon none answ",
+                is_unlocked: false,
+                is_branch_only: true,
+                locks_lines: ["starting gear"],
             }),
             "equipment": new Textline({
                 name: "elder eq",
@@ -201,12 +277,118 @@ class DialogueAction extends GameAction {
                     activities: [{location: "Village", activity: "fieldwork"}],
                 }
             }),
+            "other work": new Textline({
+                //unlocked by same dialogue that unlocks cave, but hidden behind lvl 9 farming req
+                name: "elder other work",
+                text: "elder other work answ",
+                is_unlocked: false,
+                locks_lines: ["other work"],
+                rewards: {
+                    actions: [{location: "Village", action: "dig canal"}],
+                    quests: ["Village expansion"],
+                },
+                display_conditions: {
+                    skills: {"Farming": 9},
+                }
+            }),
+            "finished digging": new Textline({
+                name: "elder finished digging",
+                text: "elder finished digging answ",
+                is_unlocked: false,
+                locks_lines: ["finished digging"],
+                rewards: {
+                    money: 350, //50 more than same time spent on fieldwork in town farms with lvl 10 farming
+                    textlines: [{dialogue: "village elder", lines: ["other work 2"]}],
+                    quest_progress: [
+                        {quest_id: "Village expansion", task_index: 1},
+                    ]
+                },
+            }),
+            "other work 2": new Textline({
+                name: "elder other work 2",
+                text: "elder other work 2 answ",
+                is_unlocked: false,
+                locks_lines: ["other work 2"],
+                rewards: {
+                    actions: [{location: "Village", action: "bridge mat delivery"}],
+                    quest_progress: [
+                        {quest_id: "Village expansion", task_index: 2},
+                    ],
+                    textlines: [{dialogue: "village elder", lines: ["bridge materials"]}],
+                },
+            }),
+            "bridge materials": new Textline({
+                name: "elder bridge materials",
+                text: "elder bridge materials answ",
+                is_unlocked: false,
+                locks_lines: ["bridge materials"],
+                rewards: {
+                    textlines: [{dialogue: "village elder", lines: ["leave for materials"]}],
+                    activities: [{location:"Nearby cave", activity: "mining stone"}],
+                    locations: [{location:"Nearby cave"}], //if somehow it wasn't unlocked yet
+                    dialogues: ["old craftsman"], //if somehow it wasn't unlocked yet
+                }
+            }),
+            "leave for materials": new Textline({
+                name: "elder leave for materials materials",
+                text: "elder leave for materials materials answ",
+                is_unlocked: false,
+                locks_lines: ["leave for materials"],
+            }),
+
+            "bridge finished": new Textline({
+                name: "elder bridge finished",
+                text: "elder bridge finished answ",
+                is_unlocked: false,
+                locks_lines: ["bridge materials", "bridge finished"],
+                rewards: {
+                    //todo: rep from task
+                    money: 4000,
+                    textlines: [{dialogue: "village elder", lines: ["other work 3"]}],
+                    quest_progress: [
+                        {quest_id: "Village expansion", task_index: 4},
+                    ]
+                },
+            }),
+
+            "other work 3": new Textline({
+                name: "elder dragonflies",
+                text: "elder dragonflies answ",
+                is_unlocked: false,
+                locks_lines: ["other work 3"],
+                rewards: {
+                    locations: [{location: "Infested woods"}],
+                    quest_progress: [
+                        {quest_id: "Village expansion", task_index: 5},
+                    ]                   
+                },
+            }),
+
+            "dragonflies killed": new Textline({
+                name: "elder dragonflies killed",
+                text: "elder dragonflies killed answ",
+                is_unlocked: false,
+                locks_lines: ["dragonflies killed"],
+                rewards: {
+                    money: 800,
+                    textlines: [{dialogue: "village elder", lines: ["further work"]}],
+                    quest_progress: [
+                        {quest_id: "Village expansion", task_index: 6},
+                    ]      
+                },
+            }),
+
+            "further work": new Textline({
+                name: "elder further work",
+                text: "elder further work answ",
+                is_unlocked: false,
+                //doesn't lock itself for now; to be updated with lock, unlocks, and different text when more stuff is added on the other side of river
+            }),
+
             "ask to leave 2": new Textline({
                 name: "elder leave 2",
                 text: "elder leave 2 answ",
                 is_unlocked: false,
-                rewards: {
-                },
             }),
             "rats": new Textline({
                 name: "elder rats",
@@ -219,10 +401,22 @@ class DialogueAction extends GameAction {
                 is_unlocked: false,
                 rewards: {
                     locations: [{location: "Nearby cave"}, {location: "Infested field"}, {location: "Shack"}],
-                    textlines: [{dialogue: "village elder", lines: ["ask to leave 3"]}],
+                    textlines: [{dialogue: "village elder", lines: ["ask to leave 3", "other work"]}],
                     dialogues: ["old craftsman"],
                 },
-                locks_lines: ["ask to leave 2", "cleared field"],
+                locks_lines: ["ask to leave 2", "cleared field", "cleared field alt"],
+                required_flags: {no: ["is_gathering_unlocked"]},
+            }),
+            "cleared field alt": new Textline({ //if gathering is already unlocked, as that means player already met the craftsman
+                name: "elder cleared 1 alt",
+                text: "elder cleared 1 alt answ",
+                is_unlocked: false,
+                rewards: {
+                    locations: [{location: "Nearby cave"}, {location: "Infested field"}, {location: "Shack"}],
+                    textlines: [{dialogue: "village elder", lines: ["ask to leave 3"]}],
+                },
+                locks_lines: ["ask to leave 2", "cleared field", "cleared field alt"],
+                required_flags: {yes: ["is_gathering_unlocked"]},
             }),
             "ask to leave 3": new Textline({
                 name: "elder leave 3",
@@ -248,14 +442,14 @@ class DialogueAction extends GameAction {
                 text: "elder cave clear answ",
                 is_unlocked: false,
                 rewards: {
-                    textlines: [{dialogue: "village elder", lines: ["ask to leave 4", "crab rumors"]}],
+                    textlines: [{dialogue: "village elder", lines: ["ask to leave 4", "crab rumors", "amulet"]}],
                     locations: [{location: "Forest road"}, {location: "Infested field"}, {location: "Nearby cave"}],
                     dialogues: ["village guard"],
                     quest_progress: [
                         {quest_id: "Lost memory", task_index: 2},
                     ]
                 },
-                locks_lines: ["ask to leave 3", "rats", "cleared cave"],
+                locks_lines: ["ask to leave 3", "rats", "cleared cave", "leave for materials"],
             }),
             "ask to leave 4": new Textline({
                 name: "elder leave 4",
@@ -264,7 +458,19 @@ class DialogueAction extends GameAction {
                 rewards: {
                     locations: [{location: "Forest road"}, {location: "Infested field"}, {location: "Nearby cave"}],
                     dialogues: ["village guard", "old craftsman"],
-                    textlines: [{dialogue: "village elder", lines: ["about guard"]}],
+                    textlines: [{dialogue: "village elder", lines: ["about guard", "amulet"]}],
+                },
+            }),
+            "amulet": new Textline({
+                name: "elder amulet",
+                text: "elder amulet answ",
+                is_unlocked: false,
+                locks_lines: ["amulet"],
+                rewards: {
+                    items: ["Old ram's horn"],
+                },
+                display_conditions: {
+                    reputation: {Village: 400},
                 },
             }),
             "about guard": new Textline({
@@ -964,14 +1170,25 @@ class DialogueAction extends GameAction {
                 rewards: {
                     money: 4000,
                     quest_progress: [{quest_id: "Ploughs to swords", task_index: 1}],
-                    textlines: [{dialogue: "farm supervisor", lines: ["troubled"]}],
+                    textlines: [{dialogue: "farm supervisor", lines: ["troubled", "troubled unavailable"]}],
                 }
+            }),
+            "troubled unavailable": new Textline({
+                is_unlocked: false,
+                name: "sup troubled unavailable",
+                text: "sup troubled unavailable answ",
+                locks_lines: ["troubled unavailable"],
+                display_conditions: {
+                    season: {
+                        yes: "Winter",
+                    }
+                },
             }),
             "troubled": new Textline({
                 is_unlocked: false,
                 name: "sup troubled",
                 text: "sup troubled answ",
-                locks_lines: ["troubled"],
+                locks_lines: ["troubled", "troubled unavailable"],
                 display_conditions: {
                     season: {
                         not: "Winter",
@@ -1034,12 +1251,53 @@ class DialogueAction extends GameAction {
                 attempt_duration: 0,
                 success_chances: [1],
                 rewards: {
-                    money: 2000,
+                    money: 2500,
                 },
             }),
         },
         description: "sup description",
     });
+
+    dialogues["nekomimi proprietress"] = new Dialogue({
+        name: "proprietress",
+        is_unlocked: true,
+        description: "nekomimi proprietress description",
+        textlines: {
+            "hi": new Textline({
+                name: "proprietress hi",
+                text: "proprietress hi answ",
+                is_unlocked: true,
+                rewards: {
+                    textlines: [{dialogue: "nekomimi proprietress", lines: ["offer"]}],
+                },
+                locks_lines: ["hi"],
+            }),
+            "offer": new Textline({
+                name: "proprietress offer",
+                text: "proprietress offer answ",
+                rewards: {
+                    textlines: [{dialogue: "nekomimi proprietress", lines: ["special", "puns"]}],
+                    //todo: unlock trade
+                },
+                locks_lines: ["offer"],
+            }),
+            "special": new Textline({
+                name: "proprietress special",
+                text: "proprietress special answ",
+                rewards: {
+                    //todo: unlock paid action
+                },
+                locks_lines: ["special"],
+            }),
+            "puns": new Textline({
+                name: "proprietress puns",
+                text: "proprietress puns answ",
+                locks_lines: ["puns"],
+            }),
+        }
+
+    });
+
     dialogues["swampland chief"] = new Dialogue({
         //lizard like everyone in triber, aggressive and proud
         name: "swampland chief",
@@ -1757,7 +2015,6 @@ class DialogueAction extends GameAction {
                     recipes: [{category: "crafting", subcategory: "items", recipe_id: "Linen cloth"}],
                     dialogues: ["swampland tanner"],
                 },
-                locks_lines: ["swamptailor deliver"],
             }),
         },
         getDescription: ()=>{
@@ -1829,7 +2086,6 @@ class DialogueAction extends GameAction {
                     quest_progress: [{quest_id: "In Times of Need", task_index: 7}], 
                     textlines: [{dialogue: "swampland tanner", lines: ["swamptanner known"]}],
                 },
-                locks_lines: ["swamptanner deliver 1"],
             }),
             "swamptanner deliver 2": new DialogueAction({
                 action_id: "swamptanner deliver 2",
@@ -1858,7 +2114,6 @@ class DialogueAction extends GameAction {
                         textlines: {"swampland chief": ["swampchief mid help"]},
                     }
                 },
-                locks_lines: ["swamptanner deliver 2"],
             }),
         },
         getDescription: ()=>{ 

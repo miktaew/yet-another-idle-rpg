@@ -11,6 +11,7 @@ import { quests } from "./quests.js";
 import { market_region_mapping } from "./market_saturation.js";
 import { translations } from "./translation.js";
 import { recipes } from "./crafting_recipes.js";
+import { language } from "./main.js";
 
 const trc = 1000000; //time rounding precision
 
@@ -61,7 +62,7 @@ function Verify_Game_Objects() {
                 }
             })
         }
-
+        /*
         if(item.effects) {
             for(let i = 0; i < item.effects.length; i++) {
                 if(!effect_templates[item.effects[i].effect]) {
@@ -69,6 +70,11 @@ function Verify_Game_Objects() {
                     has_issue = true;
                 }
             }
+        }
+        */
+        if(item.value <= 0 && !item.tags.unsellable) {
+            console.error(`Item "${key}" has a value of ${item.value}. This is not supported - items not marked as unsellable need to have value that is a positive integer.`);
+            has_issue = true;
         }
 
         item_results[0]++;
@@ -217,7 +223,7 @@ function Verify_Game_Objects() {
                     }
                 }   
             });
-        } else if(location.tags["Combat zone"]) {
+        } else if(location.tags["combat zone"]) {
 
             if(location.parent_location == undefined) {
                 console.error(`Combat location "${key}" refers to a non-existent parent"`);
@@ -336,14 +342,14 @@ function Verify_Game_Objects() {
         let has_issue = false;
 
         for(const [textline_key, textline] of Object.entries(value.textlines)) {
-            if(!translations["english"][textline.name]) {
+            if(!translations[language][textline.name]) {
                 has_issue = true;
-                console.error(`Textline "${textline_key}" in "${key}" has no translation provided for starting text`);
+                console.error(`Textline "${textline_key}" in "${key}" has no translation provided for starting text for your chosen language "${language}"`);
             }
-            if(!translations["english"][textline.getText()]) {
+            if(!translations[language][textline.getText()]) {
                 //might miss something if there are multiple options provided
                 has_issue = true;
-                console.error(`Textline "${textline_key}" in "${key}" has no translation provided for answer text`);
+                console.error(`Textline "${textline_key}" in "${key}" has no translation provided for answer text for your chosen language "${language}"`);
             }
             if(textline.rewards) {
                 if(!verify_rewards(textline.rewards, "textline", key, textline_key)) {
@@ -353,14 +359,14 @@ function Verify_Game_Objects() {
         }
 
         for(const [action_key, action] of Object.entries(value.actions)) {
-            if(!translations["english"][action.starting_text]) {
+            if(!translations[language][action.starting_text]) {
                 has_issue = true;
-                console.error(`Action "${action_key}" in "${key}" has no translation provided for starting text`);
+                console.error(`Action "${action_key}" in "${key}" has no translation provided for starting text for your chosen language "${language}"`);
             }
-            if(!translations["english"][action.success_text]) {
+            if(!translations[language][action.success_text]) {
                 //might miss something if there are multiple options provided
                 has_issue = true;
-                console.error(`Textline "${action_key}" in "${key}" has no translation provided for success text`);
+                console.error(`Textline "${action_key}" in "${key}" has no translation provided for success text for your chosen language "${language}"`);
             }
         }
 

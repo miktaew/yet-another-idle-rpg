@@ -178,7 +178,7 @@ class Skill {
                     this.current_level = this.max_level;
                     this.total_xp_to_next_lvl = "Already reached max lvl";
                     this.current_xp = "Max";
-                    this.xp_to_next_lvl = "Max";
+                    this.xp_to_next_lvl = Infinity;
                 }
 
                 skill_name = skill_name===unknown_skill_name?this.name():skill_name;
@@ -186,15 +186,15 @@ class Skill {
                 let message = `${skill_name} has reached level ${this.current_level}`;
 
                 if (Object.keys(gains.stats).length > 0 || Object.keys(gains.xp_multipliers).length > 0) { 
-                    message += `<br><br> Thanks to ${skill_name} reaching new milestone, %HeroName% gained: `;
+                    message += `\n\n Thanks to ${skill_name} reaching new milestone, %HeroName% gained: `;
 
                     if (gains.stats) {
                         Object.keys(gains.stats).forEach(stat => {
                             if(gains.stats[stat].flat) {
-                                message += `<br> +${gains.stats[stat].flat} ${stat_names[stat].replace("_"," ")}`;
+                                message += `\n +${gains.stats[stat].flat} ${stat_names[stat].replace("_"," ")}`;
                             }
                             if(gains.stats[stat].multiplier) {
-                                message += `<br> x${Math.round(100*gains.stats[stat].multiplier)/100} ${stat_names[stat].replace("_"," ")}`;
+                                message += `\n x${Math.round(100*gains.stats[stat].multiplier)/100} ${stat_names[stat].replace("_"," ")}`;
                             }   
                         });
                     }
@@ -208,15 +208,16 @@ class Skill {
                                     console.warn(`Skill ${this.skill_id} tried to reward an xp multiplier for something that doesn't exist: ${xp_multiplier}. I could be a misspelled skill name`);
                                 }
                             } else {
-                                name = xp_multiplier.replace("_"," ");
+                                
+                                if(xp_multiplier.includes("category_")) {
+                                    name = xp_multiplier.replace("category_", "") + " skills";
+                                } else {
+                                    name = xp_multiplier.replace("_"," ");
+                                }
                             }
 
-                            if(xp_multiplier.includes("category_")) {
-                                message += `<br> x${Math.round(100*gains.xp_multipliers[xp_multiplier])/100} ${name.replace("category_", "")} skills xp gain`;
-                            } else {
-                                message += `<br> x${Math.round(100*gains.xp_multipliers[xp_multiplier])/100} ${name} xp gain`;
-
-                            }
+                            message += `\n x${Math.round(100*gains.xp_multipliers[xp_multiplier])/100} ${name} xp gain`;
+                            
                         });
                     }
                 }
@@ -285,7 +286,6 @@ class Skill {
     }
     get_coefficient({scaling_type, skill_level}) { //starts from 1
         //maybe lvl as param, with current lvl being used if it's undefined?
-
         switch (scaling_type) {
             case "flat":
                 return 1 + Math.round((this.max_level_coefficient - 1) * (skill_level || this.current_level) / this.max_level * 1000) / 1000;
@@ -602,7 +602,76 @@ function format_skill_rewards(milestone){
                                     category: "Combat",
                                     get_effect_description: ()=> {
                                         return `Increases block chance by flat ${Math.round(get_total_level_bonus("Shield blocking")*1000)/10}%. Increases blocked damage by ${Math.round(get_total_level_bonus("Shield blocking")*5000)/10}%, and blocks ${get_total_skill_level("Shield blocking")}% of attack damage before other calculations.`;
-                                    }});
+                                    },
+                                    milestones: {
+                                        1: {
+                                            stats: {
+                                                "strength": {flat: 1},
+                                            }
+                                        },
+                                        3: {
+                                            stats: {
+                                                "strength": {flat: 1},
+                                            },
+                                            xp_multipliers: {
+                                                Weightlifting: 1.05,
+                                            }
+                                        },
+                                        5: {
+                                            stats: {
+                                                "strength": {flat: 1},
+                                                "dexterity": {flat: 1},
+                                                "agility": {flat: 1}
+                                            },
+                                        },
+                                        7: {
+                                            stats: {
+                                                "strength": {flat: 1},
+                                            },
+                                            xp_multipliers: {
+                                                Fortitude: 1.05,
+                                            }
+                                        },
+                                        10: {
+                                            stats: {
+                                                "strength": {
+                                                    flat: 1,
+                                                    multiplier: 1.05,
+                                                },
+                                                "dexterity": {flat: 2},
+                                                "agility": {flat: 1}
+                                            },
+                                            xp_multipliers: {
+                                                Perception: 1.1,
+                                            }
+                                        },
+                                        12: {
+                                            stats: {
+                                                "strength": {flat: 2},
+                                            },
+                                            xp_multipliers: {
+                                                Weightlifting: 1.05,
+                                            }
+                                        },
+                                        15: {
+                                            stats: {
+                                                "strength": {flat: 4},
+                                                "dexterity": {flat: 4},
+                                                "agility": {flat: 2}
+                                            }
+                                        },
+                                        20: {
+                                            xp_multipliers: {
+                                                Weightlifting: 1.2,
+                                                Fortitude: 1.2,
+                                                Combat: 1.2,
+                                            },
+                                            stats: {
+                                                "strength": {multiplier: 1.05}
+                                            }
+                                        }
+                                    }
+                                });
     
      skills["Unarmed"] = new Skill({ 
                                     names: {0: "Unarmed", 10: "Brawling", 20: "Martial arts"}, 
@@ -719,7 +788,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                                 names: {0: "Broad arc"}, 
                                 parent_skill: "Stance mastery",
                                 description: "A special technique that allows striking multiple enemies at once, although at a cost of lower overall efficiency." 
-                                            +" Slightly reduces xp and loot.",
+                                            +" <br>Divides gained xp by number of enemies attacked, reduces drop rate in proportion to that number (down to 1/4th against 8).",
                                 max_level_coefficient: 2,
                                 base_xp_cost: 60,
                                 category: "Stance",
@@ -736,7 +805,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                                 category: "Stance",
                                 max_level: 30,
                                 get_effect_description: ()=> {
-                                    return `Improves efficiency of the 'Defensive Measures' stance`;
+                                    return `Improves efficiency of the "Defensive Measures" stance`;
                                 }});
     skills["Berserker's stride"] = new Skill({ 
                                 names: {0: "Berserker's stride"}, 
@@ -747,7 +816,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                                 category: "Stance",
                                 max_level: 30,
                                 get_effect_description: ()=> {
-                                    return `Improves efficiency of the 'Berserker's Stride' stance`;
+                                    return `Improves efficiency of the "Berserker's Stride" stance`;
                                 }});                  
     skills["Flowing water"] = new Skill({
                                 names: {0: "Flowing water"}, 
@@ -758,7 +827,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                                 category: "Stance",
                                 max_level: 30,
                                 get_effect_description: ()=> {
-                                    return `Improves efficiency of the 'Flowing Water' stance`;
+                                    return `Improves efficiency of the "Flowing Water" stance`;
                                 }});         
                                
 })();
@@ -939,7 +1008,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
                 max_level: 20,
                 category: "Environmental",
                 get_effect_description: () => {
-                    return `Reduces environmental penalty in extremly dark areas`;
+                    return `Reduces environmental penalty in extremely dark areas`;
                 },
                 milestones: {
                     1: {
@@ -1028,7 +1097,7 @@ Adds ${skills["Unarmed"].current_level/10} base damage to unarmed attacks`;
     });
 
     skills["Strength of mind"] = new Skill({
-        names: {0: "Strength of mind"}, 
+        names: {0: "Strength of mind", 15: "Iron will", 30: "Heart of steel"}, 
         description: "Resist and reject the unnatural influence. Turn your psyche into an iron fortress",
         category: "Environmental",
         flavour_text: "Blessed is the mind too small for doubt.", //40k ref
@@ -1510,7 +1579,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                 category: "Weapon",
                                 description: "Ability to cast spells with magic staffs, increases damage dealt", 
                                 get_effect_description: ()=> {
-                                    return `Multiplies damage dealth with staffs by ${Math.round(get_total_skill_coefficient({skill_id:"Staffs",scaling_type:"multiplicative"})*1000)/1000}`;
+                                    return `Multiplies damage dealt with staffs by ${Math.round(get_total_skill_coefficient({skill_id:"Staffs",scaling_type:"multiplicative"})*1000)/1000}`;
                                 },
                                 max_level_coefficient: 8});
 })();
@@ -1595,6 +1664,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                         xp_multipliers: {
                                             "Unarmed": 1.1,
                                             "Herbalism": 1.1,
+                                            "Digging": 1.1,
                                         }
                                     }
                                 }});
@@ -1678,6 +1748,11 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                             xp_multipliers: {
                                                 all: 1.1,
                                                 "Meditation": 1.2,
+                                            },
+                                            unlocks: {
+                                                recipes: [
+                                                    {category: "crafting", subcategory: "items", recipe_id: "Simple dream catcher"},
+                                                ]
                                             }
                                         }
                                     }
@@ -1789,7 +1864,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         },
         get_effect_description: ()=> {
             let value = get_total_skill_coefficient({skill_id:"Meditation",scaling_type:"multiplicative"})
-            return `Multiplies intuition ${Math.round(value*100)/100}`;
+            return `Multiplies intuition by ${Math.round(value*100)/100}`;
         },
     });                  
     skills["Running"] = new Skill({
@@ -2272,7 +2347,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
 (function(){
     skills["Woodcutting"] = new Skill({
         names: {0: "Woodcutting"}, 
-        description: "Get better with chopping the wood",
+        description: "Get better with chopping the wood and recognizing useful trees",
         category: "Gathering",
         base_xp_cost: 10,
         visibility_treshold: 4,
@@ -2281,7 +2356,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
 
     skills["Mining"] = new Skill({
         names: {0: "Mining"}, 
-        description: "Get better with mining the ores",
+        description: "Get better with mining for ore and stone",
         category: "Gathering",
         base_xp_cost: 10,
         visibility_treshold: 4,
@@ -2322,6 +2397,89 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         base_xp_cost: 10,
         visibility_treshold: 4,
         xp_scaling: 1.6,
+        milestones: {
+            1: {
+                stats: {
+                    intuition: {flat: 1},
+                }
+            },
+            3: {
+                stats: {
+                    intuition: {flat: 1},
+                },
+                xp_multipliers: {
+                    Persistence: 1.1,
+                }
+            },
+            5: {
+                stats: {
+                    intuition: {multiplier: 1.05},
+                    dexterity: {flat: 1},
+                },
+                xp_multipliers: {
+                    Perception: 1.1,
+                }
+            },
+            7: {    
+                stats: {
+                    intuition: {flat: 2},
+                },
+            },
+            9: {
+                stats: {
+                    intuition: {flat: 2},
+                }
+            },
+            10: {
+                stats: {
+                    intuition: {multiplier: 1.05},
+                    dexterity: {flat: 2},
+                },
+                xp_multipliers: {
+                    Perception: 1.1,
+                    Meditation: 1.1,
+                }
+            },
+            12: {    
+                stats: {
+                    intuition: {flat: 4},
+                },
+                xp_multipliers: {
+                    "Presence sensing": 1.2
+                }
+            },
+            15: {    
+                stats: {
+                    intuition: {multiplier: 1.05},
+                    dexterity: {flat: 3},
+                },
+                xp_multipliers: {
+                    Perception: 1.1,
+                    "Swimming": 1.05,
+                    "Animal handling": 1.05
+                }
+            },
+            18: {
+                stats: {
+                    intuition: {flat: 5}
+                },
+                xp_multipliers: {
+                    Perception: 1.1,
+                    Persistence: 1.1
+                }
+            },
+            20: {    
+                stats: {
+                    intuition: { multiplier: 1.1, flat: 5 },
+                    dexterity: {flat: 5},
+                },
+                xp_multipliers: {
+                    all: 1.05,
+                    "Presence sensing": 1.2,
+                    Meditation: 1.2
+                }
+            },
+        }
     });
 })();
 
@@ -2329,7 +2487,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
 (function(){
     skills["Crafting mastery"] = new Skill({
         skill_id: "Crafting mastery", 
-        names: {0: "Crafting mastery"}, 
+        names: {0: "Crafting proficiency", 15: "Crafting mastery"}, 
         description: "A mastery of the minor crafting branches like tinkering, woodworking, or butchering",
         category: skill_category_crafting,
         base_xp_cost: 40,
@@ -2682,7 +2840,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
     });
     skills["Perception"] = new Skill({
         names: {0: "Perception"}, 
-        description: "Better grasp on your senses allows you to notice small and hidden things, as well as to discern the true nature of what you observe",
+        description: "A better grasp on your senses allows you to notice small and hidden things, as well as to discern the true nature of what you observe",
         base_xp_cost: 100,
         visibility_treshold: 80,
         xp_scaling: 1.8,
@@ -2791,7 +2949,85 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
         get_effect_description: ()=> {
             let value = get_total_skill_coefficient({skill_id:"Medicine",scaling_type:"multiplicative"});
             return `Multiplies additive effects of medicines by ${Math.round((value**2)*100)/100} and multiplicative effects by ${Math.round(value*100)/100}`;
-          },
+        },
+    });
+    skills["Poison resistance"] = new Skill({
+        names: {0: "Poison resistance"}, 
+        description: "As your body suffers from poisons more and more, it slowly builds up a resistance to them",
+        category: "Character",
+        max_level: 30,
+        visibility_treshold: 5,
+        max_level_coefficient: 10,
+        get_effect_description: ()=> {
+            let value = get_total_skill_coefficient({skill_id:"Poison resistance",scaling_type:"multiplicative"});
+            return `Divides effects of poisons by ${Math.round(value*100)/100}`;
+        },
+        milestones: {
+            3: {
+                xp_multipliers: {
+                    Fortitude: 1.05,
+                    Persistence: 1.05,
+                }
+            },
+            5: {
+                stats: {
+                    max_health: {
+                        flat: 20,
+                    }
+                },
+                xp_multipliers: {
+                    Regeneration: 1.1,
+                }
+            },
+            7: {
+                stats: {
+                    health_regeneration_flat: {
+                        flat: 0.1,
+                    }
+                }
+            },
+            10: {
+                stats: {
+                    max_stamina: {
+                        flat: 20,
+                    },
+                },
+                xp_multipliers: {
+                    Fortitude: 1.1,
+                    Persistence: 1.1,
+                }
+            },
+            12: {
+                stats: {
+                    health_regeneration_flat: {
+                        flat: 0.1,
+                    }
+                },
+                xp_multipliers: {
+                    Regeneration: 1.1,
+                }
+            },
+            15: {
+                xp_multipliers: {
+                    Fortitude: 1.1,
+                    Persistence: 1.1,
+                }
+            },
+            20: {
+                stats: {
+                    max_stamina: {
+                        multiplier: 1.1,
+                    },
+                    max_health: {
+                        multiplier: 1.1,
+                    }
+                },
+                xp_multipliers: {
+                    Fortitude: 1.2,
+                    Persistence: 1.2,
+                }
+            },
+        }
     });
     skills["Gluttony"] = new Skill({
         names: {0: "Gluttony"}, 
@@ -2992,15 +3228,15 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                 milestones: {
                                     1: {
                                         stats: {
-                                            max_health: {
-                                                flat: 10,
+                                            health_regeneration_flat: {
+                                                flat: 0.1,
                                             }
                                         }
                                     },
                                     3: {
                                         stats: {
                                             max_health: {
-                                                flat: 10,
+                                                flat: 20,
                                             }
                                         }
                                     },
@@ -3038,7 +3274,7 @@ Multiplies AP with daggers by ${Math.round((get_total_skill_coefficient({skill_i
                                     15: {
                                         stats: {
                                             health_regeneration_flat: {
-                                                flat: 0.4,
+                                                flat: 0.3,
                                             },
                                             max_health: {
                                                 flat: 40,

@@ -49,7 +49,7 @@ function move_item_to_storage(item) {
  */
 function remove_item_from_storage(item) {
     let count = Math.min(item.count, player_storage.inventory[item.item_key].count);
-    add_to_character_inventory([{...item, count}]);
+    add_to_character_inventory([{...item, count}], true);
     remove_from_storage([{...item, item_count: count}]);
 }
 

@@ -30,6 +30,9 @@ Object.keys(droprate_modifier_skills_for_tags).forEach(tag => {
     tags_for_droprate_modifier_skills[droprate_modifier_skills_for_tags[tag]] = tag;
 });
 
+//used for updating display of bestiary when item is first obtained; autofilled
+const droplist = {};
+
 class Enemy {
     constructor({
         name, 
@@ -152,7 +155,7 @@ const enemy_abilites = {
         rank: 1,
         size: "small",
         tags: ["living", "beast", "wolf rat"],
-        stats: {health: 20, attack: 4, agility: 5, dexterity: 4, magic: 0, intuition: 5, attack_speed: 0.8, defense: 1},
+        stats: {health: 20, attack: 4, agility: 5, dexterity: 4, magic: 0, intuition: 5, attack_speed: 0.8, defense: 0},
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
             {item_name: "Rat fang", chance: 0.04},
@@ -167,7 +170,7 @@ const enemy_abilites = {
         rank: 1,
         size: "small",
         tags: ["living", "beast", "wolf rat"],
-        stats: {health: 30, attack: 6, agility: 6, dexterity: 5, intuition: 6, magic: 0, attack_speed: 1, defense: 2},
+        stats: {health: 30, attack: 6, agility: 6, dexterity: 5, intuition: 6, magic: 0, attack_speed: 1, defense: 1},
         loot_list: [
             {item_name: "Rat tail", chance: 0.04},
             {item_name: "Rat fang", chance: 0.04},
@@ -214,7 +217,7 @@ const enemy_abilites = {
         loot_list: [
             {item_name: "Rat tail", chance: 0.08},
             {item_name: "Rat fang", chance: 0.08},
-        ]
+        ],
     });
 
     enemy_templates["Starving wolf"] = new Enemy({
@@ -295,7 +298,7 @@ const enemy_abilites = {
         name: "Boar",
         description: "A big wild creature, with thick skin and large tusks",
         xp_value: 10,
-        rank: 4,
+        rank: 5,
         tags: ["living", "beast"],
         stats: {health: 600, attack: 50, agility: 30, dexterity: 50, intuition: 60, magic: 0, attack_speed: 1, defense: 35},
         loot_list: [
@@ -344,7 +347,7 @@ const enemy_abilites = {
         xp_value: 80,
         rank: 8,
         tags: ["living", "beast"],
-        stats: {health: 8000, attack: 500, agility: 250, dexterity: 300, intuition: 200, magic: 0, attack_speed: 0.8, defense: 500},
+        stats: {health: 12000, attack: 500, agility: 250, dexterity: 300, intuition: 100, magic: 0, attack_speed: 0.8, defense: 400},
         loot_list: [
             {item_name: "Frog meat", chance: 0.08},
             {item_name: "Frog hide", chance: 0.05},
@@ -352,7 +355,7 @@ const enemy_abilites = {
         ],
         size: enemy_sizes.LARGE,
         on_hit: (character) => {
-            let roll = Math.random();
+            const roll = Math.random();
             if(roll < 0.1) {
                 //todo: add some category for these messages
                 log_message("The frog's long tongue leaves you covered in sticky saliva!", "hero_attacked");
@@ -363,7 +366,7 @@ const enemy_abilites = {
             }
         },
         on_damaged: (character) => {
-            let roll = Math.random();
+            const roll = Math.random();
             if (character.equipment.weapon == null && roll < 0.1) {
                 log_message("Touching the frog with your bare hands leaves them covered in toxins!", "hero_attacked");
                 enemy_abilites.bufotoxin(10);
@@ -387,7 +390,7 @@ const enemy_abilites = {
             {item_name: "Oneberry", chance: 0.005},
             {item_name: "Golmoon leaf", chance: 0.005},
             {item_name: "Belmart leaf", chance: 0.005},
-            {item_name: "Piece of wood", chance: 0.005},
+            {item_name: "Wood log", chance: 0.002},
         ],
     });
 
@@ -399,6 +402,40 @@ const enemy_abilites = {
         tags: ["living", "insect"],
         stats: {health: 200, attack: 20, agility: 50, dexterity: 200, intuition: 100, magic: 0, attack_speed: 0.5, defense: 20},
         size: enemy_sizes.SMALL,
+    });
+
+    enemy_templates["Huge dragonfly"] = new Enemy({
+        name: "Huge dragonfly",
+        description: "A huge, hostile dragonfly, with a nasty poisoned stinger",
+        xp_value: 15,
+        rank: 6,
+        tags: ["living", "insect"],
+        stats: {health: 300, attack: 40, agility: 200, dexterity: 150, intuition: 100, magic: 0, attack_speed: 1.5, defense: 5},
+        size: enemy_sizes.SMALL,
+        on_hit: () => {
+            const roll = Math.random();
+            if(roll < 0.2) {
+                log_message("The dragonfly quickly stabs you with its stinger and retreats", "hero_attacked");
+                add_active_effect("Dragonfly venom", 10);
+            }
+        },
+    });
+
+    enemy_templates["Dragonfly queen"] = new Enemy({
+        name: "Dragonfly queen",
+        description: "An exceptionally huge, hostile dragonfly, with a nasty poisoned stinger",
+        xp_value: 30,
+        rank: 6,
+        tags: ["living", "insect"],
+        stats: {health: 800, attack: 80, agility: 280, dexterity: 200, intuition: 100, magic: 0, attack_speed: 1.1, defense: 10},
+        size: enemy_sizes.SMALL,
+        on_hit: () => {
+            const roll = Math.random();
+            if(roll < 0.2) {
+                log_message("The dragonfly queen quickly stabs you with its large stinger and retreats", "hero_attacked");
+                add_active_effect("Dragonfly queen venom", 10);
+            }
+        },
     });
 
     enemy_templates["Slums thug"] = new Enemy({
@@ -559,12 +596,32 @@ const enemy_abilites = {
         stats: {health: 22000, attack: 400, agility: 450, dexterity: 700, intuition: 100, magic: 0, attack_speed: 1.6, attack_count: 2, defense: 2000},
         loot_list: [{item_name: "Giant crab claw", chance: 1}],
     });
+    enemy_templates["Warthog"] = new Enemy({
+        name: "Warthog",
+        description: "A large, aggressive porcine creature with a tough hide and large tusks",
+        xp_value: 30,
+        add_to_bestiary: false,
+        rank: 8,
+        tags: ["living", "beast"],
+        stats: {health: 12000, attack: 600, agility: 80, dexterity: 800, intuition: 100, magic: 0, attack_speed: 0.6, defense: 600},
+        loot_list: [
+            {item_name: "Boar hide", chance: 0.08},
+            {item_name: "Boar meat", chance: 0.1},
+            {item_name: "Boar tusk", chance: 0.05},
+            {item_name: "High quality boar tusk", chance: 0.005},
+        ],
+        size: enemy_sizes.LARGE,
+    });
 
 })();
 
     Object.keys(enemy_templates).forEach(enemy_key => {
         enemy_templates[enemy_key].id = enemy_key;
+
+        enemy_templates[enemy_key].loot_list.forEach(item => {
+            droplist[item.item_name] = true;
+        });
     });
 
 
-export {Enemy, enemy_templates, enemy_killcount, tags_for_droprate_modifier_skills, enemy_tag_to_skill_mapping};
+export {Enemy, enemy_templates, enemy_killcount, tags_for_droprate_modifier_skills, enemy_tag_to_skill_mapping, droplist};

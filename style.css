@@ -84,15 +84,22 @@
 	--options_action_textsize: 16px;
 	--location_name_div_width: 270px;
 
-	--active_button_color: #435270;
+	--active_button_color: #4d5e80;
+    --hovered_button_color: rgb(48, 57, 77);
 	--tooltip_background_color: rgba(92, 92, 92, 0.97);
 
 	--onclick_button_color: rgb(75, 99, 145);
 
-	--outline_white: -1px -1px 0 #ffffff, 1px -1px 0 #ffffff, -1px 1px 0 #ffffff, 1px 1px 0 #ffffff;
-	--outline_white_default: var(var(--outline_white));
-	--outline_black: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
-	--outline_black_default: var(var(--outline_black));
+	--outline_white: -1px -1px 0 #ffffff80, 1px -1px 0 #ffffff80, -1px 1px 0 #ffffff80, 1px 1px 0 #ffffff80;
+	--outline_white_default: var(--outline_white);
+	--outline_black: -1px -1px 0 #00000080, 1px -1px 0 #00000080, -1px 1px 0 #00000080, 1px 1px 0 #00000080;
+	--outline_black_default: var(--outline_black);
+
+    --default_background_color: rgb(0, 78, 180);
+    --background_color: var(--default_background_color);
+    --rain_background_color: rgb(54, 54, 54);
+    --indoor_background_color: rgb(53, 32, 0);
+    --background_opacity: 0;
 }
 
 body {
@@ -111,9 +118,14 @@ body {
 
 @-moz-document url-prefix(){
     body {
-        scrollbar-color: silver #191928;
+        scrollbar-color: silver #ffffff;
 		scrollbar-width: thin;
     }
+}
+
+@font-face {
+    font-family: inkFree;
+    src: url(resources/fonts/Inkfree.ttf);
 }
 
 input[type=checkbox], input[type=radio] {
@@ -144,7 +156,7 @@ input[type=checkbox], input[type=radio] {
 	#loading_screen_game_title {
 		width: 950px;
 		font-size: 96px;
-		font-family:'Ink Free';
+		font-family: inkFree;
 		font-weight: bold;
 		position: fixed;
 		justify-content: center;
@@ -153,7 +165,7 @@ input[type=checkbox], input[type=radio] {
 	#loading_screen_author {
 		width: fit-content;
 		font-size: 35px;
-		font-family:'Ink Free';
+		font-family: inkFree;
 		font-weight: lighter;
 		text-align: right;
 		position: absolute;
@@ -242,7 +254,19 @@ input[type=checkbox], input[type=radio] {
 	left: 0px;
 	width: 100%;
 	height: 100%;
+	z-index: -2;
+}
+
+#light_based_background_div {
+	position: absolute;
+	pointer-events: none;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
 	z-index: -1;
+    background-color: var(--background_color);
+    opacity: var(--background_opacity);
 }
 
 #foreground_canvas {
@@ -329,7 +353,7 @@ input[type=checkbox], input[type=radio] {
 }
 
  .message_items_obtained {
-	 color: gold;
+	color: gold;
  }
 
  .message_total_items_obtained {
@@ -668,10 +692,8 @@ input[type=checkbox], input[type=radio] {
 	font-weight: normal;
 	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
-	margin-left: 30px;
-	margin-top: 20px;
 	padding: 5px;
-	position: absolute;
+	position: fixed;
 	z-index: 1000;
 	pointer-events: none;
 	font-size: 14px;
@@ -690,6 +712,8 @@ input[type=checkbox], input[type=radio] {
 
 .recipe_tooltip {
 	width: 250px;
+    top: var(--recipe_tooltip_top);
+	left: var(--recipe_tooltip_left);
 }
 
 .location_tooltip {
@@ -703,10 +727,8 @@ input[type=checkbox], input[type=radio] {
 	font-weight: normal;
 	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
-	margin-left: 30px;
-	margin-top: 20px;
 	padding: 5px;
-	position: absolute;
+	position: fixed;
 	z-index: 1000;
 	width: 200px;
 	pointer-events: none;
@@ -726,18 +748,13 @@ input[type=checkbox], input[type=radio] {
 }
 
 .outline_black_static {
-	text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+	text-shadow: -1px -1px 0 #00000080, 1px -1px 0 #00000080, -1px 1px 0 #00000080, 1px 1px 0 #00000080;
 }
 
-.recipe_tooltip {
-	top: var(--recipe_tooltip_top);
-	left: var(--recipe_tooltip_left);
-}
 .job_tooltip {
 	top: var(--job_tooltip_top);
 	left: var(--job_tooltip_left);
 	font-size: 16px;
-	width: 250px;
 }
 
 .equipment_slot_div:hover .item_tooltip, .trader_item_control:hover .item_tooltip, .inventory_item_control:hover .item_tooltip, 
@@ -751,7 +768,7 @@ input[type=checkbox], input[type=radio] {
 	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
 	padding: 5px;
-	position: absolute;
+	position: fixed;
 	z-index: 10;
 	width: 300px;
 	pointer-events: none;
@@ -772,7 +789,7 @@ input[type=checkbox], input[type=radio] {
 	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
 	padding: 5px;
-	position: absolute;
+	position: fixed;
 	z-index: 10;
 	max-width: 350px;
 	min-width: 100px;
@@ -792,7 +809,7 @@ input[type=checkbox], input[type=radio] {
 	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
 	padding: 5px;
-	position: absolute;
+	position: fixed;
 	z-index: 1000;
 	max-width: 300px;
 	width: max-content;
@@ -1289,11 +1306,6 @@ input[type=checkbox], input[type=radio] {
 	display: block;
 }
 
-.recipe_tooltip {
-	display: none;
-	position: absolute;
-	font-size: 14px;
-}
 .crafting_tooltip_mat_list {
 	padding-left: 20px;
 }
@@ -1320,13 +1332,18 @@ input[type=checkbox], input[type=radio] {
 	border-bottom: 1px solid white;
 	padding: 3px;
 }
+
 .selectable_component, .selectable_material {
 	border-bottom: 1px dotted white;
 	padding: 3px;
 	padding-left: 10px;
 }
 
-.selected_recipe .crafting_selection {
+.selectable_component {
+	display: none;
+}
+
+.selected_recipe .crafting_selection, .selected_recipe .selectable_component {
 	display: block;
 }
 
@@ -1463,6 +1480,10 @@ i {
 .activable_buttons {
 	display: flex;
 	flex-wrap: wrap;
+}
+
+.activable_buttons :hover {
+    background-color: var(--hovered_button_color);
 }
 
 .character_sorting_button {
@@ -1923,6 +1944,8 @@ i {
 				.enemy_name {
 					text-align: right;
 					margin-top: 1px;
+					padding-right: 10px;
+					width: 390px;
 				}
 				.enemy_stats {
 					padding-right: 10px;
@@ -2198,7 +2221,7 @@ i {
 						background-color: var(--tooltip_background_color);
 						border-radius: 10px;
 						padding: 5px;
-						position: absolute;
+						position: fixed;
 						z-index: 1000;
 						width: 360px;
 						top: var(--bestiary_entry_tooltip_top);
@@ -2209,6 +2232,17 @@ i {
 						.bestiary_entry_div:hover .bestiary_entry_tooltip, .anthology_entry_div:hover .anthology_entry_tooltip {
 							display: block;
 						}
+    #item_log_header {
+        margin-top: 10px;
+        border-bottom: 1px dotted gray;
+        width: 100%;
+        text-align: center;
+    }
+
+    #item_log_table td {
+        border: 1px solid gray;
+        border-collapse: collapse;
+    }
 
 .data_entry_value {
 	width: 90px;
@@ -2226,12 +2260,20 @@ i {
 	height: 420px;
 }
 
+#skill_hiding_div {
+    text-align: right;
+    bottom: 30px;
+    border-top: 1px solid white;
+    width: 385px;
+    padding-right: 15px;
+}
+
 #skill_list_div, #stance_list_div, #magic_list_div {
 	height: 389px;
 }
 		#skill_list {
 			overflow-y: scroll;
-			height: 366px;
+			height: 346px;
 			padding-bottom:3px;
 		}
 
@@ -2252,7 +2294,7 @@ i {
 	z-index: 1000;
 	width: 300px;
 	font-size: 16px;
-	position: absolute;
+	position: fixed;
 	pointer-events: none;
 	background-color: var(--tooltip_background_color);
 	border-radius: 10px;
@@ -2351,7 +2393,7 @@ i {
 				background-color: var(--tooltip_background_color);
 				border-radius: 10px;
 				padding: 5px;
-				position: absolute;
+				position: fixed;
 				z-index: 1000;
 				width: 200px;
 				top: var(--location_type_tooltip_top);
@@ -2398,18 +2440,16 @@ i {
 		}
 		#temperature_tooltip {
 			display: none;
-			position: absolute;
+			position: fixed;
 			z-index: 1000;
 			font-style: italic;
 			background-color: var(--tooltip_background_color);
 			border-radius: 10px;
-			margin-left: 30px;
 			padding: 5px;
 			width: 300px;
 			height: auto;
 			font-size: 16px;
 			border-radius: 10px;
-			padding: 5px;
 			top: var(--temperature_tooltip_top);
 			left: var(--temperature_tooltip_left);
 			text-align: left;
@@ -2488,8 +2528,9 @@ i {
 			margin: 1px;
 			cursor: pointer;
 		}
-		.message_control_button:hover {
-			background-color: var(--active_button_color);
+		.message_control_button:hover:not(.active_selection_button) {
+			background-color: var(--hovered_button_color);
+            outline: 1px solid gray;
 		}
 	.message_combat {
 		display: var(--message_combat_display);

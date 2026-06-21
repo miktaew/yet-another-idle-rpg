@@ -62,6 +62,205 @@
     </head>
 
 <div id="header">Click on blocks to unfold their content</div>
+<button type="button" class="collapsible">v0.5.5 - The Boring Stuff [testing release: 26/05/2026 / main release: 21.06.2026]</button>
+<div class="content"><pre>
+v0.5.5
+    - most of equipment components are now auto-generated based on certain set of properties; this changes the balance of the equipment by a lot in some cases
+    - expanded Village content again
+
+    - most of woodcutting actions now have a small chance to drop tree sap, which can be used to make a potion that will quickly deplete your stamina, for all fans of the 'Persistence' skill    
+    - added milestones on "Shield blocking" skill
+    - added an alternative game action for progressing one quest, stupid and with stupidly high requirements, because people asked (and I don't care that they did so jokingly)
+    - multiplicative effects on items now have a better scaling with item rarity (with some exceptions, like attack speed on armor)
+    - some of resource gathering activities now scale up to 100% chance but had slightly increased lvl needed for full efficiency
+    - greatly reduced material costs of chainmail
+    - changed action texts for ant nest searches to make it easier to understand that they are subsequent actions and not one that's bugged
+    - unique items no longer show value in tooltips
+    - added a new textline to clear out some confusion with one of quests
+    - added simple background color change for day-night cycle, affected by weather, with separate color for roofed locations; disabled by default, just like background animations
+    - moved the 'hide maxxed skills' option from options panel to skill box
+    - added an option to use a dynamically updated message for displaying loot (from combat/gathering) instead of logging everything separately, removed the option of logging summary at the end of gathering
+        * implemented from scratch, but inspired by a similar solution in a mod by Haylen https://gautech.github.io/experimental-idle-rpg/
+    - slightly increase bonemeal quest reward
+    - slightly increased some trader profit margins
+
+    - display conditions for location actions are now properly supported
+    - crafting recipes' results can now be fuzzy (instead of success/failure, it can be a partial success)
+    - active effects' code will now skip stat updates if effect was already present and only had its duration extended
+    - stat recalcs will now update shield tooltips only when needed (i.e. when that stat actually changed)
+    - font used on loading page is now included in files, in case your system does not support it by default
+
+    - updated translationManager to use translations provided in separate files instead of cramming everything in one
+    - changed the way DOM is manipulated by moving away from using innerHTML
+    - refactored tooltip movement code, reducing it to a much more manageable form
+    - rewards objects can now include dialogue locking
+    - any logged message will now replace "%HeroName%" with character name
+
+    - fixed a minor issue that could have caused problems with crafting xp gains if someone were to reach max level in a crafting skill (wasn't possible without cheating)
+    - fixed a minor display bug where if a shield was marked for trade, it would [purely visually] reappear in original owner's inventory if a stat recalc happened in the meantime
+    - fixed a minor display bug with prices not reflecting market saturiation upon initial trade entry
+    - activity unlocks will no longer be logged in messages if other conditions of accessing it are not yet met
+
+    - sped up a lot of gathering activites; applied from v0.5.5.15
+    - added hp regen on first 'Regeneration' milestone, reduced one of later milestones by same ammount; applied from v0.5.5.15
+    - sped up early game a bit via a series of minor stat changes; applied from v0.5.5.15
+    - item rewards can now have quality specificed; applied from v0.5.5.15
+    - added a choice of starting weapon in dialogue with village elder; applied from v0.5.5.15
+
+    courtesy of OnonokiNonon:
+        * an item log
+            - items not yet obtained are now displayed as "????" in gathering rewards (also in bestiary tooltips, but that was added later by Mik)
+        * some new recipes
+        * refactoring of code related to activities
+        * refactoring of crafting code:
+            - areas can have different crafting categories available
+            - recipes that use material types can mix ingredients
+            - component recipes appear permanently after discovering their material
+        * added cooking stations to mountain camp and to lake camp
+        * made it possible for materials to have quality (currently used on fish)
+        * item quality is now displayed in inventory instead of being only in tooltips
+        * health/stamina drains are now displayed directly on their bars
+    courtesy of Bram-Nordvegr:
+        * a new location and a new challenge zone
+        * a two new types of wood
+        * some new recipes
+    courtesy of Erlemar:
+        * a new gathering spot
+    courtesy of Nicholas Biles:
+        * text fixes/tweaks
+    courtesy of SardineMilk, applied from v0.5.5.4:
+        * text fixes/tweaks
+    courtesy of Trilbyspaceclone, applied from v0.5.5.10:
+        * a new book
+
+v0.5.5.1
+    - fixed the wording of the poison resistance skill description
+    - fixed a bug that made it impossible to leave a gathering action once anything was gained
+
+v0.5.5.2
+    - fixed inconsistent positioning of travel / fast travel buttons in locations
+    - fixed a bug with some additional stats missing from weapon components
+    - fixed a bug with stone mining not working
+
+v0.5.5.3
+    - fixed a bug with crit chance from generated gear not working due to incorrect stat name
+
+v0.5.5.4
+    - fixed a serious display issue with all dialogues being 'undefined' if Mofu Mofu mode was disabled
+    - fixed a display bug with incorrect health regeneration value on health bar if any negative modifier was present
+    - fixed a display bug with logged resource gains getting doubled (actual number unaffected) when gathering was ended, if dynamic message was enabled
+    - fixed issue with activity xp sometimes being awarded incorrectly
+    - tweaked shield strength a bit, reducing some excessive values
+    - activable buttons now have different appearance for active and for hovered
+    - fixed an error on loading if certain items were present in savefile (due to lack of compatibility with changes from auto-generation)
+    - text fixes/tweaks by SardineMilk
+
+v0.5.5.5
+    - reduced skill requirements on a certain very stupid game action to be actually reachable
+    - removed quality roll on swampland foraging as it was not intended to be there
+
+v0.5.5.6
+    - fixed another loading error with certain items
+
+v0.5.5.7
+    - fixed a bug on component-based crafting when crafting multiple and one of components ran out
+    - tweaked some more component stats
+    - fixed rounding issue with one of component stats
+    - more text fixes/tweaks by SardineMilk
+
+v0.5.5.8
+    - fixed another issue with stats on generated components
+    - fixed minor issue with sign on stamina bar showing as "+-" if stamina was being drained
+    - slightly updated help page, updated list of contributors
+
+v0.5.5.9
+    - fixed an issue with item log only recognizing newly gathered items and ignoring what was already in the inventory
+    - fixed an issue with item log's name obscuring failing to recognize some items due to receiving incorrect arguments
+    - fixed some issues with value of 'Simple dream catcher' item
+    - fixed issue with cold tolerance on turtleshell components
+
+v0.5.5.10
+    - fixed a minor display bug with efficiency scaling not displaying on gathering activities
+    - time-restricted non-job activities should now be properly locked when unavailable
+    - a new book by Trilbyspaceclone
+
+v0.5.5.11
+    - fixed a bug where dialogue actions were not taken into account for deciding whether dialogue should be displayed,
+        resulting in dialogues that had only an action but no textlines being unavailable
+
+v0.5.5.12
+    - fixed a minor issue with stat rounding on generated components
+    - warthog will no longer be added to bestiary upon defeat, as it's a challenge enemy
+    - item log will now use scientific notation for numbers too large to fit otherwise
+
+v0.5.5.13
+    - fixed a much bigger issue with stat rounding created by previous fix to it
+
+v0.5.5.14
+    - reduced wood log cost for crafting charcoal from 5 to 1, willow wood pieces can no longer be used to make it
+
+v0.5.5.15
+    - reduced minimum gathering times on most of gathering activities, reduced maximum gathering times on some of them, both in exchange for slightly increased level needed for maximum efficiency
+    - added hp regen on first 'Regeneration' milestone, reduced hp regen on one of later milestones by same ammount
+    - increased base health 50->60 and base strength 10->12, reduced base stamina 50->40 and base agility 10->8
+    - reduced defense on 'Starving wolf rat' and 'Wolf rat' both by 1
+    - item rewards can now have quality specificed
+    - instead of starting with a sword, player can get a free starting weapon of any type from early dialogue with village elder, at 50% quality instead of 40% the sword had
+
+v0.5.5.16
+    - type-based multicrafting will now once again stop when current material depletes to the point where it alone is not enough, but clicking again will mix it with next material in line
+        e.g. if charcoal still required 5 wood and you had 13 'Rough wood log' and 12 'Wood log', first click would craft 2 (using 10 'Rough wood logs')
+        and second click would craft 3 (using remaining 3 'Rough wood logs' and the 12 'Wood logs')
+    - weapons with attack lower than 10 now have it rounded to one decimal place instead of to integer
+    - removed mention of player having an old sword from an early village elder dialogue
+
+v0.5.5.17
+    - fixed a crafting bug caused by a typo in previous patch
+
+v0.5.5.18
+    - fixed a bug with resource gathering where if theoretical upper count was larger than 1, maximum count that could actually be gained was 1 less than displayed
+
+v0.5.5.19
+    - fish at Forest lake will now properly roll for quality
+
+v0.5.5.20
+    - fixed a bug that caused dynamic loot message to seemingly overwrite location xp messages
+
+v0.5.5.21
+    - actually fixed that bug that was supposed to be fixed in previous version
+
+v0.5.5.22
+    - added Perception scaling and xp rewards to some actions that should have had them but didn't
+    - increased Atratan mining xp
+
+v0.5.5.23
+    - fixed a bug with quality of item components from storage not being loaded properly and defaulting to 100%
+
+v0.5.5.24
+    - fixed a display bug where resources in activity tooltip remained obfuscated after first time they were gained, being revealed only in next cycle after that
+    - changed requirement scaling on Carya Canyon unlock to a more reasonable one
+    - fixed a minor bug where if a location with a not-yet-unlocked housing was added to favourites, it would be displayed in fast travel twice after housing is unlocked in there
+
+v0.5.5.25
+    - fixed a bug on loading caused by a previous patch
+
+v0.5.5.26
+    - hopefully fixed issue with crafting quality sometimes falling outside the range shown on crafting tooltip
+    - crab bisque now has a chance to return a glass bottle upon consumption
+
+v0.5.5.27
+    - 'roasted rat meat' is now tagged as poison for skill xp purposes
+
+v0.5.5.28
+    - fixed a minor text issue with logging messages about skills granting bonuses to skill categories
+
+v0.5.5.29
+    - fixed incorrect sorting of equipment components in crafting display
+
+======= released to main
+
+</pre></div>
+
 
 <button type="button" class="collapsible">v0.5.1  [testing release: 31/01/2026 / main release: 15/02/2026]</button>
 <div class="content"><pre>
@@ -162,9 +361,6 @@ v0.5.1.6
     - fixed minor issue with exponent threshold sometimes being saved incorrectly
     - fixed a minor display issue upon adding item to trade and then cancelling
     - fixed inventory sorting when sorting by name
-
-======= released to main    
-
 v0.5.1.7
     - fixed a bug when removing favourited equippable from inventory
     - "Swimming" skill description now mentions reducing 'aquatic' penalty
@@ -177,6 +373,9 @@ v0.5.1.9
 v0.5.1.10
     - fixed health regeneration tooltip (%-based values were displayed as 100x larger than they should be)
     - additional effect of shield skill (%-based reduction to overall damage) no longer applies to training shield
+
+======= released to main
+
 </pre></div>
 
 <button type="button" class="collapsible">v0.5.0 - The Whimsy Edition: Quests, Weather, kemonomimi, and a lot of other things  [testing release: 28/11/2025 / main release: 30/12/2025] </button>
@@ -428,9 +627,6 @@ v0.5.0.26
     - replies in dialogues are now aligned to left instead of being centered
 v0.5.0.27
     - fixed a bug with finishing actions
-
-======= released to main
-
 v0.5.0.28
     - fixed a bug with drop chances, where penalty for attack target count used the size of enemy group instead, no matter how many were being attacked at once
     - fixed a bug where xp gains per tick for every book were being defaulted to 1 instead of using whatever values were assigned    
@@ -625,9 +821,6 @@ v0.4.6.36
     - code is now bundled
 v0.4.6.37
     - fixed a bug with additional attack power of heavier weapon handles not being included in calculations (therefore doing nothing)
-
-======= released to main
-
 v0.4.6.38
     - fixed a bug where newly unlocked beds were not automatically added to fast travel and required save+reload to appear there
     - fixed a bug where for older saves 'Shack' was initially not in the fast travel list and required save+reload to appear there

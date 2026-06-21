@@ -12,9 +12,9 @@ class QuestTask {
         task_condition = {}, 
         //conditions for task to be completed; can be skipped if it's meant to be achieved via some rewards object  
         task_rewards = {}, //generally skipped in favour of quest reward but could sometimes have something?
-        is_hidden = false, //keep it false most of the time, but could be used as a fake way of making quests with no visible requirement for progress
+        is_hidden = false, //keep it false most of the time, but can be used as a way of making quests with no visible requirement for progress
         is_finished = false,
-        
+        skip_message = false, //mostly for hidden tasks to be fully hidden instead of mentioning some vague progress
     })
     {
         this.task_description = task_description;
@@ -22,6 +22,7 @@ class QuestTask {
         this.task_rewards = task_rewards;
         this.is_hidden = is_hidden;
         this.is_finished = is_finished;
+        this.skip_message = skip_message;
 
         Object.keys(this.task_condition).forEach(task_group => {
             Object.keys(this.task_condition[task_group]).forEach(task_type => {
@@ -32,7 +33,7 @@ class QuestTask {
         });
     }
 }
-
+    
 class Quest {
     constructor({
                 quest_name, //for display, can be skipped if getQuestName covers all possibilites
@@ -97,9 +98,16 @@ const questManager = {
     },
 
     finishQuest({quest_id, only_unlocks, is_from_loading, skip_rewards}) {
-
         if(this.isQuestActive(quest_id)) {
-            let quest = quests[quest_id];
+            const quest = quests[quest_id];
+
+            if(is_from_loading) {
+                for(let i = 0; i < quest.quest_tasks.length; i++) {
+                    //get unlocks from all tasks
+                    this.finishQuestTask({quest_id, task_index: i, only_unlocks: true, skip_warning: true, skip_message: true, is_from_loading, allowed_to_finish_quest: false});
+                }
+            }
+
             if(!quest.is_repeatable) {
                 quest.is_finished = true;
             }
@@ -117,7 +125,7 @@ const questManager = {
         }
     },
 
-    finishQuestTask({quest_id, task_index, only_unlocks, skip_warning = false, allowed_to_finish_quest = true, skip_message = false}) {
+    finishQuestTask({quest_id, task_index, only_unlocks, skip_warning = false, allowed_to_finish_quest = true, skip_message = false, is_from_loading = false}) {
         if(this.isQuestActive(quest_id)) {
             let quest = quests[quest_id];
             quest.quest_tasks[task_index].is_finished = true;
@@ -127,18 +135,17 @@ const questManager = {
                 if(!skip_message) {
                     if(!quests[quest_id].quest_tasks[task_index].is_hidden) {
                         log_message(`Finished a task for a quest: "${quests[quest_id].getQuestName()}"`);
-                    } else {
+                    } else if(!quests[quest_id].quest_tasks[task_index].skip_message){
                         log_message(`Made some progress in quest: "${quests[quest_id].getQuestName()}"`);
                     }
                 }
             }
 
-            process_rewards({rewards: quest.quest_tasks[task_index].task_rewards, source_type: "Quest", source_name: quests[quest_id].getQuestName(), only_unlocks: only_unlocks});
+            process_rewards({rewards: quest.quest_tasks[task_index].task_rewards, source_type: "QuestTask", source_name: quests[quest_id].getQuestName(), only_unlocks: only_unlocks, is_from_loading});
 
             const remaining_tasks = active_quests[quest_id].quest_tasks.filter(task => !task.is_finished);
             if(allowed_to_finish_quest && remaining_tasks.length == 0) { //no more tasks
-                this.finishQuest({quest_id: quest_id});
-                
+                this.finishQuest({quest_id: quest_id, only_unlocks: only_unlocks});
             }
 
         } else {
@@ -332,11 +339,32 @@ const questManager = {
         }
     });
 
+    quests["Village expansion"] = new Quest({
+        quest_name: "Village expansion",
+        display_priority: 1,
+        getQuestDescription: ()=>{
+            return "Village elder has a few tasks for you";
+        },
+        quest_tasks: [
+            new QuestTask({task_description: "Dig the melioration channel"}), //finished by completing the dig
+            new QuestTask({is_hidden: true, task_rewards: {reputation: {Village: 20}}, skip_message: true}), //finished by talking after finishing digging
+            new QuestTask({is_hidden: true, skip_message: true}), //finished by asking for next work after digging
+            new QuestTask({task_description: "Gather materials (Wood log x100, Stone brick x500) and then help constructing the new bridge"}), //finished by constructing the bridge
+            new QuestTask({is_hidden: true, task_rewards: {reputation: {Village: 120}}, skip_message: true}), //finished by reporting afterwards
+            new QuestTask({is_hidden: true, skip_message: true}), //finished by asking for further work
+            new QuestTask({task_description: "Clear out huge dragonflies and then report back", task_rewards: {reputation: {Village: 20}}}), //finished by reporting afterwards
+            new QuestTask({task_description: "[To be continued]"}), //tbc, duh
+        ],
+        quest_rewards: {
+        }
+    });
+
     quests["Bonemeal delivery"] = new Quest({
         quest_name: "Bonemeal delivery",
         quest_description: "The farm supervisor is in a dire need of 50 packs of bonemeal, and he needs the entire order delivered in one go.",
         quest_tasks: [
             new QuestTask({task_description: "Bring 50 packs of bonemeal"}),
+            
         ],
         quest_rewards: {
             money: 6000,
@@ -372,7 +400,7 @@ const questManager = {
             new QuestTask({task_description: "Prove your strength"}), //gained on asking about work without having is_strength_proved flag, gained AND finished on asking with having the flag
             new QuestTask({task_description: "Deal with the boars and then report back"}),
             new QuestTask({is_hidden: true}), //completed by asking for more work when it's not winter
-            new QuestTask({task_description: "Exterminate the red ants under the farm and then report back"}),
+            new QuestTask({task_description: "Exterminate the multiple red ants under the farm and then report back"}),
         ],
         quest_rewards: {
             money: 5000,
@@ -410,7 +438,7 @@ const questManager = {
         is_hidden: true,
         quest_rewards: {
             global_activities: ["swimming"],
-            messages: ["With all the training you have done so far, the idea of submerging yourself in the river passing by the village is really tempting"],
+            messages: ["With all the training you have done so far, the idea of submerging yourself in nearby waters is really tempting"],
         },
         quest_tasks: [
             new QuestTask({
@@ -425,9 +453,13 @@ const questManager = {
             }),
             new QuestTask({
                 task_condition: {
-                    all: {
+                    any: {
                         enter_location: {
                             "Village": {
+                                target: 1,
+                                restrictions: {season: "Winter"}, //won't trigger in winter
+                            },
+                            "Forest lake": {
                                 target: 1,
                                 restrictions: {season: "Winter"}, //won't trigger in winter
                             },
@@ -451,7 +483,7 @@ const questManager = {
             } else if(quests["Giant Enemy Crab"].quest_tasks[0].is_finished) {
                 return "You managed to chase the giant crab away, but if you don't finish it off soon, it'll just nest somewhere else and be a problem for somebody else later. And even if someone did find it, would they be strong enough to defeat it? Better just to take care of it yourself now";
             } else {
-                return "The elder gave you his blessing to investigate the rumors of enormous crab nests somewhere down river. Or was it an enormous crab's nest? Or was it some enormous crabs' nest? Either way, he reminded you to prepare for the journey ahead";
+                return "The elder gave you his blessing to investigate the rumors of enormous crab nests somewhere downriver. Or was it an enormous crab's nest? Or was it some enormous crabs' nest? Either way, he reminded you to prepare for the journey ahead";
             }
         },
         questline: "Giant Enemy Crab",

@@ -15,7 +15,6 @@ class Trader extends InventoryHaver {
                 display_name,
                 trade_text,
                 unlock_message = null,
-                location_name,
                 refresh_time = 4,
                 refresh_shift = 0,
                 inventory_template,
@@ -28,7 +27,6 @@ class Trader extends InventoryHaver {
         this.display_name = display_name || name;
         this.trade_text = trade_text || `Trade with ${this.display_name}`;
         this.unlock_message = unlock_message,
-        this.location_name = location_name;
         this.last_refresh = -1;  
         //just the day_count from game_time at which trader was supposedly last refreshed
 
@@ -153,38 +151,46 @@ class TradeItem {
         name: "village trader",
         inventory_template: "Basic",
         is_unlocked: false,
-        location_name: "Village",
         trade_text: "Trade on the village market",
         unlock_message: "You can now visit the village market",
+        profit_margin: 4,
     });
     traders["suspicious trader"] = new Trader({
         name: "suspicious trader",
         inventory_template: "Basic plus",
         is_unlocked: true,
-        location_name: "Slums",
-        profit_margin: 5,
+        profit_margin: 6,
     });
     traders["suspicious trader 2"] = new Trader({
         name: "suspicious trader 2",
         display_name: "suspicious trader",
         inventory_template: "Intermediate",
         is_unlocked: false,
-        location_name: "Slums",
-        profit_margin: 4, //rise back to 5 once reputation impact is implemented
+        profit_margin: 6,
     });
     traders["swampland trader"] = new Trader({
         name: "swampland trader",
         inventory_template: "Swamp",
         is_unlocked: true,
-        location_name: "Swampland tribe",
         profit_margin: 7,
     });
     traders["swampland trader 2"] = new Trader({
         name: "swampland trader",
         inventory_template: "Swamp plus",
         is_unlocked: false,
-        location_name: "Swampland tribe",
         profit_margin: 5,
+    });
+    traders["nekomimi trader"] = new Trader({
+        name: "nekomimi cafe trader",
+        inventory_template: "Cafe trader",
+        is_unlocked: false,
+        profit_margin: 20, //it's the kind of place where you pay for the company as much as for the food
+    });
+    traders["cat cafe trader"] = new Trader({
+        name: "cat cafe trader",
+        inventory_template: "Cafe trader",
+        is_unlocked: false,
+        profit_margin: 18, //it's the kind of place where you pay for the company as much as for the food, but slightly less
     });
 })();
 
@@ -257,6 +263,12 @@ class TradeItem {
 
             new TradeItem({item_name: "Camping supplies", count: [1,3], chance: 1}),
             new TradeItem({item_name: "Coil of rope", count: [1,3], chance: 1}),
+
+
+            new TradeItem({item_name: "Old pickaxe", count: [1], chance: 1}),
+            new TradeItem({item_name: "Old axe", count: [1], chance: 1}),
+            new TradeItem({item_name: "Old sickle", count: [1], chance: 1}),
+            new TradeItem({item_name: "Old shovel", count: [1], chance: 1}),
     ];
 
     inventory_templates["Basic plus"] = 
@@ -287,8 +299,8 @@ class TradeItem {
 
             new TradeItem({item_name: "Wooden shield", count: [1], quality: [40, 80]}),
             new TradeItem({item_name: "Wooden shield", count: [1], chance: 0.8, quality: [81, 120]}),
-            new TradeItem({item_name: "Crude iron shield", count: [1], quality: [40, 80]}),
-            new TradeItem({item_name: "Crude iron shield", count: [1], chance: 0.8, quality: [81, 120]}),
+            new TradeItem({item_name: "Cheap iron shield", count: [1], quality: [40, 80]}),
+            new TradeItem({item_name: "Cheap iron shield", count: [1], chance: 0.8, quality: [81, 120]}),
             new TradeItem({item_name: "Iron shield", count: [1], chance: 0.6, quality: [40, 80]}),
             new TradeItem({item_name: "Iron shield", count: [1], chance: 0.4, quality: [81, 120]}),
             new TradeItem({item_name: "Steel shield", count: [1], chance: 0.3, quality: [81, 100]}),
@@ -329,6 +341,7 @@ class TradeItem {
             new TradeItem({item_name: "Medicine for dummies", count: [1], chance: 0.6}),
             new TradeItem({item_name: "Ode to Whimsy, and other poems", count: [1], chance: 0.4}),
             new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 0.4}),
+            new TradeItem({item_name: "Counting Mice", count: [1], chance: 0.9}),
 
             new TradeItem({item_name: "Glass phial", count: [5,10], chance: 1}),
             new TradeItem({item_name: "Glass bottle", count: [4,8], chance: 1}),
@@ -364,8 +377,8 @@ class TradeItem {
 
         new TradeItem({item_name: "Wooden shield", count: [1], quality: [40, 80]}),
         new TradeItem({item_name: "Wooden shield", count: [1], chance: 0.8, quality: [81, 120]}),
-        new TradeItem({item_name: "Crude iron shield", count: [1], quality: [40, 80]}),
-        new TradeItem({item_name: "Crude iron shield", count: [1], chance: 0.8, quality: [81, 120]}),
+        new TradeItem({item_name: "Cheap iron shield", count: [1], quality: [40, 80]}),
+        new TradeItem({item_name: "Cheap iron shield", count: [1], chance: 0.8, quality: [81, 120]}),
         new TradeItem({item_name: "Iron shield", count: [1], chance: 0.6, quality: [40, 80]}),
         new TradeItem({item_name: "Iron shield", count: [1], chance: 0.4, quality: [81, 120]}),
         new TradeItem({item_name: "Steel shield", count: [1], chance: 0.4, quality: [81, 120]}),
@@ -417,6 +430,8 @@ class TradeItem {
         new TradeItem({item_name: "Medicine for dummies", count: [1], chance: 1}),
         new TradeItem({item_name: "Ode to Whimsy, and other poems", count: [1], chance: 0.4}),
         new TradeItem({item_name: "A Glint On The Sand", count: [1], chance: 0.4}),
+        new TradeItem({item_name: "Wood for Witches", count: [1], chance: 0.2}),
+        new TradeItem({item_name: "Counting Mice", count: [1], chance: 0.9}),
 
         new TradeItem({item_name: "Glass phial", count: [10,16], chance: 1}),
         new TradeItem({item_name: "Glass bottle", count: [6,12], chance: 1}),
@@ -429,7 +444,7 @@ class TradeItem {
         new TradeItem({item_name: "Iron chopping axe", count: [1], chance: 1}),
         new TradeItem({item_name: "Iron shovel", count: [1], chance: 1}),
     ];
-	
+
 	inventory_templates["Swamp"] = 
     [
             new TradeItem({item_name: "Alligator jerky", count: [1,2]}),
@@ -463,15 +478,26 @@ class TradeItem {
 
             new TradeItem({item_name: "Shellfish desires", count: [1], chance: 0.5}),
 
-			new TradeItem({item_name: "Healing balm", count: [1,2], chance: 0.15}),
-			new TradeItem({item_name: "Healing powder", count: [1,3], chance: 0.2}),
-			new TradeItem({item_name: "Healing potion", count: [1,3], chance: 0.25}),
-			
+            new TradeItem({item_name: "Healing balm", count: [1,2], chance: 0.15}),
+            new TradeItem({item_name: "Healing powder", count: [1,3], chance: 0.2}),
+            new TradeItem({item_name: "Healing potion", count: [1,3], chance: 0.25}),
+
             new TradeItem({item_name: "Oneberry", count: [1,4], chance: 0.1}),
             new TradeItem({item_name: "Silver thistle", count: [1,3], chance: 0.1}),
             new TradeItem({item_name: "Golmoon leaf", count: [1,3], chance: 0.1}),
             new TradeItem({item_name: "Belmart leaf", count: [1,3], chance: 0.1}),
     ];
+
+    inventory_templates["Cat cafe"] = 
+    [
+        new TradeItem({item_name: "Fresh bread", count: [2,5]}), //for clients with simpler taste
+        new TradeItem({item_name: "Bread kwas", count: [8,12]}),
+        new TradeItem({item_name: "Cooked clam", count: [4,6]}),
+        new TradeItem({item_name: "Crab bisque", count: [4,6]}),
+        new TradeItem({item_name: "Kingsized frog legs", count: [4,6]}),
+        new TradeItem({item_name: "Fish steak", count: [4,6]}),
+        
+    ]
 
 })();
 export { traders, inventory_templates, TradeItem };

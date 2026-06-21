@@ -1,5 +1,10 @@
 "use strict";
 
+const night_time = {
+    start: 20,
+    end: 4,
+}
+
 function Game_Time(new_time) {
     this.year = new_time.year;
     this.month = new_time.month;
@@ -104,7 +109,17 @@ function Game_Time(new_time) {
             case 6:
                 return "Sat";
         }
-    }	
+    }
+
+    //point in the lunar cycle, from 0 to 1
+    this.getMoonPhase = function () {
+        return this.day_count % 29.5 / 29.5;
+    }
+
+    this.getMoonPhaseName = function (phase) {
+        const phases = ["Full", "Waning", "New", "Waxing"];
+        return phases[Math.floor(phase * phases.length)];
+    }
 }
 
 Game_Time.prototype.toString = function() {
@@ -153,7 +168,7 @@ function format_time({time, long_names, round=true}) { //{time, long_names?}
     let formatted_time = '';
     if(time.years > 0) {
         const used_term = time.years == 1?"year":"years";
-        formatted_time += long_names? `${time.year} ${used_term} ` : `${time.year}Y`;
+        formatted_time += long_names? `${time.years} ${used_term} ` : `${time.years}Y`;
     }
     if(time.months > 0) {
         const used_term = time.months == 1?"month":"months";
@@ -177,11 +192,11 @@ function format_time({time, long_names, round=true}) { //{time, long_names?}
 
 function is_night(time) {
     time = time || current_game_time;
-    return (time.hour >= 20 || time.hour < 4);
+    return (time.hour >= night_time.start || time.hour < night_time.end);
 }
 
 const seasons = ["Spring","Summer","Autumn","Winter"];
 
 const current_game_time = new Game_Time({year: 999, month: 4, day: 1, hour: 8, minute: 0, day_count: 1});
 
-export {current_game_time, format_time, is_night, seasons, Game_Time};
+export {current_game_time, format_time, is_night, seasons, Game_Time, night_time};

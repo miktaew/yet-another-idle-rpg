@@ -1,7 +1,7 @@
 "use strict";
 
 import { current_game_time, is_night } from "./game_time.js";
-import { item_templates, getItem, book_stats, rarity_multipliers, getArmorSlot, getItemFromKey, getItemRarity} from "./items.js";
+import { item_templates, item_log, getItem, book_stats, rarity_multipliers, getArmorSlot, getItemFromKey, getItemRarity, Weapon} from "./items.js";
 import { loot_sold_count, market_region_mapping, recover_item_prices, trickle_market_saturations, set_loot_sold_count, capped_at } from "./market_saturation.js";
 import { locations, favourite_locations, location_types } from "./locations.js";
 import { crafting_skill_xp_gains_cap, skill_categories, skill_xp_gains_cap, skills, weapon_type_to_skill, which_skills_affect_skill } from "./skills.js";
@@ -95,11 +95,14 @@ import { end_activity_animation,
          do_enemy_onstart_animation,
          update_location_kill_count,
          change_completed_quest_visibility,
-         update_fav_display
+         update_fav_display,
+         update_displayed_item_log,
+         set_light_based_background_color,
+         unassign_dynamic_loot_message,
         } from "./display.js";
-import { compare_game_version, crafting_tags_to_skills, get_hit_chance, is_a_older_than_b, skill_consumable_tags } from "./misc.js";
+import { compare_game_version, crafting_tags_to_skills, get_component_name, get_hit_chance, is_a_older_than_b, get_item_mapping, random_range, skill_consumable_tags, rtp } from "./misc.js";
 import { stances } from "./combat_stances.js";
-import { get_recipe_xp_value, recipes } from "./crafting_recipes.js";
+import { get_recipe_xp_value, get_component_stats, recipes } from "./crafting_recipes.js";
 import { game_version, get_game_version } from "./game_version.js";
 import { ActiveEffect, effect_templates } from "./active_effects.js";
 import { open_storage, close_storage, move_item_to_storage, remove_item_from_storage, player_storage, is_storage_open } from "./storage.js";
@@ -108,6 +111,7 @@ import { ReputationManager } from "./reputation.js";
 import { quests, questManager, active_quests } from "./quests.js";
 import { get_current_temperature_smoothed, is_raining } from "./weather.js";
 import { Pathfinder, speed_modifiers_from_skills } from "./pathfinding.js";
+import { translationManager } from "./translation.js";
 
 const save_key = "save data";
 const dev_save_key = "dev save data";
@@ -130,9 +134,8 @@ const play_button = document.getElementById("loading_screen_play_button");
 
 const languages = {
     english: "english",
-    mofu_english: "mofu_english",
 };
-let language = languages.mofu_english;
+let language = languages.english;
 
 let is_loading_error = false;
 
@@ -195,6 +198,12 @@ let current_activity;
 let game_action_interval;
 let current_game_action;
 
+//loot from currently active source (combat location or specific activity), used for display if dynamic loot logging option is enabled
+const current_loot = {
+    recent: {},
+    total: {},
+}
+
 //time needed to travel from A to B
 let travel_times = {};
 let pathfinder;
@@ -254,13 +263,15 @@ const game_options = {
     uniform_text_size_in_action: false,
     auto_return_to_bed: true,
     remember_message_log_filters: false,
-    remember_sorting_options: false,
+    remember_sorting_options: false, //not in use?
     combat_disable_autoswitch: false,
-    log_every_gathering_period: true,
-    log_total_gathering_gain: true,
-    auto_use_when_longest_runs_out: true, //this can't actually be changed by a player; despite the name, it actually decides whether to first use longest-duration item or shortest-duration item?
+
+    do_dynamic_loot_message: false,
+
+    auto_use_when_longest_runs_out: true, //can't actually be changed by a player; despite the name, it decides whether to first use longest-duration item or shortest-duration item
     use_uncivilised_temperature_scale: false, //true -> swap Celsius for Fahrenheit
     do_background_animations: false,
+    change_background_color: false,
     skip_play_button: false, //not really skips, just automatically clicks it right after loading
     mofu_mofu_mode: true,
     do_enemy_onhit_animations: true,
@@ -268,6 +279,8 @@ const game_options = {
     hide_max_level_skills: false,
     use_text_outlines_for_tooltips: true,
     use_text_outlines_for_bars: true,
+
+    stop_crafting_on_material_change: true, //not changeable
 };
 
 let message_log_filters = {
@@ -293,7 +306,7 @@ name_field.value = character.name;
 name_field.addEventListener("change", () => character.name = name_field.value.toString().trim().length>0?name_field.value:"Hero");
 
 const time_field = document.getElementById("time_div");
-time_field.innerHTML = current_game_time.toString();
+time_field.innerText = current_game_time.toString();
 
 (function setup(){
     Object.keys(skills).forEach(skill => {
@@ -402,34 +415,6 @@ function option_combat_autoswitch(option) {
     }
 }
 
-function option_log_all_gathering(option) {
-    const checkbox = document.getElementById("options_log_all_gathering");
-
-    if(checkbox.checked || option) {
-        game_options.log_every_gathering_period = true;
-    } else {
-        game_options.log_every_gathering_period = false;
-    }
-
-    if(option !== undefined) {
-        checkbox.checked = option;
-    }
-}
-
-function option_log_gathering_result(option) {
-    const checkbox = document.getElementById("options_log_gathering_result");
-
-    if(checkbox.checked || option) {
-        game_options.log_total_gathering_gain = true;
-    } else {
-        game_options.log_total_gathering_gain = false;
-    }
-
-    if(option !== undefined) {
-        checkbox.checked = option;
-    }
-}
-
 function option_expo_threshold(option) {
     const input = document.getElementById("options_expo_threshold");
 
@@ -474,6 +459,21 @@ function option_do_background_animations(option) {
     }
 }
 
+function option_change_background_color(option) {
+    const checkbox = document.getElementById("options_change_background_color");
+    if(checkbox.checked || option) {
+        game_options.change_background_color = true;
+        set_light_based_background_color(!current_location.is_under_roof);
+    } else {
+        game_options.change_background_color = false;
+        document.documentElement.style.setProperty('--background_opacity', 0);
+    }
+
+    if(option !== undefined) {
+        checkbox.checked = option;
+    }
+}
+
 function option_skip_play_button(option) {
     const checkbox = document.getElementById("options_skip_play_button");
     if(checkbox.checked || option) {
@@ -497,11 +497,9 @@ function option_mofu_mofu_mode(option) {
     if(checkbox.checked) {
         game_options.mofu_mofu_mode = true;
         global_flags.is_mofu_mofu_enabled = true;
-        language = languages.mofu_english;
     } else {
         game_options.mofu_mofu_mode = false;
         global_flags.is_mofu_mofu_enabled = false;
-        language = languages.english;
     }
 }
 
@@ -571,6 +569,21 @@ function option_use_text_outlines_for_bars(option) {
     }
 }
 
+function option_do_dynamic_loot_message(option) {
+    const checkbox = document.getElementById("options_dynamic_message");
+    clear_loot_information(); //reset it in both cases
+
+    if(option !== undefined) {
+        checkbox.checked = option;
+    }
+
+    if(checkbox.checked) {
+        game_options.do_dynamic_loot_message = true;
+    } else {
+        game_options.do_dynamic_loot_message = false;
+    }
+}
+
 /**
  * 
  * @param {Object} params
@@ -614,6 +627,8 @@ function change_location({location_id, event, skip_travel_time = false, do_quest
     if(location.crafting) {
         update_displayed_crafting_recipes();
     }
+
+    clear_loot_information();
     
     current_location = location;
 
@@ -631,6 +646,10 @@ function change_location({location_id, event, skip_travel_time = false, do_quest
     }
 
     update_displayed_temperature();
+    if(game_options.change_background_color) {
+        set_light_based_background_color(!current_location.is_under_roof);
+    }
+    
     update_character_stats();
 
     if("connected_locations" in current_location) { 
@@ -678,16 +697,11 @@ function start_activity(selected_activity) {
             current_activity = null;
             return;
         }
-
-        current_activity.earnings = 0;
-        current_activity.working_time = 0;
-
     } else if(activities[current_activity.activity_name].type === "TRAINING") {
         if(!can_work(current_activity)) {
             current_activity = null;
             return;
         }
-        //
     } else if(activities[current_activity.activity_name].type === "GATHERING") { 
         
         let has_proper_tool = !activities[current_activity.activity_name].required_tool_type || character.equipment[activities[current_activity.activity_name].required_tool_type];
@@ -701,10 +715,9 @@ function start_activity(selected_activity) {
         current_activity.gathered_materials = {};
     } else throw `"${activities[current_activity.activity_name].type}" is not a valid activity type!`;
 
+    current_activity.earnings = 0;
     current_activity.gathering_time = 0;
-    if(current_activity.gained_resources) {
-        current_activity.gathering_time_needed = current_activity.getActivityEfficiency().gathering_time_needed;
-    }
+    current_activity.gathering_time_needed = current_activity.getActivityEfficiency().gathering_time_needed;
 
     add_to_content_stack({content_type: "activity", data: {activity: current_activity}});
 
@@ -713,23 +726,26 @@ function start_activity(selected_activity) {
 
 function end_activity() {
     
-    log_message(`${character.name} finished ${current_activity.activity_name}`, "activity_finished");
+    log_message(`%HeroName% finished ${current_activity.activity_name}`, "activity_finished");
     
     if(current_activity.earnings) {
-        log_message(`${character.name} earned ${format_money(current_activity.earnings)}`, "activity_money");
+        log_message(`%HeroName% earned ${format_money(current_activity.earnings)}`, "activity_money");
         add_money_to_character(current_activity.earnings);
     }
 
-    if(current_activity.gathered_materials && game_options.log_total_gathering_gain) {
+    if(current_activity.gathered_materials) {
         const loot = []; 
         Object.keys(current_activity.gathered_materials).forEach(mat_key => {
-            loot.push({item_key: mat_key, count: current_activity.gathered_materials[mat_key]});
+            loot.push({item_id: mat_key, count: current_activity.gathered_materials[mat_key]});
         });
 
-        log_loot({loot_list: loot, is_a_summary: true});
+        if(!game_options.do_dynamic_loot_message) {
+            process_current_loot({loot_list: loot, is_summary: true});
+        }
     }
     end_activity_animation(); //clears the "animation"
     current_activity = null;
+    clear_loot_information();
     remove_from_content_stack(content_stack_removal_options.TOP);
 }
 
@@ -915,14 +931,14 @@ function unlock_global_activity({activity_id}) {
         
         let message = "";
         if(activities[activity_id].unlock_text) {
-           message = activities[activity_id].unlock_text+":<br>";
+           message = rtp(activities[activity_id].unlock_text)+":\n";
         }
         log_message(message + `Gained the ability of "${activities[activity_id].name}"`, "activity_unlocked");
     }
 }
 
 /**
- * @description Unlocks an activity and adds a proper message to the message log. NOT called on loading a save.
+ * @description Unlocks an activity and adds a proper message to the message log
  * @param {Object} activity_data {activity, location_name}
  */
 function unlock_activity(activity_data) {
@@ -932,9 +948,16 @@ function unlock_activity(activity_data) {
         if(!activity_data.skip_message) {
             let message = "";
             if(locations[activity_data.location].activities[activity_data.activity.activity_id].unlock_text) {
-                message = locations[activity_data.location].activities[activity_data.activity.activity_id].unlock_text+":<br>";
+                message = locations[activity_data.location].activities[activity_data.activity.activity_id].unlock_text+":\n";
             }
-            if(activities[activity_data.activity.activity_name].type !== "GATHERING" || global_flags.is_gathering_unlocked) {
+
+            if(
+                (activities[activity_data.activity.activity_name].type !== "GATHERING" || global_flags.is_gathering_unlocked) 
+                && 
+                activities[activity_data.activity.activity_name].is_unlocked
+                &&
+                activities[activity_data.activity.activity_name].base_skills_names.filter(skill_id => skills[skill_id].is_unlocked).length > 0
+            ) {
                 log_message(message + `Unlocked activity "${activity_data.activity.activity_name}" in location "${activity_data.location}"`, "activity_unlocked");
             }
         }
@@ -950,12 +973,12 @@ function unlock_action(action_data) {
             let message = "";
             if(action_data.location) {
                 if(locations[action_data.location].actions[action_data.action.action_id].unlock_text) {
-                    message = locations[action_data.location].actions[action_data.action.action_id].unlock_text+":<br>";
+                    message = locations[action_data.location].actions[action_data.action.action_id].unlock_text+":\n";
                     log_message(message + `Unlocked action "${action_data.action.action_name}" in location "${action_data.location}"`, "activity_unlocked");
                 }
             } else if(action_data.dialogue) {
                 if(dialogues[action_data.dialogue].actions[action_data.action.action_id].unlock_text) {
-                    message = dialogues[action_data.dialogue].actions[action_data.action.action_id].unlock_text+":<br>";
+                    message = dialogues[action_data.dialogue].actions[action_data.action.action_id].unlock_text+":\n";
                     log_message(message + `Unlocked action "${action_data.action.action_name}" wit "${action_data.dialogue}"`, "activity_unlocked");
                 }
             }
@@ -1191,7 +1214,7 @@ function enough_time_for_earnings(selected_job) {
         //if enough time for at least 1 working period
         if(selected_job.availability_time.end > selected_job.availability_time.start) {
             //ends on the same day
-            if(current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period - selected_job.working_time%selected_job.working_period > selected_job.availability_time.end*60
+            if(current_game_time.hour * 60 + current_game_time.minute + selected_job.gathering_time_needed - selected_job.gathering_time%selected_job.gathering_time_needed > selected_job.availability_time.end*60
                 ||  //not enough time left for another work period
                 current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
                 ) {  //too early to start (shouldn't be allowed to start and get here at all)
@@ -1208,13 +1231,13 @@ function enough_time_for_earnings(selected_job) {
             if(current_game_time.hour * 60 + current_game_time.minute > selected_job.availability_time.start*60
                 //timer is past the starting hour, so it's the same day as job starts
                 && 
-                current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period  - selected_job.working_time%selected_job.working_period > selected_job.availability_time.end*60 + 24*60
+                current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period  - selected_job.gathering_time%selected_job.gathering_time_needed > selected_job.availability_time.end*60 + 24*60
                 //time available on this day + time available on next day are less than time needed
                 ||
                 current_game_time.hour * 60 + current_game_time.minute < selected_job.availability_time.start*60
                 //timer is less than the starting hour, so it's the next day
                 &&
-                current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period  - selected_job.working_time%selected_job.working_period > selected_job.availability_time.end*60
+                current_game_time.hour * 60 + current_game_time.minute + selected_job.working_period  - selected_job.gathering_time%selected_job.gathering_time_needed > selected_job.availability_time.end*60
                 //time left on this day is not enough to finish
                 ) {  
                 return false;
@@ -1678,7 +1701,7 @@ function do_enemy_combat_action(enemy_id) {
             const blocked = character.equipment["off-hand"].getShieldStrength() * (character.equipment["off-hand"].tags.ignore_skill?1:character.stats.total_multiplier.block_strength);
 
             if(blocked > damages_dealt[0]) {
-                log_message(character.name + " blocked an attack", "hero_blocked");
+                log_message("%HeroName% blocked an attack", "hero_blocked");
                 return; //damage fully blocked, nothing more can happen 
             } else {
                 damages_dealt = damages_dealt.map(val => Math.max(0,val-blocked));
@@ -1694,7 +1717,7 @@ function do_enemy_combat_action(enemy_id) {
             const xp_to_add = character.wears_armor() ? attacker.xp_value : attacker.xp_value * 1.5; 
             //50% more evasion xp if going without armor
             add_xp_to_skill({skill: skills["Evasion"], xp_to_add: xp_to_add/enemy_count_xp_mod});
-            log_message(character.name + " evaded an attack", "enemy_missed");
+            log_message("%HeroName% evaded an attack", "enemy_missed");
             return; //damage fully evaded, nothing more can happen
         } else {
             add_xp_to_skill({skill: skills["Evasion"], xp_to_add: attacker.xp_value/(2*enemy_count_xp_mod)});
@@ -1721,17 +1744,17 @@ function do_enemy_combat_action(enemy_id) {
 
     if(critted) {
         if(partially_blocked) {
-            log_message(character.name + " partially blocked, was critically hit" + hit_count_msg + " for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked_critically");
+            log_message("%HeroName% partially blocked, was critically hit" + hit_count_msg + " for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked_critically");
         } 
         else {
-            log_message(character.name + " was critically hit" + hit_count_msg + " for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked_critically");
+            log_message("%HeroName% was critically hit" + hit_count_msg + " for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked_critically");
         }
     } else {
         if(partially_blocked) {
-            log_message(character.name + " partially blocked, was hit" + hit_count_msg + " for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked");
+            log_message("%HeroName% partially blocked, was hit" + hit_count_msg + " for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked");
         }
         else {
-            log_message(character.name + " was hit" + hit_count_msg + " for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked");
+            log_message("%HeroName% was hit" + hit_count_msg + " for " + Math.ceil(10*damage_taken)/10 + " dmg", "hero_attacked");
         }
     }
 
@@ -1831,7 +1854,7 @@ function do_character_combat_action({target, attack_power, target_count}) {
 
             let loot = target.get_loot({drop_chance_modifier: 1/target_count**0.6667});
             if(loot.length > 0) {
-                log_loot({loot_list: loot, is_combat: true});
+                process_current_loot({loot_list: loot, is_combat: true});
                 loot = loot.map(x => {return {item_key: item_templates[x.item_id].getInventoryKey(), count: x.count}});
                 add_to_character_inventory(loot);
             }
@@ -1841,7 +1864,7 @@ function do_character_combat_action({target, attack_power, target_count}) {
 
         update_displayed_health_of_enemies();
     } else {
-        log_message(character.name + " has missed", "hero_missed");
+        log_message("%HeroName% has missed", "hero_missed");
     }
 }
 
@@ -1884,7 +1907,7 @@ function kill_enemy(target, do_quest_events = true) {
 function kill_player({is_combat = true} = {}) {
     if(is_combat) {
         total_deaths++;
-        log_message(character.name + " has lost consciousness", "hero_defeat");
+        log_message("%HeroName% has lost consciousness", "hero_defeat");
 
         update_displayed_health();
         if(game_options.auto_return_to_bed && last_location_with_bed) {
@@ -1895,7 +1918,7 @@ function kill_player({is_combat = true} = {}) {
         }
     }
 
-    add_active_effect("Recovering", 5);
+    add_active_effect("Recovering", 2);
 }
 
 function use_stamina({stamina_to_use = 1, skip_persistence_xp_for_stance_change = false}) {
@@ -2052,8 +2075,6 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
         //not undefined => levelup happened and levelup message was returned
             leveled = true;
 
-            message = message.replace("%HeroName%", character.name);
-
             update_displayed_skill_bar(skill, true);
 
             if(typeof should_info === "undefined" || should_info)
@@ -2090,52 +2111,10 @@ function add_xp_to_skill({skill, xp_to_add = 1, should_info = true, use_bonus = 
                 if(current_location?.connected_locations && !current_activity) {
                     Object.keys(current_location.activities).forEach(activity_key => {
                         if(activities[current_location.activities[activity_key].activity_name].base_skills_names.includes(skill.skill_id)) {
-                            update_gathering_tooltip(activities[activity_key]);
+                            update_gathering_tooltip(current_location.activities[activity_key]);
                         }
                     });
                 }
-                /*
-                Object.keys(character.inventory).forEach(inv_key => {
-                    //update equippable/useable item
-                    const item = getItemFromKey(inv_key);
-                    if(item.tags.usable) {
-                        const effects = item.effects;
-                        for(let i = 0; i < effects.length; i++) {
-                            if(effect_templates[effects[i].effect].effects?.bonus_skill_levels?.[skill.skill_id]) {
-                                update_displayed_character_inventory({item_key: inv_key});
-                                return;
-                            }
-                        }
-                    } else if(item.tags.equippable) {
-                        const bonuses = item.getBonusSkillLevels();
-                        if(bonuses[skill.skill_id]) {
-                            update_displayed_character_inventory({item_key: inv_key});
-                        }
-                    }
-                });
-                Object.keys(character.equipment).forEach(eq_slot => {
-                    //update equipped item
-                    if(!character.equipment[eq_slot]) {
-                        return;
-                    }
-                    const bonuses = character.equipment[eq_slot].getBonusSkillLevels(); {
-                        if(bonuses[skill.skill_id]) {
-                            update_displayed_equipment();
-                            update_displayed_character_inventory({equip_slot: eq_slot});
-                        }
-                    }
-                });
-                */
-
-                /*
-                Object.keys(booklist_entry_divs).forEach(book_id => {
-                    //update anthology entry
-                    const bonuses = book_stats[book_id]?.bonuses?.xp_multipliers || {};
-                    if(bonuses[skill.skill_id]) {
-                        update_booklist_entry(book_id, true);
-                    }
-                });
-                */
 
                 update_displayed_effects();
                 //a bit lazy, but there shouldn't ever be enough to have any performance impact
@@ -2252,9 +2231,11 @@ function get_location_rewards(location) {
  * @param {Boolean} rewards_data.inform_overall //if unlocks are to be logged
  * @param {Boolean} rewards_data.inform_textline //if textline unlock is to be logged (requires inform_overall to also be true)
  * @param {String} rewards_data.source_name //in case it's needed for logging a message
+ * @param {Boolean} rewards_data.only_unlocks //processes only unlock-type rewards (skips money, item, etc; doesn't skip rep)
  */
 function process_rewards({rewards = {}, source_type, source_name, is_first_clear, inform_overall = true, inform_textline = true, only_unlocks = false, is_from_loading = false}) {
     let was_any_location_availability_changed = false;
+    let is_current_location_reload_needed = false;
 
     if(rewards.messages && !is_from_loading) {
         for(let i = 0; i < rewards.messages.length; i++) {
@@ -2264,7 +2245,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
 
     if(rewards.money && typeof rewards.money === "number" && !only_unlocks) {
         if(inform_overall) {
-            log_message(`${character.name} earned ${format_money(rewards.money)}`);
+            log_message(`%HeroName% earned ${format_money(rewards.money)}`);
         }
         add_money_to_character(rewards.money);
     }
@@ -2289,7 +2270,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         Object.keys(rewards.skill_xp).forEach(skill_key => {
             if(typeof rewards.skill_xp[skill_key] === "number") {
                 if(inform_overall) {
-                    log_message(`${character.name} gained ${rewards.skill_xp[skill_key]}xp to ${skills[skill_key].name()}`);
+                    log_message(`%HeroName% gained ${rewards.skill_xp[skill_key]}xp to ${skills[skill_key].name()}`);
                 }
                 add_xp_to_skill({skill: skills[skill_key], xp_to_add: rewards.skill_xp[skill_key], cap_gained_xp: false});
             }
@@ -2297,13 +2278,12 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
     }
     
     if(rewards.locations) {
-        //if(source_type === "location") {
-            for(let i = 0; i < rewards.locations.length; i++) {
-               was_any_location_availability_changed = 
-                    unlock_location({location: locations[rewards.locations[i].location], skip_message: (inform_overall && rewards.locations[i].skip_message || is_from_loading)}) 
-                    || was_any_location_availability_changed;
-                    
-            }
+        for(let i = 0; i < rewards.locations.length; i++) {
+            was_any_location_availability_changed = 
+                unlock_location({location: locations[rewards.locations[i].location], skip_message: (inform_overall && rewards.locations[i].skip_message || is_from_loading)}) 
+                || was_any_location_availability_changed;
+                
+        }
     }
 
     if(rewards.flags) {
@@ -2362,6 +2342,11 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
     if(rewards.housing) {
         for(let i = 0; i < rewards.housing.length; i++){
             locations[rewards.housing[i]].housing.is_unlocked = true;
+
+            if(favourite_locations[rewards.housing[i]]) {
+                //unfavourite the location as it will be added to fast travel anyways due to having housing=true
+                remove_location_from_favourites({location_id: rewards.housing[i]});
+            }
         }
     }
 
@@ -2374,7 +2359,7 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
 
     if(rewards.global_activities) {
         for(let i = 0; i < rewards.global_activities?.length; i++) {
-                unlock_global_activity({activity_id: rewards.global_activities[i]});
+            unlock_global_activity({activity_id: rewards.global_activities[i]});
         }
     }
 
@@ -2492,6 +2477,14 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
                 }
             });
         }
+        if(rewards.locks.dialogues) {
+            for(let i = 0; i < rewards.locks.dialogues.length; i++) {
+                dialogues[rewards.locks.dialogues[i]].is_finished = true;
+                if(current_location.dialogues.includes(rewards.locks.dialogues[i])) {
+                    is_current_location_reload_needed = true;
+                }
+            }
+        }
         if(rewards.locks.locations) {
             for(let i = 0; i < rewards.locks.locations.length; i++) {
                 was_any_location_availability_changed = lock_location({location: locations[rewards.locks.locations[i]]}) || was_any_location_availability_changed;
@@ -2522,15 +2515,17 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         for(let i = 0; i < rewards.items.length; i++) {
             let item;
             let count;
+            let quality;
             if(typeof rewards.items[i] === "string") {
                 item = item_templates[rewards.items[i]];
                 count = 1;
             } else {
                 item = item_templates[rewards.items[i].item];
                 count = rewards.items[i].count || 1;
+                item.quality = rewards.items[i].quality;
             }
             
-            log_message(`${character.name} obtained "${item.getName()} x${count}"`);
+            log_message(`%HeroName% obtained "${item.getName()} x${count}"`);
             add_to_character_inventory([{item_key: item.getInventoryKey(), count}]);
         }
     }
@@ -2558,7 +2553,38 @@ function process_rewards({rewards = {}, source_type, source_name, is_first_clear
         } else {
             current_location = locations[rewards.move_to.location];
         }
+    } else if(is_current_location_reload_needed) {
+        change_location({location_id: current_location.id});
     }
+}
+
+/**
+ * Performs logging of provided loot
+ * @param {*} param0 
+ */
+function process_current_loot({loot_list, is_combat, is_summary}) {
+    current_loot.recent = {};
+
+    loot_list.forEach(loot_list_entry => {
+        const key = loot_list_entry.item_id || loot_list_entry.item_key;
+
+        current_loot.recent[key] = {item_id: loot_list_entry.item_id, item_key: loot_list_entry.item_key, item_count: loot_list_entry.count};
+        
+        if(!current_loot.total[key] && loot_list_entry.count) {
+            current_loot.total[key] = {item_id: loot_list_entry.item_id, item_key: loot_list_entry.item_key, item_count: loot_list_entry.count};
+        } else {
+            current_loot.total[key].item_count += loot_list_entry.count;
+        }
+    });
+    
+    log_loot({loot_list: current_loot, is_combat, is_dynamic: game_options.do_dynamic_loot_message, is_a_summary: is_summary && !game_options.do_dynamic_loot_message});
+}
+
+function clear_loot_information() {
+    //called whenever changing a location or stopping an activity
+    current_loot.recent = {};
+    current_loot.total = {};
+    unassign_dynamic_loot_message();
 }
 
 /**
@@ -2572,7 +2598,7 @@ function unlock_location({location, skip_message}) {
         location.is_unlocked = true;
         was_unlocked = true;
         if(!skip_message) {
-            const message = location.unlock_text || `Unlocked location ${location.name}`;
+            const message = location.unlock_text || `Unlocked location "${location.name}"`;
             log_message(message, "location_unlocked");
         }
 
@@ -2665,21 +2691,25 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
         let result;
         let xp_to_add;
         if(subcategory === "items") {
-            const {available_ammount, materials} = selected_recipe.get_availability()
+            const { available_ammount, materials } = selected_recipe.get_availability();    //TODO check, using new method
             let ammount_that_can_be_crafted = Math.min(ammount_wanted_to_craft, available_ammount);
+
             let attempted_crafting_ammount = ammount_that_can_be_crafted; //ammount that will be attempted (e.g. 100)
             let successful_crafting_ammount; //ammount that will succeed (e.g. 100 * 75.6% success = 75.6 -> 75 + 60% for another 1)
+            //all 3 are 'crafting actions', not result counts
+
             if(ammount_that_can_be_crafted > 0) { 
                 const success_chance = selected_recipe.get_success_chance(station_tier);
-                result = selected_recipe.getResult();
-                let {result_id, count} = result;
+                let {result_id, count} = selected_recipe.getResult();
+
+                const scale_results = selected_recipe.scale_results && count > 1;
 
                 const recipe_skill = skills[selected_recipe.recipe_skill];
-                const needed_xp = recipe_skill.total_xp_to_next_lvl - recipe_skill.total_xp;
+                const needed_xp = (recipe_skill.total_xp_to_next_lvl - recipe_skill.total_xp) || Infinity;
                 //const xp_per_craft = get_recipe_xp_value({category, subcategory, recipe_id});
                 const xp_per_craft = Math.min(recipe_skill.xp_to_next_lvl*crafting_skill_xp_gains_cap, get_recipe_xp_value({category, subcategory, recipe_id})*get_skill_xp_gain(recipe_skill.skill_id));
                 const estimated_xp_per_craft = xp_per_craft * success_chance;
-                const needed_crafts = Math.ceil(needed_xp/(estimated_xp_per_craft));
+                const needed_crafts = Math.ceil(needed_xp/estimated_xp_per_craft);
                 
                 attempted_crafting_ammount = Math.min(needed_crafts, ammount_that_can_be_crafted);
                 successful_crafting_ammount = Math.floor(attempted_crafting_ammount*success_chance);
@@ -2716,34 +2746,41 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 total_crafting_attempts += attempted_crafting_ammount;
                 total_crafting_successes += successful_crafting_ammount;
 
-                //remove used materials by id
-                for(let i = 0; i < selected_recipe.materials.length; i++) {
-                    if(selected_recipe.materials[i].material_id) {
-                        const key = item_templates[selected_recipe.materials[i].material_id].getInventoryKey();
-                        remove_from_character_inventory([{item_key: key, item_count: selected_recipe.materials[i].count*attempted_crafting_ammount}]);
+                //remove used materials
+                for (let i = 0; i < selected_recipe.materials.length; i++) {
+                    let to_remove = selected_recipe.materials[i].count * attempted_crafting_ammount;
+
+                    for (let j = 0; j < materials[i].items.length && to_remove > 0; j++) {
+                        const removed = Math.min(materials[i].items[j].count, to_remove);
+                        const key = materials[i].items[j].item.inventory_key;
+
+                        remove_from_character_inventory([{ item_key: key, item_count: removed }]);
+
+                        to_remove -= removed;
                     }
-                } 
+                }
 
-                //remove used materials by material_type
-                for(let i = 0; i < materials.length; i++) {
-                    const mat_type = item_templates[materials[i]].material_type;
-                    const mat = selected_recipe.materials.find(x => x.material_type === mat_type);
-                    remove_from_character_inventory([{item_key: item_templates[materials[i]].getInventoryKey(), item_count: mat.count*attempted_crafting_ammount}]);
-                } 
+                const final_result_count =  count * successful_crafting_ammount; 
+                //recipe is either full success or full fail
 
-                if(successful_crafting_ammount > 0) {
-                    add_to_character_inventory([{item_key: item_templates[result_id].getInventoryKey(), count: count*successful_crafting_ammount}]);
+                const fuzzy_result = count * attempted_crafting_ammount * success_chance;
+                const fuzzy_final_result_count = Math.floor(fuzzy_result) + (Math.random()<(fuzzy_result - Math.floor(fuzzy_result))?1:0);
+                //recipe can be a partial success; ignores successful_crafting_ammount for crafting gains but still uses it for xp as of now
+ 
+                const final_count = scale_results ? fuzzy_final_result_count : final_result_count;
+
+                if(final_count) {
+                    add_to_character_inventory([{item_key: item_templates[result_id].getInventoryKey(), count: final_count}]);
                     let msg = `Created ${item_templates[result_id].getName()}`;
-                    if(attempted_crafting_ammount > 1) {
-                        msg+=` [${count*successful_crafting_ammount} out of ${count*attempted_crafting_ammount}]`;
+                    if(attempted_crafting_ammount > 1 || scale_results) {
+                        msg+=` [${final_count} out of ${count*attempted_crafting_ammount}]`;
                     } else {
-                        msg+= ` x${count*successful_crafting_ammount}`;
+                        msg+= ` x${final_count}`;
                     }
                     log_message(msg, "crafting");
-
                 } else {
                     let msg = `Failed to create ${item_templates[result_id].getName()}`;
-                    if(attempted_crafting_ammount > 1) {
+                    if(attempted_crafting_ammount > 1 || scale_results) {
                         msg+=` [0 out of ${count*attempted_crafting_ammount}]`;
                     } else {
                         msg+= ` x${count*attempted_crafting_ammount}`;
@@ -2763,6 +2800,7 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                             update_character_stats();
                             Object.keys(character.inventory).forEach(item_key => {
                                 if(character.inventory[item_key].item.tags.medicine) {
+                                    //update display if medicine skill leveled up, as it would affect tooltips
                                     update_displayed_character_inventory({item_key});
                                 }
                             });
@@ -2772,13 +2810,11 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 
                 if(attempted_crafting_ammount < ammount_that_can_be_crafted) {
                     use_recipe(target, ammount_that_can_be_crafted - attempted_crafting_ammount);
-                } else {
-                    update_item_recipe_visibility();
-                    update_item_recipe_tooltips();
                 }
                 
-                //do those two whether success or fail since materials get used either way
-
+                update_item_recipe_visibility();
+                update_item_recipe_tooltips();
+                
                 if(leveled) {
                     //reload all recipe tooltips of matching category, except it's kinda pointless if reload happens anyway?
                 }
@@ -2814,7 +2850,7 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                     for(let i = 0; i < ammount_that_can_be_crafted; i++) {
                         //loop for every item to be crafted, as they differ in quality and resultingly in xp too
                         const result_tier = result.component_tier ?? result.item_tier;
-                        quality = selected_recipe.get_quality(station_tier - result_tier);
+                        quality = selected_recipe.roll_quality(station_tier - result_tier);
 
                         crafted_items[quality] = (crafted_items[quality]+1 || 1);
                         all_crafted[quality] = (all_crafted[quality]+1 || 1);
@@ -2890,106 +2926,107 @@ function use_recipe(target, ammount_wanted_to_craft = 1) {
                 }
             }
             
-        } else if(subcategory === "equipment") {
-            //read the selected components, pass them as params
-            
-            const component_1_key = recipe_div.children[1].children[0].children[1].querySelector(".selected_component")?.dataset.item_key;
-            
-            const component_2_key = recipe_div.children[1].children[1].children[1].querySelector(".selected_component")?.dataset.item_key;
+        } else if (subcategory === "equipment") {
+            let ammount_that_can_be_crafted = ammount_wanted_to_craft;
+            const comp = [];
+            const component_keys = {};
 
-            if(!component_1_key || !component_2_key) {
-                return;
-            } else {
-                if(!character.inventory[component_1_key] || !character.inventory[component_2_key]) {
-                    throw new Error(`Tried to create item with components that are not present in the inventory!`);
-                } else {
+            //read the selected components, pass them as params
+            for (var i = 0; i < selected_recipe.components.length; i++) {
+                const component_1_key = recipe_div.children[1].children[i].children[1].querySelector(".selected_component")?.dataset.item_key;
+                if(!component_1_key) {
+                    return;
+                }
+                if(!character.inventory[component_1_key] || !character.inventory[component_1_key].count) {
                     //a probably unnecessary check to see if they are actually in inventory
                     //no need to check how many there is as crafting always takes only 1
-                    if(character.inventory[component_1_key].count && character.inventory[component_2_key].count) {
-                        
-                        const recipe_skill = skills[selected_recipe.recipe_skill]; //should always be "Crafting" but who knows what changes in the future?
-                        let ammount_that_can_be_crafted = Math.min(ammount_wanted_to_craft, character.inventory[component_1_key].count, character.inventory[component_2_key].count);
-                        let needed_xp = recipe_skill.total_xp_to_next_lvl - recipe_skill.total_xp;
-                        let accumulated_xp = 0;
-                        let crafted_items = {};
-                        let crafted_count = 0;
-                        const comp_1 = character.inventory[component_1_key].item;
-                        const comp_2 = character.inventory[component_2_key].item;
-                        const all_crafted = {};
-                        const result = selected_recipe.getResult(comp_1, comp_2, station_tier);
+                    throw new Error(`Tried to create item with components that are not present in the inventory!`);
+                }
 
-                        let quality;
-                        const comp_quality_weighted = selected_recipe.get_component_quality_weighted(comp_1, comp_2);
-                        const comp_tier_max = Math.max(comp_1.component_tier, comp_2.component_tier)
+                ammount_that_can_be_crafted = Math.min(ammount_that_can_be_crafted, character.inventory[component_1_key].count);
+                comp.push(character.inventory[component_1_key]);
+                component_keys[component_1_key] = true;
+            }
 
-                        for(let i = 0; i < ammount_that_can_be_crafted; i++) {
-                            quality = selected_recipe.get_quality(comp_quality_weighted, (station_tier-Math.max(comp_tier_max)) || 0);
+            const recipe_skill = skills[selected_recipe.recipe_skill]; //should always be "Crafting" but who knows what changes in the future?
+            let needed_xp = recipe_skill.total_xp_to_next_lvl - recipe_skill.total_xp;
+            let accumulated_xp = 0;
+            let crafted_items = {};
+            let crafted_count = 0;
+            const all_crafted = {};
+            const result = selected_recipe.getResult(comp, station_tier);
 
-                            crafted_items[quality] = (crafted_items[quality]+1 || 1);
-                            all_crafted[quality] = (all_crafted[quality]+1 || 1);
-                            crafted_count++;
+            let quality;
 
-                            accumulated_xp += Math.min(
-                                    recipe_skill.xp_to_next_lvl, 
-                                    get_recipe_xp_value({category, subcategory, recipe_id, selected_components: [comp_1, comp_2], rarity_multiplier: rarity_multipliers[getItemRarity(quality)]})*get_skill_xp_gain(recipe_skill.skill_id)
-                            );
+            const component_stats = get_component_stats(comp);
+
+            const comp_quality_weighted = component_stats.weighted_quality;
+            const comp_tier_max = component_stats.max_tier;
+
+            for(let i = 0; i < ammount_that_can_be_crafted; i++) {
+                quality = selected_recipe.roll_quality(comp_quality_weighted, station_tier-comp_tier_max);
+
+                crafted_items[quality] = (crafted_items[quality]+1 || 1);
+                all_crafted[quality] = (all_crafted[quality]+1 || 1);
+                crafted_count++;
+
+                accumulated_xp += Math.min(
+                    recipe_skill.xp_to_next_lvl, 
+                    get_recipe_xp_value({category, subcategory, recipe_id, selected_components: comp, rarity_multiplier: rarity_multipliers[getItemRarity(quality)]})*get_skill_xp_gain(recipe_skill.skill_id)
+                );
                             
-                            if(accumulated_xp >= needed_xp) {
-                                const qualities = Object.keys(crafted_items).map(x => Number(x)).sort((a,b)=>b-a);
-                                const highest_qual = qualities[0];
+                if(accumulated_xp >= needed_xp) {
+                    const qualities = Object.keys(crafted_items).map(x => Number(x)).sort((a,b)=>b-a);
+                    const highest_qual = qualities[0];
 
-                                if(crafted_count > 1) {
-                                    log_message(`Created ${result.getName()} x${crafted_count} [highest quality: ${highest_qual}% x${crafted_items[highest_qual]}] (+${Math.floor(accumulated_xp)} xp)`, "crafting");
-                                } else {
-                                    log_message(`Created ${result.getName()} [${highest_qual}% quality] x1 (+${Math.floor(accumulated_xp)} xp)`, "crafting");
-                                }
-
-                                add_xp_to_skill({skill: recipe_skill, xp_to_add: accumulated_xp, use_bonus: false, cap_gained_xp: false});
-
-                                crafted_items = {};
-                                crafted_count = 0;
-                                accumulated_xp = 0;
-                                needed_xp = recipe_skill.total_xp_to_next_lvl - recipe_skill.total_xp;
-                            }
-                        }
-
-                        total_crafting_attempts+=ammount_that_can_be_crafted;
-                        total_crafting_successes+=ammount_that_can_be_crafted;
-
-                        if(crafted_count > 0) {
-                            const qualities = Object.keys(crafted_items).map(x => Number(x)).sort((a,b)=>b-a);
-                            const highest_qual = qualities[0];
-
-                            if(crafted_count > 1) {
-                                log_message(`Created ${result.getName()} x${crafted_count} [highest quality: ${highest_qual}% x${crafted_items[highest_qual]}] (+${Math.floor(accumulated_xp)} xp)`, "crafting");
-
-                            } else {
-                                log_message(`Created ${result.getName()} [${highest_qual}% quality] x1 (+${Math.floor(accumulated_xp)} xp)`, "crafting");
-                            }
-                            add_xp_to_skill({skill: recipe_skill, xp_to_add: accumulated_xp, use_bonus: false, cap_gained_xp: false});
-                        }
-
-                        //grab key, modify it with proper quality value, add (together with count) to list for adding to inv
-                        const result_key = result.getInventoryKey();
-                        const parsed_key = JSON.parse(result_key);
-                        const crafted_qualities = Object.keys(all_crafted).map(x => Number(x));
-                        const to_add = [];
-                        for(let i = 0; i < crafted_qualities.length; i++ ) {
-                            const new_key = JSON.stringify({...parsed_key, quality: crafted_qualities[i]});
-                            to_add.push({item_key: new_key, count: all_crafted[crafted_qualities[i]]});
-                        }
-                        add_to_character_inventory(to_add);
-
-                        //remove used mats
-                        remove_from_character_inventory([{item_key: component_1_key, item_count: ammount_that_can_be_crafted}, {item_key: component_2_key, item_count: ammount_that_can_be_crafted}]);
-                        const component_keys = {};
-                        component_keys[component_1_key] = true;
-                        component_keys[component_2_key] = true;
-                        update_displayed_component_choice({category, recipe_id, component_keys});
+                    if(crafted_count > 1) {
+                        log_message(`Created ${result.getName()} x${crafted_count} [highest quality: ${highest_qual}% x${crafted_items[highest_qual]}] (+${Math.floor(accumulated_xp)} xp)`, "crafting");
+                    } else {
+                        log_message(`Created ${result.getName()} [${highest_qual}% quality] x1 (+${Math.floor(accumulated_xp)} xp)`, "crafting");
                     }
+
+                    add_xp_to_skill({skill: recipe_skill, xp_to_add: accumulated_xp, use_bonus: false, cap_gained_xp: false});
+
+                    crafted_items = {};
+                    crafted_count = 0;
+                    accumulated_xp = 0;
+                    needed_xp = recipe_skill.total_xp_to_next_lvl - recipe_skill.total_xp;
                 }
             }
-            //update_displayed_crafting_recipes();
+
+            total_crafting_attempts+=ammount_that_can_be_crafted;
+            total_crafting_successes+=ammount_that_can_be_crafted;
+
+            if(crafted_count > 0) {
+                const qualities = Object.keys(crafted_items).map(x => Number(x)).sort((a,b)=>b-a);
+                const highest_qual = qualities[0];
+
+                if(crafted_count > 1) {
+                    log_message(`Created ${result.getName()} x${crafted_count} [highest quality: ${highest_qual}% x${crafted_items[highest_qual]}] (+${Math.floor(accumulated_xp)} xp)`, "crafting");
+
+                } else {
+                    log_message(`Created ${result.getName()} [${highest_qual}% quality] x1 (+${Math.floor(accumulated_xp)} xp)`, "crafting");
+                }
+                add_xp_to_skill({skill: recipe_skill, xp_to_add: accumulated_xp, use_bonus: false, cap_gained_xp: false});
+            }
+
+            //grab key, modify it with proper quality value, add (together with count) to list for adding to inv
+            const result_key = result.getInventoryKey();
+            const parsed_key = JSON.parse(result_key);
+            const crafted_qualities = Object.keys(all_crafted).map(x => Number(x));
+            const to_add = [];
+            for(let i = 0; i < crafted_qualities.length; i++ ) {
+                const new_key = JSON.stringify({...parsed_key, quality: crafted_qualities[i]});
+                to_add.push({item_key: new_key, count: all_crafted[crafted_qualities[i]]});
+            }
+            add_to_character_inventory(to_add);
+
+            //remove used mats
+            for (let i in comp) {
+                remove_from_character_inventory([{ item_key: comp[i].item.getInventoryKey(), item_count: ammount_that_can_be_crafted }]);
+            }
+
+            update_displayed_component_choice({ category, subcategory, recipe_id, component_keys });
         }  
     }
 }
@@ -3104,13 +3141,15 @@ function use_item(item_key) {
     const item_effects = item_templates[id].effects;
     let used = false;
     for(let i = 0; i < item_effects.length; i++) {
+        used = add_active_effect(item_effects[i].effect,item_effects[i].duration, true) || used;
+        /*
         const duration = item_templates[id].effects[i].duration;
         if(!active_effects[item_effects[i].effect] || active_effects[item_effects[i].effect].duration < duration) {
 
             active_effects[item_effects[i].effect] = new ActiveEffect({...effect_templates[item_effects[i].effect], duration});
             used = true;
         }
-        //goes through item effects, checking if it has any that is either not currently active or with longer duration than any active
+        */
     }
     
     if(used) {
@@ -3216,36 +3255,89 @@ function change_item_favourite_status(target, item_key) {
     }
 }
 
-function add_active_effect(effect_key, duration){
+/**
+ * 
+ * @param {String} effect_key 
+ * @param {Number} duration 
+ * @param {Boolean} was_xp_added whether this code should skip xp gain for relevant skill (if such exists) 
+ * @returns {Boolean} whether effect was in fact applied (it wasn't active, it had shorter duration, or a weaker was active)
+ */
+function add_active_effect(effect_key, duration, was_xp_added){
     let do_not_apply_because_stronger_is_active = false; //readable names are good, right?
-    Object.keys(active_effects).forEach(effect => {
-        if(do_not_apply_because_stronger_is_active) {
-            return;
-        }
-        Object.keys(effect_templates[effect].group_tags).forEach(group_tag => {
+    const was_already_active = active_effects[effect_key];
+    const old_duration = active_effects[effect_key]?.duration ?? 0;
+
+    if(!was_already_active) {
+        Object.keys(active_effects).forEach(effect => {
             if(do_not_apply_because_stronger_is_active) {
                 return;
             }
-            if(group_tag in effect_templates[effect_key].group_tags) {
-                if(effect_templates[effect].group_tags[group_tag] > effect_templates[effect_key].group_tags[group_tag]) {
-                    //stronger effect is active, skip
-                    do_not_apply_because_stronger_is_active = true; 
-                } else {
-                    //aply the effect normally, remove the weaker
-                    delete active_effects[effect];
+            Object.keys(effect_templates[effect].group_tags).forEach(group_tag => {
+                if(do_not_apply_because_stronger_is_active) {
+                    return;
+                }
+                if(group_tag in effect_templates[effect_key].group_tags) {
+                    if(effect_templates[effect].group_tags[group_tag] > effect_templates[effect_key].group_tags[group_tag]) {
+                        //stronger effect is active, skip
+                        do_not_apply_because_stronger_is_active = true; 
+                    } else {
+                        //existing effect is weaker, aply the effect normally, remove the weaker
+                        delete active_effects[effect];
+                    }
+                }
+            });
+        });
+
+        if(do_not_apply_because_stronger_is_active) {
+            //shouldn't need any recalculations or display updates as nothing was changed
+            return;
+        }
+    } else {
+        delete active_effects[effect_key];
+    }
+    active_effects[effect_key] = new ActiveEffect({...effect_templates[effect_key], duration});
+    update_displayed_effects();
+    
+    if(!was_already_active) {
+        character.stats.add_active_effect_bonus();
+        update_character_stats();
+    }
+
+    //no need to check for whether effect was activated, code won't reach this point if it wasn't
+    if(!was_xp_added) {
+        //update consuming-related skills if relevant tags are present
+        Object.keys(skill_consumable_tags).forEach(skill_id => {
+            if(effect_templates[effect_key].tags[skill_consumable_tags[skill_id]]) {
+                let leveled = add_xp_to_skill({skill: skills[skill_id], xp_to_add: (effect_templates[effect_key].base_xp_value * active_effects[effect_key].duration **.3333)});
+                //if levelup, update all related tooltips
+                if(leveled) {
+                    character.stats.add_active_effect_bonus();
+                    update_character_stats();
+                    Object.keys(character.inventory).forEach(item_key => {
+                        if(character.inventory[item_key].item.tags[skill_consumable_tags[skill_id]]) {
+                            update_displayed_character_inventory({item_key});
+                        }
+                    });
                 }
             }
         });
-    });
-
-    if(do_not_apply_because_stronger_is_active) {
-        //shouldn't need any recalculations or display updates as nothing was changed
-        return;
     }
-    active_effects[effect_key] = new ActiveEffect({...effect_templates[effect_key], duration});
-    character.stats.add_active_effect_bonus();
-    update_displayed_effects();
-    update_character_stats();
+
+    return old_duration < active_effects[effect_key].duration;
+}
+
+function add_xp_to_activity_skills() {
+    if(current_activity.gained_skills) {
+        const gained_skills = current_activity.gained_skills;
+        Object.keys(gained_skills).forEach(skill_key => {
+            add_xp_to_skill({skill: skills[skill_key], xp_to_add: gained_skills[skill_key]});
+        });
+    } else {
+        const skill_names = activities[current_activity.activity_name].base_skills_names;
+        for (let i = 0; i < skill_names?.length; i++) {
+            add_xp_to_skill({skill: skills[skill_names[i]], xp_to_add: current_activity.skill_xp_per_tick[i]});
+        }
+    }
 }
 
 /**
@@ -3443,8 +3535,7 @@ function create_save() {
         }); //save activities' unlocked status (this is separate from unlock status in location)
 
         if(current_activity) {
-            save_data["current_activity"] = {activity_id: current_activity.id, 
-                                             working_time: current_activity.working_time, 
+            save_data["current_activity"] = {activity_id: current_activity.id,
                                              earnings: current_activity.earnings,
                                              gathering_time: current_activity.gathering_time,
                                              gathered_materials: current_activity.gathered_materials,
@@ -3542,6 +3633,7 @@ function create_save() {
         save_data["active_effects"] = active_effects;
 
         save_data["enemy_killcount"] = enemy_killcount;
+        save_data["item_log"] = item_log.items;
 
         save_data["loot_sold_count"] = loot_sold_count;
 
@@ -3631,7 +3723,7 @@ function load(save_data) {
         let any_warnings = false;
 
         current_game_time.loadTime(save_data["current time"]);
-        time_field.innerHTML = current_game_time.toString();
+        time_field.innerText = current_game_time.toString();
         //set game time
 
         Object.keys(save_data.global_flags||{}).forEach(flag => {
@@ -3647,11 +3739,8 @@ function load(save_data) {
             if(languages[save_data.language]) {
                 language = save_data.language;
             } else {
-                console.warn(`Language ${save_data.language} could not be found.`);
-                if(game_options.mofu_mofu_mode) {
-                    language = languages.mofu_english;
-                } else {
-                    language = languages.english;
+                if(save_data.language !== "mofu_english") {
+                    console.warn(`Language ${save_data.language} could not be found.`);
                 }
             }
             
@@ -3695,11 +3784,6 @@ function load(save_data) {
 
         option_remember_filters(game_options.remember_message_log_filters);
 
-        game_options.log_every_gathering_period = save_data.options?.log_every_gathering_period;
-        option_log_all_gathering(game_options.log_every_gathering_period);
-
-        game_options.log_total_gathering_gain = save_data.options?.log_total_gathering_gain;
-        option_log_gathering_result(game_options.log_total_gathering_gain);
 
         game_options.do_background_animations = save_data.options?.do_background_animations;
         option_do_background_animations(game_options.do_background_animations);
@@ -3759,7 +3843,6 @@ function load(save_data) {
         });
         */
         update_displayed_reputation();
-
 
         set_loading_screen_progress("Checking out your books");
         
@@ -3858,6 +3941,8 @@ function load(save_data) {
                         components = {head, handle};
                     }
 
+                    Object.keys(components).forEach(comp => components[comp] = get_component_name(components[comp]));
+
                     if(!item_templates[components.head]){
                         console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
                         any_warnings = true;
@@ -3878,6 +3963,8 @@ function load(save_data) {
                         components = {shield_base, handle};
                     }
 
+                    Object.keys(components).forEach(comp => components[comp] = get_component_name(components[comp]));
+
                     if(!item_templates[components.shield_base]){
                         console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
                         any_warnings = true;
@@ -3889,6 +3976,7 @@ function load(save_data) {
                         equip_item(item, true);
                     }
                 } else if(save_data.character.equipment[key].equip_slot === "artifact" || save_data.character.equipment[key].tags?.tool) {
+                    //no components
                     equip_item(getItem({...item_templates[save_data.character.equipment[key].id]}), true);
                 } else { //armor
                     
@@ -3900,6 +3988,9 @@ function load(save_data) {
                         equip_item(item, true);
                     } else if(save_data.character.equipment[key].components) {
                         let components = save_data.character.equipment[key].components;
+                        
+                        Object.keys(components).forEach(comp => components[comp] = get_component_name(components[comp]));
+
                         if(!item_templates[components.internal]){
                             console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
                             any_warnings = true;
@@ -3923,6 +4014,11 @@ function load(save_data) {
             equip_item(null, true);
         }
 
+        if(save_data.item_log) {
+            item_log.items = save_data.item_log;
+        }
+        update_displayed_item_log();
+
         const item_list = [];
 
         Object.keys(save_data.character.inventory).forEach(key => {
@@ -3933,11 +4029,15 @@ function load(save_data) {
                     //id is just a key of item_templates
                     //if it's present, item is "simple" (no components)
                     //and if it has no quality, it's something non-equippable
+                    const mapped_item = get_item_mapping(id);
+                    id = mapped_item.item_id;
                     if(item_templates[id]) {
+                        const new_item_key = item_templates[id].getInventoryKey();
+
                         if(id === "Coal" && is_a_older_than_b(save_data["game version"], "v0.4.6.12")) {
                             item_list.push({item_key: item_templates["Charcoal"].getInventoryKey(), count: save_data.character.inventory[key].count, quality: quality});
                         } else {
-                            item_list.push({item_key: key, count: save_data.character.inventory[key].count, quality: quality});
+                            item_list.push({item_key: new_item_key, count: Math.round(mapped_item.item_count * save_data.character.inventory[key].count), quality: quality});
                         }
                     } else {
                         console.warn(`Inventory item "${key}" from save on version "${save_data["game version"]} couldn't be found!`);
@@ -3945,6 +4045,8 @@ function load(save_data) {
                         return;
                     }
                 } else if(components) {
+                    Object.keys(components).forEach(comp => components[comp] = get_component_name(components[comp]));
+
                     const {head, handle, shield_base, internal, external} = components;
                     if(head) { //weapon
                         if(!item_templates[head]){
@@ -3956,7 +4058,8 @@ function load(save_data) {
                             any_warnings = true;
                             return;
                         } else {
-                            item_list.push({item_key: key, count: save_data.character.inventory[key].count, quality: quality});
+                            const item = getItem({components, quality, equip_slot: "weapon", item_type: "EQUIPPABLE"});
+                            item_list.push({item_key: item.getInventoryKey(), count: save_data.character.inventory[key].count, quality: quality});
                         }
                     } else if(shield_base){ //shield
                         if(!item_templates[shield_base]){
@@ -3968,7 +4071,8 @@ function load(save_data) {
                             any_warnings = true;
                             return;
                         } else {
-                            item_list.push({item_key: key, count: save_data.character.inventory[key].count, quality: quality});
+                            const item = getItem({components, quality, equip_slot: "off-hand", item_type: "EQUIPPABLE"});
+                            item_list.push({item_key: item.getInventoryKey(), count: save_data.character.inventory[key].count, quality: quality});
                         }
                     } else if(internal) { //armor
                         if(!item_templates[internal]){
@@ -3984,17 +4088,20 @@ function load(save_data) {
                             if(!equip_slot) {
                                 return;
                             }
-                            item_list.push({item_key: key, count: save_data.character.inventory[key].count, quality: quality});
+                            const item = getItem({components, quality, equip_slot:  getArmorSlot(internal), item_type: "EQUIPPABLE"});
+                            item_list.push({item_key: item.getInventoryKey(), count: save_data.character.inventory[key].count, quality: quality});
                         }
                     } else {
                         console.error(`Intentory key "${key}" from save on version "${save_data["game version"]} seems to refer to non-existing item type!`);
                     }
-                } else if(quality) { //no comps but quality (clothing / artifact?)
-                    item_list.push({item_key: key, count: save_data.character.inventory[key].count, quality: quality});
+                } else if(quality) { //no comps but quality (clothing / artifact /)
+                    const item_id = get_component_name(id);
+                    //const new_item_key = item_templates[item_id].getInventoryKey();
+                    item_list.push({item_id: item_id, count: save_data.character.inventory[key].count, quality: quality});
                 } else {
                     console.error(`Intentory key "${key}" from save on version "${save_data["game version"]} is incorrect!`);
                 }
-            } else { //older savefile
+            } else { //older savefile, probably can be deleted at this point
                 if(Array.isArray(save_data.character.inventory[key])) { //is a list of unstackable items (equippables or books), needs to be added 1 by 1
                     for(let i = 0; i < save_data.character.inventory[key].length; i++) {
                         if(save_data.character.inventory[key][i].item_type === "EQUIPPABLE" ) {
@@ -4008,6 +4115,8 @@ function load(save_data) {
                                     const {head, handle} = save_data.character.inventory[key][i];
                                     components = {head, handle};
                                 }
+
+                                Object.keys(components).forEach(comp => components[comp] = get_component_name(components[comp]));
 
                                 if(!item_templates[components.head]){
                                     console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
@@ -4029,6 +4138,8 @@ function load(save_data) {
                                     components = {shield_base, handle};
                                 }
 
+                                Object.keys(components).forEach(comp => components[comp] = get_component_name(components[comp]));
+
                                 if(!item_templates[components.shield_base]){
                                     console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
                                     any_warnings = true;
@@ -4046,9 +4157,11 @@ function load(save_data) {
                                     //compatibility for armors from before v0.4.3
                                     //const item = getItem({item_type: "EQUIPPABLE", equip_slot: "weapon", components});
                                     item_list.push({item_key: key, count: 1});
-                                }
-                                else if(save_data.character.inventory[key][i].components) {
+                                } else if(save_data.character.inventory[key][i].components) {
                                     let components = save_data.character.inventory[key][i].components;
+
+                                    Object.keys(components).forEach(comp => components[comp] = get_component_name(components[comp]));
+
                                     if(!item_templates[components.internal]){
                                         console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
                                         any_warnings = true;
@@ -4079,7 +4192,8 @@ function load(save_data) {
                 }
             }
         }); //add all loaded items to list
-        add_to_character_inventory(item_list); // and then to inventory
+        const skip_item_log = !is_a_older_than_b(save_data["game version"], "v0.5.5.9");
+        add_to_character_inventory(item_list, skip_item_log); // and then to inventory
 
         const storage_item_list = [];
         if(save_data.player_storage) {
@@ -4090,14 +4204,22 @@ function load(save_data) {
                         //id is just a key of item_templates
                         //if it's present, item is "simple" (no components)
                         //and if it has no quality, it's something non-equippable
+
+                        const mapped_item = get_item_mapping(id);
+                        id = mapped_item.item_id;
+
                         if(item_templates[id]) {
-                            storage_item_list.push({item_key: key, count: save_data.player_storage.inventory[key].count, quality: quality});
+                            const new_item_key = item_templates[id].getInventoryKey();
+                            storage_item_list.push({item_key: new_item_key, count: Math.round(mapped_item.item_count * save_data.player_storage.inventory[key].count), quality: quality});
                         } else {
                             console.warn(`Inventory item "${key}" from save on version "${save_data["game version"]} couldn't be found!`);
                             any_warnings = true;
                             return;
                         }
                     } else if(components) {
+
+                        Object.keys(components).forEach(comp => components[comp] = get_component_name(components[comp]));
+
                         const {head, handle, shield_base, internal, external} = components;
                         if(head) { //weapon
                             if(!item_templates[head]){
@@ -4109,7 +4231,8 @@ function load(save_data) {
                                 any_warnings = true;
                                 return;
                             } else {
-                                storage_item_list.push({item_key: key, count: save_data.player_storage.inventory[key].count, quality: quality});
+                                const item = getItem({components, quality, equip_slot: "weapon", item_type: "EQUIPPABLE"});
+                                storage_item_list.push({item_key: item.getInventoryKey(), count: save_data.player_storage.inventory[key].count, quality: quality});
                             }
                         } else if(shield_base){ //shield
                             if(!item_templates[shield_base]){
@@ -4121,7 +4244,8 @@ function load(save_data) {
                                 any_warnings = true;
                                 return;
                             } else {
-                                storage_item_list.push({item_key: key, count: save_data.player_storage.inventory[key].count, quality: quality});
+                                const item = getItem({components, quality, equip_slot: "off-hand", item_type: "EQUIPPABLE"});
+                                storage_item_list.push({item_key: item.getInventoryKey(), count: save_data.player_storage.inventory[key].count, quality: quality});
                             }
                         } else if(internal) { //armor
                             if(!item_templates[internal]){
@@ -4137,13 +4261,15 @@ function load(save_data) {
                                 if(!equip_slot) {
                                     return;
                                 }
-                                storage_item_list.push({item_key: key, count: save_data.player_storage.inventory[key].count, quality: quality});
+                                const item = getItem({components, quality, equip_slot: getArmorSlot(internal), item_type: "EQUIPPABLE"});
+                                storage_item_list.push({item_key: item.getInventoryKey(), count: save_data.player_storage.inventory[key].count, quality: quality});
                             }
                         } else {
                             console.error(`Intentory key "${key}" from save on version "${save_data["game version"]} seems to refer to non-existing item type!`);
                         }
                     } else if(quality) { //no comps but quality (clothing / artifact?)
-                        storage_item_list.push({item_key: key, count: save_data.player_storage.inventory[key].count, quality: quality});
+                        const item_id = get_component_name(id);
+                        storage_item_list.push({item_id: item_id, count: save_data.player_storage.inventory[key].count, quality: quality});
                     } else {
                         console.error(`Intentory key "${key}" from save on version "${save_data["game version"]} is incorrect!`);
                     }
@@ -4232,6 +4358,38 @@ function load(save_data) {
             }
         }
 
+        if(is_a_older_than_b(save_data["game version"], "v0.5.2")) {
+            //dealt with boars but didn't yet start task to deal with ants -> unlock additional line that explains that more work will be available after winter ends
+            if(dialogues["farm supervisor"].textlines["defeated boars"].is_finished && !dialogues["farm supervisor"].textlines["troubled"].is_finished) {
+                process_rewards({
+                    rewards: {
+                        textlines: [{dialogue: "farm supervisor", lines: ["troubled unavailable"]}]
+                    },
+                    inform_overall: false,
+                });
+            }
+
+            if(dialogues["village elder"].textlines["money"].is_finished) {
+                process_rewards({
+                    rewards: {
+                        textlines: [{dialogue: "village elder", lines: ["other work"]}]
+                    },
+                    inform_overall: false,
+                });
+            }
+
+            if(dialogues["village elder"].textlines["cleared cave"].is_finished) {
+                process_rewards({
+                    rewards: {
+                        locks: {
+                            textlines: {"village elder": ["leave for materials"]}
+                        }
+                    },
+                    inform_overall: false,
+                });
+            }
+        }
+
         Object.keys(save_data.traders).forEach(function(trader) { 
             let trader_item_list = [];
             if(traders[trader]){
@@ -4249,16 +4407,25 @@ function load(save_data) {
                             if(id && !quality) { 
                                 //id is just a key of item_templates
                                 //if it's present, item is "simple" (no components)
-                                //and if it has no quality, it's something non-equippable
+                                //and if it has no quality, it's something non-equippable and not a component
+
+                                const mapped_item = get_item_mapping(id);
+                                id = mapped_item.item_id;
+
                                 if(item_templates[id]) {
-                                    trader_item_list.push({item_key: key, count: save_data.traders[trader].inventory[key].count});
+                                    const new_item_key = item_templates[id].getInventoryKey();
+                                    trader_item_list.push({item_key: new_item_key, count: Math.round(mapped_item.item_count * save_data.traders[trader].inventory[key].count), quality: quality});
                                 } else {
                                     console.warn(`Inventory item "${key}" from save on version "${save_data["game version"]} couldn't be found!`);
                                     any_warnings = true;
                                     return;
                                 }
                             } else if(components) {
+
+                                Object.keys(components).forEach(comp => components[comp] = get_component_name(components[comp]));
+
                                 const {head, handle, shield_base, internal, external} = components;
+
                                 if(head) { //weapon
                                     if(!item_templates[head]){
                                         console.warn(`Skipped item: weapon head component "${head}" couldn't be found!`);
@@ -4269,7 +4436,8 @@ function load(save_data) {
                                         any_warnings = true;
                                         return;
                                     } else {
-                                        trader_item_list.push({item_key: key, count: save_data.traders[trader].inventory[key].count, quality});
+                                        const item = getItem({components, quality, equip_slot: "weapon", item_type: "EQUIPPABLE"});
+                                        trader_item_list.push({item_key: item.getInventoryKey(), count: save_data.traders[trader].inventory[key].count, quality});
                                     }
                                 } else if(shield_base){ //shield
                                     if(!item_templates[shield_base]){
@@ -4281,8 +4449,8 @@ function load(save_data) {
                                         any_warnings = true;
                                         return;
                                     } else {
-                                        //const item = getItem({components, quality, equip_slot: "off-hand", item_type: "EQUIPPABLE"});
-                                        trader_item_list.push({item_key: key, count: save_data.traders[trader].inventory[key].count, quality});
+                                        const item = getItem({components, quality, equip_slot: "off-hand", item_type: "EQUIPPABLE"});
+                                        trader_item_list.push({item_key: item.getInventoryKey(), count: save_data.traders[trader].inventory[key].count, quality});
                                     }
                                 } else if(internal) { //armor
                                     if(!item_templates[internal]){
@@ -4297,13 +4465,16 @@ function load(save_data) {
                                         if(!getArmorSlot(internal)) {
                                             return;
                                         }
-                                        trader_item_list.push({item_key: key, count: save_data.traders[trader].inventory[key].count, quality});
+
+                                        const item = getItem({components, quality, equip_slot: getArmorSlot(internal), item_type: "EQUIPPABLE"});
+                                        trader_item_list.push({item_key: item.getInventoryKey(), count: save_data.traders[trader].inventory[key].count, quality});
                                     }
                                 } else {
                                     console.error(`Intentory key "${key}" from save on version "${save_data["game version"]} seems to refer to non-existing item type!`);
                                 }
                             } else if(quality) { //no comps but quality (clothing / artifact?)
-                                trader_item_list.push({item_key: key, count: save_data.traders[trader].inventory[key].count, quality});
+                                const item_id = get_component_name(id);
+                                trader_item_list.push({item_id: item_id, count: save_data.traders[trader].inventory[key].count, quality});
                             } else {
                                 console.error(`Intentory key "${key}" from save on version "${save_data["game version"]} is incorrect!`);
                             }
@@ -4321,6 +4492,8 @@ function load(save_data) {
                                                 const {head, handle} = save_data.traders[trader].inventory[key][i];
                                                 components = {head, handle};
                                             }
+
+                                            Object.keys(components).forEach(comp => components[comp] = get_component_name(components[comp]));
 
                                             if(!item_templates[components.head]){
                                                 console.warn(`Skipped item: weapon head component "${components.head}" couldn't be found!`);
@@ -4343,6 +4516,8 @@ function load(save_data) {
                                                 components = {shield_base, handle};
                                             }
 
+                                            Object.keys(components).forEach(comp => components[comp] = get_component_name(components[comp]));
+
                                             if(!item_templates[components.shield_base]){
                                                 console.warn(`Skipped item: shield base component "${components.shield_base}" couldn't be found!`);
                                                 any_warnings = true;
@@ -4362,6 +4537,9 @@ function load(save_data) {
                                                 trader_item_list.push({item_key: item.getInventoryKey(), count: 1, quality: quality*100});
                                             } else if(save_data.traders[trader].inventory[key][i].components) {
                                                 let components = save_data.traders[trader].inventory[key][i].components;
+
+                                                Object.keys(components).forEach(comp => components[comp] = get_component_name(components[comp]));
+
                                                 if(!item_templates[components.internal]){
                                                     console.warn(`Skipped item: internal armor component "${components.internal}" couldn't be found!`);
                                                     any_warnings = true;
@@ -4547,6 +4725,17 @@ function load(save_data) {
             }
         }
 
+        if(is_a_older_than_b(save_data["game version"], "v0.5.1.11")) {
+            if(locations["Lake beach"].actions["create lake camp"].is_finished) {
+                process_rewards({
+                    rewards: {
+                        crafting: ["Lake beach"],
+                    }, 
+                    inform_overall: false
+                });
+            }
+        }
+
         if(is_a_older_than_b(save_data["game version"], "v0.5.1.5")) {
             if(last_location_with_bed === "Lake camp") {
                 last_location_with_bed = "Lake beach";
@@ -4686,7 +4875,7 @@ function load(save_data) {
                     //active => at least 1 task is unfinished and its specifics matter
                     for(let i = 0; i < save_data["quests"][quest].task_status.length-1; i++) {
                         //set all but last to finished
-                        quests[quest].quest_tasks[i].is_finished = true;
+                        questManager.finishQuestTask({quest_id: quest, task_index: i, only_unlocks: true, skip_warning: true, skip_message: true, is_from_loading: true});
                     }
 
                     //set progress of the first unfinished task
@@ -4848,7 +5037,11 @@ function load(save_data) {
         if(save_data.favourite_locations) {
             Object.keys(save_data.favourite_locations).forEach(location_key => {
                 if(locations[location_key]) {
-                    favourite_locations[location_key] = true;
+                    if(!locations[location_key]?.housing?.is_unlocked) { 
+                        //tiny little check that's not even worth including a version comparison in it
+                        //adds location to favs only if it is not an unlocked housing
+                        favourite_locations[location_key] = true;
+                    }
                 } else {
                     console.warn(`Saved favourite locations included "${location_key}", which is not a valid location id`);
                     any_warnings = true;
@@ -4875,9 +5068,15 @@ function load(save_data) {
         create_displayed_crafting_recipes();
         change_location({location_id: save_data["current location"], skip_travel_time: true, do_quest_events: false, skip_combat: true});
 
-        //temperature is location dependent so display setting is loaded after location is set
+        //temperature and background are location dependent so display settings are loaded after location is set
         game_options.use_uncivilised_temperature_scale = save_data.options?.use_uncivilised_temperature_scale;
         option_use_uncivilised_temperature_scale(game_options.use_uncivilised_temperature_scale);
+
+        game_options.change_background_color = save_data.options?.change_background_color;
+        option_change_background_color(game_options.change_background_color);
+
+        game_options.do_dynamic_loot_message = save_data.options?.do_dynamic_loot_message;
+        option_do_dynamic_loot_message(game_options.do_dynamic_loot_message);
 
         //set activity if any saved
         if(save_data.current_activity) {
@@ -4887,11 +5086,11 @@ function load(save_data) {
                 
                 start_activity(activity_id);
                 if(activities[current_location.activities[activity_id].activity_name].type === "JOB") {
-                    current_activity.working_time = save_data.current_activity.working_time;
                     current_activity.earnings = save_data.current_activity.earnings * ((is_from_before_eco_rework == 1)*10 || 1);
-                    document.getElementById("action_end_earnings").innerHTML = `(earnings: ${format_money(current_activity.earnings)})`;
+                    document.getElementById("action_end_earnings").innerText = `(earnings: ${format_money(current_activity.earnings)})`;
                 } else if(activities[current_location.activities[activity_id].activity_name].type === "GATHERING") {
-                    current_activity.gathered_materials = save_data.current_activity.gathered_materials || {};
+                    //current_activity.gathered_materials = save_data.current_activity.gathered_materials || {};
+                    //pretty sure this was used only for logging purposes, but let's just leave it commented out instead of deleting
                 }
 
                 current_activity.gathering_time = save_data.current_activity.gathering_time;
@@ -5180,6 +5379,11 @@ function update() {
                     window.removeEventListener("resize", start_stars_animation);
                 }
             }
+
+            if(game_options.change_background_color) {
+                set_light_based_background_color(true);
+            }
+            
         } else {
             //under roof
             if(was_raining || was_starry) {
@@ -5191,17 +5395,20 @@ function update() {
             }
             was_raining = false;
             was_starry = false;
+            if(game_options.change_background_color) {
+                set_light_based_background_color(false);
+            }
         }
 
-        //temperature changed => update stats if needed
+        //temperature changed => update stats if needed, update display
         if(current_temperature !== new_temperature) {
             if(!were_stats_updated) {
                 update_character_stats();
             }
-        }
-        //update temperature display every tick, it's just easiest this way
-        update_displayed_temperature();
 
+            update_displayed_temperature();
+        }
+        
         current_temperature = new_temperature;
 
         //add cold status if applicable
@@ -5293,78 +5500,71 @@ function update() {
                     }
                 }
 
-                //add xp to all related skills
-                if(activities[current_activity.activity_name].type !== "GATHERING"){
-                    for(let i = 0; i < activities[current_activity.activity_name].base_skills_names?.length; i++) {
-                        add_xp_to_skill({skill: skills[activities[current_activity.activity_name].base_skills_names[i]], xp_to_add: current_activity.skill_xp_per_tick});
-                    }
-                }
-
                 if(activities[current_activity.activity_name].type === "TRAINING") {
                     add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.5});
                 } else {
                     add_xp_to_skill({skill: skills["Breathing"], xp_to_add: 0.1});
                 }
 
+                //ticks are varied for gathering activities, 1 second for most other activities
                 current_activity.gathering_time += 1;
-                if(current_activity.gained_resources && current_activity.gathering_time >= current_activity.gathering_time_needed) { 
-                    const {gathering_time_needed, gained_resources} = current_activity.getActivityEfficiency();
 
-                    current_activity.gathering_time_needed = gathering_time_needed;
-
-                    const items = [];
-
-                    for(let i = 0; i < gained_resources.length; i++) {
-                        if(Math.random() > (1-gained_resources[i].chance)) {
-                            const count = Math.floor(Math.random()*(gained_resources[i].count[1]-gained_resources[i].count[0]+1))+gained_resources[i].count[0];
-
-                            items.push({item_key: item_templates[gained_resources[i].name].getInventoryKey(), count: count});
-
-                            gathered_materials[gained_resources[i].name] = (gathered_materials[gained_resources[i].name] || 0) + count;
-                        }
-                    }
-
-                    if(items.length > 0) {
-                        if(game_options.log_every_gathering_period) {
-                            log_loot({loot_list: items});
-                        }
-
-                        for(let i = 0; i < items.length; i++) {
-                            current_activity.gathered_materials[items[i].item_key] = (current_activity.gathered_materials[items[i].item_key] + items[i].count || items[i].count);
-                        }
-                        
-                        add_to_character_inventory(items);
-                    }
-
-                    let leveled = false;
-                    if(activities[current_activity.activity_name].type === "GATHERING"){
-                        for(let i = 0; i < activities[current_activity.activity_name].base_skills_names?.length; i++) {
-                            leveled = add_xp_to_skill({skill: skills[activities[current_activity.activity_name].base_skills_names[i]], xp_to_add: current_activity.skill_xp_per_tick}) || leveled;
-                        }
-                        
-                        //if(leveled) {
-                            update_gathering_tooltip(current_activity);
-                        //}
-                    }
-
-                    current_activity.gathering_time = 0;
+                if(!current_activity.xp_given_per_working_period) {
+                    add_xp_to_activity_skills();
                 }
 
-                //if job: payment
-                if(activities[current_activity.activity_name].type === "JOB") {
-                    current_activity.working_time += 1;
+                if(current_activity.gathering_time >= current_activity.gathering_time_needed) { 
+                    const {gathering_time_needed, gained_resources, quality_range} = current_activity.getActivityEfficiency();
+                    const items = [];
 
-                    if(current_activity.working_time % current_activity.working_period == 0) { 
-                        //finished working period, add money
+                    //add xp
+                    if(current_activity.xp_given_per_working_period) {
+                        add_xp_to_activity_skills();
+                    }
+
+                    //add resource drops (if defined)
+                    if (gained_resources) {
+                        for(let i = 0; i < gained_resources.length; i++) {
+                            if(Math.random() > (1-gained_resources[i].chance)) {
+                                const count = random_range(gained_resources[i].count[0], gained_resources[i].count[1]);
+                                let quality = null;
+
+                                //quality
+                                if (quality_range) {
+                                    quality = Math.round(random_range(quality_range[0], quality_range[1]) / 4) * 4;
+                                }
+
+                                items.push({item_id: gained_resources[i].name, quality: quality, count: count});
+
+                                gathered_materials[gained_resources[i].name] = (gathered_materials[gained_resources[i].name] || 0) + count;
+                            }
+                        }
+
+                        if(items.length > 0) {
+                            process_current_loot({loot_list: items});
+                            
+
+                            for(let i = 0; i < items.length; i++) {
+                                current_activity.gathered_materials[items[i].item_id] = (current_activity.gathered_materials[items[i].item_id] + items[i].count || items[i].count);
+                            }
+                        
+                            add_to_character_inventory(items);
+                        }
+
+                        update_gathering_tooltip(current_activity);
+                    }
+
+                    //if job: payment
+                    if (activities[current_activity.activity_name].type === "JOB") {
                         current_activity.earnings += current_activity.get_payment();
                     }
 
-                    update_displayed_ongoing_activity(current_activity, true);
+                    current_activity.gathering_time = 0;
+                    current_activity.gathering_time_needed = gathering_time_needed;
                 }
-                if(activities[current_activity.activity_name].type !== "JOB") {
-                    update_displayed_ongoing_activity(current_activity, false);
-                }
-    
+
+                update_displayed_ongoing_activity(current_activity);
+
                 if(!can_work(current_activity)) {
                     end_activity();
                 }
@@ -5441,6 +5641,8 @@ function update() {
 
         if(character.stats.full.stamina > character.stats.full.max_stamina) {
             character.stats.full.stamina = character.stats.full.max_stamina
+        } else if(character.stats.full.stamina < 0) {
+            character.stats.full.stamina = 0;
         }
 
         if(character.stats.full.stamina_regeneration_flat || character.stats.full.stamina_regeneration_percent) {
@@ -5526,6 +5728,10 @@ function run() {
         
     start_date = Date.now();
     update();
+
+    if(game_options.change_background_color) {
+        set_light_based_background_color(!current_location.is_under_roof);
+    }
 }
 
 window.equip_item = character_equip_item;
@@ -5606,10 +5812,9 @@ window.option_uniform_textsize = option_uniform_textsize;
 window.option_bed_return = option_bed_return;
 window.option_combat_autoswitch = option_combat_autoswitch;
 window.option_remember_filters = option_remember_filters;
-window.option_log_all_gathering = option_log_all_gathering;
-window.option_log_gathering_result = option_log_gathering_result;
 window.option_use_uncivilised_temperature_scale = option_use_uncivilised_temperature_scale;
 window.option_do_background_animations = option_do_background_animations;
+window.option_change_background_color = option_change_background_color;
 window.option_skip_play_button = option_skip_play_button;
 window.option_mofu_mofu_mode = option_mofu_mofu_mode;
 window.option_do_enemy_onhit_animations = option_do_enemy_onhit_animations;
@@ -5617,6 +5822,7 @@ window.option_expo_threshold = option_expo_threshold;
 window.option_hide_max_level_skills = option_hide_max_level_skills;
 window.option_use_text_outlines_for_tooltips = option_use_text_outlines_for_tooltips;
 window.option_use_text_outlines_for_bars = option_use_text_outlines_for_bars;
+window.option_do_dynamic_loot_message = option_do_dynamic_loot_message;
 
 window.change_completed_quest_visibility = change_completed_quest_visibility;
 
@@ -5642,7 +5848,6 @@ set_loading_screen_progress("Waking up from a nyap...");
 play_button.addEventListener("click", run);
 play_button.addEventListener("click", hide_loading_screen);
 
-
 //check if there's an existing save file, otherwise just do some initial setup
 if(!is_on_dev() && save_key in localStorage || is_on_dev() && (dev_save_key in localStorage || !("skip_live_import" in localStorage) && save_key in localStorage )) {
     load_from_localstorage();
@@ -5650,7 +5855,8 @@ if(!is_on_dev() && save_key in localStorage || is_on_dev() && (dev_save_key in l
     update_displayed_xp_bonuses();
 } else {
     set_loading_screen_versions();
-    add_to_character_inventory([{item_id: "Cheap iron sword", quality: 40},
+    add_to_character_inventory([
+                                //{item_id: "Cheap iron sword", quality: 50},
                                 {item_id: "Cheap leather pants", quality: 40},
                                 {item_id: "Stale bread", count: 5},
                             ]);
@@ -5669,9 +5875,9 @@ if(!is_on_dev() && save_key in localStorage || is_on_dev() && (dev_save_key in l
     last_rewarded_export = Date.now() - 1000*60*60*16; //reduces timer by 16 hours, making first reward export appear in 4 hours from starting
 }
 
-
-
 if(!is_loading_error) {
+    set_loading_screen_progress("Translating the meows");
+    translationManager.init(language);
     set_loading_screen_progress("Waiting for you to click 'PLAY'");
     hide_loading_text();
     show_play_button();
@@ -5709,7 +5915,7 @@ function add_all_active_effects(duration){
 
 //add_to_character_inventory([{item_id: "Iron sword", count: 20, quality: 100}]);
 //add_to_character_inventory([{item_id: "Iron sword", count: 20, quality: 120}]);
-//add_to_character_inventory([{item_id: "Camping supplies", count: 20}]);
+//add_to_character_inventory([{item_id: "Potion of sapping", count: 20}]);
 
 //add_stuff_for_testing();
 //add_all_stuff_to_inventory();
@@ -5751,13 +5957,13 @@ if(is_on_dev()) {
     }
 }
 
-export { current_enemies, 
-        current_location, 
-        can_work, active_effects, 
-        enough_time_for_earnings, add_xp_to_skill, 
-        get_current_book, 
-        last_location_with_bed, 
-        last_combat_location, 
+export { current_enemies,
+        current_location,
+        can_work, active_effects,
+        enough_time_for_earnings, add_xp_to_skill,
+        get_current_book,
+        last_location_with_bed,
+        last_combat_location,
         current_stance, selected_stance,
         faved_stances, game_options,
         global_flags,

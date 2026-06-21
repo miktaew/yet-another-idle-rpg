@@ -1,68 +1,79 @@
 <!DOCTYPE html>
 <html>
-<body>
-    <head>
-        <style>
-            body {
-                font-family: Arial, Helvetica, sans-serif;
-            }
-            .collapsible {
-                background-color: #eee;
-                color: #444;
-                cursor: pointer;
-                padding: 18px;
-                width: 100%;
-                border: none;
-                text-align: left;
-                outline: none;
-                font-weight: bold;
-                font-size: 16px;
-                border-top: 1px solid gray;
-            }
-            .collapsible:hover, .collapsible.active {
-                background-color: #ccc;
-            }
-            .content {
-                padding: 0 18px;
-                display: none;
-                overflow: hidden;
-                background-color: #f1f1f1;
-            }
+<head>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        .collapsible {
+            background-color: #eee;
+            color: #444;
+            cursor: pointer;
+            padding: 18px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-weight: bold;
+            font-size: 16px;
+            border-top: 1px solid gray;
+        }
+        .collapsible:hover, .collapsible.active {
+            background-color: #ccc;
+        }
+        .content {
+            padding: 0 18px;
+            display: none;
+            overflow: hidden;
+            background-color: #f1f1f1;
+        }
 
-            #header {
-                background-color: #eee;
-                color: #444;
-                font-size: 20px;
-                padding: 18px;
-                width: fit-content;
-                border: none;
-                text-align: left;
-                outline: none;
-                font-weight: bold;
-                margin-bottom: 20px;
-                font-family: sans-serif;
-            }
+        #content_blocks {
+            overflow-y: scroll;
+            border: 4px solid black;
+        }
 
-            .separated { 
-                border-top: 4px solid gray;
-            }
-        </style>
-    </head>
+        #header {
+            background-color: #eee;
+            color: #444;
+            font-size: 20px;
+            padding: 18px;
+            width: fit-content;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-weight: bold;
+            margin-bottom: 20px;
+            font-family: sans-serif;
+        }
+
+        .separated { 
+            border-top: 4px solid gray;
+        }
+    </style>
+</head>
+<body onload = "resize_blocks()">
+    
 
 <h2>Remember to export!</h2>
 <br>
-<h4>Got a feedback or suggestion? Game has a corner on Arcanum's discord server (near the bottom, right below Proto23's channel)</h4>
+<h4>Got a feedback or suggestion? Game has a corner on <a href="https://discord.gg/G4jCtEch7A">Arcanum's discord server</a> (near the bottom, right below Proto23's channel)</h4>
 <br>
 
 <div id="header">Click on blocks to unfold their content</div>
 
 <h3> Before reading the content below, please keep in mind that the less mysteries there are, the less fun it might become (or maybe not, depends entirely on you!)</h3>
-<br><br>
+
 
 <div id="content_blocks">
     <button type="button" class="collapsible">Where does current game content end?</button>
     <div class="content">
-        As of current game version, the final combat areas are the 'Gentle mountain slope', 'Writhing tunnel' and 'Bear den', with that last position expected to be a serious challenge. It is not yet possible to enter the town nor to open the second gate.
+        As of current game version, the final combat areas are as follows:
+        On the mountain: 'Gentle mountain slope'
+        In the caves: 'Writhing tunnel'
+        In the forest: 'Bear den' and 'Red ant nest'
+        Down the river: 'The swamplands'
+        It is not yet possible to enter the town nor to open the second gate.
     </div>
 
     <button type="button" class="collapsible">I think I found a bug, what do I do?</button>
@@ -72,7 +83,7 @@
         Of course I'm also gonna need a description of the issue, sending just the error message won't be of much use even if it's crucial.<br>
         
         <br><br>
-        Aside from mentioned thread on Arcanum's server, there's also a post on r/incremental_games discord server (game-posts channel), but I check it rarely, so you 100% should tag me (and pray the notification doesn't bug out like they tend to do)
+        Aside from a dedicated channel on <a href="https://discord.gg/G4jCtEch7A">Arcanum's server</a>, there's also a post on r/incremental_games discord server (game-posts channel), but I check it rarely, so you 100% should tag me (and pray the notification doesn't bug out like they tend to do)
     </div>
 
     <button type="button" class="collapsible">Is magic implemented?</button>
@@ -87,6 +98,7 @@
                 <ul>
                     <li>
                         10 W = 1 C, 100 C = 1 S, 100 S = 1 G
+                        W: Wood, C: Copper, S: Silver, G: Gold
                     </li>
                 </ul>
             </li>
@@ -95,7 +107,8 @@
                 <ul>
                     <li>
                         Traders sell items for prices a lot higher than what they would pay for same item (they need to make a living, after all).
-                        <br>"Haggling" skill slightly reduces price difference, at max level the value above 100% is cut in half (meaning 200% will turn into 150%, 300% will turn into 200%, etc) 
+                        <br>"Haggling" skill slightly reduces price difference, at max level the value above 100% is cut in half (meaning 200% will turn into 150%, 300% will turn into 200%, etc)
+                        <br>Reputation also reduces prices for traders in the area.  View your current reputation in the "Data" tab.
                     </li>
                 </ul>
             </li>
@@ -213,7 +226,7 @@
         </ul>
     </div>
 
-    <button type="button" class="collapsible">Area types, calendar, day-night cycle and temperature</button>
+    <button type="button" class="collapsible">Area types, calendar, day-night cycle and weather</button>
     <div class="content">
         <ul>
             <li>
@@ -231,7 +244,7 @@
                 They usually have a corresponding skill that lowers the penalty and is usually leveled by simply being in such place
             </li>
             <li>
-                Staying for too long in a low temperature will trigger certain negative effects, remember to bring warm clothes.
+                Staying for too long in a low temperature will trigger certain negative effects, remember to bring warm clothes. Being wet will reduce your tolerance to cold.
                 <br>
                 Temperatures differ between zones - for some they change less, for others they are static. The system is however fully deterministic.
             </li>
@@ -278,6 +291,7 @@
                         All equippable items come with "quality" parameter. It directly multiplies item's basic bonus (attack for weapons, defense for armors, max block for shields) and value.
                         <br>
                         On top of that, higher quality ranks (starting at uncommon, which begins at 100%) provide another multiplier (based solely on rank) to not only basic bonus, but also to all other stats it has.
+                        That bonus applies at a reduced rate to some stats that would be otherwise too powerful.
                         <br>
                         <pre>
         quality     rarity         color      additional_multiplier
@@ -313,8 +327,37 @@
             <li><a href="https://23html.github.io" target="_blank">Proto23</a> by Corc, a source of inspiration and the sole reason this project was started. Go check it out!</li>
             <li><a href="https://github.com/turuslan/HackTimer" target="_blank">HackTimer</a> by Turuslan, used to avoid slowdowns when tab is inactive</li> 
             <li>Material Icons and Symbols by Google</li>
-            <li>OnonokiNonon for contributing content and improvements, BD Jim for contributing content (let's expand this list in the future!) </li>
+            <li>
+                <dl>
+                    <dt>All the amazing contributors</dt>
+                    <dd>
+                        - OnonokiNonon for content (forest lake, fishing) and too many improvements and other nice things to list them all!
+                    </dd>
+                    <dd>
+                        - BD Jim for content (swampland)
+                    </dd>
+                    <dd>
+                        - Bram-Nordvegr for content (Carya canyon)
+                    </dd>
+                    <dd>
+                        - Erlemar for content (new gathering spot in aforementioned area)
+                    </dd>
+                    <dd>
+                        - Trilbyspaceclone for content (a new book)
+                    </dd>
+                    <dd>
+                        - Mercurius for a tweak to prevent a potential memory leak
+                    </dd>
+                    <dd>
+                        - Nicholas Biles for text tweaks/fixes
+                    </dd>
+                    <dd>
+                        - SardineMilk (yummy) for text tweaks/fixes
+                    </dd>
+                </dl>
+            </li>
             <li>Big big big thanks to all the wonderful Ko-fi supporters!</li>
+
         </ul>
     </div>
     <button type="button" class="collapsible separated">Supporting the game</button>
@@ -354,6 +397,15 @@
             }
         }
     });
+
+    window.addEventListener("resize", resize_blocks);
+
+    function resize_blocks() {
+        let target_height = window.innerHeight - document.getElementById("content_blocks").offsetTop - 16;
+
+        console.log(target_height);
+        document.getElementById("content_blocks").style.height = target_height + "px";
+    }
     
 </script>
 
