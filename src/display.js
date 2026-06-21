@@ -3292,9 +3292,9 @@ function update_displayed_component_choice({category, subcategory, recipe_id, co
                 } else if (a.item.item_name != b.item.item_name) {
                     return b.item.item_name - b.item.item_name;
                 } else {
-                    return b.item.item_quality - a.item.item_quality;
+                    return b.item.quality - a.item.quality;
                 }
-            });
+        });
 
         for(let j = 0; j < components.length; j++) {
             const item_div = document.createElement("div");
