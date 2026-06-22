@@ -1,4 +1,4 @@
-const english = {
+const dialogues = {
     //VILLAGE ELDER
     "elder description": "You see an older man with white hair, but with a still strong posture as if still ready to fight if need be. He eyes you with curiosity.",
     "mofu#elder description": "You see an older man with curly white hair and dull, heavy horns. Despite his years, he stands with a strong posture, ready to ram any threat to the village. He eyes you with curiosity.",
@@ -639,7 +639,164 @@ const english = {
     "swampscout help not": "I'm sorry, can you... show me what you're giving me?",
     "swampscout foraging": "I would actually be really interested in hearing about what things are growing in the swamp.",
     "swampscout foraging answ": "Alright... Sit down on the bed, and I'll tell you... about what I've seen over the years.",
+};
+
+const racial = {
+    "human name": "Human",
+    "human desc": "A basic common race, unique by it's lack of unique characteristics. Average in almost every aspect, yet powerful as a whole.",
+    "human gameplay desc": "Default experience.",
+
+    "cat name": "Nekomimi",
+    "cat alt name": "Cat person",
+    "cat desc": "Nekomimi are a perfect blend of human and cat, equipped with greatest strengths of both. They have amazing grace and precision, "
+                +"being able to always keep their balance, which is further enhanced by their tails, while their ears provide them with very good hearing. They are also incredibly "
+                +"good at climbing. They are individualistic and whimsical, but can still function in a group if there's a need for it. "
+                +"They tend to be very proud, fully aware that their beauty and grace fascinates other races, similarly to elves, but unlike those, they are much easier to please. "
+                +"They make some of best dancers, spies, assassins.",
+
+    "dog name": "Inumimi",
+    "dog alt name": "Dog person",
+    "dog desc": "Inumimi are a perfect blend of human and dog, equipped with greatest strengths of both. They are agile and don't tire easily, but are somewhat vulnerable physically, "
+                +"and their magical abilities are on average quite low. They are good fighters and great swimmers. They are very social, always easily managing to cooperate with others.",
+
+    "fox name": "Kitsunemimi",
+    "fox alt name": "Fox person",
+    "fox desc": "",
+    "fox": "",
+
+    "elf name": "Elf",
+    "elf desc": "",
+    "elf gameplay desc": "",
+
+    "half-elf name": "Half-elf",
+    "half-elf desc": "",
+    "half-elf gameplay desc": "",
+
+    "dwarf name": "Dwarf",
+    "dwarf desc": "",
+    "dwarf gameplay desc": "",
+
+    "half-dwarf name": "Half-dwarf",
+    "half-dwarf desc": "",
+    "half-dwarf gameplay desc": "",
+};
+
+const ui = {
+    "ui create": "Create your hero",
+    "ui cosmetic": "Everything here is purely cosmetic",
+    "ui name selection": "Name (can be changed at any time):",
+    "ui age selection": "Age (relative to race's aging):",
+    "ui height selection": "Height (relative to race average):",
+    "ui young": "Young adult",
+    "ui adult": "Adult",
+    "ui middle aged": "Middle aged",
+    "ui short": "Short",
+    "ui average height": "Average",
+    "ui tall": "Tall",
+    "ui confirm": "Confirm",
+    "ui race_default_label": "Default race",
+    "ui race_furless_label": "Furless races",
+    "ui race_kemonomimi_label": "Kemonomimi races",
+    "ui sort name": "Sort by name",
+    "ui sort value": "Sort by value",
+    "ui sort type": "Sort by type",
+    "ui show all": "All",
+    "ui show equipment": "Equipment",
+    "ui show usable": "Usable",
+    "ui show other": "Other",
+    "ui show favs": "Favs",
+    "ui show stats": "Stats",
+    "ui show bio": "Bio",
+    "ui show tools": "Tools",
+};
+
+const bio = {
+    "height": "Height",
+    "age": "Age",
+    "young": "Young adult",
+    "adult": "Adult",
+    "middle-aged": "Middle-aged",
+    "short": "Short",
+    "average": "Average",
+    "tall": "Tall",
+    "race": "Race",
 }
 
+const stats = {
+    "strength": "str",
+    "strength long": "strength",
+    "health": "hp",
+    "health long": "health",
+    "max_health": "hp",
+    "max_health long": "health",
+    "health_regeneration_flat": "hp regen",
+    "health_regeneration_flat long": "health regen",
+    "health_regeneration_percent": "hp % regen",
+    "health_regeneration_percent long": "health % regen",
+    "health_loss_flat": "hp loss",
+    "health_loss_flat long": "health loss",
+    "health_loss_percent": "hp % loss",
+    "health_loss_percent long": "health % loss",
+    "stamina_regeneration_flat": "stam regen",
+    "stamina_regeneration_flat long": "stamina regen",
+    "stamina_regeneration_percent": "stam % regen",
+    "stamina_regeneration_percent long": "stamina % regen",
+    "max_stamina": "stamina",
+    "max_stamina long": "stamina",
+    "max_mana": "mp",
+    "max_mana long": "mana",
+    "agility": "agl",
+    "agility long": "agility",
+    "dexterity": "dex",
+    "dexterity long": "dexterity",
+    "magic": "magic",
+    "magic long": "magic",
+    "attack_speed": "attack speed",
+    "attack_speed long": "attack speed",
+    "attack_power": "attack power",
+    "attack_power long": "attack power",
+    "crit_rate": "crit rate",
+    "crit_rate long": "critical rate",
+    "crit_multiplier": "crit dmg",
+    "crit_multiplier long": "critical damage",
+    "stamina_efficiency": "stamina efficiency",
+    "stamina_efficiency long": "stamina efficiency",
+    "intuition": "int",
+    "intuition long": "intuition",
+    "block_strength": "shield strength",
+    "block_strength long": "shield strength",
+    "hit_chance": "hit chance",
+    "hit_chance long": "hit chance",
+    "evasion": "EP",
+    "evasion long": "EP",
+    "evasion_points": "EP",
+    "evasion_points long": "EP",
+    "attack_points": "AP",
+    "attack_points long": "AP",
+    "heat_tolerance": "heat resistance",
+    "heat_tolerance long": "heat resistance",
+    "cold_tolerance": "cold resistance",
+    "cold_tolerance long": "cold resistance",
+    "unarmed_power": "unarmed base dmg",
+    "unarmed_power long": "unarmed base damage",
+    "armor_penetration": "armor pen",
+    "armor_penetration long": "armor penetration",
+    "defense": "defense",
+    "defense long": "defense",
+};
 
-export default {english};
+const skills = {
+    "Combat": "Combat",
+    "Evasion": "Evasion",
+    "Equilibrium": "Equilibrium",
+    "Swimming": "Swimming",
+    "Climbing": "Climbing",
+    "Shield blocking": "Shield blocking",
+    "Meditation": "Meditation",
+    "Running": "Running",
+    "Haggling": "Haggling",
+};
+
+const english = {...dialogues, ...racial, ...ui, ...stats, ...skills, ...bio};
+
+export default english;

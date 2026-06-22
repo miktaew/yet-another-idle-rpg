@@ -99,6 +99,7 @@ import { end_activity_animation,
          update_displayed_item_log,
          set_light_based_background_color,
          unassign_dynamic_loot_message,
+         fill_character_bio,
         } from "./display.js";
 import { compare_game_version, crafting_tags_to_skills, get_component_name, get_hit_chance, is_a_older_than_b, get_item_mapping, random_range, skill_consumable_tags, rtp } from "./misc.js";
 import { stances } from "./combat_stances.js";
@@ -112,6 +113,7 @@ import { quests, questManager, active_quests } from "./quests.js";
 import { get_current_temperature_smoothed, is_raining } from "./weather.js";
 import { Pathfinder, speed_modifiers_from_skills } from "./pathfinding.js";
 import { translationManager } from "./translation.js";
+import { characterCreator } from "./character_creation.js";
 
 const save_key = "save data";
 const dev_save_key = "dev save data";
@@ -124,6 +126,7 @@ const global_flags = {
     is_strength_proved: false, //this role could be fulfilled by a quest, but it was originally added before that mechanic; besides, flags are cool and elegant
     is_mofu_mofu_enabled: true,
     is_guard_met: false,
+    is_hero_created: false, //changed after going through hero creation panel
 };
 const flag_unlock_texts = {
     is_gathering_unlocked: "You have gained the ability to gather new materials! Remember to equip your tools first <br>[Note: equipped tools do not appear in inventory as you will be swapping them very rarely]",
@@ -3415,7 +3418,8 @@ function create_save() {
         save_data.global_flags = global_flags;
         save_data.last_rewarded_export = last_rewarded_export || 0;
         save_data["character"] = {
-                                name: character.name, titles: character.titles, 
+                                name: character.name, titles: character.titles,
+                                personal: character.personal,
                                 inventory: {}, equipment: character.equipment,
                                 money: character.money, 
                                 xp: {
@@ -3762,6 +3766,9 @@ function load(save_data) {
 
         name_field.value = save_data.character.name;
         character.name = save_data.character.name;
+        Object.keys(character.personal).forEach(info => {
+            character.personal[info] = save_data.character?.personal?.[info];
+        });
 
         last_location_with_bed = save_data.last_location_with_bed;
         last_combat_location = save_data.last_combat_location;
@@ -5725,6 +5732,7 @@ function run() {
     }
     
     update_displayed_health();
+    fill_character_bio();
         
     start_date = Date.now();
     update();
@@ -5845,9 +5853,6 @@ window.Verify_Game_Objects = Verify_Game_Objects;
 
 set_loading_screen_progress("Waking up from a nyap...");
 
-play_button.addEventListener("click", run);
-play_button.addEventListener("click", hide_loading_screen);
-
 //check if there's an existing save file, otherwise just do some initial setup
 if(!is_on_dev() && save_key in localStorage || is_on_dev() && (dev_save_key in localStorage || !("skip_live_import" in localStorage) && save_key in localStorage )) {
     load_from_localstorage();
@@ -5877,15 +5882,31 @@ if(!is_on_dev() && save_key in localStorage || is_on_dev() && (dev_save_key in l
 
 if(!is_loading_error) {
     set_loading_screen_progress("Translating the meows");
-    translationManager.init(language);
+    await translationManager.init(language);
     set_loading_screen_progress("Waiting for you to click 'PLAY'");
+    translationManager.translateUI(language);
     hide_loading_text();
     show_play_button();
 } else {
     hide_loading_text();
+    await translationManager.init(language);
+    translationManager.translateUI(language);
     set_play_button_text("Play...?");
     show_play_button();
 }
+
+play_button.addEventListener("click", hide_loading_screen);
+
+if(!global_flags.is_hero_created) { //todo: create flag, mark it as true once hero is created
+    characterCreator.fill_creation_panel();
+    //run is triggered from confirming hero creation
+} else {
+    play_button.addEventListener("click", run);
+    characterCreator.remove_creation_panel();
+}
+
+character.stats.add_race_bonus();
+
 
 
 function add_stuff_for_testing() {
@@ -5975,5 +5996,6 @@ export { current_enemies,
         travel_times,
         language,
         add_active_effect,
-        favourite_items, remove_item_from_favourites
+        favourite_items, remove_item_from_favourites,
+        run
 };
