@@ -16,8 +16,8 @@ esbuild
         minify: true,
         outfile: `dist/bundle.js`,
         platform: "browser",
-        target: "es2020",
-        format: 'iife',
+        target: "es2022",
+        format: 'esm',
         logLevel: "debug",
     }).then(() => {
         console.log("Javascript build complete!");
