@@ -656,6 +656,13 @@ const crafting_component_manager = {
                             if(!component_stats.crit_rate) component_stats.crit_rate = {};
                             component_stats.crit_rate.flat = crit_rate;
                         }
+                        let EP_multi = 1 +  0.05 * material.tier;
+                        if(component_stats.evasion_points?.multiplier) {
+                            component_stats.evasion_points.multiplier *= EP_multi;
+                        } else {
+                            if(!component_stats.evasion_points) component_stats.evasion_points = {};
+                            component_stats.evasion_points.multiplier = EP_multi;
+                        }
                     } else if(material.types[i] === component_types.LONG_BLADE) {
                         //AP BONUS FOR LONG BLADES 
                         let AP_multi = 1 +  0.05 * material.tier;

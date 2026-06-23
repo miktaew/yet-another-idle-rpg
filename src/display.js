@@ -1246,12 +1246,12 @@ function sort_displayed_inventory({sort_by, target = "character", change_directi
                 }
             }
 
-            //...otherwise, fall back to sorting by name
+            //...otherwise, fall back to sorting by name in the parts below
         }
 
         if(sort_by === "name" || sort_by === "type") {
-            const name_a = (a.querySelector(".inventory_item_name") || a.querySelector(".equipped_item_name")).innerText.toLowerCase().replaceAll('"',"");
-            const name_b = (b.querySelector(".inventory_item_name") || b.querySelector(".equipped_item_name")).innerText.toLowerCase().replaceAll('"',"");
+            const name_a = a.querySelector(".item_name").innerText.toLowerCase().replaceAll('"',"");
+            const name_b = b.querySelector(".item_name").innerText.toLowerCase().replaceAll('"',"");
             if(name_a > name_b) {
                 return plus;
             } else if(name_a < name_b) {
@@ -1279,7 +1279,7 @@ function sort_displayed_inventory({sort_by, target = "character", change_directi
                 return plus;
             } else {
                 if(value_a === value_b && "item_quality" in a.dataset && "item_quality" in b.dataset) {
-                    if(Number.parseInt(a.dataset.item_quality) > Number.parseInt( b.dataset.item_quality)) {
+                    if(Number.parseInt(a.dataset.item_quality) > Number.parseInt(b.dataset.item_quality)) {
                         return plus;
                     } else {
                         return minus;
@@ -1744,9 +1744,9 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
     let item_name_div_content = "";
     if(target_item.tags?.equippable) {
         if(target_item.tags.tool) {
-            item_name_div_content = `<span class = "item_slot" >[tool]</span> <span>${target_item.getName()}</span>`;
+            item_name_div_content = `<span class = "item_slot" >[tool]</span> <span class="item_name">${target_item.getName()}</span>`;
         } else {
-            item_name_div_content = `<span class = "item_slot" >[${target_item.equip_slot}]</span> <span>${target_item.getName()}</span>`;
+            item_name_div_content = `<span class = "item_slot" >[${target_item.equip_slot}]</span> <span class="item_name">${target_item.getName()}</span>`;
         }
         item_name_div.classList.add(`${item_class}_name`);
         item_div.appendChild(item_name_div);

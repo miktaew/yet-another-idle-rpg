@@ -120,6 +120,8 @@ const dev_save_key = "dev save data";
 const backup_key = "backup save";
 const dev_backup_key = "dev backup save";
 
+const do_hero_creation = false;
+
 const global_flags = {
     is_gathering_unlocked: false,
     is_crafting_unlocked: false,
@@ -5732,7 +5734,7 @@ function run() {
     }
     
     update_displayed_health();
-    fill_character_bio();
+    //fill_character_bio();
         
     start_date = Date.now();
     update();
@@ -5897,7 +5899,7 @@ if(!is_loading_error) {
 
 play_button.addEventListener("click", hide_loading_screen);
 
-if(!global_flags.is_hero_created) { //todo: create flag, mark it as true once hero is created
+if(!global_flags.is_hero_created && do_hero_creation) {
     characterCreator.fill_creation_panel();
     //run is triggered from confirming hero creation
 } else {
