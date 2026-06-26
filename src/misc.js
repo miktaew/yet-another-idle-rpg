@@ -2,7 +2,7 @@
 
 import { game_options } from "./main.js"
 
-const stat_names = {
+const stat_names = {  //can be removed once everything is moved to translations
     "strength": "str",
     "health": "hp",
     "max_health": "hp", //same as for "health"

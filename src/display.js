@@ -33,6 +33,7 @@ import { PointyStarParticle, RainParticle, SnowParticle } from "./particles.js";
 import { get_game_version } from "./game_version.js";
 import { process_conditions } from "./conditions.js";
 import { translationManager } from "./translation.js";
+import { playable_races } from "./races.js";
 let activity_anim; //for the activity and gameAction animation interval
 
 let location_choice_divs = {}; //for dropdowns
@@ -272,6 +273,10 @@ function capitalize_first_letter(some_string) {
     return some_string.charAt(0).toUpperCase() + some_string.slice(1);
 }
 
+function uncapitalize_first_letter(some_string) {
+    return some_string.charAt(0).toLowerCase() + some_string.slice(1);
+}
+
 /**
  * If item was obtained at least once, returns its name. If it wasn't, returns "???" instead.
  * @param {String} item_id 
@@ -368,7 +373,7 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
     
     item_tooltip = `<b>${item.getName()}</b>`;
     if(item.description) {
-        item_tooltip += `<br>${item.description}`; 
+        item_tooltip += `<br>${item.description}`;
     }
 
     let show_quality = item.quality && !options.skip_quality && item.use_quality;
@@ -474,7 +479,7 @@ function create_item_tooltip_content({item, options={}, is_trade = false}) {
                     const sign = equip_stats[effect_key].flat > 0?"+":"";
                         item_tooltip +=
                     `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: ${sign}${equip_stats[effect_key].flat}`;
-                    }
+                }
                 if(equip_stats[effect_key].multiplier != null) {
                         item_tooltip +=
                     `<br>${capitalize_first_letter(effect_key).replace("_"," ")}: x${equip_stats[effect_key].multiplier}`;
@@ -1241,12 +1246,12 @@ function sort_displayed_inventory({sort_by, target = "character", change_directi
                 }
             }
 
-            //...otherwise, fall back to sorting by name
+            //...otherwise, fall back to sorting by name in the parts below
         }
 
         if(sort_by === "name" || sort_by === "type") {
-            const name_a = (a.querySelector(".inventory_item_name") || a.querySelector(".equipped_item_name")).innerText.toLowerCase().replaceAll('"',"");
-            const name_b = (b.querySelector(".inventory_item_name") || b.querySelector(".equipped_item_name")).innerText.toLowerCase().replaceAll('"',"");
+            const name_a = a.querySelector(".item_name").innerText.toLowerCase().replaceAll('"',"");
+            const name_b = b.querySelector(".item_name").innerText.toLowerCase().replaceAll('"',"");
             if(name_a > name_b) {
                 return plus;
             } else if(name_a < name_b) {
@@ -1274,7 +1279,7 @@ function sort_displayed_inventory({sort_by, target = "character", change_directi
                 return plus;
             } else {
                 if(value_a === value_b && "item_quality" in a.dataset && "item_quality" in b.dataset) {
-                    if(Number.parseInt(a.dataset.item_quality) > Number.parseInt( b.dataset.item_quality)) {
+                    if(Number.parseInt(a.dataset.item_quality) > Number.parseInt(b.dataset.item_quality)) {
                         return plus;
                     } else {
                         return minus;
@@ -1739,9 +1744,9 @@ function create_inventory_item_div({key, item_count, target, is_equipped, trade_
     let item_name_div_content = "";
     if(target_item.tags?.equippable) {
         if(target_item.tags.tool) {
-            item_name_div_content = `<span class = "item_slot" >[tool]</span> <span>${target_item.getName()}</span>`;
+            item_name_div_content = `<span class = "item_slot" >[tool]</span> <span class="item_name">${target_item.getName()}</span>`;
         } else {
-            item_name_div_content = `<span class = "item_slot" >[${target_item.equip_slot}]</span> <span>${target_item.getName()}</span>`;
+            item_name_div_content = `<span class = "item_slot" >[${target_item.equip_slot}]</span> <span class="item_name">${target_item.getName()}</span>`;
         }
         item_name_div.classList.add(`${item_class}_name`);
         item_div.appendChild(item_name_div);
@@ -5425,6 +5430,24 @@ function change_completed_quest_visibility() {
     }
 }
 
+function fill_character_bio() {
+    const bio = document.getElementById("character_bio_div");
+
+    const age_div = document.createElement("div");
+    age_div.innerText = translationManager.getText(language, "age") + ": "+ translationManager.getText(language, character.personal.age);
+
+    const height_div = document.createElement("div");
+    height_div.innerText = translationManager.getText(language, "height") + ": "+ translationManager.getText(language, character.personal.height);
+
+    const race_div = document.createElement("div");
+    race_div.innerText = translationManager.getText(language, "race") + ": "+ translationManager.getText(language, playable_races[character.personal.race].name);
+
+    bio.appendChild(age_div);
+    bio.appendChild(height_div);
+    bio.appendChild(race_div);
+
+}
+
 function start_rain_animation() {
     start_background_animation("rain");
 }
@@ -5698,7 +5721,7 @@ export {
     update_displayed_component_choice, update_displayed_material_choice, 
     update_recipe_tooltip, update_displayed_crafting_recipes,
     update_item_recipe_visibility, update_item_recipe_tooltips,
-    update_displayed_book,
+    update_displayed_book, uncapitalize_first_letter,
     update_backup_load_button, update_other_save_load_button,
     start_game_action_display,
     set_game_action_finish_text,
@@ -5720,5 +5743,6 @@ export {
     update_displayed_item_log,
     set_HTML,
     set_light_based_background_color,
-    unassign_dynamic_loot_message
+    unassign_dynamic_loot_message,
+    fill_character_bio
 }

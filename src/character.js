@@ -1,6 +1,5 @@
 "use strict";
 
-import { InventoryHaver } from "./inventory.js";
 import { skill_categories, skills, weapon_type_to_skill } from "./skills.js";
 import { update_displayed_character_inventory, update_displayed_equipment, 
          update_displayed_stats,
@@ -15,6 +14,8 @@ import { active_effects, current_location, current_stance, favourite_consumables
 import { current_game_time, is_night } from "./game_time.js";
 import { getItemFromKey, item_templates, item_log } from "./items.js";
 import { skill_consumable_tags } from "./misc.js";
+import { Person } from "./person.js";
+import { playable_races } from "./races.js";
 
 const base_block_chance = 0.75; //+20 from the skill
 const base_xp_cost = 10;
@@ -38,9 +39,9 @@ const lowest_tolerable_temperature = cold_status_temperatures[0];
 //array for matching the names of aforementioned effects
 const cold_status_effects = ["Cold","Very cold","Freezing","Hypothermia"];
 
-class Hero extends InventoryHaver {
-        constructor() {
-                super();
+class Hero extends Person {
+        constructor(data) {
+                super(data);
                 this.base_stats = {
                         max_health: 60, 
                         health: 60,
@@ -77,6 +78,7 @@ class Hero extends InventoryHaver {
                         unarmed_power: 1, //base damage for unarmed, as it has no weapon dmg to scale with
                         armor_penetration: 0,
                 };
+                this.race = "nekomimi";
                 this.name = "Hero";
                 this.titles = {};
                 this.stats = {
@@ -84,6 +86,7 @@ class Hero extends InventoryHaver {
                     total_flat: {},
                     total_multiplier: {},
                     flat: {
+                            race: {},
                             level: {},
                             skills: {},
                             equipment: {},
@@ -93,6 +96,7 @@ class Hero extends InventoryHaver {
                             environment: {},
                     },
                     multiplier: {
+                            race: {},
                             skills: {},
                             skill_milestones: {},
                             equipment: {},
@@ -137,6 +141,7 @@ class Hero extends InventoryHaver {
                                 //then all skills and categories added in main.js in setup()
                         },
                         multiplier: {
+                                race: {},
                                 levels: {},
                                 skills: {},
                                 //equipment: {},
@@ -259,7 +264,43 @@ class Hero extends InventoryHaver {
 
 const character = new Hero();
 
-//todo: move all remaining stuff to the class
+/**
+ * adds race milestone bonuses to character stats
+ */
+character.stats.add_race_bonus = function () {
+    const stats = playable_races[character.race].stats;
+    const xp_multipliers = playable_races[character.race].xp_multipliers;
+    Object.keys(stats).forEach(stat => {
+        if(stats[stat].flat) {
+            character.stats.flat.race[stat] = (character.stats.flat.race[stat] || 0) + stats[stat].flat;
+        }
+        if(stats[stat].multiplier) {
+            character.stats.multiplier.race[stat] = (character.stats.multiplier.race[stat] || 1) * stats[stat].multiplier;
+        }
+    });
+
+    if(xp_multipliers?.hero) {
+        character.xp_bonuses.multiplier.race.hero = (character.xp_bonuses.multiplier.race.hero || 1) * xp_multipliers.hero;
+    }
+    if(xp_multipliers?.all) {
+        character.xp_bonuses.multiplier.race.all = (character.xp_bonuses.multiplier.race.all || 1) * xp_multipliers.all;
+    }
+    if(xp_multipliers?.all_skill) {
+        character.xp_bonuses.multiplier.race.all_skill = (character.xp_bonuses.multiplier.race.all_skill || 1) * xp_multipliers.all_skill;
+    }
+
+    Object.keys(skills).forEach(skill => {
+        if(xp_multipliers[skill]) {
+            character.xp_bonuses.multiplier.race[skill] = (character.xp_bonuses.multiplier.race[skill] || 1) * xp_multipliers[skill];
+        }
+    });
+    Object.keys(skill_categories).forEach(category => {
+        const cat = "category_"+category;
+        if(xp_multipliers[cat]) {
+            character.xp_bonuses.multiplier.race[cat] = (character.xp_bonuses.multiplier.race[cat] || 1) * xp_multipliers[cat];
+        }
+    });
+}
 
 /**
  * adds skill milestone bonuses to character stats
@@ -593,7 +634,8 @@ character.update_stats = function () {
     character.stats.total_flat.attack_power = character.stats.full.attack_power/character.stats.total_multiplier.attack_power;
     Object.keys(character.xp_bonuses.total_multiplier).forEach(bonus_target => {
         character.xp_bonuses.total_multiplier[bonus_target] = 
-                  (character.xp_bonuses.multiplier.levels[bonus_target] || 1)
+                (character.xp_bonuses.multiplier.race[bonus_target] || 1)
+                * (character.xp_bonuses.multiplier.levels[bonus_target] || 1)
                 * (character.xp_bonuses.multiplier.skills[bonus_target] || 1)
                 * (character.xp_bonuses.multiplier.books[bonus_target] || 1)
                 * (character.xp_bonuses.multiplier.active_effects[bonus_target] || 1);
@@ -800,7 +842,7 @@ function manage_changed_skill_bonuses(item) {
         }
 
         if(current_location?.tags["combat zone"]) {
-            update_displayed_location_types(current_location);
+            update_displayed_location_types(current_location)
         }
     }
 }

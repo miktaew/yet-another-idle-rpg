@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <HTML lang="en">
     <head>
-        <link rel = "stylesheet" href = "style.css?version=v0.5.5.29">
+        <link rel = "stylesheet" href = "style.css?version=v0.5.5.30">
         
         <script type="module" src="resources/js/HackTimer/HackTimer.min.js"></script>
 
-        <script type='module' src="dist/bundle.js?version=v0.5.5.29"></script>
+        <script type='module' src="dist/bundle.js?version=v0.5.5.30"></script>
         <!--script type="module" src="src/main.js"></script-->
 
         <!--Icons-->
@@ -64,6 +64,50 @@
             </div>
             <div id ="loading_screen_play_button" class="none_display">
                 PLAY
+            </div>
+        </div>
+
+        <div id = "hero_creation_panel">
+            <div id = "hero_creation_panel_content">
+                 <div id = "hero_creation_panel_title" data-translation="ui create"></div>
+                <div id = "hero_creation_panel_note" data-translation="ui cosmetic"></div>
+                <div id = "hero_creation_panel_first_row"> 
+                    <div id = "hero_creation_panel_name"> 
+                        <label for="hero_creation_name_field" data-translation="ui name selection"></label><br>
+                        <input type = "text" id = "hero_creation_name_field" value="Hero"> 
+                    </div>
+                    <div id = "hero_creation_panel_height_selection">
+                        <label for="height_select" data-translation="ui height selection"></label><br>
+                        <select id="height_select">
+                            <option data-translation="ui short" value="short"></option>
+                            <option data-translation="ui average height" selected="selected" value="average"></option>
+                            <option data-translation="ui tall" value="tall"></option>
+                        </select>  
+                    </div>
+                    <div id = "hero_creation_panel_age_selection">
+                        <label for="age_select" data-translation="ui age selection"></label><br>
+                        <select id="age_select">
+                            <option data-translation="ui young" value="young"></option>
+                            <option data-translation="ui adult" value="adult"></option>
+                            <option data-translation="ui middle aged" value="middle_aged"></option>
+                        </select>
+                    </div>
+                </div>
+                <div id = "hero_creation_panel_race_selection">
+                    <div id = "hero_creation_panel_race_default"> 
+                        <div id = "race_default_label" class="race_label" data-translation="ui race_default_label"></div>
+                    </div>
+                    <div id = "hero_creation_panel_race_furless"> 
+                        <div id = "race_furless_label" class="race_label" data-translation="ui race_furless_label"></div>
+                    </div>
+                    <div id = "hero_creation_panel_race_kemonomimi">
+                        <div id = "race_kemonomimi_label" class="race_label" data-translation="ui race_kemonomimi_label"></div> </div>
+                </div>
+                <div id = "hero_creation_panel_confirmation_wrapper">
+                    <div id = "hero_creation_panel_confirmation" data-translation="ui confirm">
+                        
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -137,16 +181,16 @@
                     <div id = "inventory_content_div"> </div>
 
                     <div id = "inventory_sorting_div" class="activable_buttons">
-                        <div id = "inventory_sort_by_name" class = "character_sorting_button active_selection_button" onclick='sortCharacterInventory("name")'> Sort by name </div>
-                        <div id = "inventory_sort_by_price" class = "character_sorting_button" onclick='sortCharacterInventory("price")'> Sort by value </div>
-                        <div id = "inventory_sort_by_type" class = "character_sorting_button" onclick='sortCharacterInventory("type")'> Sort by type </div>
+                        <div id = "inventory_sort_by_name" class = "character_sorting_button active_selection_button" onclick='sortCharacterInventory("name")' data-translation="ui sort name"></div>
+                        <div id = "inventory_sort_by_price" class = "character_sorting_button" onclick='sortCharacterInventory("price")' data-translation="ui sort value"></div>
+                        <div id = "inventory_sort_by_type" class = "character_sorting_button" onclick='sortCharacterInventory("type")' data-translation="ui sort type"></div>
                     </div>
                     <div id = "inventory_control_div" class="activable_buttons">
-                        <div id = "inventory_show_all" class = "inventory_control_button active_selection_button" onclick = "showAllItems()"> All </div>
-                        <div id = "inventory_show_equipment" class = "inventory_control_button" onclick = "showOnlyEquipment()"> Equipment </div>
-                        <div id = "inventory_show_consumable" class = "inventory_control_button" onclick = "showOnlyConsumables()"> Usable </div>
-                        <div id = "inventory_show_other" class = "inventory_control_button" onclick = "showOnlyOther()"> Other </div> 
-                        <div id = "inventory_show_favs" class = "inventory_control_button" onclick = "showOnlyFavs()"> Favs </div> 
+                        <div id = "inventory_show_all" class = "inventory_control_button active_selection_button" onclick = "showAllItems()" data-translation="ui show all"></div>
+                        <div id = "inventory_show_equipment" class = "inventory_control_button" onclick = "showOnlyEquipment()" data-translation="ui show equipment"></div>
+                        <div id = "inventory_show_consumable" class = "inventory_control_button" onclick = "showOnlyConsumables()" data-translation="ui show usable"></div>
+                        <div id = "inventory_show_other" class = "inventory_control_button" onclick = "showOnlyOther()" data-translation="ui show other"></div> 
+                        <div id = "inventory_show_favs" class = "inventory_control_button" onclick = "showOnlyFavs()" data-translation="ui show favs"></div> 
                     </div>
                 </div>
 
@@ -580,15 +624,9 @@
 
                     <div id = "trade_div">
                         <div id = "trader_sorting_buttons" class="activable_buttons"> 
-                            <div id = "trader_sort_by_name" class = "trader_sorting_button active_selection_button" onclick='sortTraderInventory("name")'>
-                                Sort by name
-                            </div>
-                            <div id = "trader_sort_by_price" class = "trader_sorting_button" onclick='sortTraderInventory("price")'>
-                                Sort by value
-                            </div>
-                            <div id = "trader_sort_by_type" class = "trader_sorting_button" onclick='sortTraderInventory("type")'>
-                                Sort by type
-                        </div>
+                            <div id = "trader_sort_by_name" class = "trader_sorting_button active_selection_button" onclick='sortTraderInventory("name")' data-translation="ui sort name"></div>
+                            <div id = "trader_sort_by_price" class = "trader_sorting_button" onclick='sortTraderInventory("price")' data-translation="ui sort value"></div>
+                            <div id = "trader_sort_by_type" class = "trader_sorting_button" onclick='sortTraderInventory("type")' data-translation="ui sort type"></div>
                         </div>
                         <div id = "trader_category_buttons" class="activable_buttons">
                             <div id = "trader_category_all" class = "trader_category_button active_selection_button" onclick='showAllTraderItems()'>
@@ -635,15 +673,9 @@
 
                     <div id = "storage_div">
                         <div id = "storage_sorting_buttons" class="activable_buttons"> 
-                            <div id = "storage_sort_by_name" class = "storage_sorting_button active_selection_button" onclick='sortStorageInventory("name")'>
-                                Sort by name
-                            </div>
-                            <div id = "storage_sort_by_price" class = "storage_sorting_button" onclick='sortStorageInventory("price")'>
-                                Sort by value
-                            </div>
-                            <div id = "storage_sort_by_type" class = "storage_sorting_button" onclick='sortStorageInventory("type")'>
-                                Sort by type
-                        </div>
+                            <div id = "storage_sort_by_name" class = "storage_sorting_button active_selection_button" onclick='sortStorageInventory("name")' data-translation="ui sort name"></div>
+                            <div id = "storage_sort_by_price" class = "storage_sorting_button" onclick='sortStorageInventory("price")' data-translation="ui sort value"></div>
+                            <div id = "storage_sort_by_type" class = "storage_sorting_button" onclick='sortStorageInventory("type")' data-translation="ui sort type"></div>
                         </div>
                         <div id = "storage_category_buttons" class="activable_buttons">
                             <div id = "storage_category_all" class = "storage_category_button active_selection_button" onclick='showAllStorageItems()'>
@@ -703,7 +735,7 @@
                                 <label for="options_hide_max_level_skills">Hide max level skills</label>
                             </div>
                             <div id="skill_sorting_buttons" class="activable_buttons">
-                                <div id="skill_sort_by_name" class="skill_sorting_button active_selection_button" onclick='sortSkills({sort_by:"name"})'>
+                                <div id="skill_sort_by_name" class="skill_sorting_button active_selection_button" onclick='sortSkills({sort_by:"name"})' .>
                                     Sort by name
                                 </div>
                                 <div id="skill_sort_by_level" class="skill_sorting_button" onclick='sortSkills({sort_by:"level"})'>
@@ -912,6 +944,10 @@
                             </div>
 
                         </div>
+
+                        <div id = "character_bio_div">
+                            
+                        </div>
                         
                         <div id = "character_equipment_div"> 
                             <div class = "grid_container">
@@ -946,9 +982,10 @@
                         </div>
                     </div>
                     <div id = "character_control_div" class="activable_buttons">
-                        <div id = "character_show_stats" class = "character_control_button active_selection_button" onclick = "showCharacterStats()"> Stats </div>
-                        <div id = "character_show_equipment" class = "character_control_button" onclick = "showCharacterEquipment()"> Equipment </div>
-                        <div id = "character_show_tools" class = "character_control_button" onclick = "showCharacterTools()"> Tools </div>
+                        <div id = "character_show_stats" class = "character_control_button active_selection_button" onclick = "showCharacterStats()" data-translation="ui show stats"></div>
+                        <!--div id = "character_show_stats" class = "character_control_button" onclick = "showCharacterBio()" data-translation="ui show bio"></div-->
+                        <div id = "character_show_equipment" class = "character_control_button" onclick = "showCharacterEquipment()" data-translation="ui show equipment"></div>
+                        <div id = "character_show_tools" class = "character_control_button" onclick = "showCharacterTools()" data-translation="ui show tools"></div>
                     </div>
                 </div>
             </div>
@@ -1052,7 +1089,7 @@
                 </div>
                 <div class="options_choice">
                     <input type="checkbox" id="options_mofu_mofu_mode" name="options_mofu_mofu_mode" onclick = "option_mofu_mofu_mode()" checked>
-                    <label for="options_mofu_mofu_mode">Enable the mofu mofu</label>
+                    <label for="options_mofu_mofu_mode">Enable kemonomimi mode</label>
                 </div>
 
             </div>
@@ -1230,7 +1267,6 @@
                     tab.style.display = "none";
                 }
                 target.style.display = display;
-               
             }
 
             function showData() {
@@ -1248,6 +1284,9 @@
 
             function showCharacterStats() {
                 changeTab(document.getElementById("character_stats_div"), "");
+            }
+            function showCharacterBio() {
+                changeTab(document.getElementById("character_bio_div"), "");
             }
             function showCharacterEquipment() {
                 changeTab(document.getElementById("character_equipment_div"), "grid");

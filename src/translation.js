@@ -7,17 +7,18 @@ import { global_flags } from "./main.js";
 const translations = {};
 const default_language = "english";
 
-const translationManager = {
+class TranslationManager {
+    constructor() {}
 
-    init: async(language) => {
+    init = async(language) => {
         if(!translations[language]) {
             const module = await import(`../locales/${language}.js`);
-            translations[language] = module.default[language];
+            translations[language] = module.default;
             console.log(`Language '${language}' loaded!`);
         }
-    },
+    };
 
-    getText: (language, text_id) => {
+    getText = (language, text_id) => {
         if(!translations[language]?.[text_id]) {
             //todo: try fallback to default if a different language is being used
             //will need to init the default first, if it's not loaded yet
@@ -33,7 +34,17 @@ const translationManager = {
                 return translations[language][text_id];
             }
         }
-    }
-};
+    };
+
+    translateUI = async(language) => {
+        const translatables = document.querySelectorAll('[data-translation]');
+        translatables.forEach(elem => {
+            elem.innerText = this.getText(language, elem.dataset.translation);
+        });
+
+    };
+}
+
+const translationManager = new TranslationManager();
 
 export { translationManager, translations };

@@ -62,12 +62,14 @@
 	--temperature_tooltip_top: 0px;
 	--temperature_tooltip_left: 0px;
 
-
 	--stance_tooltip_top: 0px;
 	--stance_tooltip_left: 0px;
 
 	--bestiary_entry_tooltip_top: 0px;
 	--bestiary_entry_tooltip_left: 0px;
+
+    --race_choice_tooltip_top: 0px;
+    --race_choice_tooltip_left: 0px;
 
 	--actions_div_height_default: 420px;
 	--actions_div_height_combat: 120px;
@@ -144,7 +146,7 @@ input[type=checkbox], input[type=radio] {
 	visibility: visible;
 	width: 100%;
 	height: 100%;
-	z-index: 10;
+	z-index: 100;
 	position: fixed;
 	top: 0px;
 	left: 0px;
@@ -246,6 +248,133 @@ input[type=checkbox], input[type=radio] {
 		color: rgba(255, 230, 0, 0.555);
 		background-color: black;
 	}
+
+#hero_creation_panel {
+	width: 100%;
+	height: 100%;
+	z-index: 10;
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	justify-content: center;
+    background-color: rgba(80, 80, 80, 0.97);
+}
+    #hero_creation_panel_title {
+		width: 950px;
+		font-size: 42px;
+		font-weight: bold;
+		position: absolute;
+        left: 10px;
+	}
+    #hero_creation_panel_note {
+        position: absolute;
+        top: 50px;
+        left: 10px;
+        font-style: italic;  
+    }
+    #hero_creation_panel_content {
+        position: absolute;
+        top: 150px;
+        left: 100px;
+        width: 1000px;
+        height: 400px;
+        border: 5px dashed gray;
+        background-image: var(--background_gradient);
+        font-size: 18px;
+    }
+    #hero_creation_panel_first_row div {
+        position: absolute;
+        width: 360px;;
+        left: 10px;
+    }
+
+    #hero_creation_panel_name {
+        position: absolute;
+        top: 100px;
+    }
+
+    #hero_creation_panel_age_selection {
+        position: absolute;
+        top: 150px;
+    }
+
+    #hero_creation_panel_height_selection {
+        position: absolute;
+        top: 200px;
+    }
+
+    #hero_creation_panel_race_selection {
+        position: absolute;
+        top: 20px;
+        left: 360px;
+        width: 600px;
+        height: 320px;
+        border: 1px solid gray;
+    }
+
+        .race_label {
+            text-align: center;
+        }
+        
+        #hero_creation_panel_race_default {
+            position: absolute;
+            width: 200px;
+        }
+
+        #hero_creation_panel_race_furless {
+            position: absolute;
+            left: 200px;
+            width: 200px;
+        }
+
+        #hero_creation_panel_race_kemonomimi {
+            position: absolute;
+            left: 400px;
+            width: 200px;
+        }
+
+            .race_selection_button {
+                width: 180px;
+                border: 2px solid gray;
+                margin-left: 10px;
+                margin-top: 5px;
+                height: 60px;
+                font-size: 20px;
+                display: flex;
+                text-align: center;
+                justify-content: center;
+                align-items: center;
+            }
+
+                .race_selection_button:hover .race_choice_tooltip {
+                    display: block;
+                }
+                .race_choice_tooltip {
+                    top: var(--race_choice_tooltip_top);
+                    left: var(--race_choice_tooltip_left);
+                    max-width: 450px;
+                    min-width: 150px;
+                    width: max-content;
+                }
+
+    #hero_creation_panel_confirmation_wrapper {
+        width: 100%;
+        position: absolute;
+        bottom: 5px;
+        display: flex;
+        text-align: center;
+        justify-content: center;
+    }
+
+    #hero_creation_panel_confirmation {
+        font-size: 32px;
+        width: 160px;
+        border: 2px solid rgb(177, 168, 219);
+    }
+    
+    #hero_creation_panel_confirmation:hover {
+        background-color: var(--active_button_color);
+    }
 
 #background_canvas {
 	position: absolute;
@@ -685,7 +814,7 @@ input[type=checkbox], input[type=radio] {
 	width: fit-content;
 }
 
-.item_tooltip, .job_tooltip, .location_tooltip, .recipe_tooltip, #export_button_tooltip {
+.item_tooltip, .job_tooltip, .location_tooltip, .recipe_tooltip, #export_button_tooltip, .race_choice_tooltip {
 	display: none;
 	text-align: left;
 	color: white;
@@ -1497,7 +1626,7 @@ i {
 }
 
 .character_control_button:hover, .inventory_control_button:hover, 
-.trader_category_button:hover, .storage_category_button:hover, .trader_sorting_button:hover, .storage_sorting_button:hover, .active_selection_button, .character_sorting_button:hover {
+.trader_category_button:hover, .storage_category_button:hover, .trader_sorting_button:hover, .storage_sorting_button:hover, .active_selection_button, .race_selection_button_active, .character_sorting_button:hover {
 	background-color: var(--active_button_color) !important;
 	background-image: none;
 }
